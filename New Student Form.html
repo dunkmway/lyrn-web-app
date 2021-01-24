@@ -10,72 +10,120 @@
 <body>
     <div id = "pageDiv">
         <!-- Form Title -->
-        <h1>New Student Form</h1>
+        <h1 id = "formTitle">New Student Form</h1>
         <br>
 
         <!-- First Row Questions -->
         <label for = "firstName" class = "label">First Name:</label>
-        <input type=text id = "firstName" class = "input">
+        <input type="text" id = "firstName" class = "input">
         <label for = "lastName" class = "label">Last Name:</label>
-        <input type=text id = "lastName" class = "input"><br><br>
+        <input type="text" id = "lastName" class = "input"><br><br>
 
         <!-- Second Row Questions -->
         <label for = "streetAddress" class = "label">Street Address:</label>
-        <input type=text id = "streetAddress" class = "input">
+        <input type="text" id = "streetAddress" class = "input">
         <label for = "city" class = "label">City:</label>
-        <input type=text id = "city" class = "input">
+        <input type="text" id = "city" class = "input">
         <label for = "state" class = "label">State:</label>
-        <input type=text id = "state" class = "input">
+        <input type="text" id = "state" value = "Utah" class = "input">
         <label for = "zipCode" class = "label">Zip Code:</label>
-        <input type=text id = "zipCode" class = "input">
+        <input type="number" min = 0 max = 99999 id = "zipCode" class = "input">
         <label for = "country" class = "label">Country:</label>
-        <input type=text id = "country" class = "input"><br><br>
+        <input type="text" value = "USA" id = "country" class = "input"><br><br>
 
         <!-- Third Row Questions -->
         <label for = "cellPhone" class = "label">Cell Phone:</label>
-        <input type=text id = "cellPhone" class = "input">
+        <input type="tel" pattern = "([0-9]{3}) [0-9]{3}-[0-9]{4}"id = "cellPhone" class = "input">
         <label for = "email" class = "label">E-mail Address:</label>
-        <input type=text id = "email" class = "input">
+        <input type="email" id = "email" class = "input">
 
         <!-- Fourth Row Questions -->
         <label for = "birthday" class = "label">Birthday:</label>
-        <input type=text id = "birthday" class = "input">
-        <label for = "gender" class = "label">Gender:</label>
-        <input type=text id = "gender" class = "input"><br><br>
+        <input type="date" id = "birthday" class = "input">
+        <label class = "label">Gender:</label>
+        <input type="radio" name = "gender" value = "Female" checked>Female
+        <input type="radio" name = "gender" value = "Male">Male<br><br>
 
         <!-- Fifth Row Questions -->
         <label for = "sibling1" class = "label">Sibling:</label>
-        <input type=text id = "sibling1" class = "input">
+        <input type="text" id = "sibling1" class = "input">
         <label for = "siblingAge1" class = "label">Age:</label>
-        <input type=text id = "siblingAge1" class = "input"><br><br>
+        <input type="text" id = "siblingAge1" class = "input"><br><br>
 
         <!-- Sixth Row Questions -->
         <label for = "school" class = "label">School:</label>
-        <input type=text id = "school" class = "input">
+        <input type="text" id = "school" class = "input">
         <label for = "grade" class = "label">Grade:</label>
-        <input type=text id = "grade" class = "input">
+        <input type="text" id = "grade" class = "input">
         <label for = "graduationYear" class = "label">Graduation Year:</label>
-        <input type=text id = "graduationYear" class = "input"><br><br>
+        <input type="number" min = 2000 id = "graduationYear" class = "input"><br><br>
 
         <!-- Seventh Row Questions -->
         <label for = "gpa" class = "label">Current GPA:</label>
-        <input type=text id = "gpa" class = "input">
+        <input type="text" id = "gpa" class = "input">
         <label for = "mathClass" class = "label">Current Math Class:</label>
-        <input type=text id = "mathClass" class = "input">
+        <input type="text" id = "mathClass" class = "input">
         <label for = "takingAP" class = "label">Is taking AP Classes:</label>
-        <input type=text id = "takingAP" class = "input">
+        <input type="checkbox" id = "takingAP" class = "input">
         <label for = "takingHonors" class = "label">Is taking Honor Classes:</label>
-        <input type=text id = "takingHonors" class = "input"><br><br>
+        <input type="checkbox" id = "takingHonors" class = "input"><br><br>
 
         <!-- Eigth Row Questions -->
         <label for = "favoriteSubject" class = "label">Favorite Subject:</label>
-        <input type=text id = "favoriteSubject" class = "input">
+        <input type="text" id = "favoriteSubject" class = "input">
         <label for = "leastFavoriteSubject" class = "label">Least Favorite Subject:</label>
-        <input type=text id = "leastFavoriteSubject" class = "input"><br><br><br><br>
+        <input type="text" id = "leastFavoriteSubject" class = "input"><br><br><br><br>
 
         <!-- Ninth Row Questions -->
-        <label for = "favoriteSubject" class = "label">Favorite Subject:</label>
-        <input type=text id = "favoriteSubject" class = "input">
+        <label for = "takenACT" class = "label">Has taken the ACT:</label>
+        <input type="checkbox" id = "takenACT" class = "input">
+        <label for = "actDate" class = "label">Date Taken:</label>
+        <input type="text" id = "actDate" class = "input"><br><br>
+
+        <!-- Tenth Row Questions -->
+        <label for = "english" class = "label">English:</label>
+        <input type="number" min = 1 max = 36 id = "english" class = "input">
+        <label for = "math" class = "label">Math:</label>
+        <input type="number" min = 1 max = 36 id = "math" class = "input">
+        <label for = "reading" class = "label">Reading:</label>
+        <input type="number" min = 1 max = 36 id = "reading" class = "input">
+        <label for = "science" class = "label">Science:</label>
+        <input type="number" min = 1 max = 36 id = "science" class = "input"><br><br>
+
+        <!-- Eleventh Row Questions -->
+        <label for = "actGoalDate" class = "label">Goal ACT Date:</label>
+        <input type="date" id = "actGoalDate" class = "input">
+        <label for = "actGoalScore" class = "label">Goal ACT Score:</label>
+        <input type="number" min = 1 max = 36 id = "actGoalScore" class = "input">
+        <label for = "why" class = "label">Why:</label>
+        <input type="text" id = "why" class = "input"><br><br>
+
+        <!-- Twelfth Row Questions -->
+        <label for = "scholarship" class = "label">Scholarship goal(s):</label>
+        <input type="text" id = "scholarship" class = "input"><br><br>
+
+
+        <!-- Thirteenth Row Questions -->
+        <label class = "label">Top Colleges:</label>
+        <input type="text" id = "topColleges1" class = "input">
+        <input type="text" id = "topColleges2" class = "input">
+        <input type="text" id = "topColleges3" class = "input">
+        <input type="text" id = "topColleges4" class = "input"><br><br>
+
+        <!-- Fourteenth Row Questions -->
+        <label for = "desiredMajor" class = "label">Desired Major:</label>
+        <input type="text" id = "desiredMajor" class = "input">
+        <label for = "extracurriculars" class = "label">Extracurriculars:</label>
+        <input type="text" id = "extracurriculars" class = "input"><br><br><br><br>
+
+
+        <!-- Submit Button -->
+        <input type="submit" id = "submit" class = "input">
+
+
+
+
+
 
     </div>
     
