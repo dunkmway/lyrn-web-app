@@ -41,14 +41,15 @@
         <label for = "birthday" class = "label">Birthday:</label>
         <input type="date" id = "birthday" class = "input">
         <label class = "label">Gender:</label>
-        <input type="radio" name = "gender" value = "Female" checked>Female
-        <input type="radio" name = "gender" value = "Male">Male<br><br>
+        <input type="radio" name = "gender" value = "Female" id = "genderFemale"> Female
+        <input type="radio" name = "gender" value = "Male" id = "genderMale"> Male<br><br>
 
         <!-- Fifth Row Questions -->
-        <label for = "sibling1" class = "label">Sibling:</label>
-        <input type="text" id = "sibling1" class = "input">
-        <label for = "siblingAge1" class = "label">Age:</label>
-        <input type="number" min = 1 max = 130 id = "siblingAge1" class = "input"><br><br>
+        <label for = "sibling0" class = "label">Sibling:</label>
+        <input type="text" id = "sibling0" class = "input">
+        <label for = "siblingAge0" class = "label">Age:</label>
+        <input type="number" min = 0 max = 130 id = "siblingAge0" class = "input">
+        <button id = "siblingAdd0">+</button><br><br>
 
         <!-- Sixth Row Questions -->
         <label for = "school" class = "label">School:</label>
@@ -72,15 +73,19 @@
         <label for = "favoriteSubject" class = "label">Favorite Subject:</label>
         <input type="text" id = "favoriteSubject" class = "input">
         <label for = "leastFavoriteSubject" class = "label">Least Favorite Subject:</label>
-        <input type="text" id = "leastFavoriteSubject" class = "input"><br><br><br><br>
+        <input type="text" id = "leastFavoriteSubject" class = "input"><br><br>
 
         <!-- Ninth Row Questions -->
+        <label for = "referral" class = "label">How did you hear about us?</label>
+        <input type="text" id = "referral" class = "input"><br><br><br><br>
+
+        <!-- Tenth Row Questions -->
         <label for = "takenACT" class = "label">Has taken the ACT:</label>
         <input type="checkbox" id = "takenACT" class = "input">
         <label for = "actDate" class = "label">Date Taken:</label>
         <input type="date" id = "actDate" class = "input"><br><br>
 
-        <!-- Tenth Row Questions -->
+        <!-- Eleventh Row Questions -->
         <label for = "english" class = "label">English:</label>
         <input type="number" min = 1 max = 36 id = "english" class = "input">
         <label for = "math" class = "label">Math:</label>
@@ -90,7 +95,7 @@
         <label for = "science" class = "label">Science:</label>
         <input type="number" min = 1 max = 36 id = "science" class = "input"><br><br>
 
-        <!-- Eleventh Row Questions -->
+        <!-- Twelfth Row Questions -->
         <label for = "actGoalDate" class = "label">Goal ACT Date:</label>
         <input type="date" id = "actGoalDate" class = "input">
         <label for = "actGoalScore" class = "label">Goal ACT Score:</label>
@@ -98,19 +103,19 @@
         <label for = "why" class = "label">Why:</label>
         <input type="text" id = "why" class = "input"><br><br>
 
-        <!-- Twelfth Row Questions -->
+        <!-- Thirteenth Row Questions -->
         <label for = "scholarship" class = "label">Scholarship goal(s):</label>
         <input type="text" id = "scholarship" class = "input"><br><br>
 
 
-        <!-- Thirteenth Row Questions -->
+        <!-- Fourteenth Row Questions -->
         <label class = "label">Top Colleges:</label>
         <input type="text" id = "topColleges1" class = "input">
         <input type="text" id = "topColleges2" class = "input">
         <input type="text" id = "topColleges3" class = "input">
         <input type="text" id = "topColleges4" class = "input"><br><br>
 
-        <!-- Fourteenth Row Questions -->
+        <!-- Fifteenth Row Questions -->
         <label for = "desiredMajor" class = "label">Desired Major:</label>
         <input type="text" id = "desiredMajor" class = "input">
         <label for = "extracurriculars" class = "label">Extracurriculars:</label>
@@ -119,6 +124,7 @@
 
         <!-- Submit Button -->
         <input type="submit" id = "submit" class = "input">
+        <p id = "submitErrorMsg"></p>
 
 
 
