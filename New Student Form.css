@@ -38,3 +38,12 @@ body {
     width: 200px;
     height: 40px;
 }
+
+.addingElements {
+    position: relative;
+}
+
+.addButton {
+    position: absolute;
+    top: -3px;
+}
