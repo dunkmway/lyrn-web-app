@@ -87,6 +87,8 @@ function submitForm() {
     }
     console.log(formData);
 
+    document.getElementById("submitErrorMsg").textContent = "";
+    document.getElementById("submit").disabled = false;
   }
   else {
     //some fields are missing values
