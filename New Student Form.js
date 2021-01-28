@@ -103,7 +103,7 @@ function submitForm() {
  */
 function validateFields() {
   let allClear = true;
-  let allGeneralInputs = document.getElementById("generalInfoDiv").querySelectorAll("input[type!='checkbox']");
+  let allGeneralInputs = document.getElementById("generalInfoDiv").querySelectorAll("input");
 
   //run through each input element in the genralInfoDiv and check if it is filled out
   for (let i = 0; i < allGeneralInputs.length; i++) {
@@ -115,7 +115,7 @@ function validateFields() {
 
   //if the takenACT checkbox is checked then validate its fields
   if (document.getElementById("takenACT").checked) {
-    let allActInputs = document.getElementById("actDiv").querySelectorAll("input[type!='checkbox']");
+    let allActInputs = document.getElementById("actDiv").querySelectorAll("input");
 
     //run through each input element in the actDiv (except the first one) and check if it is filled out
     for (let i = 1; i < allActInputs.length; i++) {
@@ -128,7 +128,7 @@ function validateFields() {
 
   //if the highschool div is shown then validate its fields
   if (document.getElementById("highSchoolDiv").style.display != "none") {
-    let allHighSchoolInputs = document.getElementById("highSchoolDiv").querySelectorAll("input[type!='checkbox']");
+    let allHighSchoolInputs = document.getElementById("highSchoolDiv").querySelectorAll("input");
 
     //run through each input element in the highSchoolDiv and check if it is filled out
     for (let i = 0; i < allHighSchoolInputs.length; i++) {
