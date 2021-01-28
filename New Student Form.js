@@ -10,8 +10,13 @@ function addSibling()
     let siblingName = "sibling" + String(siblingCount);
     let siblingAge  = "siblingAge" + String(siblingCount);
 
+
+
+    // This will hold all of the label and input tags to iterate through
     let siblingArray = [];
     
+
+
     // Create the new labels and inputs
     let siblingLabel = document.createElement("label")
     siblingLabel.setAttribute("for", "sibling" + String(siblingCount + 1))
@@ -35,15 +40,24 @@ function addSibling()
     siblingAgeInput.className = "input"
     siblingArray.push(siblingAgeInput);
 
-    // Find the Add button and insert the new sibling labels and inputs before it
-    let location = document.getElementById("addSiblingButton");
+
+
+    // Add the sibling labels and tags to their div
+    let siblingDiv = document.createElement("div");
+    siblingDiv.className = "inline"
     for (let i = 0; i < siblingArray.length; i++)
     {
-        location.parentNode.insertBefore(siblingArray[i], location);
+        siblingDiv.appendChild(siblingArray[i])
     }
 
+    console.log(siblingDiv);
+
+    // Find the Add button and insert the new sibling labels and inputs before it
+    let location = document.getElementById("addSiblingButton");
+    location.parentNode.insertBefore(siblingDiv, location);
+
 }
-addSibling()
+
 
 
 
