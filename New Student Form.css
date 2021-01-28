@@ -40,10 +40,9 @@ body {
 }
 
 .addingElements {
-    position: relative;
+    margin-bottom: 5px;
 }
 
 .addButton {
-    position: absolute;
-    top: -3px;
+    vertical-align: middle;
 }

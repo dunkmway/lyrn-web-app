@@ -43,8 +43,14 @@ function addSibling()
     }
 
 }
-addSibling()
 
-
+/**
+ * Description:
+ *    This function will be called on form submission
+ *    It will handle all functions needed to set up this new user
+ */
+function submitForm() {
+  //
+}
 
 
