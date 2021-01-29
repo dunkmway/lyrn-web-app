@@ -86,7 +86,7 @@
                 <option value="WY">WY</option>
             </datalist>
             <label for="zipCode" class="label">Zip Code:</label>
-            <input type="number" min=0 max=99999 id="zipCode" class="input">
+            <input type="text" min=0 max=99999 id="zipCode" class="input">
             <label for="country" class="label">Country:</label>
             <input list="countries" id="country" class="input"><br><br>
             <datalist id="countries">
@@ -353,7 +353,7 @@
                 <label for="sibling1" class="label">Sibling:</label>
                 <input type="text" id="sibling1" class="input">
                 <label for="siblingAge1" class="label">Age:</label>
-                <input type="number" min=1 max=130 id="siblingAge1" class="input">
+                <input type="text" min=1 max=130 id="siblingAge1" class="input">
             </div>
             <img src="Images/Add Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="addSibling()">
             <img src="Images/Remove Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="removeSibling()">
@@ -380,8 +380,7 @@
                 <option value="12"></option>
                 <option value="C"></option>
             </datalist>
-            <label for="graduationYear" class="label">Graduation Year:</label>
-            <input type="number" min=2000 id="graduationYear" class="input"><br><br>
+            <br><br>
 
             <!-- Seventh Row Questions -->
             <label for="gpa" class="label">Current GPA:</label>

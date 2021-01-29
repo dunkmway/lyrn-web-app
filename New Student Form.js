@@ -37,7 +37,7 @@ function addSibling() {
 
   let siblingAgeInput = document.createElement("input")
   siblingAgeInput.setAttribute("id", "siblingAge" + String(siblingCount + 1))
-  siblingAgeInput.setAttribute("type", "number" + String(siblingCount + 1))
+  siblingAgeInput.setAttribute("type", "text" + String(siblingCount + 1))
   siblingAgeInput.setAttribute("min", "1" + String(siblingCount + 1))
   siblingAgeInput.setAttribute("max", "36" + String(siblingCount + 1))
   siblingAgeInput.className = "input input2"
@@ -295,12 +295,26 @@ function addHighSchoolInfo() {
   submitButton.parentNode.insertBefore(nextParentNode, submitButton);
 }
 
+function removeHighSchoolInfo()
+{
+  let divsToRemove = document.querySelectorAll("#actDiv, #highSchoolDiv");
+  for (let i = 0; i < divsToRemove.length; i++)
+  {
+    divsToRemove[i].remove();
+  }
+
+}
+
 const gradeElement = document.querySelector("#grade");
 gradeElement.addEventListener("change", (event) =>
 {
   if ((gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12") && document.querySelector("label[for=\"takenACT\"]") == undefined)
   {
     addHighSchoolInfo();
+  }
+  else
+  {
+    removeHighSchoolInfo();
   }
 
 });
