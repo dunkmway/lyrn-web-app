@@ -378,30 +378,35 @@ function validateFields() {
   }
 
   //if the takenACT checkbox is checked then validate its fields
-  if (document.getElementById("takenACT").checked) {
-    let allActInputs = document.getElementById("actDiv").querySelectorAll("input");
-
-    //run through each input element in the actDiv (except the first one) and check if it is filled out
-    for (let i = 1; i < allActInputs.length; i++) {
-      if (allActInputs[i].value.trim() == "") {
-        allActInputs[i].style.borderColor = "red";
-        allClear = false;
+  if (document.getElementById("actDiv")) {
+    if (document.getElementById("takenACT").checked) {
+      let allActInputs = document.getElementById("actDiv").querySelectorAll("input");
+  
+      //run through each input element in the actDiv (except the first one) and check if it is filled out
+      for (let i = 1; i < allActInputs.length; i++) {
+        if (allActInputs[i].value.trim() == "") {
+          allActInputs[i].style.borderColor = "red";
+          allClear = false;
+        }
       }
     }
   }
 
   //if the highschool div is shown then validate its fields
-  if (document.getElementById("highSchoolDiv").style.display != "none") {
-    let allHighSchoolInputs = document.getElementById("highSchoolDiv").querySelectorAll("input");
-
-    //run through each input element in the highSchoolDiv and check if it is filled out
-    for (let i = 0; i < allHighSchoolInputs.length; i++) {
-      if (allHighSchoolInputs[i].value.trim() == "") {
-        allHighSchoolInputs[i].style.borderColor = "red";
-        allClear = false;
+  if (document.getElementById("highSchoolDiv")) {
+    if (document.getElementById("highSchoolDiv").style.display != "none") {
+      let allHighSchoolInputs = document.getElementById("highSchoolDiv").querySelectorAll("input");
+  
+      //run through each input element in the highSchoolDiv and check if it is filled out
+      for (let i = 0; i < allHighSchoolInputs.length; i++) {
+        if (allHighSchoolInputs[i].value.trim() == "") {
+          allHighSchoolInputs[i].style.borderColor = "red";
+          allClear = false;
+        }
       }
     }
   }
+  
 
   return allClear;
 }
