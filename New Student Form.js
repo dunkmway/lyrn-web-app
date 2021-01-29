@@ -365,6 +365,7 @@ function submitForm() {
  *    Check whether all of the fields have been filled out
  * @param return returns boolean based on if the fields are filled out
  */
+// FIXME: create another check that verifies that numbers are the appropriate values
 function validateFields() {
   let allClear = true;
   let allGeneralInputs = document.getElementById("generalInfoDiv").querySelectorAll("input");
