@@ -293,8 +293,13 @@ function addHighSchoolInfo() {
   nextParentNode.append(document.createElement("div"));
 
   submitButton.parentNode.insertBefore(nextParentNode, submitButton);
+  child2.addEventListener("click", addACTInfo());
 }
 
+/*************************************************************************
+ * Description:
+ *   This will remove the 'College Info' section
+ ************************************************************************/
 function removeHighSchoolInfo()
 {
   let divsToRemove = document.querySelectorAll("#actDiv, #highSchoolDiv");
@@ -305,14 +310,30 @@ function removeHighSchoolInfo()
 
 }
 
+function addACTInfo()
+{
+  let element = document.querySelector("#takenACT");
+  if (element.checked != undefined)
+  {
+    console.log(element.checked.toString())
+  }
+
+}
+
+/*************************************************************************
+ * Description:
+ *   This event listener will watch the grade. If they are in high school
+ *   then it will add the 'College Info' section to fill out
+ ************************************************************************/
 const gradeElement = document.querySelector("#grade");
+const options = document.querySelector("datalist[id=\"grades\"]").options;
 gradeElement.addEventListener("change", (event) =>
 {
   if ((gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12") && document.querySelector("label[for=\"takenACT\"]") == undefined)
   {
     addHighSchoolInfo();
   }
-  else
+  else if (gradeElement.value in options && !(gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12"))
   {
     removeHighSchoolInfo();
   }
