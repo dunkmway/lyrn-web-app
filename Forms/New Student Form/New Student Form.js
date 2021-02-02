@@ -97,78 +97,10 @@ function addHighSchoolInfo() {
   child2.setAttribute("id", "takenACT");
   child2.className = "input input2 miniBox";
   parentNode.appendChild(child2);
+  let specialDiv = document.createElement("div");
+  specialDiv.className = "tmpDiv";
+  parentNode.append(specialDiv);
 
-  let child3 = document.createElement("label");
-  child3.setAttribute("for", "actDate");
-  child3.className = "label label2";
-  child3.innerHTML = "Date Taken:";
-  parentNode.appendChild(child3);
-
-  let child4 = document.createElement("input");
-  child4.setAttribute("type", "date");
-  child4.setAttribute("id", "actDate");
-  child4.className = "input input2";
-  parentNode.appendChild(child4);
-  parentNode.append(document.createElement("div"));
-
-
-
-  let child5 = document.createElement("label");
-  child5.setAttribute("for", "english");
-  child5.className = "label label2";
-  child5.innerHTML = "English:";
-  parentNode.appendChild(child5);
-
-  let child6 = document.createElement("input");
-  child6.setAttribute("type", "number");
-  child6.setAttribute("min", "1");
-  child6.setAttribute("max", "36");
-  child6.setAttribute("id", "english");
-  child6.className = "input input2 smallBox";
-  parentNode.appendChild(child6);
-
-  let child7 = document.createElement("label");
-  child7.setAttribute("for", "math");
-  child7.className = "label label2";
-  child7.innerHTML = "Math:";
-  parentNode.appendChild(child7);
-
-  let child8 = document.createElement("input");
-  child8.setAttribute("type", "number");
-  child8.setAttribute("min", "1");
-  child8.setAttribute("max", "36");
-  child8.setAttribute("id", "math");
-  child8.className = "input input2 smallBox";
-  parentNode.appendChild(child8);
-
-  let child9 = document.createElement("label");
-  child9.setAttribute("for", "reading");
-  child9.className = "label label2";
-  child9.innerHTML = "Reading:";
-  parentNode.appendChild(child9);
-
-  let child10 = document.createElement("input");
-  child10.setAttribute("type", "number");
-  child10.setAttribute("min", "1");
-  child10.setAttribute("max", "36");
-  child10.setAttribute("id", "reading");
-  child10.className = "input input2 smallBox";
-  parentNode.appendChild(child10);
-
-  let child11 = document.createElement("label");
-  child11.setAttribute("for", "science");
-  child11.className = "label label2";
-  child11.innerHTML = "Science:";
-  parentNode.appendChild(child11);
-
-  let child12 = document.createElement("input");
-  child12.setAttribute("type", "number");
-  child12.setAttribute("min", "1");
-  child12.setAttribute("max", "36");
-  child12.setAttribute("id", "science");
-  child12.className = "input input2 smallBox";
-  parentNode.appendChild(child12);
-  parentNode.append(document.createElement("div"));
 
 
 
@@ -293,7 +225,6 @@ function addHighSchoolInfo() {
   nextParentNode.append(document.createElement("div"));
 
   submitButton.parentNode.insertBefore(nextParentNode, submitButton);
-  child2.addEventListener("click", addACTInfo());
 }
 
 /*************************************************************************
@@ -310,12 +241,120 @@ function removeHighSchoolInfo()
 
 }
 
+
+/*************************************************************************
+ * Description:
+ *   This will add the act specific information if they have taken one
+ ************************************************************************/
 function addACTInfo()
 {
-  let element = document.querySelector("#takenACT");
-  if (element.checked != undefined)
+  let location = document.querySelector("label[for=\"actGoalDate\"]");
+  let toRemove = document.getElementsByClassName("tmpDiv");
+
+  for (let i = 0; i < toRemove.length; i++)
   {
-    console.log(element.checked.toString())
+    toRemove[i].remove();
+  }
+
+  let child3 = document.createElement("label");
+  child3.setAttribute("for", "actDate");
+  child3.className = "label label2";
+  child3.innerHTML = "Date Taken:";
+  location.parentNode.insertBefore(child3, location);
+
+  let child4 = document.createElement("input");
+  child4.setAttribute("type", "date");
+  child4.setAttribute("id", "actDate");
+  child4.className = "input input2";
+  location.parentNode.insertBefore(child4, location);
+  let specialDiv = document.createElement("div");
+  specialDiv.className = "tmpDiv";
+  location.parentNode.insertBefore(specialDiv, location);
+
+
+  let child5 = document.createElement("label");
+  child5.setAttribute("for", "english");
+  child5.className = "label label2";
+  child5.innerHTML = "English:";
+  location.parentNode.insertBefore(child5, location);
+
+  let child6 = document.createElement("input");
+  child6.setAttribute("type", "number");
+  child6.setAttribute("min", "1");
+  child6.setAttribute("max", "36");
+  child6.setAttribute("id", "english");
+  child6.className = "input input2 smallBox";
+  location.parentNode.insertBefore(child6, location);
+
+  let child7 = document.createElement("label");
+  child7.setAttribute("for", "math");
+  child7.className = "label label2";
+  child7.innerHTML = "Math:";
+  location.parentNode.insertBefore(child7, location);
+
+  let child8 = document.createElement("input");
+  child8.setAttribute("type", "number");
+  child8.setAttribute("min", "1");
+  child8.setAttribute("max", "36");
+  child8.setAttribute("id", "math");
+  child8.className = "input input2 smallBox";
+  location.parentNode.insertBefore(child8, location);
+
+  let child9 = document.createElement("label");
+  child9.setAttribute("for", "reading");
+  child9.className = "label label2";
+  child9.innerHTML = "Reading:";
+  location.parentNode.insertBefore(child9, location);
+
+  let child10 = document.createElement("input");
+  child10.setAttribute("type", "number");
+  child10.setAttribute("min", "1");
+  child10.setAttribute("max", "36");
+  child10.setAttribute("id", "reading");
+  child10.className = "input input2 smallBox";
+  location.parentNode.insertBefore(child10, location);
+
+  let child11 = document.createElement("label");
+  child11.setAttribute("for", "science");
+  child11.className = "label label2";
+  child11.innerHTML = "Science:";
+  location.parentNode.insertBefore(child11, location);
+
+  let child12 = document.createElement("input");
+  child12.setAttribute("type", "number");
+  child12.setAttribute("min", "1");
+  child12.setAttribute("max", "36");
+  child12.setAttribute("id", "science");
+  child12.className = "input input2 smallBox";
+  location.parentNode.insertBefore(child12, location);
+  let specialDiv2 = document.createElement("div");
+  specialDiv2.className = "tmpDiv";
+  location.parentNode.insertBefore(specialDiv2, location);
+}
+
+/*************************************************************************
+ * Description:
+ *   This will remove the information that should be present if they
+ *   have taken the ACT before
+ ************************************************************************/
+function removeACTInfo()
+{
+  // Remove the labels and inputs that should be present IF they HAVE taken the ACT before
+  let labelsToDelete = document.querySelectorAll("label[for=\"actDate\"], label[for=\"english\"], label[for=\"math\"], label[for=\"reading\"], label[for=\"science\"]")
+  let inputsToDelete = document.querySelectorAll("input[id=\"actDate\"], input[id=\"english\"], input[id=\"math\"], input[id=\"reading\"], input[id=\"science\"]")
+
+  for (let i = 0; i < labelsToDelete.length; i++)
+  {
+    labelsToDelete[i].remove();
+    inputsToDelete[i].remove();
+  }
+
+  // Remove the extra divs
+  let toRemove = document.getElementsByClassName("tmpDiv");
+
+  for (let i = 0; i < toRemove.length; i++)
+  {
+    toRemove[i].remove();
   }
 
 }
@@ -336,6 +375,22 @@ gradeElement.addEventListener("change", (event) =>
   else if (gradeElement.value in options && !(gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12"))
   {
     removeHighSchoolInfo();
+  }
+
+});
+
+const pageDiv = document.getElementById("pageDiv");
+pageDiv.addEventListener("change", function(ele)
+{
+  target = ele.target;
+
+  if (target.id == "takenACT" && target.checked == true)
+  {
+    addACTInfo();
+  }
+  else if (target.id == "takenACT")
+  {
+    removeACTInfo();
   }
 
 });
