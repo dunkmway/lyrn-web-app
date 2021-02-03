@@ -25,7 +25,7 @@ function addSibling() {
 
   let siblingInput = document.createElement("input")
   siblingInput.setAttribute("id", "sibling" + String(siblingCount + 1))
-  siblingInput.setAttribute("type", "text" + String(siblingCount + 1))
+  siblingInput.setAttribute("type", "text")
   siblingInput.className = "input input2"
   siblingArray.push(siblingInput);
 
@@ -37,25 +37,24 @@ function addSibling() {
 
   let siblingAgeInput = document.createElement("input")
   siblingAgeInput.setAttribute("id", "siblingAge" + String(siblingCount + 1))
-  siblingAgeInput.setAttribute("type", "text" + String(siblingCount + 1))
-  siblingAgeInput.setAttribute("min", "1" + String(siblingCount + 1))
-  siblingAgeInput.setAttribute("max", "36" + String(siblingCount + 1))
+  siblingAgeInput.setAttribute("type", "number")
+  siblingAgeInput.setAttribute("min", "0")
+  siblingAgeInput.setAttribute("max", "130")
   siblingAgeInput.className = "input input2"
+  siblingAgeInput.addEventListener('keydown',enforceNumericFormat);
+  siblingAgeInput.addEventListener('keyup',formatToNumber);
   siblingArray.push(siblingAgeInput);
 
 
 
-  // Add the sibling labels and tags to their div
+  // Add the sibling labels and tags to their div. Then append it in place
+  let siblingInputDiv = document.getElementById("siblingInputs");
   let siblingDiv = document.createElement("div");
   siblingDiv.className = "inline"
   for (let i = 0; i < siblingArray.length; i++) {
     siblingDiv.appendChild(siblingArray[i])
   }
-
-  // Find the Add button and insert the new sibling labels and inputs before it
-  let location = document.getElementById("addSiblingButton");
-  location.parentNode.insertBefore(siblingDiv, location);
-
+  siblingInputDiv.appendChild(siblingDiv);
 }
 
 
@@ -65,7 +64,7 @@ function addSibling() {
  ************************************************************************/
 function removeSibling() {
   let siblings = document.querySelectorAll("label[for^=\"sibling\"], input[id^=\"sibling\"]");
-  if (siblings.length > 4) {
+  if (siblings.length > 0) {
     for (let i = 0; i < 4; i++) {
       siblings[siblings.length - 1 - i].remove()
     }
@@ -107,7 +106,10 @@ function addHighSchoolInfo() {
   let child4 = document.createElement("input");
   child4.setAttribute("type", "date");
   child4.setAttribute("id", "actDate");
+  child4.setAttribute("maxlength", "10");
   child4.className = "input input2";
+  child4.addEventListener('keydown',enforceNumericFormat);
+  child4.addEventListener('keyup',formatToDate);
   parentNode.appendChild(child4);
   parentNode.append(document.createElement("div"));
 
@@ -121,10 +123,12 @@ function addHighSchoolInfo() {
 
   let child6 = document.createElement("input");
   child6.setAttribute("type", "number");
-  child6.setAttribute("min", "1");
+  child6.setAttribute("min", "0");
   child6.setAttribute("max", "36");
   child6.setAttribute("id", "english");
   child6.className = "input input2 smallBox";
+  child6.addEventListener('keydown',enforceNumericFormat);
+  child6.addEventListener('keyup',formatToNumber);
   parentNode.appendChild(child6);
 
   let child7 = document.createElement("label");
@@ -135,10 +139,12 @@ function addHighSchoolInfo() {
 
   let child8 = document.createElement("input");
   child8.setAttribute("type", "number");
-  child8.setAttribute("min", "1");
+  child8.setAttribute("min", "0");
   child8.setAttribute("max", "36");
   child8.setAttribute("id", "math");
   child8.className = "input input2 smallBox";
+  child8.addEventListener('keydown',enforceNumericFormat);
+  child8.addEventListener('keyup',formatToNumber);
   parentNode.appendChild(child8);
 
   let child9 = document.createElement("label");
@@ -149,10 +155,12 @@ function addHighSchoolInfo() {
 
   let child10 = document.createElement("input");
   child10.setAttribute("type", "number");
-  child10.setAttribute("min", "1");
+  child10.setAttribute("min", "0");
   child10.setAttribute("max", "36");
   child10.setAttribute("id", "reading");
   child10.className = "input input2 smallBox";
+  child10.addEventListener('keydown',enforceNumericFormat);
+  child10.addEventListener('keyup',formatToNumber);
   parentNode.appendChild(child10);
 
   let child11 = document.createElement("label");
@@ -163,10 +171,12 @@ function addHighSchoolInfo() {
 
   let child12 = document.createElement("input");
   child12.setAttribute("type", "number");
-  child12.setAttribute("min", "1");
+  child12.setAttribute("min", "0");
   child12.setAttribute("max", "36");
   child12.setAttribute("id", "science");
   child12.className = "input input2 smallBox";
+  child12.addEventListener('keydown',enforceNumericFormat);
+  child12.addEventListener('keyup',formatToNumber);
   parentNode.appendChild(child12);
   parentNode.append(document.createElement("div"));
 
@@ -181,7 +191,10 @@ function addHighSchoolInfo() {
   let child14 = document.createElement("input");
   child14.setAttribute("type", "date");
   child14.setAttribute("id", "actGoalDate");
+  child14.setAttribute("maxlength", "10");
   child14.className = "input input2";
+  child14.addEventListener('keydown',enforceNumericFormat);
+  child14.addEventListener('keyup',formatToDate);
   parentNode.appendChild(child14);
 
   let child15 = document.createElement("label");
@@ -192,10 +205,12 @@ function addHighSchoolInfo() {
 
   let child16 = document.createElement("input");
   child16.setAttribute("type", "number");
-  child16.setAttribute("min", "1");
+  child16.setAttribute("min", "0");
   child16.setAttribute("max", "36");
   child16.setAttribute("id", "actGoalScore");
   child16.className = "input input2";
+  child16.addEventListener('keydown',enforceNumericFormat);
+  child16.addEventListener('keyup',formatToNumber);
   parentNode.appendChild(child16);
 
   let child17 = document.createElement("label");
@@ -326,20 +341,26 @@ function addACTInfo()
  *   then it will add the 'College Info' section to fill out
  ************************************************************************/
 const gradeElement = document.querySelector("#grade");
-const options = document.querySelector("datalist[id=\"grades\"]").options;
-gradeElement.addEventListener("change", (event) =>
+const options = document.querySelector("datalist[id=\"grades\"]").querySelectorAll("option");
+let values = [];
+for (let i = 0; i < options.length; i++) {
+  values.push(options[i].value);
+}
+
+const gradeHandler = (event) =>
 {
   if ((gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12") && document.querySelector("label[for=\"takenACT\"]") == undefined)
   {
     addHighSchoolInfo();
   }
-  else if (gradeElement.value in options && !(gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12"))
+  else if (!(gradeElement.value == "9" || gradeElement.value == "10" || gradeElement.value == "11" || gradeElement.value == "12"))
   {
     removeHighSchoolInfo();
   }
 
-});
-
+}
+gradeElement.addEventListener("keyup", gradeHandler); 
+gradeElement.addEventListener("change", gradeHandler); 
 
 /**
  * Description:
@@ -356,7 +377,50 @@ function submitForm() {
   }
 
   //validate the fields to make sure that everything is filled out
-  if (validateFields()) {
+  let allClear = true;
+
+  //check for completion
+  allInputs = document.getElementById("pageDiv").querySelectorAll("input");
+  for (let i = 0; i < allInputs.length; i++) {
+    if (!validateInputCompletion(allInputs[i])) {
+      allClear = false;
+    }
+  }
+
+
+  //all input lists
+  let inputLists = document.getElementById("pageDiv").querySelectorAll("input[list]");
+  for (let i = 0; i < inputLists.length; i++) {
+    let data = inputLists[i].list;
+    let options = data.querySelectorAll("option");
+    let values = [];
+    for (let j = 0; j < options.length; j++) {
+      values.push(options[j].value);
+    }
+    if (!validateInputList(inputLists[i], values)) {
+      allClear = false;
+    }
+  }
+
+  //all emails
+  let inputEmails = document.getElementById("pageDiv").querySelectorAll("input[type='email']");
+  for (let i = 0; i < inputEmails.length; i++) {
+    if (!validateInputEmail(inputEmails[i])) {
+      allClear = false;
+    }
+
+  }
+
+  //all enforced inputs
+  let inputEnforced = document.getElementById("pageDiv").querySelectorAll("input[maxlength]");
+  for (let i = 0; i < inputEnforced.length; i++) {
+    if (!validateEnforcedInput(inputEnforced[i])) {
+      allClear = false;
+    }
+  }
+
+
+  if (allClear) {
     //all the fields are filled out
     let formData = {};
 
@@ -375,60 +439,157 @@ function submitForm() {
   }
   else {
     //some fields are missing values
-    document.getElementById("submitErrorMsg").textContent = "Please fill in all of the fields";
+    document.getElementById("submitErrorMsg").textContent = "Please make sure that all fields are valid and completed";
     document.getElementById("submit").disabled = false;
   }
+}
 
+function validateInputCompletion(input) {
+  if (input.value.trim() == "") {
+    input.style.borderColor = "red";
+    return false;
+  }
+  return true;
+  
 }
 
 /**
- * Description:
- *    Check whether all of the fields have been filled out
- * @param return returns boolean based on if the fields are filled out
+ * Validate a input fields based on a given values
+ * @param {html element} input - array of input elements that should be verified 
+ * @param {array} values - array of strings that are acceptable values. Default is all values possible
  */
-// FIXME: create another check that verifies that numbers are the appropriate values
-function validateFields() {
-  let allClear = true;
-  let allGeneralInputs = document.getElementById("generalInfoDiv").querySelectorAll("input");
-
-  //run through each input element in the genralInfoDiv and check if it is filled out
-  for (let i = 0; i < allGeneralInputs.length; i++) {
-    if (allGeneralInputs[i].value.trim() == "") {
-      allGeneralInputs[i].style.borderColor = "red";
-      allClear = false;
-    }
+function validateInputList(input, values = []) {
+  if (!values.includes(input.value.trim())) {
+    input.style.borderColor = "red";
+    return false;
   }
-
-  //if the takenACT checkbox is checked then validate its fields
-  if (document.getElementById("actDiv")) {
-    if (document.getElementById("takenACT").checked) {
-      let allActInputs = document.getElementById("actDiv").querySelectorAll("input");
-  
-      //run through each input element in the actDiv (except the first one) and check if it is filled out
-      for (let i = 1; i < allActInputs.length; i++) {
-        if (allActInputs[i].value.trim() == "") {
-          allActInputs[i].style.borderColor = "red";
-          allClear = false;
-        }
-      }
-    }
-  }
-
-  //if the highschool div is shown then validate its fields
-  if (document.getElementById("highSchoolDiv")) {
-    if (document.getElementById("highSchoolDiv").style.display != "none") {
-      let allHighSchoolInputs = document.getElementById("highSchoolDiv").querySelectorAll("input");
-  
-      //run through each input element in the highSchoolDiv and check if it is filled out
-      for (let i = 0; i < allHighSchoolInputs.length; i++) {
-        if (allHighSchoolInputs[i].value.trim() == "") {
-          allHighSchoolInputs[i].style.borderColor = "red";
-          allClear = false;
-        }
-      }
-    }
-  }
-  
-
-  return allClear;
+  return true;
 }
+
+function validateInputEmail(input) {
+  if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim()))) {
+    input.style.borderColor = "red";
+    return false;
+  }
+  return true;
+}
+
+function validateEnforcedInput(input) {
+  if (input.value.length < Number(input.getAttribute("maxlength"))) {
+    input.style.borderColor = "red";
+    return false;
+  }
+  return true;
+}
+
+/*******************************************************************
+* Description:
+*   force format on telephones
+*******************************************************************/
+
+/**
+ * Description:
+ *   checks if the key event is a numeric input
+ * @param {event} event javascript event
+ */
+const isNumericInput = (event) => {
+	const key = event.keyCode;
+	return ((key >= 48 && key <= 57) || // Allow number line
+		(key >= 96 && key <= 105) // Allow number pad
+	);
+};
+
+/**
+ * Description:
+ *   checks if the key event is an allowed modifying key
+ * @param {event} event javascript event
+ */
+const isModifierKey = (event) => {
+	const key = event.keyCode;
+	return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+		(key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+		(key > 36 && key < 41) || // Allow left, up, right, down
+		(
+			// Allow Ctrl/Command + A,C,V,X,Z
+			(event.ctrlKey === true || event.metaKey === true) &&
+			(key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+		)
+};
+
+const enforceNumericFormat = (event) => {
+	// Input must be of a valid number format or a modifier key, and not longer than ten digits
+	if(!isNumericInput(event) && !isModifierKey(event)){
+		event.preventDefault();
+	}
+};
+
+const formatToPhone = (event) => {
+	if(isModifierKey(event)) {return;}
+
+	// I am lazy and don't like to type things more than once
+	const target = event.target;
+	const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
+	const zip = input.substring(0,3);
+	const middle = input.substring(3,6);
+	const last = input.substring(6,10);
+
+	if(input.length > 6){target.value = `(${zip})${middle}-${last}`;}
+	else if(input.length > 3){target.value = `(${zip})${middle}`;}
+	else if(input.length > 0){target.value = `(${zip}`;}
+};
+
+const formatToDate = (event) => {
+	if(isModifierKey(event)) {return;}
+
+	// I am lazy and don't like to type things more than once
+	const target = event.target;
+	const input = event.target.value.replace(/\D/g,'').substring(0,8); // First ten digits of input only
+  let month = input.substring(0,2);
+	let day = input.substring(2,4);
+  let year = input.substring(4,8);
+  
+  //enforce proper months and day values
+  if (Number(month) > 12) {
+    month = "12";
+  }
+  if (Number(day) > 31) {
+    day = "31"
+  }
+
+	if(input.length > 4){target.value = `${month}/${day}/${year}`;}
+	else if(input.length > 2){target.value = `${month}/${day}`;}
+	else if(input.length > 0){target.value = `${month}`;}
+};
+
+const formatToNumber = (event) => {
+  if(isModifierKey(event)) {return;}
+
+  const target = event.target;
+  const min = Number(target.getAttribute("min"));
+  const max = Number(target.getAttribute("max"));
+  const input = Number(target.value).toString();
+
+  //remove leading zeros
+
+  if (input < min) {
+    target.value = min; 
+  }
+  else if (input > max) {
+    target.value = max;
+  }
+  else {
+    target.value = input;
+  }
+
+}
+
+const inputElement = document.getElementById('cellPhone');
+inputElement.addEventListener('keydown',enforceNumericFormat);
+inputElement.addEventListener('keyup',formatToPhone);
+
+const inputZipcode = document.getElementById("zipCode");
+inputZipcode.addEventListener('keydown',enforceNumericFormat);
+
+const birthdayElem = document.getElementById("birthday");
+birthdayElem.addEventListener('keydown',enforceNumericFormat);
+birthdayElem.addEventListener('keyup',formatToDate);
