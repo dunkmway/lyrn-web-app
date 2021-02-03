@@ -71,6 +71,10 @@ body {
     vertical-align: middle;
 }
 
+.removeButton {
+    vertical-align: middle;
+}
+
 .inline {
     display: inline-block;
 }

@@ -86,7 +86,7 @@
                 <option value="WY">WY</option>
             </datalist>
             <label for="zipCode" class="label">Zip Code:</label>
-            <input type="text" min=0 max=99999 id="zipCode" class="input">
+            <input type="text" id="zipCode" class="input" maxlength="5">
             <label for="country" class="label">Country:</label>
             <input list="countries" id="country" class="input"><br><br>
             <datalist id="countries">
@@ -334,30 +334,33 @@
 
             <!-- Third Row Questions -->
             <label for="cellPhone" class="label">Cell Phone:</label>
-            <input type="tel" pattern="([0-9]{3}) [0-9]{3}-[0-9]{4}" id="cellPhone" class="input">
+            <input type="tel" id="cellPhone" class="input" maxlength="13">
             <label for="email" class="label">E-mail Address:</label>
             <input type="email" id="email" class="input">
 
             <!-- Fourth Row Questions -->
             <label for="birthday" class="label">Birthday:</label>
-            <input type="date" id="birthday" class="input">
+            <input type="text" id="birthday" class="input" maxlength="10">
             <label for="genders" class="label">Gender:</label>
             <input list="genders" id="gender" class="input">
             <datalist id="genders" class="input">
                 <option value="Female" />
                 <option value="Male" />
-            </datalist><br><br>
+            </datalist><br>
 
             <!-- Fifth Row Questions -->
-            <div class = "inline">
-                <label for="sibling1" class="label">Sibling:</label>
+            <div>
+                <p class="label">Siblings</p>
+                <img src="../../Images/Add Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="addSibling()">
+                <img src="../../Images/Remove Button.jpg" height=25px class="removeButton" id="removeSiblingButton" onclick="removeSibling()">
+                <!-- <label for="sibling1" class="label">Name:</label>
                 <input type="text" id="sibling1" class="input">
                 <label for="siblingAge1" class="label">Age:</label>
-                <input type="text" min=1 max=130 id="siblingAge1" class="input">
+                <input type="number" min=0 max=130 id="siblingAge1" class="input"> -->
             </div>
-            <img src="../../Images/Add Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="addSibling()">
-            <img src="../../Images/Remove Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="removeSibling()">
-            <br><br>
+            <div id="siblingInputs">
+            </div>
+            <br>
 
             <!-- Sixth Row Questions -->
             <label for="school" class="label">School:</label>
