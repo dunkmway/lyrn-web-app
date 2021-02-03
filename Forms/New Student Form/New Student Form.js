@@ -386,7 +386,6 @@ const gradeHandler = (event) =>
 }
 gradeElement.addEventListener("keyup", gradeHandler); 
 gradeElement.addEventListener("change", gradeHandler); 
-});
 
 const pageDiv = document.getElementById("pageDiv");
 pageDiv.addEventListener("change", function(ele)
