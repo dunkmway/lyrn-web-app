@@ -3,6 +3,12 @@ body {
   font-size: 14px;
   font-weight: 200;
   letter-spacing: 2.5px;
+  background-image: url(../Images/Wasatch\ Mountain.jpg);
+  background-size: cover;
+}
+
+::placeholder {
+  color: black;
 }
 
 #sign-in-section {
@@ -12,6 +18,18 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+#sign-in-block {
+  background-color:rgb(255,255,255,0.25);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(1px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
+  border-radius: 5%;
 }
 
 .input-block {
