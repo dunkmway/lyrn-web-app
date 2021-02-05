@@ -33,6 +33,22 @@ function createElements(elementType = [], classes = [], attributes = [], values 
 
   }
 
+  function combineElements(objects = [], flexType = "flexRow")
+  {
+    let item = createElement("div", flexType, [], [], "");
+
+    if (objects.length > 1)
+    {
+      for (let i = 0; i < objects.length; i++)
+      {
+        item.appendChild(objects[i]);
+      }
+    }
+
+    return item;
+
+  }
+
 
   function createParentForm() {
     let formDiv = createElement("div", "flexColumn", ["id"], ["formDiv"], "")
@@ -42,11 +58,10 @@ function createElements(elementType = [], classes = [], attributes = [], values 
     // Title
     parentLocation.parentNode.insertBefore(createElements(["h2"], ["formTitle"], [[]], [[]], ["Parent Information"]), parentLocation);
 
-    // First Name
-    questions.push(createElements(["label", "input"], ["label", "input"], [["for"], ["id", "placeholder"]], [["firstName"], ["firstName", "First Name"]], ["First Name:", ""], "flexColumn"));
-
-    // Last Name
-    questions.push(createElements(["label", "input"], ["label", "input"], [["for"], ["id", "placeholder"]], [["lastName"], ["lastName", "Last Name"]], ["Last Name:", ""], "flexColumn"));
+    // Full Name
+    let ele1 = createElements(["label", "input"], ["label", "input"], [["for"], ["id", "placeholder"]], [["firstName"], ["firstName", "First Name"]], ["Full Name:", ""], "flexColumn");
+    let ele2 = createElements(["label", "input"], ["label", "input"], [["for"], ["id", "placeholder"]], [["lastName"], ["lastName", "Last Name"]], ["", ""], "flexColumn");
+    questions.push(combineElements([ele1, ele2]));
 
     // Phone Number
     questions.push(createElements(["label", "input"], ["label", "input"], [["for"], ["id", "placeholder"]], [["phoneNumber"], ["phoneNumber", "Phone Number"]], ["Phone Number:", ""], "flexColumn"));

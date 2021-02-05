@@ -1,5 +1,4 @@
 body {
-    font-family: serif;
     background-image: url("../../Images/Wasatch\ Mountain.jpg");
     background-size: cover;
     font-family: Roboto, sans-serif;
@@ -92,7 +91,7 @@ body {
 }
 
 .input {
-    width: 18em;
+    width: 15vw;
     height: 1.5em;
     font-size: 16px;
     font-weight: 200;
@@ -118,7 +117,7 @@ body {
 .flexRow {
     display: flex;
     flex-direction: row;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     align-items: center;
 }
 
@@ -131,7 +130,7 @@ body {
     border-style: solid;
     border-width: 2px;
     width: 95%;
-    height: 50%;
+    --height: 50%;
     padding-right: 1%;
 }
 
@@ -145,6 +144,12 @@ p {
     margin-bottom: 0px;
     word-wrap: normal;
 }
+ul {
+    margin-bottom: 0px;
+    word-wrap: normal;
+    width: 80%;
+}
+
 
 #statement {
     margin-left: 2em;
@@ -153,12 +158,12 @@ p {
 }
 
 .signature {
-    margin-left: 4em;
+    margin-left: 1em;
     margin-top: -0.5em;
 }
 
 .date {
-    margin-left: 10em;
+    margin-left: 1em;
     margin-top: -0.5em;
 }
 
