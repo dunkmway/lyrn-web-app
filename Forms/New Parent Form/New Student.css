@@ -1,0 +1,215 @@
+body {
+    font-family: serif;
+    background-image: url("../../Images/MIT\ Campus.jpg");
+    --background-color: rgb(0, 0, 91);
+    background-size: cover;
+}
+
+#pageDiv {
+    position: relative;
+}
+
+#title {
+    position: absolute;
+    background-color: rgb(64, 64, 132);
+    height: 5em;
+    width: 95vw;
+    border-radius: 10px;
+    z-index: 3;
+    padding-left: 1em;
+    color: white;
+}
+
+#form {
+    border-radius: 8px;
+    border-style: solid;
+    height: 86vh;
+    width: 95vw;
+    margin-right: 1vw;
+    margin-left: 1vw;
+    background-color: white;
+    opacity: 90%;
+    padding-left: 20px;
+    padding-top: 5vw;
+    position: absolute;
+    overflow-y: scroll;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#banner {
+    background-color: antiquewhite;
+    color: white;
+    height: 92vh;
+    width: 15vw;
+    border-style: solid;
+    border-radius: 1px;
+    --margin-left: 83.55vw;
+    right: 0%;
+    margin-top: -1vh;
+    padding-top: 8vh;
+    position: absolute;
+    z-index: 2;
+}
+
+.fullLength {
+    height: 3em;
+    width: 15vw;
+    background-color: rgb(64, 131, 131);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+}
+
+.longLength {
+    height: 3em;
+    margin-left: 2vw;
+    width: 13vw;
+    background-color: rgb(64, 131, 131);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+}
+
+.midLength {
+    height: 2.5em;
+    width: 10vw;
+    background-color: rgb(64, 131, 131);
+    margin-left: 5vw;
+    margin-bottom: -1vh;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+}
+
+.smallLength {
+    height: 2.5em;
+    width: 5vw;
+    background-color: rgb(64, 131, 131);
+    margin-left: 10vw;
+    margin-bottom: -1vh;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    text-align: center;
+}
+
+.finalLength {
+    margin-bottom: 1vh;
+}
+
+.input {
+    margin-right: 20px;
+    margin-left: 0px;
+    margin-bottom: 5px;
+    width: 20vw;
+    height: 1.5em;
+    padding-left: 0.5em;
+    border-radius: 2px;
+    border-width: 1px;
+}
+
+.label {
+    display: inline-block;
+    min-width: 20vw;
+    margin-right: 5px;
+    margin-left: 0px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: larger;
+}
+
+.formTitle {
+    background-color: rgb(98,64, 132);
+    color: white;
+    padding: 0.5em;
+    width: 78.5vw;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 3vh;
+}
+
+.flexRow {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+}
+
+.flexColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+#agreementDiv {
+    border-style: solid;
+    border-width: 2px;
+    width: 78.5vw;
+    height: 35vh;
+}
+
+text {
+    font-size: smaller;
+    margin-left: -1em;
+    margin-top: 0.5em;
+}
+
+p {
+    margin-bottom: 0px;
+    word-wrap: normal;
+    width: 70vw;
+}
+
+#statement {
+    margin-left: 2em;
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.signature {
+    margin-left: 4em;
+}
+
+.date {
+    margin-left: 10em;
+}
+
+.finalInput {
+    margin-bottom: 2vh;
+}
+
+.miniBox {
+    width: 40px;
+    margin-left: 4px;
+}
+
+.smallBox {
+    width: 80px;
+}
+
+
+#why {
+    width: 500px;
+}
+
+#referral {
+    width: 500px;
+}
+
+#submit {
+    margin-left: 45vh;
+    margin-top: 3vh;
+    width: 200px;
+    height: 40px;
+}
+
+.addingElements {
+    margin-bottom: 5px;
+}
+
+.addButton {
+    vertical-align: middle;
+}
+
+.inline {
+    display: inline-block;
+}
