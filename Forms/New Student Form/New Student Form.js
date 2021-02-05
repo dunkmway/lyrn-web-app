@@ -18,13 +18,13 @@ function addSibling() {
 
   // Create the new labels and inputs
   let siblingLabel = document.createElement("label")
-  siblingLabel.setAttribute("for", "sibling" + String(siblingCount + 1))
+  siblingLabel.setAttribute("for", "siblingName" + String(siblingCount + 1))
   siblingLabel.innerHTML = "Sibling:"
   siblingLabel.className = "label label2"
   siblingArray.push(siblingLabel);
 
   let siblingInput = document.createElement("input")
-  siblingInput.setAttribute("id", "sibling" + String(siblingCount + 1))
+  siblingInput.setAttribute("id", "siblingName" + String(siblingCount + 1))
   siblingInput.setAttribute("type", "text")
   siblingInput.className = "input input2"
   siblingArray.push(siblingInput);
@@ -267,6 +267,8 @@ function addACTInfo()
   child4.setAttribute("type", "date");
   child4.setAttribute("id", "actDate");
   child4.className = "input input2";
+  child4.addEventListener('keydown',enforceNumericFormat);
+  child4.addEventListener('keyup',formatToDate);
   location.parentNode.insertBefore(child4, location);
   let specialDiv = document.createElement("div");
   specialDiv.className = "tmpDiv";
@@ -285,6 +287,8 @@ function addACTInfo()
   child6.setAttribute("max", "36");
   child6.setAttribute("id", "english");
   child6.className = "input input2 smallBox";
+  child6.addEventListener('keydown',enforceNumericFormat);
+  child6.addEventListener('keyup',formatToNumber);
   location.parentNode.insertBefore(child6, location);
 
   let child7 = document.createElement("label");
@@ -299,6 +303,8 @@ function addACTInfo()
   child8.setAttribute("max", "36");
   child8.setAttribute("id", "math");
   child8.className = "input input2 smallBox";
+  child8.addEventListener('keydown',enforceNumericFormat);
+  child8.addEventListener('keyup',formatToNumber);
   location.parentNode.insertBefore(child8, location);
 
   let child9 = document.createElement("label");
@@ -313,6 +319,8 @@ function addACTInfo()
   child10.setAttribute("max", "36");
   child10.setAttribute("id", "reading");
   child10.className = "input input2 smallBox";
+  child10.addEventListener('keydown',enforceNumericFormat);
+  child10.addEventListener('keyup',formatToNumber);
   location.parentNode.insertBefore(child10, location);
 
   let child11 = document.createElement("label");
@@ -327,6 +335,8 @@ function addACTInfo()
   child12.setAttribute("max", "36");
   child12.setAttribute("id", "science");
   child12.className = "input input2 smallBox";
+  child12.addEventListener('keydown',enforceNumericFormat);
+  child12.addEventListener('keyup',formatToNumber);
   location.parentNode.insertBefore(child12, location);
   let specialDiv2 = document.createElement("div");
   specialDiv2.className = "tmpDiv";
@@ -464,12 +474,26 @@ function submitForm() {
   if (allClear) {
     //all the fields are filled out
     let formData = {};
+    let siblings = [];
+
+    //get all of the sibling data into an array first
+    let siblingNames = document.querySelectorAll("input[id^='siblingName'");
+    let siblingAges = document.querySelectorAll("input[id^='siblingAge'");
+
+    for (let i = 0; i < siblingNames.length; i++) {
+      siblings.push({
+        name: siblingNames[i].value,
+        age: siblingAges[i].value
+      });
+    }
+
+    formData["siblings"] = siblings;
 
     for (let i = 0; i < allInputs.length; i++) {
-      if (allInputs[i].type != "checkbox") {
+      if (allInputs[i].type != "checkbox" && !allInputs[i].id.includes("sibling")) {
         formData[allInputs[i].id] = allInputs[i].value
       }
-      else {
+      else if(allInputs[i].type == "checkbox") {
         formData[allInputs[i].id] = allInputs[i].checked.toString();
       }
     }
