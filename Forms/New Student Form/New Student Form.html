@@ -7,6 +7,12 @@
     <title>Document</title>
     <link href="New Student Form.css" rel="stylesheet">
     </link>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js";></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="../../site-wide.js"></script>
     <script src="New Student Form.js" defer></script>
 </head>
 
@@ -351,8 +357,8 @@
             <!-- Fifth Row Questions -->
             <div>
                 <p class="label">Siblings</p>
-                <img src="../../Images/Add Button.jpg" height=25px class="addButton" id="addSiblingButton" onclick="addSibling()">
-                <img src="../../Images/Remove Button.jpg" height=25px class="removeButton" id="removeSiblingButton" onclick="removeSibling()">
+                <img src="../../Images/Add Button.jpg" alt="add siblings" height=25px class="addButton" id="addSiblingButton" onclick="addSibling()">
+                <img src="../../Images/Remove Button.jpg" alt="remove siblings" height=25px class="removeButton" id="removeSiblingButton" onclick="removeSibling()">
                 <!-- <label for="sibling1" class="label">Name:</label>
                 <input type="text" id="sibling1" class="input">
                 <label for="siblingAge1" class="label">Age:</label>
