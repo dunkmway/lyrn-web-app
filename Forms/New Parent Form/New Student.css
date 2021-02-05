@@ -92,20 +92,17 @@ body {
 }
 
 .input {
-    margin-right: 20px;
-    margin-left: 0px;
-    --width: 20vw;
     width: 18em;
     height: 1.5em;
     font-size: 16px;
     font-weight: 200;
     padding-left: 0.5em;
     padding-right: 0.5em;
+    margin-bottom: 1em;
     border: none;
     border-radius: 10px;
     background-color: rgb(200, 200, 200, .25);
     box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
-    font-size: 16px;
 }
 
 .label {
