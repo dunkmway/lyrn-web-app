@@ -79,12 +79,15 @@ function createElements(elementType = [], classes = [], attributes = [], values 
     questions.push(createElement("p", "", [], [], "<b>Privacy Notice</b>"))
     questions.push(createElement("p", "", ["id"], ["statement"], "We at <em>WASATCH TUTORS</em> take the security of your personal information very seriously. We will <b>NEVER</b> share your information with any other companies or organizations, other than our own, without your written approval. Rest assured that your information is safe with us."))
 
+    parentLocation.appendChild(formDiv);
+
     // Add the questions / elements to the form div
     for (let i = 0; i < questions.length; i++) {
       formDiv.appendChild(questions[i]);
-    };
+    }
 
-      parentLocation.appendChild(formDiv);
+  
+      
   }
 
   createParentForm();
