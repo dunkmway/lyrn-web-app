@@ -1,15 +1,21 @@
 body {
     background-image: url("../../Images/Wasatch Mountain.jpg");
     background-size: cover;
+    background-repeat: no-repeat;
+    background-color: black;
     font-family: Roboto, sans-serif;
 }
+
+::placeholder {
+    color: black;
+  }
 
 #section {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
 }
 
@@ -19,9 +25,10 @@ body {
     justify-content: center;
     background-color: white;
     height: 80vh;
+    min-height: 400px;
     border-radius: 10px;
     box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
-    max-width: 50%;
+    width: 50%;
 }
 
 .heading-block {
@@ -36,9 +43,6 @@ body {
 }
 
 #form-scroll-block {
-    /* margin-right: 1vw;
-    margin-left: 1vw;
-    opacity: 90%; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -50,82 +54,36 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: stretch;
+    padding-left: 8%;
+    padding-right: 8%;
 }
 
-/* .formTitle {
-    background-color: #110D65;
-    font-size: 32px;
-    color: white;
-    text-align: center;
-    width: 100%;
-    margin-top: 0px;
-    padding-top: 3%;
-    padding-bottom: 3%;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-} */
-
-/* .fullLength {
-    height: 3em;
-    width: 15vw;
-    background-color: rgb(64, 131, 131);
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
+@media screen and (max-width: 1000px) {
+    .input-row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        padding-left: 8%;
+        padding-right: 8%;
+    }
 }
-
-.longLength {
-    height: 3em;
-    margin-left: 2vw;
-    width: 13vw;
-    background-color: rgb(64, 131, 131);
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.midLength {
-    height: 2.5em;
-    width: 10vw;
-    background-color: rgb(64, 131, 131);
-    margin-left: 5vw;
-    margin-bottom: -1vh;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.smallLength {
-    height: 2.5em;
-    width: 5vw;
-    background-color: rgb(64, 131, 131);
-    margin-left: 10vw;
-    margin-bottom: -1vh;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.finalLength {
-    margin-bottom: 1vh;
-} */
-
-/* .input-row {
-    display: flex;
-    flex-direction: row;
-} */
 
 .input-block {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 10px;
+    /* align-self: stretch; */
+    ;
   }
   
   .input {
-    margin-bottom: 5px;
-    width: 250px;
-    height: 30px;
+    width: 90%;
+    max-width: 300px;
+    height: 2em;
     font-size: 16px;
     font-weight: 200;
     padding-left: 10px;
@@ -140,101 +98,35 @@ body {
     align-self: flex-start;
     text-align: left;
     margin-bottom: 5px;
+    margin-top: 5px;
     color: black;
   }
 
-/* .flexRow {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-.flexColumn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-} */
 
 #agreementDiv {
     border-style: solid;
     border-width: 2px;
-    /* width: 95%; */
-    /* padding-right: 1%; */
+    margin: 10px;
 }
 
-/* text {
-    font-size: smaller;
-    margin-left: -1em;
-    margin-top: 0.5em;
-} */
 
 p {
     margin-bottom: 0px;
     word-wrap: normal;
-    /* max-width: 500px; */
+    width: 90%;
 }
-/* ul {
-    margin-bottom: 0px;
-    word-wrap: normal;
-    width: 80%;
-} */
 
 
 #statement {
-    margin-left: 2em;
     margin-top: 4px;
     margin-bottom: 10px;
-    /* max-width: 50vw; */
-}
-
-.signature {
-    margin-left: 1em;
-    /* margin-top: -0.5em; */
 }
 
 .date {
-    margin-left: 1em;
-    /* margin-top: -0.5em; */
+    max-width: 100px;
 }
 
-.finalInput {
-    margin-bottom: 2vh;
-}
-
-.miniBox {
+.initials {
     width: 40px;
     margin-left: 4px;
-}
-
-.smallBox {
-    width: 80px;
-}
-
-
-#why {
-    width: 500px;
-}
-
-#referral {
-    width: 500px;
-}
-
-#submit {
-    margin-left: 45vh;
-    margin-top: 3vh;
-    width: 200px;
-    height: 40px;
-}
-
-.addingElements {
-    margin-bottom: 5px;
-}
-
-.addButton {
-    vertical-align: middle;
-}
-
-.inline {
-    display: inline-block;
 }
