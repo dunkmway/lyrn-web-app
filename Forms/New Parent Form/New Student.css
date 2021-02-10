@@ -16,16 +16,16 @@ body {
     display: flex;
     flex-direction: column;
     background-color: white;
-    width: 40vw;
-    height: 90vh;
+    max-width: 650px;
+    height: 95vh;
     border-radius: 10px;
     box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
+    z-index: 0;
 }
 
 #form {
     margin-right: 1vw;
     margin-left: 1vw;
-    opacity: 90%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -43,75 +43,43 @@ body {
     padding-bottom: 3%;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-}
-
-.fullLength {
-    height: 3em;
-    width: 15vw;
-    background-color: rgb(64, 131, 131);
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.longLength {
-    height: 3em;
-    margin-left: 2vw;
-    width: 13vw;
-    background-color: rgb(64, 131, 131);
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.midLength {
-    height: 2.5em;
-    width: 10vw;
-    background-color: rgb(64, 131, 131);
-    margin-left: 5vw;
-    margin-bottom: -1vh;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
-}
-
-.smallLength {
-    height: 2.5em;
-    width: 5vw;
-    background-color: rgb(64, 131, 131);
-    margin-left: 10vw;
-    margin-bottom: -1vh;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    text-align: center;
+    margin-bottom: 0;
 }
 
 .finalLength {
-    margin-bottom: 1vh;
+    margin-bottom: 3vh;
 }
 
 .input {
-    width: 15vw;
+    width: 86%;
     height: 1.5em;
     font-size: 16px;
     font-weight: 200;
     padding-left: 0.5em;
     padding-right: 0.5em;
     margin-bottom: 1em;
+    margin-right: 5%;
+    margin-left: 2%;
     border: none;
     border-radius: 10px;
     background-color: rgb(200, 200, 200, .25);
     box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
 }
 
+.input2 {
+    margin-right: 0vw;
+}
+
 .label {
-    letter-spacing: 0.15em;
-    min-width: 20vw;
-    margin-right: 5px;
-    margin-left: 0px;
-    margin-bottom: 5px;
+    letter-spacing: 0.12em;
     font-weight: 200;
     font-size: 14px;
+    width: 90%;
+    margin-left: 2%;
+}
+
+.label2 {
+    margin-right: 0vw;
 }
 
 .flexRow {
@@ -125,19 +93,21 @@ body {
     display: flex;
     flex-direction: column;
 }
+.flexColumn2 {
+    display: flex;
+    flex-direction: column;
+    width: 50%
+}
 
 #agreementDiv {
     border-style: solid;
     border-width: 2px;
     width: 95%;
-    --height: 50%;
     padding-right: 1%;
 }
 
 text {
     font-size: smaller;
-    margin-left: -1em;
-    margin-top: 0.5em;
 }
 
 p {
@@ -147,24 +117,24 @@ p {
 ul {
     margin-bottom: 0px;
     word-wrap: normal;
-    width: 80%;
+    width: 90%;
 }
-
 
 #statement {
     margin-left: 2em;
     margin-top: 4px;
+    margin-right: 1%;
     margin-bottom: 10px;
 }
 
 .signature {
-    margin-left: 1em;
-    margin-top: -0.5em;
+    margin-left: 10%;
+    margin-top: -8px;
 }
 
 .date {
-    margin-left: 1em;
-    margin-top: -0.5em;
+    margin-left: 50%;
+    margin-top: -8px;
 }
 
 .finalInput {
@@ -172,12 +142,12 @@ ul {
 }
 
 .miniBox {
-    width: 40px;
-    margin-left: 4px;
+    width: 3vw;
+    margin-left: 3%;
 }
 
 .smallBox {
-    width: 80px;
+    width: 5vw;
 }
 
 
@@ -204,6 +174,96 @@ ul {
     vertical-align: middle;
 }
 
+li {
+    width: 100%;
+}
+
 .inline {
     display: inline-block;
+}
+
+.progressBar {
+    counter-reset: step;
+}
+
+.progressBar li {
+    list-style-type: none;
+    float: left;
+    width: 33.33%;
+    position: relative;
+    text-align: center;
+}
+
+.progressBar li:after {
+    font-size: 14px;
+    content: counter(step);
+    counter-increment: step;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    display: block;
+    text-align: center;
+    margin: 0 auto 0 auto;
+    border-radius: 50%;
+    --background-color: rgb(2, 89, 165);
+    background-color: white;
+    --color: white;
+    border-color: rgb(2, 89, 165);
+    border-style: solid;
+    z-index: -1;
+}
+
+.progressBar li:before {
+    font-size: 14px;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    border-style: solid;
+    border-color: rgb(2, 89, 165, 0.8);
+    --background-color: rgb(2, 89, 165, 0.8);
+    bottom: 0.8em;
+    left: 50%;
+    z-index: -2;
+}
+
+.progressBar li:last-child:before {
+    content: none;
+}
+
+.progressBar li:first-child:after {
+    background-color: rgb(2, 89, 165);
+    color: white;
+}
+
+.progressBar li.active {
+    background-color: greenyellow;
+}
+
+.progressBarContainer {
+    margin-bottom: 3%;
+}
+
+.buttonsDiv {
+    margin-top: 2%;
+    width: 96.6%;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.buttons {
+    color: white;
+    width: 20%;
+    border-bottom-left-radius: 25%55%;
+    border-top-left-radius: 25%55%;
+    border-bottom-right-radius: 25%55%;
+    border-top-right-radius: 25%55%;
+    background-color: green;
+    padding-top: 3%;
+    padding-bottom: 3%;
+    cursor: pointer;
+}
+
+#backButton {
+    background-color: red;
 }
