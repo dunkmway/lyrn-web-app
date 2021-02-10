@@ -51,13 +51,13 @@ function createElements(elementType = [], classes = [], attributes = [], values 
 
 
   function createParentForm() {
-    let formDiv = createElement("div", "flexColumn", ["id"], ["formDiv"], "")
+    //let formDiv = createElement("div", "flexColumn", ["id"], ["formDiv"], "")
     let questions = []
     let pageDiv = document.createElement("div")
     pageDiv.setAttribute("id", "pageDiv")
 
     let parentLocation = document.createElement("div");
-    parentLocation.setAttribute("id", "form")
+    parentLocation.setAttribute("id", "formDiv")
     pageDiv.appendChild(parentLocation)
 
     let section = document.getElementById("section");
@@ -108,7 +108,7 @@ function createElements(elementType = [], classes = [], attributes = [], values 
     questions.push(createElement("p", "", [], [], "<b>Privacy Notice</b>"))
     questions.push(createElement("p", "", ["id"], ["statement"], "We at <em>WASATCH TUTORS</em> take the security of your personal information very seriously. We will <b>NEVER</b> share your information with any other companies or organizations, other than our own, without your written approval. Rest assured that your information is safe with us."))
 
-    parentLocation.appendChild(formDiv);
+    //parentLocation.appendChild(formDiv);
 
     // Add the questions / elements to the form div
     for (let i = 0; i < questions.length; i++) {
