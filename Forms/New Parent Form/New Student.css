@@ -1,200 +1,58 @@
 body {
     background-image: url("../../Images/Wasatch Mountain.jpg");
     background-size: cover;
+    background-repeat: no-repeat;
+    background-color: black;
     font-family: Roboto, sans-serif;
 }
+
+::placeholder {
+    color: black;
+  }
 
 #section {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
+    width: 100vw;
 }
 
-#pageDiv {
+#registration-block {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background-color: white;
-    max-width: 650px;
-    height: 95vh;
+    height: 80vh;
+    min-height: 400px;
     border-radius: 10px;
     box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
-    z-index: 0;
+    width: 50%;
 }
 
-#formDiv {
-    margin-left: 1vw;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    width: 95%;
-}
-
-.formTitle {
+.heading-block {
     background-color: #110D65;
-    font-size: 32px;
+    font-size: 24px;
     color: white;
     text-align: center;
-    width: 100%;
-    margin-top: 0px;
-    padding-top: 3%;
-    padding-bottom: 3%;
+    padding: 1%;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    margin-bottom: 0;
+    align-self: stretch;
 }
 
-.finalLength {
-    margin-bottom: 3vh;
+.progress-wrapper {
+    width: 60%
 }
 
-.input {
-    width: 86%;
-    height: 1.5em;
-    font-size: 16px;
-    font-weight: 200;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    margin-bottom: 1em;
-    margin-right: 5%;
-    margin-left: 2%;
-    border: none;
-    border-radius: 10px;
-    background-color: rgb(200, 200, 200, .25);
-    box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
-}
-
-.input2 {
-    margin-right: 0vw;
-}
-
-.label {
-    letter-spacing: 0.12em;
-    font-weight: 200;
-    font-size: 14px;
-    width: 90%;
-    margin-left: 2%;
-}
-
-.label2 {
-    margin-right: 0vw;
-}
-
-.flexRow {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-@media screen and (max-width: 600px) {
-    .flexRow {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-}
-
-.flexColumn {
-    display: flex;
-    flex-direction: column;
-}
-.flexColumn2 {
-    display: flex;
-    flex-direction: column;
-    width: 50%
-}
-
-#agreementDiv {
-    border-style: solid;
-    border-width: 2px;
-    width: 95%;
-    padding-right: 1%;
-}
-
-text {
-    font-size: smaller;
-}
-
-p {
-    margin-bottom: 0px;
-    word-wrap: normal;
-}
-ul {
-    margin-bottom: 0px;
-    word-wrap: normal;
-    width: 90%;
-}
-
-#statement {
-    margin-left: 2em;
-    margin-top: 4px;
-    margin-right: 1%;
-    margin-bottom: 10px;
-}
-
-.signature {
-    margin-left: 10%;
-    margin-top: -8px;
-}
-
-.date {
-    margin-left: 50%;
-    margin-top: -8px;
-}
-
-.finalInput {
-    margin-bottom: 2vh;
-}
-
-.miniBox {
-    width: 3vw;
-    margin-left: 3%;
-}
-
-.smallBox {
-    width: 5vw;
-}
-
-
-#why {
-    width: 500px;
-}
-
-#referral {
-    width: 500px;
-}
-
-#submit {
-    margin-left: 45vh;
-    margin-top: 3vh;
-    width: 200px;
-    height: 40px;
-}
-
-.addingElements {
-    margin-bottom: 5px;
-}
-
-.addButton {
-    vertical-align: middle;
-}
-
-li {
-    width: 100%;
-}
-
-.inline {
-    display: inline-block;
-}
-
-.progressBar {
+.progress-bar {
+    padding: 0px;
     counter-reset: step;
 }
 
-.progressBar li {
+.progress-bar li {
     list-style-type: none;
     float: left;
     width: 33.33%;
@@ -202,76 +60,136 @@ li {
     text-align: center;
 }
 
-.progressBar li:after {
-    font-size: 14px;
+.progress-bar li::after {
     content: counter(step);
     counter-increment: step;
-    width: 2em;
-    height: 2em;
-    line-height: 2em;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border: 2px solid #110D65;
+    border-radius: 50%;
     display: block;
     text-align: center;
-    margin: 0 auto 0 auto;
-    border-radius: 50%;
-    --background-color: rgb(2, 89, 165);
+    margin: 10px auto 0 auto;
     background-color: white;
-    --color: white;
-    border-color: rgb(2, 89, 165);
-    border-style: solid;
-    z-index: -1;
+    position: relative;
+    z-index: 1;
 }
 
-.progressBar li:before {
-    font-size: 14px;
+.progress-bar li::before {
     content: '';
     position: absolute;
     width: 100%;
-    height: 5px;
-    border-style: solid;
-    border-color: rgb(2, 89, 165, 0.8);
-    --background-color: rgb(2, 89, 165, 0.8);
-    bottom: 0.8em;
-    left: 50%;
-    z-index: -2;
+    height: 4px;
+    background-color: #110D65;
+    top: 43px;
+    left: -50%;
+    z-index: 0;
 }
 
-.progressBar li:last-child:before {
+.progress-bar li:first-child:before {
     content: none;
 }
 
-.progressBar li:first-child:after {
-    background-color: rgb(2, 89, 165);
-    color: white;
+.progress-bar li.active {
+    color: green
 }
 
-.progressBar li.active {
-    background-color: greenyellow;
+.progress-bar li.active::after {
+    border-color: green;
+    content: '✓';
 }
 
-.progressBarContainer {
-    margin-bottom: 3%;
-}
-
-.buttonsDiv {
-    margin-top: 2%;
-    width: 96.6%;
-    justify-content: space-between;
-    text-align: center;
-}
-
-.buttons {
-    color: white;
-    width: 20%;
-    border-bottom-left-radius: 25%55%;
-    border-top-left-radius: 25%55%;
-    border-bottom-right-radius: 25%55%;
-    border-top-right-radius: 25%55%;
+.progress-bar li.active + li::before {
     background-color: green;
-    padding-top: 3%;
-    padding-bottom: 3%;
-    cursor: pointer;
 }
 
-#backButton {
-    background-color: red;
+#form-scroll-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    padding: 25px;
+    margin-top: 10px;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    padding-left: 8%;
+    padding-right: 8%;
+}
+
+@media screen and (max-width: 1000px) {
+    .input-row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        padding-left: 8%;
+        padding-right: 8%;
+    }
+}
+
+.input-block {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 10px;
+    /* align-self: stretch; */
+    ;
+  }
+  
+  .input {
+    width: 90%;
+    max-width: 300px;
+    height: 2em;
+    font-size: 16px;
+    font-weight: 200;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    background-color: rgb(200, 200, 200, .25);
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .label {
+    align-self: flex-start;
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    color: black;
+  }
+
+
+#agreementDiv {
+    border-style: solid;
+    border-width: 2px;
+    margin: 10px;
+}
+
+
+p {
+    margin-bottom: 0px;
+    word-wrap: normal;
+    width: 90%;
+}
+
+
+#statement {
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.date {
+    max-width: 100px;
+}
+
+.initials {
+    width: 40px;
+    margin-left: 4px;
 }
