@@ -1,3 +1,4 @@
+// login functionality
 usernameField = document.getElementById("username");
 passwordField = document.getElementById("password");
 errMsgElem = document.getElementById("errMsg");
@@ -26,7 +27,7 @@ function login() {
   firebase.auth().signInWithEmailAndPassword(username, password)
       .then(function() {
           console.log("user logged in");
-          window.location.href = "../Forms/New Student Form/New Student Form.html";
+          window.location.href = "../Forms/New Parent Form/New Parent Form.html";
       })
       .catch(function(error) {
           // Handle Errors here.
