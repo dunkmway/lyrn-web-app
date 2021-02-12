@@ -30,6 +30,7 @@ var errorMessage = error.message;
 });
 
 var privatePages = [
+    "New Parent Form/New Parent Form.html"
 ]
 
 var publicPages = [
