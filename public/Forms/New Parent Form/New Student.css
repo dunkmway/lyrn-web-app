@@ -171,12 +171,11 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     margin: 10px;
-    /* align-self: stretch; */
-    ;
   }
   
   .input {
     width: 90%;
+    max-width: 300px;
     min-width: 200px;
     height: 2em;
     font-size: 16px;

@@ -1,0 +1,99 @@
+/* sign in style sheet */
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 200;
+  letter-spacing: 2.5px;
+  background-color: black;
+  background-image: url(../Images/Wasatch\ Mountain.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+::placeholder {
+  color: black;
+}
+
+#sign-in-section {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#sign-in-block {
+  background-color:rgb(255,255,255,0.25);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
+  border-radius: 5%;
+  width: 35%;
+  max-width: 500px;
+}
+
+.input-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 10px;
+  ;
+}
+
+.input {
+  width: 90%;
+  max-width: 400px;
+  height: 2em;
+  font-size: 16px;
+  font-weight: 200;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: none;
+  background-color: rgb(200, 200, 200, .25);
+  border-radius: 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.label {
+  align-self: flex-start;
+  text-align: left;
+  margin-bottom: 5px;
+  color: black;
+}
+
+img {
+  object-fit: contain;
+  margin: 20px;
+  max-width: 100%;
+  height: auto;
+}
+
+.button {
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  }
+
+.button:hover {
+  background-color: #110D65;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  color: #fff;
+  transform: translateY(-7px);
+}

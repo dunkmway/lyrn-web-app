@@ -1,0 +1,45 @@
+.input-block {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 10px;
+}
+
+.input {
+  width: 90%;
+  max-width: 300px;
+  height: 2em;
+  font-size: 16px;
+  font-weight: 200;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: none;
+  background-color: rgb(200, 200, 200, .25);
+  border-radius: 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.label {
+  align-self: flex-start;
+  text-align: left;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  color: black;
+}
+
+select {
+  width: 90%;
+  max-width: 300px;
+  height: 2em;
+  font-size: 16px;
+  font-weight: 200;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: none;
+  background: url("public/Images/select-dropdown.png") no-repeat 95%;
+  background-color: rgb(200, 200, 200, .25);
+  border-radius: 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  -webkit-appearance: none;
+}
