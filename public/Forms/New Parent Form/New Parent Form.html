@@ -11,40 +11,365 @@
 </head>
 
 <section id = "section">
-    <div id="registration-block">
+    <div id = "parentForm" class="registration-block">
         <div class="heading-block">
             <h2>Parent Information</h2>
         </div>
-        <div class="progress-wrapper">
+        <!--<div class="progress-wrapper">
             <ul class="progress-bar">
                 <li class="active">Parent</li>
                 <li>Student</li>
                 <li>Review</li>
             </ul>
-        </div>
+        </div>-->
         <div id="form-scroll-block">
             <form>
                 <div class="input-row">
                     <div class="input-block">
                         <label for="firstName" class="label">First Name:</label>
-                        <input id="firstName" placeholder="First Name" class="input">
+                        <input id="firstName" placeholder="John" class="input">
                     </div>
                     <div class="input-block">
                         <label for="lastName" class="label">Last Name: </label>
-                        <input id="lastName" placeholder="Last Name" class="input">
+                        <input id="lastName" placeholder="Doe" class="input">
+                    </div>
+                </div><br>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="streetAddress" class="label">Street Address:</label>
+                        <input type="text" placeholder = "1524 N 345 E" id="streetAddress" class="input">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="city" class="label">City:</label>
+                        <input type="text" placeholder = "Sandy" id="city" class="input">
+                    </div>
+                    <div class="input-block">
+                        <label for="state" class="label">State:</label>
+                        <input list="states" placeholder = "UT" id="state" class="input">
+                        <datalist id=states>
+                            <option value="UT">UT</option>
+                            <option value="AL">AL</option>
+                            <option value="AK">AK</option>
+                            <option value="AR">AR</option>
+                            <option value="AZ">AZ</option>
+                            <option value="CA">CA</option>
+                            <option value="CO">CO</option>
+                            <option value="CT">CT</option>
+                            <option value="DC">DC</option>
+                            <option value="DE">DE</option>
+                            <option value="FL">FL</option>
+                            <option value="GA">GA</option>
+                            <option value="HI">HI</option>
+                            <option value="IA">IA</option>
+                            <option value="ID">ID</option>
+                            <option value="IL">IL</option>
+                            <option value="IN">IN</option>
+                            <option value="KS">KS</option>
+                            <option value="KY">KY</option>
+                            <option value="LA">LA</option>
+                            <option value="MA">MA</option>
+                            <option value="MD">MD</option>
+                            <option value="ME">ME</option>
+                            <option value="MI">MI</option>
+                            <option value="MN">MN</option>
+                            <option value="MO">MO</option>
+                            <option value="MS">MS</option>
+                            <option value="MT">MT</option>
+                            <option value="NC">NC</option>
+                            <option value="NE">NE</option>
+                            <option value="NH">NH</option>
+                            <option value="NJ">NJ</option>
+                            <option value="NM">NM</option>
+                            <option value="NV">NV</option>
+                            <option value="NY">NY</option>
+                            <option value="ND">ND</option>
+                            <option value="OH">OH</option>
+                            <option value="OK">OK</option>
+                            <option value="OR">OR</option>
+                            <option value="PA">PA</option>
+                            <option value="RI">RI</option>
+                            <option value="SC">SC</option>
+                            <option value="SD">SD</option>
+                            <option value="TN">TN</option>
+                            <option value="TX">TX</option>
+                            <option value="UT">UT</option>
+                            <option value="VT">VT</option>
+                            <option value="VA">VA</option>
+                            <option value="WA">WA</option>
+                            <option value="WI">WI</option>
+                            <option value="WV">WV</option>
+                            <option value="WY">WY</option>
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="zipCode" class="label">Zip Code:</label>
+                        <input type="text" placeholder = "84047" id="zipCode" class="input" maxlength="5">
+                    </div>
+                    <div class="input-block">
+                        <label for="country" class="label">Country:</label>
+                        <input list="countries" placeholder = "United States" id="country" class="input">
+                        <datalist id="countries">
+                            <option value="United States" />
+                            <option value="Afghanistan" />
+                            <option value="Albania" />
+                            <option value="Algeria" />
+                            <option value="American Samoa" />
+                            <option value="Andorra" />
+                            <option value="Angola" />
+                            <option value="Anguilla" />
+                            <option value="Antarctica" />
+                            <option value="Antigua and Barbuda" />
+                            <option value="Argentina" />
+                            <option value="Armenia" />
+                            <option value="Aruba" />
+                            <option value="Australia" />
+                            <option value="Austria" />
+                            <option value="Azerbaijan" />
+                            <option value="Bahamas" />
+                            <option value="Bahrain" />
+                            <option value="Bangladesh" />
+                            <option value="Barbados" />
+                            <option value="Belarus" />
+                            <option value="Belgium" />
+                            <option value="Belize" />
+                            <option value="Benin" />
+                            <option value="Bermuda" />
+                            <option value="Bhutan" />
+                            <option value="Bolivia" />
+                            <option value="Bosnia and Herzegovina" />
+                            <option value="Botswana" />
+                            <option value="Bouvet Island" />
+                            <option value="Brazil" />
+                            <option value="British Indian Ocean Territory" />
+                            <option value="Brunei Darussalam" />
+                            <option value="Bulgaria" />
+                            <option value="Burkina Faso" />
+                            <option value="Burundi" />
+                            <option value="Cambodia" />
+                            <option value="Cameroon" />
+                            <option value="Canada" />
+                            <option value="Cape Verde" />
+                            <option value="Cayman Islands" />
+                            <option value="Central African Republic" />
+                            <option value="Chad" />
+                            <option value="Chile" />
+                            <option value="China" />
+                            <option value="Christmas Island" />
+                            <option value="Cocos (Keeling) Islands" />
+                            <option value="Colombia" />
+                            <option value="Comoros" />
+                            <option value="Congo" />
+                            <option value="Congo, The Democratic Republic of The" />
+                            <option value="Cook Islands" />
+                            <option value="Costa Rica" />
+                            <option value="Cote D'ivoire" />
+                            <option value="Croatia" />
+                            <option value="Cuba" />
+                            <option value="Cyprus" />
+                            <option value="Czech Republic" />
+                            <option value="Denmark" />
+                            <option value="Djibouti" />
+                            <option value="Dominica" />
+                            <option value="Dominican Republic" />
+                            <option value="Ecuador" />
+                            <option value="Egypt" />
+                            <option value="El Salvador" />
+                            <option value="Equatorial Guinea" />
+                            <option value="Eritrea" />
+                            <option value="Estonia" />
+                            <option value="Ethiopia" />
+                            <option value="Falkland Islands (Malvinas)" />
+                            <option value="Faroe Islands" />
+                            <option value="Fiji" />
+                            <option value="Finland" />
+                            <option value="France" />
+                            <option value="French Guiana" />
+                            <option value="French Polynesia" />
+                            <option value="French Southern Territories" />
+                            <option value="Gabon" />
+                            <option value="Gambia" />
+                            <option value="Georgia" />
+                            <option value="Germany" />
+                            <option value="Ghana" />
+                            <option value="Gibraltar" />
+                            <option value="Greece" />
+                            <option value="Greenland" />
+                            <option value="Grenada" />
+                            <option value="Guadeloupe" />
+                            <option value="Guam" />
+                            <option value="Guatemala" />
+                            <option value="Guinea" />
+                            <option value="Guinea-bissau" />
+                            <option value="Guyana" />
+                            <option value="Haiti" />
+                            <option value="Heard Island and Mcdonald Islands" />
+                            <option value="Holy See (Vatican City State)" />
+                            <option value="Honduras" />
+                            <option value="Hong Kong" />
+                            <option value="Hungary" />
+                            <option value="Iceland" />
+                            <option value="India" />
+                            <option value="Indonesia" />
+                            <option value="Iran, Islamic Republic of" />
+                            <option value="Iraq" />
+                            <option value="Ireland" />
+                            <option value="Israel" />
+                            <option value="Italy" />
+                            <option value="Jamaica" />
+                            <option value="Japan" />
+                            <option value="Jordan" />
+                            <option value="Kazakhstan" />
+                            <option value="Kenya" />
+                            <option value="Kiribati" />
+                            <option value="Korea, Democratic People's Republic of" />
+                            <option value="Korea, Republic of" />
+                            <option value="Kuwait" />
+                            <option value="Kyrgyzstan" />
+                            <option value="Lao People's Democratic Republic" />
+                            <option value="Latvia" />
+                            <option value="Lebanon" />
+                            <option value="Lesotho" />
+                            <option value="Liberia" />
+                            <option value="Libyan Arab Jamahiriya" />
+                            <option value="Liechtenstein" />
+                            <option value="Lithuania" />
+                            <option value="Luxembourg" />
+                            <option value="Macao" />
+                            <option value="Macedonia, The Former Yugoslav Republic of" />
+                            <option value="Madagascar" />
+                            <option value="Malawi" />
+                            <option value="Malaysia" />
+                            <option value="Maldives" />
+                            <option value="Mali" />
+                            <option value="Malta" />
+                            <option value="Marshall Islands" />
+                            <option value="Martinique" />
+                            <option value="Mauritania" />
+                            <option value="Mauritius" />
+                            <option value="Mayotte" />
+                            <option value="Mexico" />
+                            <option value="Micronesia, Federated States of" />
+                            <option value="Moldova, Republic of" />
+                            <option value="Monaco" />
+                            <option value="Mongolia" />
+                            <option value="Montserrat" />
+                            <option value="Morocco" />
+                            <option value="Mozambique" />
+                            <option value="Myanmar" />
+                            <option value="Namibia" />
+                            <option value="Nauru" />
+                            <option value="Nepal" />
+                            <option value="Netherlands" />
+                            <option value="Netherlands Antilles" />
+                            <option value="New Caledonia" />
+                            <option value="New Zealand" />
+                            <option value="Nicaragua" />
+                            <option value="Niger" />
+                            <option value="Nigeria" />
+                            <option value="Niue" />
+                            <option value="Norfolk Island" />
+                            <option value="Northern Mariana Islands" />
+                            <option value="Norway" />
+                            <option value="Oman" />
+                            <option value="Pakistan" />
+                            <option value="Palau" />
+                            <option value="Palestinian Territory, Occupied" />
+                            <option value="Panama" />
+                            <option value="Papua New Guinea" />
+                            <option value="Paraguay" />
+                            <option value="Peru" />
+                            <option value="Philippines" />
+                            <option value="Pitcairn" />
+                            <option value="Poland" />
+                            <option value="Portugal" />
+                            <option value="Puerto Rico" />
+                            <option value="Qatar" />
+                            <option value="Reunion" />
+                            <option value="Romania" />
+                            <option value="Russian Federation" />
+                            <option value="Rwanda" />
+                            <option value="Saint Helena" />
+                            <option value="Saint Kitts and Nevis" />
+                            <option value="Saint Lucia" />
+                            <option value="Saint Pierre and Miquelon" />
+                            <option value="Saint Vincent and The Grenadines" />
+                            <option value="Samoa" />
+                            <option value="San Marino" />
+                            <option value="Sao Tome and Principe" />
+                            <option value="Saudi Arabia" />
+                            <option value="Senegal" />
+                            <option value="Serbia and Montenegro" />
+                            <option value="Seychelles" />
+                            <option value="Sierra Leone" />
+                            <option value="Singapore" />
+                            <option value="Slovakia" />
+                            <option value="Slovenia" />
+                            <option value="Solomon Islands" />
+                            <option value="Somalia" />
+                            <option value="South Africa" />
+                            <option value="South Georgia and The South Sandwich Islands" />
+                            <option value="Spain" />
+                            <option value="Sri Lanka" />
+                            <option value="Sudan" />
+                            <option value="Suriname" />
+                            <option value="Svalbard and Jan Mayen" />
+                            <option value="Swaziland" />
+                            <option value="Sweden" />
+                            <option value="Switzerland" />
+                            <option value="Syrian Arab Republic" />
+                            <option value="Taiwan, Province of China" />
+                            <option value="Tajikistan" />
+                            <option value="Tanzania, United Republic of" />
+                            <option value="Thailand" />
+                            <option value="Timor-leste" />
+                            <option value="Togo" />
+                            <option value="Tokelau" />
+                            <option value="Tonga" />
+                            <option value="Trinidad and Tobago" />
+                            <option value="Tunisia" />
+                            <option value="Turkey" />
+                            <option value="Turkmenistan" />
+                            <option value="Turks and Caicos Islands" />
+                            <option value="Tuvalu" />
+                            <option value="Uganda" />
+                            <option value="Ukraine" />
+                            <option value="United Arab Emirates" />
+                            <option value="United Kingdom" />
+                            <option value="United States" />
+                            <option value="United States Minor Outlying Islands" />
+                            <option value="Uruguay" />
+                            <option value="Uzbekistan" />
+                            <option value="Vanuatu" />
+                            <option value="Venezuela" />
+                            <option value="Viet Nam" />
+                            <option value="Virgin Islands, British" />
+                            <option value="Virgin Islands, U.S" />
+                            <option value="Wallis and Futuna" />
+                            <option value="Western Sahara" />
+                            <option value="Yemen" />
+                            <option value="Zambia" />
+                            <option value="Zimbabwe" />
+                        </datalist>
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
                         <label for="phoneNumber" class="label">Phone Number:</label>
-                        <input id="phoneNumber" placeholder="Phone Number" class="input">
+                        <input id="phoneNumber" placeholder="(123) 123-1234" class="input">
                     </div>
                     <div class="input-block">
                         <label for="email" class="label">Email Address:</label>
-                        <input id="email" placeholder="E-mail Address" class="input">
+                        <input id="email" placeholder="JohnDoe@WasatchTutors.com" class="input">
                     </div>
-                </div>
+                </div><br>
 
                 <div class="input-row">
                     <div class="input-block">
@@ -53,11 +378,31 @@
                     </div>
 
                     <div class="input-block">
-                        <label for="marketing" class="label finalInput">How did you hear about us:</label>
-                        <input id="marketing" placeholder="How did you hear about us?" class="input finalInput">
+                        <label for="workPhone" class="label">Work Phone</label>
+                        <input id="workPhone" placeholder="(123) 123-1234" class="input">
+                    </div>
+                </div><br>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="accomodations" class="label">Accomodations used:</label>
+                        <input id="accomodations" placeholder="None" class="input">
+                    </div>
+
+                    <div class="input-block">
+                        <label for="medical" class="label">Any allergies or medical conditions:</label>
+                        <input id="medical" placeholder="None" class="input">
                     </div>
                 </div>
-                <div id="agreementDiv">
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="marketing" class="label finalInput">How did you hear about us:</label>
+                        <input id="marketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+                    </div>
+                </div>
+
+                <!--<div id="agreementDiv">
                     <ul>
                         <li>
                             <div class="agreement-row">
@@ -110,12 +455,96 @@
                             <label for="date" class="label">Date</text>
                         </div>
                     </div>
-                </div>
+                </div>-->
             </form>
-            <p><b>Privacy Notice</b></p>
-            <p id="statement">We at <em>WASATCH TUTORS</em> take the security of your personal information very
+            <div class="input-row buttonsDiv">
+                <div class="buttons" id = "backButton" onclick = "previous()">
+                    Previous
+                </div>
+
+                <div class="buttons" id = "nextButton" onclick = "next()">
+                    Next
+                </div>
+            </div>
+            <!--<p><b>Privacy Notice</b></p>-->
+            <!--<p id="statement">We at <em>WASATCH TUTORS</em> take the security of your personal information very
                 seriously. We will <b>NEVER</b> share your information with any other companies or organizations, other
-                than our own, without your written approval. Rest assured that your information is safe with us.</p>
+                than our own, without your written approval. Rest assured that your information is safe with us.</p>-->
+        </div>
+    </div>
+    <div id = "studentForm" class="registration-block">
+        <div class="heading-block">
+            <h2>Student Information</h2>
+        </div>
+        <div id="form-scroll-block">
+            <form>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="firstName" class="label">First Name:</label>
+                        <input id="firstName" placeholder="Jane" class="input">
+                    </div>
+                    <div class="input-block">
+                        <label for="lastName" class="label">Last Name: </label>
+                        <input id="lastName" placeholder="Doe" class="input">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="phoneNumber" class="label">Phone Number:</label>
+                        <input id="phoneNumber" placeholder="(321) 321-4321" class="input">
+                    </div>
+                    <div class="input-block">
+                        <label for="email" class="label">Email Address:</label>
+                        <input id="email" placeholder="JaneDoe@WasatchTutors.com" class="input">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="birthday" class="label">Birthday:</label>
+                        <input type="text" placeholder = "1/31/2005" id="birthday" class="input" maxlength="10">
+                    </div>
+
+                    <div class="input-block">
+                        <label for="genders" class="label">Gender:</label>
+                        <input list="genders" placeholder = "Female" id="gender" class="input">
+                            <datalist id="genders" class="input">
+                                <option value="Female" />
+                                <option value="Male" />
+                            </datalist>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="school" class="label">School:</label>
+                        <input type="text" placeholder = "Alta" id="school" class="input">
+                    </div>
+
+                    <div class="input-block">
+                        <label for="graduation" class="label">Graduation Year:</label>
+                        <input type = "text" id="graduation" placeholder = "2021" class="input">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="marketing" class="label finalInput">How did you hear about us:</label>
+                        <input id="marketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+                    </div>
+                </div>
+
+            </form>
+            <div class="input-row buttonsDiv">
+                <div class="buttons" id = "backButton" onclick = "previous()">
+                    Previous
+                </div>
+
+                <div class="buttons" id = "nextButton" onclick = "next()">
+                    Next
+                </div>
+            </div>
         </div>
     </div>
 </section>  
