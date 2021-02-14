@@ -1,3 +1,84 @@
+/*****************************************************************************
+ * Description:
+ *   This will bring you back from the student form to the parent form
+*****************************************************************************/
+function back() {
+  // Change the forms
+  document.getElementById("studentForm").style.display = "none";
+  document.getElementById("parentForm").style.display = "flex";
+
+  // Change the buttons
+  let backButtons = document.getElementsByClassName("backButton")
+  for (let i = 0; i < backButtons.length; i++) {
+    backButtons[i].style.opacity = "0";
+  }
+
+  let nextButtons = document.getElementsByClassName("nextButton")
+  for (let i = 0; i < nextButtons.length; i++) {
+    nextButtons[i].style.opacity = "1";
+  }
+
+}
+
+/*****************************************************************************
+ * Description:
+ *   This will bring you to the student form from the parent form
+*****************************************************************************/
+function next() {
+  // Change the forms
+  let parentForm = document.getElementById("parentForm").style.display = "none";
+  let studentForm = document.getElementById("studentForm").style.display = "flex";
+
+  // Change the buttons
+  let backButtons = document.getElementsByClassName("backButton")
+  for (let i = 0; i < backButtons.length; i++) {
+    backButtons[i].style.opacity = "1";
+  }
+
+  let nextButtons = document.getElementsByClassName("nextButton")
+  for (let i = 0; i < nextButtons.length; i++) {
+    nextButtons[i].style.opacity = "0";
+  }
+}
+
+/*****************************************************************************
+ * Description:
+ *   This will add a generic input to the end of the input-block
+*****************************************************************************/
+function addElement(id) {
+
+  let placeholders = {}
+  placeholders['scholarship'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
+  placeholders['college'] = ['Massachusetts Institute of Technology (MIT)', 'Brigham Young University (BYU)', 'University of Utah (UoU)', 'Utah State University (USU)', 'Utah Valley University (UVU)'];
+  placeholders['extracurricular'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
+
+  let phrase = "label[for=\"" + id + "\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+
+  let newElement = document.createElement("input");
+  newElement.setAttribute("type", "text");
+  newElement.setAttribute("id", id + (parentElement.childElementCount - 1).toString());
+  if (parentElement.childElementCount - 1 < placeholders[id].length) {
+    newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 1]);
+  }
+  else {
+    newElement.setAttribute("placeholder", "Other");
+  }
+
+  newElement.setAttribute
+  newElement.className = "input";
+  parentElement.appendChild(newElement);
+}
+
+function removeElement(id) {
+  let phrase = "label[for=\"" + id + "\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+
+  if (parentElement.childElementCount > 1) {
+    parentElement.lastChild.remove();
+  }
+}
+
 function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "flexRow") {
   if (elementType.length >= 0) {
     let elements = createElement("div", flexType);
@@ -133,4 +214,4 @@ function createElements(elementType = [], classes = [], attributes = [], values 
   }
 
 
-  createParentForm();
+  //createParentForm();
