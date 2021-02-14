@@ -20,11 +20,11 @@ body {
 }
 
 #parentForm {
-    display: none;
+    display: flex;
 }
 
 #studentForm {
-    display: flex;
+    display: none;
 }
 
 .registration-block {
@@ -196,12 +196,12 @@ button {
 .backButton {
     background-color: rgb(255, 0, 0);
     margin-left: 30px;
-    opacity: 1;
+    opacity: 0;
 }
 
 .nextButton {
     margin-right: 30px;
-    opacity: 0;
+    opacity: 1;
 }
 
 .input-block {
