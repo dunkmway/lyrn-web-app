@@ -16,9 +16,14 @@ admin.initializeApp();
      {
          if (context.auth)
          {
-             admin.auth().getUserByEmail(data.email).then(() =>
+             admin.auth().getUserByEmail(data.email).then((userRecord) =>
              {
-                 reject(new functions.https.HttpsError("unknown", "User already exists"));
+                let result = {
+                    user: userRecord,
+                    newUser: false
+                };
+                 resolve(result);
+                //  reject(new functions.https.HttpsError("unknown", "User already exists"));
              }).catch((error) =>
              {
                  if (error.code == "auth/user-not-found")
@@ -28,8 +33,11 @@ admin.initializeApp();
                          email: data.email,
                          password: data.password
                      }).then((userRecord) =>
-                     {
-                         resolve(userRecord);
+                     {  let result = {
+                            user: userRecord,
+                            newUser: true
+                        };
+                         resolve(result);
                      }).catch((error) =>
                      {
                          reject(new functions.https.HttpsError(error.code,

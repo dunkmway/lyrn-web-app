@@ -31,7 +31,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: top;
-    align-items: center;
+    align-items: stretch;
     background-color: white;
     height: 90vh;
     min-height: 400px;
@@ -135,7 +135,7 @@ button {
 #form-scroll-block {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     overflow-x: hidden;
     overflow-y: auto;
     padding: 25px;
@@ -188,7 +188,7 @@ button {
 }
 
 .buttonsDiv {
-    width: 100%;
+    /* width: 100%; */
     justify-content: space-between;
     padding-top: 3%;
 }

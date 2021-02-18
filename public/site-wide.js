@@ -30,7 +30,7 @@ var errorMessage = error.message;
 });
 
 var privatePages = [
-    "New Parent Form/New Parent Form.html"
+    "New Parent Form/New Parent Form"
 ]
 
 var publicPages = [
@@ -42,7 +42,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         //User is logged in
         console.log('User is logged in!');
         if (publicPages.includes(currentPath)) {
-            window.location.replace('/');
+            window.location.replace = '/index.js';
         }
         else {
         }
@@ -51,7 +51,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         //User is logged out
         console.log('No user is logged in')
         if (privatePages.includes(currentPath)) {
-            window.location.replace('/');
+            window.location.replace = '/Sign-In/Sign-In.html';
         }
         else {
         }
