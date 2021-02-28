@@ -127,7 +127,7 @@ button {
   transition: all 0.3s ease 0s;
   cursor: pointer;
   outline: none;
-  background-color: green;
+  background-color: rgb(255, 0, 0);
   text-align: center;
   color: white;
 }
@@ -165,6 +165,7 @@ button {
     flex-direction: row;
     justify-content: left;
     width: max-content;
+    margin-left: 10px;
 }
 
 @media screen and (max-width: 1000px) {
@@ -204,14 +205,22 @@ button {
     opacity: 1;
 }
 
+.submitButton {
+  background-color: green;
+}
+
 .input-block {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
+  }
+
+  #actDiv {
+      margin: 0;
   }
   
   .input {
@@ -269,4 +278,9 @@ p {
 .initials {
     width: 40px;
     margin-left: 4px;
+}
+
+p.errorMessage {
+    margin-top: -1%;
+    color: red;
 }

@@ -7,6 +7,8 @@
     <title>Document</title>
     <link href="New Student.css" rel="stylesheet"></link>
     <script src="New Student.js" defer></script>
+    <script src="Input Formatting.js" defer></script>
+    <script src="Validation.js" defer></script>
 </head>
 
 <section id = "section">
@@ -25,12 +27,12 @@
             <form>
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="firstName" class="label">First Name:</label>
-                        <input id="firstName" placeholder="John" class="input">
+                        <label for="parentFirstName" class="label">First Name:</label>
+                        <input id="parentFirstName" placeholder="John" class="input">
                     </div>
                     <div class="input-block">
-                        <label for="lastName" class="label">Last Name: </label>
-                        <input id="lastName" placeholder="Doe" class="input">
+                        <label for="parentLastName" class="label">Last Name: </label>
+                        <input id="parentLastName" placeholder="Doe" class="input">
                     </div>
                 </div><br>
 
@@ -49,7 +51,7 @@
                     <div class="input-block">
                         <label for="state" class="label">State:</label>
                         <select id="state" class="input">
-                            <option value="Select a State">Select a State</option>
+                            <option value="">Select a State</option>
                             <option value="UT">UT</option>
                             <option value="AL">AL</option>
                             <option value="AK">AK</option>
@@ -115,7 +117,7 @@
                         <label for="country" class="label">Country:</label>
                         <!--<input list="countries" placeholder = "United States" id="country" class="input">-->
                         <select id="country" class="input">
-                            <option value="Please Select a Country">Select a country</option>
+                            <option value="">Select a country</option>
                             <option value="United States">United States</option>
                             <option value="Afghanistan">Afghanistan</option>
                             <option value="Albania">Albania</option>
@@ -361,43 +363,46 @@
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="phoneNumber" class="label">Phone Number:</label>
-                        <input id="phoneNumber" placeholder="(123) 123-1234" class="input">
+                        <label for="parentPhoneNumber" class="label">Phone Number:</label>
+                        <input id="parentPhoneNumber" placeholder="(123) 123-1234" class="input">
                     </div>
                     <div class="input-block">
-                        <label for="email" class="label">Email Address:</label>
-                        <input id="email" placeholder="JohnDoe@WasatchTutors.com" class="input">
-                    </div>
-                </div><br>
-
-                <div class="input-row">
-                    <div class="input-block">
-                        <label for="employment" class="label">Place of Employment:</label>
-                        <input id="employment" placeholder="Place of Employment" class="input">
-                    </div>
-
-                    <div class="input-block">
-                        <label for="workPhone" class="label">Work Phone</label>
-                        <input id="workPhone" placeholder="(123) 123-1234" class="input">
+                        <label for="parentEmail" class="label">Email Address:</label>
+                        <input id="parentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input">
                     </div>
                 </div><br>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="accomodations" class="label">Accomodations used:</label>
-                        <input id="accomodations" placeholder="None" class="input">
+                        <label for="parentEmployment" class="label">Place of Employment:</label>
+                        <input id="parentEmployment" placeholder="Place of Employment" class="input">
                     </div>
 
                     <div class="input-block">
-                        <label for="medical" class="label">Any allergies or medical conditions:</label>
-                        <input id="medical" placeholder="None" class="input">
+                        <label for="parentWorkPhone" class="label">Work Phone</label>
+                        <input id="parentWorkPhone" placeholder="(123) 123-1234" class="input">
+                    </div>
+                </div><br>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="studentAccomodations" class="label">Accomodations used:</label>
+                        <input id="studentAccomodations" placeholder="None" class="input">
+                    </div>
+                </div>
+
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="studentMedical" class="label">Any allergies or medical conditions:</label>
+                        <input id="studentMedical" placeholder="None" class="input">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="marketing" class="label finalInput">How did you hear about us:</label>
-                        <input id="marketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+                        <label for="parentMarketing" class="label finalInput">How did you hear about us:</label>
+                        <input id="parentMarketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
                     </div>
                 </div>
 
@@ -459,6 +464,7 @@
         </div>
             <div class="input-row buttonsDiv">
                 <button class="backButton" onclick="back()">Previous</button>
+                <button class="submitButton" onclick="submit()">Submit</button>
                 <button class="nextButton" onclick="next()">Next</button>
             </div>
             <!--<p><b>Privacy Notice</b></p>-->
@@ -476,36 +482,36 @@
             <form>
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="firstName" class="label">First Name:</label>
-                        <input id="firstName" placeholder="Jane" class="input">
+                        <label for="studentFirstName" class="label">First Name:</label>
+                        <input id="studentFirstName" placeholder="Jane" class="input">
                     </div>
                     <div class="input-block">
-                        <label for="lastName" class="label">Last Name: </label>
-                        <input id="lastName" placeholder="Doe" class="input">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div class="input-block">
-                        <label for="phoneNumber" class="label">Phone Number:</label>
-                        <input id="phoneNumber" placeholder="(321) 321-4321" class="input">
-                    </div>
-                    <div class="input-block">
-                        <label for="email" class="label">Email Address:</label>
-                        <input id="email" placeholder="JaneDoe@WasatchTutors.com" class="input">
+                        <label for="studentLastName" class="label">Last Name: </label>
+                        <input id="studentLastName" placeholder="Doe" class="input">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="birthday" class="label">Birthday:</label>
-                        <input type="text" placeholder = "1/31/2005" id="birthday" class="input" maxlength="10">
+                        <label for="studentPhoneNumber" class="label">Phone Number:</label>
+                        <input id="studentPhoneNumber" placeholder="(321) 321-4321" class="input">
+                    </div>
+                    <div class="input-block">
+                        <label for="studentEmail" class="label">Email Address:</label>
+                        <input id="studentEmail" placeholder="JaneDoe@WasatchTutors.com" class="input">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="studentBirthday" class="label">Birthday:</label>
+                        <input type="text" placeholder = "1/31/2005" id="studentBirthday" class="input" maxlength="10">
                     </div>
 
                     <div class="input-block">
-                        <label for="genders" class="label">Gender:</label>
-                        <select id="gender" class="input">
-                                <option value="Select a gender">Select a Gender</option>
+                        <label for="studentGenders" class="label">Gender:</label>
+                        <select id="studentGender" class="input">
+                                <option value="">Select a Gender</option>
                                 <option value="Female">Female</option>
                                 <option value="Male">Male</option>
                         </select>
@@ -514,130 +520,135 @@
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="school" class="label">School:</label>
-                        <input type="text" placeholder = "Alta" id="school" class="input">
+                        <label for="studentSchool" class="label">School:</label>
+                        <input type="text" placeholder = "Alta" id="studentSchool" class="input">
                     </div>
 
                     <div class="input-block">
-                        <label for="graduation" class="label">Graduation Year:</label>
-                        <input type = "text" id="graduation" placeholder = "2021" class="input">
+                        <label for="studentGraduation" class="label">Graduation Year:</label>
+                        <input type = "text" id="studentGraduation" placeholder = "2021" class="input" maxlength="4">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="gpa" class="label">Current GPA:</label>
-                        <input placeholder = "3.45" type="text" id="gpa" class="input">
+                        <label for="studentGpa" class="label">Current GPA:</label>
+                        <input placeholder = "3.45" type="text" id="studentGpa" class="input" maxlength="4" min="0", max="5">
                     </div>
 
                     <div class="input-block">
-                        <label for="mathClass" class="label">Current Math Class:</label>
-                        <input placeholder = "Tertiary Math 3" type="text" id="mathClass" class="input">
+                        <label for="studentMathClass" class="label">Current Math Class:</label>
+                        <input placeholder = "Tertiary Math 3" type="text" id="studentMathClass" class="input">
                     </div>
                 </div>
 
                 <div class="input-block">
                     <div class="input-row">
-                        <label for="takingAP" class="label">AP Classes:</label>
-                        <input type="checkbox" id="takingAP" class="input checkbox">
+                        <label for="studentTakingAP" class="label">AP Classes:</label>
+                        <input type="checkbox" id="studentTakingAP" class="input checkbox">
                     </div>
 
                     <div class="input-row">
-                        <label for="takingHonors" class="label">Honor Classes:</label>
-                        <input type="checkbox" id="takingHonors" class="input checkbox">
+                        <label for="studentTakingHonors" class="label">Honor Classes:</label>
+                        <input type="checkbox" id="studentTakingHonors" class="input checkbox">
                     </div>
                 </div>
 
-                <div class="input-row">
-                    <div class="input-block">
-                        <div class = "input-row-buttons">
-                        <label for="ACTDate" class="label">ACT Date:</label>
-                            <img src="../../Images/Add Button.jpg" alt="add previous ACT test" height=25px class = "button firstButton" id="addPreviousACTButton" onclick="addPreviousACT()">
-                            <img src="../../Images/Remove Button.jpg" alt="remove previous ACT test" height=25px class = "button" id="removePreviousACTButton" onclick="removePreviousACT()">
+                <br>
+                <div id = "actDiv" class = "input-block">
+                    <div class = "input-row input-row-buttons">
+                        <label for = "studentACTTests" class="label">ACT Test(s):</label>
+                            <img src="../../Images/Add Button.jpg" alt="add previous ACT test" height=25px class = "button firstButton" id="addPreviousACTButton" onclick="addActTest()">
+                            <img src="../../Images/Remove Button.jpg" alt="remove previous ACT test" height=25px class = "button" id="removePreviousACTButton" onclick="removeActTest()">
+                    </div>
+
+                    <!--<div class="input-row">
+                        <div class="input-block">
+                            <label for="ACTDate1" class="label">ACT Date:</label>
+                            <input placeholder = "7/17/2021" type="text" id="ACTDate1" class="input">
                         </div>
-                        <input placeholder = "7/17/2021" type="text" id="ACTDate1" class="input">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div class="input-block">
-                        <label for="english" class="label">English:</label>
-                        <input placeholder = "25" type="text" id="english1" class="input">
                     </div>
 
-                    <div class="input-block">
-                        <label for="math" class="label">Math:</label>
-                        <input placeholder = "25" type="text" id="math1" class="input">
-                    </div>
+                    <div class="input-row">
+                        <div class="input-block">
+                            <label for="english1" class="label">English:</label>
+                            <input min = "0" max = 36 placeholder = "25" type="text" id="english1" class="input">
+                        </div>
 
-                    <div class="input-block">
-                        <label for="reading" class="label">Reading:</label>
-                        <input placeholder = "25" type="text" id="reading1" class="input">
-                    </div>
+                        <div class="input-block">
+                            <label for="math1" class="label">Math:</label>
+                            <input placeholder = "25" type="text" id="math1" class="input">
+                        </div>
 
-                    <div class="input-block">
-                        <label for="science" class="label">Science:</label>
-                        <input placeholder = "25" type="text" id="science1" class="input">
-                    </div>
+                        <div class="input-block">
+                            <label for="reading1" class="label">Reading:</label>
+                            <input placeholder = "25" type="text" id="reading1" class="input">
+                        </div>
+
+                        <div class="input-block">
+                            <label for="science1" class="label">Science:</label>
+                            <input placeholder = "25" type="text" id="science1" class="input">
+                        </div>
+                    </div>-->
                 </div>
 
                 <br>
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="goalACTDate" class="label">Goal ACT Date:</label>
-                        <input placeholder = "10/23/2021" type="text" id="goalACTDate" class="input">
+                        <label for="studentGoalACTDate" class="label">Goal ACT Date:</label>
+                        <input placeholder = "10/23/2021" type="text" id="studentGoalACTDate" class="input">
                     </div>
 
                     <div class="input-block">
-                        <label for="goalACTScore" class="label">Goal ACT Date Score:</label>
-                        <input placeholder = "30" type="text" id="goalACTDateScore" class="input">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div class="input-block">
-                        <label for="why" class="label">Why:</label>
-                        <input placeholder = "Make it to BYU" type="text" id="why" class="input">
+                        <label for="studentGoalACTScore" class="label">Goal ACT Score:</label>
+                        <input placeholder = "30" type="text" id="studentGoalACTScore" class="input" maxlength="2", min="0", max="36">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <div class = "input-row-buttons">
-                            <label for="scholarship" class="label">Scholarship goal(s):</label>
-                            <img src="../../Images/Add Button.jpg" alt="add scholarship goal" height=25px class = "button firstButton" id="addScholarshipGoalButton" onclick="addElement('scholarship')">
-                            <img src="../../Images/Remove Button.jpg" alt="remove scholarship goal" height=25px class = "button" id="removeScholarshipGoalButton" onclick="removeElement('scholarship')">
-                        </div>
-                        <input placeholder = "Presidential" type="text" id="scholarship1" class="input">
+                        <label for="studentWhy" class="label">Why:</label>
+                        <input placeholder = "Make it to BYU" type="text" id="studentWhy" class="input">
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
                         <div class = "input-row-buttons">
-                            <label for="college" class="label">Top College(s):</label>
-                            <img src="../../Images/Add Button.jpg" alt="add college" height=25px class = "button firstButton" id="addCollegeButton" onclick="addElement('college')">
-                            <img src="../../Images/Remove Button.jpg" alt="remove college" height=25px class = "button" id="removeCollegeButton" onclick="removeElement('college')">
+                            <label for="studentScholarship" class="label">Scholarship goal(s):</label>
+                            <img src="../../Images/Add Button.jpg" alt="add scholarship goal" height=25px class = "button firstButton" id="addScholarshipGoalButton" onclick="addElement('studentScholarship')">
+                            <img src="../../Images/Remove Button.jpg" alt="remove scholarship goal" height=25px class = "button" id="removeScholarshipGoalButton" onclick="removeElement('studentScholarship')">
                         </div>
-                        <input placeholder = "Massachusetts Institute of Technology (MIT)" type="text" id="college1" class="input">
+                        <!--<input placeholder = "Presidential" type="text" id="scholarship1" class="input">-->
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
                         <div class = "input-row-buttons">
-                            <label for="extracurricular" class="label">Extracurricular(s):</label>
-                            <img src="../../Images/Add Button.jpg" alt="add extracurricular" height=25px class = "button firstButton" id="addExtracurricularButton" onclick="addElement('extracurricular')">
-                            <img src="../../Images/Remove Button.jpg" alt="remove extracurricular" height=25px class = "button" id="removeExtracurricularButton" onclick="removeElement('extracurricular')">
+                            <label for="studentCollege" class="label">Top College(s):</label>
+                            <img src="../../Images/Add Button.jpg" alt="add college" height=25px class = "button firstButton" id="addCollegeButton" onclick="addElement('studentCollege')">
+                            <img src="../../Images/Remove Button.jpg" alt="remove college" height=25px class = "button" id="removeCollegeButton" onclick="removeElement('studentCollege')">
                         </div>
-                        <input placeholder = "Leadership" type="text" id="extracurricular1" class="input">
+                        <!--<input placeholder = "Massachusetts Institute of Technology (MIT)" type="text" id="college1" class="input">-->
                     </div>
                 </div>
 
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="marketing" class="label finalInput">How did you hear about us:</label>
-                        <input id="marketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+                        <div class = "input-row-buttons">
+                            <label for="studentExtracurricular" class="label">Extracurricular(s):</label>
+                            <img src="../../Images/Add Button.jpg" alt="add extracurricular" height=25px class = "button firstButton" id="addExtracurricularButton" onclick="addElement('studentExtracurricular')">
+                            <img src="../../Images/Remove Button.jpg" alt="remove extracurricular" height=25px class = "button" id="removeExtracurricularButton" onclick="removeElement('studentExtracurricular')">
+                        </div>
+                        <!--<input placeholder = "Leadership" type="text" id="extracurricular1" class="input">-->
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="studentMarketing" class="label finalInput">How did you hear about us:</label>
+                        <input id="studentMarketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
                     </div>
                 </div>
 
@@ -645,6 +656,7 @@
         </div>
             <div class="input-row buttonsDiv">
                 <button class="backButton" onclick="back()">Previous</button>
+                <button class="submitButton" onclick="submit()">Submit</button>
                 <button class="nextButton" onclick="next()">Next</button>
             </div>
     </div>

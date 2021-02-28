@@ -515,7 +515,6 @@ function validateInputCompletion(input) {
     return false;
   }
   return true;
-  
 }
 
 /**
