@@ -123,7 +123,7 @@ function submit() {
       }
     }
 
-    // Create the student dictionary
+    // Create the student and parent dictionaries
     for (let i = 0; i < allInputs.length; i++) {
       if (!allInputs[i].id.includes("parent")) {
         studentInfo[allInputs[i].id] = allInputs[i].value;
