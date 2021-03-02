@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Post Sign In</title>
     <link href="post-sign-in.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+    <script src="public/site-wide.js"></script>
+    <script src="post-sign-in.js"></script>
+
   </head>
 
   <body>
@@ -12,18 +22,14 @@
       <div class="header">
         <div class="input-block">
           <label class="label">Pending Students</label>
-          <select name="pending-student">
-            <option>Choose a student</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
+          <select id="pendingStudents" name="pending-student" onchange="pendingStudentSelected(this)">
+            <option disabled selected>Choose a student</option>
           </select>
         </div>
         <div class="input-block">
           <label class="label">Active Students</label>
-          <select name="active-students">
-            <option>Choose a student</option>
+          <select id="activeStudents" name="active-students">
+            <option disabled selected>Choose a student</option>
             <option value="Test">Test</option>
             <option value="Test">Test</option>
             <option value="Test">Test</option>
@@ -32,8 +38,8 @@
         </div>
         <div class="input-block">
           <label class="label">Parents</label>
-          <select name="pending-student">
-            <option>Choose a parent</option>
+          <select id="activeParents" name="active-parents">
+            <option disabled selected>Choose a parent</option>
             <option value="Test">Test</option>
             <option value="Test">Test</option>
             <option value="Test">Test</option>
@@ -41,6 +47,6 @@
           </select>
         </div>
       </div>
-      <button class="button justify-end">Inquiry</button>
+      <button class="button" onclick="goToInquiry()">Inquiry</button>
     </section>
   </body>
