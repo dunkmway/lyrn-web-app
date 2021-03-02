@@ -27,7 +27,7 @@ function login() {
   firebase.auth().signInWithEmailAndPassword(username, password)
       .then(function() {
           console.log("user logged in");
-          window.location.href = "../Forms/New Parent Form/New Parent Form.html";
+          window.location.href = "../post-sign-in.html";
       })
       .catch(function(error) {
           // Handle Errors here.
