@@ -379,8 +379,8 @@
                     </div>
 
                     <div class="input-block">
-                        <label for="parentWorkPhone" class="label">Work Phone</label>
-                        <input id="parentWorkPhone" placeholder="(123) 123-1234" class="input">
+                        <label for="parentWorkPhoneNumber" class="label">Work Phone</label>
+                        <input id="parentWorkPhoneNumber" placeholder="(123) 123-1234" class="input">
                     </div>
                 </div><br>
 
@@ -542,18 +542,39 @@
                     </div>
                 </div>
 
-                <div class="input-block">
-                    <div class="input-row">
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="studentTakingAP" class="label">Taking AP Class(es):</label>
+                        <select id=studentTakingAP class="input">
+                                <option value="">Select an option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                        </select>
+                    </div>
+
+                    <div class="input-block">
+                        <label for="studentTakingHonors" class="label">Taking Honors Class(es):</label>
+                        <select id="studenTakingHonors" class="input">
+                                <option value="">Select an option</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!--<div class="input-block">
+                    <div class="input-row input-row-checkbox">
                         <label for="studentTakingAP" class="label">AP Classes:</label>
                         <input type="checkbox" id="studentTakingAP" class="input checkbox">
                     </div>
 
-                    <div class="input-row">
+                    <div class="input-row input-row-checkbox">
                         <label for="studentTakingHonors" class="label">Honor Classes:</label>
                         <input type="checkbox" id="studentTakingHonors" class="input checkbox">
                     </div>
-                </div>
+                </div>-->
 
+                <br>
                 <br>
                 <div id = "actDiv" class = "input-block">
                     <div class = "input-row input-row-buttons">

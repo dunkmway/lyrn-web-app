@@ -32,13 +32,27 @@ function validateInputEmail(input) {
 }
 
 function validateInputPhoneNumbers(input) {
-  if (input.value.length != 10) {
+  if (input.value.length != 14) {
     let error = document.getElementById(input.id + "ErrorMessage")
     if (error != null) {
       error.innerHTML = "* Please enter a valid phone number *"
     }
     else {
       input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid phone number *"));
+    }
+    return false;
+  }
+  return true;
+}
+
+function validateInputZipCode(input) {
+  if (input.value.length != 5) {
+    let error = document.getElementById(input.id + "ErrorMessage")
+    if (error != null) {
+      error.innerHTML = "* Please enter a valid zip code *"
+    }
+    else {
+      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid zip code *"));
     }
     return false;
   }
@@ -71,6 +85,10 @@ function submit() {
   //validate the fields to make sure that everything is filled out
   let allClear = true;
 
+  // Dictionaries to hold firebase info
+  let studentInfo = {};
+  let parentInfo = {};
+
   //check for completion
   for (let i = 0; i < allInputs.length; i++) {
     // Make sure nothing is left empty
@@ -99,8 +117,28 @@ function submit() {
       }
     }
 
+    if (allInputs[i].id.includes("zipCode")) {
+      if (validateInputZipCode(allInputs[i]) == false) {
+        allClear = false;
+      }
+    }
+
+    // Create the student dictionary
+    for (let i = 0; i < allInputs.length; i++) {
+      if (!allInputs[i].id.includes("parent")) {
+        studentInfo[allInputs[i].id] = allInputs[i].value;
+      }
+
+      if (!allInputs[i].id.includes("student")) {
+        parentInfo[allInputs[i].id] = allInputs[i].value;
+      }
+
+    }
+
   }
 
+    console.log(studentInfo);
+    console.log(parentInfo);
   //allInputs[0].parentNode.appendChild(ele = createElement("p", "errorMessage", [], [], "* Required *"));
 /*
   //all input lists

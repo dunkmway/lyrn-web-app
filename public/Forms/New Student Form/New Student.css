@@ -149,6 +149,10 @@ button {
     padding-right: 8%;
 }
 
+.input-row-checkbox {
+    align-items: center;
+}
+
 @media screen and (max-width: 1000px) {
     .input-row {
         display: flex;
@@ -242,6 +246,10 @@ button {
       box-shadow: none;
       height: auto;
       width: auto;
+      margin-left: 5px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
   }
 
   .label {

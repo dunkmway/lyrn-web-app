@@ -111,7 +111,7 @@ const parentPhone = document.getElementById('parentPhoneNumber');
 parentPhone.addEventListener('keydown',enforceNumericFormat);
 parentPhone.addEventListener('keyup',formatToPhone);
 
-const inputWorkPhone = document.getElementById('parentWorkPhone');
+const inputWorkPhone = document.getElementById('parentWorkPhoneNumber');
 inputWorkPhone.addEventListener('keydown',enforceNumericFormat);
 inputWorkPhone.addEventListener('keyup',formatToPhone);
 
@@ -119,24 +119,24 @@ const studentPhone = document.getElementById('studentPhoneNumber');
 studentPhone.addEventListener('keydown',enforceNumericFormat);
 studentPhone.addEventListener('keyup',formatToPhone);
 
-const inputZipcode = document.getElementById("zipCode");
+const inputZipcode = document.getElementById('zipCode');
 inputZipcode.addEventListener('keydown',enforceNumericFormat);
 
-const inputGraduation = document.getElementById("studentGraduation");
+const inputGraduation = document.getElementById('studentGraduation');
 inputGraduation.addEventListener('keydown',enforceNumericFormat);
 
-const birthdayElem = document.getElementById("studentBirthday");
+const birthdayElem = document.getElementById('studentBirthday');
 birthdayElem.addEventListener('keydown',enforceNumericFormat);
 birthdayElem.addEventListener('keyup',formatToDate);
 
-const goalACTDate = document.getElementById("studentGoalACTDate");
+const goalACTDate = document.getElementById('studentGoalACTDate');
 goalACTDate.addEventListener('keydown',enforceNumericFormat);
 goalACTDate.addEventListener('keyup',formatToDate);
 
-const goalACTScore = document.getElementById("studentGoalACTScore");
+const goalACTScore = document.getElementById('studentGoalACTScore');
 goalACTScore.addEventListener('keydown',enforceNumericFormat);
 goalACTScore.addEventListener('keyup',formatToNumber);
 
-const gpa = document.getElementById("studentGpa");
+const gpa = document.getElementById('studentGpa');
 gpa.addEventListener('keydown',enforceDecimalFormat);
 gpa.addEventListener('keyup',formatToNumber);
