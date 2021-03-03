@@ -321,3 +321,8 @@ p {
   color: #fff;
   transform: translateY(-7px);
 }
+
+p.errorMessage {
+    margin-top: -1%;
+    color: red;
+}
