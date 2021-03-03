@@ -6,11 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="New Student.css" rel="stylesheet"></link>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="site-wide.js" defer></script>
     <script src="New Student.js" defer></script>
     <script src="Input Formatting.js" defer></script>
     <script src="Validation.js" defer></script>
 </head>
 
+<body onload = "fillInData()">
 <section id = "section">
     <div id = "parentForm" class="registration-block">
         <div class="heading-block">
@@ -682,5 +689,6 @@
             </div>
     </div>
 </section>  
+</body>
 
 </html>
