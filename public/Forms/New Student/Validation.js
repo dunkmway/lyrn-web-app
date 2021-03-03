@@ -24,7 +24,7 @@ function validateInputEmail(input) {
       error.innerHTML = "* Please enter a valid email address *"
     }
     else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid email address *"));
+      input.parentNode.appendChild(createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid email address *"));
     }
     return false;
   }
@@ -38,7 +38,7 @@ function validateInputPhoneNumbers(input) {
       error.innerHTML = "* Please enter a valid phone number *"
     }
     else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid phone number *"));
+      input.parentNode.appendChild(createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid phone number *"));
     }
     return false;
   }
@@ -52,7 +52,7 @@ function validateInputZipCode(input) {
       error.innerHTML = "* Please enter a valid zip code *"
     }
     else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid zip code *"));
+      input.parentNode.appendChild(createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid zip code *"));
     }
     return false;
   }
@@ -66,7 +66,7 @@ function validateInputBirthday(input) {
       error.innerHTML = "* Please write all months, days, and years out *"
     }
     else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* please write all months, days, and years out *"));
+      input.parentNode.appendChild(createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* please write all months, days, and years out *"));
     }
     return false;
   }
@@ -93,7 +93,7 @@ function submit() {
   for (let i = 0; i < allInputs.length; i++) {
     // Make sure nothing is left empty
     if (!validateInputCompletion(allInputs[i])) {
-      allInputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [allInputs[i].id + "ErrorMessage"], "* Required *"));
+      allInputs[i].parentNode.appendChild(createElement("p", "errorMessage", ["id"], [allInputs[i].id + "ErrorMessage"], "* Required *"));
       allClear = false;
     }
 
@@ -122,70 +122,44 @@ function submit() {
         allClear = false;
       }
     }
+  }
 
     // Create the student and parent dictionaries
+  if (allClear) {
     for (let i = 0; i < allInputs.length; i++) {
       if (!allInputs[i].id.includes("parent")) {
-        studentInfo[allInputs[i].id] = allInputs[i].value;
+        if (allInputs[i].id.includes("Array")) {
+          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
+            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+          }
+          else {
+            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+          }
+        }
+        else {
+          studentInfo[allInputs[i].id] = allInputs[i].value;
+        }
       }
 
       if (!allInputs[i].id.includes("student")) {
-        parentInfo[allInputs[i].id] = allInputs[i].value;
+        if (allInputs[i].id.includes("Array")) {
+          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
+            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+          }
+          else {
+            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+          }
+        }
+        else {
+          parentInfo[allInputs[i].id] = allInputs[i].value;
+        }
       }
 
     }
-
   }
 
     console.log(studentInfo);
     console.log(parentInfo);
-  //allInputs[0].parentNode.appendChild(ele = createElement("p", "errorMessage", [], [], "* Required *"));
-/*
-  //all input lists
-  let inputLists = document.getElementById("pageDiv").querySelectorAll("input[list]");
-  for (let i = 0; i < inputLists.length; i++) {
-    let data = inputLists[i].list;
-    let options = data.querySelectorAll("option");
-    let values = [];
-    for (let j = 0; j < options.length; j++) {
-      values.push(options[j].value);
-    }
-    if (!validateInputList(inputLists[i], values)) {
-      allClear = false;
-    }
-  }
-
-  //all emails
-  let inputEmails = document.getElementById("pageDiv").querySelectorAll("input[type='email']");
-  for (let i = 0; i < inputEmails.length; i++) {
-    if (!validateInputEmail(inputEmails[i])) {
-      allClear = false;
-    }
-
-  }
-
-  //all enforced inputs
-  let inputEnforced = document.getElementById("pageDiv").querySelectorAll("input[maxlength]");
-  for (let i = 0; i < inputEnforced.length; i++) {
-    if (!validateEnforcedInput(inputEnforced[i])) {
-      allClear = false;
-    }
-  }
-*/
-
-  if (allClear) {
-    //all the fields are filled out
-    let formData = {};
-    let siblings = [];
-
-    for (let i = 0; i < allInputs.length; i++) {
-      if (allInputs[i].type != "checkbox") {
-        formData[allInputs[i].id] = allInputs[i].value
-      }
-      else if(allInputs[i].type == "checkbox") {
-        formData[allInputs[i].id] = allInputs[i].checked.toString();
-      }
-    }
-    console.log(formData);
-  }
 }

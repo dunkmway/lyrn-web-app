@@ -48,9 +48,9 @@ function next() {
 function addElement(id) {
 
   let placeholders = {}
-  placeholders['studentScholarship'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
-  placeholders['studentCollege'] = ['Massachusetts Institute of Technology (MIT)', 'Brigham Young University (BYU)', 'University of Utah (UoU)', 'Utah State University (USU)', 'Utah Valley University (UVU)'];
-  placeholders['studentExtracurricular'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
+  placeholders['studentScholarshipArray'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
+  placeholders['studentCollegeArray'] = ['Massachusetts Institute of Technology (MIT)', 'Brigham Young University (BYU)', 'University of Utah (UoU)', 'Utah State University (USU)', 'Utah Valley University (UVU)'];
+  placeholders['studentExtracurricularArray'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
 
   let phrase = "label[for=\"" + id + "\"]";
   let parentElement = document.querySelector(phrase).parentNode.parentNode;
@@ -84,7 +84,7 @@ function removeElement(id) {
 
 function addActTest() {
   placeholders = ['7/17/2021', '9/11/2021', '10/23/2021', '12/11/2021', '2/5/2022', '4/9/2022', '6/11/2022', '7/16/2022']
-  let id = "studentACTDate"
+  let id = "studentACTDateArray"
 
   let phrase = "label[for^=\"studentACTTest\"]";
   let parentElement = document.querySelector(phrase).parentNode.parentNode;
@@ -122,7 +122,7 @@ function addActTest() {
 }
 
 function removeActTest() {
-  let phrase = "label[for^=\"studentACTTests\"]";
+  let phrase = "label[for^=\"studentACTTestsArray\"]";
   let parentElement = document.querySelector(phrase).parentNode.parentNode;
   children = parentElement.querySelectorAll("div[class=\"input-row\"]")
 

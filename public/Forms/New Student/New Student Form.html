@@ -413,60 +413,6 @@
                         </div>
                     </div>
 
-                    <!--<div id="agreementDiv">
-                        <ul>
-                            <li>
-                                <div class="agreement-row">
-                                    <p>Payment may be made using cash, check, or credit card.</p>
-                                    <input class="input initials">
-                                    <text>(initials)</text>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="agreement-row">
-                                    <p>There is a $30 fee for all returned checks.</p>
-                                    <input class="input initials">
-                                    <text>(initials)</text>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="agreement-row">
-                                    <p>Payment is due on the 1st of each month and will be for the total amount for the month to
-                                        come. (Session must be paid, prior to instruction)</p>
-                                        <input class="input initials">
-                                        <text>(initials)</text>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="agreement-row">
-                                    <p>Notice must be given by the end of the previous business day for <u>ALL</u> cancellations
-                                        and/or schedule changes.</p>
-                                        <input class="input initials">
-                                        <text>(initials)</text>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="agreement-row">
-                                    <p>If notice is not given the day prior, I understand that I <em>WILL</em> be charged for the
-                                        full amount of the session.</p>
-                                        <div class="flexColumn">
-                                            <input class="input initials">
-                                            <text>(initials)</text>
-                                        </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="input-row">
-                            <div class="input-block">
-                                <input class="input signature" id="signature">
-                                <text for="signature" class="label">Parent Signature</text>
-                            </div>
-                            <div class="input-block">
-                                <input class="input date" id="date">
-                                <label for="date" class="label">Date</text>
-                            </div>
-                        </div>
-                    </div>-->
                 </form>
             </div>
             <div class="input-row buttonsDiv">
@@ -474,10 +420,6 @@
                 <button class="submitButton" onclick="submit()">Submit</button>
                 <button class="nextButton" onclick="next()">Next</button>
              </div>
-                <!--<p><b>Privacy Notice</b></p>-->
-                <!--<p id="statement">We at <em>WASATCH TUTORS</em> take the security of your personal information very
-                    seriously. We will <b>NEVER</b> share your information with any other companies or organizations, other
-                    than our own, without your written approval. Rest assured that your information is safe with us.</p>-->
         </div>
 
 
@@ -569,55 +511,15 @@
                         </div>
                     </div>
 
-                    <!--<div class="input-block">
-                        <div class="input-row input-row-checkbox">
-                            <label for="studentTakingAP" class="label">AP Classes:</label>
-                            <input type="checkbox" id="studentTakingAP" class="input checkbox">
-                        </div>
-
-                        <div class="input-row input-row-checkbox">
-                            <label for="studentTakingHonors" class="label">Honor Classes:</label>
-                            <input type="checkbox" id="studentTakingHonors" class="input checkbox">
-                        </div>
-                    </div>-->
-
                     <br>
                     <br>
                     <div id = "actDiv" class = "input-block">
                         <div class = "input-row input-row-buttons">
-                            <label for = "studentACTTests" class="label">ACT Test(s):</label>
+                            <label for = "studentACTTestsArray" class="label">ACT Test(s):</label>
                                 <img src="../../Images/Add Button.jpg" alt="add previous ACT test" height=25px class = "button firstButton" id="addPreviousACTButton" onclick="addActTest()">
                                 <img src="../../Images/Remove Button.jpg" alt="remove previous ACT test" height=25px class = "button" id="removePreviousACTButton" onclick="removeActTest()">
                         </div>
 
-                        <!--<div class="input-row">
-                            <div class="input-block">
-                                <label for="ACTDate1" class="label">ACT Date:</label>
-                                <input placeholder = "7/17/2021" type="text" id="ACTDate1" class="input">
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-block">
-                                <label for="english1" class="label">English:</label>
-                                <input min = "0" max = 36 placeholder = "25" type="text" id="english1" class="input">
-                            </div>
-
-                            <div class="input-block">
-                                <label for="math1" class="label">Math:</label>
-                                <input placeholder = "25" type="text" id="math1" class="input">
-                            </div>
-
-                            <div class="input-block">
-                                <label for="reading1" class="label">Reading:</label>
-                                <input placeholder = "25" type="text" id="reading1" class="input">
-                            </div>
-
-                            <div class="input-block">
-                                <label for="science1" class="label">Science:</label>
-                                <input placeholder = "25" type="text" id="science1" class="input">
-                            </div>
-                        </div>-->
                     </div>
 
                     <br>
@@ -643,33 +545,30 @@
                     <div class="input-row">
                         <div class="input-block">
                             <div class = "input-row-buttons">
-                                <label for="studentScholarship" class="label">Scholarship goal(s):</label>
-                                <img src="../../Images/Add Button.jpg" alt="add scholarship goal" height=25px class = "button firstButton" id="addScholarshipGoalButton" onclick="addElement('studentScholarship')">
-                                <img src="../../Images/Remove Button.jpg" alt="remove scholarship goal" height=25px class = "button" id="removeScholarshipGoalButton" onclick="removeElement('studentScholarship')">
+                                <label for="studentScholarshipArray" class="label">Scholarship goal(s):</label>
+                                <img src="../../Images/Add Button.jpg" alt="add scholarship goal" height=25px class = "button firstButton" id="addScholarshipGoalButton" onclick="addElement('studentScholarshipArray')">
+                                <img src="../../Images/Remove Button.jpg" alt="remove scholarship goal" height=25px class = "button" id="removeScholarshipGoalButton" onclick="removeElement('studentScholarshipArray')">
                             </div>
-                            <!--<input placeholder = "Presidential" type="text" id="scholarship1" class="input">-->
                         </div>
                     </div>
 
                     <div class="input-row">
                         <div class="input-block">
                             <div class = "input-row-buttons">
-                                <label for="studentCollege" class="label">Top College(s):</label>
-                                <img src="../../Images/Add Button.jpg" alt="add college" height=25px class = "button firstButton" id="addCollegeButton" onclick="addElement('studentCollege')">
-                                <img src="../../Images/Remove Button.jpg" alt="remove college" height=25px class = "button" id="removeCollegeButton" onclick="removeElement('studentCollege')">
+                                <label for="studentCollegeArray" class="label">Top College(s):</label>
+                                <img src="../../Images/Add Button.jpg" alt="add college" height=25px class = "button firstButton" id="addCollegeButton" onclick="addElement('studentCollegeArray')">
+                                <img src="../../Images/Remove Button.jpg" alt="remove college" height=25px class = "button" id="removeCollegeButton" onclick="removeElement('studentCollegeArray')">
                             </div>
-                            <!--<input placeholder = "Massachusetts Institute of Technology (MIT)" type="text" id="college1" class="input">-->
                         </div>
                     </div>
 
                     <div class="input-row">
                         <div class="input-block">
                             <div class = "input-row-buttons">
-                                <label for="studentExtracurricular" class="label">Extracurricular(s):</label>
-                                <img src="../../Images/Add Button.jpg" alt="add extracurricular" height=25px class = "button firstButton" id="addExtracurricularButton" onclick="addElement('studentExtracurricular')">
-                                <img src="../../Images/Remove Button.jpg" alt="remove extracurricular" height=25px class = "button" id="removeExtracurricularButton" onclick="removeElement('studentExtracurricular')">
+                                <label for="studentExtracurricularArray" class="label">Extracurricular(s):</label>
+                                <img src="../../Images/Add Button.jpg" alt="add extracurricular" height=25px class = "button firstButton" id="addExtracurricularButton" onclick="addElement('studentExtracurricularArray')">
+                                <img src="../../Images/Remove Button.jpg" alt="remove extracurricular" height=25px class = "button" id="removeExtracurricularButton" onclick="removeElement('studentExtracurricularArray')">
                             </div>
-                            <!--<input placeholder = "Leadership" type="text" id="extracurricular1" class="input">-->
                         </div>
                     </div>
 
