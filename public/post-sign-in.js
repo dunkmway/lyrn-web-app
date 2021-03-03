@@ -35,5 +35,6 @@ function goToInquiry() {
 }
 
 function pendingStudentSelected(e) {
-  console.log(e.value);
+  let parentUID = e.value;
+  window.location.href = "Forms/New Student Form/New Student Form.html?uid=" + parentUID + "&location=" + currentWTLocation;
 }
