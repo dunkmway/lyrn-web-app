@@ -187,3 +187,40 @@ function createElements(elementType = [], classes = [], attributes = [], values 
     return item;
 
   }
+
+  function fillInData() {
+    var GET = {};
+    var queryString = window.location.search.replace(/^\?/, '');
+    queryString.split(/\&/).forEach(function(keyValuePair) {
+        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+        GET[paramName] = paramValue;
+    });
+
+    const parentUID = GET["uid"];
+    const locationName = GET["location"];
+
+
+    //grab the pending data for this parent's student
+    const pendingDocRef = firebase.firestore().collection("Locations").doc(locationName).collection("Pending").doc(parentUID);
+    pendingDocRef.get()
+    .then((doc) => {
+      if(doc.exists) {
+        let pendingStudents = doc.get("pendingStudents");
+        //FIXME: need to select which student you want to work on
+        let docData = pendingStudents[0];
+        for(const key in docData) {
+          let element = document.getElementById(key);
+          if (element) {
+            element.value = docData[key];
+          }
+        }
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
+  }
