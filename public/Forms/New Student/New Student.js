@@ -89,26 +89,26 @@ function addActTest() {
   let phrase = "label[for^=\"studentACTTest\"]";
   let parentElement = document.querySelector(phrase).parentNode.parentNode;
 
-  let numChildren = (parentElement.childElementCount - 1) / 2;
+  let numChildren = (parentElement.childElementCount - 1);
 
-  scores = []
+  let scores = []
   let date = createElement("div", "input-row")
   let element;
   if (numChildren + 1 < placeholders.length) {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [[id + (numChildren + 1).toString()],[id + (numChildren + 1).toString(), placeholders[(numChildren + 1)]]], ["ACT Date", ""], "input-block")
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)]]], ["ACT Date", ""], "input-block")
     element.addEventListener('keydown',enforceNumericFormat);
     element.addEventListener('keyup',formatToDate);
 
   }
   else {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [[id + (numChildren + 1).toString()],[id + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
   }
   date.appendChild(element)
 
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["english" + (numChildren + 1).toString()],["english" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["English:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["math" + (numChildren + 1).toString()],["math" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Math:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["reading" + (numChildren + 1).toString()],["reading" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Reading:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["science" + (numChildren + 1).toString()],["science" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Science:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["English:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestMath" + (numChildren + 1).toString()],["actTestMath" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Math:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestReading" + (numChildren + 1).toString()],["actTestReading" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Reading:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestScience" + (numChildren + 1).toString()],["actTestScience" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Science:", ""], "input-block"))
 
   for (let ele = 0; ele < scores.length; ele++) {
     scores[ele].addEventListener('keydown',enforceNumericFormat);
@@ -116,21 +116,23 @@ function addActTest() {
   }
 
   let score = combineElements(scores, "input-row")
-
-  parentElement.appendChild(date);
-  parentElement.appendChild(score);
+  let actTestDiv = document.createElement("div");
+  actTestDiv.id = "actTest" + (numChildren + 1).toString();
+  parentElement.appendChild(actTestDiv);
+  actTestDiv.appendChild(date);
+  actTestDiv.appendChild(score);
 }
 
 function removeActTest() {
   let phrase = "label[for^=\"studentACTTestsArray\"]";
   let parentElement = document.querySelector(phrase).parentNode.parentNode;
-  children = parentElement.querySelectorAll("div[class=\"input-row\"]")
+  children = parentElement.querySelectorAll("div[id^='actTest']")
 
-  let numChildren = (parentElement.childElementCount - 1) / 2;
+  let numChildren = (parentElement.childElementCount - 1);
 
   if (numChildren >= 1) {
     children[children.length - 1].remove()
-    children[children.length - 2].remove()
+    // children[children.length - 2].remove()
   }
 
 }
@@ -188,6 +190,12 @@ function createElements(elementType = [], classes = [], attributes = [], values 
 
   }
 
+  /**
+   * Description:
+   * grabs the query string for this url which should include a uid and location
+   * then pulls the corresponding data from the pending collection in the given location
+   * fills in all of the data that we have stored
+   */
   function fillInData() {
     var GET = {};
     var queryString = window.location.search.replace(/^\?/, '');

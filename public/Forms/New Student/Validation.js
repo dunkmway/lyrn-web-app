@@ -127,7 +127,8 @@ function submit() {
     // Create the student and parent dictionaries
   if (allClear) {
     for (let i = 0; i < allInputs.length; i++) {
-      if (!allInputs[i].id.includes("parent")) {
+      //student inputs
+      if (!allInputs[i].id.includes("parent") && !allInputs[i].id.includes("actTest")) {
         if (allInputs[i].id.includes("Array")) {
           if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
             studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
@@ -142,7 +143,8 @@ function submit() {
         }
       }
 
-      if (!allInputs[i].id.includes("student")) {
+      //parent inputs
+      if (!allInputs[i].id.includes("student") && !allInputs[i].id.includes("actTest")) {
         if (allInputs[i].id.includes("Array")) {
           if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
             parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
@@ -156,8 +158,22 @@ function submit() {
           parentInfo[allInputs[i].id] = allInputs[i].value;
         }
       }
-
     }
+
+    //special case for actTest (will be added to the student data)
+    let actTestArray = [];
+    let actTestDivs = document.querySelectorAll("div[id^='actTest']");
+    console.log(actTestDivs);
+    for (let i = 0; i < actTestDivs.length; i++) {
+      let actTest = {}
+      actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
+      actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
+      actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
+      actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
+      actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
+      actTestArray.push(actTest);
+    }
+    studentInfo["studentActTests"] = actTestArray;
   }
 
     console.log(studentInfo);

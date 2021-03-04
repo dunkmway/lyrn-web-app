@@ -1,5 +1,6 @@
 function createInquiry() {
   document.getElementById("errMsg").textContent = "";
+  document.getElementById("submitBtn").disabled = true;
   let allInputs = getAllInputs();
   let allInputValues = {};
 
@@ -110,6 +111,7 @@ function createInquiry() {
         Promise.all(promises)
         .then(() => {
           window.location.href = "post-sign-in.html";
+          document.getElementById("submitBtn").disabled = true;
         })
         .catch((error) => {
           console.log(error);
@@ -117,10 +119,12 @@ function createInquiry() {
           console.log(error.message);
           document.getElementById("errMsg").textContent = error.message;
           console.log(error.details);
+          document.getElementById("submitBtn").disabled = true;
         });
       }
       else {
         //the user already exists. Prompt the user to navigate to the parent's profile page
+        document.getElementById("submitBtn").disabled = true;
       }
     })
     .catch((error) => {
@@ -129,6 +133,7 @@ function createInquiry() {
       console.log(error.message);
       document.getElementById("errMsg").textContent = error.message;
       console.log(error.details);
+      document.getElementById("submitBtn").disabled = true;
     });
   }
 }
