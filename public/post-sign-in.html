@@ -20,33 +20,39 @@
   <body>
     <section>
       <div class="header">
+        <h2 id="locationName"></h2>
+      </div>
+      <div class="input-row">
         <div class="input-block">
           <label class="label">Pending Students</label>
           <select id="pendingStudents" name="pending-student" onchange="pendingStudentSelected(this)">
             <option disabled selected>Choose a student</option>
           </select>
         </div>
+
         <div class="input-block">
           <label class="label">Active Students</label>
           <select id="activeStudents" name="active-students">
             <option disabled selected>Choose a student</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
           </select>
         </div>
+
         <div class="input-block">
-          <label class="label">Parents</label>
+          <label class="label">Pending Parents</label>
+          <select id="pendingParents" name="pending-parents">
+            <option disabled selected>Choose a parent</option>
+          </select>
+        </div>
+
+        <div class="input-block">
+          <label class="label">Active Parents</label>
           <select id="activeParents" name="active-parents">
             <option disabled selected>Choose a parent</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
-            <option value="Test">Test</option>
           </select>
         </div>
       </div>
+
+      
       <button class="button" onclick="goToInquiry()">Inquiry</button>
     </section>
   </body>

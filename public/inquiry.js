@@ -1,3 +1,26 @@
+function setLocations () {
+  const wasatchRef = firebase.firestore().collection("Wasatch").doc("general");
+  wasatchRef.get()
+  .then((doc) => {
+    if (doc) {
+      const locationElem = document.getElementById("location");
+      let locations = doc.get("locations");
+      for (let locationUID in locations) {
+        let option = document.createElement("option");
+        option.value = locationUID;
+        option.innerText = locations[locationUID]["name"];
+        locationElem.appendChild(option);
+      }
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+}
+
 function createInquiry() {
   document.getElementById("errMsg").textContent = "";
   document.getElementById("submitBtn").disabled = true;
@@ -41,77 +64,83 @@ function createInquiry() {
       password: "abc123",
     })
     .then((result) => {
-      parentUID = result.data.user.uid;
+      let parentUID = result.data.user.uid;
       newUser = result.data.newUser;
       console.log(parentUID);
       console.log(newUser);
 
       if (newUser) {
-        //set up the parent doc
-        const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-        parentDocData = {
-          ...locationInputValues,
-          ...parentInputValues,
-          pending: [studentInputValues]
-        }
-        let parentProm = parentDocRef.set(parentDocData)
-        .then((result) => {
-          console.log("parent document successfully written!");
-          console.log(result);
-        })
-        .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
-          document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
-        })
-
         //set up the location pending doc
-        const pendingDocRef = firebase.firestore().collection("Locations").doc(allInputValues["locationName"]).collection("Pending").doc(parentUID);
-        let pendingProm = pendingDocRef.set({
-          pendingStudents: [allInputValues]
+        const pendingDocRef = firebase.firestore().collection("Locations").doc(allInputValues["location"]).collection("Pending");
+        let pendingProm = pendingDocRef.add({
+          // pendingStudents: {[studentInputValues["studentFirstName"]]: allInputValues}
+          ...allInputValues,
+          parentUID: parentUID
         })
-        .then((result) => {
+        .then((docRef) => {
           console.log("pending document successfully written!");
-          console.log(result);
-        })
-        .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
-          document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
-        })
+          console.log(docRef.id);
 
-        //update location pending student array
-        const locationDocRef = firebase.firestore().collection("Locations").doc(allInputValues["locationName"]);
-        let pendingStudent = {
-          ...studentInputValues,
-          parentUID: parentUID,
-          parentFirstName: parentInputValues["parentFirstName"],
-          parentLastName: parentInputValues["parentLastName"]
-        }
-        let locationProm = locationDocRef.update({
-          pendingStudents: firebase.firestore.FieldValue.arrayUnion(pendingStudent)
-        })
-        .then((result) => {
-          console.log("location document successfully written!");
-          console.log(result);
-        })
-        .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
-          document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
-        })
+          let pendingStudentDoc = docRef.id;
 
-        let promises = [parentProm, pendingProm, locationProm];
-        Promise.all(promises)
-        .then(() => {
-          window.location.href = "post-sign-in.html";
-          document.getElementById("submitBtn").disabled = true;
+          //set up the parent doc
+          const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+          let parentDocData = {
+            ...locationInputValues,
+            ...parentInputValues,
+            role: "parent",
+            pending: {[pendingStudentDoc]: studentInputValues}
+          }
+          let parentProm = parentDocRef.set(parentDocData)
+          .then((result) => {
+            console.log("parent document successfully written!");
+            console.log(result);
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log(error.code);
+            console.log(error.message);
+            document.getElementById("errMsg").textContent = error.message;
+            console.log(error.details);
+          });
+
+          //update location pending student array
+          const locationDocRef = firebase.firestore().collection("Locations").doc(allInputValues["location"]);
+          let pendingStudent = {
+            ...studentInputValues,
+            parentUID: parentUID,
+            parentFirstName: parentInputValues["parentFirstName"],
+            parentLastName: parentInputValues["parentLastName"]
+          }
+          let locationProm = locationDocRef.update({
+            [`pendingStudents.${pendingStudentDoc}`]: pendingStudent
+          })
+          .then((result) => {
+            console.log("location document successfully written!");
+            console.log(result);
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log(error.code);
+            console.log(error.message);
+            document.getElementById("errMsg").textContent = error.message;
+            console.log(error.details);
+          });
+
+          let promises = [parentProm, locationProm];
+          Promise.all(promises)
+          .then(() => {
+            window.location.href = "post-sign-in.html";
+            document.getElementById("submitBtn").disabled = true;
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log(error.code);
+            console.log(error.message);
+            document.getElementById("errMsg").textContent = error.message;
+            console.log(error.details);
+            document.getElementById("submitBtn").disabled = true;
+          });
         })
         .catch((error) => {
           console.log(error);
@@ -119,12 +148,12 @@ function createInquiry() {
           console.log(error.message);
           document.getElementById("errMsg").textContent = error.message;
           console.log(error.details);
-          document.getElementById("submitBtn").disabled = true;
         });
       }
       else {
         //the user already exists. Prompt the user to navigate to the parent's profile page
-        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("submitBtn").disabled = false;
+        document.getElementById("errMsg").textContent = "This parent already exists!";
       }
     })
     .catch((error) => {
@@ -133,7 +162,7 @@ function createInquiry() {
       console.log(error.message);
       document.getElementById("errMsg").textContent = error.message;
       console.log(error.details);
-      document.getElementById("submitBtn").disabled = true;
+      document.getElementById("submitBtn").disabled = false;
     });
   }
 }

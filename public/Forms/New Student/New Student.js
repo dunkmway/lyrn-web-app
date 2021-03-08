@@ -45,7 +45,7 @@ function next() {
  * Description:
  *   This will add a generic input to the end of the input-block
 *****************************************************************************/
-function addElement(id) {
+function addElement(id, value = "") {
 
   let placeholders = {}
   placeholders['studentScholarshipArray'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
@@ -58,6 +58,7 @@ function addElement(id) {
   let newElement = document.createElement("input");
   newElement.setAttribute("type", "text");
   newElement.setAttribute("id", id + (parentElement.childElementCount - 1).toString());
+  newElement.setAttribute("value", value);
   if (parentElement.childElementCount - 1 < placeholders[id].length) {
     newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 1]);
   }
@@ -82,7 +83,7 @@ function removeElement(id) {
   }
 }
 
-function addActTest() {
+function addActTest(date = "", english = "", math = "", reading = "", science = "") {
   placeholders = ['7/17/2021', '9/11/2021', '10/23/2021', '12/11/2021', '2/5/2022', '4/9/2022', '6/11/2022', '7/16/2022']
   let id = "studentACTDateArray"
 
@@ -92,10 +93,10 @@ function addActTest() {
   let numChildren = (parentElement.childElementCount - 1);
 
   let scores = []
-  let date = createElement("div", "input-row")
+  let dateElem = createElement("div", "input-row")
   let element;
   if (numChildren + 1 < placeholders.length) {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)]]], ["ACT Date", ""], "input-block")
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date", ""], "input-block")
     element.addEventListener('keydown',enforceNumericFormat);
     element.addEventListener('keyup',formatToDate);
 
@@ -103,12 +104,12 @@ function addActTest() {
   else {
     element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
   }
-  date.appendChild(element)
+  dateElem.appendChild(element)
 
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["English:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestMath" + (numChildren + 1).toString()],["actTestMath" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Math:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestReading" + (numChildren + 1).toString()],["actTestReading" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Reading:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max"]], [["actTestScience" + (numChildren + 1).toString()],["actTestScience" + (numChildren + 1).toString(), "25", "2", "0", "36"]], ["Science:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36", english]], ["English:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestMath" + (numChildren + 1).toString()],["actTestMath" + (numChildren + 1).toString(), "25", "2", "0", "36", math]], ["Math:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestReading" + (numChildren + 1).toString()],["actTestReading" + (numChildren + 1).toString(), "25", "2", "0", "36", reading]], ["Reading:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestScience" + (numChildren + 1).toString()],["actTestScience" + (numChildren + 1).toString(), "25", "2", "0", "36", science]], ["Science:", ""], "input-block"))
 
   for (let ele = 0; ele < scores.length; ele++) {
     scores[ele].addEventListener('keydown',enforceNumericFormat);
@@ -119,7 +120,7 @@ function addActTest() {
   let actTestDiv = document.createElement("div");
   actTestDiv.id = "actTest" + (numChildren + 1).toString();
   parentElement.appendChild(actTestDiv);
-  actTestDiv.appendChild(date);
+  actTestDiv.appendChild(dateElem);
   actTestDiv.appendChild(score);
 }
 
@@ -205,22 +206,56 @@ function createElements(elementType = [], classes = [], attributes = [], values 
         GET[paramName] = paramValue;
     });
 
-    const parentUID = GET["uid"];
-    const locationName = GET["location"];
-
+    const studentTempUID = GET["student"];
+    const parentUID = GET["parent"];
+    const location = GET["location"];
 
     //grab the pending data for this parent's student
-    const pendingDocRef = firebase.firestore().collection("Locations").doc(locationName).collection("Pending").doc(parentUID);
+    const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
     pendingDocRef.get()
     .then((doc) => {
       if(doc.exists) {
-        let pendingStudents = doc.get("pendingStudents");
-        //FIXME: need to select which student you want to work on
-        let docData = pendingStudents[0];
-        for(const key in docData) {
+        //FIXME: need to set the inputs that are dynamically created
+        for(const key in doc.data()) {
           let element = document.getElementById(key);
           if (element) {
-            element.value = docData[key];
+            element.value = doc.data()[key];
+          }
+        }
+
+        //special case for dynamic elements
+
+        //act tests
+        let studentActTests = doc.data()["studentActTests"];
+        if (studentActTests) {
+          for (let i = 0; i < studentActTests.length; i++) {
+            console.log(studentActTests[i]["date"]);
+            let test = studentActTests[i];
+            addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
+          }
+        }
+        
+        //scholarship goals
+        let studentScholarshipArray = doc.data()["studentScholarshipArray"];
+        if (studentScholarshipArray) {
+          for (let i = 0; i < studentScholarshipArray.length; i++) {
+            addElement("studentScholarshipArray",studentScholarshipArray[i]);
+          }
+        }
+
+        //top colleges
+        let studentCollegeArray = doc.data()["studentCollegeArray"];
+        if (studentCollegeArray) {
+          for (let i = 0; i < studentCollegeArray.length; i++) {
+            addElement("studentCollegeArray",studentCollegeArray[i]);
+          }
+        }
+
+        //extracurriculars
+        let studentExtracurricularArray = doc.data()["studentExtracurricularArray"];
+        if (studentExtracurricularArray) {
+          for (let i = 0; i < studentExtracurricularArray.length; i++) {
+            addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
           }
         }
       }
