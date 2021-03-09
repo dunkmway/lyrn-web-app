@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Post Sign In</title>
+    <link href="post-sign-in.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+    <script src="Site Templates/site-wide.js"></script>
+    <script src="post-sign-in.js"></script>
+
+  </head>
+
+  <body>
+    <section>
+      <div class="header">
+        <div class="input-block">
+          <label class="label">Pending Students</label>
+          <select id="pendingStudents" name="pending-student" onchange="pendingStudentSelected(this)">
+            <option disabled selected>Choose a student</option>
+          </select>
+        </div>
+        <div class="input-block">
+          <label class="label">Active Students</label>
+          <select id="activeStudents" name="active-students">
+            <option disabled selected>Choose a student</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+          </select>
+        </div>
+        <div class="input-block">
+          <label class="label">Parents</label>
+          <select id="activeParents" name="active-parents">
+            <option disabled selected>Choose a parent</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+            <option value="Test">Test</option>
+          </select>
+        </div>
+      </div>
+      <button class="button" onclick="goToInquiry()">Inquiry</button>
+    </section>
+  </body>

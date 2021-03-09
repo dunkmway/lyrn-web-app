@@ -1,0 +1,330 @@
+body {
+    background-image: url("../../Images/Glacier5.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: black;
+    font-family: Roboto, sans-serif;
+}
+
+h2 {
+    margin-bottom: 5px;
+}
+
+.line {
+    height: 1px;
+    width: 80%;
+    border-bottom: black 1px solid;
+    margin-left: 10%;
+    margin-top: 30px;
+}
+
+form {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 600px;
+    height: 100%;
+    background-color: white;
+}
+
+::placeholder {
+    color: rgb(0, 0, 0, 0.3);
+  }
+
+#section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 98vh;
+    width: 98vw;
+}
+
+#parentForm {
+    display: flex;
+}
+
+#studentForm {
+    display: none;
+}
+
+.registration-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    align-items: stretch;
+    background-color: white;
+    height: 90vh;
+    min-height: 400px;
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
+    max-width: 650px;
+}
+
+.heading-block {
+    background-color: #110D65;
+    font-size: 24px;
+    color: white;
+    text-align: center;
+    padding: 1%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    align-self: stretch;
+}
+
+.progress-wrapper {
+    width: 60%
+}
+
+.progress-bar {
+    padding: 0px;
+    counter-reset: step;
+}
+
+.progress-bar li {
+    list-style-type: none;
+    float: left;
+    width: 33.33%;
+    position: relative;
+    text-align: center;
+}
+
+.progress-bar li::after {
+    content: counter(step);
+    counter-increment: step;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border: 2px solid #110D65;
+    border-radius: 50%;
+    display: block;
+    text-align: center;
+    margin: 10px auto 0 auto;
+    background-color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.progress-bar li::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background-color: #110D65;
+    top: 43px;
+    left: -50%;
+    z-index: 0;
+}
+
+.progress-bar li:first-child:before {
+    content: none;
+}
+
+.progress-bar li.active {
+    color: green
+}
+
+.progress-bar li.active::after {
+    border-color: green;
+    content: '✓';
+}
+
+.progress-bar li.active + li::before {
+    background-color: green;
+}
+
+button {
+  margin-bottom: 10px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  background-color: rgb(255, 0, 0);
+  text-align: center;
+  color: white;
+}
+
+#form-scroll-block {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 25px;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    padding-left: 8%;
+    padding-right: 8%;
+    align-items: center;
+}
+
+.input-row-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 8%;
+    padding-right: 8%;
+    align-items: center;
+}
+
+.input-row-checkbox {
+    align-items: center;
+}
+
+@media screen and (max-width: 1000px) {
+    .input-row {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        padding-left: 8%;
+        padding-right: 8%;
+    }
+}
+
+.input-row-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    width: max-content;
+    margin-left: 10px;
+}
+
+@media screen and (max-width: 1000px) {
+    .input-row-buttons {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        padding-left: 8%;
+        padding-right: 8%;
+    }
+}
+
+.button {
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.firstButton {
+    margin-left: 10px;
+}
+
+.buttonsDiv {
+    /* width: 100%; */
+    justify-content: space-between;
+    padding-top: 3%;
+}
+
+.backButton {
+    background-color: rgb(255, 0, 0);
+    margin-left: 30px;
+    opacity: 0;
+}
+
+.nextButton {
+    margin-right: 30px;
+    opacity: 1;
+}
+
+.submitButton {
+  background-color: green;
+}
+
+textarea {
+    margin-top: 15px;
+}
+
+.input-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  #actDiv {
+      margin: 0;
+  }
+  
+  .input {
+    width: 90%;
+    max-width: 300px;
+    height: 2em;
+    font-size: 16px;
+    font-weight: 200;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+    background-color: rgb(200, 200, 200, .25);
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2%;
+  }
+
+  .checkbox {
+      box-shadow: none;
+      height: auto;
+      width: auto;
+      margin-left: 5px;
+      margin-right: 0px;
+      margin-top: 0px;
+      margin-bottom: 0px;
+  }
+
+  .label {
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    color: black;
+  }
+
+
+#agreementDiv {
+    border-style: solid;
+    border-width: 2px;
+    margin: 10px;
+}
+
+
+p {
+    margin-bottom: 0px;
+    word-wrap: normal;
+    width: 90%;
+}
+
+
+#statement {
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.date {
+    max-width: 100px;
+}
+
+.initials {
+    width: 40px;
+    margin-left: 4px;
+}
+
+p.errorMessage {
+    margin-top: -1%;
+    color: red;
+}
