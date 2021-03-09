@@ -85,8 +85,7 @@ function validateInputBirthday(input) {
   return true;
 }
 
-function submit(type) {
-  console.log(type);
+function submit() {
   //reset the error message and input errors. disable the submit button
   let allInputs = document.querySelectorAll("input, select");
   let errorMessages = document.querySelectorAll(".errorMessage");

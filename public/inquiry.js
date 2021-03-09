@@ -64,6 +64,7 @@ function createInquiry() {
       password: "abc123",
     })
     .then((result) => {
+
       let parentUID = result.data.user.uid;
       newUser = result.data.newUser;
       console.log(parentUID);

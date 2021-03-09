@@ -59,6 +59,7 @@ function addElement(id, value = "") {
   newElement.setAttribute("type", "text");
   newElement.setAttribute("id", id + (parentElement.childElementCount - 1).toString());
   newElement.setAttribute("value", value);
+
   if (parentElement.childElementCount - 1 < placeholders[id].length) {
     newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 1]);
   }
@@ -99,11 +100,11 @@ function addActTest(date = "", english = "", math = "", reading = "", science = 
     element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date", ""], "input-block")
     element.addEventListener('keydown',enforceNumericFormat);
     element.addEventListener('keyup',formatToDate);
-
   }
   else {
     element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
   }
+
   dateElem.appendChild(element)
 
   scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36", english]], ["English:", ""], "input-block"))

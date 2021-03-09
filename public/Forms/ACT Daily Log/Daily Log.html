@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="Daily Log.css" rel="stylesheet">
+    </link>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="../../Site Templates/site-wide.js" defer></script>
+    <script src="Daily Log.js" defer></script>
+</head>
+
+
+<body>
+    <section id="section">
+        <form>
+            <div class="heading-block">
+                <h2>Daily Log</h2>
+            </div>
+
+
+            <div class = "input-block">
+                <div class = "input-row">
+                    <h2>Completed Homework</h2>
+                </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="homeworkStatus" class="label">Homework Status:</label>
+                        <select id="homeworkStatus" class="input">
+                            <option value="">Select Status</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Completed, but didn't bring it in">Completed, but didn't bring it in</option>
+                            <option value="Forgot to do">Forgot to do</option>
+                            <option value="First Session">First Session</option>
+                            <option value="Test">Test</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div id = "homeworkBreak" class = "line">
+            </div>
+
+
+
+            <div class="input-block">
+                <div class = "input-row">
+                    <h2>Session Details</h2>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="coveredTopic1" class="label">Section Covered:</label>
+                        <select id="coveredTopic1" class="input">
+                            <option value="">Section</option>
+                            <option value="English">English</option>
+                            <option value="Math">Math</option>
+                            <option value="Reading">Reading</option>
+                            <option value="Science">Science</option>
+                        </select>
+                    </div>
+
+                    <div class="input-block">
+                        <label for="lesson1" class="label">Lesson(s) Taught:</label>
+                        <select id="lesson1" class="input">
+                            <option value="">Lesson</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value=""></option>
+                        </select>
+                    </div>
+
+                    <div class="input-block">
+                        <label for="time1" class="label">Section Time:</label>
+                        <select id="time1" class="input">
+                            <option value="">Time</option>
+                            <option value="5">5 mins</option>
+                            <option value="10">10 mins</option>
+                            <option value="15">15 mins</option>
+                            <option value="20">20 mins</option>
+                            <option value="25">25 mins</option>
+                            <option value="30">30 mins</option>
+                            <option value="35">35 mins</option>
+                            <option value="40">40 mins</option>
+                            <option value="45">45 mins</option>
+                            <option value="50">50 mins</option>
+                            <option value="55">55 mins</option>
+                            <option value="60">60 mins</option>
+                            <option value="65">1h 5 mins</option>
+                            <option value="70">1h 10 mins</option>
+                            <option value="75">1h 15 mins</option>
+                            <option value="80">1h 20 mins</option>
+                            <option value="85">1h 25 mins</option>
+                            <option value="90">1h 30 mins</option>
+                            <option value="95">1h 35 mins</option>
+                            <option value="100">1h 40 mins</option>
+                            <option value="105">1h 45 mins</option>
+                            <option value="110">1h 50 mins</option>
+                            <option value="115">1h 55 mins</option>
+                            <option value="120">2h</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class = "input-row">
+                    <textarea id = "textBlock" rows = "10" cols="80">Session Notes</textarea>
+                </div>
+
+                <div class = "input-block">
+                    <div class = "input-row">
+                        <h3 id = "sessionPractice1">Practice</h3>
+                        <img src="../../Images/Add Button.png" alt="add practice ACT test" height=25px width=25px
+                            class="button" id="addPracticeACTButton" onclick="addPracticeTest(1)">
+                        <img src="../../Images/Remove Button.png" alt="remove practice ACT test" height=25px width=25px
+                            class="button" id="removePracticeACTButton" onclick="removePracticeTest(1)">
+                    </div>
+                </div>
+
+                <div class = "input-row">
+                </div>
+
+
+                <div class="input-row-center">
+                    <div>
+                        <img src="../../Images/Add Button.png" alt="add previous ACT test" height=30px width=30px
+                            class="button" id="addPreviousACTButton" onclick="addActTest()">
+                    </div>
+
+                    <div>
+                        <img src="../../Images/Remove Button.png" alt="remove previous ACT test" height=30px width=30px
+                            class="button" id="removePreviousACTButton" onclick="removeActTest()">
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </section>
+
+</body>
+
+</html>
