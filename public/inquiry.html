@@ -15,7 +15,8 @@
     <script src="inquiry.js" defer></script>
   </head>
 
-  <body>
+
+  <body onload="setLocations()">
     <section id="section">
       <div id = "inquiryForm" class="registration-block">
         <div class="heading-block">
@@ -25,11 +26,9 @@
           <form onsubmit="return false">
             <div class="input-row">
               <div class="input-block">
-                  <label for="locationName" class="label">Wasatch Location:</label>
-                  <select id="locationName" class="input location-data" required>
+                  <label for="location" class="label">Wasatch Location:</label>
+                  <select id="location" class="input location-data" required>
                     <option selected disabled value="">select a location</option>
-                    <option value="Sandy">Sandy</option>
-                    <option value="Lehi">Lehi</option>
                   </select>
               </div>
             </div>

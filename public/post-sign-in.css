@@ -1,3 +1,12 @@
+.input-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: stretch;
+  /* padding-left: 8%;
+  padding-right: 8%; */
+}
+
 .input-block {
   /* flex-grow: 1; */
   display: flex;
@@ -52,6 +61,7 @@ select {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  color: #110D65;
 }
 
 .button {
