@@ -17,8 +17,9 @@
 </head>
 
 
-<body>
+<body onload="initialSetup()">
     <section id="section">
+        <h2 id="studentName" style="color: white"></h2>
         <form>
             <div class="heading-block">
                 <h2>Daily Log</h2>
@@ -115,7 +116,7 @@
                 </div>
                 
                 <div class = "input-row">
-                    <textarea id = "textBlock" rows = "10" cols="80">Session Notes</textarea>
+                    <textarea placeholder="Session Notes" id = "textBlock" rows = "10" cols="80"></textarea>
                 </div>
 
                 <div class = "input-block">

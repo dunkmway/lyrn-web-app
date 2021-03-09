@@ -238,7 +238,6 @@ color: white;
 select {
   background: url("Images/select-dropdown.png") no-repeat 95%;
   -webkit-appearance: none;
-  /* height: 3em; */
 }
 
 /* select:valid {

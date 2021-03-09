@@ -56,3 +56,9 @@ function pendingStudentSelected(e) {
   let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
   window.location.href = "Forms/New Student/New Student Form.html" + queryStr;
 }
+
+function activeStudentSelected(e) {
+  let studentUID = e.value;
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "Forms/ACT Daily Log/Daily Log.html" + queryStr;
+}

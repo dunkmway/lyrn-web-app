@@ -1,3 +1,35 @@
+function initialSetup() {
+  var GET = {};
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+      GET[paramName] = paramValue;
+  });
+
+  const studentUID = GET["student"];
+
+  //get the student's general data
+  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  studentDocRef.get()
+  .then((doc) => {
+    if (doc.exists) {
+      let studentFirstName = doc.get("studentFirstName");
+      let studentLastName = doc.get("studentLastName");
+
+      let studentNameElem = document.getElementById("studentName");
+      studentNameElem.textContent = studentFirstName + " " + studentLastName;
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+
+}
+
 function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "input-row") {
   if (elementType.length >= 0) {
     let elements = createElement("div", flexType);

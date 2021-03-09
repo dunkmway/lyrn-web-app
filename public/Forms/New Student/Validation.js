@@ -507,6 +507,7 @@ function update() {
     Promise.all(promises)
     .then(() => {
       console.log("data successfully updated")
+      window.location.href = "../../post-sign-in.html";
     })
     .catch((error) => {
       console.log(error);
