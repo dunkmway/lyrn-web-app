@@ -66,3 +66,4 @@ node_modules/
 .env
 
 Duncan's Notes.txt
+.DS_Store
