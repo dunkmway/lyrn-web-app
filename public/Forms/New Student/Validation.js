@@ -87,8 +87,17 @@ function validateInputBirthday(input) {
 
 function submit() {
   //reset the error message and input errors. disable the submit button
+  document.getElementById("errMsg").textContent = "";
   let allInputs = document.querySelectorAll("input, select");
   let errorMessages = document.querySelectorAll(".errorMessage");
+  let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+  for (let i = 0; i < loadingBlocks.length; i ++) {
+    loadingBlocks[i].style.display = "block";
+  }
+  let submitButtons = document.getElementsByClassName("submitButton");
+  for (let i = 0; i < submitButtons.length; i ++) {
+    submitButtons[i].disabled = true;
+  }
 
   for (let i = errorMessages.length - 1; i >= 0; i--) {
       errorMessages[i].remove()
@@ -201,119 +210,135 @@ function submit() {
 
       if (newUser) {
         var GET = {};
-      var queryString = window.location.search.replace(/^\?/, '');
-      queryString.split(/\&/).forEach(function(keyValuePair) {
+        var queryString = window.location.search.replace(/^\?/, '');
+        queryString.split(/\&/).forEach(function(keyValuePair) {
         var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
         var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
         GET[paramName] = paramValue;
-      });
+        });
 
-      const studentTempUID = GET["student"];
-      const parentUID = GET["parent"];
-      const location = GET["location"];
+        const studentTempUID = GET["student"];
+        const parentUID = GET["parent"];
+        const location = GET["location"];
 
-      //set up the student doc
-      let studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-      let studentDocData = {
-        ...studentInfo,
-        role: "student",
-        parent: parentUID,
-        location: location
-      }
-      let studentProm = studentDocRef.set(studentDocData)
-      .then((result) => {
-        console.log("student document successfully written!");
-        console.log(result);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.code);
-        console.log(error.message);
-        document.getElementById("errMsg").textContent = error.message;
-        console.log(error.details);
-      });
+        //set up the student doc
+        let studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+        let studentDocData = {
+          ...studentInfo,
+          role: "student",
+          parent: parentUID,
+          location: location
+        }
+        let studentProm = studentDocRef.set(studentDocData)
+        .then((result) => {
+          console.log("student document successfully written!");
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          console.log(error.details);
+        });
 
-      //update the active student object for this location
-      const locationDocRef = firebase.firestore().collection("Locations").doc(location);
-      let activeStudent = {
-        studentFirstName: studentInfo["studentFirstName"],
-        studentLastName: studentInfo["studentLastName"],
-        parentUID: parentUID,
-        parentFirstName: parentInfo["parentFirstName"],
-        parentLastName: parentInfo["parentLastName"]
-      }
-      let locationProm = locationDocRef.update({
-        [`activeStudents.${studentUID}`]: activeStudent,
-        [`pendingStudents.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
-      })
-      .then((result) => {
-        console.log("location document successfully written!");
-        console.log(result);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.code);
-        console.log(error.message);
-        document.getElementById("errMsg").textContent = error.message;
-        console.log(error.details);
-      });
-
-      //update the parent doc
-      const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-      parentDocData = {
-        ...parentInfo,
-        [`active.${studentUID}`]: {
+        //update the active student object for this location
+        const locationDocRef = firebase.firestore().collection("Locations").doc(location);
+        let activeStudent = {
           studentFirstName: studentInfo["studentFirstName"],
-          studentLastName: studentInfo["studentLastName"]
-        },
-        [`pending.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
-      }
-      let parentProm = parentDocRef.update(parentDocData)
-      .then((result) => {
-        console.log("parent document successfully written!");
-        console.log(result);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.code);
-        console.log(error.message);
-        document.getElementById("errMsg").textContent = error.message;
-        console.log(error.details);
-      });
+          studentLastName: studentInfo["studentLastName"],
+          parentUID: parentUID,
+          parentFirstName: parentInfo["parentFirstName"],
+          parentLastName: parentInfo["parentLastName"]
+        }
+        let locationProm = locationDocRef.update({
+          [`activeStudents.${studentUID}`]: activeStudent,
+          [`pendingStudents.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
+        })
+        .then((result) => {
+          console.log("location document successfully written!");
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          console.log(error.details);
+        });
 
-      //delete the location pending doc
-      const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
-      let pendingProm = pendingDocRef.delete()
-      .then((result) => {
-        console.log("pending document successfully deleted!");
-        console.log(result);
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.code);
-        console.log(error.message);
-        document.getElementById("errMsg").textContent = error.message;
-        console.log(error.details);
-      });
+        //update the parent doc
+        const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+        parentDocData = {
+          ...parentInfo,
+          [`active.${studentUID}`]: {
+            studentFirstName: studentInfo["studentFirstName"],
+            studentLastName: studentInfo["studentLastName"]
+          },
+          [`pending.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
+        }
+        let parentProm = parentDocRef.update(parentDocData)
+        .then((result) => {
+          console.log("parent document successfully written!");
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          console.log(error.details);
+        });
 
-      //verify that all promises have resolved
-      let promises = [studentProm ,parentProm, pendingProm, locationProm];
-      Promise.all(promises)
-      .then(() => {
-        console.log("data successfully submitted")
-        window.location.href = "../../post-sign-in.html";
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.code);
-        console.log(error.message);
-        document.getElementById("errMsg").textContent = error.message;
-        console.log(error.details);
-      });
+        //delete the location pending doc
+        const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
+        let pendingProm = pendingDocRef.delete()
+        .then((result) => {
+          console.log("pending document successfully deleted!");
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          console.log(error.details);
+        });
+
+        //verify that all promises have resolved
+        let promises = [studentProm ,parentProm, pendingProm, locationProm];
+        Promise.all(promises)
+        .then(() => {
+          console.log("data successfully submitted")
+          window.location.href = "../../post-sign-in.html";
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          console.log(error.details);
+          let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+          for (let i = 0; i < loadingBlocks.length; i ++) {
+            loadingBlocks[i].style.display = "none";
+          }
+          let submitButtons = document.getElementsByClassName("submitButton");
+          for (let i = 0; i < submitButtons.length; i ++) {
+            submitButtons[i].disabled = false;
+          }
+        });
       }
       else {
         //the student already exists
         document.getElementById("errMsg").textContent = "This student already exists!";
+        let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+        for (let i = 0; i < loadingBlocks.length; i ++) {
+          loadingBlocks[i].style.display = "none";
+        }
+        let submitButtons = document.getElementsByClassName("submitButton");
+        for (let i = 0; i < submitButtons.length; i ++) {
+          submitButtons[i].disabled = false;
+        }
       }
     })
     .catch((error) => {
@@ -321,14 +346,44 @@ function submit() {
       console.log(error.code);
       console.log(error.message);
       console.log(error.details);
+      let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+      for (let i = 0; i < loadingBlocks.length; i ++) {
+        loadingBlocks[i].style.display = "none";
+      }
+      let submitButtons = document.getElementsByClassName("submitButton");
+      for (let i = 0; i < submitButtons.length; i ++) {
+        submitButtons[i].disabled = false;
+      }
     });
   }
+  else {
+    //validation failed
+    let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+    for (let i = 0; i < loadingBlocks.length; i ++) {
+      loadingBlocks[i].style.display = "none";
+    }
+    let submitButtons = document.getElementsByClassName("submitButton");
+    for (let i = 0; i < submitButtons.length; i ++) {
+      submitButtons[i].disabled = false;
+    }
+  }
+
+  
 }
 
 function update() {
   //reset the error message and input errors. disable the submit button
+  document.getElementById("errMsg").textContent = "";
   let allInputs = document.querySelectorAll("input, select");
   let errorMessages = document.querySelectorAll(".errorMessage");
+  let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+  for (let i = 0; i < loadingBlocks.length; i ++) {
+    loadingBlocks[i].style.display = "block";
+  }
+  let submitButtons = document.getElementsByClassName("submitButton");
+  for (let i = 0; i < submitButtons.length; i ++) {
+    submitButtons[i].disabled = true;
+  }
 
   for (let i = errorMessages.length - 1; i >= 0; i--) {
       errorMessages[i].remove()
@@ -508,6 +563,14 @@ function update() {
     .then(() => {
       console.log("data successfully updated")
       window.location.href = "../../post-sign-in.html";
+      let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+      for (let i = 0; i < loadingBlocks.length; i ++) {
+        loadingBlocks[i].style.display = "none";
+      }
+      let submitButtons = document.getElementsByClassName("submitButton");
+      for (let i = 0; i < submitButtons.length; i ++) {
+        submitButtons[i].disabled = false;
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -515,6 +578,25 @@ function update() {
       console.log(error.message);
       document.getElementById("errMsg").textContent = error.message;
       console.log(error.details);
+      let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+      for (let i = 0; i < loadingBlocks.length; i ++) {
+        loadingBlocks[i].style.display = "none";
+      }
+      let submitButtons = document.getElementsByClassName("submitButton");
+      for (let i = 0; i < submitButtons.length; i ++) {
+        submitButtons[i].disabled = false;
+      }
     });
+  }
+  else {
+    //validation failed
+    let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+      for (let i = 0; i < loadingBlocks.length; i ++) {
+        loadingBlocks[i].style.display = "none";
+      }
+    let submitButtons = document.getElementsByClassName("submitButton");
+    for (let i = 0; i < submitButtons.length; i ++) {
+      submitButtons[i].disabled = false;
+    }
   }
 }

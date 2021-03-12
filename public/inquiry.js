@@ -24,6 +24,7 @@ function setLocations () {
 function createInquiry() {
   document.getElementById("errMsg").textContent = "";
   document.getElementById("submitBtn").disabled = true;
+  document.getElementById("spinnyBoi").style.display = "block";
   let allInputs = getAllInputs();
   let allInputValues = {};
 
@@ -132,7 +133,8 @@ function createInquiry() {
           Promise.all(promises)
           .then(() => {
             window.location.href = "post-sign-in.html";
-            document.getElementById("submitBtn").disabled = true;
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("spinnyBoi").style.display = "none";
           })
           .catch((error) => {
             console.log(error);
@@ -140,7 +142,8 @@ function createInquiry() {
             console.log(error.message);
             document.getElementById("errMsg").textContent = error.message;
             console.log(error.details);
-            document.getElementById("submitBtn").disabled = true;
+            document.getElementById("submitBtn").disabled = false;
+            document.getElementById("spinnyBoi").style.display = "none";
           });
         })
         .catch((error) => {
@@ -149,12 +152,15 @@ function createInquiry() {
           console.log(error.message);
           document.getElementById("errMsg").textContent = error.message;
           console.log(error.details);
+          document.getElementById("submitBtn").disabled = false;
+          document.getElementById("spinnyBoi").style.display = "none";
         });
       }
       else {
         //the user already exists. Prompt the user to navigate to the parent's profile page
         document.getElementById("submitBtn").disabled = false;
         document.getElementById("errMsg").textContent = "This parent already exists!";
+        document.getElementById("spinnyBoi").style.display = "none";
       }
     })
     .catch((error) => {
@@ -164,7 +170,13 @@ function createInquiry() {
       document.getElementById("errMsg").textContent = error.message;
       console.log(error.details);
       document.getElementById("submitBtn").disabled = false;
+      document.getElementById("spinnyBoi").style.display = "none";
     });
+  }
+  else {
+    //validation failed
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("spinnyBoi").style.display = "none";
   }
 }
 
@@ -186,14 +198,13 @@ function getStudentInputs() {
 
 function validateFields(inputs) {
   let allClear = true;
-  let errorMessages = document.querySelectorAll("p[id$=\"ErrorMessage\"]");
+  let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
   for (let err = errorMessages.length - 1; err >= 0; err--) {
     errorMessages[err].remove()
   }
 
   for(i = 0; i < inputs.length; i++) {
-
     if(inputs[i].hasAttribute("required") && inputs[i].value == "") {
       inputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [inputs[i].id + "ErrorMessage"], "* Required *"));
       allClear = false;
