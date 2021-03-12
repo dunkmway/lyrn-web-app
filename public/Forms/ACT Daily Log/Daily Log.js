@@ -81,7 +81,7 @@ function createElements(elementType = [], classes = [], attributes = [], values 
 
   }
 
-document.getElementById("homeworkStatus").addEventListener("change", target => {
+/*document.getElementById("homeworkStatus").addEventListener("change", target => {
     if (target.target.value == "Completed") {
         addCompletedHomework();
     }
@@ -96,7 +96,7 @@ document.getElementById("homeworkStatus").addEventListener("change", target => {
             images[i].remove();
         }
     }
-});
+});*/
 
 function addCompletedHomework() {
     childCount = document.querySelectorAll("label[for^=\"homeworkTest\"").length
@@ -185,3 +185,82 @@ function addPracticeTest(sectionID) {
 
 };
 
+/*
+ * This will set the display of the form you send in to 'flex' and all the others to 'none'
+ */
+function openForm(id) {
+  console.log(id);
+  forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog"];
+
+  for (let i = 0; i < forms.length; i++) {
+    form = document.getElementById(forms[i]);
+    if (forms[i] != id) {
+      form.style.display = "none";
+    }
+    else {
+      if (id == "dailyLog") {
+        form.style.display = "block"
+      }
+      else {
+        form.style.display = "flex";
+      }
+    }
+  }
+}
+
+// Change the colors of the test boxes
+let homeworkTests = document.getElementById("homeworkTests");
+homeworkTests.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let inCenterTests = document.getElementById("inCenterTests");
+inCenterTests.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let otherTests = document.getElementById("otherTests");
+otherTests.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
