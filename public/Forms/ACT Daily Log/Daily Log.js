@@ -185,11 +185,24 @@ function addPracticeTest(sectionID) {
 
 };
 
+//function addSession() {
+  //let section = createElements(["label", "select"], [["label"], ["input"]], [["for"], ["id"]], [["section"]])
+//}
+
 /*
  * This will set the display the form of the id you pass in and all the other forms are set to 'none'
  */
 function openForm(id) {
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm"];
+  if (id == '1' || id == '2' || id == '3' || id == '4') {
+    let section = document.getElementById("section" + id);
+    if (section.value != "") {
+      id = section.value.toLowerCase() + "LessonsForm";
+    }
+    else {
+      id = "dailyLog";
+    }
+  }
 
   for (let i = 0; i < forms.length; i++) {
     let form = document.getElementById(forms[i]);
@@ -210,7 +223,7 @@ function openForm(id) {
 // Change the colors of the test boxes
 let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+  if (event.target.className.includes("button2")) {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
     }
@@ -229,7 +242,7 @@ homeworkTests.addEventListener('click', function(event)  {
 // Change the colors of the test boxes
 let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+  if (event.target.className.includes("button2")) {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
     }
@@ -248,7 +261,83 @@ inCenterTests.addEventListener('click', function(event)  {
 // Change the colors of the test boxes
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && !event.target.className.includes("testTab")) {
+  if (event.target.className.includes("button2")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let englishLessons = document.getElementById("englishLessons");
+englishLessons.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let mathLessons = document.getElementById("mathLessons");
+mathLessons.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let readingLessons = document.getElementById("readingLessons");
+readingLessons.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2")) {
+    if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
+      event.target.style.backgroundColor = "yellow";
+    }
+    else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "red";
+    }
+    else {
+      event.target.style.backgroundColor = "";
+    }
+  }
+})
+
+// Change the colors of the test boxes
+let scienceLessons = document.getElementById("scienceLessons");
+scienceLessons.addEventListener('click', function(event)  {
+  if (event.target.className.includes("button2")) {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
     }
