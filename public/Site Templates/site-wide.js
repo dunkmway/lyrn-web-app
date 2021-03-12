@@ -30,14 +30,14 @@ var errorMessage = error.message;
 });
 
 var privatePages = [
-    "Forms/New%20Student/New%20Student%20Form",
-    "Forms/ACT%20Daily%20Log/Daily%20Log",
-    "inquiry",
-    "post-sign-in"
+    // "Forms/New%20Student/New%20Student%20Form",
+    // "Forms/ACT%20Daily%20Log/Daily%20Log",
+    // "inquiry",
+    // "post-sign-in"
 ]
 
 var publicPages = [
-    "Sign-In/Sign-In"
+    // "Sign-In/Sign-In"
 ]
 
 firebase.auth().onAuthStateChanged(function (user) {
