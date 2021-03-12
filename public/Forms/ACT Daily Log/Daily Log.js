@@ -186,7 +186,7 @@ function addPracticeTest(sectionID) {
 };
 
 /*
- * This will set the display of the form you send in to 'flex' and all the others to 'none'
+ * This will set the display the form of the id you pass in and all the other forms are set to 'none'
  */
 function openForm(id) {
   console.log(id);
