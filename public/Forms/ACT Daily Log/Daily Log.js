@@ -189,11 +189,10 @@ function addPracticeTest(sectionID) {
  * This will set the display the form of the id you pass in and all the other forms are set to 'none'
  */
 function openForm(id) {
-  console.log(id);
-  forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog"];
 
   for (let i = 0; i < forms.length; i++) {
-    form = document.getElementById(forms[i]);
+    let form = document.getElementById(forms[i]);
     if (forms[i] != id) {
       form.style.display = "none";
     }
