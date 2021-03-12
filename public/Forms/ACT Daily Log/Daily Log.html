@@ -19,8 +19,595 @@
 
 <body onload="initialSetup()">
     <section id="section">
-        <h2 id="studentName" style="color: white"></h2>
-        <form>
+        <div id = "homeworkTestsForm" class = "metaForm">
+            <div id = "homeworkTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2" onclick = "openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "homeworkStatusDiv" class = "input-row-center">
+
+                <button class = "button">
+                    First Session
+                </button>
+
+                <button class = "button">
+                    Took Test
+                </button>
+
+            </div>
+
+            <div id = "homeworkTests" class = "tests">
+
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+
+                <div class = "gridBox">
+                    B02
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    74F
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    72F
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    B04
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    71H
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    A11
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    74C
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    71G
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+            </div>
+                <div class = "input-row-center formEnd">
+
+                    <button class = "button" onclick = "openForm('dailyLog')">
+                        Back
+                    </button>
+
+                    <button class = "button">
+                        Submit
+                    </button>
+
+                </div>
+
+
+        </div>
+
+
+        <div id = "inCenterTestsForm" class = "metaForm">
+            <div id = "inCenterTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "inCenterStatusDiv" class = "input-row-center">
+
+                <button class = "button">
+                    First Session
+                </button>
+
+                <button class = "button">
+                    Took Test
+                </button>
+
+            </div>
+
+            <div id = "inCenterTests" class = "tests">
+
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+
+                <div class = "gridBox">
+                    MC3
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    A09
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    A10
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    72C
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    B05
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    71E
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    MC2
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    69A
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+            </div>
+                <div class = "input-row-center formEnd">
+
+                    <button class = "button" onclick = "openForm('dailyLog')">
+                        Back
+                    </button>
+
+                    <button class = "button">
+                        Submit
+                    </button>
+
+                </div>
+
+
+        </div>
+
+
+        <div id = "otherTestsForm" class = "metaForm">
+            <div id = "otherTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "otherStatusDiv" class = "input-row-center">
+
+                <button class = "button">
+                    First Session
+                </button>
+
+                <button class = "button">
+                    Took Test
+                </button>
+
+            </div>
+
+            <div id = "otherTests" class = "tests">
+
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+
+                <div class = "gridBox">
+                    C02
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    73E
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    D02
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    72G
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    71A
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    68G
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    68A
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox">
+                    67A
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+                <div class = "gridBox button2">
+                </div>
+
+            </div>
+                <div class = "input-row-center formEnd">
+
+                    <button class = "button" onclick = "openForm('dailyLog')">
+                        Back
+                    </button>
+
+                    <button class = "button">
+                        Submit
+                    </button>
+
+                </div>
+
+
+        </div>
+
+
+        <form id = "dailyLog">
             <div class="heading-block">
                 <h2>Daily Log</h2>
             </div>
@@ -33,7 +620,8 @@
                 <div class="input-row">
                     <div class="input-block">
                         <label for="homeworkStatus" class="label">Homework Status:</label>
-                        <select id="homeworkStatus" class="input">
+                        <button onclick = "openForm('homeworkTestsForm')">Homework Status</button>
+                        <!--<select id="homeworkStatus" class="input">
                             <option value="">Select Status</option>
                             <option value="Completed">Completed</option>
                             <option value="Completed, but didn't bring it in">Completed, but didn't bring it in</option>
@@ -41,7 +629,7 @@
                             <option value="First Session">First Session</option>
                             <option value="Test">Test</option>
                             <option value="Other">Other</option>
-                        </select>
+                        </select>-->
                     </div>
                 </div>
             </div>

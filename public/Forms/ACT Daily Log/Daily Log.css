@@ -22,9 +22,79 @@ form {
     position: absolute;
     top: 0px;
     right: 0px;
-    width: 600px;
+    width: 500px;
     height: 100%;
     background-color: white;
+}
+
+.tests {
+    height: 75%;
+    display: grid;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+    grid-template-rows: 4% 12% 12% 12% 12% 12% 12% 12% 12%;
+    text-align: center;
+}
+
+.gridBox {
+    border-style: solid;
+}
+
+.metaForm {
+    position: absolute;
+    display: flex;
+    --display: none;
+    flex-direction: column;
+    top: 0px;
+    right: 0px;
+    width: 500px;
+    height: 100%;
+    background-color: white;
+}
+
+#homeworkTestsTabs {
+    padding: 0px;
+    align-items: flex-start;
+    height: 8%;
+}
+
+#inCenterTestsTabs {
+    padding: 0px;
+    align-items: flex-start;
+    height: 8%;
+}
+
+#otherTestsTabs {
+    padding: 0px;
+    align-items: flex-start;
+    height: 8%;
+}
+
+.testTab {
+    background-color: #110D65;
+    height: 75%;
+    width: 33%;
+    margin-left: 5px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    text-align: center;
+    color: white;
+    font-size: larger;
+}
+
+#dailyLog {
+    --display: none;
+}
+
+#homeworkTestsForm {
+    display: none;
+}
+
+#inCenterTestsForm {
+    display:none;
+}
+
+#inCenterTestsForm {
+    display:none;
 }
 
 ::placeholder {
@@ -221,6 +291,10 @@ button {
     cursor: pointer;
 }
 
+.button2 {
+    cursor: pointer;
+}
+
 .firstButton {
     margin-left: 10px;
 }
@@ -332,4 +406,29 @@ p {
 p.errorMessage {
     margin-top: -1%;
     color: red;
+}
+
+.first {
+    margin-left: 0px;
+}
+
+#homeworkStatusDiv {
+    height: 10%;
+}
+
+#inCenterStatusDiv {
+    height: 10%;
+}
+
+#otherStatusDiv {
+    height: 10%;
+}
+
+.selected {
+    height: 100%;
+}
+
+.formEnd {
+    height: 7%;
+    justify-content: space-between;
 }
