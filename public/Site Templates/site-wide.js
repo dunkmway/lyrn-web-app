@@ -30,30 +30,35 @@ var errorMessage = error.message;
 });
 
 var privatePages = [
-    "New Parent Form/New Parent Form"
+    "Forms/New%20Student/New%20Student%20Form",
+    "Forms/ACT%20Daily%20Log/Daily%20Log",
+    "inquiry",
+    "post-sign-in"
 ]
 
 var publicPages = [
+    "Sign-In/Sign-In"
 ]
 
 firebase.auth().onAuthStateChanged(function (user) {
     var currentPath = window.location.pathname;
+    console.log(currentPath);
     if (user) {
         //User is logged in
         console.log('User is logged in!');
-        if (publicPages.includes(currentPath)) {
-            window.location.replace = '/index.js';
-        }
-        else {
+        for (let i = 0; i < publicPages.length; i++) {
+            if (currentPath.includes(publicPages[i])) {
+                window.location.replace(window.location.pathname.split("public")[0] + 'public/post-sign-in.html');
+            }
         }
     }
     else {
         //User is logged out
         console.log('No user is logged in')
-        if (privatePages.includes(currentPath)) {
-            window.location.replace = '/Sign-In/Sign-In.html';
-        }
-        else {
+        for (let i = 0; i < privatePages.length; i++) {
+            if (currentPath.includes(privatePages[i])) {
+                window.location.replace(window.location.pathname.split("public")[0] + 'public/Sign-In/Sign-In.html');
+            }
         }
     }
 })
