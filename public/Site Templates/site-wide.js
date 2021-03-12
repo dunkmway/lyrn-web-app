@@ -41,24 +41,24 @@ var publicPages = [
 ]
 
 firebase.auth().onAuthStateChanged(function (user) {
-    var currentPath = window.location.pathname;
-    console.log(currentPath);
-    if (user) {
-        //User is logged in
-        console.log('User is logged in!');
-        for (let i = 0; i < publicPages.length; i++) {
-            if (currentPath.includes(publicPages[i])) {
-                window.location.replace(window.location.pathname.split("public")[0] + 'public/post-sign-in.html');
-            }
-        }
-    }
-    else {
-        //User is logged out
-        console.log('No user is logged in')
-        for (let i = 0; i < privatePages.length; i++) {
-            if (currentPath.includes(privatePages[i])) {
-                window.location.replace(window.location.pathname.split("public")[0] + 'public/Sign-In/Sign-In.html');
-            }
-        }
-    }
+    // var currentPath = window.location.pathname;
+    // console.log(currentPath);
+    // if (user) {
+    //     //User is logged in
+    //     console.log('User is logged in!');
+    //     for (let i = 0; i < publicPages.length; i++) {
+    //         if (currentPath.includes(publicPages[i])) {
+    //             window.location.replace(window.location.pathname.split("public")[0] + 'public/post-sign-in.html');
+    //         }
+    //     }
+    // }
+    // else {
+    //     //User is logged out
+    //     console.log('No user is logged in')
+    //     for (let i = 0; i < privatePages.length; i++) {
+    //         if (currentPath.includes(privatePages[i])) {
+    //             window.location.replace(window.location.pathname.split("public")[0] + 'public/Sign-In/Sign-In.html');
+    //         }
+    //     }
+    // }
 })
