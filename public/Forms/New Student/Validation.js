@@ -87,6 +87,7 @@ function validateInputBirthday(input) {
 
 function submit() {
   //reset the error message and input errors. disable the submit button
+  document.getElementById("errMsg").textContent = "";
   let allInputs = document.querySelectorAll("input, select");
   let errorMessages = document.querySelectorAll(".errorMessage");
   let loadingBlocks = document.getElementsByClassName("spinnyBoi");
@@ -372,6 +373,7 @@ function submit() {
 
 function update() {
   //reset the error message and input errors. disable the submit button
+  document.getElementById("errMsg").textContent = "";
   let allInputs = document.querySelectorAll("input, select");
   let errorMessages = document.querySelectorAll(".errorMessage");
   let loadingBlocks = document.getElementsByClassName("spinnyBoi");
