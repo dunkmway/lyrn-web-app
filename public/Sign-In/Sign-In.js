@@ -25,9 +25,41 @@ function login() {
   var password = passwordField.value;
 
   firebase.auth().signInWithEmailAndPassword(username, password)
-      .then(function() {
-          console.log("user logged in");
-          window.location.href = "../post-sign-in.html";
+      .then((result) => {
+        firebase.auth().currentUser.getIdTokenResult()
+        .then((idTokenResult) => {
+          // Confirm the user is an Admin.
+          let role = idTokenResult.claims.role;
+
+          switch (idTokenResult.claims.role) {
+            case "student":
+              window.location.href = "../Dashboard/Student.html";
+              break;
+            case "parent":
+              window.location.href = "../Dashboard/Parent.html";
+              break;
+            case "tutor":
+              window.location.href = "../Dashboard/Tutor.html";
+              break;
+            case "secratary":
+              window.location.href = "../Dashboard/Secratary.html";
+              break;
+            case "admin":
+              window.location.href = "../Dashboard/Admin.html";
+              break;
+            case "dev":
+              window.location.href = "../Dashboard/Dev.html";
+              break;
+            default:
+              errMsgElem.textContent = "Oops! You have no role. Let us know so we can fix that.";
+              errMsgElem.style.display = 'block';
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+        //window.location.href = "../post-sign-in.html";
       })
       .catch(function(error) {
           // Handle Errors here.

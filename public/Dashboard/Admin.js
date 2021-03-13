@@ -46,7 +46,7 @@ locationDocRef.get()
 
 
 function goToInquiry() {
-  window.location.href = "inquiry.html";
+  window.location.href = "../inquiry.html";
 }
 
 function pendingStudentSelected(e) {
@@ -54,11 +54,11 @@ function pendingStudentSelected(e) {
   let studentTempUID = uids.split(",")[0];
   let parentUID = uids.split(",")[1];
   let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
-  window.location.href = "Forms/New Student/New Student Form.html" + queryStr;
+  window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
 function activeStudentSelected(e) {
   let studentUID = e.value;
   let queryStr = "?student=" + studentUID;
-  window.location.href = "Forms/ACT Daily Log/Daily Log.html" + queryStr;
+  window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }

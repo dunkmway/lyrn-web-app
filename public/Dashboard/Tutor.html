@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tutor Dash</title>
+    <link href="Tutor.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+    <script src="../Site Templates/site-wide.js"></script>
+    <script src="Tutor.js"></script>
+
+  </head>
+
+  <body>
+    <section>
+      <div class="header">
+        <h2 id="locationName"></h2>
+        <h2>Welcome Tutor!</h2>
+      </div>
+      <div class="input-row">
+        <div class="input-block">
+          <label class="label">Active Students</label>
+          <select id="activeStudents" name="active-students" onchange="activeStudentSelected(this)">
+            <option disabled selected>Choose a student</option>
+          </select>
+        </div>
+      </div>
+    </section>
+  </body>
