@@ -81,113 +81,30 @@ function createElements(elementType = [], classes = [], attributes = [], values 
 
   }
 
-/*document.getElementById("homeworkStatus").addEventListener("change", target => {
-    if (target.target.value == "Completed") {
-        addCompletedHomework();
-    }
-    else {
-        let completedHomeworks = document.querySelectorAll("label[for^=\"homeworkTest\"");
-        for (let i = 0; i < completedHomeworks.length; i++) {
-            completedHomeworks[i].parentNode.parentNode.remove();
-        }
+function addSession(self) {
+  session_count = document.querySelectorAll("div[id^=\"session\"]").length;
+  ele = document.getElementById("session1").cloneNode(true);
+  ele.id = "session" + (session_count + 1).toString();
+  ele.querySelector("label[for=\"time1\"]").htmlFor = "time" + (session_count + 1).toString();
+  ele.querySelector("#time1").id = "time" + (session_count + 1).toString();
+  ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
+  ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
+  ele.querySelector("textarea").value = "";
 
-        let images = document.querySelectorAll("img[id^=\"completed\"");
-        for (let i = 0; i < images.length; i++) {
-            images[i].remove();
-        }
-    }
-});*/
-
-function addCompletedHomework() {
-    childCount = document.querySelectorAll("label[for^=\"homeworkTest\"").length
-    childCountString = (childCount + 1).toString()
-
-    if (childCount == 0) {
-        let loc = document.getElementById("homeworkStatus").parentNode;
-        let add = createElement("img", "button", ["src", "alt", "height", "width", "id", "onclick"], ["../../Images/Add Button.png", "Add another completed homework", "30px", "30px", "completedHomeworkAdd", "addCompletedHomework()"], "");
-        let remove = createElement("img", "button", ["src", "alt", "height", "width", "id", "onclick"], ["../../Images/Remove Button.png", "Remove the last completed homework", "30px", "30px", "completedHomeworkRemove", "removeCompletedHomework()"], "");
-        //let eles = combineElements([add, remove], "input-row");
-        loc.parentNode.appendChild(add);
-        loc.parentNode.appendChild(remove);
-    }
-
-    let location = document.getElementById("homeworkBreak");
-    //if (childCount != 0) {
-        //location = document.getElementById("completedHomeworkAdd").parentNode;
-    //}
-    let testIDs = ["B02", "74F", "72F", "B04", "71H", "A11", "74C", "71G", "MC3", "A09", "A10", "72C", "B05", "71E", "MC2", "69A"];
-    let sections = ["English", "Math", "Reading", "Science"];
-
-    let block1 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["homeworkTest" + childCountString], ["homeworkTest" + childCountString]], ["Homework Test", ""], "input-block");
-    block1.childNodes[1].appendChild(createElement("option", "", "value", "", "Test"));
-    for (let i = 0; i < testIDs.length; i++) {
-        block1.childNodes[1].appendChild(createElement("option", "", "value", testIDs[i], testIDs[i]));
-    }
-
-    let block2 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["homeworkSection" + childCountString], ["homeworkSection" + childCountString]], ["Homework Section", ""], "input-block");
-    block2.childNodes[1].appendChild(createElement("option", "", "value", "", "Section"));
-    for (let i = 0; i < sections.length; i++) {
-        block2.childNodes[1].appendChild(createElement("option", "", "value", sections[i], sections[i]));
-    }
-
-    let block3 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["homeworkScore" + childCountString], ["homeworkScore" + childCountString]], ["Homework Score", ""], "input-block");
-    block3.childNodes[1].appendChild(createElement("option", "", "value", "", "Score"));
-    for (let i = 0; i < 76; i++) {
-        let num = i.toString();
-        block3.childNodes[1].appendChild(createElement("option", "", "value", num, num));
-    }
-
-    let elements = combineElements([block1, block2, block3], "input-row");
-
-    location.parentNode.insertBefore(elements, location);
-
-};
-
-function removeCompletedHomework() {
-    let completedHomeworks = document.querySelectorAll("label[for^=\"homeworkTest\"");
-    if (completedHomeworks.length > 1) {
-        completedHomeworks[completedHomeworks.length - 1].parentNode.parentNode.remove();
-    }
+  if (session_count < 4) {
+    self.parentNode.parentNode.parentNode.insertBefore(ele, self.parentNode.parentNode)
+  }
+  
 }
 
-function addPracticeTest(sectionID) {
-    sectionIDString = sectionID.toString();
-    let location = document.getElementById("sessionPractice" + sectionIDString);
+function removeSession(self) {
+  sessions = document.querySelectorAll("div[id^=\"session\"]");
+  session_count = sessions.length;
 
-    let testIDs = ["MC3", "A09", "A10", "72C", "B05", "71E", "MC2", "69A", "B02", "74F", "72F", "B04", "71H", "A11", "74C", "71G"];
-    let sections = {"English":["Passage 1", "Passage 2", "Passage 3", "Passage 4", "Passage 5"],
-                    "Math": ["Q1 - Q15", "Q16 - Q30", "Q31 - 45", "Q46 - 60"],
-                    "Reading": ["Passage 1", "Passage 2", "Passage 3", "Passage 4"],
-                    "Science": ["Passage 1", "Passage 2", "Passage 3", "Passage 4", "Passage 5", "Passage 6", "Passage 7"]};
-
-    let block1 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["practiceTest" + sectionIDString], ["practiceTest" + sectionIDString]], ["Practice Test", ""], "input-block");
-    block1.childNodes[1].appendChild(createElement("option", "", "value", "", "Test"));
-    for (let i = 0; i < testIDs.length; i++) {
-        block1.childNodes[1].appendChild(createElement("option", "", "value", testIDs[i], testIDs[i]));
-    }
-
-    let block2 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["practiceSection" + sectionIDString], ["practiceSection" + sectionIDString]], ["Practice Section", ""], "input-block");
-    //block2.childNodes[1].appendChild(createElement("option", "", "value", "", "Section"));
-    //for (let i = 0; i < sections.length; i++) {
-        //block2.childNodes[1].appendChild(createElement("option", "", "value", sections[i], sections[i]));
-    //}
-
-    //let block3 = createElements(["label", "select"], ["label", "input"], [["for"], ["id"]], [["homeworkScore" + childCountString], ["homeworkScore" + childCountString]], ["Homework Score", ""], "input-block");
-    //block3.childNodes[1].appendChild(createElement("option", "", "value", "", "Score"));
-    //for (let i = 0; i < 76; i++) {
-        //let num = i.toString();
-        //block3.childNodes[1].appendChild(createElement("option", "", "value", num, num));
-    //}
-
-    let elements = combineElements([block1, block2], "input-row");
-
-    location.parentNode.parentNode.appendChild(elements);
-
-};
-
-//function addSession() {
-  //let section = createElements(["label", "select"], [["label"], ["input"]], [["for"], ["id"]], [["section"]])
-//}
+  if (session_count > 1) {
+    sessions[session_count - 1].remove();
+  }
+}
 
 /*
  * This will set the display the form of the id you pass in and all the other forms are set to 'none'

@@ -49,8 +49,7 @@
 
             </div>
 
-            <div id = "inCenterTests" class = "tests">
-
+            <div class = "testHeaders">
                 <div class = "gridBox">
                     Tests
                 </div>
@@ -70,21 +69,44 @@
                 <div class = "gridBox">
                     Science
                 </div>
+            </div>
+
+            <div id = "inCenterTests" class = "tests">
 
                 <div class = "gridBox">
                     MC3
                 </div>
 
-                <div class = "gridBox button2">
+                <div class = "grid5 gridBox button2">
+                    <div class = "border">Psg 1</div>
+                    <div class = "border">Psg 2</div>
+                    <div class = "border">Psg 3</div>
+                    <div class = "border">Psg 4</div>
+                    <div>Psg 5</div>
                 </div>
 
-                <div class = "gridBox button2">
+                <div class = "grid4 gridBox button2">
+                    <div class = "border">Q1 - Q15</div>
+                    <div class = "border">Q16 - Q30</div>
+                    <div class = "border">Q31 - Q45</div>
+                    <div>Q46 - Q60</div>
                 </div>
 
-                <div class = "gridBox button2">
+                <div class = "grid4 gridBox button2">
+                    <div class = "border">Prose Fiction</div>
+                    <div class = "border">Social Sci.</div>
+                    <div class = "border">Humanities</div>
+                    <div>Natural Sci.</div>
                 </div>
 
-                <div class = "gridBox button2">
+                <div class = "grid7 gridBox button2">
+                    <div class = "border">Psg 1</div>
+                    <div class = "border">Psg 2</div>
+                    <div class = "border">Psg 3</div>
+                    <div class = "border">Psg 4</div>
+                    <div class = "border">Psg 5</div>
+                    <div class = "border">Psg 6</div>
+                    <div>Psg 7</div>
                 </div>
 
                 <div class = "gridBox">
@@ -1554,7 +1576,7 @@
 
 
 
-            <div class="input-block">
+            <div id = "session1" class="input-block">
                 <div class = "input-row">
                     <h2>Session Details</h2>
                 </div>
@@ -1622,19 +1644,23 @@
                 <div class = "input-row">
                 </div>
 
+                <div id = "homeworkBreak" class = "line">
+                </div>
+
+            </div>
+
 
                 <div class="input-row-center">
                     <div>
                         <img src="../../Images/Add Button.png" alt="add previous ACT test" height=30px width=30px
-                            class="button" id="addPreviousACTButton" onclick="addActTest()">
+                            class="button" id="addPreviousACTButton" onclick="addSession(this)">
                     </div>
 
                     <div>
                         <img src="../../Images/Remove Button.png" alt="remove previous ACT test" height=30px width=30px
-                            class="button" id="removePreviousACTButton" onclick="removeActTest()">
+                            class="button" id="removePreviousACTButton" onclick="removeSession(this)">
                     </div>
                 </div>
-            </div>
 
             <div class = "input-row-center formEnd">
 
