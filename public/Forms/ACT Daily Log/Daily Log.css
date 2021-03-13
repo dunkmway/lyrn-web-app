@@ -27,14 +27,24 @@ form {
     background-color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+    overflow-y: auto;
 }
 
 .tests {
-    height: 75%;
+    height: 72.5%;
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
-    grid-template-rows: 4% 12% 12% 12% 12% 12% 12% 12% 12%;
+    --grid-template-rows: 4% 12% 12% 12% 12% 12% 12% 12% 12%;
+    grid-template-rows: 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em;
     text-align: center;
+    overflow-y: auto;
+}
+
+.testHeaders {
+    height: 2.5%;
+    display: grid;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+    grid-template-rows: 100%;
 }
 
 #englishLessons {
@@ -84,6 +94,28 @@ form {
 
 .gridBox {
     border-style: solid;
+}
+
+.grid4 {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 25.75% 25.75% 25.75% 22.75%; 
+}
+
+.grid5 {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 20.5% 20.5% 20.5% 20.5% 18%; 
+}
+
+.grid7 {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 14.5% 14.5% 14.5% 14.5% 14.5% 14.5% 13%;
+}
+
+.border {
+    border-bottom-style: solid;
 }
 
 .metaForm {
