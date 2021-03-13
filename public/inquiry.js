@@ -63,6 +63,7 @@ function createInquiry() {
     addUser({
       email: allInputValues['parentEmail'],
       password: "abc123",
+      role: "parent"
     })
     .then((result) => {
 
@@ -90,7 +91,7 @@ function createInquiry() {
           let parentDocData = {
             ...locationInputValues,
             ...parentInputValues,
-            role: "parent",
+            // role: "parent",
             pending: {[pendingStudentDoc]: studentInputValues}
           }
           let parentProm = parentDocRef.set(parentDocData)
@@ -132,7 +133,7 @@ function createInquiry() {
           let promises = [parentProm, locationProm];
           Promise.all(promises)
           .then(() => {
-            window.location.href = "post-sign-in.html";
+            window.history.back();
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("spinnyBoi").style.display = "none";
           })

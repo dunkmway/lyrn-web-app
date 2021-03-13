@@ -48,7 +48,7 @@ select {
   padding-left: 10px;
   padding-right: 50px;
   border: none;
-  background: url("Images/select-dropdown.png") no-repeat 95%;
+  background: url("../Images/select-dropdown.png") no-repeat 95%;
   color: #110D65;
   background-color: #fff;
   border-radius: 10px;

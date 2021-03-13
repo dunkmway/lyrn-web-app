@@ -201,6 +201,7 @@ function submit() {
     addUser({
       email: studentInfo['studentEmail'],
       password: "abc123",
+      role: "student"
     })
     .then((result) => {
       let studentUID = result.data.user.uid;
@@ -225,7 +226,7 @@ function submit() {
         let studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
         let studentDocData = {
           ...studentInfo,
-          role: "student",
+          // role: "student",
           parent: parentUID,
           location: location
         }
@@ -310,7 +311,7 @@ function submit() {
         Promise.all(promises)
         .then(() => {
           console.log("data successfully submitted")
-          window.location.href = "../../post-sign-in.html";
+          window.history.back();
         })
         .catch((error) => {
           console.log(error);
@@ -562,7 +563,7 @@ function update() {
     Promise.all(promises)
     .then(() => {
       console.log("data successfully updated")
-      window.location.href = "../../post-sign-in.html";
+      window.history.back();
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
         loadingBlocks[i].style.display = "none";
