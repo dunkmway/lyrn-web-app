@@ -1,3 +1,7 @@
+let test_view_type = 'none'
+let testData;
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data));
+
 function initialSetup() {
   var GET = {};
   var queryString = window.location.search.replace(/^\?/, '');
