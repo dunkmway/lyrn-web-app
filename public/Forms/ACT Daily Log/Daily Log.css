@@ -24,7 +24,7 @@ form {
     right: 0px;
     width: 500px;
     height: 100%;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     overflow-y: auto;
@@ -45,6 +45,7 @@ form {
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 100%;
+    text-align: center;
 }
 
 #englishLessons {
@@ -94,6 +95,15 @@ form {
 
 .gridBox {
     border-style: solid;
+    position: relative;
+}
+
+.gridBox p{
+    font-size: 32px;
+    position: absolute;
+    top: 1.625em;
+    padding-left: .1em;
+    margin: 0px;
 }
 
 .grid4 {
@@ -127,7 +137,7 @@ form {
     right: 0px;
     width: 500px;
     height: 100%;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
 }
 
 #homeworkTestsTabs {
@@ -151,13 +161,13 @@ form {
 .testTab {
     background-color: #110D65;
     height: 75%;
-    width: 33%;
-    margin-left: 5px;
+    width: 32.5%;
+    margin-left: 1.25%;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     text-align: center;
     color: white;
-    font-size: larger;
+    font-size: 25px;
 }
 
 #dailyLog {
@@ -348,17 +358,6 @@ button {
 
 .input-row-checkbox {
     align-items: center;
-}
-
-@media screen and (max-width: 1000px) {
-    .input-row {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: stretch;
-        padding-left: 8%;
-        padding-right: 8%;
-    }
 }
 
 .input-row-buttons {
