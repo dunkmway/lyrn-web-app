@@ -94,6 +94,7 @@ function addSession(self) {
   ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
   ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
   ele.querySelector("textarea").value = "";
+  ele.querySelector("button[onclick=\"openForm('1')\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "')");
 
   if (session_count < 4) {
     self.parentNode.parentNode.parentNode.insertBefore(ele, self.parentNode.parentNode)
