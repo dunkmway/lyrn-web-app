@@ -94,7 +94,7 @@ function addSession(self) {
   ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
   ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
   ele.querySelector("textarea").value = "";
-  ele.querySelector("button[onclick=\"openForm('1')\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "')");
+  ele.querySelector("button[onclick=\"openForm('1', this)\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "', this)");
 
   if (session_count < 4) {
     self.parentNode.parentNode.parentNode.insertBefore(ele, self.parentNode.parentNode)
@@ -114,7 +114,7 @@ function removeSession(self) {
 /*
  * This will set the display the form of the id you pass in and all the other forms are set to 'none'
  */
-function openForm(id) {
+function openForm(id, element) {
   let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm"];
   if (id == '1' || id == '2' || id == '3' || id == '4') {
     let section = document.getElementById("section" + id);
@@ -124,6 +124,13 @@ function openForm(id) {
     else {
       id = "dailyLog";
     }
+  }
+
+  if (id == "inCenterTestsForm" && !element.className.includes("testTab")) {
+    changeTests("inCenter");
+  }
+  else if (id == "homeworkTestsForm" && !element.className.includes("testTab")) {
+    changeTests("homework");
   }
 
   for (let i = 0; i < forms.length; i++) {
@@ -138,6 +145,37 @@ function openForm(id) {
       else {
         form.style.display = "flex";
       }
+    }
+  }
+}
+
+function changeTests(formType) {
+  if (formType == "inCenter" && test_view_type != 'inCenter') {
+    test_view_type = "inCenter"
+    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
+    for (let i = 0; i < test_boxes.length; i++ ) {
+      let test = test_boxes[i].getAttribute("data-test")
+      let section = test_boxes[i].getAttribute("data-section").toLowerCase()
+      let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
+
+      for (let passage = 0; passage < numberOfPassages - 1; passage++) {
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + (passage + 1).toString()], "border"));
+      }
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + numberOfPassages.toString()], ""));
+        test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
+    }
+  }
+  else if (formType == "homework" && test_view_type == "inCenter") {
+    test_view_type = "homework";
+    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
+    for (let i = 0; i < test_boxes.length; i++) {
+      let children = test_boxes[i].querySelectorAll("div");
+      for (let k = 0; k < children.length; k++) {
+        test_boxes[i][k].remove()
+      }
+    }
+    if (test_view_type == 'inCenter') {
+      console.log("I need to revert the boxes back to normal")
     }
   }
 }

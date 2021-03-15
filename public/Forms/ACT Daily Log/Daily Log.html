@@ -23,15 +23,15 @@
         <div id = "inCenterTestsForm" class = "metaForm">
             <div id = "inCenterTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm')">
+                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm', this)">
                     In-Center
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm', this)">
                     Homework
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('otherTestsForm')">
+                <div class = "testTab button2" onclick="openForm('otherTestsForm', this)">
                     Other
                 </div>
 
@@ -74,43 +74,23 @@
             <div id = "inCenterTests" class = "tests">
 
                 <div class = "gridBox" data-test = "MC3">
-                    <p>MC3</p>
+                    <p class = "gridBox-p">MC3</p>
                 </div>
 
                 <div class = "grid5 gridBox button2" data-test = "MC3" data-section = "English" data-testType = "none">
-                    <!--<div class = "border">Psg 1</div>
-                    <div class = "border">Psg 2</div>
-                    <div class = "border">Psg 3</div>
-                    <div class = "border">Psg 4</div>
-                    <div>Psg 5</div>-->
                 </div>
 
                 <div class = "grid4 gridBox button2" data-test = "MC3" data-section = "Math" data-testType = "none">
-                    <!--<div class = "border">Q1 - Q15</div>
-                    <div class = "border">Q16 - Q30</div>
-                    <div class = "border">Q31 - Q45</div>
-                    <div>Q46 - Q60</div>-->
                 </div>
 
                 <div class = "grid4 gridBox button2" data-test = "MC3" data-section = "Reading" data-testType = "none">
-                    <!--<div class = "border">Prose Fiction</div>
-                    <div class = "border">Social Sci.</div>
-                    <div class = "border">Humanities</div>
-                    <div>Natural Sci.</div>-->
                 </div>
 
                 <div class = "grid7 gridBox button2" data-test = "MC3" data-section = "Science" data-testType = "none">
-                    <!--<div class = "border">Psg 1</div>
-                    <div class = "border">Psg 2</div>
-                    <div class = "border">Psg 3</div>
-                    <div class = "border">Psg 4</div>
-                    <div class = "border">Psg 5</div>
-                    <div class = "border">Psg 6</div>
-                    <div>Psg 7</div>-->
                 </div>
 
                 <div class = "gridBox" data-test = "A09">
-                    <p>A09</p>
+                    <p class = "gridBox-p">A09</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "A09" data-section = "English" data-testType = "none">
@@ -126,7 +106,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "A10">
-                    <p>A10</p>
+                    <p class = "gridBox-p">A10</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "A10" data-section = "English" data-testType = "none">
@@ -142,7 +122,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "72C">
-                    <p>72C</p>
+                    <p class = "gridBox-p">72C</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "72C" data-section = "English" data-testType = "none">
@@ -158,7 +138,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "B05">
-                    <p>B05</p>
+                    <p class = "gridBox-p">B05</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "B05" data-section = "English" data-testType = "none">
@@ -174,7 +154,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "71E">
-                    <p>71E</p>
+                    <p class = "gridBox-p">71E</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "71E" data-section = "English" data-testType = "none">
@@ -190,7 +170,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "MC2">
-                    <p>MC2</p>
+                    <p class = "gridBox-p">MC2</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "MC2" data-section = "English" data-testType = "none">
@@ -206,7 +186,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "69A">
-                    <p>69A</p>
+                    <p class = "gridBox-p">69A</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "69A" data-section = "English" data-testType = "none">
@@ -224,7 +204,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -241,15 +221,15 @@
         <div id = "homeworkTestsForm" class = "metaForm">
             <div id = "homeworkTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm')">
+                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm', this)">
                     In-Center
                 </div>
 
-                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm')">
+                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm', this)">
                     Homework
                 </div>
 
-                <div class = "testTab button2" onclick = "openForm('otherTestsForm')">
+                <div class = "testTab button2" onclick = "openForm('otherTestsForm', this)">
                     Other
                 </div>
 
@@ -293,7 +273,7 @@
             <div id = "homeworkTests" class = "tests">
 
                 <div class = "gridBox" data-test = "B02">
-                    <p>B02</p>
+                    <p class = "gridBox-p">B02</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "B02" data-section = "English" data-testType = "none">
@@ -309,7 +289,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "74F">
-                    <p>74F</p>
+                    <p class = "gridBox-p">74F</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "74F" data-section = "English" data-testType = "none">
@@ -325,7 +305,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "72F">
-                    <p>72F</p>
+                    <p class = "gridBox-p">72F</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "72F" data-section = "English" data-testType = "none">
@@ -341,7 +321,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "B04">
-                    <p>B04</p>
+                    <p class = "gridBox-p">B04</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "B04" data-section = "English" data-testType = "none">
@@ -357,7 +337,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "71H">
-                    <p>71H</p>
+                    <p class = "gridBox-p">71H</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "71H" data-section = "English" data-testType = "none">
@@ -373,7 +353,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "A11">
-                    <p>A11</p>
+                    <p class = "gridBox-p">A11</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "A11" data-section = "English" data-testType = "none">
@@ -389,7 +369,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "74C">
-                    <p>74C</p>
+                    <p class = "gridBox-p">74C</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "74C" data-section = "English" data-testType = "none">
@@ -405,7 +385,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "71G">
-                    <p>71G</p>
+                    <p class = "gridBox-p">71G</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "71G" data-section = "English" data-testType = "none">
@@ -423,7 +403,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -440,15 +420,15 @@
         <div id = "otherTestsForm" class = "metaForm">
             <div id = "otherTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm')">
+                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm', this)">
                     In-Center
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm', this)">
                     Homework
                 </div>
 
-                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm')">
+                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm', this)">
                     Other
                 </div>
 
@@ -491,24 +471,24 @@
 
             <div id = "otherTests" class = "tests">
 
-                <div class = "gridBox" data-test = "C02">
-                    <p>C02</p>
+                <div class = "gridBox" data-test = "ST 1">
+                    <p class = "gridBox-p">ST 1</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "C02" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "English" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "C02" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Math" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "C02" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Reading" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "C02" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Science" data-testType = "none">
                 </div>
 
                 <div class = "gridBox" data-test = "73E">
-                    <p>73E</p>
+                    <p class = "gridBox-p">73E</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "73E" data-section = "English" data-testType = "none">
@@ -523,24 +503,24 @@
                 <div class = "gridBox button2" data-test = "73E" data-section = "Science" data-testType = "none">
                 </div>
 
-                <div class = "gridBox" data-test = "D02">
-                    <p>D02</p>
+                <div class = "gridBox" data-test = "ST 2">
+                    <p class = "gridBox-p">ST 2</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "D02" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "English" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "D02" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Math" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "D02" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Reading" data-testType = "none">
                 </div>
 
-                <div class = "gridBox button2" data-test = "D02" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Science" data-testType = "none">
                 </div>
 
                 <div class = "gridBox" data-test = "72G">
-                    <p>72G</p>
+                    <p class = "gridBox-p">72G</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "72G" data-section = "English" data-testType = "none">
@@ -556,7 +536,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "71A">
-                    <p>71A</p>
+                    <p class = "gridBox-p">71A</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "71A" data-section = "English" data-testType = "none">
@@ -572,7 +552,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "68G">
-                    <p>68G</p>
+                    <p class = "gridBox-p">68G</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "68G" data-section = "English" data-testType = "none">
@@ -588,7 +568,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "68A">
-                    <p>68A</p>
+                    <p class = "gridBox-p">68A</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "68A" data-section = "English" data-testType = "none">
@@ -604,7 +584,7 @@
                 </div>
 
                 <div class = "gridBox" data-test = "67A">
-                    <p>67A</p>
+                    <p class = "gridBox-p">67A</p>
                 </div>
 
                 <div class = "gridBox button2" data-test = "67A" data-section = "English" data-testType = "none">
@@ -622,7 +602,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -805,7 +785,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -1252,7 +1232,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -1387,7 +1367,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -1534,7 +1514,7 @@
             </div>
                 <div class = "input-row-center formEnd">
 
-                    <button class = "button" onclick = "openForm('dailyLog')">
+                    <button class = "button" onclick = "openForm('dailyLog', this)">
                         Back
                     </button>
 
@@ -1562,7 +1542,7 @@
                 <div class="input-row">
                     <div class="input-block">
                         <label for="homeworkStatus" class="label">Homework Status:</label>
-                        <button type = "button" onclick = "openForm('homeworkTestsForm')">Homework Status</button>
+                        <button type = "button" onclick = "openForm('homeworkTestsForm', this)">Homework Status</button>
                         <!--<select id="homeworkStatus" class="input">
                             <option value="">Select Status</option>
                             <option value="Completed">Completed</option>
@@ -1602,7 +1582,7 @@
 
                     <div class="input-block">
                         <label for="lesson1" class="label">Lesson(s)</label>
-                        <button type = "button" onclick = "openForm('1')">Lesson(s)</button>
+                        <button type = "button" onclick = "openForm('1', this)">Lesson(s)</button>
                     </div>
 
                     <div class="input-block">
@@ -1644,7 +1624,7 @@
                 <div class = "input-row">
                     <div class = "input-block">
                         <label class="label">Practice Tests</label>
-                        <button type = "button" onclick = "openForm('inCenterTestsForm')">In-Center Tests</button>
+                        <button type = "button" onclick = "openForm('inCenterTestsForm', this)">In-Center Tests</button>
                     </div>
                 </div>
 
@@ -1671,7 +1651,7 @@
 
             <div class = "input-row-center formEnd">
 
-                <button class = "button" onclick = "openForm('dailyLog')">
+                <button class = "button" onclick = "openForm('dailyLog', this)">
                     Back
                 </button>
 

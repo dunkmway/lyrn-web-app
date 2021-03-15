@@ -98,7 +98,7 @@ form {
     position: relative;
 }
 
-.gridBox p{
+.gridBox-p{
     font-size: 32px;
     position: absolute;
     top: 1.625em;
@@ -116,6 +116,12 @@ form {
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 20.5% 20.5% 20.5% 20.5% 18%; 
+}
+
+.grid6 {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 17% 17% 17% 17% 17% 15%; 
 }
 
 .grid7 {
@@ -483,7 +489,6 @@ p {
     width: 90%;
 }
 
-
 #statement {
     margin-top: 4px;
     margin-bottom: 10px;
@@ -558,6 +563,14 @@ p.errorMessage {
     bottom: 0;
     margin: auto;
     position: absolute;
+}
+
+.testP {
+    font-size: 16px;
+    position:initial;
+    padding: 0px;
+    width: 100%;
+    margin: 0px;
 }
   
 @keyframes spin {
