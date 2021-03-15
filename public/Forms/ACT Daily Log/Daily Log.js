@@ -171,7 +171,7 @@ function changeTests(formType) {
     for (let i = 0; i < test_boxes.length; i++) {
       let children = test_boxes[i].querySelectorAll("div");
       for (let k = 0; k < children.length; k++) {
-        test_boxes[i][k].remove()
+        children[k].remove()
       }
     }
     if (test_view_type == 'inCenter') {
