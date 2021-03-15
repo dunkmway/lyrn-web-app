@@ -543,3 +543,24 @@ p.errorMessage {
     height: 7%;
     justify-content: space-between;
 }
+
+.loader {
+    display: none;
+    border: 20px solid white;
+    border-top: 20px solid #110D65;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    animation: spin 2s linear infinite;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

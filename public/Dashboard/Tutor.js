@@ -37,5 +37,5 @@ locationDocRef.get()
 function activeStudentSelected(e) {
   let studentUID = e.value;
   let queryStr = "?student=" + studentUID;
-  window.location.href = "Forms/ACT Daily Log/Daily Log.html" + queryStr;
+  window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }

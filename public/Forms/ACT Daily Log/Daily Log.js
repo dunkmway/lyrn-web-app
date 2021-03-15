@@ -274,3 +274,10 @@ scienceLessons.addEventListener('click', function(event)  {
     }
   }
 })
+
+function submitDailyLog() {
+  document.getElementById("spinnyBoi").style.display = "block";
+  setTimeout(() => {
+    window.history.back();ß
+  }, 2000)
+}

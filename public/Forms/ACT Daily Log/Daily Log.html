@@ -1548,7 +1548,8 @@
         </div>
 
 
-        <form id = "dailyLog">
+        <form id = "dailyLog" onsubmit="return false">
+            <div id="spinnyBoi" class="loader"></div>
             <div class="heading-block">
                 <h2>Daily Log</h2>
             </div>
@@ -1674,7 +1675,7 @@
                     Back
                 </button>
 
-                <button class = "button">
+                <button class = "button" onclick="submitDailyLog()">
                     Submit
                 </button>
 
