@@ -174,11 +174,31 @@ function changeTests(formType) {
         children[k].remove()
       }
     }
-    if (test_view_type == 'inCenter') {
-      console.log("I need to revert the boxes back to normal")
-    }
   }
 }
+
+function popupGradeTest(test, section, passageNumber) {
+  let popup = document.getElementById("testAnswersPopup")
+  popup.display = "flex";
+
+  let headerText = document.getElementById("headerText")
+  headerText.innerHTML = test
+
+  let allAnswers = testData[test][section.toLowerCase() + "Answers"];
+  let passageAnswers = []
+
+  for (let answer = 0; answer < allAnswers.length; answer++) {
+    if (allAnswers[answer]["passageNumber"] == passageNumber) {
+      passageAnswers.push(allAnswers[answer][answer + 1])
+    }
+  }
+
+  let passage = document.getElementById("passage");
+  for (let answer = 0; answer < passageAnswers.length; answer++) {
+    passage.appendChild(createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(answer + 1).toString(), "-", passageAnswers[answer]], "input-row-center"))
+  }
+}
+
 
 // Change the colors of the test boxes
 let homeworkTests = document.getElementById("homeworkTests");
@@ -187,6 +207,7 @@ homeworkTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
       event.target.setAttribute("data-testType", "homework")
+      //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'green') {
       event.target.style.backgroundColor = "yellow";

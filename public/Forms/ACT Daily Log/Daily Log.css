@@ -335,6 +335,26 @@ button {
   color: white;
 }
 
+.smallButton {
+  margin-bottom: 10px;
+  width: 80px;
+  height: 23.5px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  background-color: rgb(255, 0, 0);
+  text-align: center;
+  color: white;
+}
+
 #form-scroll-block {
     display: flex;
     flex-direction: column;
@@ -484,7 +504,9 @@ select {
 
 
 p {
-    margin-bottom: 0px;
+    margin: 0px;
+    padding: 0px;
+    --margin-bottom: 0px;
     word-wrap: normal;
     width: 90%;
 }
@@ -577,8 +599,84 @@ p.errorMessage {
 #testAnswersPopup {
     display: none;
     height: 600px;
-    width: 300px;
-    background-color: gray;
+    width: 350px;
+    background-color: rgb(200, 200, 200);
+    margin: 0px;
+}
+
+#leftArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    --width: 10%;
+    justify-content: center;
+}
+
+#passage {
+    width: 60%;;
+}
+  
+#rightArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    --width: 10%;
+    justify-content: center;
+}
+
+.circle {
+    display: flex;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    align-items: center;
+    text-align: center;
+}
+
+.side {
+    width: 20%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#popupHeader {
+    font-size: 30px;
+    color: white;
+    height: 10%;
+    background-color: #110D65;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#popupInfo {
+    height: 80%;
+    padding: 0px;
+}
+
+#popupButtons {
+    height: 10%;
+}
+
+.popupNumber {
+    height: 1.5em;
+    width: 40%;
+    font-size: 20px;
+}
+  
+.popupDash {
+    height: 1.5em;
+    width: 30%;
+    font-size: 20px;
+}
+  
+.popupAnswer {
+    height: 1.5em;
+    width: 20%;
+    font-size: 20px;
 }
   
 @keyframes spin {
