@@ -150,7 +150,7 @@ function openForm(id, element) {
 }
 
 function changeTests(formType) {
-  if (formType == "inCenter" && test_view_type != 'inCenter') {
+  if (formType == "inCenter" && test_view_type != "inCenter") {
     test_view_type = "inCenter"
     test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
     for (let i = 0; i < test_boxes.length; i++ ) {
@@ -165,7 +165,7 @@ function changeTests(formType) {
         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
     }
   }
-  else if (formType == "homework" && test_view_type == "inCenter") {
+  else if (formType == "homework" && test_view_type != "homework") {
     test_view_type = "homework";
     test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
     for (let i = 0; i < test_boxes.length; i++) {
@@ -183,7 +183,7 @@ function changeTests(formType) {
 // Change the colors of the test boxes
 let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2")) {
+  if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
       event.target.setAttribute("data-testType", "homework")
@@ -199,7 +199,7 @@ homeworkTests.addEventListener('click', function(event)  {
       event.target.setAttribute("data-testType", "none")
     }
   }
-  else if (event.target.className.includes("testP")) {
+  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     if (event.target.parentNode.style.backgroundColor == '') {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
@@ -230,7 +230,7 @@ homeworkTests.addEventListener('click', function(event)  {
 // Change the colors of the test boxes
 let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2")) {
+  if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
       event.target.setAttribute("data-testType", "homework")
@@ -246,7 +246,7 @@ inCenterTests.addEventListener('click', function(event)  {
       event.target.setAttribute("data-testType", "none")
     }
   }
-  else if (event.target.className.includes("testP")) {
+  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     if (event.target.parentNode.style.backgroundColor == '') {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
@@ -277,7 +277,7 @@ inCenterTests.addEventListener('click', function(event)  {
 // Change the colors of the test boxes
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2")) {
+  if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "green";
       event.target.setAttribute("data-testType", "homework")
@@ -293,7 +293,7 @@ otherTests.addEventListener('click', function(event)  {
       event.target.setAttribute("data-testType", "none")
     }
   }
-  else if (event.target.className.includes("testP")) {
+  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     if (event.target.parentNode.style.backgroundColor == '') {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
