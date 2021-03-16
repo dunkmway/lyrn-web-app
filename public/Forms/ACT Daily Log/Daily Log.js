@@ -470,8 +470,7 @@ function submitSessionInfo() {
   }
 
   var d = new Date();
-  //FIXME: for now the time will be set to midnight but once the event is on the calendar this time will be that time
-  d.setHours(0,0,0,0);
+  //FIXME: for now the time will be set to when it was submitted but once the event is on the calendar this time will be that time
   let sessionTime = d.getTime();
 
   sessionInfo["sections"] = sectionInfo;
