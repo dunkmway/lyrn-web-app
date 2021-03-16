@@ -31,7 +31,7 @@ function login() {
           // Confirm the user is an Admin.
           let role = idTokenResult.claims.role;
 
-          switch (idTokenResult.claims.role) {
+          switch (role) {
             case "student":
               window.location.href = "../Dashboard/Student.html";
               break;
