@@ -315,7 +315,21 @@ scienceLessons.addEventListener('click', function(event)  {
 
 function submitDailyLog() {
   document.getElementById("spinnyBoi").style.display = "block";
-  setTimeout(() => {
-    window.history.back();ß
-  }, 2000)
+  if (document.getElementById("feedback").value != "") {
+    firebase.firestore().collection("feedback").doc().set({
+      feedback: document.getElementById("feedback").value,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      console.log("test complete");
+      window.history.back();
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+  }
+}
+
+function goToDashboard() {
+  window.history.back();
 }
