@@ -3,15 +3,7 @@ let testData;
 fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data));
 
 function initialSetup() {
-  var GET = {};
-  var queryString = window.location.search.replace(/^\?/, '');
-  queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-  });
-
-  const studentUID = GET["student"];
+  const studentUID = queryStrings()["student"];
 
   //get the student's general data
   const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
@@ -93,7 +85,8 @@ function addSession(self) {
   ele.querySelector("#time1").id = "time" + (session_count + 1).toString();
   ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
   ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
-  ele.querySelector("textarea").value = "";
+  ele.querySelector("#sectionNotes1").id = "sectionNotes" + (session_count + 1).toString();
+  ele.querySelector("textarea[id^='sectionNotes']").value = "";
   ele.querySelector("button[onclick=\"openForm('1', this)\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "', this)");
 
   if (session_count < 4) {
@@ -399,21 +392,92 @@ scienceLessons.addEventListener('click', function(event)  {
 
 function submitDailyLog() {
   document.getElementById("spinnyBoi").style.display = "block";
+  
+  let feedbackProm = submitFeedback();
+  let sessionProm = submitSessionInfo();
+
+  let promises = [feedbackProm, sessionProm];
+  Promise.all(promises)
+  .then((result) => {
+    console.log("Everything submitted");
+    window.history.back();
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
+}
+
+function submitFeedback() {
   if (document.getElementById("feedback").value != "") {
-    firebase.firestore().collection("feedback").doc().set({
+    return firebase.firestore().collection("feedback").doc().set({
       feedback: document.getElementById("feedback").value,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
-      console.log("test complete");
-      window.history.back();
+      console.log("feedback saved");
     })
     .catch((error) => {
       console.error(error);
-    })
+    });
+  } 
+  else {
+    return Promise.resolve("There is no feedback...");
   }
 }
 
 function goToDashboard() {
   window.history.back();
+}
+
+function submitSessionInfo() {
+  let sessionInfo = {};
+
+  let dailyLogSessions = document.getElementById("dailyLog").querySelectorAll("div[id^='session']");
+  let numSessions = dailyLogSessions.length;
+
+  let sectionInfo = {};
+  for (let i = 0; i < numSessions; i++) {
+    let section = dailyLogSessions[i].querySelector(`#section${i+1}`).value;
+    let time = dailyLogSessions[i].querySelector(`#time${i+1}`).value;
+    let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`).value;
+
+    sectionInfo[section] = {
+      time: time,
+      sectionNotes: sectionNotes
+    }
+  }
+
+  var d = new Date();
+  //FIXME: for now the time will be set to midnight but once the event is on the calendar this time will be that time
+  d.setHours(0,0,0,0);
+  let sessionTime = d.getTime();
+
+  sessionInfo["sections"] = sectionInfo;
+  sessionInfo["tutor"] = firebase.auth().currentUser.uid;
+
+  //set this session doc to firebase
+  const studentUID = queryStrings()["student"];
+
+
+  let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc(sessionTime.toString());
+  return sessionDocRef.set(sessionInfo)
+  .then((result) => {
+    console.log("session successfully saved to firebase");
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+}
+
+function queryStrings() {
+  var GET = {};
+    var queryString = window.location.search.replace(/^\?/, '');
+    queryString.split(/\&/).forEach(function(keyValuePair) {
+        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+        GET[paramName] = paramValue;
+    });
+
+    return GET;
 }
