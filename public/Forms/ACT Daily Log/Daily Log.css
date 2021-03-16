@@ -396,10 +396,6 @@ button {
     cursor: pointer;
 }
 
-.button3 {
-    cursor: pointer;
-}
-
 .firstButton {
     margin-left: 10px;
 }
@@ -575,6 +571,7 @@ p.errorMessage {
     padding: 0px;
     width: 100%;
     margin: 0px;
+    height: 100%;
 }
   
 @keyframes spin {

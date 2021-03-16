@@ -159,9 +159,9 @@ function changeTests(formType) {
       let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
 
       for (let passage = 0; passage < numberOfPassages - 1; passage++) {
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + (passage + 1).toString()], "border button3"));
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + (passage + 1).toString()], "border"));
       }
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + numberOfPassages.toString()], "button3"));
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + numberOfPassages.toString()], ""));
         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
     }
   }
@@ -197,32 +197,6 @@ homeworkTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
-  }
-  else if (event.target.className.includes("button3")) {
-    if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
-      event.target.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
-    else if (event.target.style.backgroundColor == 'yellow') {
-      event.target.style.backgroundColor = "red";
-    }
-    else {
-      event.target.style.backgroundColor = "";
-      let children = event.target.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.setAttribute("data-testType", "none")
-      }
     }
   }
   else if (event.target.className.includes("testP")) {
@@ -272,32 +246,6 @@ inCenterTests.addEventListener('click', function(event)  {
       event.target.setAttribute("data-testType", "none")
     }
   }
-  else if (event.target.className.includes("button3")) {
-    if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
-      event.target.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
-    else if (event.target.style.backgroundColor == 'yellow') {
-      event.target.style.backgroundColor = "red";
-    }
-    else {
-      event.target.style.backgroundColor = "";
-      let children = event.target.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.setAttribute("data-testType", "none")
-      }
-    }
-  }
   else if (event.target.className.includes("testP")) {
     if (event.target.parentNode.style.backgroundColor == '') {
       event.target.parentNode.style.backgroundColor = "green";
@@ -343,33 +291,6 @@ otherTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
-  }
-  else if (event.target.className.includes("button3")) {
-    if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
-      event.target.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
-    else if (event.target.style.backgroundColor == 'yellow') {
-      event.target.style.backgroundColor = "red";
-    }
-    else {
-      event.target.style.backgroundColor = "";
-      let children = event.target.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        console.log(children[child].style);
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.setAttribute("data-testType", "none")
-      }
     }
   }
   else if (event.target.className.includes("testP")) {
