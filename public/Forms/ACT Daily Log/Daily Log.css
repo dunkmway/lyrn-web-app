@@ -573,6 +573,13 @@ p.errorMessage {
     margin: 0px;
     height: 100%;
 }
+
+#testAnswersPopup {
+    display: none;
+    height: 600px;
+    width: 300px;
+    background-color: gray;
+}
   
 @keyframes spin {
     0% { transform: rotate(0deg); }
