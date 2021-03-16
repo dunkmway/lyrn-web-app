@@ -19,7 +19,10 @@
 
 <body onload="initialSetup()">
     <section id="section">
-
+        <h2 id="studentName" style="color: white;"></h2>
+        <p style="color: white;">We would love your feedback!</p>
+        <p style="color: white;">Please include any suggestions and your name so we can get back to you with any questions</p>
+        <textarea id="feedback" style="width: 300px; height: 200px;"></textarea>
         <div id = "inCenterTestsForm" class = "metaForm">
             <div id = "inCenterTestsTabs" class = "input-row">
 
@@ -208,7 +211,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -407,7 +410,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -606,7 +609,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -789,7 +792,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -1236,7 +1239,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -1371,7 +1374,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -1518,7 +1521,7 @@
                         Back
                     </button>
 
-                    <button class = "button">
+                    <button class = "button" onclick="submitDailyLog()">
                         Submit
                     </button>
 
@@ -1651,7 +1654,7 @@
 
             <div class = "input-row-center formEnd">
 
-                <button class = "button" onclick = "openForm('dailyLog', this)">
+                <button class = "button" onclick = "goToDashboard()">
                     Back
                 </button>
 
