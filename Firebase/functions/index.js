@@ -40,6 +40,7 @@ admin.initializeApp();
         })
         .then(() => {
             console.log(user.customClaims);
+            response.send("User has been given role");
         })
         .catch((error) => {
             console.log(error);

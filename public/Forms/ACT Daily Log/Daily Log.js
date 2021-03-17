@@ -415,24 +415,36 @@ scienceLessons.addEventListener('click', function(event)  {
 })
 
 function submitDailyLog() {
-  document.getElementById("spinnyBoi").style.display = "block";
   document.getElementById("errMsg").textContent = "";
-  
-  let feedbackProm = submitFeedback();
-  let sessionProm = submitSessionInfo();
+  //FIXME: need to add validation here and not in the individual submits
+  //this is so that the confirmation message doesn't pop up unless everything is ready to submit
+  if (validateSessionInfo()) {
+    let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
+    if (confirmation) {
+      document.getElementById("spinnyBoi").style.display = "block";
+      let feedbackProm = submitFeedback();
+      let sessionProm = submitSessionInfo();
 
-  let promises = [feedbackProm, sessionProm];
-  Promise.all(promises)
-  .then((result) => {
-    console.log("Everything submitted");
-    window.history.back();
-  })
-  .catch((error) => {
-    console.error(error);
-    document.getElementById("errMsg").textContent = error;
-    document.getElementById("spinnyBoi").style.display = "none";
-  });
+      let promises = [feedbackProm, sessionProm];
+      Promise.all(promises)
+      .then((result) => {
+        console.log("Everything submitted");
+        window.history.back();
+      })
+      .catch((error) => {
+        console.error(error);
+        document.getElementById("errMsg").textContent = error;
+        document.getElementById("spinnyBoi").style.display = "none";
+      });
+    }
+  }
+  else {
+    document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
+  }
+}
 
+function validateFeedback() {
+  return (document.getElementById("feedback").value != "");
 }
 
 function submitFeedback() {
@@ -447,17 +459,30 @@ function submitFeedback() {
     .catch((error) => {
       console.error(error);
     });
-  } 
+  }
   else {
-    return Promise.resolve("There is no feedback...");
+    return Promise.resolve("There is no feedback");
   }
 }
 
 function goToDashboard() {
-  window.history.back();
+  let confirmation = confirm("Are you sure you want to go back to your dashbaord?\nThis will delete all of this log's changes.");
+  if (confirmation) {
+    window.history.back();
+  }
 }
 
-//FIXME: Need to validate fields
+function validateSessionInfo() {
+  let dailyLogSessions = document.getElementById("dailyLog").querySelectorAll("div[id^='session']");
+  let numSessions = dailyLogSessions.length;
+
+  for (let i = 0; i < numSessions; i++) {
+    let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
+    let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
+    return (section.value != "" & time.value != "");
+  }
+}
+
 function submitSessionInfo() {
   let sessionInfo = {};
 
@@ -470,15 +495,9 @@ function submitSessionInfo() {
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
     let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
 
-    if (section.value == "" || time.value == "") {
-      //the section info is not filled out (section notes are optional)
-      return Promise.reject("Not all of the session data was filled out")
-    }
-    else {
-      sectionInfo[section.value] = {
-        time: time.value,
-        sectionNotes: sectionNotes.value
-      }
+    sectionInfo[section.value] = {
+      time: time.value,
+      sectionNotes: sectionNotes.value
     }
   }
 
