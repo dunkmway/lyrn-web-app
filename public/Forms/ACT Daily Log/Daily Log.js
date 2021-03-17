@@ -157,6 +157,7 @@ function changeTests(formType) {
       }
         test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + numberOfPassages.toString()], ""));
         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
+        console.log("Class = ", test_boxes[i].className)
     }
   }
   else if (formType == "homework" && test_view_type != "homework") {
