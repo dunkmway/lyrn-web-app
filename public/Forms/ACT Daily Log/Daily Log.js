@@ -200,14 +200,14 @@ let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
+      event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
     else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
       event.target.style.backgroundColor = "red";
     }
     else {
@@ -220,12 +220,12 @@ homeworkTests.addEventListener('click', function(event)  {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
     }
-    else if (event.target.parentNode.style.backgroundColor == 'green') {
-      event.target.parentNode.style.backgroundColor = "yellow";
-    }
-    else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      event.target.parentNode.style.backgroundColor = "red";
-    }
+    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
+      //event.target.parentNode.style.backgroundColor = "green";
+    //}
+    //else if (event.target.parentNode.style.backgroundColor == 'green') {
+      //event.target.parentNode.style.backgroundColor = "red";
+    //}
     else {
       event.target.parentNode.style.backgroundColor = "";
       let children = event.target.parentNode.parentNode.querySelectorAll("div")
@@ -248,13 +248,13 @@ let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
+      event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
     }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
     else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
       event.target.style.backgroundColor = "red";
     }
     else {
@@ -267,12 +267,12 @@ inCenterTests.addEventListener('click', function(event)  {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
     }
-    else if (event.target.parentNode.style.backgroundColor == 'green') {
-      event.target.parentNode.style.backgroundColor = "yellow";
-    }
-    else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      event.target.parentNode.style.backgroundColor = "red";
-    }
+    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
+      //event.target.parentNode.style.backgroundColor = "green";
+    //}
+    //else if (event.target.parentNode.style.backgroundColor == 'green') {
+      //event.target.parentNode.style.backgroundColor = "red";
+    //}
     else {
       event.target.parentNode.style.backgroundColor = "";
       let children = event.target.parentNode.parentNode.querySelectorAll("div")
@@ -295,13 +295,13 @@ let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
     if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "green";
+      event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
     }
-    else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
-    }
     else if (event.target.style.backgroundColor == 'yellow') {
+      event.target.style.backgroundColor = "green";
+    }
+    else if (event.target.style.backgroundColor == 'green') {
       event.target.style.backgroundColor = "red";
     }
     else {
@@ -314,12 +314,12 @@ otherTests.addEventListener('click', function(event)  {
       event.target.parentNode.style.backgroundColor = "green";
       event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
     }
-    else if (event.target.parentNode.style.backgroundColor == 'green') {
-      event.target.parentNode.style.backgroundColor = "yellow";
-    }
-    else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      event.target.parentNode.style.backgroundColor = "red";
-    }
+    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
+      //event.target.parentNode.style.backgroundColor = "green";
+    //}
+    //else if (event.target.parentNode.style.backgroundColor == 'green') {
+      //event.target.parentNode.style.backgroundColor = "red";
+    //}
     else {
       event.target.parentNode.style.backgroundColor = "";
       let children = event.target.parentNode.parentNode.querySelectorAll("div")
