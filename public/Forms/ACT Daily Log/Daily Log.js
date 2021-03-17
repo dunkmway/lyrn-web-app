@@ -150,6 +150,7 @@ function changeTests(formType) {
       let test = test_boxes[i].getAttribute("data-test")
       let section = test_boxes[i].getAttribute("data-section").toLowerCase()
       let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
+      console.log(test, section, numberOfPassages)
 
       for (let passage = 0; passage < numberOfPassages - 1; passage++) {
         test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + (passage + 1).toString()], "border"));
