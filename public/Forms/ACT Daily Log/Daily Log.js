@@ -5,25 +5,26 @@ fetch("../Test Data/Tests.json").then(response => response.json()).then(data => 
 function initialSetup() {
   const studentUID = queryStrings()["student"];
 
-  //get the student's general data
-  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-  studentDocRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      let studentFirstName = doc.get("studentFirstName");
-      let studentLastName = doc.get("studentLastName");
+  if (studentUID) {
+    //get the student's general data
+    const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+    studentDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        let studentFirstName = doc.get("studentFirstName");
+        let studentLastName = doc.get("studentLastName");
 
-      let studentNameElem = document.getElementById("studentName");
-      studentNameElem.textContent = studentFirstName + " " + studentLastName;
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-    console.log(error.code);
-    console.log(error.message);
-    console.log(error.details);
-  });
-
+        let studentNameElem = document.getElementById("studentName");
+        studentNameElem.textContent = studentFirstName + " " + studentLastName;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
+  }
 }
 
 function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "input-row") {
@@ -413,6 +414,7 @@ scienceLessons.addEventListener('click', function(event)  {
 
 function submitDailyLog() {
   document.getElementById("spinnyBoi").style.display = "block";
+  document.getElementById("errMsg").textContent = "";
   
   let feedbackProm = submitFeedback();
   let sessionProm = submitSessionInfo();
@@ -425,6 +427,8 @@ function submitDailyLog() {
   })
   .catch((error) => {
     console.error(error);
+    document.getElementById("errMsg").textContent = error;
+    document.getElementById("spinnyBoi").style.display = "none";
   });
 
 }
@@ -451,6 +455,7 @@ function goToDashboard() {
   window.history.back();
 }
 
+//FIXME: Need to validate fields
 function submitSessionInfo() {
   let sessionInfo = {};
 
@@ -459,35 +464,51 @@ function submitSessionInfo() {
 
   let sectionInfo = {};
   for (let i = 0; i < numSessions; i++) {
-    let section = dailyLogSessions[i].querySelector(`#section${i+1}`).value;
-    let time = dailyLogSessions[i].querySelector(`#time${i+1}`).value;
-    let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`).value;
+    let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
+    let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
+    let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
 
-    sectionInfo[section] = {
-      time: time,
-      sectionNotes: sectionNotes
+    if (section.value == "" || time.value == "") {
+      //the section info is not filled out (section notes are optional)
+      return Promise.reject("Not all of the session data was filled out")
+    }
+    else {
+      sectionInfo[section.value] = {
+        time: time.value,
+        sectionNotes: sectionNotes.value
+      }
     }
   }
 
   var d = new Date();
   //FIXME: for now the time will be set to when it was submitted but once the event is on the calendar this time will be that time
   let sessionTime = d.getTime();
+  let currentUser = firebase.auth().currentUser;
+  if (currentUser) {
+    let tutor = currentUser.uid;
 
-  sessionInfo["sections"] = sectionInfo;
-  sessionInfo["tutor"] = firebase.auth().currentUser.uid;
+    sessionInfo["sections"] = sectionInfo;
+    sessionInfo["tutor"] = tutor;
+    //set this session doc to firebase
+    const studentUID = queryStrings()["student"];
 
-  //set this session doc to firebase
-  const studentUID = queryStrings()["student"];
+    if (studentUID) {
+      let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc(sessionTime.toString());
+      return sessionDocRef.set(sessionInfo)
+      .then((result) => {
+        console.log("session successfully saved to firebase");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    }
+  }
+  else {
+    //there is no tutor logged in
+    return Promise.reject("There is no tutor logged in!!!")
+  }
 
-
-  let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc(sessionTime.toString());
-  return sessionDocRef.set(sessionInfo)
-  .then((result) => {
-    console.log("session successfully saved to firebase");
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+  
 }
 
 function queryStrings() {
