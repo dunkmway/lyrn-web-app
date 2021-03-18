@@ -479,8 +479,11 @@ function validateSessionInfo() {
   for (let i = 0; i < numSessions; i++) {
     let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-    return (section.value != "" & time.value != "");
+    if (section.value == "" || time.value == "") {
+      return false;
+    }
   }
+  return true;
 }
 
 function submitSessionInfo() {
@@ -496,7 +499,7 @@ function submitSessionInfo() {
     let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
 
     sectionInfo[section.value] = {
-      time: time.value,
+      time: parseInt(time.value),
       sectionNotes: sectionNotes.value
     }
   }
@@ -514,18 +517,46 @@ function submitSessionInfo() {
     const studentUID = queryStrings()["student"];
 
     if (studentUID) {
-      let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc(sessionTime.toString());
-      return sessionDocRef.set(sessionInfo)
-      .then((result) => {
-        console.log("session successfully saved to firebase");
+      let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("sessions");
+      //need to somehow get this promise to return when complete....
+      return sessionDocRef.get()
+      .then((doc) => {
+        if (doc.exists) {
+          //doc exists - update the doc
+          return sessionDocRef.update({
+            [`${sessionTime.toString()}`]: sessionInfo,
+            englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
+            mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
+            readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
+            scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
+            [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
+          })
+        }
+        else {
+          //doc does not exist - set the doc
+          return sessionDocRef.set({
+            [`${sessionTime.toString()}`]: sessionInfo,
+            englishTotalTime: sectionInfo.English?.time ?? 0,
+            mathTotalTime: sectionInfo.Math?.time ?? 0,
+            readingTotalTime: sectionInfo.Reading?.time ?? 0,
+            scienceTotalTime: sectionInfo.Science?.time ?? 0,
+            tutors: {[`${tutor}`]: 1}
+          })
+        }
       })
       .catch((error) => {
         console.error(error);
+        return Promise.reject(error);
       });
+    }
+    else {
+      console.log("There is no student selected!!!");
+      return Promise.reject("There is no student selected!!!");
     }
   }
   else {
     //there is no tutor logged in
+    console.log("There is no tutor logged in!!!")
     return Promise.reject("There is no tutor logged in!!!")
   }
 
