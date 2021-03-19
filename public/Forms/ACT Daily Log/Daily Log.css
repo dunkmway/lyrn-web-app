@@ -598,7 +598,6 @@ p.errorMessage {
 
 #testAnswersPopup {
     display: none;
-    height: 600px;
     width: 350px;
     background-color: rgb(200, 200, 200);
     margin: 0px;
@@ -612,7 +611,7 @@ p.errorMessage {
 }
 
 #passage {
-    width: 60%;;
+    width: 70%;;
 }
   
 #rightArrow {
@@ -633,7 +632,7 @@ p.errorMessage {
 }
 
 .side {
-    width: 20%;
+    width: 15%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -644,7 +643,7 @@ p.errorMessage {
 #popupHeader {
     font-size: 30px;
     color: white;
-    height: 10%;
+    height: 60px;
     background-color: #110D65;
     text-align: center;
     display: flex;
@@ -652,29 +651,31 @@ p.errorMessage {
     justify-content: center;
 }
 
+.firstAnswer {
+    margin-top: 10px;
+}
 #popupInfo {
-    height: 80%;
     padding: 0px;
 }
 
 #popupButtons {
-    height: 10%;
+    height: 60px;
 }
 
 .popupNumber {
-    height: 1.5em;
+    height: 2em;
     width: 40%;
     font-size: 20px;
 }
   
 .popupDash {
-    height: 1.5em;
+    height: 2em;
     width: 30%;
     font-size: 20px;
 }
   
 .popupAnswer {
-    height: 1.5em;
+    height: 2em;
     width: 20%;
     font-size: 20px;
 }
