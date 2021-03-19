@@ -50,24 +50,27 @@
             </div>
 
             <div id = "popupButtons" class = "input-row-center">
-                <button class = "smallButton button" onclick="">
+                <button class = "smallButton button" onclick="exitAnswersPopup()">
                     Back
                 </button>
-                <button class = "smallButton button" onclick="">
-                    None
+                <button class = "smallButton button" onclick="resetAnswersPopup()">
+                    Reset
                 </button>
-                <button class = "smallButton button" onclick="">
+                <button class = "smallButton button" onclick="removePassage()">
+                    Remove
+                </button>
+                <button class = "smallButton button" onclick="submitAnswersPopup()">
                     Submit
                 </button>
             </div>
 
         </div>
 
+        <!--<h2 id="studentName" style="color: white;"></h2>
+        <p style="color: white;">We would love your feedback!</p><br>
+        <p style="color: white;">Please include any suggestions and your<br>name so we can get back to you with any questions</p>
+        <textarea id="feedback" style="width: 300px; height: 200px;"></textarea>-->
 
-        <h2 id="studentName" style="color: white;"></h2>
-        <p style="color: white;">We would love your feedback!</p>
-        <p style="color: white;">Please include any suggestions and your name so we can get back to you with any questions</p>
-        <textarea id="feedback" style="width: 300px; height: 200px;"></textarea>
         <div id = "inCenterTestsForm" class = "metaForm noselect">
             <div id = "inCenterTestsTabs" class = "input-row">
 
@@ -1591,15 +1594,6 @@
                     <div class="input-block">
                         <label for="homeworkStatus" class="label">Homework Status:</label>
                         <button type = "button" onclick = "openForm('homeworkTestsForm', this)">Homework Status</button>
-                        <!--<select id="homeworkStatus" class="input">
-                            <option value="">Select Status</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Completed, but didn't bring it in">Completed, but didn't bring it in</option>
-                            <option value="Forgot to do">Forgot to do</option>
-                            <option value="First Session">First Session</option>
-                            <option value="Test">Test</option>
-                            <option value="Other">Other</option>
-                        </select>-->
                     </div>
                 </div>
             </div>

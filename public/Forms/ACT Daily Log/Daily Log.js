@@ -1,4 +1,5 @@
-let test_view_type = 'none'
+let test_view_type = 'none';
+let testAnswers = {};
 let testData;
 fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data));
 
@@ -151,14 +152,14 @@ function changeTests(formType) {
       let test = test_boxes[i].getAttribute("data-test")
       let section = test_boxes[i].getAttribute("data-section").toLowerCase()
       let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
-      console.log(test, section, numberOfPassages)
+      //console.log(test, section, numberOfPassages)
 
       for (let passage = 0; passage < numberOfPassages - 1; passage++) {
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + (passage + 1).toString()], "border"));
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[(passage + 1).toString()], []], ["psg" + (passage + 1).toString()], "border"));
       }
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [""], [""], ["psg" + numberOfPassages.toString()], ""));
+        test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[numberOfPassages.toString()], []], ["psg" + numberOfPassages.toString()], ""));
         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
-        console.log("Class = ", test_boxes[i].className)
+        //console.log("Class = ", test_boxes[i].className)
     }
   }
   else if (formType == "homework" && test_view_type != "homework") {
@@ -174,27 +175,241 @@ function changeTests(formType) {
 }
 
 function popupGradeTest(test, section, passageNumber) {
+  // Display the popup for grading tests
   let popup = document.getElementById("testAnswersPopup")
-  popup.display = "flex";
+  popup.style.display = "flex";
 
+  // Change the Popup Header Title
   let headerText = document.getElementById("headerText")
-  headerText.innerHTML = test
+  headerText.innerHTML = test + " - " + section;
 
+  // Set a few custom attributes
+  popup.setAttribute("data-test", test)
+  popup.setAttribute("data-section", section)
+  popup.setAttribute("data-passage", passageNumber)
+
+  // Remove the answers (if they are there)
+  removeAnswers();
+
+  // Get a list of all the answers for the given section
   let allAnswers = testData[test][section.toLowerCase() + "Answers"];
   let passageAnswers = []
+  let passageNumbers = []
 
+  // Get the answers for the passage passed in
   for (let answer = 0; answer < allAnswers.length; answer++) {
     if (allAnswers[answer]["passageNumber"] == passageNumber) {
       passageAnswers.push(allAnswers[answer][answer + 1])
+      passageNumbers.push(answer + 1)
     }
   }
 
+  // Display the answers
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
-    passage.appendChild(createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(answer + 1).toString(), "-", passageAnswers[answer]], "input-row-center"))
+    if (answer == 0) {
+      ele = createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], "input-row-center firstAnswer button2");
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer])
+      ele.setAttribute("data-answer", passageAnswers[answer])
+      ele.setAttribute("data-isCorrect", "True")
+    }
+    else {
+      ele = createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], "input-row-center button2");
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer])
+      ele.setAttribute("data-answer", passageAnswers[answer])
+      ele.setAttribute("data-isCorrect", "True")
+    }
+  }
+
+  // Check to see if the answers should be populated
+  if (test in testAnswers) {
+    if (section in testAnswers[test]) {
+      if (passageNumber in testAnswers[test][section]) {
+        answerAreaChildren = passage.getElementsByClassName("input-row-center")
+        for (let i = 0; i < passageAnswers.length; i++) {
+          if (testAnswers[test][section][passageNumber][passageNumbers[i]] == 'False') {
+            answerAreaChildren[i].style.backgroundColor = 'red';
+            answerAreaChildren[i].setAttribute("data-isCorrect", "False");
+          }
+        }
+      }
+    }
   }
 }
 
+function removeAnswers() {
+  // Remove the answers (if they are there)
+  let answerArea = document.getElementById("passage")
+  if (answerArea.childElementCount > 0) {
+    answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
+    num_children = answerAreaChildren.length;
+    for (let i = 0; i < num_children; i++) {
+      answerAreaChildren[num_children - i - 1].remove();
+    }
+  }
+}
+
+function exitAnswersPopup() {
+
+  // Remove the answers
+  removeAnswers();
+
+  // Hide the answers popup
+  let answersPopup = document.getElementById("testAnswersPopup");
+  answersPopup.style.display = "none"
+
+}
+
+function resetAnswersPopup() {
+  // Remove the answers (if they are there)
+  let answerArea = document.getElementById("passage")
+  answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
+  num_children = answerAreaChildren.length;
+  for (let i = 0; i < num_children; i++) {
+    answerAreaChildren[num_children - i - 1].style.backgroundColor = '';
+    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "True");
+  }
+}
+
+function removePassage() {
+
+  let answersPopup = document.getElementById("testAnswersPopup");
+
+  let test = answersPopup.getAttribute("data-test");
+  let section = answersPopup.getAttribute("data-section")
+  let passageNumber = answersPopup.getAttribute("data-passage")
+
+  let can_remove = false;
+  if (test in testAnswers) {
+    if (section in testAnswers[test]) {
+      if (passageNumber in testAnswers[test][section]) {
+        can_remove = true;
+      }
+    }
+  }
+
+  if (can_remove == true) {
+    // Remove the passage from the testAnswers
+    delete testAnswers[test][section][passageNumber];
+
+    // Find the corresponding passage on the list of tests and change the backgroundColor to ''
+    let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+    if (section == "English") {
+      location = location[1]
+    }
+    else if (section == "Math") {
+      location = location[2]
+    }
+    else if (section == "Reading") {
+      location = location[3]
+    }
+    else {
+      location = location[4]
+    }
+    location = location.querySelectorAll("div")[passageNumber - 1]
+    location.style.backgroundColor = ''
+
+    // Check to see if the section should be reverted back to 'none'
+    let children = location.parentNode.querySelectorAll("div")
+    let can_change_back = true;
+    for (let child = 0; child < children.length; child++) {
+      if (children[child].style.backgroundColor != "") {
+        console.log("can't go back")
+        can_change_back = false;
+        break;
+      }
+    }
+    if (can_change_back == true) {
+      location.parentNode.setAttribute("data-testType", "none")
+      delete testAnswers[test][section];
+    }
+  }
+
+  // Exit the Popup
+  exitAnswersPopup();
+
+}
+
+function submitAnswersPopup() {
+
+  let answersPopup = document.getElementById("testAnswersPopup");
+  let answerArea = document.getElementById("passage")
+
+  let test = answersPopup.getAttribute("data-test");
+  let section = answersPopup.getAttribute("data-section")
+  let passageNumber = answersPopup.getAttribute("data-passage")
+  
+  // Create a dictionary of the answers
+  let answers = {};
+  let answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
+  let num_children = answerAreaChildren.length;
+  for (let i = 0; i < num_children; i++) {
+    answers[answerAreaChildren[i].getAttribute("data-question")] = answerAreaChildren[i].getAttribute("data-isCorrect");
+  }
+
+  // Create the test saving structure, if it doesn't already exist
+  if (test in testAnswers) {
+    if (section in testAnswers[test]) {
+      if (passageNumber in testAnswers[test][section]) {
+        //delete testAnswers[test][section][passageNumber]
+      }
+    }
+    else {
+      testAnswers[test][section] = {}
+    }
+  }
+  else {
+    testAnswers[test] = {}
+    testAnswers[test][section] = {}
+  }
+
+  // Overwrite / Add the answers into the tests dictonary
+  testAnswers[test][section][passageNumber] = answers;
+
+  // Find the corresponding passage on the list of tests and mark it green
+  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  if (section == "English") {
+    location = location[1]
+  }
+  else if (section == "Math") {
+    location = location[2]
+  }
+  else if (section == "Reading") {
+    location = location[3]
+  }
+  else {
+    location = location[4]
+  }
+  location = location.querySelectorAll("div")[passageNumber - 1]
+  location.style.backgroundColor = 'green'
+
+  // Change the test to an in-center test
+  location.parentNode.setAttribute("data-testType", "inCenter")
+
+  // Clear the popup
+  exitAnswersPopup()
+
+}
+
+
+/************************************************************************
+ *                          EVENT LISTENERS                             *
+ ************************************************************************/
+
+let popupAnswers = document.getElementById("passage")
+popupAnswers.addEventListener('click', function(event) {
+  if (event.target.parentNode.className.includes('input-row-center')) {
+    if (event.target.parentNode.style.backgroundColor == '') {
+      event.target.parentNode.style.backgroundColor = 'red'
+      event.target.parentNode.setAttribute("data-isCorrect", "False")
+    }
+    else {
+      event.target.parentNode.style.backgroundColor = '';
+    }
+  }
+})
 
 // Change the colors of the test boxes
 let homeworkTests = document.getElementById("homeworkTests");
@@ -203,7 +418,7 @@ homeworkTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
-      //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
+      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
@@ -217,30 +432,7 @@ homeworkTests.addEventListener('click', function(event)  {
     }
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    if (event.target.parentNode.style.backgroundColor == '') {
-      event.target.parentNode.style.backgroundColor = "green";
-      event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      //event.target.parentNode.style.backgroundColor = "green";
-    //}
-    //else if (event.target.parentNode.style.backgroundColor == 'green') {
-      //event.target.parentNode.style.backgroundColor = "red";
-    //}
-    else {
-      event.target.parentNode.style.backgroundColor = "";
-      let children = event.target.parentNode.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.parentNode.setAttribute("data-testType", "none")
-      }
-    }
+    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
   }
 })
 
@@ -251,6 +443,7 @@ inCenterTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
+      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
@@ -264,30 +457,7 @@ inCenterTests.addEventListener('click', function(event)  {
     }
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    if (event.target.parentNode.style.backgroundColor == '') {
-      event.target.parentNode.style.backgroundColor = "green";
-      event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      //event.target.parentNode.style.backgroundColor = "green";
-    //}
-    //else if (event.target.parentNode.style.backgroundColor == 'green') {
-      //event.target.parentNode.style.backgroundColor = "red";
-    //}
-    else {
-      event.target.parentNode.style.backgroundColor = "";
-      let children = event.target.parentNode.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.parentNode.setAttribute("data-testType", "none")
-      }
-    }
+    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
   }
 })
 
@@ -298,6 +468,7 @@ otherTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
+      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
@@ -311,30 +482,7 @@ otherTests.addEventListener('click', function(event)  {
     }
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    if (event.target.parentNode.style.backgroundColor == '') {
-      event.target.parentNode.style.backgroundColor = "green";
-      event.target.parentNode.parentNode.setAttribute("data-testType", "inCenter")
-    }
-    //else if (event.target.parentNode.style.backgroundColor == 'yellow') {
-      //event.target.parentNode.style.backgroundColor = "green";
-    //}
-    //else if (event.target.parentNode.style.backgroundColor == 'green') {
-      //event.target.parentNode.style.backgroundColor = "red";
-    //}
-    else {
-      event.target.parentNode.style.backgroundColor = "";
-      let children = event.target.parentNode.parentNode.querySelectorAll("div")
-      let can_change_back = true;
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-      if (can_change_back == true) {
-        event.target.parentNode.parentNode.setAttribute("data-testType", "none")
-      }
-    }
+    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
   }
 })
 
