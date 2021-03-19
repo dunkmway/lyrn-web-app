@@ -333,6 +333,6 @@ p {
 }
 
 p.errorMessage {
-    margin-top: -1%;
-    color: red;
+  margin-top: -1%;
+  color: red;
 }

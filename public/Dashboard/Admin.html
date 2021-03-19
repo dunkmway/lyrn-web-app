@@ -18,6 +18,47 @@
   </head>
 
   <body>
+    <section id="add-tutor-section">
+      <div id="add-tutor-div" class="registration-block">
+        <div class="heading-block">
+          <h2>Add Tutor</h2>
+        </div>
+        <div id="form-scroll-block">
+          <div id="spinnyBoi" class="loader"></div>
+          <form onsubmit="return false">
+            <div class="input-row">
+            </div>
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="tutorFirstName" class="label">Tutor First Name:</label>
+                  <input id="tutorFirstName" placeholder="John" class="input" required>
+              </div>
+
+              <div class="input-block">
+                <label for="tutorLastName" class="label">Tutor Last Name:</label>
+                <input id="tutorLastName" placeholder="Doe" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="tutorEmail" class="label">Tutor Email:</label>
+                  <input id="tutorEmail" placeholder="person@gmail.com" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <button type = button id="submitBtn" class="button" onclick="closeTutor()">back</button> 
+              <button type = button id="submitBtn" class="button" onclick="createTutor()">submit</button>
+            </div>
+
+            <div class="input-row">
+              <p id="errMsg"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
     <section>
       <div class="header">
         <h2 id="locationName"></h2>
@@ -36,23 +77,11 @@
             <option disabled selected>Choose a student</option>
           </select>
         </div>
-
-        <div class="input-block">
-          <label class="label">Pending Parents</label>
-          <select id="pendingParents" name="pending-parents">
-            <option disabled selected>Choose a parent</option>
-          </select>
-        </div>
-
-        <div class="input-block">
-          <label class="label">Active Parents</label>
-          <select id="activeParents" name="active-parents">
-            <option disabled selected>Choose a parent</option>
-          </select>
-        </div>
       </div>
 
       
       <button class="button" onclick="goToInquiry()">Inquiry</button>
+      <button class="button" onclick="popUpTutor()">Add Tutor</button>
+
     </section>
   </body>
