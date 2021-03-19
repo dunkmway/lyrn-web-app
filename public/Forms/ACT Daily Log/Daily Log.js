@@ -316,7 +316,6 @@ function removePassage() {
     let can_change_back = true;
     for (let child = 0; child < children.length; child++) {
       if (children[child].style.backgroundColor != "") {
-        console.log("can't go back")
         can_change_back = false;
         break;
       }
@@ -324,6 +323,10 @@ function removePassage() {
     if (can_change_back == true) {
       location.parentNode.setAttribute("data-testType", "none")
       delete testAnswers[test][section];
+      console.log(testAnswers[test].length)
+      if (testAnswers[test].length == undefined) {
+        delete testAnswers[test]
+      }
     }
   }
 
@@ -352,17 +355,18 @@ function submitAnswersPopup() {
   // Create the test saving structure, if it doesn't already exist
   if (test in testAnswers) {
     if (section in testAnswers[test]) {
-      if (passageNumber in testAnswers[test][section]) {
-        //delete testAnswers[test][section][passageNumber]
-      }
+      console.log("I need to do something here")
     }
     else {
+      console.log("It should exist")
       testAnswers[test][section] = {}
+      testAnswers[test][section]["testType"] = test_view_type
     }
   }
   else {
     testAnswers[test] = {}
     testAnswers[test][section] = {}
+    testAnswers[test][section]["testType"] = test_view_type
   }
 
   // Overwrite / Add the answers into the tests dictonary
@@ -387,6 +391,8 @@ function submitAnswersPopup() {
 
   // Change the test to an in-center test
   location.parentNode.setAttribute("data-testType", "inCenter")
+
+  console.log(testAnswers)
 
   // Clear the popup
   exitAnswersPopup()
@@ -418,7 +424,7 @@ homeworkTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
-      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
+      //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
@@ -443,7 +449,7 @@ inCenterTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
-      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
+      //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
@@ -468,7 +474,7 @@ otherTests.addEventListener('click', function(event)  {
     if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
-      popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
+      //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "green";
