@@ -448,6 +448,9 @@ function exitAnswersPopup(start_element = undefined) {
 
   // Remove the border
   let popup = document.getElementById("testAnswersPopup");
+  if (popup.getAttribute("data-test") == undefined) {
+    popup = document.getElementById("homeworkPopup")
+  }
 
   let test = popup.getAttribute("data-test");
   let section = popup.getAttribute("data-section");
@@ -681,10 +684,18 @@ function submitAnswersPopup() {
 
     if (test_view_type == 'homework') {
       testAnswers[test][section]["Score"] = scaledScore
-      testAnswers[test][section]["Status"] = "Completed"
       location.innerHTML = scaledScore;
+      if (testAnswers[test][section]["Status"] == 'Incomplete') {
+        location.style.backgroundColor = 'red'
+      }
+      else {
+        testAnswers[test][section]["Status"] = "Completed"
+        location.style.backgroundColor = 'green'
+      }
     }
-    location.style.backgroundColor = 'green'
+    else {
+      location.style.backgroundColor = 'green'
+    }
   }
 
   // Change the test type
@@ -696,7 +707,6 @@ function submitAnswersPopup() {
     location.querySelector("p").innerHTML = numberOfCorrectAnswers.toString() + " / " + num_children.toString();
   }
 
-  console.log(testAnswers)
 
   // Clear the popup
   if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
@@ -729,17 +739,24 @@ function setHomeworkStatus(status, gradeHomework = "False") {
   let location = findTestDiv(test, section);
   if (status == 'Assigned') {
     location.style.backgroundColor = 'rgb(218, 165, 32)';
+    location.setAttribute("data-testType", 'homework');
+    testAnswers[test][section]["testType"] = 'homework';
+    exitHomeworkPopup();
   }
   else if (status == 'Incomplete') {
-    if (gradeHomework != 'False') {
+    if (gradeHomework == 'False') {
       location.style.backgroundColor = 'gray';
+      location.setAttribute("data-testType", 'homework')
+      testAnswers[test][section]["testType"] = 'homework';
+      exitHomeworkPopup();
     }
     else {
-        location.style.backgroundColor = 'red';
+      location.setAttribute("data-testType", 'homework');
+      testAnswers[test][section]["testType"] = 'homework';
+      deSelect();
+      popupGradeTest(test, section);
     }
   }
-
-  exitHomeworkPopup();
 
 }
 
@@ -880,7 +897,8 @@ homeworkTests.addEventListener('click', function(event)  {
 let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
-    if (event.target.style.backgroundColor == '') {
+    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
+    /*if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "rgb(218, 165, 32)";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
@@ -894,7 +912,7 @@ inCenterTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
+    }*/
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
@@ -905,7 +923,8 @@ inCenterTests.addEventListener('click', function(event)  {
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
-    if (event.target.style.backgroundColor == '') {
+    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
+    /*if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "rgb(218, 165, 32)";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
@@ -919,7 +938,7 @@ otherTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
+    }*/
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
