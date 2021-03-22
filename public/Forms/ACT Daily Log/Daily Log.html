@@ -19,7 +19,7 @@
 
 <body onload="initialSetup()">
     <section id="section">
-        <div id = "testAnswersPopup" class = "input-block">
+        <div id = "testAnswersPopup" class = "input-block noselect">
 
             <div id = "popupHeader">
                 <div id = "headerText">
@@ -29,7 +29,7 @@
             <div id = "popupInfo" class = "input-row">
 
                 <div class = "side">
-                    <div class = "circle">
+                    <div class = "circle button2" onclick="previousPassage(this)">
                         <div id = "leftArrow">
                             &#8249;
                         </div>
@@ -40,7 +40,7 @@
                 </div>
 
                 <div class = "side">
-                    <div class = "circle">
+                    <div class = "circle button2" onclick="nextPassage(this)">
                         <div id = "rightArrow">
                             &#8250;
                         </div>
@@ -61,6 +61,52 @@
                 </button>
                 <button class = "smallButton button" onclick="submitAnswersPopup()">
                     Submit
+                </button>
+            </div>
+
+        </div>
+
+
+        <div id = "homeworkPopup" class = "input-block noselect">
+
+            <div id = "homeworkPopupHeader">
+                <div id = "homeworkHeaderText">
+                </div>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="gradeTest()">
+                    Grade
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="setHomeworkStatus('Assigned')">
+                    Completed, but forgot
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="setHomeworkStatus('Incomplete', 'True')">
+                    Didn't do + Grade
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="setHomeworkStatus('Incomplete')">
+                    Didn't do
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="removePassage(this)">
+                    Remove
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+                <button class = "button" onclick="exitHomeworkPopup()">
+                    Back
                 </button>
             </div>
 
@@ -1690,6 +1736,19 @@
                             class="button" id="removePreviousACTButton" onclick="removeSession(this)">
                     </div>
                 </div>
+
+            <div class = "input-row-center formEnd">
+
+                <div class = "input-block">
+                    <label for="homeworkStatus" class="label">Assign Homework:</label>
+                    <button class = "button" onclick="openForm('homeworkTestsForm', this)">Assign Homework</button>
+                </div>
+
+            </div>
+
+            <div id = "homeworkBreak" class = "line">
+            </div>
+
 
             <div class = "input-row-center formEnd">
 
