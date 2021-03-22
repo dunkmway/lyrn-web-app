@@ -96,6 +96,26 @@ form {
 .gridBox {
     border-style: solid;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.border {
+    border-bottom-style: solid;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.border:last-child {
+    border-bottom-style: none;
+}
+
+.background-green {
+    background-color: green;
 }
 
 .gridBox-p{
@@ -128,10 +148,6 @@ form {
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 14.5% 14.5% 14.5% 14.5% 14.5% 14.5% 13%;
-}
-
-.border {
-    border-bottom-style: solid;
 }
 
 .metaForm {
@@ -588,12 +604,10 @@ p.errorMessage {
 }
 
 .testP {
-    font-size: 16px;
-    position:initial;
+    font-size: 14px;
     padding: 0px;
-    width: 100%;
     margin: 0px;
-    height: 100%;
+    text-align: center;
 }
 
 #testAnswersPopup {
