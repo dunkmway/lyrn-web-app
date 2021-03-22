@@ -617,6 +617,13 @@ p.errorMessage {
     margin: 0px;
 }
 
+#homeworkPopup {
+    display: none;
+    width: 350px;
+    background-color: rgb(200, 200, 200);
+    margin: 0px;
+}
+
 #leftArrow {
     font-size: 35px;
     flex-grow: 1;
@@ -655,6 +662,17 @@ p.errorMessage {
 }
 
 #popupHeader {
+    font-size: 30px;
+    color: white;
+    height: 60px;
+    background-color: #110D65;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#homeworkPopupHeader {
     font-size: 30px;
     color: white;
     height: 60px;

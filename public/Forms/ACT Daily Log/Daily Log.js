@@ -2,7 +2,11 @@ let test_view_type = 'none';
 let oldTestAnswers = {};
 let testAnswers = {};
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet());
+
+last_test = "";
+last_section = "";
+last_passageNumber = undefined;
 
 function initialSetup() {
   const studentUID = queryStrings()["student"];
@@ -150,7 +154,7 @@ function removeSession(self) {
  * This will set the display the form of the id you pass in and all the other forms are set to 'none'
  */
 function openForm(id, element) {
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "homeworkPopup"];
   if (id == '1' || id == '2' || id == '3' || id == '4') {
     let section = document.getElementById("section" + id);
     if (section.value != "") {
@@ -160,6 +164,9 @@ function openForm(id, element) {
       id = "dailyLog";
     }
   }
+
+  // Deselect the last test, if needed
+  deSelect()
 
   if (id == "inCenterTestsForm" && !element.className.includes("testTab")) {
     changeTests("inCenter");
@@ -191,6 +198,38 @@ function openForm(id, element) {
 function changeTests(formType) {
   if (formType == "inCenter") {
     test_view_type = "inCenter"
+      //What matthew had
+//     test_boxes = document.querySelectorAll("div[data-testType=\"none\"], div[data-testType=\"inCenter\"]")
+//     for (let i = 0; i < test_boxes.length; i++ ) {
+//       let test = test_boxes[i].getAttribute("data-test")
+//       let section = test_boxes[i].getAttribute("data-section").toLowerCase()
+//       let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
+//       //console.log(test, section, numberOfPassages)
+
+//       for (let passage = 0; passage < numberOfPassages - 1; passage++) {
+//         test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[(passage + 1).toString()], []], ["psg" + (passage + 1).toString()], "border"));
+//       }
+//         test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[numberOfPassages.toString()], []], ["psg" + numberOfPassages.toString()], ""));
+//         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
+//         //console.log("Class = ", test_boxes[i].className)
+//     }
+
+//     // Color the in-center boxes green initially - Initial Set
+//     for (const [test, value1] of Object.entries(testAnswers)) {
+//       for (const [section, value2] of Object.entries(testAnswers[test])) {
+//         let testType = testAnswers[test][section]["testType"];
+//         if (testType == 'inCenter') {
+//           for (const [passageNumber, value2] of Object.entries(testAnswers[test][section])) {
+//             if (passageNumber != 'testType') {
+//               let element = findTestDiv(test, section, passageNumber);
+//               element.style.backgroundColor = 'green';
+//               element.querySelector("p").innerHTML = testsAnswers[test][section][passageNumber]["TotalCorrect"].toString() + " / " + Object.keys(testsAnswers[test][section][passageNumber]["Answers"]).length.toString()
+//             }
+//           }
+//         }
+//       }
+//     }
+
   }
   else if (formType == "homework") {
     test_view_type = "homework";
@@ -264,14 +303,174 @@ function updateTestTypes() {
   }
 }
 
-function popupGradeTest(test, section, passageNumber) {
+function initialTestSet() {
+  for (const [test, value1] of Object.entries(testAnswers)) {
+    for (const [section, value2] of Object.entries(testAnswers[test])) {
+      let testType = testAnswers[test][section]["testType"]
+      element = findTestDiv(test, section)
+      element.setAttribute("data-testType", testType)
+      element.innerHTML = testAnswers[test][section]["Score"]
+    }
+  }
+
+  // Color the homework boxes green initially
+  homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
+  for (let i = 0; i < homework_boxes.length; i++) {
+    let test = homework_boxes[i].getAttribute("data-test")
+    let section = homework_boxes[i].getAttribute("data-section")
+    let status = testAnswers[test][section]["Status"]
+    let score = testAnswers[test][section]["Score"]
+    if (status == 'Completed') {
+      homework_boxes[i].style.backgroundColor = 'green';
+      homework_boxes[i].innerHTML = score;
+    }
+    else if (status == 'Assigned') {
+      homework_boxes[i].style.backgroundColor = 'yellow';
+    }
+    else if (status == 'Incomplete') {
+      if (score.toString() != '-1') {
+        homework_boxes[i].style.backgroundColor = 'gray';
+        homework_boxes[i].innerHTML = score;
+      }
+      else {
+        homework_boxes[i].style.backgroundColor = 'red';
+      }
+    }
+    
+  }
+
+}
+
+function findTestDiv(test, section, passageNumber = undefined) {
+  // Find the corresponding passage on the list of tests and change the backgroundColor to ''
+  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  if (section == "English") {
+    location = location[1]
+  }
+  else if (section == "Math") {
+    location = location[2]
+  }
+  else if (section == "Reading") {
+    location = location[3]
+  }
+  else {
+    location = location[4]
+  }
+  if (passageNumber == undefined) {
+    return location
+  }
+  else {
+    location = location.querySelectorAll("div")[passageNumber - 1]
+    return location;
+  }
+}
+
+function previousPassage(element) {
+
+  let test = element.parentNode.parentNode.parentNode.getAttribute("data-test");
+  let section = element.parentNode.parentNode.parentNode.getAttribute("data-section");
+  let passageNumber = parseInt(element.parentNode.parentNode.parentNode.getAttribute("data-passage"));
+
+  exitAnswersPopup();
+  popupGradeTest(test, section, (passageNumber - 1));
+}
+
+function nextPassage(element) {
+
+  let test = element.parentNode.parentNode.parentNode.getAttribute("data-test");
+  let section = element.parentNode.parentNode.parentNode.getAttribute("data-section");
+  let passageNumber = element.parentNode.parentNode.parentNode.getAttribute("data-passage");
+  if (passageNumber == 'undefined') {
+    passageNumber = '1'
+  }
+  passageNumber = parseInt(passageNumber, 10) + 1;
+
+  submitAnswersPopup();
+
+  // Deselect the homework box temporarily, so popuGradeTest functions correctly
+  if (test_view_type == 'homework') {
+    deSelect()
+  }
+
+  popupGradeTest(test, section, (passageNumber.toString()));
+}
+
+function deSelect() {
+
+  // Unhighlight the last test selected
+  if (last_test != "") {
+    testLocation = findTestDiv(last_test, last_section, last_passageNumber);
+    if (testLocation == null) {
+      testLocation = findTestDiv(last_test, last_section, undefined);
+    }
+    testLocation.style.borderStyle = "";
+    testLocation.style.borderWidth = "";
+    testLocation.style.borderColor = "";
+  }  
+
+}
+
+function popupGradeTest(test, section, passageNumber = undefined) {
+
+  // Check to see if they pressed the same test again. If so, just exit out
+  let testLocation = findTestDiv(test, section, passageNumber);
+  if (testLocation == null) {
+    testLocation = findTestDiv(test, section, undefined);
+  }
+  if (testLocation.style.borderColor == "cyan") {
+    exitAnswersPopup();
+    return
+  }
+
   // Display the popup for grading tests
   let popup = document.getElementById("testAnswersPopup")
   popup.style.display = "flex";
 
+  // Make sure the left and right arrows are visible
+  let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
+  let leftArrow = document.getElementById("leftArrow")
+  let rightArrow = document.getElementById("rightArrow")
+  leftArrow.parentNode.style.visibility = "visible"
+  rightArrow.parentNode.style.visibility = "visible"
+
+  // Check to see if either left arrow or right arrows need to be hidden
+  if (passageNumber == 1 || passageNumber == undefined) {
+    leftArrow.parentNode.style.visibility = "hidden"
+  }
+  else if (passageNumber == last_passage_number) {
+    rightArrow.parentNode.style.visibility = "hidden"
+  }
+
+  // Hide the homework popup, if applicable
+  if (passageNumber == undefined) {
+    let tmpPopup = document.getElementById("homeworkPopup");
+    tmpPopup.style.display = "none"
+  }
+
   // Change the Popup Header Title
   let headerText = document.getElementById("headerText")
-  headerText.innerHTML = test + " - " + section;
+  if (test_view_type != 'homework') { headerText.innerHTML = test + " - " + section + " - P" + passageNumber; }
+  else { headerText.innerHTML = test + " - " + section; }
+
+  // Clear the previously highlighted test if it wasn't already
+  if (last_test != "") {
+    testLocation = findTestDiv(last_test, last_section, last_passageNumber);
+    if (testLocation == null) {
+      testLocation = findTestDiv(last_test, last_section, undefined);
+    }
+    testLocation.style.borderStyle = "";
+    testLocation.style.borderWidth = "";
+    testLocation.style.borderColor = "";
+  }  
+
+  // Highlight the passage that is pulled up
+  testLocation = findTestDiv(test, section, passageNumber);
+  if (testLocation == null) {
+    testLocation = findTestDiv(last_test, last_section, undefined);
+  }
+  testLocation.style.borderStyle = "solid";
+  testLocation.style.borderWidth = "3px";
+  testLocation.style.borderColor = "cyan";
 
   // Set a few custom attributes
   popup.setAttribute("data-test", test)
@@ -288,7 +487,7 @@ function popupGradeTest(test, section, passageNumber) {
 
   // Get the answers for the passage passed in
   for (let answer = 0; answer < allAnswers.length; answer++) {
-    if (allAnswers[answer]["passageNumber"] == passageNumber) {
+    if (allAnswers[answer]["passageNumber"] == (passageNumber ?? '1')) {
       passageAnswers.push(allAnswers[answer][answer + 1])
       passageNumbers.push(answer + 1)
     }
@@ -320,6 +519,9 @@ function popupGradeTest(test, section, passageNumber) {
         answerAreaChildren = passage.getElementsByClassName("input-row-center")
         for (let i = 0; i < passageAnswers.length; i++) {
           if (!testAnswers[test][section][passageNumber][passageNumbers[i]]) {
+            //Matthew
+            //this was changed to be an actual boolean value as shown above
+//           if (testAnswers[test][section][passageNumber]["Answers"][passageNumbers[i]] == 'False') {
             answerAreaChildren[i].style.backgroundColor = 'red';
             answerAreaChildren[i].setAttribute("data-isCorrect", "false");
           }
@@ -327,6 +529,12 @@ function popupGradeTest(test, section, passageNumber) {
       }
     }
   }
+
+  // Update the last test, section, and passageNumber
+  last_test = test;
+  last_section = section;
+  last_passageNumber = passageNumber;
+
 }
 
 function removeAnswers() {
@@ -341,10 +549,33 @@ function removeAnswers() {
   }
 }
 
-function exitAnswersPopup() {
+function exitAnswersPopup(start_element = undefined) {
 
   // Remove the answers
   removeAnswers();
+
+  // Remove the border
+  let popup = document.getElementById("testAnswersPopup");
+  if (popup.getAttribute("data-test") == undefined) {
+    popup = document.getElementById("homeworkPopup")
+  }
+
+  let test = popup.getAttribute("data-test");
+  let section = popup.getAttribute("data-section");
+  let passageNumber = popup.getAttribute("data-passage");
+
+  if (start_element != undefined) {
+    test = start_element.parentNode.parentNode.getAttribute("data-test")
+    section = start_element.parentNode.parentNode.getAttribute("data-section")
+  }
+
+  testLocation = findTestDiv(test, section, passageNumber);
+  if (testLocation == null) {
+    testLocation = findTestDiv(test, section, undefined);
+  }
+  testLocation.style.borderStyle = "";
+  testLocation.style.borderWidth = "";
+  testLocation.style.borderColor = "";
 
   // Hide the answers popup
   let answersPopup = document.getElementById("testAnswersPopup");
@@ -363,7 +594,7 @@ function resetAnswersPopup() {
   }
 }
 
-function removePassage() {
+function removePassage(start_element = undefined) {
 
   let answersPopup = document.getElementById("testAnswersPopup");
 
@@ -371,19 +602,30 @@ function removePassage() {
   let section = answersPopup.getAttribute("data-section")
   let passageNumber = answersPopup.getAttribute("data-passage")
 
+  if (start_element != undefined) {
+    test = start_element.parentNode.parentNode.getAttribute("data-test")
+    section = start_element.parentNode.parentNode.getAttribute("data-section")
+  }
+
   let can_remove = false;
-  if (test in testAnswers) {
-    if (section in testAnswers[test]) {
-      if (passageNumber in testAnswers[test][section]) {
-        can_remove = true;
+  let can_remove_section = false;
+  if (test_view_type != "homework") {
+    if (test in testAnswers) {
+      if (section in testAnswers[test]) {
+          can_remove_section = true;
+        if (passageNumber in testAnswers[test][section]) {
+          can_remove = true;
+
+          // Remove the passage from the testAnswers
+          delete testAnswers[test][section][passageNumber]["Answers"];
+
+        }
       }
     }
   }
 
-  if (can_remove == true) {
-    // Remove the passage from the testAnswers
-    delete testAnswers[test][section][passageNumber];
-
+  //if (can_remove == true || (test_view_type == "homework" && can_remove_section == true)) {
+  if (can_remove == true || test_view_type == "homework") {
     // Find the corresponding passage on the list of tests and change the backgroundColor to ''
     let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
     if (section == "English") {
@@ -398,30 +640,60 @@ function removePassage() {
     else {
       location = location[4]
     }
-    location = location.querySelectorAll("div")[passageNumber - 1]
+
+    if (can_remove == true) {
+      location = location.querySelectorAll("div")[passageNumber - 1]
+    }
     location.style.backgroundColor = ''
+    if (test_view_type != 'homework') {
+      location.querySelector("p").innerHTML = "psg" + passageNumber.toString();
+    }
+    else {
+      location.innerHTML = '';
+    }
 
     // Check to see if the section should be reverted back to 'none'
     let children = location.parentNode.querySelectorAll("div")
     let can_change_back = true;
-    for (let child = 0; child < children.length; child++) {
-      if (children[child].style.backgroundColor != "") {
-        can_change_back = false;
-        break;
+    if (test_view_type != "homework") {
+      for (let child = 0; child < children.length; child++) {
+        if (children[child].style.backgroundColor != "") {
+          can_change_back = false;
+          break;
+        }
       }
     }
+
+    if (test in testAnswers) {
+      if (!(section in testAnswers[test])) {
+        can_change_back = false;
+      }
+    }
+    else {
+      can_change_back = false;
+    }
+
     if (can_change_back == true) {
-      location.parentNode.setAttribute("data-testType", "none")
+      if (test_view_type != "homework") {
+        location.parentNode.setAttribute("data-testType", "none")
+      }
+      else {
+        location.setAttribute("data-testType", "none")
+      }
       delete testAnswers[test][section];
-      console.log(testAnswers[test].length)
       if (testAnswers[test].length == undefined) {
         delete testAnswers[test]
       }
     }
   }
 
-  // Exit the Popup
-  exitAnswersPopup();
+  // Exit the Answers Popup
+  exitAnswersPopup(start_element);
+
+  // Exit the homework Popup, if applicable
+  if (start_element != undefined) {
+    exitHomeworkPopup();
+  }
 
 }
 
@@ -432,60 +704,148 @@ function submitAnswersPopup() {
 
   let test = answersPopup.getAttribute("data-test");
   let section = answersPopup.getAttribute("data-section")
-  let passageNumber = answersPopup.getAttribute("data-passage")
+  let passageNumber = (answersPopup.getAttribute("data-passage"))
+  if (passageNumber == 'undefined') {
+    passageNumber = '1';
+  }
+  let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
   
   // Create a dictionary of the answers
   let answers = {};
+  let numberOfCorrectAnswers = 0;
   let answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
   let num_children = answerAreaChildren.length;
   for (let i = 0; i < num_children; i++) {
     answers[answerAreaChildren[i].getAttribute("data-question")] = (answerAreaChildren[i].getAttribute("data-isCorrect") == 'true');
+            //matthew
+            //again the variable type is now a boolean
+    //answers[answerAreaChildren[i].getAttribute("data-question")] = answerAreaChildren[i].getAttribute("data-isCorrect");
+    //if (answerAreaChildren[i].getAttribute("data-isCorrect") == 'True') {
+    if (answers[answerAreaChildren[i].getAttribute("data-question")]) {
+      numberOfCorrectAnswers += 1;
+    }
   }
 
   // Create the test saving structure, if it doesn't already exist
   if (test in testAnswers) {
     if (section in testAnswers[test]) {
-      console.log("I need to do something here")
+      if (passageNumber in testAnswers[test][section]) {
+        testAnswers[test][section][passageNumber]["Answers"] = answers;
+        testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
+      }
+      else {
+        testAnswers[test][section][passageNumber] = {}
+        testAnswers[test][section][passageNumber]["Answers"] = answers;
+        testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
+      }
     }
     else {
-      console.log("It should exist")
       testAnswers[test][section] = {}
+      testAnswers[test][section][passageNumber] = {}
+      testAnswers[test][section][passageNumber]["Answers"] = {}
       testAnswers[test][section]["testType"] = test_view_type
+      testAnswers[test][section][passageNumber]["Answers"] = answers;
+      testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
     }
   }
   else {
     testAnswers[test] = {}
     testAnswers[test][section] = {}
+    testAnswers[test][section][passageNumber] = {}
+    testAnswers[test][section][passageNumber]["Answers"] = {}
     testAnswers[test][section]["testType"] = test_view_type
+    testAnswers[test][section][passageNumber]["Answers"] = answers;
+    testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
   }
 
-  // Overwrite / Add the answers into the tests dictonary
-  testAnswers[test][section][passageNumber] = answers;
+            //Duncan's stuff don't think we need it
+//   // Overwrite / Add the answers into the tests dictonary
+//   testAnswers[test][section][passageNumber] = answers;
 
-  /************************************
-   * This was replaced by the next two functions
-   ************************************/
-  // // Find the corresponding passage on the list of tests and mark it green
-  // let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
-  // if (section == "English") {
-  //   location = location[1]
-  // }
-  // else if (section == "Math") {
-  //   location = location[2]
-  // }
-  // else if (section == "Reading") {
-  //   location = location[3]
-  // }
-  // else {
-  //   location = location[4]
-  // }
-  // location = location.querySelectorAll("div")[passageNumber - 1]
-  // location.style.backgroundColor = 'green'
+//   /************************************
+//    * This was replaced by the next two functions
+//    ************************************/
+//   // // Find the corresponding passage on the list of tests and mark it green
+//   // let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+//   // if (section == "English") {
+//   //   location = location[1]
+//   // }
+//   // else if (section == "Math") {
+//   //   location = location[2]
+//   // }
+//   // else if (section == "Reading") {
+//   //   location = location[3]
+//   // }
+//   // else {
+//   //   location = location[4]
+//   // }
+//   // location = location.querySelectorAll("div")[passageNumber - 1]
+//   // location.style.backgroundColor = 'green'
 
-  // // Change the test to an in-center test
-  // location.parentNode.setAttribute("data-testType", "inCenter")
+//   // // Change the test to an in-center test
+//   // location.parentNode.setAttribute("data-testType", "inCenter")
+            //End
+  // Find the corresponding passage on the list of tests and mark it green
+  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  if (section == "English") {
+    location = location[1]
+  }
+  else if (section == "Math") {
+    location = location[2]
+  }
+  else if (section == "Reading") {
+    location = location[3]
+  }
+  else {
+    location = location[4]
+  }
 
-  console.log(testAnswers)
+  if (test_view_type != 'homework') {
+    location = location.querySelectorAll("div")[passageNumber - 1]
+  }
+
+  if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
+    let totalCorrect = 0
+    let totalAnswers = 0
+    for (const [key, psg] of Object.entries(testAnswers[test][section])) {
+      if (key != "testType" && key != "Score" && key != "Status") {
+        totalCorrect += psg["TotalCorrect"]
+        totalAnswers += Object.keys(psg["Answers"]).length
+      }
+    }
+    let scaleScore = 0;
+    for (const [key, value] of Object.entries(testData[test][section.toLowerCase() + "Scores"])) {
+      if (parseInt(totalCorrect, 10) >= parseInt(value, 10)) {
+        scaledScore = 36 - parseInt(key);
+        break;
+      }
+    }
+
+    if (test_view_type == 'homework') {
+      testAnswers[test][section]["Score"] = scaledScore
+      location.innerHTML = scaledScore;
+      if (testAnswers[test][section]["Status"] == 'Incomplete') {
+        location.style.backgroundColor = 'red'
+      }
+      else {
+        testAnswers[test][section]["Status"] = "Completed"
+        location.style.backgroundColor = 'green'
+      }
+    }
+    else {
+      location.style.backgroundColor = 'green'
+    }
+  }
+
+  // Change the test type
+  if (test_view_type == 'homework') {
+    location.setAttribute("data-testType", test_view_type);
+  }
+  else {
+    location.parentNode.setAttribute("data-testType", test_view_type);
+    location.querySelector("p").innerHTML = numberOfCorrectAnswers.toString() + " / " + num_children.toString();
+  }
+
 
   //update the test types
   updateTestTypes();
@@ -494,15 +854,150 @@ function submitAnswersPopup() {
   updateTestVisuals();
 
   // Clear the popup
-  exitAnswersPopup()
+  if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
+    exitAnswersPopup()
+  }
 
 }
 
+function setHomeworkStatus(status, gradeHomework = "False") {
+  let popup = document.getElementById("homeworkPopup");
+
+  let test = popup.getAttribute("data-test");
+  let section = popup.getAttribute("data-section");
+
+  if (test in testAnswers) {
+    if (section in testAnswers[test]) {
+      testAnswers[test][section]["Status"] = status;
+    }
+    else {
+      testAnswers[test][section] = {}
+      testAnswers[test][section]["Status"] = status;
+    }
+  }
+  else {
+      testAnswers[test] = {}
+      testAnswers[test][section] = {}
+      testAnswers[test][section]["Status"] = status;
+  }
+
+  let location = findTestDiv(test, section);
+  if (status == 'Assigned') {
+    location.style.backgroundColor = 'rgb(218, 165, 32)';
+    location.setAttribute("data-testType", 'homework');
+    testAnswers[test][section]["testType"] = 'homework';
+    exitHomeworkPopup();
+  }
+  else if (status == 'Incomplete') {
+    if (gradeHomework == 'False') {
+      location.style.backgroundColor = 'gray';
+      location.setAttribute("data-testType", 'homework')
+      testAnswers[test][section]["testType"] = 'homework';
+      exitHomeworkPopup();
+    }
+    else {
+      location.setAttribute("data-testType", 'homework');
+      testAnswers[test][section]["testType"] = 'homework';
+      deSelect();
+      popupGradeTest(test, section);
+    }
+  }
+
+}
+
+function gradeHomework(test, section) {
+
+  // Change the Popup Header Title
+  let headerText = document.getElementById("homeworkHeaderText")
+  headerText.innerHTML = test + " - " + section;
+
+  // Hide the answers popup
+  let popup = document.getElementById("testAnswersPopup")
+  popup.style.display = "none";
+
+  // Check to see if they pressed the same test again. If so, just exit out
+  let testLocation = findTestDiv(test, section, undefined);
+  if (testLocation.style.borderColor == "cyan") {
+    if (test in testAnswers) {
+      if (section in testAnswers[test]) {
+        let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"];
+        if ((Object.keys(testAnswers[test][section]).length - 1) < last_passage_number) {
+          removePassage();
+          return
+        }
+      }
+    }
+    exitHomeworkPopup();
+    return
+  }
+
+  // Display the popup
+  popup = document.getElementById("homeworkPopup");
+  popup.style.display = "flex"
+
+  // Set the test and section for the popup
+  popup.setAttribute("data-test", test);
+  popup.setAttribute("data-section", section);
+
+  // Clear the previously highlighted test if it wasn't already
+  if (last_test != "") {
+    testLocation = findTestDiv(last_test, last_section);
+    testLocation.style.borderStyle = "";
+    testLocation.style.borderWidth = "";
+    testLocation.style.borderColor = "";
+  }  
+
+  // Highlight the passage that is pulled up
+  testLocation = findTestDiv(test, section);
+  testLocation.style.borderStyle = "solid";
+  testLocation.style.borderWidth = "3px";
+  testLocation.style.borderColor = "cyan";
+
+  // Update the last test and section
+  last_test = test;
+  last_section = section;
+
+}
+
+function gradeTest() {
+
+  let popup = document.getElementById("homeworkPopup");
+
+  let test = popup.getAttribute("data-test");
+  let section = popup.getAttribute("data-section");
+
+  testLocation = findTestDiv(test, section);
+  testLocation.style.borderStyle = "";
+  testLocation.style.borderWidth = "";
+  testLocation.style.borderColor = "";
+
+  popupGradeTest(test, section);
+}
+
+function exitHomeworkPopup() {
+
+  // Remove the border
+  let popup = document.getElementById("homeworkPopup");
+
+  let test = popup.getAttribute("data-test");
+  let section = popup.getAttribute("data-section");
+
+  testLocation = findTestDiv(test, section);
+  testLocation.style.borderStyle = "";
+  testLocation.style.borderWidth = "";
+  testLocation.style.borderColor = "";
+
+  // Hide the homework popup
+  let answersPopup = document.getElementById("homeworkPopup");
+  answersPopup.style.display = "none"
+
+}
 
 /************************************************************************
  *                          EVENT LISTENERS                             *
  ************************************************************************/
 
+// Listen for wrong answers
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function(event) {
   if (event.target.parentNode.className.includes('input-row-center')) {
@@ -512,7 +1007,9 @@ popupAnswers.addEventListener('click', function(event) {
     }
     else {
       event.target.parentNode.style.backgroundColor = '';
+            //want this to be a boolean
       event.target.parentNode.setAttribute("data-isCorrect", "true")
+      //event.target.parentNode.setAttribute("data-isCorrect", "True")
     }
   }
 })
@@ -521,7 +1018,8 @@ popupAnswers.addEventListener('click', function(event) {
 let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
-    if (event.target.style.backgroundColor == '') {
+    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
+    /*if (event.target.style.backgroundColor == '') {
       event.target.style.backgroundColor = "yellow";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
@@ -535,7 +1033,7 @@ homeworkTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
+    }*/
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
@@ -546,12 +1044,13 @@ homeworkTests.addEventListener('click', function(event)  {
 let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
-    if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "yellow";
+    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
+    /*if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "rgb(218, 165, 32)";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
-    else if (event.target.style.backgroundColor == 'yellow') {
+    else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
       event.target.style.backgroundColor = "green";
     }
     else if (event.target.style.backgroundColor == 'green') {
@@ -560,7 +1059,7 @@ inCenterTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
+    }*/
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
@@ -571,12 +1070,13 @@ inCenterTests.addEventListener('click', function(event)  {
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && test_view_type == "homework") {
-    if (event.target.style.backgroundColor == '') {
-      event.target.style.backgroundColor = "yellow";
+    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
+    /*if (event.target.style.backgroundColor == '') {
+      event.target.style.backgroundColor = "rgb(218, 165, 32)";
       event.target.setAttribute("data-testType", "homework")
       //popupGradeTest(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), 1);
     }
-    else if (event.target.style.backgroundColor == 'yellow') {
+    else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
       event.target.style.backgroundColor = "green";
     }
     else if (event.target.style.backgroundColor == 'green') {
@@ -585,7 +1085,7 @@ otherTests.addEventListener('click', function(event)  {
     else {
       event.target.style.backgroundColor = "";
       event.target.setAttribute("data-testType", "none")
-    }
+    }*/
   }
   else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
@@ -600,9 +1100,9 @@ englishLessons.addEventListener('click', function(event)  {
       event.target.style.backgroundColor = "green";
     }
     else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
+      event.target.style.backgroundColor = "rgb(218, 165, 32)";
     }
-    else if (event.target.style.backgroundColor == 'yellow') {
+    else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
       event.target.style.backgroundColor = "red";
     }
     else {
@@ -619,9 +1119,9 @@ mathLessons.addEventListener('click', function(event)  {
       event.target.style.backgroundColor = "green";
     }
     else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
+      event.target.style.backgroundColor = "rgb(218, 165, 32)";
     }
-    else if (event.target.style.backgroundColor == 'yellow') {
+    else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
       event.target.style.backgroundColor = "red";
     }
     else {
@@ -638,7 +1138,7 @@ readingLessons.addEventListener('click', function(event)  {
       event.target.style.backgroundColor = "green";
     }
     else if (event.target.style.backgroundColor == 'green') {
-      event.target.style.backgroundColor = "yellow";
+      event.target.style.backgroundColor = "rgb(218, 165, 32)";
     }
     else if (event.target.style.backgroundColor == 'yellow') {
       event.target.style.backgroundColor = "red";
