@@ -2,7 +2,7 @@ let test_view_type = 'none';
 let oldTestAnswers = {};
 let testAnswers = {};
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet());
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet()).then(() => console.log(testData));
 
 last_test = "";
 last_section = "";
@@ -267,9 +267,25 @@ function updateTestVisuals() {
       }
       //if this section is a homework section
       else if (test_boxes[i].getAttribute("data-testType") == "homework") {
-        if (testAnswers[test]?.[section]?.[passage + 1]) {
-          //FIXME: Need to check status and change the color
-          console.log("Need to handle homework!!!");
+        if (testAnswers[test]?.[section]) {
+          let status = testAnswers[test][section]["Status"];
+          let score = testAnswers[test][section]["Score"];
+          if (status == 'Completed') {
+            test_boxes[i].style.backgroundColor = 'green';
+            test_boxes[i].innerHTML = score;
+          }
+          else if (status == 'Assigned') {
+            test_boxes[i].style.backgroundColor = 'yellow';
+          }
+          else if (status == 'Incomplete') {
+            if (score.toString() != '-1') {
+              test_boxes[i].style.backgroundColor = 'gray';
+              test_boxes[i].innerHTML = score;
+            }
+            else {
+              test_boxes[i].style.backgroundColor = 'red';
+            }
+          }
         }
         
       }
@@ -313,55 +329,58 @@ function initialTestSet() {
     }
   }
 
-  // Color the homework boxes green initially
-  homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
-  for (let i = 0; i < homework_boxes.length; i++) {
-    let test = homework_boxes[i].getAttribute("data-test")
-    let section = homework_boxes[i].getAttribute("data-section")
-    let status = testAnswers[test][section]["Status"]
-    let score = testAnswers[test][section]["Score"]
-    if (status == 'Completed') {
-      homework_boxes[i].style.backgroundColor = 'green';
-      homework_boxes[i].innerHTML = score;
-    }
-    else if (status == 'Assigned') {
-      homework_boxes[i].style.backgroundColor = 'yellow';
-    }
-    else if (status == 'Incomplete') {
-      if (score.toString() != '-1') {
-        homework_boxes[i].style.backgroundColor = 'gray';
-        homework_boxes[i].innerHTML = score;
-      }
-      else {
-        homework_boxes[i].style.backgroundColor = 'red';
-      }
-    }
+  //FIXME: Double check that we don't need this here. It is handled in the update test visuals section.
+  // // Color the homework boxes green initially
+  // homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
+  // for (let i = 0; i < homework_boxes.length; i++) {
+  //   let test = homework_boxes[i].getAttribute("data-test")
+  //   let section = homework_boxes[i].getAttribute("data-section")
+  //   let status = testAnswers[test][section]["Status"]
+  //   let score = testAnswers[test][section]["Score"]
+  //   if (status == 'Completed') {
+  //     homework_boxes[i].style.backgroundColor = 'green';
+  //     homework_boxes[i].innerHTML = score;
+  //   }
+  //   else if (status == 'Assigned') {
+  //     homework_boxes[i].style.backgroundColor = 'yellow';
+  //   }
+  //   else if (status == 'Incomplete') {
+  //     if (score.toString() != '-1') {
+  //       homework_boxes[i].style.backgroundColor = 'gray';
+  //       homework_boxes[i].innerHTML = score;
+  //     }
+  //     else {
+  //       homework_boxes[i].style.backgroundColor = 'red';
+  //     }
+  //   }
     
-  }
+  // }
 
 }
 
 function findTestDiv(test, section, passageNumber = undefined) {
   // Find the corresponding passage on the list of tests and change the backgroundColor to ''
-  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  let locations = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  let location;
   if (section == "English") {
-    location = location[1]
+    location = locations[1]
   }
   else if (section == "Math") {
-    location = location[2]
+    location = locations[2]
   }
   else if (section == "Reading") {
-    location = location[3]
+    location = locations[3]
   }
   else {
-    location = location[4]
+    location = locations[4]
   }
+
   if (passageNumber == undefined) {
     return location
   }
   else {
-    location = location.querySelectorAll("div")[passageNumber - 1]
-    return location;
+    let passageLocation = location.querySelectorAll("div")[passageNumber - 1]
+    return passageLocation;
   }
 }
 
@@ -590,7 +609,7 @@ function resetAnswersPopup() {
   num_children = answerAreaChildren.length;
   for (let i = 0; i < num_children; i++) {
     answerAreaChildren[num_children - i - 1].style.backgroundColor = '';
-    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "True");
+    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "true");
   }
 }
 
@@ -810,7 +829,8 @@ function submitAnswersPopup() {
     for (const [key, psg] of Object.entries(testAnswers[test][section])) {
       if (key != "testType" && key != "Score" && key != "Status") {
         totalCorrect += psg["TotalCorrect"]
-        totalAnswers += Object.keys(psg["Answers"]).length
+        //FIXME: This thing throws an error while trying to submit the test. Don't see what it's doing
+        //totalAnswers += Object.keys(psg["Answers"]).length
       }
     }
     let scaleScore = 0;
