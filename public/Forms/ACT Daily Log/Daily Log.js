@@ -250,18 +250,17 @@ function changeTests(formType) {
             }
           }
         }
-        
       }
-      //go to the default for the page
-      else {
-        if (test_view_type == "inCenter") {
-          test_boxes[i].appendChild(createElements(["p"], [["testP"]], [["data-passageNumber"]], [[(passage + 1).toString()]], [[(passage + 1).toString()]], passageDivClasses));
-        }
-        else if (test_view_type == "homework") {
-          //we should be able to do nothing here since everything was already cleared
-        }
+    }
+  }
+  else if (formType == "homework" && test_view_type != "homework") {
+    test_view_type = "homework";
+    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
+    for (let i = 0; i < test_boxes.length; i++) {
+      let children = test_boxes[i].querySelectorAll("div");
+      for (let k = 0; k < children.length; k++) {
+        children[k].remove()
       }
-      
     }
   }
 }
