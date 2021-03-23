@@ -102,7 +102,7 @@ function updateLessonGraphics() {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
       const status = lessonData[section][lesson].status;
-      const date = new Date(lessonData[section][lesson].date);
+      const date = lessonData[section][lesson].date ? new Date(lessonData[section][lesson].date) : null
 
       const lessonElem = document.getElementById(id);
 
