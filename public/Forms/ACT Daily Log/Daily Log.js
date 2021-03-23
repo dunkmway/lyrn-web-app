@@ -263,6 +263,16 @@ function changeTests(formType) {
       }
     }
   }
+  else if (formType == "assign" && test_view_type != "assign") {
+    test_view_type = "assign";
+    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
+    for (let i = 0; i < test_boxes.length; i++) {
+      let children = test_boxes[i].querySelectorAll("div");
+      for (let k = 0; k < children.length; k++) {
+        children[k].remove()
+      }
+    }
+  }
 }
 
 /**
@@ -277,16 +287,6 @@ function updateTestTypes() {
     //if the test is an incenter test then set it as such
     if (testAnswers[test]?.[section]?.["testType"]) {
       test_boxes[i].setAttribute("data-testType", testAnswers[test]?.[section]?.["testType"]);
-    }
-  }
-  else if (formType == "assign" && test_view_type != "assign") {
-    test_view_type = "assign";
-    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
-    for (let i = 0; i < test_boxes.length; i++) {
-      let children = test_boxes[i].querySelectorAll("div");
-      for (let k = 0; k < children.length; k++) {
-        children[k].remove()
-      }
     }
   }
 }
