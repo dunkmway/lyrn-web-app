@@ -228,12 +228,10 @@ function changeTests(formType) {
       let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
       //console.log(test, section, numberOfPassages)
 
-      for (let passage = 0; passage < numberOfPassages - 1; passage++) {
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[(passage + 1).toString()], []], [(passage + 1).toString()], "border"));
+      for (let passage = 0; passage < numberOfPassages; passage++) {
+        test_boxes[i].appendChild(createElements(["p"], [["testP"]], [["data-passageNumber"]], [[(passage + 1).toString()]], [(passage + 1).toString()], ["border"]));
       }
-        test_boxes[i].appendChild(createElements(["p"], ["testP"], [["data-passageNumber"], []], [[numberOfPassages.toString()], []], [numberOfPassages.toString()], ""));
         test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
-        //console.log("Class = ", test_boxes[i].className)
     }
 
     // Color the in-center boxes green initially - Initial Set
@@ -853,10 +851,10 @@ function submitAnswersPopup() {
 
 
   //update the test types
-  updateTestTypes();
+  //updateTestTypes();
 
   //update the test visuals
-  updateTestVisuals();
+  //updateTestVisuals();
 
   // Clear the popup
   if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
