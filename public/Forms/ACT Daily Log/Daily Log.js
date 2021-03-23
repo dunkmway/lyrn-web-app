@@ -2,13 +2,15 @@ let test_view_type = 'none';
 let oldTestAnswers = {};
 let testAnswers = {};
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet()).then(() => console.log(testData));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet());
+initialSetup();
 
 last_test = "";
 last_section = "";
 last_passageNumber = undefined;
 
 function initialSetup() {
+  console.log("In initial setup");
   const studentUID = queryStrings()["student"];
 
   if (studentUID) {
@@ -243,7 +245,7 @@ function changeTests(formType) {
             if (passageNumber != 'testType') {
               let element = findTestDiv(test, section, passageNumber);
               element.style.backgroundColor = 'green';
-              element.querySelector("p").innerHTML = testsAnswers[test][section][passageNumber]["TotalCorrect"].toString() + " / " + Object.keys(testsAnswers[test][section][passageNumber]["Answers"]).length.toString()
+              element.querySelector("p").innerHTML = testAnswers[test]?.[section]?.[passageNumber]?.["TotalCorrect"].toString() + " / " + Object.keys(testAnswers[test]?.[section]?.[passageNumber]?.["Answers"]).length.toString()
 
             }
           }

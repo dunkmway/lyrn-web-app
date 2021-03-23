@@ -43,7 +43,6 @@ function getLessonData() {
     .then((doc) => {
       if (doc.exists) {
         lessonData = doc.data();
-        console.log(lessonData);
         updateLessonGraphics();
       }
     })
@@ -66,7 +65,6 @@ function updateLessonData() {
   let value = {};
   let date = new Date()
   const lessonStatus = lessonData[section]?.[lesson]?.status
-  console.log(lessonStatus);
   switch (lessonStatus) {
     case "needs review":
       value = {
@@ -92,7 +90,6 @@ function updateLessonData() {
   
   setObjectValue([section, lesson], value, lessonData);
 
-  console.log(lessonData);
   updateLessonGraphics();
 }
 
