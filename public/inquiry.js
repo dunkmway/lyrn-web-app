@@ -444,7 +444,6 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
     question.innerHTML = text;
   }
   return question;
-
 }
 
 

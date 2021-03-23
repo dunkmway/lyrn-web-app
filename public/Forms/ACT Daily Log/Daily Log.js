@@ -1,7 +1,8 @@
 let test_view_type = 'none';
+let oldTestAnswers = {};
 let testAnswers = {};
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet());
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet()).then(() => console.log(testData));
 
 last_test = "";
 last_section = "";
@@ -29,12 +30,43 @@ function initialSetup() {
       console.log(error.message);
       console.log(error.details);
     });
+
+    //get the student's hw scores
+    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
+    //need to somehow get this promise to return when complete....
+    return hwDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        oldTestAnswers = doc.data();
+        testAnswers = JSON.parse(JSON.stringify(oldTestAnswers));
+        console.log(oldTestAnswers);
+        console.log(testAnswers);
+
+        updateTestTypes();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
   }
 }
 
-function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "input-row") {
+/**
+ * create html elements and return them in a parent div
+ * @param {[String]} elementType tag names for the elements that will be created
+ * @param {[[String]]} classes classes for each element
+ * @param {[[String]]} attributes attributes for each element
+ * @param {[[String]]} values values for each attribute for each element
+ * @param {[String]} text innerhtml for each element
+ * @param {[String]} divClasses calsses for the parent div for the elements
+ * @returns {HTMLElement} html div whose children are the requested elements
+ */
+function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
   if (elementType.length >= 0) {
-    let elements = createElement("div", flexType);
+    let elements = createElement("div", divClasses);
 
     if (attributes.length == values.length && attributes.length >= 0) {
       for (let i = 0; i < elementType.length; i++) {
@@ -47,41 +79,49 @@ function createElements(elementType = [], classes = [], attributes = [], values 
   }
 }
 
-  function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
-    let question = document.createElement(elementType);
+/**
+ * create html element
+ * @param {String} elementType tag name for the element that will be created
+ * @param {[String]} classes classes for the element
+ * @param {[String]} attributes attributes for the element
+ * @param {[String]} values values for each attribute for the element
+ * @param {String} text innerhtml for the element
+ * @returns {HTMLElement} html element of the given tag
+ */
+function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
+  let element = document.createElement(elementType);
 
-    if (attributes.length == values.length && attributes.length > 0) {
-      for (let i = 0; i < attributes.length; i++) {
-        question.setAttribute(attributes[i], values[i]);
-      }
+  if (attributes.length == values.length && attributes.length > 0) {
+    for (let i = 0; i < attributes.length; i++) {
+      element.setAttribute(attributes[i], values[i]);
     }
-
-    if (classes != "") {
-      question.className = classes;
-    }
-
-    if (text != "") {
-      question.innerHTML = text;
-    }
-    return question;
-
   }
 
-  function combineElements(objects = [], flexType = "input-row")
+  for (let i = 0; i < classes.length; i++) {
+    element.classList.add(classes[i]);
+  }
+
+  if (text != "") {
+    element.innerHTML = text;
+  }
+  return element;
+}
+
+function combineElements(objects = [], flexType = "input-row")
+{
+  let item = createElement("div", flexType, [], [], "");
+
+  if (objects.length > 1)
   {
-    let item = createElement("div", flexType, [], [], "");
-
-    if (objects.length > 1)
+    for (let i = 0; i < objects.length; i++)
     {
-      for (let i = 0; i < objects.length; i++)
-      {
-        item.appendChild(objects[i]);
-      }
+      item.appendChild(objects[i]);
     }
-
-    return item;
-
   }
+
+  return item;
+
+}
 
 function addSession(self) {
   session_count = document.querySelectorAll("div[id^=\"session\"]").length;
@@ -174,8 +214,12 @@ function openForm(id, element) {
   }
 }
 
+/**
+ * change test type and update visuals for the test page
+ * @param {String} formType default test type that will be displayed
+ */
 function changeTests(formType) {
-  if (formType == "inCenter" && test_view_type != "inCenter") {
+  if (formType == "inCenter") {
     test_view_type = "inCenter"
     test_boxes = document.querySelectorAll("div[data-testType=\"none\"], div[data-testType=\"inCenter\"]")
     for (let i = 0; i < test_boxes.length; i++ ) {
@@ -202,21 +246,38 @@ function changeTests(formType) {
               let element = findTestDiv(test, section, passageNumber);
               element.style.backgroundColor = 'green';
               element.querySelector("p").innerHTML = testsAnswers[test][section][passageNumber]["TotalCorrect"].toString() + " / " + Object.keys(testsAnswers[test][section][passageNumber]["Answers"]).length.toString()
+
             }
           }
         }
+        
       }
+      //go to the default for the page
+      else {
+        if (test_view_type == "inCenter") {
+          test_boxes[i].appendChild(createElements(["p"], [["testP"]], [["data-passageNumber"]], [[(passage + 1).toString()]], [[(passage + 1).toString()]], passageDivClasses));
+        }
+        else if (test_view_type == "homework") {
+          //we should be able to do nothing here since everything was already cleared
+        }
+      }
+      
     }
-
   }
-  else if (formType == "homework" && test_view_type != "homework") {
-    test_view_type = "homework";
-    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
-    for (let i = 0; i < test_boxes.length; i++) {
-      let children = test_boxes[i].querySelectorAll("div");
-      for (let k = 0; k < children.length; k++) {
-        children[k].remove()
-      }
+}
+
+/**
+ * update the test div blocks to have the same test type as the test answer object
+ */
+function updateTestTypes() {
+  let test_boxes = document.querySelectorAll("div[data-testType]")
+  for (let i = 0; i < test_boxes.length; i++ ) {
+    let test = test_boxes[i].getAttribute("data-test")
+    let section = test_boxes[i].getAttribute("data-section")
+
+    //if the test is an incenter test then set it as such
+    if (testAnswers[test]?.[section]?.["testType"]) {
+      test_boxes[i].setAttribute("data-testType", testAnswers[test]?.[section]?.["testType"]);
     }
   }
   else if (formType == "assign" && test_view_type != "assign") {
@@ -243,55 +304,58 @@ function initialTestSet() {
     }
   }
 
-  // Color the homework boxes green initially
-  homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
-  for (let i = 0; i < homework_boxes.length; i++) {
-    let test = homework_boxes[i].getAttribute("data-test")
-    let section = homework_boxes[i].getAttribute("data-section")
-    let status = testAnswers[test][section]["Status"]
-    let score = testAnswers[test][section]["Score"]
-    if (status == 'Completed') {
-      homework_boxes[i].style.backgroundColor = 'green';
-      homework_boxes[i].innerHTML = score;
-    }
-    else if (status == 'Assigned') {
-      homework_boxes[i].style.backgroundColor = 'yellow';
-    }
-    else if (status == 'Incomplete') {
-      if (score.toString() != '-1') {
-        homework_boxes[i].style.backgroundColor = 'gray';
-        homework_boxes[i].innerHTML = score;
-      }
-      else {
-        homework_boxes[i].style.backgroundColor = 'red';
-      }
-    }
+  //FIXME: Double check that we don't need this here. It is handled in the update test visuals section.
+  // // Color the homework boxes green initially
+  // homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
+  // for (let i = 0; i < homework_boxes.length; i++) {
+  //   let test = homework_boxes[i].getAttribute("data-test")
+  //   let section = homework_boxes[i].getAttribute("data-section")
+  //   let status = testAnswers[test][section]["Status"]
+  //   let score = testAnswers[test][section]["Score"]
+  //   if (status == 'Completed') {
+  //     homework_boxes[i].style.backgroundColor = 'green';
+  //     homework_boxes[i].innerHTML = score;
+  //   }
+  //   else if (status == 'Assigned') {
+  //     homework_boxes[i].style.backgroundColor = 'yellow';
+  //   }
+  //   else if (status == 'Incomplete') {
+  //     if (score.toString() != '-1') {
+  //       homework_boxes[i].style.backgroundColor = 'gray';
+  //       homework_boxes[i].innerHTML = score;
+  //     }
+  //     else {
+  //       homework_boxes[i].style.backgroundColor = 'red';
+  //     }
+  //   }
     
-  }
+  // }
 
 }
 
 function findTestDiv(test, section, passageNumber = undefined) {
   // Find the corresponding passage on the list of tests and change the backgroundColor to ''
-  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  let locations = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+  let location;
   if (section == "English") {
-    location = location[1]
+    location = locations[1]
   }
   else if (section == "Math") {
-    location = location[2]
+    location = locations[2]
   }
   else if (section == "Reading") {
-    location = location[3]
+    location = locations[3]
   }
   else {
-    location = location[4]
+    location = locations[4]
   }
+
   if (passageNumber == undefined) {
     return location
   }
   else {
-    location = location.querySelectorAll("div")[passageNumber - 1]
-    return location;
+    let passageLocation = location.querySelectorAll("div")[passageNumber - 1]
+    return passageLocation;
   }
 }
 
@@ -427,18 +491,18 @@ function popupGradeTest(test, section, passageNumber = undefined) {
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
     if (answer == 0) {
-      ele = createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], "input-row-center firstAnswer button2");
+      ele = createElements(["div", "div", "div"], [["popupNumber"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.setAttribute("data-isCorrect", "True")
+      ele.setAttribute("data-isCorrect", "true")
     }
     else {
-      ele = createElements(["div", "div", "div"], ["popupNumber", "popupDash", "popupAnswer"], [], [], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], "input-row-center button2");
+      ele = createElements(["div", "div", "div"], [["popupNumber"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.setAttribute("data-isCorrect", "True")
+      ele.setAttribute("data-isCorrect", "true")
     }
   }
 
@@ -448,9 +512,12 @@ function popupGradeTest(test, section, passageNumber = undefined) {
       if (passageNumber in testAnswers[test][section]) {
         answerAreaChildren = passage.getElementsByClassName("input-row-center")
         for (let i = 0; i < passageAnswers.length; i++) {
-          if (testAnswers[test][section][passageNumber]["Answers"][passageNumbers[i]] == 'False') {
+          if (!testAnswers[test][section][passageNumber][passageNumbers[i]]) {
+            //Matthew
+            //this was changed to be an actual boolean value as shown above
+//           if (testAnswers[test][section][passageNumber]["Answers"][passageNumbers[i]] == 'False') {
             answerAreaChildren[i].style.backgroundColor = 'red';
-            answerAreaChildren[i].setAttribute("data-isCorrect", "False");
+            answerAreaChildren[i].setAttribute("data-isCorrect", "false");
           }
         }
       }
@@ -522,7 +589,7 @@ function resetAnswersPopup() {
   num_children = answerAreaChildren.length;
   for (let i = 0; i < num_children; i++) {
     answerAreaChildren[num_children - i - 1].style.backgroundColor = '';
-    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "True");
+    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "true");
   }
 }
 
@@ -654,8 +721,12 @@ function submitAnswersPopup() {
   let answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
   let num_children = answerAreaChildren.length;
   for (let i = 0; i < num_children; i++) {
-    answers[answerAreaChildren[i].getAttribute("data-question")] = answerAreaChildren[i].getAttribute("data-isCorrect");
-    if (answerAreaChildren[i].getAttribute("data-isCorrect") == 'True') {
+    answers[answerAreaChildren[i].getAttribute("data-question")] = (answerAreaChildren[i].getAttribute("data-isCorrect") == 'true');
+            //matthew
+            //again the variable type is now a boolean
+    //answers[answerAreaChildren[i].getAttribute("data-question")] = answerAreaChildren[i].getAttribute("data-isCorrect");
+    //if (answerAreaChildren[i].getAttribute("data-isCorrect") == 'True') {
+    if (answers[answerAreaChildren[i].getAttribute("data-question")]) {
       numberOfCorrectAnswers += 1;
     }
   }
@@ -692,6 +763,33 @@ function submitAnswersPopup() {
     testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
   }
 
+            //Duncan's stuff don't think we need it
+//   // Overwrite / Add the answers into the tests dictonary
+//   testAnswers[test][section][passageNumber] = answers;
+
+//   /************************************
+//    * This was replaced by the next two functions
+//    ************************************/
+//   // // Find the corresponding passage on the list of tests and mark it green
+//   // let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
+//   // if (section == "English") {
+//   //   location = location[1]
+//   // }
+//   // else if (section == "Math") {
+//   //   location = location[2]
+//   // }
+//   // else if (section == "Reading") {
+//   //   location = location[3]
+//   // }
+//   // else {
+//   //   location = location[4]
+//   // }
+//   // location = location.querySelectorAll("div")[passageNumber - 1]
+//   // location.style.backgroundColor = 'green'
+
+//   // // Change the test to an in-center test
+//   // location.parentNode.setAttribute("data-testType", "inCenter")
+            //End
   // Find the corresponding passage on the list of tests and mark it green
   let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
   if (section == "English") {
@@ -717,7 +815,8 @@ function submitAnswersPopup() {
     for (const [key, psg] of Object.entries(testAnswers[test][section])) {
       if (key != "testType" && key != "Score" && key != "Status") {
         totalCorrect += psg["TotalCorrect"]
-        totalAnswers += Object.keys(psg["Answers"]).length
+        //FIXME: This thing throws an error while trying to submit the test. Don't see what it's doing
+        //totalAnswers += Object.keys(psg["Answers"]).length
       }
     }
     let scaleScore = 0;
@@ -753,6 +852,12 @@ function submitAnswersPopup() {
     location.querySelector("p").innerHTML = numberOfCorrectAnswers.toString() + " / " + num_children.toString();
   }
 
+
+  //update the test types
+  updateTestTypes();
+
+  //update the test visuals
+  updateTestVisuals();
 
   // Clear the popup
   if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
@@ -939,11 +1044,13 @@ popupAnswers.addEventListener('click', function(event) {
   if (event.target.parentNode.className.includes('input-row-center')) {
     if (event.target.parentNode.style.backgroundColor == '') {
       event.target.parentNode.style.backgroundColor = 'red'
-      event.target.parentNode.setAttribute("data-isCorrect", "False")
+      event.target.parentNode.setAttribute("data-isCorrect", "false")
     }
     else {
       event.target.parentNode.style.backgroundColor = '';
-      event.target.parentNode.setAttribute("data-isCorrect", "True")
+            //want this to be a boolean
+      event.target.parentNode.setAttribute("data-isCorrect", "true")
+      //event.target.parentNode.setAttribute("data-isCorrect", "True")
     }
   }
 })
@@ -1074,10 +1181,11 @@ function submitDailyLog() {
     let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
     if (confirmation) {
       document.getElementById("spinnyBoi").style.display = "block";
-      let feedbackProm = submitFeedback();
+      //let feedbackProm = submitFeedback();
       let sessionProm = submitSessionInfo();
+      let hwProm = submitHW();
 
-      let promises = [feedbackProm, sessionProm];
+      let promises = [sessionProm, hwProm];
       Promise.all(promises)
       .then((result) => {
         console.log("Everything submitted");
@@ -1213,6 +1321,41 @@ function submitSessionInfo() {
   }
 
   
+}
+
+function submitHW() {
+  const studentUID = queryStrings()["student"];
+  if (studentUID) {
+    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
+    //need to somehow get this promise to return when complete....
+    return hwDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        //doc exists - update the doc
+        return hwDocRef.update({
+          ...testAnswers
+        })
+      }
+      else {
+        //doc does not exist - set the doc
+        return hwDocRef.set({
+          ...testAnswers
+        })
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      return Promise.reject(error);
+    });
+  }
+  else {
+    console.log("There is no student selected!!!");
+    return Promise.reject("There is no student selected!!!");
+  }
+}
+
+function validateHW() {
+
 }
 
 function queryStrings() {
