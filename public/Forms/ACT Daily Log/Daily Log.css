@@ -6,6 +6,26 @@ body {
     font-family: Roboto, sans-serif;
 }
 
+.green {
+    background-color: green;
+    color: rgb(250, 250, 250);
+    font-size: 2.5em;
+}
+
+.yellow {
+    background-color: rgb(218, 165, 32);
+}
+
+.gray {
+    background-color: rgb(100, 100, 100);
+}
+
+.red {
+    background-color: red;
+    color: rgb(250, 250, 250);
+    font-size: 2.5em;
+}
+
 h2 {
     margin-bottom: 5px;
 }
@@ -95,6 +115,7 @@ form {
 
 .gridBox {
     border-style: solid;
+    border-color: black;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -102,16 +123,20 @@ form {
 }
 
 .border {
-    border-bottom-style: solid;
+    border-top-style: solid;
+    border-color: black;
+    border-width: 1px;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background-clip: content-box;
+    font-size: 1em;
 }
 
-.border:last-child {
-    border-bottom-style: none;
+.border:first-child {
+    border-top-style: none;
 }
 
 .background-green {
@@ -353,8 +378,8 @@ button {
 
 .smallButton {
   margin-bottom: 10px;
-  width: 80px;
-  height: 23.5px;
+  width: 100px;
+  height: 33.3px;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 2.5px;
@@ -587,6 +612,10 @@ p.errorMessage {
     justify-content: space-between;
 }
 
+.formEnd-center {
+    height: 7%;
+    justify-content: center;
+}
 .loader {
     display: none;
     border: 20px solid white;
@@ -612,9 +641,6 @@ p.errorMessage {
 
 #testAnswersPopup {
     display: none;
-    width: 350px;
-    background-color: rgb(200, 200, 200);
-    margin: 0px;
 }
 
 #homeworkPopup {
@@ -627,19 +653,17 @@ p.errorMessage {
 #leftArrow {
     font-size: 35px;
     flex-grow: 1;
-    --width: 10%;
-    justify-content: center;
+    padding-bottom: 4px;
 }
 
 #passage {
-    width: 70%;;
+    width: 70%;
 }
   
 #rightArrow {
     font-size: 35px;
     flex-grow: 1;
-    --width: 10%;
-    justify-content: center;
+    padding-bottom: 4px;
 }
 
 .circle {
@@ -647,7 +671,7 @@ p.errorMessage {
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    background-color: white;
+    background-color: rgb(200, 200, 200);
     align-items: center;
     text-align: center;
 }
@@ -661,10 +685,10 @@ p.errorMessage {
     align-items: center;
 }
 
-#popupHeader {
+#answersPopupHeader {
     font-size: 30px;
     color: white;
-    height: 60px;
+    height: 8%;
     background-color: #110D65;
     text-align: center;
     display: flex;
@@ -688,28 +712,31 @@ p.errorMessage {
 }
 #popupInfo {
     padding: 0px;
+    height: 85%;
 }
 
 #popupButtons {
-    height: 60px;
+    height: 7%;
 }
 
-.popupNumber {
-    height: 2em;
-    width: 40%;
+.popupValue {
+    height: 2.5em;
+    width: 35%;
     font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
 }
   
 .popupDash {
-    height: 2em;
+    height: 2.5em;
     width: 30%;
     font-size: 20px;
-}
-  
-.popupAnswer {
-    height: 2em;
-    width: 20%;
-    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
 }
   
 @keyframes spin {

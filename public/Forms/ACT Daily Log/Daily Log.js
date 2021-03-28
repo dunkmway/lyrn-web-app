@@ -701,6 +701,8 @@ function removePassage(start_element = undefined) {
 
 function submitAnswersPopup() {
 
+  console.log(testAnswers);
+
   let answersPopup = document.getElementById("testAnswersPopup");
   let answerArea = document.getElementById("passage")
 
@@ -1093,82 +1095,6 @@ otherTests.addEventListener('click', function(event)  {
     popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
   }
 })
-
-// // Change the colors of the test boxes
-// let englishLessons = document.getElementById("englishLessons");
-// englishLessons.addEventListener('click', function(event)  {
-//   if (event.target.className.includes("button2")) {
-//     if (event.target.style.backgroundColor == '') {
-//       event.target.style.backgroundColor = "green";
-//     }
-//     else if (event.target.style.backgroundColor == 'green') {
-//       event.target.style.backgroundColor = "rgb(218, 165, 32)";
-//     }
-//     else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
-//       event.target.style.backgroundColor = "red";
-//     }
-//     else {
-//       event.target.style.backgroundColor = "";
-//     }
-//   }
-// })
-
-// // Change the colors of the test boxes
-// let mathLessons = document.getElementById("mathLessons");
-// mathLessons.addEventListener('click', function(event)  {
-//   if (event.target.className.includes("button2")) {
-//     if (event.target.style.backgroundColor == '') {
-//       event.target.style.backgroundColor = "green";
-//     }
-//     else if (event.target.style.backgroundColor == 'green') {
-//       event.target.style.backgroundColor = "rgb(218, 165, 32)";
-//     }
-//     else if (event.target.style.backgroundColor == 'rgb(218, 165, 32)') {
-//       event.target.style.backgroundColor = "red";
-//     }
-//     else {
-//       event.target.style.backgroundColor = "";
-//     }
-//   }
-// })
-
-// // Change the colors of the test boxes
-// let readingLessons = document.getElementById("readingLessons");
-// readingLessons.addEventListener('click', function(event)  {
-//   if (event.target.className.includes("button2")) {
-//     if (event.target.style.backgroundColor == '') {
-//       event.target.style.backgroundColor = "green";
-//     }
-//     else if (event.target.style.backgroundColor == 'green') {
-//       event.target.style.backgroundColor = "rgb(218, 165, 32)";
-//     }
-//     else if (event.target.style.backgroundColor == 'yellow') {
-//       event.target.style.backgroundColor = "red";
-//     }
-//     else {
-//       event.target.style.backgroundColor = "";
-//     }
-//   }
-// })
-
-// // Change the colors of the test boxes
-// let scienceLessons = document.getElementById("scienceLessons");
-// scienceLessons.addEventListener('click', function(event)  {
-//   if (event.target.className.includes("button2")) {
-//     if (event.target.style.backgroundColor == '') {
-//       event.target.style.backgroundColor = "green";
-//     }
-//     else if (event.target.style.backgroundColor == 'green') {
-//       event.target.style.backgroundColor = "yellow";
-//     }
-//     else if (event.target.style.backgroundColor == 'yellow') {
-//       event.target.style.backgroundColor = "red";
-//     }
-//     else {
-//       event.target.style.backgroundColor = "";
-//     }
-//   }
-// })
 
 function submitDailyLog() {
   document.getElementById("errMsg").textContent = "";

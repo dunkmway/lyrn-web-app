@@ -13,16 +13,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
     <script src="../../Site Templates/site-wide.js" defer></script>
-    <script src="Daily Log.js" defer></script>
+    <script src="Daily Log New.js" defer></script>
+    <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
 </head>
 
 
 <body onload="initialSetup()">
     <section id="section">
-        <div id = "testAnswersPopup" class = "input-block noselect">
+        <div id = "testAnswersPopup" class = "metaForm noselect">
 
-            <div id = "popupHeader">
+            <div id = "answersPopupHeader" class="heading-block">
                 <div id = "headerText">
                 </div>
             </div>
@@ -51,15 +52,15 @@
             </div>
 
             <div id = "popupButtons" class = "input-row-center">
-                <button class = "smallButton button" onclick="exitAnswersPopup()">
+                <button class = "smallButton button" onclick="openForm()">
                     Back
                 </button>
-                <button class = "smallButton button" onclick="resetAnswersPopup()">
+                <button class = "smallButton button" onclick="resetAnswers()">
                     Reset
                 </button>
-                <button class = "smallButton button" onclick="removePassage()">
+                <!--<button class = "smallButton button" onclick="removePassage()">
                     Remove
-                </button>
+                </button>-->
                 <button class = "smallButton button" onclick="submitAnswersPopup()">
                     Submit
                 </button>
@@ -75,7 +76,7 @@
             </div>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="gradeTest()">
+                <button class = "button" onclick="openForm('testAnswersPopup')">
                     Grade
                 </button>
             </div>
@@ -93,19 +94,19 @@
             </div>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="setHomeworkStatus('Incomplete')">
+                <button class = "button" onclick="setHomeworkStatus('Not Finished')">
                     Didn't do
                 </button>
             </div>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="removePassage(this)">
+                <button class = "button" onclick="removeTest()">
                     Remove
                 </button>
             </div>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="exitHomeworkPopup()">
+                <button class = "button" onclick="openForm()">
                     Back
                 </button>
             </div>
@@ -120,15 +121,15 @@
         <div id = "inCenterTestsForm" class = "metaForm noselect">
             <div id = "inCenterTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm', this)">
+                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm')">
                     In-Center
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('homeworkTestsForm', this)">
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
                     Homework
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('otherTestsForm', this)">
+                <div class = "testTab button2" onclick="openForm('otherTestsForm')">
                     Other
                 </div>
 
@@ -174,139 +175,135 @@
                     <p class = "gridBox-p">MC3</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC3" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "A09">
                     <p class = "gridBox-p">A09</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "A09" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A09" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A09" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A09" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A09" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A09" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A09" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A09" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "A10">
                     <p class = "gridBox-p">A10</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A10" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A10" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A10" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A10" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "72C">
                     <p class = "gridBox-p">72C</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "72C" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72C" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72C" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72C" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72C" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72C" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72C" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72C" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "B05">
                     <p class = "gridBox-p">B05</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "B05" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B05" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B05" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B05" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B05" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B05" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B05" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B05" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "71E">
                     <p class = "gridBox-p">71E</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "71E" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71E" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71E" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71E" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71E" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71E" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71E" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71E" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "MC2">
                     <p class = "gridBox-p">MC2</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC2" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC2" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "69A">
                     <p class = "gridBox-p">69A</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "69A" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "69A" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "69A" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "69A" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "69A" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Science">
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -318,15 +315,15 @@
         <div id = "homeworkTestsForm" class = "metaForm noselect">
             <div id = "homeworkTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm', this)">
+                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm')">
                     In-Center
                 </div>
 
-                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm', this)">
+                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm')">
                     Homework
                 </div>
 
-                <div class = "testTab button2" onclick = "openForm('otherTestsForm', this)">
+                <div class = "testTab button2" onclick = "openForm('otherTestsForm')">
                     Other
                 </div>
 
@@ -373,139 +370,135 @@
                     <p class = "gridBox-p">B02</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B02" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B02" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B02" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B02" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "74F">
                     <p class = "gridBox-p">74F</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "74F" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74F" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74F" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74F" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74F" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74F" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74F" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74F" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "72F">
                     <p class = "gridBox-p">72F</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "72F" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72F" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72F" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72F" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72F" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72F" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72F" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72F" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "B04">
                     <p class = "gridBox-p">B04</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "B04" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B04" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B04" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B04" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B04" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "71H">
                     <p class = "gridBox-p">71H</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "71H" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71H" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71H" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71H" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71H" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71H" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71H" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71H" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "A11">
                     <p class = "gridBox-p">A11</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "A11" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A11" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A11" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A11" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A11" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A11" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A11" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "A11" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "74C">
                     <p class = "gridBox-p">74C</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "74C" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74C" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74C" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74C" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74C" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74C" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "74C" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "74C" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "71G">
                     <p class = "gridBox-p">71G</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "71G" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71G" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71G" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71G" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71G" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71G" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71G" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71G" data-section = "Science">
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -517,15 +510,15 @@
         <div id = "otherTestsForm" class = "metaForm noselect">
             <div id = "otherTestsTabs" class = "input-row">
 
-                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm', this)">
+                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm')">
                     In-Center
                 </div>
 
-                <div class = "testTab button2" onclick="openForm('homeworkTestsForm', this)">
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
                     Homework
                 </div>
 
-                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm', this)">
+                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm')">
                     Other
                 </div>
 
@@ -572,139 +565,135 @@
                     <p class = "gridBox-p">ST 1</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 1" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "73E">
                     <p class = "gridBox-p">73E</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "73E" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "73E" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "73E" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "73E" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "ST 2">
                     <p class = "gridBox-p">ST 2</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "ST 2" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "72G">
                     <p class = "gridBox-p">72G</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72G" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72G" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72G" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "72G" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "71A">
                     <p class = "gridBox-p">71A</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71A" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71A" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71A" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "71A" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "68G">
                     <p class = "gridBox-p">68G</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68G" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68G" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68G" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68G" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "68A">
                     <p class = "gridBox-p">68A</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "68A" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68A" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68A" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68A" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68A" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68A" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68A" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "68A" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "67A">
                     <p class = "gridBox-p">67A</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "67A" data-section = "English" data-testType = "none">
+                <div class = "gridBox button2" data-test = "67A" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "67A" data-section = "Math" data-testType = "none">
+                <div class = "gridBox button2" data-test = "67A" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "67A" data-section = "Reading" data-testType = "none">
+                <div class = "gridBox button2" data-test = "67A" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "67A" data-section = "Science" data-testType = "none">
+                <div class = "gridBox button2" data-test = "67A" data-section = "Science">
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -880,14 +869,10 @@
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -1327,14 +1312,10 @@
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -1462,14 +1443,10 @@
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -1609,14 +1586,10 @@
                 </div>
 
             </div>
-                <div class = "input-row-center formEnd">
+                <div class = "input-row-center formEnd-center">
 
-                    <button class = "button" onclick = "openForm('dailyLog', this)">
+                    <button class = "button" onclick = "openForm('dailyLog')">
                         Back
-                    </button>
-
-                    <button class = "button" onclick="submitDailyLog()">
-                        Submit
                     </button>
 
                 </div>
@@ -1639,7 +1612,7 @@
                 <div class="input-row">
                     <div class="input-block">
                         <label for="homeworkStatus" class="label">Homework Status:</label>
-                        <button type = "button" onclick = "openForm('homeworkTestsForm', this)">Homework Status</button>
+                        <button type = "button" onclick = "openForm('homeworkTestsForm', 'homework')">Homework Status</button>
                     </div>
                 </div>
             </div>
@@ -1670,7 +1643,7 @@
 
                     <div class="input-block">
                         <label for="lesson1" class="label">Lesson(s)</label>
-                        <button type = "button" onclick = "openForm('1', this)">Lesson(s)</button>
+                        <button type = "button" onclick = "openForm('1')">Lesson(s)</button>
                     </div>
 
                     <div class="input-block">
@@ -1712,7 +1685,7 @@
                 <div class = "input-row">
                     <div class = "input-block">
                         <label class="label">Practice Tests</label>
-                        <button type = "button" onclick = "openForm('inCenterTestsForm', this)">In-Center Tests</button>
+                        <button type = "button" onclick = "openForm('inCenterTestsForm', 'inCenter')">In-Center Tests</button>
                     </div>
                 </div>
 
@@ -1741,7 +1714,7 @@
 
                 <div class = "input-block">
                     <label for="assignHomework" class="label">Assign Homework:</label>
-                    <button id = "assignHomework" class = "button" onclick="openForm('homeworkTestsForm', this)">Assign Homework</button>
+                    <button id = "assignHomework" class = "button" onclick="openForm('homeworkTestsForm', 'assign')">Assign Homework</button>
                 </div>
 
             </div>
