@@ -1286,12 +1286,17 @@ function validateHW() {
 
 function queryStrings() {
   var GET = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-        GET[paramName] = paramValue;
-    });
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+      GET[paramName] = paramValue;
+  });
 
-    return GET;
+  return GET;
+}
+
+//TESTING
+function goToTesting() {
+  window.location.href = '../../../student-info-test.html?student=' + queryStrings()["student"];
 }
