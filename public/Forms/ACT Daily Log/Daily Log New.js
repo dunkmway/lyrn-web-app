@@ -8,6 +8,7 @@ fetch("../Test Data/Tests.json").then(response => response.json()).then(data => 
 let oldTestAnswers = {};
 let testAnswers = {};
 let tempAnswers = {};
+initialSetup();
 
 // Other needed info
 let coloring = {'Completed' : 'green', 'Assigned' : 'yellow', 'Incomplete' : 'red', 'Not Finished' : 'gray'};
@@ -951,6 +952,11 @@ function goToDashboard() {
   if (confirmation) {
     window.history.back();
   }
+}
+
+//TESTING
+function goToTesting() {
+  window.location.href = '../../student-info-test.html?student=' + queryStrings()["student"];
 }
 
 function validateSessionInfo() {
