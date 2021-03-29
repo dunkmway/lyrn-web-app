@@ -14,7 +14,7 @@ let coloring = {'Completed' : 'green', 'Assigned' : 'yellow', 'Incomplete' : 're
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 //testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
-testAnswers = {'MC3' : {
+/*testAnswers = {'MC3' : {
   "English": {
       "1": {
           "Answers": [
@@ -223,7 +223,7 @@ testAnswers = {'MC3' : {
       "ScaledScore": 29,
       "Status": "Completed"
   }
-}}
+}}*/
 
 function initialSetup() {
   const studentUID = queryStrings()["student"];
@@ -518,6 +518,7 @@ function clearInCenterFormating() {
       if (classes.includes(cList[c]) || colors.includes(cList[c])) {
         test_boxes[box].classList.remove(cList[c]);
       }
+      test_boxes[box].innerHTML = "";
     }
   }
 }
@@ -594,9 +595,12 @@ function setHomeworkStatus(status, gradeHomework = "False") {
   let test = headerText.split(" - ")[0];
   let section = headerText.split(" - ")[1];
 
+  let current_status = testAnswers[test]?.[section]?.['Status']
   // Set the status and testType in the testAnswers
-  setObjectValue([test, section, "Status"], status, testAnswers)
-  setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+  if (current_status != 'Completed') {
+    setObjectValue([test, section, "Status"], status, testAnswers)
+    setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+  }
 
   // Exit the popup
   if (gradeHomework == 'True') {
@@ -696,12 +700,13 @@ function updatePopupGraphics(id, test, section, passageNumber) {
 function submitAnswersPopup() {
   // Grab the test info
   let info = getTestInfo();
+  let status = testAnswers[info[0]]?.[info[1]]?.['Status']
 
   if (test_view_type == 'inCenter') {
     setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
     setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
   }
-  else if (test_view_type == 'homework') {
+  else if (test_view_type == 'homework' && status != 'Completed') {
 
     // Calculate how many questions they got correct
     let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
@@ -787,9 +792,10 @@ function removeTest() {
   let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
   let test = headerText.split(" - ")[0];
   let section = headerText.split(" - ")[1];
+  let current_status = testAnswers[test]?.[section]?.['Status']
 
   // Make sure that the section exists
-  if (testAnswers[test]?.[section] != undefined) {
+  if (testAnswers[test]?.[section] != undefined && current_status != 'Completed') {
     // Delete the section
     delete testAnswers[test][section]
 
