@@ -8,222 +8,223 @@ fetch("../Test Data/Tests.json").then(response => response.json()).then(data => 
 let oldTestAnswers = {};
 let testAnswers = {};
 let tempAnswers = {};
+initialSetup();
 
 // Other needed info
 let coloring = {'Completed' : 'green', 'Assigned' : 'yellow', 'Incomplete' : 'red', 'Not Finished' : 'gray'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 //testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
-testAnswers = {'MC3' : {
-  "English": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "3",
-              "10",
-              "11",
-              "15"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "16",
-              "17",
-              "21",
-              "26",
-              "27",
-              "30"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40",
-              "41",
-              "42",
-              "43",
-              "44",
-              "45"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "61",
-              "62",
-              "63",
-              "64",
-              "65",
-              "66",
-              "67",
-              "68",
-              "69",
-              "70",
-              "71",
-              "72",
-              "73",
-              "74",
-              "75"
-          ]
-      },
-      "TestType": "homework",
-      "Status": "Incomplete"
-  },
-  "Math": {
-      "1": {
-          "Answers": []
-      },
-      "2": {
-          "Answers": []
-      },
-      "3": {
-          "Answers": [
-              "21",
-              "24",
-              "27",
-              "30"
-          ]
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "5": {
-          "Answers": [
-              "41",
-              "44",
-              "47",
-              "49",
-              "50"
-          ]
-      },
-      "6": {
-          "Answers": []
-      },
-      "TestType": "homework",
-      "ScaledScore": 31,
-      "Status": "Completed"
-  },
-  "Reading": {
-      //"1": {
-          //"Answers": {
-              //"1": true,
-              //"2": true,
-              //"3": false,
-              //"4": true,
-              //"5": true,
-              //"6": false,
-              //"7": true,
-              //"8": true,
-              //"9": true,
-              //"10": true
-          //},
-          //"TotalCorrect": 8
-      //},
-      "2": {
-          "Answers": [
-              "11",
-              "12",
-              "13",
-              "18",
-              "20"
-          ]
-      },
-      "3": {
-          "Answers": []
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 28,
-      "Status": "Completed"
-  },
-  "Science": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "6"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "7",
-              "8",
-              "9",
-              "10",
-              "11",
-              "12"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "13",
-              "14",
-              "18",
-              "19"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "27",
-              "28",
-              "29",
-              "30",
-              "31",
-              "32",
-              "33"
-          ]
-      },
-      "6": {
-          "Answers": [
-              "34",
-              "35",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 29,
-      "Status": "Completed"
-  }
-}}
+// testAnswers = {'MC3' : {
+//   "English": {
+//       "1": {
+//           "Answers": [
+//               "1",
+//               "2",
+//               "3",
+//               "10",
+//               "11",
+//               "15"
+//           ]
+//       },
+//       "2": {
+//           "Answers": [
+//               "16",
+//               "17",
+//               "21",
+//               "26",
+//               "27",
+//               "30"
+//           ]
+//       },
+//       "3": {
+//           "Answers": [
+//               "31",
+//               "32",
+//               "33",
+//               "34",
+//               "35",
+//               "36",
+//               "37",
+//               "38",
+//               "39",
+//               "40",
+//               "41",
+//               "42",
+//               "43",
+//               "44",
+//               "45"
+//           ]
+//       },
+//       "4": {
+//           "Answers": []
+//       },
+//       "5": {
+//           "Answers": [
+//               "61",
+//               "62",
+//               "63",
+//               "64",
+//               "65",
+//               "66",
+//               "67",
+//               "68",
+//               "69",
+//               "70",
+//               "71",
+//               "72",
+//               "73",
+//               "74",
+//               "75"
+//           ]
+//       },
+//       "TestType": "homework",
+//       "Status": "Incomplete"
+//   },
+//   "Math": {
+//       "1": {
+//           "Answers": []
+//       },
+//       "2": {
+//           "Answers": []
+//       },
+//       "3": {
+//           "Answers": [
+//               "21",
+//               "24",
+//               "27",
+//               "30"
+//           ]
+//       },
+//       "4": {
+//           "Answers": [
+//               "31",
+//               "32",
+//               "33",
+//               "34",
+//               "35",
+//               "36",
+//               "37",
+//               "38",
+//               "39",
+//               "40"
+//           ]
+//       },
+//       "5": {
+//           "Answers": [
+//               "41",
+//               "44",
+//               "47",
+//               "49",
+//               "50"
+//           ]
+//       },
+//       "6": {
+//           "Answers": []
+//       },
+//       "TestType": "homework",
+//       "ScaledScore": 31,
+//       "Status": "Completed"
+//   },
+//   "Reading": {
+//       //"1": {
+//           //"Answers": {
+//               //"1": true,
+//               //"2": true,
+//               //"3": false,
+//               //"4": true,
+//               //"5": true,
+//               //"6": false,
+//               //"7": true,
+//               //"8": true,
+//               //"9": true,
+//               //"10": true
+//           //},
+//           //"TotalCorrect": 8
+//       //},
+//       "2": {
+//           "Answers": [
+//               "11",
+//               "12",
+//               "13",
+//               "18",
+//               "20"
+//           ]
+//       },
+//       "3": {
+//           "Answers": []
+//       },
+//       "4": {
+//           "Answers": [
+//               "31",
+//               "32",
+//               "33",
+//               "34",
+//               "35",
+//               "36",
+//               "37",
+//               "38",
+//               "39",
+//               "40"
+//           ]
+//       },
+//       "TestType": "inCenter",
+//       "ScaledScore": 28,
+//       "Status": "Completed"
+//   },
+//   "Science": {
+//       "1": {
+//           "Answers": [
+//               "1",
+//               "2",
+//               "6"
+//           ]
+//       },
+//       "2": {
+//           "Answers": [
+//               "7",
+//               "8",
+//               "9",
+//               "10",
+//               "11",
+//               "12"
+//           ]
+//       },
+//       "3": {
+//           "Answers": [
+//               "13",
+//               "14",
+//               "18",
+//               "19"
+//           ]
+//       },
+//       "4": {
+//           "Answers": []
+//       },
+//       "5": {
+//           "Answers": [
+//               "27",
+//               "28",
+//               "29",
+//               "30",
+//               "31",
+//               "32",
+//               "33"
+//           ]
+//       },
+//       "6": {
+//           "Answers": [
+//               "34",
+//               "35",
+//               "39",
+//               "40"
+//           ]
+//       },
+//       "TestType": "inCenter",
+//       "ScaledScore": 29,
+//       "Status": "Completed"
+//   }
+//}}
 
 function initialSetup() {
   const studentUID = queryStrings()["student"];
@@ -945,6 +946,11 @@ function goToDashboard() {
   if (confirmation) {
     window.history.back();
   }
+}
+
+//TESTING
+function goToTesting() {
+  window.location.href = '../../student-info-test.html?student=' + queryStrings()["student"];
 }
 
 function validateSessionInfo() {
