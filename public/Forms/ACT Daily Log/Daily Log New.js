@@ -784,8 +784,6 @@ function removeAnswers() {
   let rightArrow = document.getElementById("rightArrow")
   leftArrow.parentNode.style.visibility = "hidden"
   rightArrow.parentNode.style.visibility = "hidden"
-
-  
 }
 
 function removeTest() {
@@ -819,9 +817,10 @@ function removePassage() {
   let passageNumber = headerText.split(" - ")[2];
 
   // Make sure that the section exists
-  if (testAnswers[test]?.[section]?.[passageNumber] != undefined) {
+  if (testAnswers[test]?.[section]?.[passageNumber] != undefined && test_view_type == 'inCenter') {
     // Delete the passage
     delete testAnswers[test][section][passageNumber]
+    delete tempAnswers[test][section][passageNumber]
 
     // Check to see if the section needs deleted
     if (objectChildCount([test, section], testAnswers) == 0) {
@@ -834,24 +833,8 @@ function removePassage() {
     }
   }
 
-// Make sure that the section exists
-  if (tempAnswers[test]?.[section]?.[passageNumber] != undefined) {
-    // Delete the passage
-    delete tempAnswers[test][section][passageNumber]
-
-    // Check to see if the section needs deleted
-    if (objectChildCount([test, section], tempAnswers) == 0) {
-      delete tempAnswers[test][section]
-    }
-
-    // Check to see if the test needs deleted
-    if (objectChildCount([test], tempAnswers) == 0) {
-      delete tempAnswers[test]
-    }
-  }
-
   // Return to the last view
-  openForm('testAnswersPopup')
+  openForm(lastView)
 
 }
 
