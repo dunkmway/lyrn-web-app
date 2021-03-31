@@ -93,6 +93,10 @@ function storeHomeworkData(doc) {
       }
     }
   }
+  englishScores.sort((a,b) => sortHomeworkScores(a,b));
+  mathScores.sort((a,b) => sortHomeworkScores(a,b));
+  readingScores.sort((a,b) => sortHomeworkScores(a,b));
+  scienceScores.sort((a,b) => sortHomeworkScores(a,b));
   console.log(englishScores);
   console.log(mathScores);
   console.log(readingScores);
@@ -200,6 +204,14 @@ function setHomeworkChart() {
                 stepSize: 1
             }
         }]
+      },
+      tooltips: {
+        callbacks: {
+            title: function(tooltipItem, data) {
+              let title = data.datasets[tooltipItem[0].datasetIndex].data[tooltipItem[0].index].x;
+              return title;
+            }
+        }
     }
     }
   });
@@ -222,5 +234,36 @@ function filterInt(value) {
     return Number(value)
   } else {
     return NaN
+  }
+}
+
+function sortHomeworkScores(a,b) {
+  aArray = a['x'].split("/");
+  bArray = b['x'].split("/");
+
+  if (parseInt(aArray[0]) < parseInt(bArray[0])) {
+    return -1;
+  }
+  else if (parseInt(aArray[0]) > parseInt(bArray[0])) {
+    return 1;
+  }
+  else {
+    if (parseInt(aArray[1]) < parseInt(bArray[1])) {
+      return -1;
+    }
+    else if (parseInt(aArray[1]) > parseInt(bArray[1])) {
+      return 1;
+    }
+    else {
+      if (parseInt(aArray[2]) < parseInt(bArray[2])) {
+        return -1;
+      }
+      else if (parseInt(aArray[2]) > parseInt(bArray[2])) {
+        return 1;
+      }
+      else {
+        return 0;
+      }
+    }
   }
 }

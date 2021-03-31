@@ -898,7 +898,7 @@ function submitDailyLog() {
   document.getElementById("errMsg").textContent = "";
   //FIXME: need to add validation here and not in the individual submits
   //this is so that the confirmation message doesn't pop up unless everything is ready to submit
-  if (validateSessionInfo()) {
+  if (validateSessionInfo() && validateHW()) {
     let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
     if (confirmation) {
       document.getElementById("spinnyBoi").style.display = "block";
@@ -1082,6 +1082,20 @@ function submitHW() {
 }
 
 function validateHW() {
+  //find all of the hw that was assigned last session and check if it's status has changed
+  for (const test in oldTestAnswers) {
+    for (const section in oldTestAnswers[test]) {
+      if (oldTestAnswers[test][section]["TestType"] == "homework") {
+        if (oldTestAnswers[test][section]["Status"] == "Assigned") {
+          if (testAnswers[test][section]["Status"] == "Assigned") {
+            document.getElementById("errMsg").textContent = "Please report on test " + test + " " + section;
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
 
 }
 
