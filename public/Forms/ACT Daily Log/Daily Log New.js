@@ -702,10 +702,14 @@ function submitAnswersPopup() {
   // Grab the test info
   let info = getTestInfo();
   let status = testAnswers[info[0]]?.[info[1]]?.['Status']
+  //let minutes = document.getElementById("time-minutes").value;
+  //let seconds = document.getElementById("time-seconds").value;
 
   if (test_view_type == 'inCenter') {
     setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
     setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+    //setObjectValue([info[0], info[1], info[2]], minutes, testAnswers)
+    //setObjectValue([info[0], info[1], info[2]], seconds, testAnswers)
   }
   else if (test_view_type == 'homework' && status != 'Completed') {
 
@@ -784,6 +788,13 @@ function removeAnswers() {
   let rightArrow = document.getElementById("rightArrow")
   leftArrow.parentNode.style.visibility = "hidden"
   rightArrow.parentNode.style.visibility = "hidden"
+
+  // Reset the time
+  let timeMinutes = document.getElementById("time-minutes")
+  let timeSeconds = document.getElementById("time-seconds")
+
+  timeMinutes.value = "0"
+  timeSeconds.value = "0"
 }
 
 function removeTest() {
