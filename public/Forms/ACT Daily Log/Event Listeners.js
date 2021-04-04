@@ -8,7 +8,8 @@ inCenterTests.addEventListener('click', function(event)  {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
-    assignHomework(event.target);
+    setHomeworkStatus('assigned', 'False', event.target)
+    //assignHomework(event.target);
   }
 })
 
@@ -22,7 +23,9 @@ homeworkTests.addEventListener('click', function(event)  {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
-    assignHomework(event.target);
+    //assignHomework(event.target);
+    console.log(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), "assigned?")
+    setHomeworkStatus('assigned', 'False', event.target)
   }
 })
 
@@ -36,7 +39,8 @@ otherTests.addEventListener('click', function(event)  {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
-    assignHomework(event.target);
+    //assignHomework(event.target);
+    setHomeworkStatus('assigned', 'False', event.target)
   }
 })
 
@@ -59,4 +63,14 @@ popupAnswers.addEventListener('click', function(event) {
       tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
     }
   }
+})
+
+let timingBlock = document.getElementById("timingBlock")
+timingBlock.addEventListener('change', function(event) {
+  let minutes = document.getElementById("time-minutes").value
+  let seconds = document.getElementById("time-seconds").value
+
+  let testInfo = getTestInfo();
+
+  setObjectValue([testInfo[0], testInfo[1], testInfo[2], 'Time'], parseInt(minutes) * 60 + parseInt(seconds), tempAnswers);
 })
