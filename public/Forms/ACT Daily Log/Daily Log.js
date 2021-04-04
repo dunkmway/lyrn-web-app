@@ -1,16 +1,233 @@
-let test_view_type = 'none';
+/* Global Variables */
+
+// The actual tests with their answers and scaled scores
+let testData;
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => console.log(testData));
+
+// Student test information
 let oldTestAnswers = {};
 let testAnswers = {};
-let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(initialTestSet());
+let tempAnswers = {};
 initialSetup();
 
-last_test = "";
-last_section = "";
-last_passageNumber = undefined;
+// Other needed info
+let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray'};
+let test_view_type = undefined;
+let lastView = 'Daily Log';
+let newStatus = undefined;
+//testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
+/*testAnswers = {'MC3' : {
+  "English": {
+      "1": {
+          "Answers": [
+              "1",
+              "2",
+              "3",
+              "10",
+              "11",
+              "15"
+          ]
+      },
+      "2": {
+          "Answers": [
+              "16",
+              "17",
+              "21",
+              "26",
+              "27",
+              "30"
+          ]
+      },
+      "3": {
+          "Answers": [
+              "31",
+              "32",
+              "33",
+              "34",
+              "35",
+              "36",
+              "37",
+              "38",
+              "39",
+              "40",
+              "41",
+              "42",
+              "43",
+              "44",
+              "45"
+          ]
+      },
+      "4": {
+          "Answers": []
+      },
+      "5": {
+          "Answers": [
+              "61",
+              "62",
+              "63",
+              "64",
+              "65",
+              "66",
+              "67",
+              "68",
+              "69",
+              "70",
+              "71",
+              "72",
+              "73",
+              "74",
+              "75"
+          ]
+      },
+      "TestType": "homework",
+      "Status": "Incomplete"
+  },
+  "Math": {
+      "1": {
+          "Answers": []
+      },
+      "2": {
+          "Answers": []
+      },
+      "3": {
+          "Answers": [
+              "21",
+              "24",
+              "27",
+              "30"
+          ]
+      },
+      "4": {
+          "Answers": [
+              "31",
+              "32",
+              "33",
+              "34",
+              "35",
+              "36",
+              "37",
+              "38",
+              "39",
+              "40"
+          ]
+      },
+      "5": {
+          "Answers": [
+              "41",
+              "44",
+              "47",
+              "49",
+              "50"
+          ]
+      },
+      "6": {
+          "Answers": []
+      },
+      "TestType": "homework",
+      "ScaledScore": 31,
+      "Status": "Completed"
+  },
+  "Reading": {
+      //"1": {
+          //"Answers": {
+              //"1": true,
+              //"2": true,
+              //"3": false,
+              //"4": true,
+              //"5": true,
+              //"6": false,
+              //"7": true,
+              //"8": true,
+              //"9": true,
+              //"10": true
+          //},
+          //"TotalCorrect": 8
+      //},
+      "2": {
+          "Answers": [
+              "11",
+              "12",
+              "13",
+              "18",
+              "20"
+          ]
+      },
+      "3": {
+          "Answers": []
+      },
+      "4": {
+          "Answers": [
+              "31",
+              "32",
+              "33",
+              "34",
+              "35",
+              "36",
+              "37",
+              "38",
+              "39",
+              "40"
+          ]
+      },
+      "TestType": "inCenter",
+      "ScaledScore": 28,
+      "Status": "Completed"
+  },
+  "Science": {
+      "1": {
+          "Answers": [
+              "1",
+              "2",
+              "6"
+          ]
+      },
+      "2": {
+          "Answers": [
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12"
+          ]
+      },
+      "3": {
+          "Answers": [
+              "13",
+              "14",
+              "18",
+              "19"
+          ]
+      },
+      "4": {
+          "Answers": []
+      },
+      "5": {
+          "Answers": [
+              "27",
+              "28",
+              "29",
+              "30",
+              "31",
+              "32",
+              "33"
+          ]
+      },
+      "6": {
+          "Answers": [
+              "34",
+              "35",
+              "39",
+              "40"
+          ]
+      },
+      "TestType": "inCenter",
+      "ScaledScore": 29,
+      "Status": "Completed"
+  }
+}}*/
 
 function initialSetup() {
-  console.log("In initial setup");
   const studentUID = queryStrings()["student"];
 
   if (studentUID) {
@@ -67,15 +284,18 @@ function initialSetup() {
  * @returns {HTMLElement} html div whose children are the requested elements
  */
 function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
+  // Make sure there is something passed into the function
   if (elementType.length >= 0) {
     let elements = createElement("div", divClasses);
 
+    // Iterate through each of the elements that need created
     if (attributes.length == values.length && attributes.length >= 0) {
       for (let i = 0; i < elementType.length; i++) {
         elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
       }
     }
 
+    // Return the element
     return elements;
 
   }
@@ -91,28 +311,42 @@ function createElements(elementType = [], classes = [[]], attributes = [[]], val
  * @returns {HTMLElement} html element of the given tag
  */
 function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
+  // Initialize the element
   let element = document.createElement(elementType);
 
+  // Set each of the specified attributes for the element
   if (attributes.length == values.length && attributes.length > 0) {
     for (let i = 0; i < attributes.length; i++) {
       element.setAttribute(attributes[i], values[i]);
     }
   }
 
+  // Add the classes to the element
   for (let i = 0; i < classes.length; i++) {
     element.classList.add(classes[i]);
   }
 
+  // Set the inner html text
   if (text != "") {
     element.innerHTML = text;
   }
+
+  // Return the element
   return element;
 }
 
-function combineElements(objects = [], flexType = "input-row")
+/**
+ * Combine an array of html elements into a div
+ * @param {Array} objects array of html elements
+ * @param {Array} class class for the parent div
+ * @returns {HTMLElement} a single html div containing the array of elements
+ */
+function combineElements(objects = [], flexType = [])
 {
+  // Create the parent Div
   let item = createElement("div", flexType, [], [], "");
 
+  // Append each of the elements to the parent div
   if (objects.length > 1)
   {
     for (let i = 0; i < objects.length; i++)
@@ -121,42 +355,76 @@ function combineElements(objects = [], flexType = "input-row")
     }
   }
 
+  // Return the parent div
   return item;
 
 }
 
+/**
+ * Add a new session to the daily log
+ * @param {self} this the element that called this function
+ */
 function addSession(self) {
+  // Count how many sessions are currently in the log
   session_count = document.querySelectorAll("div[id^=\"session\"]").length;
-  ele = document.getElementById("session1").cloneNode(true);
-  ele.id = "session" + (session_count + 1).toString();
-  ele.querySelector("label[for=\"time1\"]").htmlFor = "time" + (session_count + 1).toString();
-  ele.querySelector("#time1").id = "time" + (session_count + 1).toString();
-  ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
-  ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
-  ele.querySelector("#sectionNotes1").id = "sectionNotes" + (session_count + 1).toString();
-  ele.querySelector("textarea[id^='sectionNotes']").value = "";
-  ele.querySelector("button[onclick=\"openForm('1', this)\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "', this)");
 
+  // If there are fewer than 4 sessions, create a new one
   if (session_count < 4) {
+    // Clone the first session
+    ele = document.getElementById("session1").cloneNode(true);
+
+    // Reset various values for the new session
+    ele.id = "session" + (session_count + 1).toString();
+    ele.querySelector("label[for=\"time1\"]").htmlFor = "time" + (session_count + 1).toString();
+    ele.querySelector("#time1").id = "time" + (session_count + 1).toString();
+    ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
+    ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
+    ele.querySelector("#sectionNotes1").id = "sectionNotes" + (session_count + 1).toString();
+    ele.querySelector("textarea[id^='sectionNotes']").value = "";
+    ele.querySelector("button[onclick=\"openForm('1')\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "')");
+
+    // Insert the new session
     self.parentNode.parentNode.parentNode.insertBefore(ele, self.parentNode.parentNode)
   }
   
 }
 
+/**
+ * Deletes the last session
+ * @param {self} this the element that called this function
+ */
 function removeSession(self) {
+  // Grab all of the sessions
   sessions = document.querySelectorAll("div[id^=\"session\"]");
+
+  // Count the number of sessions
   session_count = sessions.length;
 
+  // If there is more than 1 session, remove the last one
   if (session_count > 1) {
     sessions[session_count - 1].remove();
   }
 }
 
-/*
- * This will set the display the form of the id you pass in and all the other forms are set to 'none'
+/**
+ * Hide all forms except for the one passed in
+ * @param {String} id the id of the form to display
+ * @param {String} test_view_type the type of tests to display, if applicable
  */
-function openForm(id, element) {
+function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined) {
+
+  console.log("temp", tempAnswers);
+  console.log("test", testAnswers);
+
+  // Change the test view type
+  if (view_type != undefined) {
+    test_view_type = view_type;
+  }
+
+  // An array of all the forms that could be displayed
   let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "homeworkPopup"];
+
+  // If selecting a lessons form, adjust the id accordingly
   if (id == '1' || id == '2' || id == '3' || id == '4') {
     let section = document.getElementById("section" + id);
     if (section.value != "") {
@@ -167,43 +435,53 @@ function openForm(id, element) {
     }
   }
 
-  // Deselect the last test, if needed
-  deSelect()
+  // if opening a test form, reset it
+  if (id != undefined && id.includes('Tests')) {
+    // clear the test formatting
+    clearInCenterFormating();
 
-  // Reset the visibility of the first two buttons in the Test forms
-  if (id.includes('Tests')) {
-    hwDiv = document.getElementById("homeworkStatusDiv");
-    inCenterDiv = document.getElementById("inCenterStatusDiv");
-    otherDiv = document.getElementById("otherStatusDiv");
+    // update test visuals
+    updateTestGraphics(test_view_type);
 
-    hwDiv.style.visibility = "visible";
-    inCenterTests.style.visibility = "visible";
-    otherDiv.style.visibility = "visible";
+    // Change what was last viewed
+    lastView = id;
+
   }
+  else if (id != undefined && id.includes('Popup')) {
+    // clear the popup
+    removeAnswers();
 
-  if (id == "inCenterTestsForm" && !element.className.includes("testTab")) {
-    changeTests("inCenter");
-  }
-  else if (id == "homeworkTestsForm" && !element.className.includes("testTab")) {
-    if (element.id == "assignHomework") {
-      changeTests("assign");
-      hwDiv = document.getElementById("homeworkStatusDiv");
-      inCenterDiv = document.getElementById("inCenterStatusDiv");
-      otherDiv = document.getElementById("otherStatusDiv");
-
-      hwDiv.style.visibility = "hidden";
-      inCenterTests.style.visibility = "hidden";
-      otherDiv.style.visibility = "hidden";
+    // Get the test, section, and passageNumber
+    let test = undefined;
+    let section = undefined;
+    let passageNumber = undefined;
+    if (element != undefined) {
+      test = element.getAttribute("data-test") ?? element.parentNode.getAttribute("data-test");
+      section = element.getAttribute("data-section") ?? element.parentNode.getAttribute("data-section");
+      passageNumber = element.getAttribute("data-passageNumber");
     }
     else {
-      changeTests("homework");
+      let headerText = document.getElementById("answersPopupHeader").innerHTML;
+      test = headerText.split(" - ")[0];
+      section = headerText.split(" - ")[1];
+      passageNumber = headerText.split(" - ")[2];
     }
+
+    if (pNumber != undefined) {
+      passageNumber = pNumber;
+    }
+
+    // update popup visuals
+    updatePopupGraphics(id, test, section, passageNumber);
   }
 
+  // Hide all forms except for the one selected
   for (let i = 0; i < forms.length; i++) {
     let form = document.getElementById(forms[i]);
     if (forms[i] != id) {
-      form.style.display = "none";
+      if (id != 'homeworkPopup' || !form.id.includes('Tests')) {
+        form.style.display = "none";
+      }
     }
     else {
       if (id == "dailyLog") {
@@ -214,269 +492,215 @@ function openForm(id, element) {
       }
     }
   }
+
+  // Open the last form / popup
+  if (id == undefined) {
+    openForm(lastView);
+  }
 }
 
 /**
- * change test type and update visuals for the test page
- * @param {String} formType default test type that will be displayed
+ * Delete the children of every test box
  */
-function changeTests(formType) {
-  if (formType == "inCenter") {
-    test_view_type = "inCenter"
-    test_boxes = document.querySelectorAll("div[data-testType=\"none\"], div[data-testType=\"inCenter\"]")
-    for (let i = 0; i < test_boxes.length; i++ ) {
-      let test = test_boxes[i].getAttribute("data-test")
-      let section = test_boxes[i].getAttribute("data-section").toLowerCase()
-      let numberOfPassages = testData[test][section + "Answers"][testData[test][section + "Answers"].length - 1]["passageNumber"];
-      //console.log(test, section, numberOfPassages)
+function clearInCenterFormating() {
+  // Get a list of all test boxes
+  let test_boxes = document.querySelectorAll("div[data-section]")
 
-      for (let passage = 0; passage < numberOfPassages; passage++) {
-        test_boxes[i].appendChild(createElements(["p"], [["testP"]], [["data-passageNumber"]], [[(passage + 1).toString()]], [(passage + 1).toString()], ["border"]));
+  // Iterate through each test and delete their children
+  for (let box = 0; box < test_boxes.length; box++) {
+    if (test_boxes[box].childElementCount > 1) {
+      let children = test_boxes[box].querySelectorAll("div");
+      for (let child = 0; child < children.length; child++) {
+        children[child].remove();
       }
-        test_boxes[i].className = test_boxes[i].className + " grid" + numberOfPassages.toString()
     }
 
-    // Color the in-center boxes green initially - Initial Set
-    for (const [test, value1] of Object.entries(testAnswers)) {
-      for (const [section, value2] of Object.entries(testAnswers[test])) {
-        let testType = testAnswers[test][section]["testType"];
-        if (testType == 'inCenter') {
-          for (const [passageNumber, value2] of Object.entries(testAnswers[test][section])) {
-            if (passageNumber != 'testType') {
-              let element = findTestDiv(test, section, passageNumber);
-              element.style.backgroundColor = 'green';
-              element.querySelector("p").innerHTML = testAnswers[test]?.[section]?.[passageNumber]?.["TotalCorrect"].toString() + " / " + Object.keys(testAnswers[test]?.[section]?.[passageNumber]?.["Answers"]).length.toString()
+    // Remove the class 'grid*' from the test box
+    let classes = ['grid1', 'grid2', 'grid3', 'grid4', 'grid5', 'grid6', 'grid7', 'grid8', 'grid9', 'grid10']
+    for (let c = 0; c < classes.length; c++) {
+      test_boxes[box].classList.remove(classes[c]);
+    }
 
-            }
-          }
+    // Remove the color classes
+    let colors = Object.values(coloring);
+    for (let c = 0; c < colors.length; c++) {
+      test_boxes[box].classList.remove(colors[c]);
+    }
+
+    // Remove the 'homeworkBox' class
+    test_boxes[box].classList.remove('homeworkBox');
+
+    // Reset the innerHTML text
+    test_boxes[box].innerHTML = "";
+  }
+}
+
+function updateTestGraphics(test_view_type) {
+  // Get a list of all test boxes
+  let test_boxes = document.querySelectorAll("div[data-section]")
+
+  // For each box, if it is needed:
+  //   1) Add children
+  //   2) set the background color
+  //   3) Set the score, and text color
+  for (let box = 0; box < test_boxes.length; box++) {
+    let test = test_boxes[box].getAttribute("data-test")
+    let section = test_boxes[box].getAttribute("data-section")
+    let test_type = testAnswers[test]?.[section]?.["TestType"]
+    if ((test_type ?? test_view_type) == 'inCenter') {
+      updateInCenterTest(test_boxes[box], test, section)
+    }
+    //else if ((test_type ?? test_view_type) == 'homework') {
+    else {
+      updateHomeworkTest(test_boxes[box], test, section)
+    }
+  }
+}
+
+function updateInCenterTest(testBox, test, section) {
+  // Get the number of passages for the given test
+  const numAnswers = testData[test][section.toLowerCase() + "Answers"].length
+  const numberOfPassages = testData[test][section.toLowerCase() + "Answers"][numAnswers - 1]["passageNumber"]
+
+  // Create the passages within the test
+  for (let child = 0; child < numberOfPassages; child++) {
+    // Initial passage element
+    let ele = createElement("div", ["border"], ["data-passageNumber"], [(child + 1).toString()], (child + 1).toString(), "border");
+    
+    // if the passage exists within the testAnswers, color it and set its score
+    if (testAnswers[test]?.[section]?.[child + 1] != undefined) {
+      ele.classList.add(coloring['in-time']) // color it green
+
+      // Get the total number of questions in the passage
+      let numberOfQuestions = 0;
+      for (let i = 0; i < testData[test][section.toLowerCase() + "Answers"].length; i++) {
+        if (testData[test][section.toLowerCase() + "Answers"][i]["passageNumber"] == (child + 1)) {
+          numberOfQuestions += 1;
         }
       }
+
+      // Set the score
+      ele.innerHTML = (numberOfQuestions - Object.keys(testAnswers[test][section][child + 1]["Answers"]).length).toString() + " / " + numberOfQuestions.toString()
     }
+
+
+    // Add the child to the test
+    testBox.appendChild(ele)
   }
-  else if (formType == "homework" && test_view_type != "homework") {
-    test_view_type = "homework";
-    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
-    for (let i = 0; i < test_boxes.length; i++) {
-      let children = test_boxes[i].querySelectorAll("div");
-      for (let k = 0; k < children.length; k++) {
-        children[k].remove()
-      }
-    }
-  }
-  else if (formType == "assign" && test_view_type != "assign") {
-    test_view_type = "assign";
-    test_boxes = document.querySelectorAll("div[data-testType=\"none\"]")
-    for (let i = 0; i < test_boxes.length; i++) {
-      let children = test_boxes[i].querySelectorAll("div");
-      for (let k = 0; k < children.length; k++) {
-        children[k].remove()
-      }
-    }
+
+  // Set the correct grid number (determined by the number of passages)
+  testBox.className = testBox.className + " grid" + numberOfPassages.toString()
+}
+
+function updateHomeworkTest(testBox, test, section) {
+  // Get the status from the testAnswers, if it exists
+  let status = testAnswers[test]?.[section]?.["Status"];
+
+  // If it does exist, change the background color and inner html
+  if (status != undefined) {
+    testBox.classList.add(coloring[testAnswers[test][section]["Status"]]);
+    testBox.classList.add("homeworkBox");
+    testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
   }
 }
 
-/**
- * update the test div blocks to have the same test type as the test answer object
- */
-function updateTestTypes() {
-  let test_boxes = document.querySelectorAll("div[data-testType]")
-  for (let i = 0; i < test_boxes.length; i++ ) {
-    let test = test_boxes[i].getAttribute("data-test")
-    let section = test_boxes[i].getAttribute("data-section")
+function setHomeworkStatus(status, gradeHomework = "False", element = undefined) {
+  // Get the test and section from the header
+  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let test = headerText.split(" - ")[0];
+  let section = headerText.split(" - ")[1];
 
-    //if the test is an incenter test then set it as such
-    if (testAnswers[test]?.[section]?.["testType"]) {
-      test_boxes[i].setAttribute("data-testType", testAnswers[test]?.[section]?.["testType"]);
-    }
+  // Reset the test and section if working with an assigned test
+  if (element != undefined) {
+    test = element.getAttribute("data-test")
+    section = element.getAttribute("data-section")
   }
-}
 
-function initialTestSet() {
-  for (const [test, value1] of Object.entries(testAnswers)) {
-    for (const [section, value2] of Object.entries(testAnswers[test])) {
-      let testType = testAnswers[test][section]["testType"]
-      element = findTestDiv(test, section)
-      element.setAttribute("data-testType", testType)
-      if (testType == 'homework') {
-        element.innerHTML = testAnswers[test][section]["Score"]
+  // Set the status and testType in the testAnswers
+  let current_status = testAnswers[test]?.[section]?.['Status']
+
+  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') && (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
+    if (current_status == 'assigned' && status == 'assigned') {
+      delete testAnswers[test][section];
+      if (Object.keys(testAnswers[test]).length == 0) {
+        delete testAnswers[test]
       }
     }
-  }
-
-  //FIXME: Double check that we don't need this here. It is handled in the update test visuals section.
-  // // Color the homework boxes green initially
-  // homework_boxes = document.querySelectorAll("div[data-testType=\"homework\"]")
-  // for (let i = 0; i < homework_boxes.length; i++) {
-  //   let test = homework_boxes[i].getAttribute("data-test")
-  //   let section = homework_boxes[i].getAttribute("data-section")
-  //   let status = testAnswers[test][section]["Status"]
-  //   let score = testAnswers[test][section]["Score"]
-  //   if (status == 'Completed') {
-  //     homework_boxes[i].style.backgroundColor = 'green';
-  //     homework_boxes[i].innerHTML = score;
-  //   }
-  //   else if (status == 'Assigned') {
-  //     homework_boxes[i].style.backgroundColor = 'yellow';
-  //   }
-  //   else if (status == 'Incomplete') {
-  //     if (score.toString() != '-1') {
-  //       homework_boxes[i].style.backgroundColor = 'gray';
-  //       homework_boxes[i].innerHTML = score;
-  //     }
-  //     else {
-  //       homework_boxes[i].style.backgroundColor = 'red';
-  //     }
-  //   }
-    
-  // }
-
-}
-
-function findTestDiv(test, section, passageNumber = undefined) {
-  // Find the corresponding passage on the list of tests and change the backgroundColor to ''
-  let locations = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
-  let location;
-  if (section == "English") {
-    location = locations[1]
-  }
-  else if (section == "Math") {
-    location = locations[2]
-  }
-  else if (section == "Reading") {
-    location = locations[3]
+    else {
+      setObjectValue([test, section, "Status"], status, testAnswers)
+      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+    }
   }
   else {
-    location = locations[4]
+    newStatus = status;
   }
 
-  if (passageNumber == undefined) {
-    return location
+  // Exit the popup
+  if (gradeHomework == 'True') {
+    openForm('testAnswersPopup');
   }
   else {
-    let passageLocation = location.querySelectorAll("div")[passageNumber - 1]
-    return passageLocation;
-  }
-}
-
-function previousPassage(element) {
-
-  let test = element.parentNode.parentNode.parentNode.getAttribute("data-test");
-  let section = element.parentNode.parentNode.parentNode.getAttribute("data-section");
-  let passageNumber = parseInt(element.parentNode.parentNode.parentNode.getAttribute("data-passage"));
-
-  exitAnswersPopup();
-  popupGradeTest(test, section, (passageNumber - 1));
-}
-
-function nextPassage(element) {
-
-  let test = element.parentNode.parentNode.parentNode.getAttribute("data-test");
-  let section = element.parentNode.parentNode.parentNode.getAttribute("data-section");
-  let passageNumber = element.parentNode.parentNode.parentNode.getAttribute("data-passage");
-  if (passageNumber == 'undefined') {
-    passageNumber = '1'
-  }
-  passageNumber = parseInt(passageNumber, 10) + 1;
-
-  submitAnswersPopup();
-
-  // Deselect the homework box temporarily, so popuGradeTest functions correctly
-  if (test_view_type == 'homework') {
-    deSelect()
+    openForm(lastView);
   }
 
-  popupGradeTest(test, section, (passageNumber.toString()));
 }
 
-function deSelect() {
+function updatePopupGraphics(id, test, section, passageNumber) {
 
-  // Unhighlight the last test selected
-  if (last_test != "") {
-    testLocation = findTestDiv(last_test, last_section, last_passageNumber);
-    if (testLocation == null) {
-      testLocation = findTestDiv(last_test, last_section, undefined);
+  // Change the header for both popups with the test, section, and passageNumber (if applicable)
+  let popups = document.querySelectorAll("div[id$=\"PopupHeader\"]");
+  for (let i = 0; i < popups.length; i++) {
+    if (passageNumber != undefined) {
+      popups[i].innerHTML = test + " - " + section + " - " + passageNumber
     }
-    testLocation.style.borderStyle = "";
-    testLocation.style.borderWidth = "";
-    testLocation.style.borderColor = "";
-  }  
-
-}
-
-function popupGradeTest(test, section, passageNumber = undefined) {
-
-  // Check to see if they pressed the same test again. If so, just exit out
-  let testLocation = findTestDiv(test, section, passageNumber);
-  if (testLocation == null) {
-    testLocation = findTestDiv(test, section, undefined);
-  }
-  if (testLocation.style.borderColor == "cyan") {
-    exitAnswersPopup();
-    return
+    else {
+      if (popups[i].id.includes('answers')) {
+        popups[i].innerHTML = test + " - " + section + " - 1"
+      }
+      else {
+        popups[i].innerHTML = test + " - " + section
+      }
+    }
   }
 
-  // Display the popup for grading tests
-  let popup = document.getElementById("testAnswersPopup")
-  popup.style.display = "flex";
+  // This is all that needs done
+  if (id == 'homeworkPopup') {
+    return;
+  }
 
-  // Make sure the left and right arrows are visible
+  // Check to see if either left arrow or right arrows need to be hidden
   let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
   let leftArrow = document.getElementById("leftArrow")
   let rightArrow = document.getElementById("rightArrow")
-  leftArrow.parentNode.style.visibility = "visible"
-  rightArrow.parentNode.style.visibility = "visible"
 
-  // Check to see if either left arrow or right arrows need to be hidden
-  if (passageNumber == 1 || passageNumber == undefined) {
-    leftArrow.parentNode.style.visibility = "hidden"
-  }
-  else if (passageNumber == last_passage_number) {
-    rightArrow.parentNode.style.visibility = "hidden"
+  if (passageNumber != 1 && passageNumber != undefined) {
+    leftArrow.parentNode.style.visibility = "visible"
   }
 
-  // Hide the homework popup, if applicable
-  if (passageNumber == undefined) {
-    let tmpPopup = document.getElementById("homeworkPopup");
-    tmpPopup.style.display = "none"
+  if (passageNumber != last_passage_number) {
+    rightArrow.parentNode.style.visibility = "visible"
   }
 
-  // Change the Popup Header Title
-  let headerText = document.getElementById("headerText")
-  if (test_view_type != 'homework') { headerText.innerHTML = test + " - " + section + " - P" + passageNumber; }
-  else { headerText.innerHTML = test + " - " + section; }
-
-  // Clear the previously highlighted test if it wasn't already
-  if (last_test != "") {
-    testLocation = findTestDiv(last_test, last_section, last_passageNumber);
-    if (testLocation == null) {
-      testLocation = findTestDiv(last_test, last_section, undefined);
-    }
-    testLocation.style.borderStyle = "";
-    testLocation.style.borderWidth = "";
-    testLocation.style.borderColor = "";
-  }  
-
-  // Highlight the passage that is pulled up
-  testLocation = findTestDiv(test, section, passageNumber);
-  if (testLocation == null) {
-    testLocation = findTestDiv(last_test, last_section, undefined);
-  }
-  testLocation.style.borderStyle = "solid";
-  testLocation.style.borderWidth = "3px";
-  testLocation.style.borderColor = "cyan";
-
-  // Set a few custom attributes
-  popup.setAttribute("data-test", test)
-  popup.setAttribute("data-section", section)
-  popup.setAttribute("data-passage", passageNumber)
-
-  // Remove the answers (if they are there)
-  removeAnswers();
-
-  // Get a list of all the answers for the given section
+  // Set the answers// Get a list of all the answers for the given section
   let allAnswers = testData[test][section.toLowerCase() + "Answers"];
   let passageAnswers = []
   let passageNumbers = []
+
+  // Set the temp Answers, if needed
+  if (!(test in tempAnswers) || !(section in tempAnswers[test])) {
+    tempAnswers = {}
+    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
+    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
+    if (testAnswers[test]?.[section] != undefined) {
+      tempAnswers[test][section] = JSON.parse(JSON.stringify(testAnswers[test][section]))
+    }
+  }
+
+  // Add the passageNumber if needed
+  if (!(passageNumber in tempAnswers[test][section])) {
+    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
+    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
+  }
 
   // Get the answers for the passage passed in
   for (let answer = 0; answer < allAnswers.length; answer++) {
@@ -486,48 +710,108 @@ function popupGradeTest(test, section, passageNumber = undefined) {
     }
   }
 
-  // Display the answers
+  // Display the answers, (color them too if needed)
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
     if (answer == 0) {
-      ele = createElements(["div", "div", "div"], [["popupNumber"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.setAttribute("data-isCorrect", "true")
+      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
+        ele.classList.add('red')
+      }
     }
     else {
-      ele = createElements(["div", "div", "div"], [["popupNumber"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
       passage.appendChild(ele);
-      ele.setAttribute("data-question", passageNumbers[answer])
-      ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.setAttribute("data-isCorrect", "true")
-    }
-  }
-
-  // Check to see if the answers should be populated - Initialize the In-Center tests
-  if (test in testAnswers) {
-    if (section in testAnswers[test]) {
-      if (passageNumber in testAnswers[test][section]) {
-        answerAreaChildren = passage.getElementsByClassName("input-row-center")
-        for (let i = 0; i < passageAnswers.length; i++) {
-          if (!testAnswers[test][section][passageNumber][passageNumbers[i]]) {
-            //Matthew
-            //this was changed to be an actual boolean value as shown above
-//           if (testAnswers[test][section][passageNumber]["Answers"][passageNumbers[i]] == 'False') {
-            answerAreaChildren[i].style.backgroundColor = 'red';
-            answerAreaChildren[i].setAttribute("data-isCorrect", "false");
-          }
-        }
+      ele.setAttribute("data-question", passageNumbers[answer]);
+      ele.setAttribute("data-answer", passageAnswers[answer]);
+      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
+        ele.classList.add('red')
       }
     }
   }
 
-  // Update the last test, section, and passageNumber
-  last_test = test;
-  last_section = section;
-  last_passageNumber = passageNumber;
+  // Set the time
+  let timeMinutes = document.getElementById("time-minutes")
+  let timeSeconds = document.getElementById("time-seconds")
+  timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
+  timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
+}
 
+function submitAnswersPopup() {
+  // Grab the test info
+  let info = getTestInfo();
+  let status = testAnswers[info[0]]?.[info[1]]?.['Status']
+  let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
+  let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
+
+  if (test_view_type == 'inCenter') {
+    setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+    setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+  }
+  else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
+
+    // Calculate how many questions they got correct
+    let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
+    let totalMissed = 0;
+    for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
+      if (!keys_to_skip.includes(key)) {
+        totalMissed += tempAnswers[info[0]][info[1]][key]['Answers'].length
+      }
+    }
+    let score = testData[info[0]][info[1].toLowerCase() + "Answers"].length - totalMissed;
+    
+    // Calculate the scaled score
+    let scaleScore = 0;
+    for (const [key, value] of Object.entries(testData[info[0]][info[1].toLowerCase() + "Scores"])) {
+      if (score >= parseInt(value, 10)) {
+        scaledScore = 36 - parseInt(key);
+        break;
+      }
+    }
+
+    // Set the information
+    let date = new Date()
+    if (info[2] == last_passage_number) {
+      setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
+      setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
+      setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
+      setObjectValue([info[0], info[1], 'Score'], score, testAnswers);
+      setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
+      setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
+    }
+  }
+
+  // Go back to one of the test forms
+  if (!(info[2] != last_passage_number && test_view_type == 'homework')) {
+    openForm(lastView);
+  }
+}
+
+function resetAnswers() {
+  // Remove the answers
+  removeAnswers();
+  
+  // Grab the test info
+  let info = getTestInfo();
+
+  // Reset the tempAnswers array for the given passage
+  tempAnswers[info[0]][info[1]][info[2]]['Answers'] = [];
+  tempAnswers[info[0]][info[1]][info[2]]['Time'] = 0;
+
+  // Set up the testAnswersPopup again
+  openForm('testAnswersPopup');
+}
+
+function getTestInfo() {
+  let headerText = document.getElementById("answersPopupHeader").innerHTML;
+  let test = headerText.split(" - ")[0];
+  let section = headerText.split(" - ")[1];
+  let passageNumber = headerText.split(" - ")[2];
+
+  return [test, section, passageNumber]
 }
 
 function removeAnswers() {
@@ -540,563 +824,111 @@ function removeAnswers() {
       answerAreaChildren[num_children - i - 1].remove();
     }
   }
+
+  // Hide the arrows
+  let leftArrow = document.getElementById("leftArrow")
+  let rightArrow = document.getElementById("rightArrow")
+  leftArrow.parentNode.style.visibility = "hidden"
+  rightArrow.parentNode.style.visibility = "hidden"
+
+  // Reset the time
+  let timeMinutes = document.getElementById("time-minutes")
+  let timeSeconds = document.getElementById("time-seconds")
+
+  timeMinutes.value = "0"
+  timeSeconds.value = "0"
 }
 
-function exitAnswersPopup(start_element = undefined) {
+function removeTest() {
+  // Get the test and section from the header
+  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let test = headerText.split(" - ")[0];
+  let section = headerText.split(" - ")[1];
+  let oldStatus = oldTestAnswers[test]?.[section]?.['Status']
 
-  // Remove the answers
-  removeAnswers();
+  // Make sure that the section exists
+  if (testAnswers[test]?.[section] != undefined && oldStatus != 'in-time' && oldStatus != 'in-center') {
+    // Delete the section
+    delete testAnswers[test][section]
 
-  // Remove the border
-  let popup = document.getElementById("testAnswersPopup");
-  if (popup.getAttribute("data-test") == undefined) {
-    popup = document.getElementById("homeworkPopup")
-  }
-
-  let test = popup.getAttribute("data-test");
-  let section = popup.getAttribute("data-section");
-  let passageNumber = popup.getAttribute("data-passage");
-
-  if (start_element != undefined) {
-    test = start_element.parentNode.parentNode.getAttribute("data-test")
-    section = start_element.parentNode.parentNode.getAttribute("data-section")
-    if (test == null) {
-      test = start_element.getAttribute("data-test")
-      section = start_element.getAttribute("data-section")
-      passageNumber = undefined;
+    // Check to see if the test needs deleted
+    if (objectChildCount([test], testAnswers) == 0) {
+      delete testAnswers[test]
     }
   }
 
-  testLocation = findTestDiv(test, section, passageNumber);
-  if (testLocation == null) {
-    testLocation = findTestDiv(test, section, undefined);
-  }
-  testLocation.style.borderStyle = "";
-  testLocation.style.borderWidth = "";
-  testLocation.style.borderColor = "";
-
-  // Hide the answers popup
-  let answersPopup = document.getElementById("testAnswersPopup");
-  answersPopup.style.display = "none"
+  // Return to the last view
+  openForm(lastView)
 
 }
 
-function resetAnswersPopup() {
-  // Remove the answers (if they are there)
-  let answerArea = document.getElementById("passage")
-  answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
-  num_children = answerAreaChildren.length;
-  for (let i = 0; i < num_children; i++) {
-    answerAreaChildren[num_children - i - 1].style.backgroundColor = '';
-    answerAreaChildren[num_children - i - 1].setAttribute("data-isCorrect", "true");
-  }
-}
+function removePassage() {
+  // Get the test and section from the header
+  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let test = headerText.split(" - ")[0];
+  let section = headerText.split(" - ")[1];
+  let passageNumber = headerText.split(" - ")[2];
 
-function removePassage(start_element = undefined) {
+  // Make sure that the section exists
+  if (testAnswers[test]?.[section]?.[passageNumber] != undefined && test_view_type == 'inCenter') {
+    // Delete the passage
+    delete testAnswers[test][section][passageNumber]
+    delete tempAnswers[test][section][passageNumber]
 
-  let answersPopup = document.getElementById("testAnswersPopup");
+    // Check to see if the section needs deleted
+    if (objectChildCount([test, section], testAnswers) == 0) {
+      delete testAnswers[test][section]
+    }
 
-  let test = answersPopup.getAttribute("data-test");
-  let section = answersPopup.getAttribute("data-section")
-  let passageNumber = answersPopup.getAttribute("data-passage")
-
-  if (start_element != undefined) {
-    test = start_element.parentNode.parentNode.getAttribute("data-test")
-    section = start_element.parentNode.parentNode.getAttribute("data-section")
-  }
-
-  // Continue here
-  if (test == null) {
-    test = start_element.getAttribute("data-test")
-    section = start_element.getAttribute("data-section")
-  }
-
-
-  let can_remove = false;
-  let can_remove_section = false;
-  if (test_view_type != "homework") {
-    if (test in testAnswers) {
-      if (section in testAnswers[test]) {
-          can_remove_section = true;
-        if (passageNumber in testAnswers[test][section]) {
-          can_remove = true;
-
-          // Remove the passage from the testAnswers
-          delete testAnswers[test][section][passageNumber];
-        }
-      }
+    // Check to see if the test needs deleted
+    if (objectChildCount([test], testAnswers) == 0) {
+      delete testAnswers[test]
     }
   }
 
-  //if (can_remove == true || (test_view_type == "homework" && can_remove_section == true)) {
-  if (can_remove == true || test_view_type == "homework") {
-    // Find the corresponding passage on the list of tests and change the backgroundColor to ''
-    let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
-    if (section == "English") {
-      location = location[1]
-    }
-    else if (section == "Math") {
-      location = location[2]
-    }
-    else if (section == "Reading") {
-      location = location[3]
-    }
-    else {
-      location = location[4]
-    }
-
-    if (can_remove == true) {
-      location = location.querySelectorAll("div")[passageNumber - 1]
-    }
-    location.style.backgroundColor = ''
-    if (test_view_type != 'homework') {
-      location.querySelector("p").innerHTML = passageNumber.toString();
-    }
-    else {
-      location.innerHTML = '';
-    }
-
-    // Check to see if the section should be reverted back to 'none'
-    let children = location.parentNode.querySelectorAll("div")
-    let can_change_back = true;
-    if (test_view_type != "homework") {
-      for (let child = 0; child < children.length; child++) {
-        if (children[child].style.backgroundColor != "") {
-          can_change_back = false;
-          break;
-        }
-      }
-    }
-
-    if (test in testAnswers) {
-      if (!(section in testAnswers[test])) {
-        can_change_back = false;
-      }
-    }
-    else {
-      can_change_back = false;
-    }
-
-    if (can_change_back == true) {
-      if (test_view_type != "homework") {
-        location.parentNode.setAttribute("data-testType", "none")
-      }
-      else {
-        location.setAttribute("data-testType", "none")
-      }
-      delete testAnswers[test][section];
-      if (testAnswers[test].length == undefined) {
-        delete testAnswers[test]
-      }
-    }
-  }
-
-  // Exit the Answers Popup
-  exitAnswersPopup(start_element);
-
-  // Exit the homework Popup, if applicable
-  if (start_element != undefined) {
-    exitHomeworkPopup();
-  }
+  // Return to the last view
+  openForm(lastView)
 
 }
 
-function submitAnswersPopup() {
+function objectChildCount(path, object) {
+  // Initialize an array to store the keys to skip in the counting process below
+  let keys_to_skip = ['Status', 'TestType', 'Score', 'ScaledScore', 'Date', 'Time']
 
-  console.log(testAnswers);
+  // Initialize a variable
+  let location = object;
 
-  let answersPopup = document.getElementById("testAnswersPopup");
-  let answerArea = document.getElementById("passage")
-
-  let test = answersPopup.getAttribute("data-test");
-  let section = answersPopup.getAttribute("data-section")
-  let passageNumber = (answersPopup.getAttribute("data-passage"))
-  if (passageNumber == 'undefined') {
-    passageNumber = '1';
+  // Move to the location in the object
+  for (let i = 0; i < path.length; i++) {
+    location = location[path[i]]
   }
-  let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
-  
-  // Create a dictionary of the answers
-  let answers = {};
-  let numberOfCorrectAnswers = 0;
-  let answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
-  let num_children = answerAreaChildren.length;
-  for (let i = 0; i < num_children; i++) {
-    answers[answerAreaChildren[i].getAttribute("data-question")] = (answerAreaChildren[i].getAttribute("data-isCorrect") == 'true');
-            //matthew
-            //again the variable type is now a boolean
-    //answers[answerAreaChildren[i].getAttribute("data-question")] = answerAreaChildren[i].getAttribute("data-isCorrect");
-    //if (answerAreaChildren[i].getAttribute("data-isCorrect") == 'True') {
-    if (answers[answerAreaChildren[i].getAttribute("data-question")]) {
-      numberOfCorrectAnswers += 1;
+
+  count = 0;
+  object_keys = Object.keys(location);
+  for (let i = 0; i < object_keys.length; i++) {
+    if (!keys_to_skip.includes(object_keys[i])) {
+      count += 1
     }
   }
 
-  // Create the test saving structure, if it doesn't already exist
-  if (test in testAnswers) {
-    if (section in testAnswers[test]) {
-      if (passageNumber in testAnswers[test][section]) {
-        testAnswers[test][section][passageNumber]["Answers"] = answers;
-        testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
-      }
-      else {
-        testAnswers[test][section][passageNumber] = {}
-        testAnswers[test][section][passageNumber]["Answers"] = answers;
-        testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
-      }
-    }
-    else {
-      testAnswers[test][section] = {}
-      testAnswers[test][section][passageNumber] = {}
-      testAnswers[test][section][passageNumber]["Answers"] = {}
-      testAnswers[test][section]["testType"] = test_view_type
-      testAnswers[test][section][passageNumber]["Answers"] = answers;
-      testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
-    }
-  }
-  else {
-    testAnswers[test] = {}
-    testAnswers[test][section] = {}
-    testAnswers[test][section][passageNumber] = {}
-    testAnswers[test][section][passageNumber]["Answers"] = {}
-    testAnswers[test][section]["testType"] = test_view_type
-    testAnswers[test][section][passageNumber]["Answers"] = answers;
-    testAnswers[test][section][passageNumber]["TotalCorrect"] = numberOfCorrectAnswers;
-  }
+  return count
+}
 
-            //Duncan's stuff don't think we need it
-//   // Overwrite / Add the answers into the tests dictonary
-//   testAnswers[test][section][passageNumber] = answers;
+function nextPassage(element) {
 
-//   /************************************
-//    * This was replaced by the next two functions
-//    ************************************/
-//   // // Find the corresponding passage on the list of tests and mark it green
-//   // let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
-//   // if (section == "English") {
-//   //   location = location[1]
-//   // }
-//   // else if (section == "Math") {
-//   //   location = location[2]
-//   // }
-//   // else if (section == "Reading") {
-//   //   location = location[3]
-//   // }
-//   // else {
-//   //   location = location[4]
-//   // }
-//   // location = location.querySelectorAll("div")[passageNumber - 1]
-//   // location.style.backgroundColor = 'green'
+  let info = getTestInfo();
 
-//   // // Change the test to an in-center test
-//   // location.parentNode.setAttribute("data-testType", "inCenter")
-            //End
-  // Find the corresponding passage on the list of tests and mark it green
-  let location = document.querySelectorAll("div[data-test=\"" + test + "\"].gridBox")
-  if (section == "English") {
-    location = location[1]
-  }
-  else if (section == "Math") {
-    location = location[2]
-  }
-  else if (section == "Reading") {
-    location = location[3]
-  }
-  else {
-    location = location[4]
-  }
-
-  if (test_view_type != 'homework') {
-    location = location.querySelectorAll("div")[passageNumber - 1]
-  }
-
-  if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
-    let totalCorrect = 0
-    let totalAnswers = 0
-    for (const [key, psg] of Object.entries(testAnswers[test][section])) {
-      if (key != "testType" && key != "Score" && key != "Status") {
-        totalCorrect += psg["TotalCorrect"]
-        //FIXME: This thing throws an error while trying to submit the test. Don't see what it's doing
-        //totalAnswers += Object.keys(psg["Answers"]).length
-      }
-    }
-    let scaleScore = 0;
-    for (const [key, value] of Object.entries(testData[test][section.toLowerCase() + "Scores"])) {
-      if (parseInt(totalCorrect, 10) >= parseInt(value, 10)) {
-        scaledScore = 36 - parseInt(key);
-        break;
-      }
-    }
-
-    if (test_view_type == 'homework') {
-      testAnswers[test][section]["Score"] = scaledScore
-      location.innerHTML = scaledScore;
-      if (testAnswers[test][section]["Status"] == 'Incomplete') {
-        location.style.backgroundColor = 'red'
-      }
-      else {
-        testAnswers[test][section]["Status"] = "Completed"
-        location.style.backgroundColor = 'green'
-      }
-    }
-    else {
-      location.style.backgroundColor = 'green'
-    }
-  }
-
-  // Change the test type
-  if (test_view_type == 'homework') {
-    location.setAttribute("data-testType", test_view_type);
-  }
-  else {
-    location.parentNode.setAttribute("data-testType", test_view_type);
-    location.querySelector("p").innerHTML = numberOfCorrectAnswers.toString() + " / " + num_children.toString();
-  }
-
-
-  //update the test types
-  //updateTestTypes();
-
-  //update the test visuals
-  //updateTestVisuals();
-
-  // Clear the popup
-  if (test_view_type != 'homework' || (test_view_type == 'homework' && passageNumber == last_passage_number)) {
-    exitAnswersPopup()
-  }
+  openForm('testAnswersPopup', undefined, undefined, parseInt(info[2], 10) + 1)
 
 }
 
-function setHomeworkStatus(status, gradeHomework = "False") {
-  let popup = document.getElementById("homeworkPopup");
+function previousPassage(element) {
 
-  let test = popup.getAttribute("data-test");
-  let section = popup.getAttribute("data-section");
+  let info = getTestInfo();
 
-  if (test in testAnswers) {
-    if (section in testAnswers[test]) {
-      testAnswers[test][section]["Status"] = status;
-    }
-    else {
-      testAnswers[test][section] = {}
-      testAnswers[test][section]["Status"] = status;
-    }
-  }
-  else {
-      testAnswers[test] = {}
-      testAnswers[test][section] = {}
-      testAnswers[test][section]["Status"] = status;
-  }
-
-  let location = findTestDiv(test, section);
-  if (status == 'Assigned') {
-    location.style.backgroundColor = 'rgb(218, 165, 32)';
-    location.setAttribute("data-testType", 'homework');
-    testAnswers[test][section]["testType"] = 'homework';
-    exitHomeworkPopup();
-  }
-  else if (status == 'Incomplete') {
-    if (gradeHomework == 'False') {
-      location.style.backgroundColor = 'gray';
-      location.setAttribute("data-testType", 'homework')
-      testAnswers[test][section]["testType"] = 'homework';
-      exitHomeworkPopup();
-    }
-    else {
-      location.setAttribute("data-testType", 'homework');
-      testAnswers[test][section]["testType"] = 'homework';
-      deSelect();
-      popupGradeTest(test, section);
-    }
-  }
+  openForm('testAnswersPopup', undefined, undefined, parseInt(info[2], 10) - 1)
 
 }
-
-function gradeHomework(test, section) {
-
-  // Change the Popup Header Title
-  let headerText = document.getElementById("homeworkHeaderText")
-  headerText.innerHTML = test + " - " + section;
-
-  // Hide the answers popup
-  let popup = document.getElementById("testAnswersPopup")
-  popup.style.display = "none";
-
-  // Check to see if they pressed the same test again. If so, just exit out
-  let testLocation = findTestDiv(test, section, undefined);
-  if (testLocation.style.borderColor == "cyan") {
-    if (test in testAnswers) {
-      if (section in testAnswers[test]) {
-        let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"];
-        if ((Object.keys(testAnswers[test][section]).length - 1) < last_passage_number) {
-          removePassage(testLocation);
-          return
-        }
-      }
-    }
-    exitHomeworkPopup();
-    return
-  }
-
-  // Display the popup
-  popup = document.getElementById("homeworkPopup");
-  popup.style.display = "flex"
-
-  // Set the test and section for the popup
-  popup.setAttribute("data-test", test);
-  popup.setAttribute("data-section", section);
-
-  // Clear the previously highlighted test if it wasn't already
-  if (last_test != "") {
-    testLocation = findTestDiv(last_test, last_section);
-    testLocation.style.borderStyle = "";
-    testLocation.style.borderWidth = "";
-    testLocation.style.borderColor = "";
-  }  
-
-  // Highlight the passage that is pulled up
-  testLocation = findTestDiv(test, section);
-  testLocation.style.borderStyle = "solid";
-  testLocation.style.borderWidth = "3px";
-  testLocation.style.borderColor = "cyan";
-
-  // Update the last test and section
-  last_test = test;
-  last_section = section;
-
-}
-
-function gradeTest() {
-
-  let popup = document.getElementById("homeworkPopup");
-
-  let test = popup.getAttribute("data-test");
-  let section = popup.getAttribute("data-section");
-
-  testLocation = findTestDiv(test, section);
-  testLocation.style.borderStyle = "";
-  testLocation.style.borderWidth = "";
-  testLocation.style.borderColor = "";
-
-  popupGradeTest(test, section);
-}
-
-function exitHomeworkPopup() {
-
-  // Remove the border
-  let popup = document.getElementById("homeworkPopup");
-
-  let test = popup.getAttribute("data-test");
-  let section = popup.getAttribute("data-section");
-
-  testLocation = findTestDiv(test, section);
-  testLocation.style.borderStyle = "";
-  testLocation.style.borderWidth = "";
-  testLocation.style.borderColor = "";
-
-  // Hide the homework popup
-  let answersPopup = document.getElementById("homeworkPopup");
-  answersPopup.style.display = "none"
-
-}
-
-function assignHomework(element) {
-  let test = element.getAttribute("data-test");
-  let section = element.getAttribute("data-section");
-  if (element.style.backgroundColor == '') {
-    element.style.backgroundColor = "rgb(218, 165, 32)";
-    element.setAttribute("data-testType", "homework")
-    if (test in testAnswers) {
-      if (section in testAnswers[test]) {
-        testAnswers[test][section]["testType"] = "homework"
-      }
-      else {
-        testAnswers[test][section] = {}
-        testAnswers[test][section]["testType"] = "homework"
-      }
-    }
-    else {
-      testAnswers[test] = {}
-      testAnswers[test][section] = {}
-      testAnswers[test][section]["testType"] = "homework"
-    }
-  }
-  else {
-    element.style.backgroundColor = "";
-    element.setAttribute("data-testType", "none")
-    console.log(Object.keys(testAnswers[test]).length)
-    if (Object.keys(testAnswers[test]).length > 0) {
-      delete testAnswers[test][section];
-    }
-    else {
-      delete testAnswers[test];
-    }
-    console.log(testAnswers);
-  }
-}
-
-/************************************************************************
- *                          EVENT LISTENERS                             *
- ************************************************************************/
-
-// Listen for wrong answers
-let popupAnswers = document.getElementById("passage")
-popupAnswers.addEventListener('click', function(event) {
-  if (event.target.parentNode.className.includes('input-row-center')) {
-    if (event.target.parentNode.style.backgroundColor == '') {
-      event.target.parentNode.style.backgroundColor = 'red'
-      event.target.parentNode.setAttribute("data-isCorrect", "false")
-    }
-    else {
-      event.target.parentNode.style.backgroundColor = '';
-            //want this to be a boolean
-      event.target.parentNode.setAttribute("data-isCorrect", "true")
-      //event.target.parentNode.setAttribute("data-isCorrect", "True")
-    }
-  }
-})
-
-// Change the colors of the test boxes
-let homeworkTests = document.getElementById("homeworkTests");
-homeworkTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && test_view_type == "homework") {
-    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
-  }
-  else if (event.target.className.includes("button2") && test_view_type == "assign") {
-    assignHomework(event.target);
-  }
-  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
-  }
-})
-
-// Change the colors of the test boxes
-let inCenterTests = document.getElementById("inCenterTests");
-inCenterTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && test_view_type == "homework") {
-    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
-  }
-  else if (event.target.className.includes("button2") && test_view_type == "assign") {
-    assignHomework(event.target);
-  }
-  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
-  }
-})
-
-// Change the colors of the test boxes
-let otherTests = document.getElementById("otherTests");
-otherTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && test_view_type == "homework") {
-    gradeHomework(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"));
-  }
-  else if (event.target.className.includes("button2") && test_view_type == "assign") {
-    assignHomework(event.target);
-  }
-  else if (event.target.className.includes("testP") && test_view_type == "inCenter") {
-    popupGradeTest(event.target.parentNode.parentNode.getAttribute("data-test"), event.target.parentNode.parentNode.getAttribute("data-section"), event.target.getAttribute("data-passagenumber"));
-  }
-})
 
 function submitDailyLog() {
   document.getElementById("errMsg").textContent = "";
@@ -1156,6 +988,11 @@ function goToDashboard() {
   if (confirmation) {
     window.history.back();
   }
+}
+
+//TESTING
+function goToTesting() {
+  window.location.href = '../../student-info-test.html?student=' + queryStrings()["student"];
 }
 
 function validateSessionInfo() {
@@ -1286,17 +1123,65 @@ function validateHW() {
 
 function queryStrings() {
   var GET = {};
-  var queryString = window.location.search.replace(/^\?/, '');
-  queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-  });
+    var queryString = window.location.search.replace(/^\?/, '');
+    queryString.split(/\&/).forEach(function(keyValuePair) {
+        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+        GET[paramName] = paramValue;
+    });
 
-  return GET;
+    return GET;
 }
 
-//TESTING
-function goToTesting() {
-  window.location.href = '../../../student-info-test.html?student=' + queryStrings()["student"];
+function getArrayIndex(value, arr) {
+  // Find and return the index for the value
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] == value) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+function assignHomework(element) {
+  let test = element.getAttribute("data-test")
+  let section = element.getAttribute("data-section")
+
+  let status = testAnswers[test]?.[section]?.['Status']
+  console.log("status:", status)
+
+  switch (status) {
+    case "in-time":
+      break;
+    case "over-time":
+      break;
+    case "not-timed":
+      break;
+    case "partial":
+      break;
+    case "in-center":
+      break;
+    case "forgot":
+      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
+      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
+      break;
+    case "did not do":
+      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
+      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
+      break;
+    case "assigned":
+      delete testAnswers[test][section];
+      if (Object.keys(testAnswers[test]).length == 0) {
+        delete testAnswers[test]
+      }
+      break;
+    default:
+      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
+      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
+      break;
+  }
+  
+  console.log(lastView)
+  openForm(lastView)
 }
