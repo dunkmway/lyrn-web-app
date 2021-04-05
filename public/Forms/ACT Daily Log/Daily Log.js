@@ -11,10 +11,12 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray'};
+let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let newStatus = undefined;
+let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
+let date = new Date()
 //testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
 /*testAnswers = {'MC3' : {
   "English": {
@@ -599,8 +601,15 @@ function updateHomeworkTest(testBox, test, section) {
   // If it does exist, change the background color and inner html
   if (status != undefined) {
     testBox.classList.add(coloring[testAnswers[test][section]["Status"]]);
-    testBox.classList.add("homeworkBox");
+    //testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
     testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
+    if (testBox.innerHTML != "") {
+      testBox.classList.add("homeworkBox");
+    }
+    else {
+      testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? "";
+      console.log(convertFromDateInt(testAnswers[test]?.[section]?.['Date']))
+    }
   }
 }
 
@@ -629,6 +638,7 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
     else {
       setObjectValue([test, section, "Status"], status, testAnswers)
       setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
     }
   }
   else {
@@ -754,7 +764,6 @@ function submitAnswersPopup() {
   else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
 
     // Calculate how many questions they got correct
-    let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
     let totalMissed = 0;
     for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
       if (!keys_to_skip.includes(key)) {
@@ -773,7 +782,6 @@ function submitAnswersPopup() {
     }
 
     // Set the information
-    let date = new Date()
     if (info[2] == last_passage_number) {
       setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
       setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
@@ -892,8 +900,6 @@ function removePassage() {
 }
 
 function objectChildCount(path, object) {
-  // Initialize an array to store the keys to skip in the counting process below
-  let keys_to_skip = ['Status', 'TestType', 'Score', 'ScaledScore', 'Date', 'Time']
 
   // Initialize a variable
   let location = object;
