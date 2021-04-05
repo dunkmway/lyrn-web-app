@@ -5,14 +5,19 @@ let hwData = {};
 let sessionData = {};
 
 let sessionDates = [];
-let englishScores = [];
-let mathScores = [];
-let readingScores = [];
-let scienceScores = [];
 
-var hwChart
+let englishScores = {};
+let mathScores = {};
+let readingScores = {};
+let scienceScores = {};
 
-main();
+let englishHours = {};
+let mathHours = {};
+let readingHours = {};
+let scienceHours = {};
+
+var hwChart;
+
 
 function main() {
   console.log("In main()");
@@ -41,6 +46,8 @@ function initialSetup() {
     let promises = [hwSetupProm, sessionSetupProm];
     return Promise.all(promises);
   }
+
+  return Promise.reject("No student is selected");
 }
 
 function getHomeworkData(studentUID) {
@@ -64,28 +71,16 @@ function storeHomeworkData(doc) {
 
         switch (section) {
           case "English":
-            englishScores.push({
-              x: dateStr,
-              y: hwData[test][section]['ScaledScore']
-            });
+            englishScores[dateStr] = hwData[test][section]['ScaledScore'];
             break;
           case "Math":
-            mathScores.push({
-              x: dateStr,
-              y: hwData[test][section]['ScaledScore']
-            });
+            mathScores[dateStr] = hwData[test][section]['ScaledScore'];
             break;
           case "Reading":
-            readingScores.push({
-              x: dateStr,
-              y: hwData[test][section]['ScaledScore']
-            });
+            readingScores[dateStr] = hwData[test][section]['ScaledScore'];
             break;
           case "Science":
-            scienceScores.push({
-              x: dateStr,
-              y: hwData[test][section]['ScaledScore']
-            });
+            scienceScores[dateStr] = hwData[test][section]['ScaledScore'];
             break;
           default:
             console.log("We have a test with a section that doesn't match!!!")
@@ -93,10 +88,10 @@ function storeHomeworkData(doc) {
       }
     }
   }
-  englishScores.sort((a,b) => sortHomeworkScores(a,b));
-  mathScores.sort((a,b) => sortHomeworkScores(a,b));
-  readingScores.sort((a,b) => sortHomeworkScores(a,b));
-  scienceScores.sort((a,b) => sortHomeworkScores(a,b));
+  // englishScores.sort((a,b) => sortHomeworkScores(a,b));
+  // mathScores.sort((a,b) => sortHomeworkScores(a,b));
+  // readingScores.sort((a,b) => sortHomeworkScores(a,b));
+  // scienceScores.sort((a,b) => sortHomeworkScores(a,b));
   console.log(englishScores);
   console.log(mathScores);
   console.log(readingScores);
@@ -117,6 +112,8 @@ function storeSessionData(doc) {
   let tempDateArray = [];
   for (let time in sessionData) {
     let numTime = parseInt(time);
+    //FIXME: This will not take any keys that are not numbers. This will change in the firestore doc to be only
+    //times so this can be removed. It will cause issue with the data base but we will need to delete it all.
     if (!isNaN(numTime)) {
       const date = new Date(numTime);
       const day = date.getDate();
@@ -126,12 +123,32 @@ function storeSessionData(doc) {
       if (tempDateArray.indexOf(dateStr) == -1) {
         tempDateArray.push(dateStr);
         sessionDates.push(date);
+
+        for (let section in sessionData[time]["sections"]) {
+          switch (section) {
+            case "English":
+              englishHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              break;
+            case "Math":
+              mathHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              break;
+            case "Reading":
+              readingHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              break;
+            case "Science":
+              scienceHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              break;
+            default:
+              console.log("We have a session with a section that doesn't match!!!")
+          }
+        }
       }
     }
   }
   //sort from lowest to highest
   sessionDates.sort(function(a, b){return a - b});
 
+  //set the sessionDate array
   for (let i = 0; i < sessionDates.length; i++) {
     const date = new Date(sessionDates[i]);
     const day = date.getDate();
@@ -141,9 +158,45 @@ function storeSessionData(doc) {
     sessionDates[i] = dateStr;
   }
 
+  console.log(englishHours);
+  console.log(mathHours);
+  console.log(readingHours);
+  console.log(scienceHours);
 }
 
 function setHomeworkChart() {
+  //set up arrays for each test type
+  let englishTestArray = [];
+  let mathTestArray = [];
+  let readingTestArray = [];
+  let scienceTestArray = [];
+
+  let englishHoursArray = [];
+  let mathHoursArray = [];
+  let readingHoursArray = [];
+  let scienceHoursArray = [];
+
+  for (let i = 0; i < sessionDates.length; i++) {
+    englishTestArray.push(englishScores[sessionDates[i]]);
+    mathTestArray.push(mathScores[sessionDates[i]]);
+    readingTestArray.push(readingScores[sessionDates[i]]);
+    scienceTestArray.push(scienceScores[sessionDates[i]]);
+
+    englishHoursArray.push(englishHours[sessionDates[i]]);
+    mathHoursArray.push(mathHours[sessionDates[i]]);
+    readingHoursArray.push(readingHours[sessionDates[i]]);
+    scienceHoursArray.push(scienceHours[sessionDates[i]]);
+  }
+
+  console.log(englishHoursArray.runningTotal());
+  console.log(englishHoursArray);
+  console.log(mathHoursArray.runningTotal());
+  console.log(mathHoursArray);
+  console.log(readingHoursArray.runningTotal());
+  console.log(readingHoursArray);
+  console.log(scienceHoursArray.runningTotal());
+  console.log(scienceHoursArray);
+
   var ctxHW = document.getElementById("hw-canvas");
   return new Chart(ctxHW, {
     // The type of chart we want to create
@@ -161,7 +214,7 @@ function setHomeworkChart() {
             steppedLine: true,
             pointRadius: 5,
             pointHoverRadius: 10,
-            data: englishScores,
+            data: englishTestArray,
           },
           {
             label: "Math",
@@ -171,7 +224,7 @@ function setHomeworkChart() {
             steppedLine: true,
             pointRadius: 5,
             pointHoverRadius: 10,
-            data: mathScores,
+            data: mathTestArray,
           },
           {
             label: "Reading",
@@ -181,7 +234,7 @@ function setHomeworkChart() {
             steppedLine: true,
             pointRadius: 5,
             pointHoverRadius: 10,
-            data: readingScores,
+            data: readingTestArray,
           },
           {
             label: "Science",
@@ -191,13 +244,15 @@ function setHomeworkChart() {
             steppedLine: true,
             pointRadius: 5,
             pointHoverRadius: 10,
-            data: scienceScores,
+            data: scienceTestArray,
           }
         ]
     },
 
     // Configuration options go here
     options: {
+      responsive: true,
+      spanGaps: true,
       scales: {
         yAxes: [{
             ticks: {
@@ -206,13 +261,20 @@ function setHomeworkChart() {
         }]
       },
       tooltips: {
-        callbacks: {
-            title: function(tooltipItem, data) {
-              let title = data.datasets[tooltipItem[0].datasetIndex].data[tooltipItem[0].index].x;
-              return title;
-            }
+        //intersect: false,
+      },
+      hover: {
+        mode: 'nearest',
+        //intersect: false
+      },
+      layout: {
+        padding: {
+            left: 50,
+            right: 50,
+            top: 50,
+            bottom: 50
         }
-    }
+      }
     }
   });
 }
@@ -237,33 +299,20 @@ function filterInt(value) {
   }
 }
 
-function sortHomeworkScores(a,b) {
-  aArray = a['x'].split("/");
-  bArray = b['x'].split("/");
-
-  if (parseInt(aArray[0]) < parseInt(bArray[0])) {
-    return -1;
+Array.prototype.runningTotal = function() {
+  let arrayCopy = [...this];
+  if (!arrayCopy[0]) {
+    arrayCopy[0] = 0;
   }
-  else if (parseInt(aArray[0]) > parseInt(bArray[0])) {
-    return 1;
-  }
-  else {
-    if (parseInt(aArray[1]) < parseInt(bArray[1])) {
-      return -1;
-    }
-    else if (parseInt(aArray[1]) > parseInt(bArray[1])) {
-      return 1;
+  for (let i = 1; i < arrayCopy.length; i++) {
+    if (arrayCopy[i]) {
+      arrayCopy[i] = arrayCopy[i-1] + arrayCopy[i];
     }
     else {
-      if (parseInt(aArray[2]) < parseInt(bArray[2])) {
-        return -1;
-      }
-      else if (parseInt(aArray[2]) > parseInt(bArray[2])) {
-        return 1;
-      }
-      else {
-        return 0;
-      }
+      arrayCopy[i] = arrayCopy[i-1];
     }
   }
+  return arrayCopy;
 }
+
+main();

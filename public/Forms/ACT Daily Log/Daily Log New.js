@@ -260,7 +260,7 @@ function initialSetup() {
         console.log(oldTestAnswers);
         console.log(testAnswers);
 
-        updateTestTypes();
+        //updateTestTypes();
       }
     })
     .catch((error) => {
@@ -921,7 +921,8 @@ function submitDailyLog() {
     }
   }
   else {
-    document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
+    //not validated
+    //error messages should be handled in each function
   }
 }
 
@@ -967,6 +968,7 @@ function validateSessionInfo() {
     let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
     if (section.value == "" || time.value == "") {
+      document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
       return false;
     }
   }
@@ -1012,22 +1014,22 @@ function submitSessionInfo() {
           //doc exists - update the doc
           return sessionDocRef.update({
             [`${sessionTime.toString()}`]: sessionInfo,
-            englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
-            mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
-            readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
-            scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
-            [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
+            // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
+            // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
+            // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
+            // scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
+            // [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
           })
         }
         else {
           //doc does not exist - set the doc
           return sessionDocRef.set({
             [`${sessionTime.toString()}`]: sessionInfo,
-            englishTotalTime: sectionInfo.English?.time ?? 0,
-            mathTotalTime: sectionInfo.Math?.time ?? 0,
-            readingTotalTime: sectionInfo.Reading?.time ?? 0,
-            scienceTotalTime: sectionInfo.Science?.time ?? 0,
-            tutors: {[`${tutor}`]: 1}
+            // englishTotalTime: sectionInfo.English?.time ?? 0,
+            // mathTotalTime: sectionInfo.Math?.time ?? 0,
+            // readingTotalTime: sectionInfo.Reading?.time ?? 0,
+            // scienceTotalTime: sectionInfo.Science?.time ?? 0,
+            // tutors: {[`${tutor}`]: 1}
           })
         }
       })

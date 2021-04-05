@@ -53,7 +53,7 @@ function popUpTutor() {
   document.getElementById("add-tutor-section").style.display = "flex";
 }
 
-function closeTutor() {
+function closeTutor(submitted = false) {
   let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input, select");
   let allClear = true;
   for(let i = 0; i < allInputs.length; i++) {
@@ -63,7 +63,7 @@ function closeTutor() {
     }
   }
 
-  if (!allClear) {
+  if (!allClear && !submitted) {
     let confirmation = confirm("This tutor has not been saved.\nAre you sure you want to go back?");
     if (confirmation) {
       for(let i = 0; i < allInputs.length; i++) {
@@ -78,6 +78,9 @@ function closeTutor() {
     }
   }
   else {
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputs[i].value = "";
+    }
     document.getElementById("add-tutor-section").style.display = "none";
     let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
@@ -115,16 +118,16 @@ function createTutor() {
 
       if (newUser) {
         //set up the tutor doc
-        const parentDocRef = firebase.firestore().collection("Tutors").doc(tutorUID);
+        const tutorDocRef = firebase.firestore().collection("Tutors").doc(tutorUID);
         let tutorDocData = {
           ...allInputValues
         }
-        parentDocRef.set(tutorDocData)
+        tutorDocRef.set(tutorDocData)
         .then((result) => {
           console.log("tutor document successfully written!");
           console.log(result);
           document.getElementById("spinnyBoi").style.display = "none";
-          closeTutor();
+          closeTutor(true);
         })
         .catch((error) => {
           console.log(error);
@@ -137,6 +140,7 @@ function createTutor() {
       }
       else {
         document.getElementById("errMsg").textContent = "This tutor already exists!";
+        document.getElementById("spinnyBoi").style.display = "none";
       }
     })
     .catch((error) => {
