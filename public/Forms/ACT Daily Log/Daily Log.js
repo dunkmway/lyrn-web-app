@@ -261,7 +261,7 @@ function initialSetup() {
         console.log(oldTestAnswers);
         console.log(testAnswers);
 
-        updateTestTypes();
+        //updateTestTypes();
       }
     })
     .catch((error) => {
@@ -934,7 +934,7 @@ function submitDailyLog() {
   document.getElementById("errMsg").textContent = "";
   //FIXME: need to add validation here and not in the individual submits
   //this is so that the confirmation message doesn't pop up unless everything is ready to submit
-  if (validateSessionInfo()) {
+  if (validateSessionInfo() && validateHW()) {
     let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
     if (confirmation) {
       document.getElementById("spinnyBoi").style.display = "block";
@@ -957,7 +957,8 @@ function submitDailyLog() {
     }
   }
   else {
-    document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
+    //not validated
+    //error messages should be handled in each function
   }
 }
 
@@ -1003,6 +1004,7 @@ function validateSessionInfo() {
     let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
     if (section.value == "" || time.value == "") {
+      document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
       return false;
     }
   }
@@ -1048,22 +1050,22 @@ function submitSessionInfo() {
           //doc exists - update the doc
           return sessionDocRef.update({
             [`${sessionTime.toString()}`]: sessionInfo,
-            englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
-            mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
-            readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
-            scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
-            [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
+            // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
+            // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
+            // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
+            // scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
+            // [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
           })
         }
         else {
           //doc does not exist - set the doc
           return sessionDocRef.set({
             [`${sessionTime.toString()}`]: sessionInfo,
-            englishTotalTime: sectionInfo.English?.time ?? 0,
-            mathTotalTime: sectionInfo.Math?.time ?? 0,
-            readingTotalTime: sectionInfo.Reading?.time ?? 0,
-            scienceTotalTime: sectionInfo.Science?.time ?? 0,
-            tutors: {[`${tutor}`]: 1}
+            // englishTotalTime: sectionInfo.English?.time ?? 0,
+            // mathTotalTime: sectionInfo.Math?.time ?? 0,
+            // readingTotalTime: sectionInfo.Reading?.time ?? 0,
+            // scienceTotalTime: sectionInfo.Science?.time ?? 0,
+            // tutors: {[`${tutor}`]: 1}
           })
         }
       })
@@ -1118,7 +1120,20 @@ function submitHW() {
 }
 
 function validateHW() {
-
+  //find all of the hw that was assigned last session and check if it's status has changed
+  for (const test in oldTestAnswers) {
+    for (const section in oldTestAnswers[test]) {
+      if (oldTestAnswers[test][section]["TestType"] == "homework") {
+        if (oldTestAnswers[test][section]["Status"] == "Assigned") {
+          if (testAnswers[test][section]["Status"] == "Assigned") {
+            document.getElementById("errMsg").textContent = "Please report on test " + test + " " + section;
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
 
 function queryStrings() {
