@@ -11,11 +11,12 @@ function convertFromDateInt(date) {
     }
 
     // Create the date object from the date as an integer
-    current_date = new Date(date)
+    const current_date = new Date(date)
 
     // create the variables that will be called more than once
     const year = current_date.getFullYear();
     const month = current_date.getMonth() + 1;
+    const dayOfMonth = current_date.getDate();
     const dayOfWeek = current_date.getDay() + 1;
     const hours = current_date.getHours();
 
@@ -27,7 +28,7 @@ function convertFromDateInt(date) {
     return {'year' : year,
             'monthNumber' : month,
             'monthString' : months[month - 1],
-            'dayOfMonth' : current_date.getDate(),
+            'dayOfMonth' : dayOfMonth,
             'dayOfWeekNumber' : dayOfWeek,
             'dayOfWeekString' : days[dayOfWeek - 1],
             'hours' : hours > 12 ? hours - 12 : hours,
@@ -35,5 +36,6 @@ function convertFromDateInt(date) {
             'minutes' : current_date.getMinutes(),
             'seconds' : current_date.getSeconds(),
             'milliseconds' : current_date.getMilliseconds(),
+            'integerValue' : date,
             'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString()};
 }

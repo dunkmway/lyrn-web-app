@@ -24,7 +24,6 @@ homeworkTests.addEventListener('click', function(event)  {
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
     //assignHomework(event.target);
-    console.log(event.target.getAttribute("data-test"), event.target.getAttribute("data-section"), "assigned?")
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
