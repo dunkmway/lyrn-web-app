@@ -487,7 +487,14 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
     else {
       if (id == "dailyLog") {
-        form.style.display = "block"
+        if (lastView == "dailyLog") {
+          form.style.display = "none"
+          lastView = 'none';
+        }
+        else {
+          lastView = id;
+          form.style.display = "block"
+        }
       }
       else {
         form.style.display = "flex";
