@@ -63,7 +63,7 @@ function updateLessonData() {
   const lesson = this.id.split("-")[1];
 
   let value = {};
-  let date = new Date()
+  let date = sessionTime;
   const lessonStatus = lessonData[section]?.[lesson]?.status
   switch (lessonStatus) {
     case "needs review":
@@ -99,7 +99,7 @@ function updateLessonGraphics() {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
       const status = lessonData[section][lesson].status;
-      const date = lessonData[section][lesson].date ? new Date(lessonData[section][lesson].date) : null
+      const date = lessonData[section][lesson].date ? sessionTime : null
 
       const lessonElem = document.getElementById(id);
 
