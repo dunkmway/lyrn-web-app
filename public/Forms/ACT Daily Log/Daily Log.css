@@ -199,6 +199,7 @@ form {
     width: 500px;
     height: 100%;
     background-color: rgb(255, 255, 255);
+    z-index: 2;
 }
 
 #homeworkTestsTabs {
@@ -233,6 +234,7 @@ form {
 
 #dailyLog {
     --display: none;
+    z-index: 2;
 }
 
 #homeworkTestsForm {
@@ -795,4 +797,29 @@ p.errorMessage {
           -ms-user-select: none; /* Internet Explorer/Edge */
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
+}
+
+#sideNav div {
+    /*https://www.w3schools.com/howto/howto_css_sidenav_buttons.asp*/
+    position: absolute;
+    right: -85px;
+    transition: 0.3s;
+    padding: 20px 0px 20px 30px;
+    width: 100px;
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    border-radius: 5px 0px 0px 5px;
+    z-index: 3;
+    text-align: right;
+}
+
+#sideNav div:hover {
+    right: 0;
+    text-align: left;
+}
+
+#dailyLogNav {
+    top: 20px;
+    background-color: #4CAF50;
 }
