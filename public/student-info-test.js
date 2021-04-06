@@ -5,6 +5,7 @@ let hwData = {};
 let sessionData = {};
 
 let sessionDates = [];
+let hoursArray = [];
 
 let englishScores = {};
 let mathScores = {};
@@ -15,6 +16,26 @@ let englishHours = {};
 let mathHours = {};
 let readingHours = {};
 let scienceHours = {};
+
+let englishTestArray = [];
+let mathTestArray = [];
+let readingTestArray = [];
+let scienceTestArray = [];
+
+let englishHoursArray = [];
+let mathHoursArray = [];
+let readingHoursArray = [];
+let scienceHoursArray = [];
+
+let englishHoursScores = {};
+let mathHoursScores = {};
+let readingHoursScores = {};
+let scienceHoursScores = {};
+
+let englishHoursScoresArray = [];
+let mathHoursScoresArray = [];
+let readingHoursScoresArray = [];
+let scienceHoursScoresArray = [];
 
 var hwChart;
 
@@ -158,7 +179,7 @@ function storeSessionData(doc) {
     sessionDates[i] = dateStr;
   }
 
-  console.log(englishHours);
+  console.log("englishHours",englishHours);
   console.log(mathHours);
   console.log(readingHours);
   console.log(scienceHours);
@@ -166,15 +187,9 @@ function storeSessionData(doc) {
 
 function setHomeworkChart() {
   //set up arrays for each test type
-  let englishTestArray = [];
-  let mathTestArray = [];
-  let readingTestArray = [];
-  let scienceTestArray = [];
 
-  let englishHoursArray = [];
-  let mathHoursArray = [];
-  let readingHoursArray = [];
-  let scienceHoursArray = [];
+  console.log(englishScores);
+
 
   for (let i = 0; i < sessionDates.length; i++) {
     englishTestArray.push(englishScores[sessionDates[i]]);
@@ -188,14 +203,81 @@ function setHomeworkChart() {
     scienceHoursArray.push(scienceHours[sessionDates[i]]);
   }
 
-  console.log(englishHoursArray.runningTotal());
-  console.log(englishHoursArray);
-  console.log(mathHoursArray.runningTotal());
-  console.log(mathHoursArray);
-  console.log(readingHoursArray.runningTotal());
-  console.log(readingHoursArray);
-  console.log(scienceHoursArray.runningTotal());
-  console.log(scienceHoursArray);
+  let allHours = [englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
+  let minMax = getMinAndMax(allHours);
+
+  for (let i = minMax['min']; i <= minMax['max']; i+=5) {
+    hoursArray.push(i);
+  }
+
+  // for (let i = 0; i < hoursArray.length; i++) {
+  //   let englishIndex = (englishHoursArray.runningTotal()).findIndex(element => element == hoursArray[i]);
+  //   console.log("Found ", hoursArray[i], " at index ", englishIndex, " which is ", englishHoursArray.runningTotal()[englishIndex], " with score ", englishTestArray[englishIndex]);
+  //   if (englishIndex != -1) {
+  //     englishHoursScores.push(englishTestArray[englishIndex]);
+  //   }
+  //   else {
+  //     englishHoursScores.push(null);
+  //   }
+
+  //   let mathIndex = mathHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
+  //   if (mathIndex != -1) {
+  //     mathHoursScores.push(mathTestArray[mathIndex]);
+  //   }
+  //   else {
+  //     mathHoursScores.push(null);
+  //   }
+
+  //   let readingIndex = readingHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
+  //   if (readingIndex != -1) {
+  //     readingHoursScores.push(readingTestArray[englishIndex]);
+  //   }
+  //   else {
+  //     readingHoursScores.push(null);
+  //   }
+
+  //   let scienceIndex = scienceHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
+  //   if (scienceIndex != -1) {
+  //     scienceHoursScores.push(scienceTestArray[englishIndex]);
+  //   }
+  //   else {
+  //     scienceHoursScores.push(null);
+  //   }
+    
+  // }
+
+  for (let i = 0; i < englishTestArray.length; i++) {
+    if (englishTestArray[i]) {
+      englishHoursScores[`${englishHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = englishTestArray[i];
+    }
+  }
+  for (let i = 0; i < mathTestArray.length; i++) {
+    if (mathTestArray[i]) {
+      mathHoursScores[`${mathHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = mathTestArray[i];
+    }
+  }
+  for (let i = 0; i < readingTestArray.length; i++) {
+    if (readingTestArray[i]) {
+      readingHoursScores[`${readingHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = readingTestArray[i];
+    }
+  }
+  for (let i = 0; i < scienceTestArray.length; i++) {
+    if (scienceTestArray[i]) {
+      scienceHoursScores[`${scienceHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = scienceTestArray[i];
+    }
+  }
+
+  console.log(englishHoursScores);
+  console.log(mathHoursScores);
+  console.log(readingHoursScores);
+  console.log(scienceHoursScores);
+
+  for (let i = 0; i < hoursArray.length; i++) {
+    englishHoursScoresArray.push(englishHoursScores[hoursArray[i]]);
+    mathHoursScoresArray.push(mathHoursScores[hoursArray[i]]);
+    readingHoursScoresArray.push(readingHoursScores[hoursArray[i]]);
+    scienceHoursScoresArray.push(scienceHoursScores[hoursArray[i]]);
+  }
 
   var ctxHW = document.getElementById("hw-canvas");
   return new Chart(ctxHW, {
@@ -204,49 +286,54 @@ function setHomeworkChart() {
 
     // The data for our dataset
     data: {
-      labels: sessionDates,
-        datasets: [
-          {
-            label: "English",
-            backgroundColor: "red",
-            borderColor: "red",
-            fill: false,
-            steppedLine: true,
-            pointRadius: 5,
-            pointHoverRadius: 10,
-            data: englishTestArray,
-          },
-          {
-            label: "Math",
-            backgroundColor: "blue",
-            borderColor: "blue",
-            fill: false,
-            steppedLine: true,
-            pointRadius: 5,
-            pointHoverRadius: 10,
-            data: mathTestArray,
-          },
-          {
-            label: "Reading",
-            backgroundColor: "green",
-            borderColor: "green",
-            fill: false,
-            steppedLine: true,
-            pointRadius: 5,
-            pointHoverRadius: 10,
-            data: readingTestArray,
-          },
-          {
-            label: "Science",
-            backgroundColor: "yellow",
-            borderColor: "yellow",
-            fill: false,
-            steppedLine: true,
-            pointRadius: 5,
-            pointHoverRadius: 10,
-            data: scienceTestArray,
-          }
-        ]
+      // labels: sessionDates,
+      labels: hoursArray,
+      datasets: [
+        {
+          label: "English",
+          backgroundColor: "red",
+          borderColor: "red",
+          fill: false,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 10,
+          //data: englishTestArray,
+          data: englishHoursScoresArray
+        },
+        {
+          label: "Math",
+          backgroundColor: "blue",
+          borderColor: "blue",
+          fill: false,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 10,
+          //data: mathTestArray,
+          data: mathHoursScoresArray
+        },
+        {
+          label: "Reading",
+          backgroundColor: "green",
+          borderColor: "green",
+          fill: false,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 10,
+          //data: readingTestArray,
+          data: readingHoursScoresArray
+        },
+        {
+          label: "Science",
+          backgroundColor: "yellow",
+          borderColor: "yellow",
+          fill: false,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 10,
+          //data: scienceTestArray,
+          data: scienceHoursScoresArray
+        }
+      ]
     },
 
     // Configuration options go here
@@ -258,7 +345,7 @@ function setHomeworkChart() {
             ticks: {
                 stepSize: 1
             }
-        }]
+        }],
       },
       tooltips: {
         //intersect: false,
@@ -313,6 +400,41 @@ Array.prototype.runningTotal = function() {
     }
   }
   return arrayCopy;
+}
+
+function getMinAndMax(arrays) {
+  let min = Infinity;
+  let max = -Infinity;
+
+  for (let i = 0; i < arrays.length; i++) {
+    for (let j = 0; j < arrays[i].length; j++) {
+      if (arrays[i][j] < min) {
+        min = arrays[i][j];
+      }
+      if (arrays[i][j] > max) {
+        max = arrays[i][j];
+      }
+    }
+  }
+  return {min: min, max: max};
+}
+
+function setSessionAxis() {
+  datasets = [englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
+  hwChart.data.labels = sessionDates;
+  hwChart.data.datasets.forEach((dataset, index) => {
+    dataset.data = datasets[index];
+  });
+  hwChart.update('none');
+}
+
+function setHourAxis() {
+  datasets = [englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
+  hwChart.data.labels = hoursArray;
+  hwChart.data.datasets.forEach((dataset, index) => {
+    dataset.data = datasets[index];
+  });
+  hwChart.update('none');
 }
 
 main();
