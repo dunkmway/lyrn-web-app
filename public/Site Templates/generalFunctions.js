@@ -25,17 +25,19 @@ function convertFromDateInt(date) {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     // Create and return the datetime object
-    return {'year' : year,
-            'monthNumber' : month,
-            'monthString' : months[month - 1],
-            'dayOfMonth' : dayOfMonth,
-            'dayOfWeekNumber' : dayOfWeek,
-            'dayOfWeekString' : days[dayOfWeek - 1],
-            'hours' : hours > 12 ? hours - 12 : hours,
-            'militaryHours' : hours,
-            'minutes' : current_date.getMinutes(),
-            'seconds' : current_date.getSeconds(),
-            'milliseconds' : current_date.getMilliseconds(),
-            'integerValue' : date,
-            'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString()};
+    return {
+        'year' : year,
+        'monthNumber' : month,
+        'monthString' : months[month - 1],
+        'dayOfMonth' : dayOfMonth,
+        'dayOfWeekNumber' : dayOfWeek,
+        'dayOfWeekString' : days[dayOfWeek - 1],
+        'hours' : hours > 12 ? hours - 12 : hours,
+        'militaryHours' : hours,
+        'minutes' : current_date.getMinutes(),
+        'seconds' : current_date.getSeconds(),
+        'milliseconds' : current_date.getMilliseconds(),
+        'integerValue' : date,
+        'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString()
+    };
 }
