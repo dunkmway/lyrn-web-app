@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TESTING</title>
-  <link href="" rel="stylesheet">
+  <link href="student-info-test.css" rel="stylesheet">
   </link>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0"></script>
@@ -21,6 +21,26 @@
 
 
 <body>
+  <div class="flex-row">
+    <h1 id="student-name"></h1>
+    <div class="flex-row">
+      <div class="score-box">
+        <p id="composite-score">TEST</p>
+      </div>
+      <div class="score-box">
+        <p id="english-score">TEST</p>
+      </div>
+      <div class="score-box">
+        <p id="math-score">TEST</p>
+      </div>
+      <div class="score-box">
+        <p id="reading-score">TEST</p>
+      </div>
+      <div class="score-box">
+        <p id="science-score">TEST</p>
+      </div>
+    </div>
+  </div>
   <canvas id="hw-canvas"></canvas>
   <button onclick="setSessionAxis()">Sessions</button>
   <button onclick="setHourAxis()">Hours</button>

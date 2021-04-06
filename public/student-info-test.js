@@ -1,11 +1,14 @@
 let currentStudent = "";
 let currentTutor = "";
 
+let studentProfile = {};
 let hwData = {};
 let sessionData = {};
 
 let sessionDates = [];
 let hoursArray = [];
+
+let sessionDateStr = [];
 
 let englishScores = {};
 let mathScores = {};
@@ -47,6 +50,9 @@ function main() {
     console.log(hwData);
     console.log(sessionData);
     console.log(sessionDates);
+    console.log(studentProfile);
+
+    setProfileData();
 
     hwChart = setHomeworkChart();
   })
@@ -58,17 +64,29 @@ function initialSetup() {
   console.log(currentStudent);
 
   if (currentStudent) {
+    let profileProm = getProfileData(currentStudent)
+    .then((doc) => storeProfileData(doc))
+
     let hwSetupProm = getHomeworkData(currentStudent)
     .then((doc) => storeHomeworkData(doc))
 
     let sessionSetupProm = getSessionData(currentStudent)
     .then((doc) => storeSessionData(doc))
 
-    let promises = [hwSetupProm, sessionSetupProm];
+    let promises = [profileProm, hwSetupProm, sessionSetupProm];
     return Promise.all(promises);
   }
 
   return Promise.reject("No student is selected");
+}
+
+function getProfileData(studentUID) {
+  const profileDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  return profileDocRef.get();
+}
+
+function storeProfileData(doc) {
+  studentProfile = doc.data();
 }
 
 function getHomeworkData(studentUID) {
@@ -84,24 +102,25 @@ function storeHomeworkData(doc) {
     for (const section in hwData[test]) {
       if (hwData[test][section]['TestType'] == 'homework' && hwData[test][section]['ScaledScore']) {
         
-        let date = new Date(hwData[test][section]['Date']);
-        const day = date.getDate()
-        const month = date.getMonth()+1;
-        const year = date.getFullYear()
-        const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
+        let date = hwData[test][section]['Date'];
+        // let date = new Date(hwData[test][section]['Date']);
+        // const day = date.getDate()
+        // const month = date.getMonth()+1;
+        // const year = date.getFullYear()
+        // const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
 
         switch (section) {
           case "English":
-            englishScores[dateStr] = hwData[test][section]['ScaledScore'];
+            englishScores[date] = hwData[test][section]['ScaledScore'];
             break;
           case "Math":
-            mathScores[dateStr] = hwData[test][section]['ScaledScore'];
+            mathScores[date] = hwData[test][section]['ScaledScore'];
             break;
           case "Reading":
-            readingScores[dateStr] = hwData[test][section]['ScaledScore'];
+            readingScores[date] = hwData[test][section]['ScaledScore'];
             break;
           case "Science":
-            scienceScores[dateStr] = hwData[test][section]['ScaledScore'];
+            scienceScores[date] = hwData[test][section]['ScaledScore'];
             break;
           default:
             console.log("We have a test with a section that doesn't match!!!")
@@ -143,21 +162,21 @@ function storeSessionData(doc) {
       const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
       if (tempDateArray.indexOf(dateStr) == -1) {
         tempDateArray.push(dateStr);
-        sessionDates.push(date);
+        sessionDates.push(numTime);
 
         for (let section in sessionData[time]["sections"]) {
           switch (section) {
             case "English":
-              englishHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              englishHours[numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Math":
-              mathHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              mathHours[numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Reading":
-              readingHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              readingHours[numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Science":
-              scienceHours[dateStr] = sessionData[time]["sections"][section]['time'];
+              scienceHours[numTime] = sessionData[time]["sections"][section]['time'];
               break;
             default:
               console.log("We have a session with a section that doesn't match!!!")
@@ -169,15 +188,15 @@ function storeSessionData(doc) {
   //sort from lowest to highest
   sessionDates.sort(function(a, b){return a - b});
 
-  //set the sessionDate array
-  for (let i = 0; i < sessionDates.length; i++) {
-    const date = new Date(sessionDates[i]);
-    const day = date.getDate();
-    const month = date.getMonth()+1;
-    const year = date.getFullYear();
-    const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
-    sessionDates[i] = dateStr;
-  }
+  // //set the sessionDate array
+  // for (let i = 0; i < sessionDates.length; i++) {
+  //   const date = new Date(sessionDates[i]);
+  //   const day = date.getDate();
+  //   const month = date.getMonth()+1;
+  //   const year = date.getFullYear();
+  //   const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
+  //   sessionDates[i] = dateStr;
+  // }
 
   console.log("englishHours",englishHours);
   console.log(mathHours);
@@ -185,11 +204,23 @@ function storeSessionData(doc) {
   console.log(scienceHours);
 }
 
+function setProfileData() {
+  document.getElementById('student-name').textContent = studentProfile["studentFirstName"] + " " + studentProfile["studentLastName"];
+  const currentEnglishScore = latestScore(englishScores);
+  const currentMathScore = latestScore(mathScores);
+  const currentReadingScore = latestScore(readingScores);
+  const currentScienceScore = latestScore(scienceScores);
+  const currentCompositeScore = roundedAvg([currentEnglishScore, currentMathScore, currentReadingScore, currentScienceScore]);
+
+  document.getElementById('composite-score').textContent = currentCompositeScore;
+  document.getElementById('english-score').textContent = currentEnglishScore;
+  document.getElementById('math-score').textContent = currentMathScore;
+  document.getElementById('reading-score').textContent = currentReadingScore;
+  document.getElementById('science-score').textContent = currentScienceScore;
+}
+
 function setHomeworkChart() {
   //set up arrays for each test type
-
-  console.log(englishScores);
-
 
   for (let i = 0; i < sessionDates.length; i++) {
     englishTestArray.push(englishScores[sessionDates[i]]);
@@ -209,42 +240,6 @@ function setHomeworkChart() {
   for (let i = minMax['min']; i <= minMax['max']; i+=5) {
     hoursArray.push(i);
   }
-
-  // for (let i = 0; i < hoursArray.length; i++) {
-  //   let englishIndex = (englishHoursArray.runningTotal()).findIndex(element => element == hoursArray[i]);
-  //   console.log("Found ", hoursArray[i], " at index ", englishIndex, " which is ", englishHoursArray.runningTotal()[englishIndex], " with score ", englishTestArray[englishIndex]);
-  //   if (englishIndex != -1) {
-  //     englishHoursScores.push(englishTestArray[englishIndex]);
-  //   }
-  //   else {
-  //     englishHoursScores.push(null);
-  //   }
-
-  //   let mathIndex = mathHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
-  //   if (mathIndex != -1) {
-  //     mathHoursScores.push(mathTestArray[mathIndex]);
-  //   }
-  //   else {
-  //     mathHoursScores.push(null);
-  //   }
-
-  //   let readingIndex = readingHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
-  //   if (readingIndex != -1) {
-  //     readingHoursScores.push(readingTestArray[englishIndex]);
-  //   }
-  //   else {
-  //     readingHoursScores.push(null);
-  //   }
-
-  //   let scienceIndex = scienceHoursArray.runningTotal().findIndex(element => element == hoursArray[i]);
-  //   if (scienceIndex != -1) {
-  //     scienceHoursScores.push(scienceTestArray[englishIndex]);
-  //   }
-  //   else {
-  //     scienceHoursScores.push(null);
-  //   }
-    
-  // }
 
   for (let i = 0; i < englishTestArray.length; i++) {
     if (englishTestArray[i]) {
@@ -279,6 +274,16 @@ function setHomeworkChart() {
     scienceHoursScoresArray.push(scienceHoursScores[hoursArray[i]]);
   }
 
+  //set the sessionDate array in mm/dd/yyyy format
+  for (let i = 0; i < sessionDates.length; i++) {
+    const date = new Date(sessionDates[i]);
+    const day = date.getDate();
+    const month = date.getMonth()+1;
+    const year = date.getFullYear();
+    const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
+    sessionDateStr.push(dateStr);
+  }
+
   var ctxHW = document.getElementById("hw-canvas");
   return new Chart(ctxHW, {
     // The type of chart we want to create
@@ -286,8 +291,7 @@ function setHomeworkChart() {
 
     // The data for our dataset
     data: {
-      // labels: sessionDates,
-      labels: hoursArray,
+      labels: sessionDateStr,
       datasets: [
         {
           label: "English",
@@ -297,8 +301,7 @@ function setHomeworkChart() {
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          //data: englishTestArray,
-          data: englishHoursScoresArray
+          data: englishTestArray,
         },
         {
           label: "Math",
@@ -308,8 +311,7 @@ function setHomeworkChart() {
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          //data: mathTestArray,
-          data: mathHoursScoresArray
+          data: mathTestArray,
         },
         {
           label: "Reading",
@@ -319,8 +321,7 @@ function setHomeworkChart() {
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          //data: readingTestArray,
-          data: readingHoursScoresArray
+          data: readingTestArray,
         },
         {
           label: "Science",
@@ -330,14 +331,14 @@ function setHomeworkChart() {
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          //data: scienceTestArray,
-          data: scienceHoursScoresArray
+          data: scienceTestArray,
         }
       ]
     },
 
     // Configuration options go here
     options: {
+      optimalLine: true,
       responsive: true,
       spanGaps: true,
       scales: {
@@ -361,6 +362,12 @@ function setHomeworkChart() {
             top: 50,
             bottom: 50
         }
+      },
+      plugins: {
+        averagePerHour: {
+          test1: "test1",
+          test2: "test2"
+        }
       }
     }
   });
@@ -376,14 +383,6 @@ function queryStrings() {
   });
 
   return GET;
-}
-
-function filterInt(value) {
-  if (/^[-+]?(\d+|Infinity)$/.test(value)) {
-    return Number(value)
-  } else {
-    return NaN
-  }
 }
 
 Array.prototype.runningTotal = function() {
@@ -419,9 +418,28 @@ function getMinAndMax(arrays) {
   return {min: min, max: max};
 }
 
+function latestScore(scoreObject) {
+  let dates = [];
+  for (const dateTime in scoreObject) {
+    dates.push(parseInt(dateTime));
+  }
+
+  dates.sort((a,b) => {return a - b});
+
+  return scoreObject[dates[dates.length - 1].toString()];
+}
+
+function roundedAvg(values) {
+  let total = 0;
+  for (let i = 0; i < values.length; i++) {
+    total += values[i];
+  }
+  return Math.round(total / values.length);
+}
+
 function setSessionAxis() {
   datasets = [englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
-  hwChart.data.labels = sessionDates;
+  hwChart.data.labels = sessionDateStr;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
   });
@@ -436,5 +454,33 @@ function setHourAxis() {
   });
   hwChart.update('none');
 }
+
+const plugin = {
+  id: "averagePerHour",
+  afterDatasetDraw: function(chart, args, options) {
+    var ctxPlugin = chart.ctx;
+    var xAxis = chart.scales['x'];
+    var yAxis = chart.scales['yAxes'];
+    
+    ctxPlugin.strokeStyle = '#a9a9a9';
+    ctxPlugin.beginPath();
+    ctxPlugin.moveTo(xAxis.left, yAxis.bottom);
+    ctxPlugin.lineTo(xAxis.right, yAxis.top);
+    ctxPlugin.stroke();
+
+    ctxPlugin.save();
+    ctxPlugin.translate(xAxis.right - 150,yAxis.top + 75);
+    var rotation = Math.atan((yAxis.top - yAxis.bottom) / (xAxis.right - xAxis.left))
+    ctxPlugin.rotate(rotation);
+
+    var diagonalText = 'FIXME: not optimal!';
+    ctxPlugin.font = "16px Arial";
+    ctxPlugin.fillStyle = "#a9a9a9";
+    ctxPlugin.fillText(diagonalText, 0, 0);
+    ctxPlugin.restore();
+  }
+}
+
+Chart.register(plugin);
 
 main();
