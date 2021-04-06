@@ -11,7 +11,7 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white'};
+let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let newStatus = undefined;
@@ -532,6 +532,9 @@ function clearInCenterFormating() {
     // Remove the 'homeworkBox' class
     test_boxes[box].classList.remove('homeworkBox');
 
+    // Remove the 'highlight' class
+    test_boxes[box].classList.remove('highlight');
+
     // Reset the innerHTML text
     test_boxes[box].innerHTML = "";
   }
@@ -607,8 +610,9 @@ function updateHomeworkTest(testBox, test, section) {
       testBox.classList.add("homeworkBox");
     }
     else {
-      testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? "";
-      console.log(convertFromDateInt(testAnswers[test]?.[section]?.['Date']))
+      //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
+      // Adding 8 hours to show the number of days since it was assigned / not finished
+      testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
     }
   }
 }
@@ -628,17 +632,31 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
   // Set the status and testType in the testAnswers
   let current_status = testAnswers[test]?.[section]?.['Status']
 
-  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') && (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
+  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') &&
+      (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
+    // Didn't mean to assign the homework, undo it
     if (current_status == 'assigned' && status == 'assigned') {
       delete testAnswers[test][section];
       if (Object.keys(testAnswers[test]).length == 0) {
         delete testAnswers[test]
       }
     }
-    else {
+    // Set the homework to 'assigned'
+    else if (status == 'assigned' && current_status == undefined) {
       setObjectValue([test, section, "Status"], status, testAnswers)
       setObjectValue([test, section, "TestType"], 'homework', testAnswers)
       setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+    }
+    // homework is being reassigned
+    else if (status == 'assigned' && current_status == 'did not do') {
+      setObjectValue([test, section, "Status"], 'reassigned', testAnswers)
+      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+    }
+    // homework was either left at home ('forgot') or they didn't do it
+    else if (current_status != undefined && status != 'assigned') {
+      setObjectValue([test, section, "Status"], status, testAnswers)
+      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
     }
   }
   else {
@@ -673,8 +691,17 @@ function updatePopupGraphics(id, test, section, passageNumber) {
     }
   }
 
-  // This is all that needs done
+  // This is all that needs to be done
   if (id == 'homeworkPopup') {
+    // highlight the box
+    let searchText = "div[data-test^=\"" + test + "\"]"
+    let testBoxes = document.querySelectorAll(searchText)
+    for (let box = 0; box < testBoxes.length; box++) {
+      if (testBoxes[box].getAttribute("data-section") == section) {
+        testBoxes[box].classList.add("highlight")
+      }
+    }
+
     return;
   }
 
@@ -845,6 +872,12 @@ function removeAnswers() {
 
   timeMinutes.value = "0"
   timeSeconds.value = "0"
+
+  // Remove the 'highlight' class
+  let test_boxes = document.querySelectorAll("div[data-section]")
+  for (let box = 0; box < test_boxes.length; box++) {
+    test_boxes[box].classList.remove('highlight');
+  }
 }
 
 function removeTest() {
@@ -1163,46 +1196,4 @@ function getArrayIndex(value, arr) {
   }
 
   return -1;
-}
-
-function assignHomework(element) {
-  let test = element.getAttribute("data-test")
-  let section = element.getAttribute("data-section")
-
-  let status = testAnswers[test]?.[section]?.['Status']
-  console.log("status:", status)
-
-  switch (status) {
-    case "in-time":
-      break;
-    case "over-time":
-      break;
-    case "not-timed":
-      break;
-    case "partial":
-      break;
-    case "in-center":
-      break;
-    case "forgot":
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-    case "did not do":
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-    case "assigned":
-      delete testAnswers[test][section];
-      if (Object.keys(testAnswers[test]).length == 0) {
-        delete testAnswers[test]
-      }
-      break;
-    default:
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-  }
-  
-  console.log(lastView)
-  openForm(lastView)
 }

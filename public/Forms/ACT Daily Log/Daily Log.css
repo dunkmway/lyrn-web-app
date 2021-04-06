@@ -771,6 +771,16 @@ p.errorMessage {
     justify-content: space-around;
     text-align: center;
 }
+
+.smallerText {
+    font-size: 10px;
+}
+
+.highlight {
+    border-style: solid;
+    border-color: aqua;
+    border-width: 2px;
+}
   
 @keyframes spin {
     0% { transform: rotate(0deg); }
