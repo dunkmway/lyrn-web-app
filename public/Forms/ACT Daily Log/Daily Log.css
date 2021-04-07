@@ -233,7 +233,7 @@ form {
 }
 
 #dailyLog {
-    --display: none;
+    display: none;
     z-index: 2;
 }
 
@@ -806,7 +806,6 @@ p.errorMessage {
     transition: 0.3s;
     padding: 20px 0px 20px 30px;
     width: 100px;
-    text-decoration: none;
     font-size: 20px;
     color: white;
     border-radius: 5px 0px 0px 5px;

@@ -41,3 +41,5 @@ function convertFromDateInt(date) {
         'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString()
     };
 }
+
+console.log(convertFromDateInt(1617756767431))
