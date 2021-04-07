@@ -9,4 +9,32 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
+  color: white;
+  font-size: 24px;
+}
+
+.composite {
+  background-color: black;
+}
+
+.english {
+  background-color: red;
+}
+
+.math {
+  background-color: blue;
+}
+
+.reading {
+  background-color: green;
+}
+
+.science {
+  background-color: yellow;
+  
+}
+
+p {
+  margin: 0;
+  padding: 0;
 }

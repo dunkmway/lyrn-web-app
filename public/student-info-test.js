@@ -10,31 +10,37 @@ let hoursArray = [];
 
 let sessionDateStr = [];
 
+let compositeScores = {};
 let englishScores = {};
 let mathScores = {};
 let readingScores = {};
 let scienceScores = {};
 
+let compositeHours = {};
 let englishHours = {};
 let mathHours = {};
 let readingHours = {};
 let scienceHours = {};
 
+let compositeTestArray = [];
 let englishTestArray = [];
 let mathTestArray = [];
 let readingTestArray = [];
 let scienceTestArray = [];
 
+let compositeHoursArray = [];
 let englishHoursArray = [];
 let mathHoursArray = [];
 let readingHoursArray = [];
 let scienceHoursArray = [];
 
+let compositeHoursScores = {};
 let englishHoursScores = {};
 let mathHoursScores = {};
 let readingHoursScores = {};
 let scienceHoursScores = {};
 
+let compositeHoursScoresArray = [];
 let englishHoursScoresArray = [];
 let mathHoursScoresArray = [];
 let readingHoursScoresArray = [];
@@ -44,13 +50,12 @@ var hwChart;
 
 
 function main() {
-  console.log("In main()");
   initialSetup()
   .then(() => {
-    console.log(hwData);
-    console.log(sessionData);
-    console.log(sessionDates);
-    console.log(studentProfile);
+    console.log("hwData", hwData);
+    console.log("sessionData", sessionData);
+    console.log("sessionDates", sessionDates);
+    console.log("studentProfile", studentProfile);
 
     setProfileData();
 
@@ -59,9 +64,8 @@ function main() {
 }
 
 function initialSetup() {
-  console.log("In initialSetup()");
   currentStudent = queryStrings()["student"];
-  console.log(currentStudent);
+  console.log("currentStudent", currentStudent);
 
   if (currentStudent) {
     let profileProm = getProfileData(currentStudent)
@@ -90,13 +94,11 @@ function storeProfileData(doc) {
 }
 
 function getHomeworkData(studentUID) {
-  console.log("Getting hw data");
   const hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
   return hwDocRef.get();
 }
 
 function storeHomeworkData(doc) {
-  console.log("Storing hw data");
   hwData = doc.data();
   for (const test in hwData) {
     for (const section in hwData[test]) {
@@ -132,21 +134,20 @@ function storeHomeworkData(doc) {
   // mathScores.sort((a,b) => sortHomeworkScores(a,b));
   // readingScores.sort((a,b) => sortHomeworkScores(a,b));
   // scienceScores.sort((a,b) => sortHomeworkScores(a,b));
-  console.log(englishScores);
-  console.log(mathScores);
-  console.log(readingScores);
-  console.log(scienceScores);
+  console.log("englishScores", englishScores);
+  console.log("mathScores", mathScores);
+  console.log("readingScores", readingScores);
+  console.log("scienceScores", scienceScores);
+
   return Promise.resolve("hw data stored!");
 }
 
 function getSessionData(studentUID) {
-  console.log("Getting session data");
   const sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("sessions");
   return sessionDocRef.get();
 }
 
 function storeSessionData(doc) {
-  console.log("Storing session data");
   sessionData = doc.data();
   //allows for checking repeat dates
   let tempDateArray = [];
@@ -199,9 +200,14 @@ function storeSessionData(doc) {
   // }
 
   console.log("englishHours",englishHours);
-  console.log(mathHours);
-  console.log(readingHours);
-  console.log(scienceHours);
+  console.log("mathHours", mathHours);
+  console.log("readingHours", readingHours);
+  console.log("scienceHours", scienceHours);
+
+  for (let i = 0; i < sessionDates.length; i++) {
+    compositeHours[sessionDates[i]] = (englishHours[sessionDates[i]] ?? 0) + (mathHours[sessionDates[i]] ?? 0) + (readingHours[sessionDates[i]] ?? 0) + (scienceHours[sessionDates[i]] ?? 0);
+  }
+  console.log("compositeHours", compositeHours)
 }
 
 function setProfileData() {
@@ -212,11 +218,11 @@ function setProfileData() {
   const currentScienceScore = latestScore(scienceScores);
   const currentCompositeScore = roundedAvg([currentEnglishScore, currentMathScore, currentReadingScore, currentScienceScore]);
 
-  document.getElementById('composite-score').textContent = currentCompositeScore;
-  document.getElementById('english-score').textContent = currentEnglishScore;
-  document.getElementById('math-score').textContent = currentMathScore;
-  document.getElementById('reading-score').textContent = currentReadingScore;
-  document.getElementById('science-score').textContent = currentScienceScore;
+  document.getElementById('composite-score').textContent = currentCompositeScore ?? "";
+  document.getElementById('english-score').textContent = currentEnglishScore ?? "";
+  document.getElementById('math-score').textContent = currentMathScore ?? "";
+  document.getElementById('reading-score').textContent = currentReadingScore ?? "";
+  document.getElementById('science-score').textContent = currentScienceScore ?? "";
 }
 
 function setHomeworkChart() {
@@ -228,19 +234,31 @@ function setHomeworkChart() {
     readingTestArray.push(readingScores[sessionDates[i]]);
     scienceTestArray.push(scienceScores[sessionDates[i]]);
 
+    let scores = [lastScore(englishScores, sessionDates[i]) ?? null, lastScore(mathScores, sessionDates[i]) ?? null, lastScore(readingScores, sessionDates[i]) ?? null, lastScore(scienceScores, sessionDates[i]) ?? null]
+    compositeScores[sessionDates[i]] = roundedAvg(scores);
+    compositeTestArray.push(roundedAvg(scores));
+
+    compositeHoursArray.push(compositeHours[sessionDates[i]]);
     englishHoursArray.push(englishHours[sessionDates[i]]);
     mathHoursArray.push(mathHours[sessionDates[i]]);
     readingHoursArray.push(readingHours[sessionDates[i]]);
     scienceHoursArray.push(scienceHours[sessionDates[i]]);
   }
 
-  let allHours = [englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
+  console.log("compositeScores", compositeScores);
+
+  let allHours = [/*compositeHoursArray.runningTotal(), */englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
   let minMax = getMinAndMax(allHours);
 
   for (let i = minMax['min']; i <= minMax['max']; i+=5) {
     hoursArray.push(i);
   }
 
+  for (let i = 0; i < compositeTestArray.length; i++) {
+    if (compositeTestArray[i]) {
+      compositeHoursScores[`${compositeHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = compositeTestArray[i];
+    }
+  }
   for (let i = 0; i < englishTestArray.length; i++) {
     if (englishTestArray[i]) {
       englishHoursScores[`${englishHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = englishTestArray[i];
@@ -262,12 +280,14 @@ function setHomeworkChart() {
     }
   }
 
-  console.log(englishHoursScores);
-  console.log(mathHoursScores);
-  console.log(readingHoursScores);
-  console.log(scienceHoursScores);
+  console.log("compositeHoursScores", compositeHoursScores);
+  console.log("englishHoursScores", englishHoursScores);
+  console.log("mathHoursScores", mathHoursScores);
+  console.log("readingHoursScores", readingHoursScores);
+  console.log("scienceHoursScores", scienceHoursScores);
 
   for (let i = 0; i < hoursArray.length; i++) {
+    compositeHoursScoresArray.push(compositeHoursScores[hoursArray[i]]);
     englishHoursScoresArray.push(englishHoursScores[hoursArray[i]]);
     mathHoursScoresArray.push(mathHoursScores[hoursArray[i]]);
     readingHoursScoresArray.push(readingHoursScores[hoursArray[i]]);
@@ -293,6 +313,16 @@ function setHomeworkChart() {
     data: {
       labels: sessionDateStr,
       datasets: [
+        {
+          label: "Composite",
+          backgroundColor: "black",
+          borderColor: "black",
+          fill: false,
+          stepped: true,
+          pointRadius: 5,
+          pointHoverRadius: 10,
+          data: compositeTestArray,
+        },
         {
           label: "English",
           backgroundColor: "red",
@@ -338,15 +368,14 @@ function setHomeworkChart() {
 
     // Configuration options go here
     options: {
-      optimalLine: true,
       responsive: true,
       spanGaps: true,
       scales: {
-        yAxes: [{
-            ticks: {
-                stepSize: 1
-            }
-        }],
+        y: {
+          ticks: {
+            stepSize: 1
+          }
+        },
       },
       tooltips: {
         //intersect: false,
@@ -367,6 +396,11 @@ function setHomeworkChart() {
         averagePerHour: {
           test1: "test1",
           test2: "test2"
+        },
+        legend: {
+          onclick: function(arg) {
+            console.log(arg)
+          }
         }
       }
     }
@@ -423,22 +457,44 @@ function latestScore(scoreObject) {
   for (const dateTime in scoreObject) {
     dates.push(parseInt(dateTime));
   }
+  if (dates.length < 1) {
+    return null;
+  }
 
   dates.sort((a,b) => {return a - b});
 
   return scoreObject[dates[dates.length - 1].toString()];
 }
 
-function roundedAvg(values) {
-  let total = 0;
-  for (let i = 0; i < values.length; i++) {
-    total += values[i];
+function lastScore(scoreObject, dateTime) {
+  let lastTime = dateTime;
+  let smallestDiff = Infinity;
+  for (const date in scoreObject) {
+    let diff = parseInt(dateTime) - parseInt(date);
+    if (diff > 0 && diff < smallestDiff) {
+      smallestDiff = diff;
+      lastTime = date;
+    }
   }
-  return Math.round(total / values.length);
+
+  return scoreObject[lastTime];
+}
+
+function roundedAvg(values) {
+  let array = values.filter(element => element);
+  if (array.length == 0) {
+    return null;
+  }
+
+  let total = 0;
+  for (let i = 0; i < array.length; i++) {
+    total += array[i];
+  }
+  return Math.round(total / array.length);
 }
 
 function setSessionAxis() {
-  datasets = [englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
+  datasets = [compositeTestArray, englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
   hwChart.data.labels = sessionDateStr;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
@@ -447,7 +503,7 @@ function setSessionAxis() {
 }
 
 function setHourAxis() {
-  datasets = [englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
+  datasets = [/*compositeHoursScoresArray, */englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
   hwChart.data.labels = hoursArray;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
@@ -460,7 +516,7 @@ const plugin = {
   afterDatasetDraw: function(chart, args, options) {
     var ctxPlugin = chart.ctx;
     var xAxis = chart.scales['x'];
-    var yAxis = chart.scales['yAxes'];
+    var yAxis = chart.scales['y'];
     
     ctxPlugin.strokeStyle = '#a9a9a9';
     ctxPlugin.beginPath();
