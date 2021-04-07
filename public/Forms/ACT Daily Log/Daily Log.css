@@ -4,6 +4,8 @@ body {
     background-repeat: no-repeat;
     background-color: black;
     font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 .green {

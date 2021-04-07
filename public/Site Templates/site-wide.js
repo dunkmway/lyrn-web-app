@@ -122,7 +122,7 @@ firebase.auth().onAuthStateChanged((user) => {
         }
         
     }
-    
+    clearLoadingScreen();
 })
 
 function signOut() {
@@ -136,4 +136,10 @@ function signOut() {
             // An error happened.
         });
     }
+}
+
+function clearLoadingScreen() {
+    if (document.getElementById("loading-screen")) {
+        document.getElementById("loading-screen").style.display = "none";
+    }   
 }
