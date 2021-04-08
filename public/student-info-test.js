@@ -503,8 +503,19 @@ function setSessionAxis() {
 }
 
 function setHourAxis() {
-  let datasets = [compositeHoursScoresArray, englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
-  hwChart.data.labels = hoursArray;
+  let datasets = [/*compositeHoursScoresArray*/[], englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
+  let datasetHours = [/*compositeHoursArray.runningTotal()*/[], englishHoursArray.runningTotal().slice(0, -1), mathHoursArray.runningTotal().slice(0, -1), readingHoursArray.runningTotal().slice(0, -1), scienceHoursArray.runningTotal().slice(0, -1)];
+  console.log(datasetHours)
+  let minMax = getMinAndMax(datasetHours);
+  let hours = [];
+
+  for (let i = minMax['min']; i <= minMax['max']; i+=5) {
+    hours.push(i);
+  }
+
+  console.log(hours);
+
+  hwChart.data.labels = hours;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
   });
