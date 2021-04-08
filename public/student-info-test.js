@@ -315,8 +315,8 @@ function setHomeworkChart() {
       datasets: [
         {
           label: "Composite",
-          backgroundColor: "black",
-          borderColor: "black",
+          backgroundColor: "#595959",
+          borderColor: "#595959",
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -325,8 +325,8 @@ function setHomeworkChart() {
         },
         {
           label: "English",
-          backgroundColor: "red",
-          borderColor: "red",
+          backgroundColor: "#4848FF",
+          borderColor: "#4848FF",
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -335,8 +335,8 @@ function setHomeworkChart() {
         },
         {
           label: "Math",
-          backgroundColor: "blue",
-          borderColor: "blue",
+          backgroundColor: "#FF48A3",
+          borderColor: "#FF48A3",
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -345,8 +345,8 @@ function setHomeworkChart() {
         },
         {
           label: "Reading",
-          backgroundColor: "green",
-          borderColor: "green",
+          backgroundColor: "#FFFF48",
+          borderColor: "#FFFF48",
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -355,8 +355,8 @@ function setHomeworkChart() {
         },
         {
           label: "Science",
-          backgroundColor: "yellow",
-          borderColor: "yellow",
+          backgroundColor: "#48FFA3",
+          borderColor: "#48FFA3",
           fill: false,
           stepped: true,
           pointRadius: 5,
