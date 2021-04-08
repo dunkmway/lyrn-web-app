@@ -49,12 +49,12 @@ function goToInquiry() {
   window.location.href = "../inquiry.html";
 }
 
-function popUpTutor() {
-  document.getElementById("add-tutor-section").style.display = "flex";
+function popUpUser(user) {
+  document.getElementById("add-" + user + "-section").style.display = "flex";
 }
 
-function closeTutor(submitted = false) {
-  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input, select");
+function closeUser(user, submitted = false) {
+  let allInputs = document.getElementById("add-" + user + "-section").querySelectorAll("input, select");
   let allClear = true;
   for(let i = 0; i < allInputs.length; i++) {
     if (allInputs[i].value != "") {
@@ -64,12 +64,12 @@ function closeTutor(submitted = false) {
   }
 
   if (!allClear && !submitted) {
-    let confirmation = confirm("This tutor has not been saved.\nAre you sure you want to go back?");
+    let confirmation = confirm("This " + user + " has not been saved.\nAre you sure you want to go back?");
     if (confirmation) {
       for(let i = 0; i < allInputs.length; i++) {
         allInputs[i].value = "";
       }
-      document.getElementById("add-tutor-section").style.display = "none";
+      document.getElementById("add-" + user + "-section").style.display = "none";
       let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
       for (let err = errorMessages.length - 1; err >= 0; err--) {
@@ -81,7 +81,7 @@ function closeTutor(submitted = false) {
     for(let i = 0; i < allInputs.length; i++) {
       allInputs[i].value = "";
     }
-    document.getElementById("add-tutor-section").style.display = "none";
+    document.getElementById("add-" + user + "-section").style.display = "none";
     let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
     for (let err = errorMessages.length - 1; err >= 0; err--) {
@@ -91,7 +91,7 @@ function closeTutor(submitted = false) {
 }
 
 function createTutor() {
-  document.getElementById("spinnyBoi").style.display = "block";
+  document.getElementById("spinnyBoiTutor").style.display = "block";
   let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input, select");
   if (validateFields(allInputs)) {
     console.log("all clear");
@@ -126,21 +126,21 @@ function createTutor() {
         .then((result) => {
           console.log("tutor document successfully written!");
           console.log(result);
-          document.getElementById("spinnyBoi").style.display = "none";
-          closeTutor(true);
+          document.getElementById("spinnyBoiTutor").style.display = "none";
+          closeUser("tutor", true);
         })
         .catch((error) => {
           console.log(error);
           console.log(error.code);
           console.log(error.message);
           document.getElementById("errMsg").textContent = error.message;
-          document.getElementById("spinnyBoi").style.display = "none";
+          document.getElementById("spinnyBoiTutor").style.display = "none";
           console.log(error.details);
         });
       }
       else {
         document.getElementById("errMsg").textContent = "This tutor already exists!";
-        document.getElementById("spinnyBoi").style.display = "none";
+        document.getElementById("spinnyBoiTutor").style.display = "none";
       }
     })
     .catch((error) => {
@@ -148,13 +148,81 @@ function createTutor() {
       console.log(error.code);
       console.log(error.message);
       document.getElementById("errMsg").textContent = error.message;
-      document.getElementById("spinnyBoi").style.display = "none";
+      document.getElementById("spinnyBoiTutor").style.display = "none";
       console.log(error.details);
     })
   }
   else {
     console.log("not done yet!!!");
-    document.getElementById("spinnyBoi").style.display = "none";
+    document.getElementById("spinnyBoiTutor").style.display = "none";
+  }
+}
+
+function createSecretary() {
+  document.getElementById("spinnyBoiSecretary").style.display = "block";
+  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input, select");
+  if (validateFields(allInputs)) {
+    console.log("all clear");
+    let allInputValues = {};
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputValues[allInputs[i].id] = allInputs[i].value;
+    }
+
+    console.log(allInputValues);
+
+    //create the tutor account
+    const addUser = firebase.functions().httpsCallable('addUser');
+    addUser({
+      email: allInputValues['secretaryEmail'],
+      password: "abc123",
+      role: "secretary"
+    })
+    .then((result) => {
+
+      let secretaryUID = result.data.user.uid;
+      let newUser = result.data.newUser;
+      console.log(secretaryUID);
+      console.log(newUser);
+
+      if (newUser) {
+        //set up the tutor doc
+        const secretaryDocRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
+        let secretaryDocData = {
+          ...allInputValues
+        }
+        secretaryDocRef.set(secretaryDocData)
+        .then((result) => {
+          console.log("secretary document successfully written!");
+          console.log(result);
+          document.getElementById("spinnyBoiSecretary").style.display = "none";
+          closeUser("secretary", true);
+        })
+        .catch((error) => {
+          console.log(error);
+          console.log(error.code);
+          console.log(error.message);
+          document.getElementById("errMsg").textContent = error.message;
+          document.getElementById("spinnyBoiSecretary").style.display = "none";
+          console.log(error.details);
+        });
+      }
+      else {
+        document.getElementById("errMsg").textContent = "This tutor already exists!";
+        document.getElementById("spinnyBoiSecretary").style.display = "none";
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      document.getElementById("errMsg").textContent = error.message;
+      document.getElementById("spinnyBoiSecretary").style.display = "none";
+      console.log(error.details);
+    })
+  }
+  else {
+    console.log("not done yet!!!");
+    document.getElementById("spinnyBoiSecretary").style.display = "none";
   }
 }
 

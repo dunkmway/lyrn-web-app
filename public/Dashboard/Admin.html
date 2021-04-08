@@ -22,13 +22,13 @@
     <section id="loading-screen">
       <div class="loading-ring"></div>
     </section>
-    <section id="add-tutor-section">
+    <section id="add-tutor-section" class="add-user-section">
       <div id="add-tutor-div" class="registration-block">
         <div class="heading-block">
           <h2>Add Tutor</h2>
         </div>
         <div id="form-scroll-block">
-          <div id="spinnyBoi" class="loader"></div>
+          <div id="spinnyBoiTutor" class="loader"></div>
           <form onsubmit="return false">
             <div class="input-row">
             </div>
@@ -52,7 +52,7 @@
             </div><br>
 
             <div class="input-row">
-              <button type = button id="submitBtn" class="button" onclick="closeTutor()">back</button> 
+              <button type = button id="submitBtn" class="button" onclick="closeUser('tutor')">back</button> 
               <button type = button id="submitBtn" class="button" onclick="createTutor()">submit</button>
             </div>
 
@@ -63,10 +63,61 @@
         </div>
       </div>
     </section>
+
+    <section id="add-secretary-section" class="add-user-section">
+      <div id="add-secretary-div" class="registration-block">
+        <div class="heading-block">
+          <h2>Add Secretary</h2>
+        </div>
+        <div id="form-scroll-block">
+          <div id="spinnyBoiSecretary" class="loader"></div>
+          <form onsubmit="return false">
+            <div class="input-row">
+            </div>
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="secretaryFirstName" class="label">Secretary First Name:</label>
+                  <input id="secretaryFirstName" placeholder="John" class="input" required>
+              </div>
+
+              <div class="input-block">
+                <label for="secretaryLastName" class="label">Secretary Last Name:</label>
+                <input id="secretaryLastName" placeholder="Doe" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="secretaryEmail" class="label">Secretary Email:</label>
+                  <input id="secretaryEmail" placeholder="person@gmail.com" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <button type = button id="submitBtn" class="button" onclick="closeUser('secretary')">back</button> 
+              <button type = button id="submitBtn" class="button" onclick="createSecretary()">submit</button>
+            </div>
+
+            <div class="input-row">
+              <p id="errMsg"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <section>
       <div class="header">
-        <h2 id="locationName"></h2>
+        <h1 id="locationName"></h1>
+        <button class="button" onclick="signOut()">Sign Out</button>
       </div>
+
+      <div class="flex-row align-center">
+        <button class="button" onclick="goToInquiry()">Inquiry</button>
+      <button class="button" onclick="popUpUser('tutor')">Add Tutor</button>
+      <button class="button" onclick="popUpUser('secretary')">Add Secretary</button>
+      </div>
+
       <div class="input-row">
         <div class="input-block">
           <label class="label">Pending Students</label>
@@ -82,11 +133,6 @@
           </select>
         </div>
       </div>
-
-      
-      <button class="button" onclick="goToInquiry()">Inquiry</button>
-      <button class="button" onclick="popUpTutor()">Add Tutor</button>
-      <button class="button" onclick="signOut()">Sign Out</button>
 
     </section>
   </body>
