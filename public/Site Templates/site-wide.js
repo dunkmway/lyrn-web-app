@@ -1,3 +1,6 @@
+//This file must be included on any page that uses firebase
+//or that we want restrict access to
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 var firebaseConfig = {
@@ -29,36 +32,114 @@ var errorCode = error.code;
 var errorMessage = error.message;
 });
 
-var privatePages = [
-    // "Forms/New%20Student/New%20Student%20Form",
-    // "Forms/ACT%20Daily%20Log/Daily%20Log",
-    // "inquiry",
-    // "post-sign-in"
+const publicPages = [
+    "/Sign-In/Sign-In",
+    "/index",
+    "/404"
 ]
 
-var publicPages = [
-    // "Sign-In/Sign-In"
+const studentPages = [
+    "/Dashboard/Student",
 ]
 
-firebase.auth().onAuthStateChanged(function (user) {
-    // var currentPath = window.location.pathname;
-    // console.log(currentPath);
-    // if (user) {
-    //     //User is logged in
-    //     console.log('User is logged in!');
-    //     for (let i = 0; i < publicPages.length; i++) {
-    //         if (currentPath.includes(publicPages[i])) {
-    //             window.location.replace(window.location.pathname.split("public")[0] + 'public/post-sign-in.html');
-    //         }
-    //     }
-    // }
-    // else {
-    //     //User is logged out
-    //     console.log('No user is logged in')
-    //     for (let i = 0; i < privatePages.length; i++) {
-    //         if (currentPath.includes(privatePages[i])) {
-    //             window.location.replace(window.location.pathname.split("public")[0] + 'public/Sign-In/Sign-In.html');
-    //         }
-    //     }
-    // }
+const parentPages = [
+    "/Dashboard/Parent",
+]
+
+const tutorPages = [
+    "/Dashboard/Tutor",
+    "/Forms/ACT%20Daily%20Log/Daily%20Log",
+    "/student-info-test"
+]
+
+const secrataryPages = [
+    "/Dashboard/Secratary",
+    "/inquiry"
+]
+
+const adminPages = [
+    ...secrataryPages,
+    ...tutorPages,
+    ...parentPages,
+    ...studentPages,
+    "/Dashboard/Admin",
+]
+
+
+firebase.auth().onAuthStateChanged((user) => {
+    let currentPath = location.pathname;
+    if (user) {
+        user.getIdTokenResult()
+        .then((idTokenResult) => {
+            // Confirm the user is an Admin.
+            let role = idTokenResult.claims.role;
+            console.log(currentPath);
+            console.log(role);
+
+            switch (role) {
+                case "student":
+                    if (!studentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        //access denied
+                        window.location.replace(location.origin + "/Dashboard/Student");
+                    } 
+                    break;
+                case "parent":
+                    if (!parentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        //access denied
+                        window.location.replace(location.origin + "/Dashboard/Parent");
+                    } 
+                    break;
+                case "tutor":
+                    if (!tutorPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        //access denied
+                        window.location.replace(location.origin + "/Dashboard/Tutor");
+                    } 
+                    break;
+                case "secratary":
+                    if (!secrataryPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        //access denied
+                        window.location.replace(location.origin + "/Dashboard/Secratary");
+                    } 
+                    break;
+                case "admin":
+                    if (!adminPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        //access denied
+                        window.location.replace(location.origin + "/Dashboard/Admin");
+                    } 
+                    break;
+                case "dev":
+                    //UNLIMITED POWER!!!
+                    break;
+                default:
+                    window.location.replace(location.origin + "/Sign-In/Sign-In");
+            }
+        })
+    }
+    else {
+        if (!publicPages.includes(currentPath)) {
+            //access denied
+            window.location.replace(location.origin + "/Sign-In/Sign-In");
+        }
+        
+    }
+    clearLoadingScreen();
 })
+
+function signOut() {
+    let confirmation = confirm("Are you sure you want to sign out?");
+    if (confirmation) {
+        firebase.auth().signOut()
+        .then(() => {
+            // Sign-out successful.
+        })
+        .catch((error) => {
+            // An error happened.
+        });
+    }
+}
+
+function clearLoadingScreen() {
+    if (document.getElementById("loading-screen")) {
+        document.getElementById("loading-screen").style.display = "none";
+    }   
+}

@@ -19,6 +19,7 @@ let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time'
 let date = new Date()
 
 function initialSetup() {
+  //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
   const studentUID = queryStrings()["student"];
 
   if (studentUID) {
@@ -838,8 +839,6 @@ function previousPassage(element) {
 
 function submitDailyLog() {
   document.getElementById("errMsg").textContent = "";
-  //FIXME: need to add validation here and not in the individual submits
-  //this is so that the confirmation message doesn't pop up unless everything is ready to submit
   if (validateSessionInfo() && validateHW()) {
     let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
     if (confirmation) {
@@ -935,9 +934,9 @@ function submitSessionInfo() {
     }
   }
 
-  var d = new Date();
   //FIXME: for now the time will be set to when it was submitted but once the event is on the calendar this time will be that time
-  let sessionTime = d.getTime();
+  //This is handled above by the sessionTime global variable in initialSetup()
+  let sessionTimeNum = date.getTime();
   let currentUser = firebase.auth().currentUser;
   if (currentUser) {
     let tutor = currentUser.uid;
@@ -955,7 +954,7 @@ function submitSessionInfo() {
         if (doc.exists) {
           //doc exists - update the doc
           return sessionDocRef.update({
-            [`${sessionTime.toString()}`]: sessionInfo,
+            [`${sessionTimeNum.toString()}`]: sessionInfo,
             // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
             // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
             // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
@@ -966,7 +965,7 @@ function submitSessionInfo() {
         else {
           //doc does not exist - set the doc
           return sessionDocRef.set({
-            [`${sessionTime.toString()}`]: sessionInfo,
+            [`${sessionTimeNum.toString()}`]: sessionInfo,
             // englishTotalTime: sectionInfo.English?.time ?? 0,
             // mathTotalTime: sectionInfo.Math?.time ?? 0,
             // readingTotalTime: sectionInfo.Reading?.time ?? 0,
@@ -1026,6 +1025,7 @@ function submitHW() {
 }
 
 function validateHW() {
+  //FIXME: check for hw not done and add to object
   //find all of the hw that was assigned last session and check if it's status has changed
   for (const test in oldTestAnswers) {
     for (const section in oldTestAnswers[test]) {
