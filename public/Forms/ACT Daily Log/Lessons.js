@@ -63,7 +63,6 @@ function updateLessonData() {
   const lesson = this.id.split("-")[1];
 
   let value = {};
-  let date = sessionTime;
   const lessonStatus = lessonData[section]?.[lesson]?.status
   switch (lessonStatus) {
     case "needs review":
@@ -99,7 +98,7 @@ function updateLessonGraphics() {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
       const status = lessonData[section][lesson].status;
-      const date = lessonData[section][lesson].date ? sessionTime : null
+      const dateTime = lessonData[section][lesson].date ? date : null
 
       const lessonElem = document.getElementById(id);
 
@@ -117,10 +116,10 @@ function updateLessonGraphics() {
           lessonElem.style.backgroundColor = null;
       }
 
-      if (date) {
-        const day = date.getDate()
-        const month = date.getMonth()+1;
-        const year = date.getFullYear()
+      if (dateTime) {
+        const day = dateTime.getDate()
+        const month = dateTime.getMonth()+1;
+        const year = dateTime.getFullYear()
         const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
         lessonElem.innerHTML = dateStr;
       }
