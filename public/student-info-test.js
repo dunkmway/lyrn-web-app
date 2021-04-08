@@ -150,7 +150,7 @@ function getSessionData(studentUID) {
 function storeSessionData(doc) {
   sessionData = doc.data();
   //allows for checking repeat dates
-  let tempDateArray = [];
+  //let tempDateArray = [];
   for (let time in sessionData) {
     let numTime = parseInt(time);
     //FIXME: This will not take any keys that are not numbers. This will change in the firestore doc to be only
@@ -161,8 +161,8 @@ function storeSessionData(doc) {
       const month = date.getMonth()+1;
       const year = date.getFullYear();
       const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
-      if (tempDateArray.indexOf(dateStr) == -1) {
-        tempDateArray.push(dateStr);
+      //if (tempDateArray.indexOf(dateStr) == -1) {
+        //tempDateArray.push(dateStr);
         sessionDates.push(numTime);
 
         for (let section in sessionData[time]["sections"]) {
@@ -183,7 +183,7 @@ function storeSessionData(doc) {
               console.log("We have a session with a section that doesn't match!!!")
           }
         }
-      }
+      //}
     }
   }
   //sort from lowest to highest
@@ -453,17 +453,18 @@ function getMinAndMax(arrays) {
 }
 
 function latestScore(scoreObject) {
-  let dates = [];
-  for (const dateTime in scoreObject) {
-    dates.push(parseInt(dateTime));
-  }
-  if (dates.length < 1) {
-    return null;
-  }
+  // let dates = [];
+  // for (const dateTime in scoreObject) {
+  //   dates.push(parseInt(dateTime));
+  // }
+  // if (dates.length < 1) {
+  //   return null;
+  // }
 
-  dates.sort((a,b) => {return a - b});
+  // dates.sort((a,b) => {return a - b});
 
-  return scoreObject[dates[dates.length - 1].toString()];
+  // return scoreObject[dates[dates.length - 1].toString()];
+  return lastScore(scoreObject, (new Date()).getTime());
 }
 
 function lastScore(scoreObject, dateTime) {
@@ -471,7 +472,7 @@ function lastScore(scoreObject, dateTime) {
   let smallestDiff = Infinity;
   for (const date in scoreObject) {
     let diff = parseInt(dateTime) - parseInt(date);
-    if (diff > 0 && diff < smallestDiff) {
+    if (diff >= 0 && diff < smallestDiff) {
       smallestDiff = diff;
       lastTime = date;
     }
