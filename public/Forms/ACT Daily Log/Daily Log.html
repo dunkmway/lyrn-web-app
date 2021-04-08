@@ -14,6 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
     <script src="../../Site Templates/site-wide.js" defer></script>
+    <script src="../../Site Templates/generalFunctions.js" defer></script>
     <script src="Daily Log.js" defer></script>
     <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
@@ -26,6 +27,10 @@
         <div class="loading-ring"></div>
     </section>
     <section id="section">
+
+        <div id = "sideNav">
+            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog')">Daily Log</div>
+        </div>
 
         <div id = "testAnswersPopup" class = "metaForm noselect">
 
@@ -175,54 +180,44 @@
 
             <div class = "input-row-center">
                 <button class = "green button" onclick="setHomeworkStatus('in-time', 'True')">
-                    Completed, IT
+                    Completed, <span class = "smallerText"><br>(in-time)</span>
                 </button>
-            </div>
 
-            <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('over-time', 'True')">
-                    Completed, OT
-                </button>
-            </div>
-
-            <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('not-timed', 'True')">
-                    Completed, NT
-                </button>
-            </div>
-
-            <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
-                    Partially Finished
-                </button>
-            </div>
-
-            <div class = "input-row-center">
                 <button class = "orange button" onclick="setHomeworkStatus('forgot')">
-                    Completed, but forgot
+                    Completed, <span class = "smallerText"><br>(forgotten)</span>
                 </button>
             </div>
+
+            <div class = "input-row-center">
+                <button class = "greenShade button" onclick="setHomeworkStatus('not in time', 'True')">
+                    Completed, <span class = "smallerText"><br>(not in time)</span>
+                </button>
+
+                <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
+                    Partial, <span class = "smallerText"><br>(time remaining)</span>
+                </button>
+            </div>
+
+            <br>
 
             <div class = "input-row-center">
                 <button class = "red button" onclick="setHomeworkStatus('in-center', 'True')">
-                    Didn't do + Grade
+                    Completed, <span class = "smallerText"><br>(in-center)</span>
                 </button>
-            </div>
 
-            <div class = "input-row-center">
                 <button class = "gray button" onclick="setHomeworkStatus('did not do')">
                     Didn't do
                 </button>
             </div>
 
-            <div class = "input-row-center">
-                <button class = "button" onclick="removeTest()">
-                    Remove
-                </button>
-            </div>
+            <br>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="openForm()">
+                <button class = "purple button" onclick="removeTest()">
+                    Remove
+                </button>
+
+                <button class = "purple button" onclick="openForm()">
                     Back
                 </button>
             </div>

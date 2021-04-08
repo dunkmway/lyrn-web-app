@@ -8,229 +8,18 @@ fetch("../Test Data/Tests.json").then(response => response.json()).then(data => 
 let oldTestAnswers = {};
 let testAnswers = {};
 let tempAnswers = {};
-let sessionTime;
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray'};
+let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let newStatus = undefined;
-//testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
-/*testAnswers = {'MC3' : {
-  "English": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "3",
-              "10",
-              "11",
-              "15"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "16",
-              "17",
-              "21",
-              "26",
-              "27",
-              "30"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40",
-              "41",
-              "42",
-              "43",
-              "44",
-              "45"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "61",
-              "62",
-              "63",
-              "64",
-              "65",
-              "66",
-              "67",
-              "68",
-              "69",
-              "70",
-              "71",
-              "72",
-              "73",
-              "74",
-              "75"
-          ]
-      },
-      "TestType": "homework",
-      "Status": "Incomplete"
-  },
-  "Math": {
-      "1": {
-          "Answers": []
-      },
-      "2": {
-          "Answers": []
-      },
-      "3": {
-          "Answers": [
-              "21",
-              "24",
-              "27",
-              "30"
-          ]
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "5": {
-          "Answers": [
-              "41",
-              "44",
-              "47",
-              "49",
-              "50"
-          ]
-      },
-      "6": {
-          "Answers": []
-      },
-      "TestType": "homework",
-      "ScaledScore": 31,
-      "Status": "Completed"
-  },
-  "Reading": {
-      //"1": {
-          //"Answers": {
-              //"1": true,
-              //"2": true,
-              //"3": false,
-              //"4": true,
-              //"5": true,
-              //"6": false,
-              //"7": true,
-              //"8": true,
-              //"9": true,
-              //"10": true
-          //},
-          //"TotalCorrect": 8
-      //},
-      "2": {
-          "Answers": [
-              "11",
-              "12",
-              "13",
-              "18",
-              "20"
-          ]
-      },
-      "3": {
-          "Answers": []
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 28,
-      "Status": "Completed"
-  },
-  "Science": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "6"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "7",
-              "8",
-              "9",
-              "10",
-              "11",
-              "12"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "13",
-              "14",
-              "18",
-              "19"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "27",
-              "28",
-              "29",
-              "30",
-              "31",
-              "32",
-              "33"
-          ]
-      },
-      "6": {
-          "Answers": [
-              "34",
-              "35",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 29,
-      "Status": "Completed"
-  }
-}}*/
+let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
+let date = new Date()
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
-  sessionTime = new Date();
   const studentUID = queryStrings()["student"];
 
   if (studentUID) {
@@ -434,6 +223,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
       id = section.value.toLowerCase() + "LessonsForm";
     }
     else {
+      lastView = 'none'
       id = "dailyLog";
     }
   }
@@ -447,7 +237,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     updateTestGraphics(test_view_type);
 
     // Change what was last viewed
-    lastView = id;
+    //lastView = id;
 
   }
   else if (id != undefined && id.includes('Popup')) {
@@ -488,9 +278,19 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
     else {
       if (id == "dailyLog") {
-        form.style.display = "block"
+        if (lastView == "dailyLog") {
+          form.style.display = "none"
+          lastView = 'none';
+        }
+        else {
+          lastView = id;
+          form.style.display = "block"
+        }
       }
       else {
+        if (!id.includes('Popup')) {
+          lastView = id;
+        }
         form.style.display = "flex";
       }
     }
@@ -532,6 +332,9 @@ function clearInCenterFormating() {
 
     // Remove the 'homeworkBox' class
     test_boxes[box].classList.remove('homeworkBox');
+
+    // Remove the 'highlight' class
+    test_boxes[box].classList.remove('highlight');
 
     // Reset the innerHTML text
     test_boxes[box].innerHTML = "";
@@ -602,8 +405,16 @@ function updateHomeworkTest(testBox, test, section) {
   // If it does exist, change the background color and inner html
   if (status != undefined) {
     testBox.classList.add(coloring[testAnswers[test][section]["Status"]]);
-    testBox.classList.add("homeworkBox");
+    //testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
     testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
+    if (testBox.innerHTML != "") {
+      testBox.classList.add("homeworkBox");
+    }
+    else {
+      //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
+      // Adding 8 hours to show the number of days since it was assigned / not finished
+      testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
+    }
   }
 }
 
@@ -622,14 +433,29 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
   // Set the status and testType in the testAnswers
   let current_status = testAnswers[test]?.[section]?.['Status']
 
-  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') && (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
+  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') &&
+      (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
+    // Didn't mean to assign the homework, undo it
     if (current_status == 'assigned' && status == 'assigned') {
       delete testAnswers[test][section];
       if (Object.keys(testAnswers[test]).length == 0) {
         delete testAnswers[test]
       }
     }
-    else {
+    // Set the homework to 'assigned'
+    else if (status == 'assigned' && current_status == undefined) {
+      setObjectValue([test, section, "Status"], status, testAnswers)
+      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+    }
+    // homework is being reassigned
+    else if (status == 'assigned' && current_status == 'did not do') {
+      setObjectValue([test, section, "Status"], 'reassigned', testAnswers)
+      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+    }
+    // homework was either left at home ('forgot') or they didn't do it
+    else if (current_status != undefined && status != 'assigned') {
       setObjectValue([test, section, "Status"], status, testAnswers)
       setObjectValue([test, section, "TestType"], 'homework', testAnswers)
     }
@@ -666,8 +492,17 @@ function updatePopupGraphics(id, test, section, passageNumber) {
     }
   }
 
-  // This is all that needs done
+  // This is all that needs to be done
   if (id == 'homeworkPopup') {
+    // highlight the box
+    let searchText = "div[data-test^=\"" + test + "\"]"
+    let testBoxes = document.querySelectorAll(searchText)
+    for (let box = 0; box < testBoxes.length; box++) {
+      if (testBoxes[box].getAttribute("data-section") == section) {
+        testBoxes[box].classList.add("highlight")
+      }
+    }
+
     return;
   }
 
@@ -717,7 +552,12 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
     if (answer == 0) {
-      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
+        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      } 
+      else {
+        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      }
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
@@ -726,7 +566,12 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       }
     }
     else {
-      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
+        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      }
+      else {
+        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      }
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer]);
       ele.setAttribute("data-answer", passageAnswers[answer]);
@@ -741,6 +586,63 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   let timeSeconds = document.getElementById("time-seconds")
   timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
   timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
+
+}
+
+function shouldMarkAsGuessed(test, section, question) {
+  const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints']
+  if (guessEndPoints == undefined) {
+    console.log("1")
+    return false
+  }
+  else {
+    let pointIndex = 0;
+    for (let point = 0; point < guessEndPoints.length; point++) {
+      if (parseInt(guessEndPoints[point]) >= parseInt(question)) {
+        pointIndex = point;
+        break;
+      }
+    }
+    if (question == guessEndPoints[pointIndex]){
+      console.log("2")
+      return true;
+    }
+    else if (guessEndPoints.length % 2 == 0) {
+      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
+        if (pointIndex % 2 == 1) {
+          console.log("3")
+          return true;
+        }
+        else {
+          console.log("4")
+          return false;
+        }
+      }
+      else {
+        console.log(question)
+        console.log(pointIndex)
+        console.log(guessEndPoints[pointIndex])
+        console.log("5")
+        return false;
+      }
+    }
+    else {
+      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
+        if (pointIndex % 2 == 1) {
+          console.log("6")
+          return true;
+        }
+        else {
+          console.log("7")
+          return false;
+        }
+      }
+      else {
+        console.log("8")
+        return true;
+      }
+    }
+  }
 }
 
 function submitAnswersPopup() {
@@ -757,7 +659,6 @@ function submitAnswersPopup() {
   else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
 
     // Calculate how many questions they got correct
-    let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
     let totalMissed = 0;
     for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
       if (!keys_to_skip.includes(key)) {
@@ -776,7 +677,6 @@ function submitAnswersPopup() {
     }
 
     // Set the information
-    let date = sessionTime;
     if (info[2] == last_passage_number) {
       setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
       setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
@@ -840,6 +740,12 @@ function removeAnswers() {
 
   timeMinutes.value = "0"
   timeSeconds.value = "0"
+
+  // Remove the 'highlight' class
+  let test_boxes = document.querySelectorAll("div[data-section]")
+  for (let box = 0; box < test_boxes.length; box++) {
+    test_boxes[box].classList.remove('highlight');
+  }
 }
 
 function removeTest() {
@@ -895,8 +801,6 @@ function removePassage() {
 }
 
 function objectChildCount(path, object) {
-  // Initialize an array to store the keys to skip in the counting process below
-  let keys_to_skip = ['Status', 'TestType', 'Score', 'ScaledScore', 'Date', 'Time']
 
   // Initialize a variable
   let location = object;
@@ -1032,7 +936,7 @@ function submitSessionInfo() {
 
   //FIXME: for now the time will be set to when it was submitted but once the event is on the calendar this time will be that time
   //This is handled above by the sessionTime global variable in initialSetup()
-  let sessionTimeNum = sessionTime.getTime();
+  let sessionTimeNum = date.getTime();
   let currentUser = firebase.auth().currentUser;
   if (currentUser) {
     let tutor = currentUser.uid;
@@ -1159,46 +1063,4 @@ function getArrayIndex(value, arr) {
   }
 
   return -1;
-}
-
-function assignHomework(element) {
-  let test = element.getAttribute("data-test")
-  let section = element.getAttribute("data-section")
-
-  let status = testAnswers[test]?.[section]?.['Status']
-  console.log("status:", status)
-
-  switch (status) {
-    case "in-time":
-      break;
-    case "over-time":
-      break;
-    case "not-timed":
-      break;
-    case "partial":
-      break;
-    case "in-center":
-      break;
-    case "forgot":
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-    case "did not do":
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-    case "assigned":
-      delete testAnswers[test][section];
-      if (Object.keys(testAnswers[test]).length == 0) {
-        delete testAnswers[test]
-      }
-      break;
-    default:
-      setObjectValue([test, section, 'Status'], 'assigned', testAnswers)
-      setObjectValue([test, section, 'TestType'], 'homework', testAnswers)
-      break;
-  }
-  
-  console.log(lastView)
-  openForm(lastView)
 }
