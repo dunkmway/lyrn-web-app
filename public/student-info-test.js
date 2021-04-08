@@ -247,36 +247,36 @@ function setHomeworkChart() {
 
   console.log("compositeScores", compositeScores);
 
-  let allHours = [/*compositeHoursArray.runningTotal(), */englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
+  let allHours = [compositeHoursArray.runningTotal(), englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
   let minMax = getMinAndMax(allHours);
 
   for (let i = minMax['min']; i <= minMax['max']; i+=5) {
     hoursArray.push(i);
   }
 
-  for (let i = 0; i < compositeTestArray.length; i++) {
+  for (let i = 1; i < compositeTestArray.length; i++) {
     if (compositeTestArray[i]) {
-      compositeHoursScores[`${compositeHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = compositeTestArray[i];
+      compositeHoursScores[`${compositeHoursArray.runningTotal()[(i-1)]}`] = compositeTestArray[i];
     }
   }
-  for (let i = 0; i < englishTestArray.length; i++) {
+  for (let i = 1; i < englishTestArray.length; i++) {
     if (englishTestArray[i]) {
-      englishHoursScores[`${englishHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = englishTestArray[i];
+      englishHoursScores[`${englishHoursArray.runningTotal()[(i-1)]}`] = englishTestArray[i];
     }
   }
-  for (let i = 0; i < mathTestArray.length; i++) {
+  for (let i = 1; i < mathTestArray.length; i++) {
     if (mathTestArray[i]) {
-      mathHoursScores[`${mathHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = mathTestArray[i];
+      mathHoursScores[`${mathHoursArray.runningTotal()[(i-1)]}`] = mathTestArray[i];
     }
   }
-  for (let i = 0; i < readingTestArray.length; i++) {
+  for (let i = 1; i < readingTestArray.length; i++) {
     if (readingTestArray[i]) {
-      readingHoursScores[`${readingHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = readingTestArray[i];
+      readingHoursScores[`${readingHoursArray.runningTotal()[(i-1)]}`] = readingTestArray[i];
     }
   }
-  for (let i = 0; i < scienceTestArray.length; i++) {
+  for (let i = 1; i < scienceTestArray.length; i++) {
     if (scienceTestArray[i]) {
-      scienceHoursScores[`${scienceHoursArray.runningTotal()[(i-1) >= 0 ? (i-1) : 0]}`] = scienceTestArray[i];
+      scienceHoursScores[`${scienceHoursArray.runningTotal()[(i-1)]}`] = scienceTestArray[i];
     }
   }
 
@@ -393,15 +393,14 @@ function setHomeworkChart() {
         }
       },
       plugins: {
-        averagePerHour: {
-          test1: "test1",
-          test2: "test2"
-        },
-        legend: {
-          onclick: function(arg) {
-            console.log(arg)
-          }
-        }
+        averagePerHour: false,
+        // legend: {
+        //   onClick: function(event, legendItem, legend) {
+        //     console.log(event);
+        //     console.log(legendItem);
+        //     console.log(legend);
+        //   }
+        // }
       }
     }
   });
@@ -495,21 +494,21 @@ function roundedAvg(values) {
 }
 
 function setSessionAxis() {
-  datasets = [compositeTestArray, englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
+  let datasets = [compositeTestArray, englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
   hwChart.data.labels = sessionDateStr;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
   });
-  hwChart.update('none');
+  hwChart.update("none");
 }
 
 function setHourAxis() {
-  datasets = [/*compositeHoursScoresArray, */englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
+  let datasets = [compositeHoursScoresArray, englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
   hwChart.data.labels = hoursArray;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
   });
-  hwChart.update('none');
+  hwChart.update("none");
 }
 
 const plugin = {
