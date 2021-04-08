@@ -11,223 +11,12 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'over-time' : 'greenShade', 'not-timed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white'};
+let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let newStatus = undefined;
-let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
+let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
-//testAnswers = {'MC3' : {'English' : {'testType' : 'homework'}, 'Math' : {'testType' : 'homework'}, 'Reading' : {'testType' : 'inCenter'}, 'Science' : {'testType' : 'inCenter'}}}
-/*testAnswers = {'MC3' : {
-  "English": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "3",
-              "10",
-              "11",
-              "15"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "16",
-              "17",
-              "21",
-              "26",
-              "27",
-              "30"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40",
-              "41",
-              "42",
-              "43",
-              "44",
-              "45"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "61",
-              "62",
-              "63",
-              "64",
-              "65",
-              "66",
-              "67",
-              "68",
-              "69",
-              "70",
-              "71",
-              "72",
-              "73",
-              "74",
-              "75"
-          ]
-      },
-      "TestType": "homework",
-      "Status": "Incomplete"
-  },
-  "Math": {
-      "1": {
-          "Answers": []
-      },
-      "2": {
-          "Answers": []
-      },
-      "3": {
-          "Answers": [
-              "21",
-              "24",
-              "27",
-              "30"
-          ]
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "5": {
-          "Answers": [
-              "41",
-              "44",
-              "47",
-              "49",
-              "50"
-          ]
-      },
-      "6": {
-          "Answers": []
-      },
-      "TestType": "homework",
-      "ScaledScore": 31,
-      "Status": "Completed"
-  },
-  "Reading": {
-      //"1": {
-          //"Answers": {
-              //"1": true,
-              //"2": true,
-              //"3": false,
-              //"4": true,
-              //"5": true,
-              //"6": false,
-              //"7": true,
-              //"8": true,
-              //"9": true,
-              //"10": true
-          //},
-          //"TotalCorrect": 8
-      //},
-      "2": {
-          "Answers": [
-              "11",
-              "12",
-              "13",
-              "18",
-              "20"
-          ]
-      },
-      "3": {
-          "Answers": []
-      },
-      "4": {
-          "Answers": [
-              "31",
-              "32",
-              "33",
-              "34",
-              "35",
-              "36",
-              "37",
-              "38",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 28,
-      "Status": "Completed"
-  },
-  "Science": {
-      "1": {
-          "Answers": [
-              "1",
-              "2",
-              "6"
-          ]
-      },
-      "2": {
-          "Answers": [
-              "7",
-              "8",
-              "9",
-              "10",
-              "11",
-              "12"
-          ]
-      },
-      "3": {
-          "Answers": [
-              "13",
-              "14",
-              "18",
-              "19"
-          ]
-      },
-      "4": {
-          "Answers": []
-      },
-      "5": {
-          "Answers": [
-              "27",
-              "28",
-              "29",
-              "30",
-              "31",
-              "32",
-              "33"
-          ]
-      },
-      "6": {
-          "Answers": [
-              "34",
-              "35",
-              "39",
-              "40"
-          ]
-      },
-      "TestType": "inCenter",
-      "ScaledScore": 29,
-      "Status": "Completed"
-  }
-}}*/
 
 function initialSetup() {
   const studentUID = queryStrings()["student"];
@@ -433,6 +222,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
       id = section.value.toLowerCase() + "LessonsForm";
     }
     else {
+      lastView = 'none'
       id = "dailyLog";
     }
   }
@@ -446,7 +236,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     updateTestGraphics(test_view_type);
 
     // Change what was last viewed
-    lastView = id;
+    //lastView = id;
 
   }
   else if (id != undefined && id.includes('Popup')) {
@@ -497,6 +287,9 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
         }
       }
       else {
+        if (!id.includes('Popup')) {
+          lastView = id;
+        }
         form.style.display = "flex";
       }
     }
@@ -758,7 +551,12 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
     if (answer == 0) {
-      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
+        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      } 
+      else {
+        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
+      }
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
@@ -767,7 +565,12 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       }
     }
     else {
-      ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupValue"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
+        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      }
+      else {
+        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
+      }
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer]);
       ele.setAttribute("data-answer", passageAnswers[answer]);
@@ -782,6 +585,63 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   let timeSeconds = document.getElementById("time-seconds")
   timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
   timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
+
+}
+
+function shouldMarkAsGuessed(test, section, question) {
+  const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints']
+  if (guessEndPoints == undefined) {
+    console.log("1")
+    return false
+  }
+  else {
+    let pointIndex = 0;
+    for (let point = 0; point < guessEndPoints.length; point++) {
+      if (parseInt(guessEndPoints[point]) >= parseInt(question)) {
+        pointIndex = point;
+        break;
+      }
+    }
+    if (question == guessEndPoints[pointIndex]){
+      console.log("2")
+      return true;
+    }
+    else if (guessEndPoints.length % 2 == 0) {
+      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
+        if (pointIndex % 2 == 1) {
+          console.log("3")
+          return true;
+        }
+        else {
+          console.log("4")
+          return false;
+        }
+      }
+      else {
+        console.log(question)
+        console.log(pointIndex)
+        console.log(guessEndPoints[pointIndex])
+        console.log("5")
+        return false;
+      }
+    }
+    else {
+      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
+        if (pointIndex % 2 == 1) {
+          console.log("6")
+          return true;
+        }
+        else {
+          console.log("7")
+          return false;
+        }
+      }
+      else {
+        console.log("8")
+        return true;
+      }
+    }
+  }
 }
 
 function submitAnswersPopup() {
