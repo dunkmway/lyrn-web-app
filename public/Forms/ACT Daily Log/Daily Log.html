@@ -176,54 +176,44 @@
 
             <div class = "input-row-center">
                 <button class = "green button" onclick="setHomeworkStatus('in-time', 'True')">
-                    Completed, <span class = "smallerText">(in-time)</span>
+                    Completed, <span class = "smallerText"><br>(in-time)</span>
+                </button>
+
+                <button class = "orange button" onclick="setHomeworkStatus('forgot')">
+                    Completed, <span class = "smallerText"><br>(forgotten)</span>
                 </button>
             </div>
 
             <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('over-time', 'True')">
-                    Completed, <span class = "smallerText">(over-time)</span>
+                <button class = "greenShade button" onclick="setHomeworkStatus('not in time', 'True')">
+                    Completed, <span class = "smallerText"><br>(not in time)</span>
                 </button>
-            </div>
 
-            <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('not-timed', 'True')">
-                    Completed, <span class = "smallerText">(not-timed)</span>
-                </button>
-            </div>
-
-            <div class = "input-row-center">
                 <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
-                    Partially Finished
+                    Partial, <span class = "smallerText"><br>(time remaining)</span>
                 </button>
             </div>
+
+            <br>
 
             <div class = "input-row-center">
                 <button class = "red button" onclick="setHomeworkStatus('in-center', 'True')">
-                    Completed, <span class = "smallerText">(in-center)</span>
+                    Completed, <span class = "smallerText"><br>(in-center)</span>
                 </button>
-            </div>
 
-            <div class = "input-row-center">
-                <button class = "orange button" onclick="setHomeworkStatus('forgot')">
-                    Completed, but forgot
-                </button>
-            </div>
-
-            <div class = "input-row-center">
                 <button class = "gray button" onclick="setHomeworkStatus('did not do')">
                     Didn't do
                 </button>
             </div>
 
-            <div class = "input-row-center">
-                <button class = "button" onclick="removeTest()">
-                    Remove
-                </button>
-            </div>
+            <br>
 
             <div class = "input-row-center">
-                <button class = "button" onclick="openForm()">
+                <button class = "purple button" onclick="removeTest()">
+                    Remove
+                </button>
+
+                <button class = "purple button" onclick="openForm()">
                     Back
                 </button>
             </div>

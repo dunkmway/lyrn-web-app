@@ -4,14 +4,24 @@ body {
     background-repeat: no-repeat;
     background-color: black;
     font-family: Roboto, sans-serif;
+    overflow-x:hidden;
+    overflow-y:hidden;
 }
 
 .green {
     background-color: green;
 }
 
+.pink {
+    background-color: pink;
+}
+
 .greenShade {
     background-color: rgb(0, 191, 0);
+}
+
+.purple {
+    background-color: #110D65;
 }
 
 .homeworkBox {
@@ -755,26 +765,46 @@ p.errorMessage {
 }
 
 .popupValue {
-    height: 2.5em;
-    width: 35%;
+    height: 40px;
+    width: 40px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
+    border-radius: 50%;
+    margin-top: 2.5px;
+    margin-bottom: 2.5px;
 }
-  
+
 .popupDash {
-    height: 2.5em;
+    height: 40px;
     width: 30%;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
+    margin-top: 2.5px;
+    margin-bottom: 2.5px;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+.popupAnswer {
+    height: 40px;
+    width: 40px;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+    margin-top: 2.5px;
+    margin-bottom: 2.5px;
 }
 
 .smallerText {
+    text-transform: lowercase;
     font-size: 10px;
 }
 
