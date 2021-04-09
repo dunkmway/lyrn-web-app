@@ -61,48 +61,66 @@ popupAnswers.addEventListener('click', function(event) {
 
     // If not marked, mark the question wrong
     if (isMarkedWrong == false && isGuessEndPoint == false) {
+      console.log("scenario 1")
       tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
     }
     // If marked wrong and is not an endpoint, reset and mark as a guess endpoint
     else if (isMarkedWrong == true && isGuessEndPoint == false) {
+      console.log("scenario 2")
       tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
       if (!shouldMarkAsGuessed(test, section, question) || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
-        console.log("I'm here:", test, section, question)
-        console.log(shouldMarkAsGuessed(test, section, question))
-        if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined) {
-          tempAnswers[test][section]['GuessEndPoints'].push(question);
+        if (guessEndPoints == undefined || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
+          console.log("check 1")
+          if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined) {
+            tempAnswers[test][section]['GuessEndPoints'].push(question);
+          }
+          else {
+            tempAnswers[test][section]['GuessEndPoints'] = []
+            tempAnswers[test][section]['GuessEndPoints'].push(question);
+          }
         }
         else {
-          tempAnswers[test][section]['GuessEndPoints'] = []
+          console.log("check 2")
+          // Just mark the individual question
+          tempAnswers[test][section]['GuessEndPoints'].push(question);
           tempAnswers[test][section]['GuessEndPoints'].push(question);
         }
       }
     }
     // If marked as an endpoint, mark wrong
     else if (isMarkedWrong == false && isGuessEndPoint == true) {
+      console.log("scenario 3")
       tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
     }
     // if marked wrong and is a guess endpoint, reset
     else if (isMarkedWrong == true && isGuessEndPoint == true) {
+      console.log("scenario 4")
       // Remove the guess color class
       tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
 
-      if (guessEndPoints.length == 1) {
-        delete tempAnswers[test][section]['GuessEndPoints']
+      if (guessEndPoints.length % 2 == 0) {
+        console.log("numero 4")
+        if (guessEndPoints.length == 1) {
+          delete tempAnswers[test][section]['GuessEndPoints']
+        }
+        else {
+          const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
+          tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
+          if (index % 2 == 1) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index - 1, 1)
+          }
+          else if (tempAnswers[test][section]['GuessEndPoints'].length > index) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
+          }
+        }
+
+        if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined && tempAnswers[test][section]['GuessEndPoints'].length == 0) {
+          delete tempAnswers[test][section]['GuessEndPoints']
+        }
       }
       else {
-        const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
-        tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-        if (index % 2 == 1) {
-          tempAnswers[test][section]['GuessEndPoints'].splice(index - 1, 1)
-        }
-        else if (tempAnswers[test][section]['GuessEndPoints'].length > index) {
-          tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-        }
-      }
-
-      if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined && tempAnswers[test][section]['GuessEndPoints'].length == 0) {
-        delete tempAnswers[test][section]['GuessEndPoints']
+        console.log("numero 5")
+        tempAnswers[test][section]['GuessEndPoints'].push(question);
       }
 
     }
