@@ -7,6 +7,11 @@
     <link href="Tutor.css" rel="stylesheet">
     <link href="../Site Templates/site-wide.css" rel="stylesheet">
 
+    <!-- datatable requirments -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
@@ -30,14 +35,26 @@
       <div class="input-row">
         <div class="input-block">
           <label class="label">Active Students</label>
-          <select id="activeStudents" name="active-students" onchange="activeStudentSelected(this)">
+          <!-- <select id="activeStudents" name="active-students" onchange="activeStudentSelected(this)">
             <option disabled selected>Choose a student</option>
-          </select>
+          </select> -->
           <button class="button" onclick="resetPassword()">reset password</button>
           <h4>Beta Update:</h4>
           <p>Everything should be up and running for the daily log!</p>
           <button class="button" onclick="signOut()">Sign Out</button>
         </div>
+      </div>
+
+      <div>
+        <table id="student-table" class="display" width="100%">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th></th>
+              <th>Status</th>
+            </tr>
+          </thead>
+        </table>
       </div>
     </section>
   </body>

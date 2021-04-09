@@ -16,15 +16,54 @@ locationDocRef.get()
 
     let activeStudents = doc.get("activeStudents");
 
+    // if (activeStudents) {
+    //   const activeStudentElem = document.getElementById("activeStudents");
+    //   for (const object in activeStudents) {
+    //     let option = document.createElement("option");
+    //     option.value = object;
+    //     option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
+    //     activeStudentElem.appendChild(option);
+    //   }
+    // }
+
+    let tableData = [];
+
     if (activeStudents) {
-      const activeStudentElem = document.getElementById("activeStudents");
-      for (const object in activeStudents) {
-        let option = document.createElement("option");
-        option.value = object;
-        option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-        activeStudentElem.appendChild(option);
+      for (const studentUID in activeStudents) {
+        const student = {
+          ...activeStudents[studentUID],
+          studentUID: studentUID,
+          status: "active"
+        }
+        tableData.push(student);
       }
     }
+
+    let studentTable = $('#student-table').DataTable( {
+      data: tableData,
+      columns: [
+        { data: 'studentFirstName' },
+        { data: 'studentLastName' },
+        { data: 'status' },
+      ],
+      "scrollY": "400px",
+      "scrollCollapse": true,
+      "paging": false
+    } );
+
+    studentTable.on('click', (args1) => {
+      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
+      let status = tableData[args1.target._DT_CellIndex.row].status;
+
+      switch (status) {
+        case "active":
+          activeStudentSelected(studentUID);
+          break;
+        default:
+          console.log("ERROR: This student isn't active or pending!!!")
+      }
+      
+    })
   }
 })
 .catch((error) => {
@@ -34,8 +73,13 @@ locationDocRef.get()
   console.log(error.details);
 });
 
-function activeStudentSelected(e) {
-  let studentUID = e.value;
+// function activeStudentSelected(e) {
+//   let studentUID = e.value;
+//   let queryStr = "?student=" + studentUID;
+//   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+// }
+
+function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }

@@ -57,9 +57,8 @@ function main() {
     console.log("sessionDates", sessionDates);
     console.log("studentProfile", studentProfile);
 
-    setProfileData();
-
     hwChart = setHomeworkChart();
+    setProfileData();
   })
 }
 
@@ -223,6 +222,20 @@ function setProfileData() {
   document.getElementById('math-score').textContent = currentMathScore ?? "";
   document.getElementById('reading-score').textContent = currentReadingScore ?? "";
   document.getElementById('science-score').textContent = currentScienceScore ?? "";
+
+  //round to nearest .5
+  const compositeTotalHours = Math.round(compositeHoursArray.runningTotal()[compositeHoursArray.runningTotal().length - 1] / 30) / 2;
+  const englishTotalHours = Math.round(englishHoursArray.runningTotal()[englishHoursArray.runningTotal().length - 1] / 30) / 2;
+  const mathTotalHours = Math.round(mathHoursArray.runningTotal()[mathHoursArray.runningTotal().length - 1] / 30) / 2;
+  const readingTotalHours = Math.round(readingHoursArray.runningTotal()[readingHoursArray.runningTotal().length - 1] / 30) / 2;
+  const scienceTotalHours = Math.round(scienceHoursArray.runningTotal()[scienceHoursArray.runningTotal().length - 1] / 30) / 2;
+
+  document.getElementById('composite-total-hours').textContent = compositeTotalHours ?? "";
+  document.getElementById('english-total-hours').textContent = englishTotalHours ?? "";
+  document.getElementById('math-total-hours').textContent = mathTotalHours ?? "";
+  document.getElementById('reading-total-hours').textContent = readingTotalHours ?? "";
+  document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "";
+
 }
 
 function setHomeworkChart() {
@@ -505,15 +518,12 @@ function setSessionAxis() {
 function setHourAxis() {
   let datasets = [/*compositeHoursScoresArray*/[], englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
   let datasetHours = [/*compositeHoursArray.runningTotal()*/[], englishHoursArray.runningTotal().slice(0, -1), mathHoursArray.runningTotal().slice(0, -1), readingHoursArray.runningTotal().slice(0, -1), scienceHoursArray.runningTotal().slice(0, -1)];
-  console.log(datasetHours)
   let minMax = getMinAndMax(datasetHours);
   let hours = [];
 
   for (let i = minMax['min']; i <= minMax['max']; i+=5) {
     hours.push(i);
   }
-
-  console.log(hours);
 
   hwChart.data.labels = hours;
   hwChart.data.datasets.forEach((dataset, index) => {

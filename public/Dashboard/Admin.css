@@ -102,7 +102,7 @@ body {
   color: black;
 }
 
-select {
+.select {
   /* width: 90%; */
   max-width: 300px;
   height: 2em;

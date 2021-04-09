@@ -16,114 +16,108 @@ measurementId: "G-EJTMKB10B7"
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
-//set auth persistence to session
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-.then(function() {
-// Existing and future Auth states are now persisted in the current
-// session only. Closing the window would clear any existing state even
-// if a user forgets to sign out.
-// ...
-// New sign-in will be persisted with session persistence.
-return firebase.auth().signInWithEmailAndPassword(email, password);
-})
-.catch(function(error) {
-// Handle Errors here.
-var errorCode = error.code;
-var errorMessage = error.message;
-});
+checkPermissions();
 
-const publicPages = [
-    "/Sign-In/Sign-In",
-    "/index",
-    "/404"
-]
-
-const studentPages = [
-    "/Dashboard/Student",
-]
-
-const parentPages = [
-    "/Dashboard/Parent",
-]
-
-const tutorPages = [
-    "/Dashboard/Tutor",
-    "/Forms/ACT%20Daily%20Log/Daily%20Log",
-    "/student-info-test"
-]
-
-const secrataryPages = [
-    "/Dashboard/Secratary",
-    "/inquiry"
-]
-
-const adminPages = [
-    ...secrataryPages,
-    ...tutorPages,
-    ...parentPages,
-    ...studentPages,
-    "/Dashboard/Admin",
-]
-
-
-firebase.auth().onAuthStateChanged((user) => {
-    let currentPath = location.pathname;
-    if (user) {
-        user.getIdTokenResult()
-        .then((idTokenResult) => {
-            // Confirm the user is an Admin.
-            let role = idTokenResult.claims.role;
-            console.log(currentPath);
-            console.log(role);
-
-            switch (role) {
-                case "student":
-                    if (!studentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
-                        //access denied
-                        window.location.replace(location.origin + "/Dashboard/Student");
-                    } 
-                    break;
-                case "parent":
-                    if (!parentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
-                        //access denied
-                        window.location.replace(location.origin + "/Dashboard/Parent");
-                    } 
-                    break;
-                case "tutor":
-                    if (!tutorPages.includes(currentPath) && !publicPages.includes(currentPath)) {
-                        //access denied
-                        window.location.replace(location.origin + "/Dashboard/Tutor");
-                    } 
-                    break;
-                case "secratary":
-                    if (!secrataryPages.includes(currentPath) && !publicPages.includes(currentPath)) {
-                        //access denied
-                        window.location.replace(location.origin + "/Dashboard/Secratary");
-                    } 
-                    break;
-                case "admin":
-                    if (!adminPages.includes(currentPath) && !publicPages.includes(currentPath)) {
-                        //access denied
-                        window.location.replace(location.origin + "/Dashboard/Admin");
-                    } 
-                    break;
-                case "dev":
-                    //UNLIMITED POWER!!!
-                    break;
-                default:
-                    window.location.replace(location.origin + "/Sign-In/Sign-In");
-            }
-        })
-    }
-    else {
-        if (!publicPages.includes(currentPath)) {
-            //access denied
-            window.location.replace(location.origin + "/Sign-In/Sign-In");
+function checkPermissions() {
+    const publicPages = [
+        "/Sign-In/Sign-In",
+        "/index",
+        "/404"
+    ]
+    
+    const studentPages = [
+        "/Dashboard/Student",
+    ]
+    
+    const parentPages = [
+        "/Dashboard/Parent",
+    ]
+    
+    const tutorPages = [
+        "/Dashboard/Tutor",
+        "/Forms/ACT%20Daily%20Log/Daily%20Log",
+        "/student-info-test"
+    ]
+    
+    const secrataryPages = [
+        "/Dashboard/Secratary",
+        "/inquiry"
+    ]
+    
+    const adminPages = [
+        ...secrataryPages,
+        ...tutorPages,
+        ...parentPages,
+        ...studentPages,
+        "/Dashboard/Admin",
+    ]
+    
+    
+    firebase.auth().onAuthStateChanged((user) => {
+        let currentPath = location.pathname;
+        if (user) {
+            user.getIdTokenResult()
+            .then((idTokenResult) => {
+                let role = idTokenResult.claims.role;
+                console.log(currentPath);
+                console.log(role);
+    
+                switch (role) {
+                    case "student":
+                        if (!studentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                            //access denied
+                            window.location.replace(location.origin + "/Dashboard/Student");
+                        } 
+                        break;
+                    case "parent":
+                        if (!parentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                            //access denied
+                            window.location.replace(location.origin + "/Dashboard/Parent");
+                        } 
+                        break;
+                    case "tutor":
+                        if (!tutorPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                            //access denied
+                            window.location.replace(location.origin + "/Dashboard/Tutor");
+                        } 
+                        break;
+                    case "secratary":
+                        if (!secrataryPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                            //access denied
+                            window.location.replace(location.origin + "/Dashboard/Secratary");
+                        } 
+                        break;
+                    case "admin":
+                        if (!adminPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                            //access denied
+                            window.location.replace(location.origin + "/Dashboard/Admin");
+                        } 
+                        break;
+                    case "dev":
+                        //UNLIMITED POWER!!!
+                        break;
+                    default:
+                        console.log("default");
+                        window.location.replace(location.origin + "/Sign-In/Sign-In");
+                }
+                clearLoadingScreen();
+            })
+            .catch((error) => {
+                console.log("error while getting user token. can't confirm role")
+                console.log(error);
+                window.location.replace(location.origin + "/Sign-In/Sign-In");
+            });
         }
-        
-    }
-    clearLoadingScreen();
-})
+        else {
+            if (!publicPages.includes(currentPath)) {
+                //access denied
+                console.log("no user is logged in and they are not on a private page")
+                window.location.replace(location.origin + "/Sign-In/Sign-In");
+            }
+            clearLoadingScreen();
+        }
+    });
+}
 
 function signOut() {
     let confirmation = confirm("Are you sure you want to sign out?");

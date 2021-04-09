@@ -934,13 +934,15 @@ function submitSessionInfo() {
     }
   }
 
-  //FIXME: for now the time will be set to when it was submitted but once the event is on the calendar this time will be that time
-  //This is handled above by the sessionTime global variable in initialSetup()
+  
   let sessionTimeNum = date.getTime();
   let currentUser = firebase.auth().currentUser;
   if (currentUser) {
     let tutor = currentUser.uid;
 
+    //get the number of hw's not completed from the hw
+
+    sessionInfo["incompleteHomework"] = numHomeworkNotComplete();
     sessionInfo["sections"] = sectionInfo;
     sessionInfo["tutor"] = tutor;
     //set this session doc to firebase
@@ -1042,16 +1044,35 @@ function validateHW() {
   return true;
 }
 
+function numHomeworkNotComplete() {
+  let incomplete = 0;
+
+  //check for assigned hw on old data
+  for (const test in oldTestAnswers) {
+    for (const section in oldTestAnswers[test]) {
+      if (oldTestAnswers[test][section]["TestType"] == "homework") {
+        if (oldTestAnswers[test][section]["Status"] == "assigned") {
+          if (testAnswers[test][section]["Status"] == "forgot" || testAnswers[test][section]["Status"] == "did not do") {
+            incomplete++;
+          }
+        }
+      }
+    }
+  }
+  //return the result
+  return incomplete;
+}
+
 function queryStrings() {
   var GET = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-        GET[paramName] = paramValue;
-    });
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+      GET[paramName] = paramValue;
+  });
 
-    return GET;
+  return GET;
 }
 
 function getArrayIndex(value, arr) {

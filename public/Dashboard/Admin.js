@@ -1,3 +1,4 @@
+
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
 let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
@@ -16,25 +17,84 @@ locationDocRef.get()
 
     let pendingStudents = doc.get("pendingStudents");
     let activeStudents = doc.get("activeStudents");
+
+    console.log(pendingStudents);
+    console.log(activeStudents);
+    // if (pendingStudents) {
+    //   const pendingStudentElem = document.getElementById("pendingStudents");
+    //   for (const object in pendingStudents) {
+    //     let studentOption = document.createElement("option");
+    //     studentOption.value = object + "," + pendingStudents[object]["parentUID"];
+    //     studentOption.innerText = pendingStudents[object]["studentFirstName"] + " " + pendingStudents[object]["studentLastName"];
+    //     pendingStudentElem.appendChild(studentOption);
+    //   }
+    // }
+
+    // if (activeStudents) {
+    //   const activeStudentElem = document.getElementById("activeStudents");
+    //   for (const object in activeStudents) {
+    //     let option = document.createElement("option");
+    //     option.value = object;
+    //     option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
+    //     activeStudentElem.appendChild(option);
+    //   }
+    // }
+
+    //for the table
+    let tableData = [];
+
     if (pendingStudents) {
-      const pendingStudentElem = document.getElementById("pendingStudents");
-      for (const object in pendingStudents) {
-        let studentOption = document.createElement("option");
-        studentOption.value = object + "," + pendingStudents[object]["parentUID"];
-        studentOption.innerText = pendingStudents[object]["studentFirstName"] + " " + pendingStudents[object]["studentLastName"];
-        pendingStudentElem.appendChild(studentOption);
+      for (const studentUID in pendingStudents) {
+        const student = {
+          ...pendingStudents[studentUID],
+          status: "pending"
+        }
+        tableData.push(student);
       }
     }
 
     if (activeStudents) {
-      const activeStudentElem = document.getElementById("activeStudents");
-      for (const object in activeStudents) {
-        let option = document.createElement("option");
-        option.value = object;
-        option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-        activeStudentElem.appendChild(option);
+      for (const studentUID in activeStudents) {
+        const student = {
+          ...activeStudents[studentUID],
+          studentUID: studentUID,
+          status: "active"
+        }
+        tableData.push(student);
       }
     }
+
+    let studentTable = $('#student-table').DataTable( {
+      data: tableData,
+      columns: [
+        { data: 'studentFirstName' },
+        { data: 'studentLastName' },
+        { data: 'status' },
+        { data: 'parentFirstName' },
+        { data: 'parentLastName'},
+      ],
+      "scrollY": "400px",
+      "scrollCollapse": true,
+      "paging": false
+    } );
+
+    studentTable.on('click', (args1) => {
+      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
+      let parentUID = tableData[args1.target._DT_CellIndex.row].parentUID;
+      let status = tableData[args1.target._DT_CellIndex.row].status;
+
+      switch (status) {
+        case "pending":
+          pendingStudentSelected(studentUID, parentUID);
+          break;
+        case "active":
+          activeStudentSelected(studentUID);
+          break;
+        default:
+          console.log("ERROR: This student isn't active or pending!!!")
+      }
+      
+    })
   }
 })
 .catch((error) => {
@@ -345,16 +405,27 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 }
 
 
-function pendingStudentSelected(e) {
-  let uids = e.value;
-  let studentTempUID = uids.split(",")[0];
-  let parentUID = uids.split(",")[1];
-  let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
+//for the old selects
+// function pendingStudentSelected(e) {
+//   let uids = e.value;
+//   let studentTempUID = uids.split(",")[0];
+//   let parentUID = uids.split(",")[1];
+//   let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
+//   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
+// }
+
+// function activeStudentSelected(e) {
+//   let studentUID = e.value;
+//   let queryStr = "?student=" + studentUID;
+//   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+// }
+
+function pendingStudentSelected(studentUID, parentUID) {
+  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + currentLocation;
   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
-function activeStudentSelected(e) {
-  let studentUID = e.value;
+function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }
