@@ -532,7 +532,7 @@ function updatePopupGraphics(id, test, section, passageNumber) {
     rightArrow.parentNode.style.visibility = "visible"
   }
 
-  // Set the answers// Get a list of all the answers for the given section
+  // Get a list of all the answers for the given section
   let allAnswers = testData[test][section.toLowerCase() + "Answers"];
   let passageAnswers = []
   let passageNumbers = []
@@ -595,10 +595,13 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   }
 
   // Set the time
-  let timeMinutes = document.getElementById("time-minutes")
-  let timeSeconds = document.getElementById("time-seconds")
-  timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
-  timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
+  if (test_view_type == 'inCenter') {
+    let timeMinutes = document.getElementById("time-minutes")
+    let timeSeconds = document.getElementById("time-seconds")
+    timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
+    timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
+    timeMinutes.parentNode.style.visibility = "visible";
+  }
 
 }
 
@@ -742,6 +745,7 @@ function removeAnswers() {
   // Reset the time
   let timeMinutes = document.getElementById("time-minutes")
   let timeSeconds = document.getElementById("time-seconds")
+  timeMinutes.parentNode.style.visibility = "hidden";
 
   timeMinutes.value = "0"
   timeSeconds.value = "0"
