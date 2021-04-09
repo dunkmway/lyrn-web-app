@@ -26,6 +26,10 @@ body {
     background-color: #110D65;
 }
 
+.white {
+    color: white;
+}
+
 .homeworkBox {
     color: rgb(250, 250, 250);
     font-size: 2.5em;
@@ -73,7 +77,7 @@ form {
 }
 
 .tests {
-    height: 72.5%;
+    height: 77.5%;
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
     --grid-template-rows: 4% 12% 12% 12% 12% 12% 12% 12% 12%;

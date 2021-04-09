@@ -11,7 +11,7 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
+let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let newStatus = undefined;
@@ -413,7 +413,15 @@ function updateHomeworkTest(testBox, test, section) {
     else {
       //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
       // Adding 8 hours to show the number of days since it was assigned / not finished
-      testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
+      if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
+        console.log('old way', testAnswers[test]?.[section]?.['Status'])
+        testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
+      }
+      else {
+        console.log('previous', testAnswers[test]?.[section]?.['Status'])
+        testBox.innerHTML = "Previously Completed"
+        testBox.classList.add("white");
+      }
     }
   }
 }
@@ -460,12 +468,17 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
       setObjectValue([test, section, "TestType"], 'homework', testAnswers)
     }
   }
-  else {
+  else if (current_status == 'assigned' || current_status == 'reassigned' || status == 'partial') {
     newStatus = status;
+  }
+  else if (current_status == undefined && status == 'previously completed') {
+    setObjectValue([test, section, "Status"], status, testAnswers)
+    setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+    setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
   }
 
   // Exit the popup
-  if (gradeHomework == 'True') {
+  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned')) {
     openForm('testAnswersPopup');
   }
   else {
@@ -511,11 +524,11 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   let leftArrow = document.getElementById("leftArrow")
   let rightArrow = document.getElementById("rightArrow")
 
-  if (passageNumber != 1 && passageNumber != undefined) {
+  if (passageNumber != 1 && passageNumber != undefined && test_view_type == 'homework') {
     leftArrow.parentNode.style.visibility = "visible"
   }
 
-  if (passageNumber != last_passage_number) {
+  if (passageNumber != last_passage_number && test_view_type == 'homework') {
     rightArrow.parentNode.style.visibility = "visible"
   }
 
@@ -592,7 +605,6 @@ function updatePopupGraphics(id, test, section, passageNumber) {
 function shouldMarkAsGuessed(test, section, question) {
   const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints']
   if (guessEndPoints == undefined) {
-    console.log("1")
     return false
   }
   else {
@@ -604,41 +616,31 @@ function shouldMarkAsGuessed(test, section, question) {
       }
     }
     if (question == guessEndPoints[pointIndex]){
-      console.log("2")
       return true;
     }
     else if (guessEndPoints.length % 2 == 0) {
       if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
         if (pointIndex % 2 == 1) {
-          console.log("3")
           return true;
         }
         else {
-          console.log("4")
           return false;
         }
       }
       else {
-        console.log(question)
-        console.log(pointIndex)
-        console.log(guessEndPoints[pointIndex])
-        console.log("5")
         return false;
       }
     }
     else {
       if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
         if (pointIndex % 2 == 1) {
-          console.log("6")
           return true;
         }
         else {
-          console.log("7")
           return false;
         }
       }
       else {
-        console.log("8")
         return true;
       }
     }
@@ -648,7 +650,8 @@ function shouldMarkAsGuessed(test, section, question) {
 function submitAnswersPopup() {
   // Grab the test info
   let info = getTestInfo();
-  let status = testAnswers[info[0]]?.[info[1]]?.['Status']
+  const status = testAnswers[info[0]]?.[info[1]]?.['Status']
+  const guesses = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints']
   let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
   let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
 
@@ -658,32 +661,34 @@ function submitAnswersPopup() {
   }
   else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
 
-    // Calculate how many questions they got correct
-    let totalMissed = 0;
-    for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
-      if (!keys_to_skip.includes(key)) {
-        totalMissed += tempAnswers[info[0]][info[1]][key]['Answers'].length
+    if (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) {
+      // Calculate how many questions they got correct
+      let totalMissed = 0;
+      for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
+        if (!keys_to_skip.includes(key)) {
+          totalMissed += tempAnswers[info[0]][info[1]][key]['Answers'].length
+        }
       }
-    }
-    let score = testData[info[0]][info[1].toLowerCase() + "Answers"].length - totalMissed;
+      let score = testData[info[0]][info[1].toLowerCase() + "Answers"].length - totalMissed;
     
-    // Calculate the scaled score
-    let scaleScore = 0;
-    for (const [key, value] of Object.entries(testData[info[0]][info[1].toLowerCase() + "Scores"])) {
-      if (score >= parseInt(value, 10)) {
-        scaledScore = 36 - parseInt(key);
-        break;
+      // Calculate the scaled score
+      let scaleScore = 0;
+      for (const [key, value] of Object.entries(testData[info[0]][info[1].toLowerCase() + "Scores"])) {
+        if (score >= parseInt(value, 10)) {
+          scaledScore = 36 - parseInt(key);
+          break;
+        }
       }
-    }
 
-    // Set the information
-    if (info[2] == last_passage_number) {
-      setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
-      setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
-      setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
-      setObjectValue([info[0], info[1], 'Score'], score, testAnswers);
-      setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
-      setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
+      // Set the information
+      if (info[2] == last_passage_number) {
+        setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
+        setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
+        setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
+        setObjectValue([info[0], info[1], 'Score'], score, testAnswers);
+        setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
+        setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
+      }
     }
   }
 
