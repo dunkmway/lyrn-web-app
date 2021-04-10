@@ -104,11 +104,6 @@ function storeHomeworkData(doc) {
       if (hwData[test][section]['TestType'] == 'homework' && hwData[test][section]['ScaledScore']) {
         
         let date = hwData[test][section]['Date'];
-        // let date = new Date(hwData[test][section]['Date']);
-        // const day = date.getDate()
-        // const month = date.getMonth()+1;
-        // const year = date.getFullYear()
-        // const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
 
         switch (section) {
           case "English":
@@ -230,12 +225,60 @@ function setProfileData() {
   const readingTotalHours = Math.round(readingHoursArray.runningTotal()[readingHoursArray.runningTotal().length - 1] / 30) / 2;
   const scienceTotalHours = Math.round(scienceHoursArray.runningTotal()[scienceHoursArray.runningTotal().length - 1] / 30) / 2;
 
-  document.getElementById('composite-total-hours').textContent = compositeTotalHours ?? "";
-  document.getElementById('english-total-hours').textContent = englishTotalHours ?? "";
-  document.getElementById('math-total-hours').textContent = mathTotalHours ?? "";
-  document.getElementById('reading-total-hours').textContent = readingTotalHours ?? "";
-  document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "";
+  document.getElementById('composite-total-hours').textContent = compositeTotalHours ?? "...";
+  document.getElementById('english-total-hours').textContent = englishTotalHours ?? "...";
+  document.getElementById('math-total-hours').textContent = mathTotalHours ?? "...";
+  document.getElementById('reading-total-hours').textContent = readingTotalHours ?? "...";
+  document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "...";
 
+  //composite is not superscored but is highest at any given session
+  const compositeHighestScore = highestScore(compositeScores);
+  const englishHighestScore = highestScore(englishScores);
+  const mathHighestScore = highestScore(mathScores);
+  const readingHighestScore = highestScore(readingScores);
+  const scienceHighestScore = highestScore(scienceScores);
+
+  document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
+  document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
+  document.getElementById('math-highest-score').textContent = mathHighestScore ?? "...";
+  document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
+  document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
+
+  const englishInitialScore = initialScore(englishScores);
+  const mathInitialScore = initialScore(mathScores);
+  const readingInitialScore = initialScore(readingScores);
+  const scienceInitialScore = initialScore(scienceScores);
+  const compositeInitialScore = roundedAvg([englishInitialScore, mathInitialScore, readingInitialScore, scienceInitialScore]);
+
+  document.getElementById('composite-initial-score').textContent = compositeInitialScore ?? "...";
+  document.getElementById('english-initial-score').textContent = englishInitialScore ?? "...";
+  document.getElementById('math-initial-score').textContent = mathInitialScore ?? "...";
+  document.getElementById('reading-initial-score').textContent = readingInitialScore ?? "...";
+  document.getElementById('science-initial-score').textContent = scienceInitialScore ?? "...";
+
+  const compositePointChange = (currentCompositeScore && compositeInitialScore) ? currentCompositeScore - compositeInitialScore : null;
+  const englishPointChange = (currentEnglishScore && englishInitialScore) ? currentEnglishScore - englishInitialScore : null;
+  const mathPointChange = (currentMathScore && mathInitialScore) ? currentMathScore - mathInitialScore : null;
+  const readingPointChange = (currentReadingScore && readingInitialScore) ? currentReadingScore - readingInitialScore : null;
+  const sciencePointChange = (currentReadingScore && scienceInitialScore) ? currentScienceScore - scienceInitialScore : null;
+
+  document.getElementById('composite-point-change').textContent = compositePointChange ?? "...";
+  document.getElementById('english-point-change').textContent = englishPointChange ?? "...";
+  document.getElementById('math-point-change').textContent = mathPointChange ?? "...";
+  document.getElementById('reading-point-change').textContent = readingPointChange ?? "...";
+  document.getElementById('science-point-change').textContent = sciencePointChange ?? "...";
+
+  const compositeHoursPerPoint = (compositePointChange) ? Math.round(compositeTotalHours / compositePointChange * 100) / 100 : null;
+  const englishHoursPerPoint = (englishPointChange) ? Math.round(englishTotalHours / englishPointChange * 100) / 100 : null;
+  const mathHoursPerPoint = (mathPointChange) ? Math.round(mathTotalHours / mathPointChange * 100) / 100 : null;
+  const readingHoursPerPoint = (readingPointChange) ? Math.round(readingTotalHours / readingPointChange * 100) / 100 : null;
+  const scienceHoursPerPoint = (sciencePointChange) ? Math.round(scienceTotalHours / sciencePointChange * 100) / 100 : null;
+
+  document.getElementById('composite-hours/point').textContent = compositeHoursPerPoint ?? "...";
+  document.getElementById('english-hours/point').textContent = englishHoursPerPoint ?? "...";
+  document.getElementById('math-hours/point').textContent = mathHoursPerPoint ?? "...";
+  document.getElementById('reading-hours/point').textContent = readingHoursPerPoint ?? "...";
+  document.getElementById('science-hours/point').textContent = scienceHoursPerPoint ?? "...";
 }
 
 function setHomeworkChart() {
@@ -464,21 +507,6 @@ function getMinAndMax(arrays) {
   return {min: min, max: max};
 }
 
-function latestScore(scoreObject) {
-  // let dates = [];
-  // for (const dateTime in scoreObject) {
-  //   dates.push(parseInt(dateTime));
-  // }
-  // if (dates.length < 1) {
-  //   return null;
-  // }
-
-  // dates.sort((a,b) => {return a - b});
-
-  // return scoreObject[dates[dates.length - 1].toString()];
-  return lastScore(scoreObject, (new Date()).getTime());
-}
-
 function lastScore(scoreObject, dateTime) {
   let lastTime = dateTime;
   let smallestDiff = Infinity;
@@ -491,6 +519,39 @@ function lastScore(scoreObject, dateTime) {
   }
 
   return scoreObject[lastTime];
+}
+
+function nextScore(scoreObject, dateTime) {
+  let nextTime = dateTime;
+  let smallestDiff = Infinity;
+  for (const date in scoreObject) {
+    let diff = parseInt(date) - parseInt(dateTime);
+    if (diff >= 0 && diff < smallestDiff) {
+      smallestDiff = diff;
+      nextTime = date;
+    }
+  }
+
+  return scoreObject[nextTime];
+}
+
+function latestScore(scoreObject) {
+  return lastScore(scoreObject, (new Date()).getTime());
+}
+
+function initialScore(scoreObject) {
+  return nextScore(scoreObject, -9999999999);
+}
+
+function highestScore(scoreObject) {
+  let greatest = -Infinity;
+  for (const date in scoreObject) {
+    if (scoreObject[date] > greatest) {
+      greatest = scoreObject[date]
+    }
+  }
+
+  return greatest != -Infinity ? greatest : null;
 }
 
 function roundedAvg(values) {
