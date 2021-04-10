@@ -693,6 +693,7 @@ p.errorMessage {
     display: none;
     width: 350px;
     background-color: rgb(200, 200, 200);
+    border-radius: 10px;
     margin: 0px;
 }
 

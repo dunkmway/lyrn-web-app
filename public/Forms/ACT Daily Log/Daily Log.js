@@ -17,6 +17,7 @@ let lastView = 'Daily Log';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
+let storage = firebase.storage()
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
@@ -1073,3 +1074,28 @@ function getArrayIndex(value, arr) {
 
   return -1;
 }
+
+function openTest() {
+
+  let info = getTestInfo();
+
+  if (info[0] != "B02") {
+    return
+  }
+
+  let path = info[0] + (info[1] != undefined ? (" - " + info[1]) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+}
+
+/*function openTest(test, section = undefined) {
+
+  let storage = firebase.storage()
+  let path = test + (section != undefined ? (" - " + section) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+}*/
