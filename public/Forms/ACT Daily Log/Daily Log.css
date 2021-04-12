@@ -80,8 +80,7 @@ form {
     height: 77.5%;
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
-    --grid-template-rows: 4% 12% 12% 12% 12% 12% 12% 12% 12%;
-    grid-template-rows: 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em 8.5em;
+    grid-auto-rows: 8.5em;
     text-align: center;
     overflow-y: auto;
 }

@@ -415,11 +415,9 @@ function updateHomeworkTest(testBox, test, section) {
       //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
       // Adding 8 hours to show the number of days since it was assigned / not finished
       if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
-        console.log('old way', testAnswers[test]?.[section]?.['Status'])
         testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
       }
       else {
-        console.log('previous', testAnswers[test]?.[section]?.['Status'])
         testBox.innerHTML = "Previously Completed"
         testBox.classList.add("white");
       }
