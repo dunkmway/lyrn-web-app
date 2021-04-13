@@ -17,6 +17,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
   <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
   <script src="student-info-test.js" defer></script>
 </head>
 
@@ -25,9 +26,81 @@
   <section id="loading-screen">
     <div class="loading-ring"></div>
   </section>
-  <div class="flex-row">
-    <h1 id="student-name"></h1>
-    <div class="flex-row">
+  <section id="update-goals-section" class="modal">
+    <div id="update-goals-div" class="registration-block">
+      <div class="heading-block">
+        <h1>Update Goals</h1>
+      </div>
+      <div id="form-scroll-block">
+        <div id="spinnyBoiGoals" class="loader"></div>
+        <form onsubmit="return false">
+          <div class="input-row">
+          </div>
+          <div class="input-row">
+            <div class="input-block">
+              <h4>Composite Goal:</h4>
+              <h2 id="updated-composite-goal"></h2>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-block">
+              <label for="updated-english-goal" class="label">English Goal:</label>
+              <input id="updated-english-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+            </div>
+          
+            <div class="input-block">
+              <label for="updated-math-goal" class="label">Math Goal:</label>
+              <input id="updated-math-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-block">
+              <label for="updated-reading-goal" class="label">Reading Goal:</label>
+              <input id="updated-reading-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+            </div>
+
+            <div class="input-block">
+              <label for="updated-science-goal" class="label">Science Goal:</label>
+              <input id="updated-science-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+            </div>
+          </div><br>
+
+          <div>
+            <div class = "input-row">
+              <label for = "test-dates" class="label">Test Date Goals:</label>
+              <img src="Images/Add Button.jpg" alt="add test date goal" height=25px class = "firstButton" id="addTestDateGoalButton" onclick="addTestDateGoal(this)">
+              <img src="Images/Remove Button.jpg" alt="remove test goal" height=25px class = "" id="removeTestDateGoalButton" onclick="removeTestDateGoal(this)">
+            </div>
+          </div><br>
+
+          <div class="input-row">
+            <p id="errMsgGoals" class="errMsg"></p>
+          </div>
+
+          <div class="input-row">
+            <button type = button id="submitBtn" class="button" onclick="closeModal('update-goals-section')">back</button> 
+            <button type = button id="submitBtn" class="button" onclick="submitUpdatedGoals()">submit</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+  <div class="flex-row align-center">
+    <div id="student-general-info">
+      <h1 id="student-name"></h1>
+      <div class="flex-row">
+        <p>Next Test:</p>
+        <p id="next-test-date"></p>
+      </div>
+      <div class="flex-row">
+        <p id="test-days-left"></p>
+        <p>Days Left</p>
+      </div>
+    </div>
+    <div class="flex-row"  onclick="openUpdateGoals()">
       <div class="score-box composite">
         <p id="composite-score"></p>
         <div class="tooltip">
@@ -174,6 +247,8 @@
         </div>
       </div>
     </div>
+
+    
   </div>
   <div class="flex-column justify-center">
     <div class="flex-row">
