@@ -834,26 +834,54 @@ p.errorMessage {
                                     supported by Chrome, Edge, Opera and Firefox */
 }
 
-#sideNav div {
+.nav_enabled div {
     /*https://www.w3schools.com/howto/howto_css_sidenav_buttons.asp*/
     position: absolute;
-    right: -85px;
-    transition: 0.3s;
+    right: 415px;
+    transition: 0.2s;
     padding: 20px 0px 20px 30px;
     width: 100px;
     font-size: 20px;
     color: white;
     border-radius: 5px 0px 0px 5px;
-    z-index: 3;
+    z-index: 1;
     text-align: right;
 }
 
-#sideNav div:hover {
-    right: 0;
+.nav_enabled div:hover {
+    right: 500px;
+    text-align: left;
+}
+
+.nav_disabled div {
+    position: absolute;
+    right: -85px;
+    transition: 0.2s;
+    padding: 20px 0px 20px 30px;
+    width: 100px;
+    font-size: 20px;
+    color: white;
+    border-radius: 5px 0px 0px 5px;
+    z-index: 1;
+    text-align: right;
+}
+
+.nav_disabled div:hover {
+    right: 0px;
     text-align: left;
 }
 
 #dailyLogNav {
     top: 20px;
     background-color: #4CAF50;
+}
+
+#scoresNav {
+    top: 100px;
+    background-color: #2196F3;
+}
+
+#previousLogsNav {
+    top: 180px;
+    background-color: #f44336;
 }

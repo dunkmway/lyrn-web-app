@@ -1,5 +1,53 @@
+/*let inCenterTests = document.getElementById("inCenterTests");
+inCenterTests.addEventListener('dblclick', function(event) {
+  if (event.target.className.includes("border") && test_view_type == 'inCenter') {
+    const test = event.target.parentNode.getAttribute("data-test");
+    const section = event.target.parentNode.getAttribute("data-section");
+    const passageNumber = event.target.parentNode.getAttribute("data-passagenumber");
+    const passage_status = testAnswers[test]?.[section]?.[passageNumber]?.['Status'];
+
+    if (passage_status == undefined) {
+      console.log("setting")
+      setObjectValue([test, section, passageNumber, "Status"], 'previously completed', testAnswers)
+      setObjectValue([test, section, "Status"], 'inCenter', testAnswers)
+    }
+    else if (passage_status == 'previously completed') {
+      console.log("removing")
+      delete testAnswers[test][section][passageNumber]["Status"]
+
+      if (Object.keys(testAnswers[test][section]).length == 1) {
+        delete testAnswers[test][section]
+        delete testAnswers[test]
+      }
+    }
+  }
+})*/
+
+
+/*inCenterTests.addEventListener('click', function(event)  {
+  if (event.detail === 2) {
+    clearTimeout(singleClickTimer);
+    //openForm();
+    console.log("double click")
+  }
+  else if (event.detail === 1) {
+  if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
+    openForm('homeworkPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+    singleClickTimer = setTimeout(function() {
+      console.log("single click")
+      openForm('testAnswersPopup', undefined, event.target);
+    }, 200)
+  }
+  else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
+    setHomeworkStatus('assigned', 'False', event.target)
+  }
+}
+})*/
+
 // In Center Tests - Popup
-let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
     openForm('homeworkPopup', undefined, event.target);
@@ -9,7 +57,6 @@ inCenterTests.addEventListener('click', function(event)  {
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
     setHomeworkStatus('assigned', 'False', event.target)
-    //assignHomework(event.target);
   }
 })
 
@@ -134,13 +181,6 @@ popupAnswers.addEventListener('click', function(event) {
       2 + 2;
     }
 
-    // Change the color for the answer row and add / remove the answer from the temp Answers
-    //if (isMarkedWrong == true) {
-      //tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
-    //}
-    //else {
-      //tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
-    //}
     openForm('testAnswersPopup');
   }
 })

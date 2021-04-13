@@ -14,6 +14,7 @@ initialSetup();
 let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
+let form_is_open = false;
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
@@ -280,10 +281,18 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     else {
       if (id == "dailyLog") {
         if (lastView == "dailyLog") {
+          if (form_is_open == true) {
+            swap();
+            form_is_open = false;
+          }
           form.style.display = "none"
           lastView = 'none';
         }
         else {
+          if (form_is_open == false) {
+            swap();
+            form_is_open = true;
+          }
           lastView = id;
           form.style.display = "block"
         }
@@ -1097,3 +1106,10 @@ function openTest() {
       open(url);
     })
 }*/
+
+function swap() {
+  console.log("swapping")
+  let nav = document.getElementById("sideNav");
+  nav.classList.toggle("nav_disabled")
+  nav.classList.toggle("nav_enabled")
+}
