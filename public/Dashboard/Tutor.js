@@ -1,10 +1,26 @@
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
 let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+initialSetup();
 
 
+function initialSetup() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      getTutorProfile(user.uid)
+      .then((doc) => {
+        if (doc.exists) {
+          setTutorProfile(doc.data());
+        }
+        else setTutorProfile();
+      })
 
-
+    } else {
+      // No user is signed in.
+    }
+  });
+}
 
 
 const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
@@ -16,15 +32,6 @@ locationDocRef.get()
 
     let activeStudents = doc.get("activeStudents");
 
-    // if (activeStudents) {
-    //   const activeStudentElem = document.getElementById("activeStudents");
-    //   for (const object in activeStudents) {
-    //     let option = document.createElement("option");
-    //     option.value = object;
-    //     option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-    //     activeStudentElem.appendChild(option);
-    //   }
-    // }
 
     let tableData = [];
 
@@ -73,12 +80,6 @@ locationDocRef.get()
   console.log(error.details);
 });
 
-// function activeStudentSelected(e) {
-//   let studentUID = e.value;
-//   let queryStr = "?student=" + studentUID;
-//   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
-// }
-
 function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
@@ -106,5 +107,19 @@ function resetPassword() {
         alert("Oops! No one is signed in to change the password");
       }
     });
+  }
+}
+
+function getTutorProfile(tutorUID) {
+  const tutorProfileRef = firebase.firestore().collection("Tutors").doc(tutorUID);
+  return tutorProfileRef.get();
+}
+
+function setTutorProfile(profileData = {}) {
+  if (profileData['tutorFirstName'] && profileData['tutorLastName']) {
+    document.getElementById('tutor-name').textContent = "Welcome " + profileData['tutorFirstName'] + " " + profileData['tutorLastName'] + "!";
+  }
+  else {
+    document.getElementById('tutor-name').textContent = "Welcome Tutor!";
   }
 }

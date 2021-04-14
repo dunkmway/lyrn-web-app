@@ -852,7 +852,9 @@ function submitDailyLog() {
       Promise.all(promises)
       .then((result) => {
         console.log("Everything submitted");
-        window.history.back();
+        removeUnloadListener();
+        window.location.reload();
+        //window.history.back();
       })
       .catch((error) => {
         console.error(error);

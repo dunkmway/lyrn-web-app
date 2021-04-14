@@ -29,19 +29,18 @@
     </section>
     <section>
       <div class="header">
-        <h2 id="locationName"></h2>
-        <h2>Welcome Tutor!</h2>
+        <div>
+          <h2 id="locationName"></h2>
+          <h2 id="tutor-name"></h2>
+        </div>
+        <button class="button" onclick="signOut()">Sign Out</button>
       </div>
       <div class="input-row">
         <div class="input-block">
-          <label class="label">Active Students</label>
-          <!-- <select id="activeStudents" name="active-students" onchange="activeStudentSelected(this)">
-            <option disabled selected>Choose a student</option>
-          </select> -->
-          <button class="button" onclick="resetPassword()">reset password</button>
-          <h4>Beta Update:</h4>
+          <p><b>Beta Update:</b></p>
           <p>Everything should be up and running for the daily log!</p>
-          <button class="button" onclick="signOut()">Sign Out</button>
+          <p>Please make sure and change your password after signing into your account for the first time.</p>
+          <button class="button" onclick="resetPassword()">reset password</button>
         </div>
       </div>
 

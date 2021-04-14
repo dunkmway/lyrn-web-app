@@ -234,17 +234,17 @@ function updateProfileData() {
   document.getElementById('reading-score').textContent = currentReadingScore ?? "";
   document.getElementById('science-score').textContent = currentScienceScore ?? "";
 
-  const englishGoal = actProfile["englishGoal"] ?? "...";
-  const mathGoal = actProfile["mathGoal"] ?? "...";
-  const readingGoal = actProfile["readingGoal"] ?? "...";
-  const scienceGoal = actProfile["scienceGoal"] ?? "...";
+  const englishGoal = actProfile["englishGoal"];
+  const mathGoal = actProfile["mathGoal"]
+  const readingGoal = actProfile["readingGoal"]
+  const scienceGoal = actProfile["scienceGoal"]
   const compositeGoal = roundedAvg([englishGoal, mathGoal, readingGoal, scienceGoal]);
 
-  document.getElementById('english-goal').textContent = englishGoal;
-  document.getElementById('math-goal').textContent = mathGoal;
-  document.getElementById('reading-goal').textContent = readingGoal;
-  document.getElementById('science-goal').textContent = scienceGoal;
-  document.getElementById('composite-goal').textContent = compositeGoal;
+  document.getElementById('english-goal').textContent = englishGoal ?? "...";
+  document.getElementById('math-goal').textContent = mathGoal ?? "...";
+  document.getElementById('reading-goal').textContent = readingGoal ?? "...";
+  document.getElementById('science-goal').textContent = scienceGoal ?? "...";
+  document.getElementById('composite-goal').textContent = compositeGoal ?? "...";
 
   //round to nearest .5
   const compositeTotalHours = Math.round(compositeHoursArray.runningTotal()[compositeHoursArray.runningTotal().length - 1] / 30) / 2;
@@ -308,8 +308,11 @@ function updateProfileData() {
   document.getElementById('reading-hours/point').textContent = readingHoursPerPoint ?? "...";
   document.getElementById('science-hours/point').textContent = scienceHoursPerPoint ?? "...";
 
-  const nextTestDate = convertFromDateInt(getNextTestDate())['shortDate'];
+  const nextTestDate = convertFromDateInt(getNextTestDate()) ? convertFromDateInt(getNextTestDate())['shortDate'] : null;
   const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestDate());
+
+  console.log('nextTestDate', nextTestDate);
+  console.log('testDaysLeft', testDaysLeft);
 
   document.getElementById('next-test-date').textContent = nextTestDate ?? "...";
   document.getElementById('test-days-left').textContent = testDaysLeft ?? "...";
@@ -664,15 +667,23 @@ function roundedAvg(values) {
 }
 
 function getNextTestDate() {
-  for (let i = 0; i < actProfile["testDateGoals"].length; i++) {
-    if (dateDayDifference(new Date().getTime(), actProfile["testDateGoals"][i]) > 0) {
-      return actProfile["testDateGoals"][i];
+  if (actProfile["testDateGoals"]) {
+    for (let i = 0; i < actProfile["testDateGoals"].length; i++) {
+      if (dateDayDifference(new Date().getTime(), actProfile["testDateGoals"][i]) > 0) {
+        return actProfile["testDateGoals"][i];
+      }
     }
+  } 
+  else {
+    return undefined;
   }
 }
 
 function dateDayDifference(start, end) {
-  return Math.round((end - start) / (1000 * 60 * 60 * 24));
+  if (start && end) {
+    return Math.round((end - start) / (1000 * 60 * 60 * 24));
+  }
+  else return undefined;
 }
 
 function setSessionAxis() {

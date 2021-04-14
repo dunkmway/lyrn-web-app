@@ -42,5 +42,3 @@ function convertFromDateInt(date) {
         'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0')
     };
 }
-
-console.log(convertFromDateInt(1617756767431))

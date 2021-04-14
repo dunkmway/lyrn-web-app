@@ -6,6 +6,7 @@ body {
 
 #update-goals-section {
   display: none;
+  /* visibility: hidden; */
   flex-direction: column;
   justify-content: center;
   align-items: center;

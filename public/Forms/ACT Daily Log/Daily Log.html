@@ -18,7 +18,6 @@
     <script src="Daily Log.js" defer></script>
     <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
-    <script src="testing.js" defer></script>
 </head>
 
 
@@ -29,7 +28,7 @@
     <section id="section">
 
         <div id = "sideNav">
-            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog')">Daily Log</div>
+            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog');addUnloadListener()">Daily Log</div>
         </div>
 
         <div id = "testAnswersPopup" class = "metaForm noselect">

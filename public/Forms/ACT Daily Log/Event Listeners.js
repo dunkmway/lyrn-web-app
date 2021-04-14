@@ -136,3 +136,16 @@ timingBlock.addEventListener('change', function(event) {
 
   setObjectValue([testInfo[0], testInfo[1], testInfo[2], 'Time'], parseInt(minutes) * 60 + parseInt(seconds), tempAnswers);
 })
+
+const beforeUnloadListener = (event) => {
+  event.preventDefault();
+  return event.returnValue = "You may lose data!";
+};
+
+function addUnloadListener() {
+  addEventListener("beforeunload", beforeUnloadListener, {capture: true});
+}
+
+function removeUnloadListener() {
+  removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
+}
