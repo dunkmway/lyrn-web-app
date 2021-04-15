@@ -398,7 +398,7 @@ button {
   border: none;
   border-radius: 45px;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease 0s;
+  /*transition: all 0.3s ease 0s;*/
   cursor: pointer;
   outline: none;
   background-color: rgb(255, 0, 0);
@@ -419,6 +419,25 @@ button {
   border-radius: 45px;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  background-color: rgb(255, 0, 0);
+  text-align: center;
+  color: white;
+}
+
+.longButton {
+  margin-bottom: 10px;
+  width: 150px;
+  height: 42px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   outline: none;
   background-color: rgb(255, 0, 0);
@@ -694,6 +713,10 @@ p.errorMessage {
     background-color: rgb(200, 200, 200);
     border-radius: 10px;
     margin: 0px;
+    position: absolute;
+    right: 550px;
+    top: 20%;
+    z-index: 3;
 }
 
 #leftArrow {
@@ -835,12 +858,11 @@ p.errorMessage {
 }
 
 .nav_enabled div {
-    /*https://www.w3schools.com/howto/howto_css_sidenav_buttons.asp*/
     position: absolute;
-    right: 415px;
+    right: 385px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
-    width: 100px;
+    width: 130px;
     font-size: 20px;
     color: white;
     border-radius: 5px 0px 0px 5px;
@@ -849,39 +871,80 @@ p.errorMessage {
 }
 
 .nav_enabled div:hover {
-    right: 500px;
+    right: 490px;
     text-align: left;
 }
 
 .nav_disabled div {
     position: absolute;
-    right: -85px;
+    right: -115px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
-    width: 100px;
+    width: 130px;
     font-size: 20px;
     color: white;
-    border-radius: 5px 0px 0px 5px;
+    border-radius: 10px 0px 0px 10px;
     z-index: 1;
     text-align: right;
 }
 
 .nav_disabled div:hover {
-    right: 0px;
+    right: -10px;
     text-align: left;
 }
 
 #dailyLogNav {
-    top: 20px;
+    top: 30px;
     background-color: #4CAF50;
 }
 
+#testReviewNav {
+    top: 110px;
+    background-color:#fca146;
+}
+
 #scoresNav {
-    top: 100px;
+    top: 190px;
     background-color: #2196F3;
 }
 
 #previousLogsNav {
-    top: 180px;
+    top: 270px;
     background-color: #f44336;
+}
+
+/* The actual popup */
+.popup {
+  visibility: hidden;
+  width: 170px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0px 8px 0px;
+  position: absolute;
+  z-index: 3;
+  bottom: 5.7%;
+  right: 2%
+  /*left: 50%;*/
+  /*margin-left: -80px;*/
+}
+
+/* Popup arrow */
+.popup::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
 }
