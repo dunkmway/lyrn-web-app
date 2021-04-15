@@ -10,44 +10,31 @@ admin.initializeApp();
    response.send("Hello from Firebase!");
  });
 
- exports.customClaims = functions.https.onRequest((request, response) => {
-    let uids = ["1oqg4zO5YOMoqupNlxTBoGV4BQQ2", "3qKwe1RmUlOuL7gfczocfHyTwDN2", "7z7IkOMVUzO4ueNYhZXxX6gbwK92",
-    "9QF3yxJ9vqS8KnTnn96WRnGp5mF2", "BO6nX3pOPERySKCEcCMRnHvsA543", "BR3RYuXcYsNoeKrUJOK1Irn9F6s1", "PAOt8l7wigZVqq73Eco8VItpoAy1",
-    "XXIMmxLYnFcQDk8LX7RlpyF7TVm2", "ZdHcRGobc0TcHcEKr9OXsHlmQVY2", "diZKKBSVKrZJCv9B4ZMbQi87NRa2", "fAeABLKeq9PxOMBM25txvWsF52l1",
-    "rfYiEWEul8ZbA1N6s7aL9MJ73Nz1", "ttHoUfUgBtVb5dNuKl6GNRI30Cm1"]
-  
-  for (let i = 0; i < uids.length; i++) {
-    admin.auth().setCustomUserClaims(uids[i], {role: "student"})
-    .then(()=> {
-      console.log("student set!")
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  }
- });
 
- exports.customClaimsTest = functions.https.onRequest((request, response) => {
+ //don't let this request go public becuase it could really mess things up!!!
+ exports.setCustomClaimsRequest = functions.https.onRequest((request, response) => {
     admin
     .auth()
-    .getUserByEmail('matthew15243@gmail.com')
+    .getUserByEmail(request.query.email)
     .then((user) => {
       // Confirm user is verified.
         // Add custom claims for additional privileges.
         // This will be picked up by the user on token refresh or next sign in on new device.
         admin.auth().setCustomUserClaims(user.uid, {
-            role: "dev",
+            role: request.query.role
         })
         .then(() => {
             console.log(user.customClaims);
-            response.send("User has been given role");
+            response.send("User " + request.query.email + " has been given role " + request.query.role);
         })
         .catch((error) => {
             console.log(error);
+            response.send(error);
         });
     })
     .catch((error) => {
       console.log(error);
+      response.send(error);
     });
  });
 

@@ -2,73 +2,106 @@
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
 let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+let currentLocations = []
+let currentUser = ""
 
+initialSetup();
 
-
-
-
-
-const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
-locationDocRef.get()
-.then((doc) => {
-  if (doc.exists) {
-    let locationName = doc.get("locationName");
-    document.getElementById("locationName").textContent = locationName;
-
-    let pendingStudents = doc.get("pendingStudents");
-    let activeStudents = doc.get("activeStudents");
-
-    console.log(pendingStudents);
-    console.log(activeStudents);
-    // if (pendingStudents) {
-    //   const pendingStudentElem = document.getElementById("pendingStudents");
-    //   for (const object in pendingStudents) {
-    //     let studentOption = document.createElement("option");
-    //     studentOption.value = object + "," + pendingStudents[object]["parentUID"];
-    //     studentOption.innerText = pendingStudents[object]["studentFirstName"] + " " + pendingStudents[object]["studentLastName"];
-    //     pendingStudentElem.appendChild(studentOption);
-    //   }
-    // }
-
-    // if (activeStudents) {
-    //   const activeStudentElem = document.getElementById("activeStudents");
-    //   for (const object in activeStudents) {
-    //     let option = document.createElement("option");
-    //     option.value = object;
-    //     option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-    //     activeStudentElem.appendChild(option);
-    //   }
-    // }
-
-    //for the table
-    let tableData = [];
-
-    if (pendingStudents) {
-      for (const studentUID in pendingStudents) {
-        const student = {
-          ...pendingStudents[studentUID],
-          status: "pending"
+function initialSetup() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (currentUser) {
+      // User is signed in.
+      getAdminProfile(currentUser.uid)
+      .then((doc) => {
+        if (doc.exists) {
+          setAdminProfile(doc.data());
+          setStudentTable();
         }
-        tableData.push(student);
-      }
-    }
+        else setAdminProfile();
+      })
 
-    if (activeStudents) {
-      for (const studentUID in activeStudents) {
-        const student = {
-          ...activeStudents[studentUID],
-          studentUID: studentUID,
-          status: "active"
+    } else {
+      // No user is signed in.
+    }
+  });
+}
+
+function getAdminProfile(adminUID) {
+  const adminProfileRef = firebase.firestore().collection("Admins").doc(adminUID);
+  return adminProfileRef.get();
+}
+
+function setAdminProfile(profileData = {}) {
+  currentLocations = profileData['locations'];
+  console.log(currentLocations);
+}
+
+function setStudentTable() {
+  let tableData = [];
+  let promises = []
+  for (let i = 0; i < currentLocations.length; i++) {
+    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
+    let locationProm = locationDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        let locationName = doc.get("locationName");
+        //document.getElementById("locationName").textContent = locationName;
+
+        let pendingStudents = doc.get("pendingStudents");
+        let activeStudents = doc.get("activeStudents");
+
+        console.log(pendingStudents);
+        console.log(activeStudents);
+
+        //for the table
+
+        if (pendingStudents) {
+          for (const studentUID in pendingStudents) {
+            const student = {
+              ...pendingStudents[studentUID],
+              studentUID: studentUID,
+              status: "pending",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
         }
-        tableData.push(student);
-      }
-    }
 
+        if (activeStudents) {
+          for (const studentUID in activeStudents) {
+            const student = {
+              ...activeStudents[studentUID],
+              studentUID: studentUID,
+              status: "active",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
+        }
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
+
+    promises.push(locationProm);
+  }
+  
+  Promise.all(promises)
+  .then(() => {
+    console.log("tableData", tableData);
     let studentTable = $('#student-table').DataTable( {
       data: tableData,
       columns: [
         { data: 'studentFirstName' },
         { data: 'studentLastName' },
+        { data: 'location'},
         { data: 'status' },
         { data: 'parentFirstName' },
         { data: 'parentLastName'},
@@ -81,11 +114,12 @@ locationDocRef.get()
     studentTable.on('click', (args1) => {
       let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
       let parentUID = tableData[args1.target._DT_CellIndex.row].parentUID;
+      let location = tableData[args1.target._DT_CellIndex.row].locationUID;
       let status = tableData[args1.target._DT_CellIndex.row].status;
 
       switch (status) {
         case "pending":
-          pendingStudentSelected(studentUID, parentUID);
+          pendingStudentSelected(studentUID, parentUID, location);
           break;
         case "active":
           activeStudentSelected(studentUID);
@@ -93,16 +127,17 @@ locationDocRef.get()
         default:
           console.log("ERROR: This student isn't active or pending!!!")
       }
-      
-    })
-  }
-})
-.catch((error) => {
-  console.log(error);
-  console.log(error.code);
-  console.log(error.message);
-  console.log(error.details);
-});
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+  
+}
+
 
 
 function goToInquiry() {
@@ -180,7 +215,8 @@ function createTutor() {
         //set up the tutor doc
         const tutorDocRef = firebase.firestore().collection("Tutors").doc(tutorUID);
         let tutorDocData = {
-          ...allInputValues
+          ...allInputValues,
+          location: currentLocation
         }
         tutorDocRef.set(tutorDocData)
         .then((result) => {
@@ -248,7 +284,8 @@ function createSecretary() {
         //set up the tutor doc
         const secretaryDocRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
         let secretaryDocData = {
-          ...allInputValues
+          ...allInputValues,
+          location: currentLocation
         }
         secretaryDocRef.set(secretaryDocData)
         .then((result) => {
@@ -420,8 +457,8 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 // }
 
-function pendingStudentSelected(studentUID, parentUID) {
-  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + currentLocation;
+function pendingStudentSelected(studentUID, parentUID, location) {
+  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + location;
   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
