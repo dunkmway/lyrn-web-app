@@ -1,10 +1,10 @@
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
 let currentLocation = "";
-initialSetup();
+initialSetupData();
 
 
-function initialSetup() {
+function initialSetupData() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
@@ -51,8 +51,7 @@ function setStudentTable() {
         data: tableData,
         columns: [
           { data: 'studentFirstName' },
-          { data: 'studentLastName' },
-          { data: 'status' },
+          { data: 'studentLastName' }
         ],
         "scrollY": "400px",
         "scrollCollapse": true,

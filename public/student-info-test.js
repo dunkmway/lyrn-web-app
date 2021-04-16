@@ -53,7 +53,7 @@ var goalsChanged = false;
 
 
 function main() {
-  initialSetup()
+  initialSetupData()
   .then(() => {
     console.log("hwData", hwData);
     console.log("sessionData", sessionData);
@@ -65,7 +65,7 @@ function main() {
   })
 }
 
-function initialSetup() {
+function initialSetupData() {
   currentStudent = queryStrings()["student"];
   console.log("currentStudent", currentStudent);
 

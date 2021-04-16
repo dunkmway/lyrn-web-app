@@ -41,7 +41,8 @@ function checkPermissions() {
     
     const secrataryPages = [
         "/Dashboard/Secratary",
-        "/inquiry"
+        "/inquiry",
+        "/Forms/New%20Student/New%20Student%20Form"
     ]
     
     const adminPages = [

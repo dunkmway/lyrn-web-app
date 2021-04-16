@@ -518,7 +518,8 @@ function update() {
     const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
     pendingData = {
       ...parentInfo,
-      ...studentInfo
+      ...studentInfo,
+      lastModifiedDate: (new Date().getTime())
     }
     let pendingProm = pendingDocRef.update({
       ...pendingData

@@ -26,23 +26,23 @@ function initialSetup() {
 
   if (studentUID) {
     //get the student's general data
-    const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-    studentDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        let studentFirstName = doc.get("studentFirstName");
-        let studentLastName = doc.get("studentLastName");
+    // const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+    // studentDocRef.get()
+    // .then((doc) => {
+    //   if (doc.exists) {
+    //     let studentFirstName = doc.get("studentFirstName");
+    //     let studentLastName = doc.get("studentLastName");
 
-        let studentNameElem = document.getElementById("studentName");
-        studentNameElem.textContent = studentFirstName + " " + studentLastName;
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
-    });
+    //     let studentNameElem = document.getElementById("studentName");
+    //     //studentNameElem.textContent = studentFirstName + " " + studentLastName;
+    //   }
+    // })
+    // .catch((error) => {
+    //   console.log(error);
+    //   console.log(error.code);
+    //   console.log(error.message);
+    //   console.log(error.details);
+    // });
 
     //get the student's hw scores
     let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");

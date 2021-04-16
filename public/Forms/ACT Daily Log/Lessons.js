@@ -2,10 +2,10 @@
 let oldLessonData = {};
 let lessonData = {};
 
-initialSetup();
+initialSetupData();
 
 //initial setup
-function initialSetup() {
+function initialSetupData() {
   getLessonData();
   setLessonEventListeners();
 }

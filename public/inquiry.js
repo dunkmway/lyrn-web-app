@@ -78,7 +78,8 @@ function createInquiry() {
         let pendingProm = pendingDocRef.add({
           // pendingStudents: {[studentInputValues["studentFirstName"]]: allInputValues}
           ...allInputValues,
-          parentUID: parentUID
+          parentUID: parentUID,
+          lastModifiedDate: (new Date().getTime()) 
         })
         .then((docRef) => {
           console.log("pending document successfully written!");
@@ -130,7 +131,7 @@ function createInquiry() {
             console.log(error.details);
           });
 
-          let promises = [parentProm, locationProm];
+          let promises = [pendingProm, parentProm, locationProm];
           Promise.all(promises)
           .then(() => {
             window.history.back();
