@@ -13,6 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
     <script src="../../Site Templates/site-wide.js" defer></script>
     <script src="../../Site Templates/generalFunctions.js" defer></script>
     <script src="Daily Log.js" defer></script>
@@ -25,10 +26,16 @@
     <section id="loading-screen">
         <div class="loading-ring"></div>
     </section>
-    <section id="section">
 
-        <div id = "sideNav">
+    <section id="section">
+        <h2 id="studentName" style="color: white;"></h2>
+        <button onclick="goToTesting()">TESTING</button>
+
+        <div id = "sideNav" class = "nav_disabled">
             <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog');addUnloadListener()">Daily Log</div>
+            <div id = "testReviewNav" class = "button2" onclick = "openForm('dailyLog')">Test Review</div>
+            <div id = "scoresNav" class = "button2" onclick = "openForm('dailyLog')">Test Scores</div>
+            <div id = "previousLogsNav" class = "button2" onclick = "openForm('dailyLog')">Prior Logs</div>
         </div>
 
         <div id = "testAnswersPopup" class = "metaForm noselect">
@@ -166,6 +173,15 @@
                 <button class = "smallButton button" onclick="submitAnswersPopup()">
                     Submit
                 </button>
+                <div id = "perfectScorePopup" class = "popup">
+                    <button class = "longButton button" onclick="submitAnswersPopup('true')">
+                        Perfect Score
+                    </button>
+
+                    <button class = "longButton button" onclick="submitAnswersPopup('prior')">
+                        Prior Completion
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -179,21 +195,32 @@
 
             <div class = "input-row-center">
                 <button class = "green button" onclick="setHomeworkStatus('in-time', 'True')">
-                    Completed, <span class = "smallerText"><br>(in-time)</span>
+                    Completed <span class = "smallerText"><br>(in-time)</span>
                 </button>
 
                 <button class = "orange button" onclick="setHomeworkStatus('forgot')">
-                    Completed, <span class = "smallerText"><br>(forgotten)</span>
+                    Completed <span class = "smallerText"><br>(forgotten)</span>
                 </button>
             </div>
 
             <div class = "input-row-center">
                 <button class = "greenShade button" onclick="setHomeworkStatus('not in time', 'True')">
-                    Completed, <span class = "smallerText"><br>(not in time)</span>
+                    Completed <span class = "smallerText"><br>(not in time)</span>
                 </button>
 
                 <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
-                    Partial, <span class = "smallerText"><br>(time remaining)</span>
+                    Partial <span class = "smallerText"><br>(time remaining)</span>
+                </button>
+            </div>
+
+            <div class = "input-row-center">
+
+                <button class = "greenShade button" onclick="setHomeworkStatus('poor conditions', 'True')">
+                    Poor Conditions
+                </button>
+
+                <button class = "greenShade button" onclick="setHomeworkStatus('previously completed')">
+                    Mark as Completed
                 </button>
             </div>
 
@@ -201,7 +228,7 @@
 
             <div class = "input-row-center">
                 <button class = "red button" onclick="setHomeworkStatus('in-center', 'True')">
-                    Completed, <span class = "smallerText"><br>(in-center)</span>
+                    Completed <span class = "smallerText"><br>(in-center)</span>
                 </button>
 
                 <button class = "gray button" onclick="setHomeworkStatus('did not do')">
@@ -221,13 +248,13 @@
                 </button>
             </div>
 
-        </div>
+            <div class = "input-row-center">
+                <button class = "purple button" onclick="openTest()">
+                    Print
+                </button>
+            </div>
 
-        <h2 id="studentName" style="color: white;"></h2>
-        <button onclick="goToTesting()">TESTING</button>
-        <!--<p style="color: white;">We would love your feedback!</p><br>
-        <p style="color: white;">Please include any suggestions and your<br>name so we can get back to you with any questions</p>
-        <textarea id="feedback" style="width: 300px; height: 200px;"></textarea>-->
+        </div>
 
         <div id = "inCenterTestsForm" class = "metaForm noselect">
             <div id = "inCenterTestsTabs" class = "input-row">
@@ -247,15 +274,6 @@
             </div>
 
             <div id = "inCenterStatusDiv" class = "input-row-center">
-
-                <button class = "button">
-                    First Session
-                </button>
-
-                <button class = "button">
-                    Took Test
-                </button>
-
             </div>
 
             <div class = "testHeaders">
@@ -282,20 +300,36 @@
 
             <div id = "inCenterTests" class = "tests">
 
-                <div class = "gridBox" data-test = "MC3">
-                    <p class = "gridBox-p">MC3</p>
+                <div class = "gridBox" data-test = "C03">
+                    <p class = "gridBox-p">C03</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "English">
+                <div class = "gridBox button2" data-test = "C03" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Math">
+                <div class = "gridBox button2" data-test = "C03" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "C03" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "MC3" data-section = "Science">
+                <div class = "gridBox button2" data-test = "C03" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "B02">
+                    <p class = "gridBox-p">B02</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "B02" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B02" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B02" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B02" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "A09">
@@ -314,20 +348,68 @@
                 <div class = "gridBox button2" data-test = "A09" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "A10">
-                    <p class = "gridBox-p">A10</p>
+                <div class = "gridBox" data-test = "B04">
+                    <p class = "gridBox-p">B04</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "English">
+                <div class = "gridBox button2" data-test = "B04" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Math">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "A10" data-section = "Science">
+                <div class = "gridBox button2" data-test = "B04" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "MC3">
+                    <p class = "gridBox-p">MC3</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC3" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC3" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "74F">
+                    <p class = "gridBox-p">74F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "74F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "74F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "74F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "74F" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "Z15">
+                    <p class = "gridBox-p">Z15</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "Z15" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "Z15" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "Z15" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "Z15" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "72C">
@@ -344,70 +426,6 @@
                 </div>
 
                 <div class = "gridBox button2" data-test = "72C" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "B05">
-                    <p class = "gridBox-p">B05</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "B05" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B05" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B05" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B05" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "71E">
-                    <p class = "gridBox-p">71E</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "71E" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71E" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71E" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71E" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "MC2">
-                    <p class = "gridBox-p">MC2</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "MC2" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "MC2" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "69A">
-                    <p class = "gridBox-p">69A</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "69A" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "69A" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "69A" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "69A" data-section = "Science">
                 </div>
 
             </div>
@@ -442,14 +460,6 @@
 
             <div id = "homeworkStatusDiv" class = "input-row-center">
 
-                <button class = "button">
-                    First Session
-                </button>
-
-                <button class = "button">
-                    Took Test
-                </button>
-
             </div>
 
             <div class = "testHeaders">
@@ -477,84 +487,20 @@
 
             <div id = "homeworkTests" class = "tests">
 
-                <div class = "gridBox" data-test = "B02">
-                    <p class = "gridBox-p">B02</p>
+                <div class = "gridBox" data-test = "C02">
+                    <p class = "gridBox-p">C02</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "English">
+                <div class = "gridBox button2" data-test = "C02" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Math">
+                <div class = "gridBox button2" data-test = "C02" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "C02" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "B02" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "74F">
-                    <p class = "gridBox-p">74F</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "74F" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "74F" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "74F" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "74F" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "72F">
-                    <p class = "gridBox-p">72F</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "72F" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "72F" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "72F" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "72F" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "B04">
-                    <p class = "gridBox-p">B04</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "B04" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B04" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B04" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "B04" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "71H">
-                    <p class = "gridBox-p">71H</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "71H" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71H" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71H" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71H" data-section = "Science">
+                <div class = "gridBox button2" data-test = "C02" data-section = "Science">
                 </div>
 
                 <div class = "gridBox" data-test = "A11">
@@ -573,6 +519,86 @@
                 <div class = "gridBox button2" data-test = "A11" data-section = "Science">
                 </div>
 
+                <div class = "gridBox" data-test = "71E">
+                    <p class = "gridBox-p">71E</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "71E" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71E" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71E" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71E" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "A10">
+                    <p class = "gridBox-p">A10</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "A10" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "A10" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "A10" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "A10" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "MC2">
+                    <p class = "gridBox-p">MC2</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC2" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "MC2" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "B05">
+                    <p class = "gridBox-p">B05</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "B05" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B05" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B05" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "B05" data-section = "Science">
+                </div>
+
+                <div class = "gridBox" data-test = "D03">
+                    <p class = "gridBox-p">D03</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "D03" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "D03" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "D03" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "D03" data-section = "Science">
+                </div>
+
                 <div class = "gridBox" data-test = "74C">
                     <p class = "gridBox-p">74C</p>
                 </div>
@@ -587,22 +613,6 @@
                 </div>
 
                 <div class = "gridBox button2" data-test = "74C" data-section = "Science">
-                </div>
-
-                <div class = "gridBox" data-test = "71G">
-                    <p class = "gridBox-p">71G</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "71G" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71G" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71G" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "71G" data-section = "Science">
                 </div>
 
             </div>
@@ -637,14 +647,6 @@
 
             <div id = "otherStatusDiv" class = "input-row-center">
 
-                <button class = "button">
-                    First Session
-                </button>
-
-                <button class = "button">
-                    Took Test
-                </button>
-
             </div>
 
             <div class = "testHeaders">
@@ -672,101 +674,226 @@
 
             <div id = "otherTests" class = "tests">
 
-                <div class = "gridBox" data-test = "ST 1">
-                    <p class = "gridBox-p">ST 1</p>
+                <div class = "gridBox" data-test = "67C">
+                    <p class = "gridBox-p">67C</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "English">
+                <div class = "gridBox button2" data-test = "67C" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Math">
+                <div class = "gridBox button2" data-test = "67C" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "67C" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 1" data-section = "Science">
+                <div class = "gridBox button2" data-test = "67C" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "73E">
-                    <p class = "gridBox-p">73E</p>
+
+                <div class = "gridBox" data-test = "ST1">
+                    <p class = "gridBox-p">ST1</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "English">
+                <div class = "gridBox button2" data-test = "ST1" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Math">
+                <div class = "gridBox button2" data-test = "ST1" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "ST1" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "73E" data-section = "Science">
+                <div class = "gridBox button2" data-test = "ST1" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "ST 2">
-                    <p class = "gridBox-p">ST 2</p>
+
+                <div class = "gridBox" data-test = "64E">
+                    <p class = "gridBox-p">64E</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "English">
+                <div class = "gridBox button2" data-test = "64E" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Math">
+                <div class = "gridBox button2" data-test = "64E" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "64E" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "ST 2" data-section = "Science">
+                <div class = "gridBox button2" data-test = "64E" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "72G">
-                    <p class = "gridBox-p">72G</p>
+
+                <div class = "gridBox" data-test = "61C">
+                    <p class = "gridBox-p">61C</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "English">
+                <div class = "gridBox button2" data-test = "61C" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Math">
+                <div class = "gridBox button2" data-test = "61C" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "61C" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "72G" data-section = "Science">
+                <div class = "gridBox button2" data-test = "61C" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "71A">
-                    <p class = "gridBox-p">71A</p>
+
+                <div class = "gridBox" data-test = "59F">
+                    <p class = "gridBox-p">59F</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "English">
+                <div class = "gridBox button2" data-test = "59F" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Math">
+                <div class = "gridBox button2" data-test = "59F" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "59F" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "71A" data-section = "Science">
+                <div class = "gridBox button2" data-test = "59F" data-section = "Science">
                 </div>
 
-                <div class = "gridBox" data-test = "68G">
-                    <p class = "gridBox-p">68G</p>
+
+                <div class = "gridBox" data-test = "69A">
+                    <p class = "gridBox-p">69A</p>
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "English">
+                <div class = "gridBox button2" data-test = "69A" data-section = "English">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Math">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Math">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Reading">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Reading">
                 </div>
 
-                <div class = "gridBox button2" data-test = "68G" data-section = "Science">
+                <div class = "gridBox button2" data-test = "69A" data-section = "Science">
                 </div>
+
+
+                <div class = "gridBox" data-test = "ST2">
+                    <p class = "gridBox-p">ST2</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "ST2" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "ST2" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "ST2" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "ST2" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "66F">
+                    <p class = "gridBox-p">66F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "66F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66F" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "61F">
+                    <p class = "gridBox-p">61F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "61F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61F" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "55C">
+                    <p class = "gridBox-p">55C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "55C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "55C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "55C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "55C" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "58E">
+                    <p class = "gridBox-p">58E</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "58E" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "58E" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "58E" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "58E" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "71C">
+                    <p class = "gridBox-p">71C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "71C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71C" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "71G">
+                    <p class = "gridBox-p">71G</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "71G" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71G" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71G" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71G" data-section = "Science">
+                </div>
+
 
                 <div class = "gridBox" data-test = "68A">
                     <p class = "gridBox-p">68A</p>
@@ -784,6 +911,41 @@
                 <div class = "gridBox button2" data-test = "68A" data-section = "Science">
                 </div>
 
+
+                <div class = "gridBox" data-test = "72F">
+                    <p class = "gridBox-p">72F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "72F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72F" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "71H">
+                    <p class = "gridBox-p">71H</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "71H" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71H" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71H" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71H" data-section = "Science">
+                </div>
+
+
                 <div class = "gridBox" data-test = "67A">
                     <p class = "gridBox-p">67A</p>
                 </div>
@@ -800,6 +962,244 @@
                 <div class = "gridBox button2" data-test = "67A" data-section = "Science">
                 </div>
 
+
+                <div class = "gridBox" data-test = "63C">
+                    <p class = "gridBox-p">63C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "63C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63C" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "61D">
+                    <p class = "gridBox-p">61D</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "61D" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61D" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61D" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "61D" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "73E">
+                    <p class = "gridBox-p">73E</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "73E" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73E" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73E" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73E" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "73C">
+                    <p class = "gridBox-p">73C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "73C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "73C" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "71A">
+                    <p class = "gridBox-p">71A</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "71A" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71A" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71A" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "71A" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "66C">
+                    <p class = "gridBox-p">66C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "66C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "66C" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "65E">
+                    <p class = "gridBox-p">65E</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "65E" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65E" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65E" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65E" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "63F">
+                    <p class = "gridBox-p">63F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "63F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63F" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "63D">
+                    <p class = "gridBox-p">63D</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "63D" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63D" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63D" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "63D" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "72G">
+                    <p class = "gridBox-p">72G</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "72G" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72G" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72G" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "72G" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "68G">
+                    <p class = "gridBox-p">68G</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "68G" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "68G" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "68G" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "68G" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "70G">
+                    <p class = "gridBox-p">70G</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "70G" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "70G" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "70G" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "70G" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "69F">
+                    <p class = "gridBox-p">69F</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "69F" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "69F" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "69F" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "69F" data-section = "Science">
+                </div>
+
+
+                <div class = "gridBox" data-test = "65C">
+                    <p class = "gridBox-p">65C</p>
+                </div>
+
+                <div class = "gridBox button2" data-test = "65C" data-section = "English">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65C" data-section = "Math">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65C" data-section = "Reading">
+                </div>
+
+                <div class = "gridBox button2" data-test = "65C" data-section = "Science">
+                </div>
+
             </div>
                 <div class = "input-row-center formEnd-center">
 
@@ -810,7 +1210,7 @@
                 </div>
 
 
-        </div>
+            </div>
 
 
         <div id = "englishLessonsForm" class = "metaForm noselect">

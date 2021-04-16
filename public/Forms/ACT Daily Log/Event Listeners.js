@@ -1,5 +1,4 @@
 // In Center Tests - Popup
-let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
     openForm('homeworkPopup', undefined, event.target);
@@ -9,7 +8,6 @@ inCenterTests.addEventListener('click', function(event)  {
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
     setHomeworkStatus('assigned', 'False', event.target)
-    //assignHomework(event.target);
   }
 })
 
@@ -67,13 +65,18 @@ popupAnswers.addEventListener('click', function(event) {
     else if (isMarkedWrong == true && isGuessEndPoint == false) {
       tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
       if (!shouldMarkAsGuessed(test, section, question) || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
-        console.log("I'm here:", test, section, question)
-        console.log(shouldMarkAsGuessed(test, section, question))
-        if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined) {
-          tempAnswers[test][section]['GuessEndPoints'].push(question);
+        if (guessEndPoints == undefined || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
+          if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined) {
+            tempAnswers[test][section]['GuessEndPoints'].push(question);
+          }
+          else {
+            tempAnswers[test][section]['GuessEndPoints'] = []
+            tempAnswers[test][section]['GuessEndPoints'].push(question);
+          }
         }
         else {
-          tempAnswers[test][section]['GuessEndPoints'] = []
+          // Just mark the individual question
+          tempAnswers[test][section]['GuessEndPoints'].push(question);
           tempAnswers[test][section]['GuessEndPoints'].push(question);
         }
       }
@@ -87,22 +90,27 @@ popupAnswers.addEventListener('click', function(event) {
       // Remove the guess color class
       tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
 
-      if (guessEndPoints.length == 1) {
-        delete tempAnswers[test][section]['GuessEndPoints']
+      if (guessEndPoints.length % 2 == 0) {
+        if (guessEndPoints.length == 1) {
+          delete tempAnswers[test][section]['GuessEndPoints']
+        }
+        else {
+          const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
+          tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
+          if (index % 2 == 1) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index - 1, 1)
+          }
+          else if (tempAnswers[test][section]['GuessEndPoints'].length > index) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
+          }
+        }
+
+        if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined && tempAnswers[test][section]['GuessEndPoints'].length == 0) {
+          delete tempAnswers[test][section]['GuessEndPoints']
+        }
       }
       else {
-        const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
-        tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-        if (index % 2 == 1) {
-          tempAnswers[test][section]['GuessEndPoints'].splice(index - 1, 1)
-        }
-        else if (tempAnswers[test][section]['GuessEndPoints'].length > index) {
-          tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-        }
-      }
-
-      if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined && tempAnswers[test][section]['GuessEndPoints'].length == 0) {
-        delete tempAnswers[test][section]['GuessEndPoints']
+        tempAnswers[test][section]['GuessEndPoints'].push(question);
       }
 
     }
@@ -110,19 +118,11 @@ popupAnswers.addEventListener('click', function(event) {
     // Sort the guessed questions array
     try {
       tempAnswers[test][section]['GuessEndPoints'].sort(function(a, b){return a-b})
-      console.log("sorted")
     }
     catch {
       2 + 2;
     }
 
-    // Change the color for the answer row and add / remove the answer from the temp Answers
-    //if (isMarkedWrong == true) {
-      //tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
-    //}
-    //else {
-      //tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
-    //}
     openForm('testAnswersPopup');
   }
 })
