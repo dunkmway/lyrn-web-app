@@ -1,6 +1,6 @@
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
-let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+let currentLocation = "";
 initialSetup();
 
 
@@ -12,6 +12,7 @@ function initialSetup() {
       .then((doc) => {
         if (doc.exists) {
           setTutorProfile(doc.data());
+          setStudentTable();
         }
         else setTutorProfile();
       })
@@ -22,63 +23,65 @@ function initialSetup() {
   });
 }
 
+function setStudentTable() {
+  const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
+  locationDocRef.get()
+  .then((doc) => {
+    if (doc.exists) {
+      let locationName = doc.get("locationName");
+      //document.getElementById("locationName").textContent = locationName;
 
-const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
-locationDocRef.get()
-.then((doc) => {
-  if (doc.exists) {
-    let locationName = doc.get("locationName");
-    document.getElementById("locationName").textContent = locationName;
-
-    let activeStudents = doc.get("activeStudents");
+      let activeStudents = doc.get("activeStudents");
 
 
-    let tableData = [];
+      let tableData = [];
 
-    if (activeStudents) {
-      for (const studentUID in activeStudents) {
-        const student = {
-          ...activeStudents[studentUID],
-          studentUID: studentUID,
-          status: "active"
+      if (activeStudents) {
+        for (const studentUID in activeStudents) {
+          const student = {
+            ...activeStudents[studentUID],
+            studentUID: studentUID,
+            status: "active"
+          }
+          tableData.push(student);
         }
-        tableData.push(student);
       }
+
+      let studentTable = $('#student-table').DataTable( {
+        data: tableData,
+        columns: [
+          { data: 'studentFirstName' },
+          { data: 'studentLastName' },
+          { data: 'status' },
+        ],
+        "scrollY": "400px",
+        "scrollCollapse": true,
+        "paging": false
+      } );
+
+      studentTable.on('click', (args1) => {
+        let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
+        let status = tableData[args1.target._DT_CellIndex.row].status;
+
+        switch (status) {
+          case "active":
+            activeStudentSelected(studentUID);
+            break;
+          default:
+            console.log("ERROR: This student isn't active or pending!!!")
+        }
+        
+      })
     }
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+}
 
-    let studentTable = $('#student-table').DataTable( {
-      data: tableData,
-      columns: [
-        { data: 'studentFirstName' },
-        { data: 'studentLastName' },
-        { data: 'status' },
-      ],
-      "scrollY": "400px",
-      "scrollCollapse": true,
-      "paging": false
-    } );
-
-    studentTable.on('click', (args1) => {
-      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
-      let status = tableData[args1.target._DT_CellIndex.row].status;
-
-      switch (status) {
-        case "active":
-          activeStudentSelected(studentUID);
-          break;
-        default:
-          console.log("ERROR: This student isn't active or pending!!!")
-      }
-      
-    })
-  }
-})
-.catch((error) => {
-  console.log(error);
-  console.log(error.code);
-  console.log(error.message);
-  console.log(error.details);
-});
 
 function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
@@ -121,5 +124,9 @@ function setTutorProfile(profileData = {}) {
   }
   else {
     document.getElementById('tutor-name').textContent = "Welcome Tutor!";
+  }
+
+  if (profileData['location']) {
+    currentLocation = profileData['location'];
   }
 }

@@ -37,6 +37,12 @@
           <div id="spinnyBoiTutor" class="loader"></div>
           <form onsubmit="return false">
             <div class="input-row">
+              <div class="input-block">
+                  <label for="tutorLocation" class="label">Wasatch Location:</label>
+                  <select id="tutorLocation" class="select" required>
+                    <option selected disabled value="">select a location</option>
+                  </select>
+              </div>
             </div>
             <div class="input-row">
               <div class="input-block">
@@ -78,8 +84,12 @@
         <div id="form-scroll-block">
           <div id="spinnyBoiSecretary" class="loader"></div>
           <form onsubmit="return false">
-            <div class="input-row">
-            </div>
+            <div class="input-block">
+              <label for="secretaryLocation" class="label">Wasatch Location:</label>
+              <select id="secretaryLocation" class="select" required>
+                <option selected disabled value="">select a location</option>
+              </select>
+          </div>
             <div class="input-row">
               <div class="input-block">
                   <label for="secretaryFirstName" class="label">Secretary First Name:</label>
@@ -114,14 +124,16 @@
 
     <section>
       <div class="header">
-        <h1 id="locationName"></h1>
+        <!-- <h1 id="locationName"></h1> -->
+        <h2 id="admin-name"></h2>
         <button class="button" onclick="signOut()">Sign Out</button>
       </div>
 
       <div class="flex-row align-center">
         <button class="button" onclick="goToInquiry()">Inquiry</button>
-      <button class="button" onclick="popUpUser('tutor')">Add Tutor</button>
-      <button class="button" onclick="popUpUser('secretary')">Add Secretary</button>
+        <button class="button" onclick="popUpUser('tutor')">Add Tutor</button>
+        <button class="button" onclick="popUpUser('secretary')">Add Secretary</button>
+        <button class="button" onclick="resetPassword()">reset password</button>
       </div>
 
       <div>

@@ -1,8 +1,9 @@
 
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
-let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
-let currentLocations = []
+//let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+let currentLocations = [];
+let currentLocationNames = [];
 let currentUser = ""
 
 initialSetup();
@@ -16,7 +17,8 @@ function initialSetup() {
       .then((doc) => {
         if (doc.exists) {
           setAdminProfile(doc.data());
-          setStudentTable();
+          setStudentTable()
+          .then(() => setLocations())
         }
         else setAdminProfile();
       })
@@ -35,6 +37,13 @@ function getAdminProfile(adminUID) {
 function setAdminProfile(profileData = {}) {
   currentLocations = profileData['locations'];
   console.log(currentLocations);
+
+  if (profileData['adminFirstName'] && profileData['adminLastName']) {
+    document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
+  }
+  else {
+    document.getElementById('admin-name').textContent = "Welcome Admin!";
+  }
 }
 
 function setStudentTable() {
@@ -46,6 +55,7 @@ function setStudentTable() {
     .then((doc) => {
       if (doc.exists) {
         let locationName = doc.get("locationName");
+        currentLocationNames.push(locationName);
         //document.getElementById("locationName").textContent = locationName;
 
         let pendingStudents = doc.get("pendingStudents");
@@ -93,7 +103,7 @@ function setStudentTable() {
     promises.push(locationProm);
   }
   
-  Promise.all(promises)
+  return Promise.all(promises)
   .then(() => {
     console.log("tableData", tableData);
     let studentTable = $('#student-table').DataTable( {
@@ -111,11 +121,11 @@ function setStudentTable() {
       "paging": false
     } );
 
-    studentTable.on('click', (args1) => {
-      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
-      let parentUID = tableData[args1.target._DT_CellIndex.row].parentUID;
-      let location = tableData[args1.target._DT_CellIndex.row].locationUID;
-      let status = tableData[args1.target._DT_CellIndex.row].status;
+    studentTable.on('click', (args) => {
+      let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+      let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
+      let location = tableData[args.target._DT_CellIndex.row].locationUID;
+      let status = tableData[args.target._DT_CellIndex.row].status;
 
       switch (status) {
         case "pending":
@@ -135,6 +145,20 @@ function setStudentTable() {
     console.log(error.message);
     console.log(error.details);
   });
+  
+}
+
+function setLocations () {
+  const locationElems = document.querySelectorAll("select[id*=Location]");
+  for (let i = 0; i < locationElems.length; i++) {
+    let locationElem = locationElems[i];
+    for (let j =  0; j < currentLocations.length; j++) {
+      let option = document.createElement("option");
+      option.value = currentLocations[j];
+      option.innerText = currentLocationNames[j]
+      locationElem.appendChild(option);
+    }
+  }
   
 }
 
@@ -187,8 +211,9 @@ function closeUser(user, submitted = false) {
 
 function createTutor() {
   document.getElementById("spinnyBoiTutor").style.display = "block";
-  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input, select");
-  if (validateFields(allInputs)) {
+  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input");
+
+  if (validateFields([...allInputs, document.getElementById("tutorLocation")])) {
     console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
@@ -210,6 +235,8 @@ function createTutor() {
       let newUser = result.data.newUser;
       console.log(tutorUID);
       console.log(newUser);
+
+      let currentLocation = document.getElementById("tutorLocation").value;
 
       if (newUser) {
         //set up the tutor doc
@@ -256,8 +283,8 @@ function createTutor() {
 
 function createSecretary() {
   document.getElementById("spinnyBoiSecretary").style.display = "block";
-  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input, select");
-  if (validateFields(allInputs)) {
+  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input");
+  if (validateFields(allInputs) && validateFields([document.getElementById("secretaryLocation")])) {
     console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
@@ -279,6 +306,8 @@ function createSecretary() {
       let newUser = result.data.newUser;
       console.log(secretaryUID);
       console.log(newUser);
+
+      let currentLocation = document.getElementById("secretaryLocation").value;
 
       if (newUser) {
         //set up the tutor doc
@@ -320,6 +349,31 @@ function createSecretary() {
   else {
     console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
+  }
+}
+
+function resetPassword() {
+  let confirmation = confirm("Are you sure you want to reset your password?");
+  if (confirmation) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var auth = firebase.auth();
+        var emailAddress = user.email;
+
+        auth.sendPasswordResetEmail(emailAddress)
+        .then(function() {
+          // Email sent.
+          alert("An email has been sent to your email to continue with your password reset.");
+        })
+        .catch(function(error) {
+          // An error happened.
+          alert("There was an issue with your password reset. \nPlease try again later.");
+        });
+      } else {
+        // No user is signed in.
+        alert("Oops! No one is signed in to change the password");
+      }
+    });
   }
 }
 
