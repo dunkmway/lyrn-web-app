@@ -1,35 +1,13 @@
 //handle the lesson object
-let lessonData = {}
+let oldLessonData = {};
+let lessonData = {};
 
 initialSetup();
 
 //initial setup
 function initialSetup() {
-  //get all of the lesson divs and set an onclick event
-  let englishParent = document.getElementById("englishLessons");
-  let mathParent = document.getElementById("mathLessons");
-  let readingParent = document.getElementById("readingLessons");
-  let scienceParent = document.getElementById("scienceLessons");
-
-  let englishLessons = englishParent.querySelectorAll(".button2");
-  let mathLessons = mathParent.querySelectorAll(".button2");
-  let readingLessons = readingParent.querySelectorAll(".button2");
-  let scienceLessons = scienceParent.querySelectorAll(".button2");
-
-  for (let i = 0; i < englishLessons.length; i++) {
-    englishLessons[i].addEventListener("click", updateLessonData);
-  }
-  for (let i = 0; i < mathLessons.length; i++) {
-    mathLessons[i].addEventListener("click", updateLessonData);
-  }
-  for (let i = 0; i < readingLessons.length; i++) {
-    readingLessons[i].addEventListener("click", updateLessonData);
-  }
-  for (let i = 0; i < scienceLessons.length; i++) {
-    scienceLessons[i].addEventListener("click", updateLessonData);
-  }
-
-  getLessonData()
+  getLessonData();
+  setLessonEventListeners();
 }
 
 //get the lesson object from firebase
@@ -43,6 +21,7 @@ function getLessonData() {
     .then((doc) => {
       if (doc.exists) {
         lessonData = doc.data();
+        oldLessonData = JSON.parse(JSON.stringify(lessonData));
         updateLessonGraphics();
       }
     })
@@ -78,7 +57,10 @@ function updateLessonData() {
       };
       break;
     case "mastered":
-      delete lessonData[section][lesson];
+      value = {
+        status: "needs review",
+        date: date.getTime()
+      };
       break;
     default:
       value = {
@@ -86,14 +68,64 @@ function updateLessonData() {
         date: date.getTime()
       };
   }
-  
   setObjectValue([section, lesson], value, lessonData);
-
   updateLessonGraphics();
+
+  console.log(lessonData);
 }
+
+function resetLessonData() {
+  const section = this.id.split("-")[0];
+  const lesson = this.id.split("-")[1];
+
+  let value = {
+    status: oldLessonData[section]?.[lesson]?.status,
+    date: oldLessonData[section]?.[lesson]?.date
+  }
+
+  if (value.status) {
+    setObjectValue([section, lesson], value, lessonData);
+  }
+  else {
+    delete lessonData[section][lesson];
+  }
+  updateLessonGraphics();
+
+  console.log(lessonData);
+}
+
 
 //call this function when the colors of the lessons need to be updated
 function updateLessonGraphics() {
+  //get all of the lesson divs and set their color to null
+  let englishParent = document.getElementById("englishLessons");
+  let mathParent = document.getElementById("mathLessons");
+  let readingParent = document.getElementById("readingLessons");
+  let scienceParent = document.getElementById("scienceLessons");
+
+  let englishLessons = englishParent.querySelectorAll(".button2");
+  let mathLessons = mathParent.querySelectorAll(".button2");
+  let readingLessons = readingParent.querySelectorAll(".button2");
+  let scienceLessons = scienceParent.querySelectorAll(".button2");
+
+  for (let i = 0; i < englishLessons.length; i++) {
+    englishLessons[i].style.backgroundColor = null;
+    englishLessons[i].innerHTML = null;
+  }
+  for (let i = 0; i < mathLessons.length; i++) {
+    mathLessons[i].style.backgroundColor = null;
+    mathLessons[i].innerHTML = null;
+  }
+  for (let i = 0; i < readingLessons.length; i++) {
+    readingLessons[i].style.backgroundColor = null;
+    readingLessons[i].innerHTML = null;
+  }
+  for (let i = 0; i < scienceLessons.length; i++) {
+    scienceLessons[i].style.backgroundColor = null;
+    scienceLessons[i].innerHTML = null;
+  }
+
+  //change the color based on what the current status is
   for (const section in lessonData) {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
@@ -161,6 +193,36 @@ function setLessonData() {
     //there is no tutor logged in
     console.log("There is no tutor logged in!!!")
     return Promise.reject("There is no tutor logged in!!!")
+  }
+}
+
+function setLessonEventListeners() {
+  //get all of the lesson divs and set an onclick event
+  let englishParent = document.getElementById("englishLessons");
+  let mathParent = document.getElementById("mathLessons");
+  let readingParent = document.getElementById("readingLessons");
+  let scienceParent = document.getElementById("scienceLessons");
+
+  let englishLessons = englishParent.querySelectorAll(".button2");
+  let mathLessons = mathParent.querySelectorAll(".button2");
+  let readingLessons = readingParent.querySelectorAll(".button2");
+  let scienceLessons = scienceParent.querySelectorAll(".button2");
+
+  for (let i = 0; i < englishLessons.length; i++) {
+    englishLessons[i].addEventListener("click", updateLessonData);
+    englishLessons[i].addEventListener("dblclick", resetLessonData);
+  }
+  for (let i = 0; i < mathLessons.length; i++) {
+    mathLessons[i].addEventListener("click", updateLessonData);
+    mathLessons[i].addEventListener("dblclick", resetLessonData);
+  }
+  for (let i = 0; i < readingLessons.length; i++) {
+    readingLessons[i].addEventListener("click", updateLessonData);
+    readingLessons[i].addEventListener("dblclick", resetLessonData);
+  }
+  for (let i = 0; i < scienceLessons.length; i++) {
+    scienceLessons[i].addEventListener("click", updateLessonData);
+    scienceLessons[i].addEventListener("dblclick", resetLessonData);
   }
 }
 
