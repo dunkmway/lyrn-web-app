@@ -11,12 +11,14 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'in-time' : 'green', 'not in time' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
+let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
+let tab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
+let storage = firebase.storage()
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
@@ -279,10 +281,18 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     else {
       if (id == "dailyLog") {
         if (lastView == "dailyLog") {
+          if (tab == 'dailyLog') {
+            swap();
+            tab = 'none';
+          }
           form.style.display = "none"
           lastView = 'none';
         }
         else {
+          if (tab == 'none') {
+            swap();
+            tab = 'dailyLog';
+          }
           lastView = id;
           form.style.display = "block"
         }
@@ -336,6 +346,10 @@ function clearInCenterFormating() {
     // Remove the 'highlight' class
     test_boxes[box].classList.remove('highlight');
 
+    // Clear the popup
+    let popup = document.getElementById("perfectScorePopup")
+    popup.classList.remove("show")
+
     // Reset the innerHTML text
     test_boxes[box].innerHTML = "";
   }
@@ -374,7 +388,7 @@ function updateInCenterTest(testBox, test, section) {
     let ele = createElement("div", ["border"], ["data-passageNumber"], [(child + 1).toString()], (child + 1).toString(), "border");
     
     // if the passage exists within the testAnswers, color it and set its score
-    if (testAnswers[test]?.[section]?.[child + 1] != undefined) {
+    if (testAnswers[test]?.[section]?.[child + 1] != undefined && testAnswers[test]?.[section]?.[child + 1]?.['Status'] != 'previously completed') {
       ele.classList.add(coloring['in-time']) // color it green
 
       // Get the total number of questions in the passage
@@ -387,6 +401,10 @@ function updateInCenterTest(testBox, test, section) {
 
       // Set the score
       ele.innerHTML = (numberOfQuestions - Object.keys(testAnswers[test][section][child + 1]["Answers"]).length).toString() + " / " + numberOfQuestions.toString()
+    }
+    else if (testAnswers[test]?.[section]?.[child + 1]?.['Status'] == 'previously completed') {
+      ele.innerHTML = 'Completed';
+      ele.classList.add(coloring['previously completed']) // color it green
     }
 
 
@@ -414,11 +432,9 @@ function updateHomeworkTest(testBox, test, section) {
       //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
       // Adding 8 hours to show the number of days since it was assigned / not finished
       if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
-        console.log('old way', testAnswers[test]?.[section]?.['Status'])
         testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
       }
       else {
-        console.log('previous', testAnswers[test]?.[section]?.['Status'])
         testBox.innerHTML = "Previously Completed"
         testBox.classList.add("white");
       }
@@ -468,20 +484,23 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
       setObjectValue([test, section, "TestType"], 'homework', testAnswers)
     }
   }
-  else if (current_status == 'assigned' || current_status == 'reassigned' || status == 'partial') {
-    newStatus = status;
-  }
-  else if (current_status == undefined && status == 'previously completed') {
+  // Previously completed
+  else if ((current_status == undefined || current_status == 'assigned' || current_status == 'reassigned') && status == 'previously completed') {
     setObjectValue([test, section, "Status"], status, testAnswers)
     setObjectValue([test, section, "TestType"], 'homework', testAnswers)
     setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
   }
+  // Partially completed
+  else if (current_status == 'assigned' || current_status == 'reassigned' || status == 'partial') {
+    newStatus = status;
+  }
 
   // Exit the popup
-  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned')) {
+  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')) {
+    newStatus = status;
     openForm('testAnswersPopup');
   }
-  else {
+  else if (status == 'previously completed' || status == 'assigned' || status == 'reassigned' || ((status == 'forgot' || status == 'did not do') && (current_status == 'assigned' || current_status == 'reassigned') ) ) {
     openForm(lastView);
   }
 
@@ -650,17 +669,39 @@ function shouldMarkAsGuessed(test, section, question) {
   }
 }
 
-function submitAnswersPopup() {
+function submitAnswersPopup(isPerfectScore = 'false') {
   // Grab the test info
   let info = getTestInfo();
   const status = testAnswers[info[0]]?.[info[1]]?.['Status']
   const guesses = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints']
   let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
   let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
+  let can_exit = true;
 
   if (test_view_type == 'inCenter') {
-    setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-    setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+    if (oldTestAnswers[info[0]]?.[info[1]]?.[info[2]] == undefined) {
+      if (tempAnswers[info[0]]?.[info[1]]?.[info[2]]?.["Answers"].length == 0 && isPerfectScore == 'false') {
+        let popup = document.getElementById("perfectScorePopup")
+        popup.classList.toggle("show")
+        can_exit = false;
+      }
+      else {
+        if (isPerfectScore == 'prior') {
+          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+          setObjectValue([info[0], info[1], info[2], 'Status'], 'previously completed', testAnswers);
+          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+        }
+        else {
+          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+          setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
+          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+        }
+      }
+    }
+    else {
+      // reset the temp answers
+      setObjectValue([info[0], info[1], info[2]], testAnswers[info[0]][info[1]][info[2]], tempAnswers);
+    }
   }
   else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
 
@@ -693,10 +734,16 @@ function submitAnswersPopup() {
         setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
       }
     }
+    else {
+      console.log("POP-UP: Partially completed selected: please mark at least one question as a guess");
+    }
+  }
+  else {
+    console.log("POP-UP: Please finish grading the test before submitting");
   }
 
   // Go back to one of the test forms
-  if (!(info[2] != last_passage_number && test_view_type == 'homework')) {
+  if (!(info[2] != last_passage_number && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && can_exit == true) {
     openForm(lastView);
   }
 }
@@ -1072,4 +1119,35 @@ function getArrayIndex(value, arr) {
   }
 
   return -1;
+}
+
+function openTest() {
+
+  let info = getTestInfo();
+
+  if (info[0] != "B02") {
+    return
+  }
+
+  let path = info[0] + (info[1] != undefined ? (" - " + info[1]) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+}
+
+/*function openTest(test, section = undefined) {
+
+  let storage = firebase.storage()
+  let path = test + (section != undefined ? (" - " + section) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+}*/
+
+function swap() {
+  let nav = document.getElementById("sideNav");
+  nav.classList.toggle("nav_disabled")
+  nav.classList.toggle("nav_enabled")
 }
