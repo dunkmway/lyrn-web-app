@@ -727,6 +727,8 @@ p.errorMessage {
 
 #passage {
     width: 70%;
+    max-height: 100%;
+    overflow-y: scroll;
 }
   
 #rightArrow {

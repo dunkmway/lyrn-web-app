@@ -197,25 +197,30 @@
 
             <div class = "input-row-center">
                 <button class = "green button" onclick="setHomeworkStatus('in-time', 'True')">
-                    Completed, <span class = "smallerText"><br>(in-time)</span>
+                    Completed <span class = "smallerText"><br>(in-time)</span>
                 </button>
 
                 <button class = "orange button" onclick="setHomeworkStatus('forgot')">
-                    Completed, <span class = "smallerText"><br>(forgotten)</span>
+                    Completed <span class = "smallerText"><br>(forgotten)</span>
                 </button>
             </div>
 
             <div class = "input-row-center">
                 <button class = "greenShade button" onclick="setHomeworkStatus('not in time', 'True')">
-                    Completed, <span class = "smallerText"><br>(not in time)</span>
+                    Completed <span class = "smallerText"><br>(not in time)</span>
                 </button>
 
                 <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
-                    Partial, <span class = "smallerText"><br>(time remaining)</span>
+                    Partial <span class = "smallerText"><br>(time remaining)</span>
                 </button>
             </div>
 
             <div class = "input-row-center">
+
+                <button class = "greenShade button" onclick="setHomeworkStatus('poor conditions', 'True')">
+                    Poor Conditions
+                </button>
+
                 <button class = "greenShade button" onclick="setHomeworkStatus('previously completed')">
                     Mark as Completed
                 </button>
@@ -225,7 +230,7 @@
 
             <div class = "input-row-center">
                 <button class = "red button" onclick="setHomeworkStatus('in-center', 'True')">
-                    Completed, <span class = "smallerText"><br>(in-center)</span>
+                    Completed <span class = "smallerText"><br>(in-center)</span>
                 </button>
 
                 <button class = "gray button" onclick="setHomeworkStatus('did not do')">

@@ -11,7 +11,7 @@ let tempAnswers = {};
 initialSetup();
 
 // Other needed info
-let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
+let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
 let tab = 'none';
@@ -389,7 +389,6 @@ function updateInCenterTest(testBox, test, section) {
     
     // if the passage exists within the testAnswers, color it and set its score
     if (testAnswers[test]?.[section]?.[child + 1] != undefined && testAnswers[test]?.[section]?.[child + 1]?.['Status'] != 'previously completed') {
-      console.log(testAnswers[test]?.[section]?.[child + 1]?.['Status']);
       ele.classList.add(coloring['in-time']) // color it green
 
       // Get the total number of questions in the passage
@@ -497,7 +496,8 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
   }
 
   // Exit the popup
-  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned')) {
+  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')) {
+    newStatus = status;
     openForm('testAnswersPopup');
   }
   else if (status == 'previously completed' || status == 'assigned' || status == 'reassigned' || ((status == 'forgot' || status == 'did not do') && (current_status == 'assigned' || current_status == 'reassigned') ) ) {
@@ -679,22 +679,28 @@ function submitAnswersPopup(isPerfectScore = 'false') {
   let can_exit = true;
 
   if (test_view_type == 'inCenter') {
-    if (tempAnswers[info[0]]?.[info[1]]?.[info[2]]?.["Answers"].length == 0 && isPerfectScore == 'false') {
-      let popup = document.getElementById("perfectScorePopup")
-      popup.classList.toggle("show")
-      can_exit = false;
-    }
-    else {
-      if (isPerfectScore == 'prior') {
-        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-        setObjectValue([info[0], info[1], info[2], 'Status'], 'previously completed', testAnswers);
-        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+    if (oldTestAnswers[info[0]]?.[info[1]]?.[info[2]] == undefined) {
+      if (tempAnswers[info[0]]?.[info[1]]?.[info[2]]?.["Answers"].length == 0 && isPerfectScore == 'false') {
+        let popup = document.getElementById("perfectScorePopup")
+        popup.classList.toggle("show")
+        can_exit = false;
       }
       else {
-        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-        setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
-        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+        if (isPerfectScore == 'prior') {
+          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+          setObjectValue([info[0], info[1], info[2], 'Status'], 'previously completed', testAnswers);
+          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+        }
+        else {
+          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+          setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
+          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
+        }
       }
+    }
+    else {
+      // reset the temp answers
+      setObjectValue([info[0], info[1], info[2]], testAnswers[info[0]][info[1]][info[2]], tempAnswers);
     }
   }
   else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
