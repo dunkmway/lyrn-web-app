@@ -208,7 +208,7 @@ function createElements(elementType = [], classes = [], attributes = [], values 
     });
 
     const studentTempUID = GET["student"];
-    const parentUID = GET["parent"];
+    //const parentUID = GET["parent"];
     const location = GET["location"];
 
     //grab the pending data for this parent's student

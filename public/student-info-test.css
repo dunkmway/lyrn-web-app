@@ -4,6 +4,94 @@ body {
   margin: 0;
 }
 
+#update-goals-section {
+  display: none;
+  /* visibility: hidden; */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.heading-block {
+  background-color: #110D65;
+  font-size: 24px;
+  color: white;
+  text-align: center;
+  padding: 1%;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  align-self: stretch;
+}
+
+.registration-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: stretch;
+  background-color: white;
+  max-height: 80%;
+  border-radius: 10px;
+  box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
+}
+
+#form-scroll-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 25px;
+  margin-bottom: 10px;
+}
+
+.input-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.input-block {
+  /* flex-grow: 1; */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: 10px;
+}
+
+.input {
+  /* width: 100%; */
+  max-width: 300px;
+  height: 2em;
+  font-size: 16px;
+  font-weight: 200;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: none;
+  background-color: rgb(200, 200, 200, .25);
+  border-radius: 10px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.label {
+  /* align-self: flex-start; */
+  text-align: left;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  color: black;
+}
+
+.errMsg {
+  color: red;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -48,11 +136,16 @@ body {
   transform: translateY(-7px);
 }
 
+.firstButton {
+  margin-left: 10px;
+}
+
 .score-box {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
   padding: 20px;
   color: white;
   font-size: 36px;
@@ -61,10 +154,59 @@ body {
   height: 50px;
 }
 
+.score-box .tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  margin-left: -100px;
+  margin-top: 15px;
+  padding: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.score-box .tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #555 transparent;
+}
+
+.score-box:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip p {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
 #student-name {
-  padding-right: 10px;
-  padding-left: 10px;
   color: black;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+#student-general-info {
+  padding: 10px;
+}
+
+#student-general-info p {
+  margin-right: 5px;
+  font-weight: 600;
 }
 
 .composite {
@@ -89,6 +231,16 @@ body {
 }
 
 p {
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+}
+
+h4 {
   margin: 0;
   padding: 0;
 }

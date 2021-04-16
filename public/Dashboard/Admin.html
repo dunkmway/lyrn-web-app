@@ -7,6 +7,12 @@
     <link href="Admin.css" rel="stylesheet">
     <link href="../Site Templates/site-wide.css" rel="stylesheet">
 
+    <!-- datatable requirments -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
+    <!-- firebase requirments -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
@@ -31,6 +37,12 @@
           <div id="spinnyBoiTutor" class="loader"></div>
           <form onsubmit="return false">
             <div class="input-row">
+              <div class="input-block">
+                  <label for="tutorLocation" class="label">Wasatch Location:</label>
+                  <select id="tutorLocation" class="select" required>
+                    <option selected disabled value="">select a location</option>
+                  </select>
+              </div>
             </div>
             <div class="input-row">
               <div class="input-block">
@@ -72,8 +84,12 @@
         <div id="form-scroll-block">
           <div id="spinnyBoiSecretary" class="loader"></div>
           <form onsubmit="return false">
-            <div class="input-row">
-            </div>
+            <div class="input-block">
+              <label for="secretaryLocation" class="label">Wasatch Location:</label>
+              <select id="secretaryLocation" class="select" required>
+                <option selected disabled value="">select a location</option>
+              </select>
+          </div>
             <div class="input-row">
               <div class="input-block">
                   <label for="secretaryFirstName" class="label">Secretary First Name:</label>
@@ -108,31 +124,33 @@
 
     <section>
       <div class="header">
-        <h1 id="locationName"></h1>
+        <!-- <h1 id="locationName"></h1> -->
+        <h2 id="admin-name"></h2>
         <button class="button" onclick="signOut()">Sign Out</button>
       </div>
 
       <div class="flex-row align-center">
         <button class="button" onclick="goToInquiry()">Inquiry</button>
-      <button class="button" onclick="popUpUser('tutor')">Add Tutor</button>
-      <button class="button" onclick="popUpUser('secretary')">Add Secretary</button>
+        <button class="button" onclick="popUpUser('tutor')">Add Tutor</button>
+        <button class="button" onclick="popUpUser('secretary')">Add Secretary</button>
+        <button class="button" onclick="resetPassword()">reset password</button>
       </div>
 
-      <div class="input-row">
-        <div class="input-block">
-          <label class="label">Pending Students</label>
-          <select id="pendingStudents" name="pending-student" onchange="pendingStudentSelected(this)">
-            <option disabled selected>Choose a student</option>
-          </select>
-        </div>
-
-        <div class="input-block">
-          <label class="label">Active Students</label>
-          <select id="activeStudents" name="active-students" onchange="activeStudentSelected(this)">
-            <option disabled selected>Choose a student</option>
-          </select>
-        </div>
+      <div>
+        <table id="student-table" class="display" width="100%">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th></th>
+              <th>Location</th>
+              <th>Status</th>
+              <th>Parent Name</th>
+              <th></th>
+            </tr>
+          </thead>
+        </table>
       </div>
+      
 
     </section>
   </body>

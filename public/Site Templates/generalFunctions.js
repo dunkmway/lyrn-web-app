@@ -38,6 +38,7 @@ function convertFromDateInt(date) {
         'seconds' : current_date.getSeconds(),
         'milliseconds' : current_date.getMilliseconds(),
         'integerValue' : date,
-        'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString()
+        'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
+        'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0')
     };
 }

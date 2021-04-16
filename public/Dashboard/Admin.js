@@ -1,48 +1,167 @@
+
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
-let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+//let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+let currentLocations = [];
+let currentLocationNames = [];
+let currentUser = ""
 
+initialSetup();
 
+function initialSetup() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (currentUser) {
+      // User is signed in.
+      getAdminProfile(currentUser.uid)
+      .then((doc) => {
+        if (doc.exists) {
+          setAdminProfile(doc.data());
+          setStudentTable()
+          .then(() => setLocations())
+        }
+        else setAdminProfile();
+      })
 
-
-
-
-const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
-locationDocRef.get()
-.then((doc) => {
-  if (doc.exists) {
-    let locationName = doc.get("locationName");
-    document.getElementById("locationName").textContent = locationName;
-
-    let pendingStudents = doc.get("pendingStudents");
-    let activeStudents = doc.get("activeStudents");
-    if (pendingStudents) {
-      const pendingStudentElem = document.getElementById("pendingStudents");
-      for (const object in pendingStudents) {
-        let studentOption = document.createElement("option");
-        studentOption.value = object + "," + pendingStudents[object]["parentUID"];
-        studentOption.innerText = pendingStudents[object]["studentFirstName"] + " " + pendingStudents[object]["studentLastName"];
-        pendingStudentElem.appendChild(studentOption);
-      }
+    } else {
+      // No user is signed in.
     }
+  });
+}
 
-    if (activeStudents) {
-      const activeStudentElem = document.getElementById("activeStudents");
-      for (const object in activeStudents) {
-        let option = document.createElement("option");
-        option.value = object;
-        option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-        activeStudentElem.appendChild(option);
+function getAdminProfile(adminUID) {
+  const adminProfileRef = firebase.firestore().collection("Admins").doc(adminUID);
+  return adminProfileRef.get();
+}
+
+function setAdminProfile(profileData = {}) {
+  currentLocations = profileData['locations'];
+  console.log(currentLocations);
+
+  if (profileData['adminFirstName'] && profileData['adminLastName']) {
+    document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
+  }
+  else {
+    document.getElementById('admin-name').textContent = "Welcome Admin!";
+  }
+}
+
+function setStudentTable() {
+  let tableData = [];
+  let promises = []
+  for (let i = 0; i < currentLocations.length; i++) {
+    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
+    let locationProm = locationDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        let locationName = doc.get("locationName");
+        currentLocationNames.push(locationName);
+        //document.getElementById("locationName").textContent = locationName;
+
+        let pendingStudents = doc.get("pendingStudents");
+        let activeStudents = doc.get("activeStudents");
+
+        console.log(pendingStudents);
+        console.log(activeStudents);
+
+        //for the table
+
+        if (pendingStudents) {
+          for (const studentUID in pendingStudents) {
+            const student = {
+              ...pendingStudents[studentUID],
+              studentUID: studentUID,
+              status: "pending",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
+        }
+
+        if (activeStudents) {
+          for (const studentUID in activeStudents) {
+            const student = {
+              ...activeStudents[studentUID],
+              studentUID: studentUID,
+              status: "active",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
+        }
       }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
+
+    promises.push(locationProm);
+  }
+  
+  return Promise.all(promises)
+  .then(() => {
+    console.log("tableData", tableData);
+    let studentTable = $('#student-table').DataTable( {
+      data: tableData,
+      columns: [
+        { data: 'studentFirstName' },
+        { data: 'studentLastName' },
+        { data: 'location'},
+        { data: 'status' },
+        { data: 'parentFirstName' },
+        { data: 'parentLastName'},
+      ],
+      "scrollY": "400px",
+      "scrollCollapse": true,
+      "paging": false
+    } );
+
+    studentTable.on('click', (args) => {
+      let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+      let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
+      let location = tableData[args.target._DT_CellIndex.row].locationUID;
+      let status = tableData[args.target._DT_CellIndex.row].status;
+
+      switch (status) {
+        case "pending":
+          pendingStudentSelected(studentUID, parentUID, location);
+          break;
+        case "active":
+          activeStudentSelected(studentUID);
+          break;
+        default:
+          console.log("ERROR: This student isn't active or pending!!!")
+      }
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+  
+}
+
+function setLocations () {
+  const locationElems = document.querySelectorAll("select[id*=Location]");
+  for (let i = 0; i < locationElems.length; i++) {
+    let locationElem = locationElems[i];
+    for (let j =  0; j < currentLocations.length; j++) {
+      let option = document.createElement("option");
+      option.value = currentLocations[j];
+      option.innerText = currentLocationNames[j]
+      locationElem.appendChild(option);
     }
   }
-})
-.catch((error) => {
-  console.log(error);
-  console.log(error.code);
-  console.log(error.message);
-  console.log(error.details);
-});
+  
+}
+
 
 
 function goToInquiry() {
@@ -92,8 +211,9 @@ function closeUser(user, submitted = false) {
 
 function createTutor() {
   document.getElementById("spinnyBoiTutor").style.display = "block";
-  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input, select");
-  if (validateFields(allInputs)) {
+  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input");
+
+  if (validateFields([...allInputs, document.getElementById("tutorLocation")])) {
     console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
@@ -116,11 +236,14 @@ function createTutor() {
       console.log(tutorUID);
       console.log(newUser);
 
+      let currentLocation = document.getElementById("tutorLocation").value;
+
       if (newUser) {
         //set up the tutor doc
         const tutorDocRef = firebase.firestore().collection("Tutors").doc(tutorUID);
         let tutorDocData = {
-          ...allInputValues
+          ...allInputValues,
+          location: currentLocation
         }
         tutorDocRef.set(tutorDocData)
         .then((result) => {
@@ -160,8 +283,8 @@ function createTutor() {
 
 function createSecretary() {
   document.getElementById("spinnyBoiSecretary").style.display = "block";
-  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input, select");
-  if (validateFields(allInputs)) {
+  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input");
+  if (validateFields(allInputs) && validateFields([document.getElementById("secretaryLocation")])) {
     console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
@@ -184,11 +307,14 @@ function createSecretary() {
       console.log(secretaryUID);
       console.log(newUser);
 
+      let currentLocation = document.getElementById("secretaryLocation").value;
+
       if (newUser) {
         //set up the tutor doc
         const secretaryDocRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
         let secretaryDocData = {
-          ...allInputValues
+          ...allInputValues,
+          location: currentLocation
         }
         secretaryDocRef.set(secretaryDocData)
         .then((result) => {
@@ -223,6 +349,31 @@ function createSecretary() {
   else {
     console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
+  }
+}
+
+function resetPassword() {
+  let confirmation = confirm("Are you sure you want to reset your password?");
+  if (confirmation) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var auth = firebase.auth();
+        var emailAddress = user.email;
+
+        auth.sendPasswordResetEmail(emailAddress)
+        .then(function() {
+          // Email sent.
+          alert("An email has been sent to your email to continue with your password reset.");
+        })
+        .catch(function(error) {
+          // An error happened.
+          alert("There was an issue with your password reset. \nPlease try again later.");
+        });
+      } else {
+        // No user is signed in.
+        alert("Oops! No one is signed in to change the password");
+      }
+    });
   }
 }
 
@@ -345,16 +496,27 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 }
 
 
-function pendingStudentSelected(e) {
-  let uids = e.value;
-  let studentTempUID = uids.split(",")[0];
-  let parentUID = uids.split(",")[1];
-  let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
+//for the old selects
+// function pendingStudentSelected(e) {
+//   let uids = e.value;
+//   let studentTempUID = uids.split(",")[0];
+//   let parentUID = uids.split(",")[1];
+//   let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
+//   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
+// }
+
+// function activeStudentSelected(e) {
+//   let studentUID = e.value;
+//   let queryStr = "?student=" + studentUID;
+//   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+// }
+
+function pendingStudentSelected(studentUID, parentUID, location) {
+  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + location;
   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
-function activeStudentSelected(e) {
-  let studentUID = e.value;
+function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }

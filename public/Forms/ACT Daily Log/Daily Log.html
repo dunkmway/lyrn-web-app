@@ -19,7 +19,6 @@
     <script src="Daily Log.js" defer></script>
     <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
-    <script src="testing.js" defer></script>
 </head>
 
 
@@ -29,12 +28,11 @@
     </section>
 
     <section id="section">
-
         <h2 id="studentName" style="color: white;"></h2>
         <button onclick="goToTesting()">TESTING</button>
 
         <div id = "sideNav" class = "nav_disabled">
-            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog')">Daily Log</div>
+            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog');addUnloadListener()">Daily Log</div>
             <div id = "testReviewNav" class = "button2" onclick = "openForm('dailyLog')">Test Review</div>
             <div id = "scoresNav" class = "button2" onclick = "openForm('dailyLog')">Test Scores</div>
             <div id = "previousLogsNav" class = "button2" onclick = "openForm('dailyLog')">Prior Logs</div>
@@ -2235,6 +2233,9 @@
             <div id = "homeworkBreak" class = "line">
             </div>
 
+            <div class="input-row">
+                <p id="errMsg" style="color: red;"></p>
+            </div>
 
             <div class = "input-row-center formEnd">
 
@@ -2246,10 +2247,6 @@
                     Submit
                 </button>
 
-            </div>
-
-            <div class="input-row">
-                <p id="errMsg" style="color: red;"></p>
             </div>
 
 
