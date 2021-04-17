@@ -207,16 +207,13 @@ function removeSession(self) {
  */
 function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined) {
 
-  console.log("temp", tempAnswers);
-  console.log("test", testAnswers);
-
   // Change the test view type
   if (view_type != undefined) {
     test_view_type = view_type;
   }
 
   // An array of all the forms that could be displayed
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "homeworkPopup"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup"];
 
   // If selecting a lessons form, adjust the id accordingly
   if (id == '1' || id == '2' || id == '3' || id == '4') {
@@ -237,9 +234,6 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
 
     // update test visuals
     updateTestGraphics(test_view_type);
-
-    // Change what was last viewed
-    //lastView = id;
 
   }
   else if (id != undefined && id.includes('Popup')) {
@@ -267,16 +261,14 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
 
     // update popup visuals
-    updatePopupGraphics(id, test, section, passageNumber);
+    updatePopupGraphics(id, test, section, (passageNumber ?? 1));
   }
 
   // Hide all forms except for the one selected
   for (let i = 0; i < forms.length; i++) {
     let form = document.getElementById(forms[i]);
     if (forms[i] != id) {
-      if (id != 'homeworkPopup' || !form.id.includes('Tests')) {
-        form.style.display = "none";
-      }
+      form.style.display = "none";
     }
     else {
       if (id == "dailyLog") {
@@ -305,6 +297,9 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
       }
     }
   }
+
+  console.log("temp", tempAnswers);
+  console.log("test", testAnswers);
 
   // Open the last form / popup
   if (id == undefined) {
@@ -388,7 +383,7 @@ function updateInCenterTest(testBox, test, section) {
     let ele = createElement("div", ["border"], ["data-passageNumber"], [(child + 1).toString()], (child + 1).toString(), "border");
     
     // if the passage exists within the testAnswers, color it and set its score
-    if (testAnswers[test]?.[section]?.[child + 1] != undefined && testAnswers[test]?.[section]?.[child + 1]?.['Status'] != 'previously completed') {
+    if (testAnswers[test]?.[section]?.[child + 1] != undefined && testAnswers[test]?.[section]?.[child + 1]?.['Status'] == 'Completed') {
       ele.classList.add(coloring['in-time']) // color it green
 
       // Get the total number of questions in the passage
@@ -402,9 +397,9 @@ function updateInCenterTest(testBox, test, section) {
       // Set the score
       ele.innerHTML = (numberOfQuestions - Object.keys(testAnswers[test][section][child + 1]["Answers"]).length).toString() + " / " + numberOfQuestions.toString()
     }
-    else if (testAnswers[test]?.[section]?.[child + 1]?.['Status'] == 'previously completed') {
+    else if (testAnswers[test]?.[section]?.[child + 1]?.['Status'] != undefined) {
       ele.innerHTML = 'Completed';
-      ele.classList.add(coloring['previously completed']) // color it green
+      ele.classList.add(coloring['previously completed']) // color it light green
     }
 
 
@@ -444,7 +439,7 @@ function updateHomeworkTest(testBox, test, section) {
 
 function setHomeworkStatus(status, gradeHomework = "False", element = undefined) {
   // Get the test and section from the header
-  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let headerText = document.getElementById("answersPopupHeader").innerHTML;
   let test = headerText.split(" - ")[0];
   let section = headerText.split(" - ")[1];
 
@@ -453,6 +448,7 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
     test = element.getAttribute("data-test")
     section = element.getAttribute("data-section")
   }
+  const oldStatus = oldTestAnswers[test]?.[section]?.['Status']
 
   // Set the status and testType in the testAnswers
   let current_status = testAnswers[test]?.[section]?.['Status']
@@ -468,9 +464,14 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
     }
     // Set the homework to 'assigned'
     else if (status == 'assigned' && current_status == undefined) {
-      setObjectValue([test, section, "Status"], status, testAnswers)
-      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+      if (oldStatus == 'assigned') {
+        setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
+      }
+      else {
+        setObjectValue([test, section, "Status"], status, testAnswers)
+        setObjectValue([test, section, "TestType"], 'homework', testAnswers)
+        setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
+      }
     }
     // homework is being reassigned
     else if (status == 'assigned' && current_status == 'did not do') {
@@ -495,13 +496,25 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
     newStatus = status;
   }
 
+  // Open Test to print (if needed)
+  if (current_status == undefined && (status == 'assigned' || status == 'reassigned')) {
+    openTest(test, section);
+  }
+
   // Exit the popup
+  let popup = document.getElementById("submitHomeworkPopup")
   if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')) {
     newStatus = status;
-    openForm('testAnswersPopup');
+    submitAnswersPopup();
   }
   else if (status == 'previously completed' || status == 'assigned' || status == 'reassigned' || ((status == 'forgot' || status == 'did not do') && (current_status == 'assigned' || current_status == 'reassigned') ) ) {
+    popup.classList.remove("show");
     openForm(lastView);
+  }
+  else if (gradeHomework == 'True' && (current_status != 'assigned' && current_status != 'reassigned' && current_status != 'forgot')) {
+    resetMessages();
+    let assignMessage = document.getElementById("assignFirst")
+    assignMessage.style.display = "inline";
   }
 
 }
@@ -522,20 +535,6 @@ function updatePopupGraphics(id, test, section, passageNumber) {
         popups[i].innerHTML = test + " - " + section
       }
     }
-  }
-
-  // This is all that needs to be done
-  if (id == 'homeworkPopup') {
-    // highlight the box
-    let searchText = "div[data-test^=\"" + test + "\"]"
-    let testBoxes = document.querySelectorAll(searchText)
-    for (let box = 0; box < testBoxes.length; box++) {
-      if (testBoxes[box].getAttribute("data-section") == section) {
-        testBoxes[box].classList.add("highlight")
-      }
-    }
-
-    return;
   }
 
   // Check to see if either left arrow or right arrows need to be hidden
@@ -669,33 +668,54 @@ function shouldMarkAsGuessed(test, section, question) {
   }
 }
 
-function submitAnswersPopup(isPerfectScore = 'false') {
+function resetMessages() {
+  // Reset the messages
+  let guessMessage = document.getElementById("guessFirst");
+  let gradeMessage = document.getElementById("gradeFirst");
+  let assignMessage = document.getElementById("assignFirst")
+  guessMessage.style.display = "none";
+  gradeMessage.style.display = "none";
+  assignMessage.style.display = "none";
+}
+
+function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
   // Grab the test info
   let info = getTestInfo();
   const status = testAnswers[info[0]]?.[info[1]]?.['Status']
   const guesses = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints']
   let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
   let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
-  let can_exit = true;
 
-  if (test_view_type == 'inCenter') {
+  // Toggle the submit button popups
+  let popup = document.getElementById("submitHomeworkPopup")
+  let popup2 = document.getElementById("perfectScorePopup")
+  if (swap == 'True') {
+    resetMessages();
+    if (test_view_type == 'homework') {
+      popup.classList.toggle("show");
+    }
+    else if (test_view_type == 'inCenter') {
+      popup2.classList.toggle("show")
+    }
+    return;
+  }
+
+  // Find and define the message elements
+  let guessMessage = document.getElementById("guessFirst");
+  let gradeMessage = document.getElementById("gradeFirst");
+
+  // Check to see if the test / passage can be graded
+  if (test_view_type == 'inCenter' && swap == 'False') {
     if (oldTestAnswers[info[0]]?.[info[1]]?.[info[2]] == undefined) {
-      if (tempAnswers[info[0]]?.[info[1]]?.[info[2]]?.["Answers"].length == 0 && isPerfectScore == 'false') {
-        let popup = document.getElementById("perfectScorePopup")
-        popup.classList.toggle("show")
-        can_exit = false;
+      if (passageGradeType != 'grade') {
+        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+        setObjectValue([info[0], info[1], info[2], 'Status'], passageGradeType, testAnswers);
+        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
       }
       else {
-        if (isPerfectScore == 'prior') {
-          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-          setObjectValue([info[0], info[1], info[2], 'Status'], 'previously completed', testAnswers);
-          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
-        }
-        else {
-          setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-          setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
-          setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
-        }
+        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
+        setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
+        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
       }
     }
     else {
@@ -735,15 +755,16 @@ function submitAnswersPopup(isPerfectScore = 'false') {
       }
     }
     else {
-      console.log("POP-UP: Partially completed selected: please mark at least one question as a guess");
+      guessMessage.style.display = "inline";
     }
   }
   else {
-    console.log("POP-UP: Please finish grading the test before submitting");
+    gradeMessage.style.display = "inline";
   }
 
   // Go back to one of the test forms
-  if (!(info[2] != last_passage_number && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && can_exit == true) {
+  if (!(info[2] != last_passage_number && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && swap == 'False') {
+    popup.classList.remove("show");
     openForm(lastView);
   }
 }
@@ -756,8 +777,11 @@ function resetAnswers() {
   let info = getTestInfo();
 
   // Reset the tempAnswers array for the given passage
-  tempAnswers[info[0]][info[1]][info[2]]['Answers'] = [];
-  tempAnswers[info[0]][info[1]][info[2]]['Time'] = 0;
+  let status = tempAnswers[info[0]]?.[info[1]]?.['Status'];
+  if (status == undefined || status == 'assigned' || status == 'reassigned') {
+    tempAnswers[info[0]][info[1]][info[2]]['Answers'] = [];
+    tempAnswers[info[0]][info[1]][info[2]]['Time'] = 0;
+  }
 
   // Set up the testAnswersPopup again
   openForm('testAnswersPopup');
@@ -806,19 +830,23 @@ function removeAnswers() {
 
 function removeTest() {
   // Get the test and section from the header
-  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let headerText = document.getElementById("answersPopupHeader").innerHTML;
   let test = headerText.split(" - ")[0];
   let section = headerText.split(" - ")[1];
   let oldStatus = oldTestAnswers[test]?.[section]?.['Status']
 
   // Make sure that the section exists
-  if (testAnswers[test]?.[section] != undefined && oldStatus != 'in-time' && oldStatus != 'in-center') {
+  if (testAnswers[test]?.[section] != undefined && (oldStatus == undefined || oldStatus == 'assigned')) {
     // Delete the section
     delete testAnswers[test][section]
 
     // Check to see if the test needs deleted
     if (objectChildCount([test], testAnswers) == 0) {
       delete testAnswers[test]
+    }
+
+    if (oldStatus == 'assigned') {
+      setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
     }
   }
 
@@ -828,8 +856,14 @@ function removeTest() {
 }
 
 function removePassage() {
+
+  if (test_view_type == 'homework') {
+    removeTest();
+    return;
+  }
+
   // Get the test and section from the header
-  let headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+  let headerText = document.getElementById("answersPopupHeader").innerHTML;
   let test = headerText.split(" - ")[0];
   let section = headerText.split(" - ")[1];
   let passageNumber = headerText.split(" - ")[2];
@@ -1144,7 +1178,7 @@ function getArrayIndex(value, arr) {
   return -1;
 }
 
-function openTest() {
+/*function openTest() {
 
   let info = getTestInfo();
 
@@ -1157,17 +1191,20 @@ function openTest() {
   ref.getDownloadURL().then((url) => {
       open(url);
     })
-}
+}*/
 
-/*function openTest(test, section = undefined) {
+function openTest(test, section = undefined) {
 
-  let storage = firebase.storage()
+  if (test != "B02") {
+    return
+  }
+
   let path = test + (section != undefined ? (" - " + section) : "");
   let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
-}*/
+}
 
 function swap() {
   let nav = document.getElementById("sideNav");
