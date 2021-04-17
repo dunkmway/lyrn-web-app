@@ -100,6 +100,8 @@ form {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     overflow-y: auto;
+    border-left-style: solid;
+    border-left-width: 1px;
 }
 
 .tests {
@@ -109,6 +111,8 @@ form {
     grid-auto-rows: 8.5em;
     text-align: center;
     overflow-y: auto;
+    border-style: solid;
+    border-width: 0px 0px 1px 0px;
 }
 
 .testHeaders {
@@ -117,10 +121,12 @@ form {
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 100%;
     text-align: center;
+    border-style: solid;
+    border-width: 1px 0px 2px 0px;
 }
 
 #englishLessons {
-    height: 72%;
+    height: 82%;
     display: grid;
     grid-template-columns: 70% 10% 20%;
     grid-template-rows: 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09%;
@@ -128,7 +134,7 @@ form {
 }
 
 #mathLessons {
-    height: 72%;
+    height: 82%;
     display: grid;
     grid-template-columns: 70% 10% 20%;
     grid-template-rows: 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33%;
@@ -141,7 +147,7 @@ form {
 }
 
 #readingLessons {
-    height: 72%;
+    height: 82%;
     display: grid;
     grid-template-columns: 70% 10% 20%;
     grid-template-rows: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
@@ -149,7 +155,7 @@ form {
 }
 
 #scienceLessons {
-    height: 72%;
+    height: 82%;
     display: grid;
     grid-template-columns: 70% 10% 20%;
     grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%; 
@@ -162,15 +168,40 @@ form {
     grid-template-columns: 70% 10% 20%;
     grid-template-rows: auto;
     text-align: center;
+    border-style: solid;
+    border-width: 1px 0px 2px 0px;
 }
 
 .gridBox {
     border-style: solid;
     border-color: black;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    align-items: center;
+}
+
+.gridBox:nth-child(-n+5) {
+    border-top-width: 0px;
+}
+
+.gridBox2 {
+    border-style: solid;
+    border-color: black;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.gridBox2:nth-child(-n+3) {
+    border-top-width: 0px;
 }
 
 .border {
@@ -237,6 +268,10 @@ form {
     height: 100%;
     background-color: rgb(255, 255, 255);
     z-index: 2;
+    border-left-style: solid;
+    border-left-width: 1.5px;
+    border-top-left-radius: 11px;
+    border-bottom-left-radius: 11px;
 }
 
 #homeworkTestsTabs {
@@ -267,6 +302,10 @@ form {
     text-align: center;
     color: white;
     font-size: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 15px;
 }
 
 #dailyLog {
@@ -351,67 +390,6 @@ form {
     align-self: stretch;
 }
 
-.progress-wrapper {
-    width: 60%
-}
-
-.progress-bar {
-    padding: 0px;
-    counter-reset: step;
-}
-
-.progress-bar li {
-    list-style-type: none;
-    float: left;
-    width: 33.33%;
-    position: relative;
-    text-align: center;
-}
-
-.progress-bar li::after {
-    content: counter(step);
-    counter-increment: step;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    border: 2px solid #110D65;
-    border-radius: 50%;
-    display: block;
-    text-align: center;
-    margin: 10px auto 0 auto;
-    background-color: white;
-    position: relative;
-    z-index: 1;
-}
-
-.progress-bar li::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 4px;
-    background-color: #110D65;
-    top: 43px;
-    left: -50%;
-    z-index: 0;
-}
-
-.progress-bar li:first-child:before {
-    content: none;
-}
-
-.progress-bar li.active {
-    color: green
-}
-
-.progress-bar li.active::after {
-    border-color: green;
-    content: '✓';
-}
-
-.progress-bar li.active + li::before {
-    background-color: green;
-}
-
 button {
   margin-bottom: 10px;
   width: 140px;
@@ -424,7 +402,6 @@ button {
   border: none;
   border-radius: 45px;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  /*transition: all 0.3s ease 0s;*/
   cursor: pointer;
   outline: none;
   background-color: rgb(255, 0, 0);
@@ -673,22 +650,6 @@ p.errorMessage {
 }
 
 #otherStatusDiv {
-    height: 10%;
-}
-
-#englishStatusDiv {
-    height: 10%;
-}
-
-#mathStatusDiv {
-    height: 10%;
-}
-
-#readingStatusDiv {
-    height: 10%;
-}
-
-#scienceStatusDiv {
     height: 10%;
 }
 
@@ -974,4 +935,44 @@ p.errorMessage {
   visibility: visible;
   -webkit-animation: fadeIn 1s;
   animation: fadeIn 1s;
+}
+
+.topBorder {
+  border-style: solid;
+  border-width: 1px 0px 0px 0px;
+}
+
+#inCenterBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#homeworkBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#otherBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#englishBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#mathBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#readingBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+#scienceBackDiv {
+    margin-left: 0px;
+    margin-right: 0px;
 }
