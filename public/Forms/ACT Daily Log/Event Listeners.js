@@ -1,7 +1,7 @@
 // In Center Tests - Popup
 inCenterTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
-    openForm('homeworkPopup', undefined, event.target);
+    openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
@@ -15,13 +15,12 @@ inCenterTests.addEventListener('click', function(event)  {
 let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
-    openForm('homeworkPopup', undefined, event.target);
+    openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
-    //assignHomework(event.target);
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
@@ -30,13 +29,12 @@ homeworkTests.addEventListener('click', function(event)  {
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
   if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
-    openForm('homeworkPopup', undefined, event.target);
+    openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
-    //assignHomework(event.target);
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
@@ -45,7 +43,7 @@ otherTests.addEventListener('click', function(event)  {
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function(event) {
   if (event.target.parentNode.className.includes('input-row-center')) {
-    const headerText = document.getElementById("homeworkPopupHeader").innerHTML;
+    const headerText = document.getElementById("answersPopupHeader").innerHTML;
     const test = headerText.split(" - ")[0];
     const section = headerText.split(" - ")[1];
     const passageNumber = headerText.split(" - ")[2];
@@ -124,6 +122,22 @@ popupAnswers.addEventListener('click', function(event) {
     }
 
     openForm('testAnswersPopup');
+  }
+})
+
+// Close the popup if they click outside of it
+testAnswersPopup = document.getElementById("testAnswersPopup")
+testAnswersPopup.addEventListener('click', function(event) {
+  let doubleParent = event.target.parentNode.parentNode.id;
+  let parentId = event.target.parentNode.id;
+  let id = event.target.id;
+  if (doubleParent != 'popupButtons' && parentId != 'popupButtons' && id != 'popupButtons'
+      && doubleParent != 'submitHomeworkPopup' && parentId != 'submitHomeworkPopup' && id != 'submitHomeworkPopup'
+      && doubleParent != 'perfectScorePopup' && parentId != 'perfectScorePopup' && id != 'perfectScorePopup') {
+    let popup = document.getElementById("submitHomeworkPopup")
+    let popup2 = document.getElementById("perfectScorePopup")
+    popup.classList.remove("show");
+    popup2.classList.remove("show");
   }
 })
 

@@ -411,23 +411,72 @@
                 <button class = "smallButton button" onclick="removePassage()">
                     Remove
                 </button>
-                <button class = "smallButton button" onclick="submitAnswersPopup()">
+                <button class = "smallButton button" onclick="submitAnswersPopup('False', 'True')">
                     Submit
                 </button>
+                
                 <div id = "perfectScorePopup" class = "popup">
-                    <button class = "longButton button" onclick="submitAnswersPopup('true')">
-                        Perfect Score
+                    <button class = "longButton button2 green" onclick="submitAnswersPopup('grade')">
+                        Grade Passage
                     </button>
 
-                    <button class = "longButton button" onclick="submitAnswersPopup('prior')">
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('together')">
+                        Worked Together
+                    </button>
+
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('popcorn')">
+                        Popcorned Problems
+                    </button>
+
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('prior')">
                         Prior Completion
                     </button>
                 </div>
+
+                <div id = "submitHomeworkPopup" class = "popup">
+
+                    <p id = 'assignFirst' style="color: white; display:none;">Test must be assigned first</p>
+                    <p id = 'gradeFirst' style="color: white; display:none;">Entire test must be graded first</p>
+                    <p id = 'guessFirst' style="color: white; display:none;">Test must contain at least 1 guess</p>
+                    
+                    <button class = "green button2" onclick="setHomeworkStatus('in-time', 'True')">
+                        Completed <span class = "smallerText"><br>(in-time)</span>
+                    </button>
+
+                    <button class = "orange button2" onclick="setHomeworkStatus('forgot')">
+                        Completed <span class = "smallerText"><br>(forgotten)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('not in time', 'True')">
+                        Completed <span class = "smallerText"><br>(not in time)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('partial', 'True')">
+                        Partial <span class = "smallerText"><br>(time remaining)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('poor conditions', 'True')">
+                        Poor Conditions
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('previously completed')">
+                        Mark as Completed
+                    </button>
+
+                    <button class = "red button2" onclick="setHomeworkStatus('in-center', 'True')">
+                        Completed <span class = "smallerText"><br>(in-center)</span>
+                    </button>
+
+                    <button class = "gray button2" onclick="setHomeworkStatus('did not do')">
+                        Didn't do
+                    </button>
+                </div>
+
             </div>
 
         </div>
 
-        <div id = "homeworkPopup" class = "input-block noselect">
+        <!--<div id = "homeworkPopup" class = "input-block noselect">
 
             <div id = "homeworkPopupHeader">
                 <div id = "homeworkHeaderText">
@@ -495,7 +544,7 @@
                 </button>
             </div>
 
-        </div>
+        </div>-->
 
         <div id = "inCenterTestsForm" class = "metaForm noselect">
             <div id = "inCenterTestsTabs" class = "input-row">
@@ -677,10 +726,8 @@
                     </button>
 
                 </div>
-
-
+                
         </div>
-
 
         <div id = "homeworkTestsForm" class = "metaForm noselect">
             <div id = "homeworkTestsTabs" class = "input-row">
