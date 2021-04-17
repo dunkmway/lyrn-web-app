@@ -536,6 +536,7 @@ button {
 
 textarea {
     margin-top: 15px;
+    width: 100%;
 }
 
 .input-block {
@@ -975,4 +976,17 @@ p.errorMessage {
 #scienceBackDiv {
     margin-left: 0px;
     margin-right: 0px;
+}
+
+#addPreviousACTButton {
+    margin-right: 20px;
+    margin-bottom: 10px
+}
+
+#removePreviousACTButton {
+    margin-bottom: 10px
+}
+
+#assignHomework {
+    margin-top: 0px;
 }
