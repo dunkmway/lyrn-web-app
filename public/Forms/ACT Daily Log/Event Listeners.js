@@ -42,6 +42,36 @@ otherTests.addEventListener('click', function(event)  {
 // Listen for wrong answers
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function(event) {
+  if (event.target.parentNode.className.includes('input-row-center') && mark_type == 'answer') {
+    const headerText = document.getElementById("answersPopupHeader").innerHTML;
+    const test = headerText.split(" - ")[0];
+    const section = headerText.split(" - ")[1];
+    const passageNumber = headerText.split(" - ")[2];
+
+    // If marked correct (not found), mark it wrong
+    if (!tempAnswers[test]?.[section]?.[passageNumber]?.['Answers'].includes(event.target.parentNode.getAttribute("data-question"))) {
+      tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
+    }
+    // If marked wrong, change it to correct
+    else {
+      tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+    }
+
+    openForm('testAnswersPopup');
+  }
+  else if (event.target.parentNode.className.includes('input-row-center') && mark_type == 'guess') {
+    console.log("Start marking guesses")
+
+    openForm('testAnswersPopup');
+  }
+})
+
+
+
+
+// Listen for wrong answers
+/*let popupAnswers = document.getElementById("passage")
+popupAnswers.addEventListener('click', function(event) {
   if (event.target.parentNode.className.includes('input-row-center')) {
     const headerText = document.getElementById("answersPopupHeader").innerHTML;
     const test = headerText.split(" - ")[0];
@@ -123,17 +153,21 @@ popupAnswers.addEventListener('click', function(event) {
 
     openForm('testAnswersPopup');
   }
-})
+})*/
 
 // Close the popup if they click outside of it
 testAnswersPopup = document.getElementById("testAnswersPopup")
 testAnswersPopup.addEventListener('click', function(event) {
-  let doubleParent = event.target.parentNode.parentNode.id;
-  let parentId = event.target.parentNode.id;
-  let id = event.target.id;
-  if (doubleParent != 'popupButtons' && parentId != 'popupButtons' && id != 'popupButtons'
-      && doubleParent != 'submitHomeworkPopup' && parentId != 'submitHomeworkPopup' && id != 'submitHomeworkPopup'
-      && doubleParent != 'perfectScorePopup' && parentId != 'perfectScorePopup' && id != 'perfectScorePopup') {
+  const doubleParent = event.target.parentNode.parentNode ?? undefined;
+  let doubleParentId = undefined;
+  if (doubleParent != undefined) {
+    doubleParentId = event.target.parentNode.parentNode.id;
+  }
+  const parentId = event.target.parentNode.id;
+  const id = event.target.id;
+  if (doubleParentId != 'popupButtons' && parentId != 'popupButtons' && id != 'popupButtons'
+      && doubleParentId != 'submitHomeworkPopup' && parentId != 'submitHomeworkPopup' && id != 'submitHomeworkPopup'
+      && doubleParentId != 'perfectScorePopup' && parentId != 'perfectScorePopup' && id != 'perfectScorePopup') {
     let popup = document.getElementById("submitHomeworkPopup")
     let popup2 = document.getElementById("perfectScorePopup")
     popup.classList.remove("show");

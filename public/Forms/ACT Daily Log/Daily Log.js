@@ -14,6 +14,7 @@ initialSetup();
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
+let mark_type = 'answer';
 let tab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
@@ -1210,4 +1211,26 @@ function swap() {
   let nav = document.getElementById("sideNav");
   nav.classList.toggle("nav_disabled")
   nav.classList.toggle("nav_enabled")
+}
+
+function toggleButtons(active) {
+  // Find the buttons to toggle
+  let answerButton = document.getElementById("answerButton");
+  let guessButton = document.getElementById("guessButton");
+
+  // Swap the buttons (if needed)
+  if (active == 'answer') {
+    mark_type = 'answer';
+    answerButton.classList.add("buttonToggleOn")
+    answerButton.classList.remove("buttonToggleOff")
+    guessButton.classList.add("buttonToggleOff")
+    guessButton.classList.remove("buttonToggleOn")
+  }
+  else if (active == 'guess') {
+    mark_type = 'guess';
+    answerButton.classList.remove("buttonToggleOn")
+    answerButton.classList.add("buttonToggleOff")
+    guessButton.classList.add("buttonToggleOn")
+    guessButton.classList.remove("buttonToggleOff")
+  }
 }
