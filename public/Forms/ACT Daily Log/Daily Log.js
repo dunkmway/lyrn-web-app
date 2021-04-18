@@ -622,6 +622,9 @@ function updatePopupGraphics(id, test, section, passageNumber) {
     timeMinutes.parentNode.style.visibility = "visible";
   }
 
+  // Reset the toggles back to marking answers
+  //toggleButtons('answer');
+
 }
 
 function shouldMarkAsGuessed(test, section, question) {
