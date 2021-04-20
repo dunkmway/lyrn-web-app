@@ -39,14 +39,16 @@ function checkPermissions() {
         "/student-info-test"
     ]
     
-    const secrataryPages = [
-        "/Dashboard/Secratary",
+    const secretaryPages = [
+        "/Dashboard/Secretary",
         "/inquiry",
-        "/Forms/New%20Student/New%20Student%20Form"
+        "/Forms/New%20Student/New%20Student%20Form",
+        "/Forms/ACT%20Daily%20Log/Daily%20Log"
+        
     ]
     
     const adminPages = [
-        ...secrataryPages,
+        ...secretaryPages,
         ...tutorPages,
         ...parentPages,
         ...studentPages,
@@ -82,10 +84,10 @@ function checkPermissions() {
                             window.location.replace(location.origin + "/Dashboard/Tutor");
                         } 
                         break;
-                    case "secratary":
-                        if (!secrataryPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                    case "secretary":
+                        if (!secretaryPages.includes(currentPath) && !publicPages.includes(currentPath)) {
                             //access denied
-                            window.location.replace(location.origin + "/Dashboard/Secratary");
+                            window.location.replace(location.origin + "/Dashboard/Secretary");
                         } 
                         break;
                     case "admin":

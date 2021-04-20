@@ -86,6 +86,24 @@ function validateInputBirthday(input) {
 }
 
 function submit() {
+  document.getElementById("errMsg").textContent = "";
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin') {
+          submitData();
+        }
+        else {
+          document.getElementById("errMsg").textContent = "Whoa there partner! You need to saddle on over to the update button instead.";
+        }
+      })
+    }
+  });
+}
+
+function submitData() {
   //reset the error message and input errors. disable the submit button
   document.getElementById("errMsg").textContent = "";
   let allInputs = document.querySelectorAll("input, select");
