@@ -1,71 +1,112 @@
-//FIXME: need to grab which location we are looking at
-//currently stuck on Sandy
-let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
+let currentLocation = "";
+let currentLocationName = "";
+let currentUser = ""
 
+initialSetupData();
 
-
-//FIXME: Need to update the secratary page to the lastest interation (see admin page for example).
-
-const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
-locationDocRef.get()
-.then((doc) => {
-  if (doc.exists) {
-    let locationName = doc.get("locationName");
-    document.getElementById("locationName").textContent = locationName;
-
-    let pendingStudents = doc.get("pendingStudents");
-    let activeStudents = doc.get("activeStudents");
-    console.log(pendingStudents);
-    console.log(activeStudents);
-    // if (pendingStudents) {
-    //   const pendingStudentElem = document.getElementById("pendingStudents");
-    //   for (const object in pendingStudents) {
-    //     let studentOption = document.createElement("option");
-    //     studentOption.value = object + "," + pendingStudents[object]["parentUID"];
-    //     studentOption.innerText = pendingStudents[object]["studentFirstName"] + " " + pendingStudents[object]["studentLastName"];
-    //     pendingStudentElem.appendChild(studentOption);
-    //   }
-    // }
-
-    // if (activeStudents) {
-    //   const activeStudentElem = document.getElementById("activeStudents");
-    //   for (const object in activeStudents) {
-    //     let option = document.createElement("option");
-    //     option.value = object;
-    //     option.innerText = activeStudents[object]["studentFirstName"] + " " + activeStudents[object]["studentLastName"];
-    //     activeStudentElem.appendChild(option);
-    //   }
-    // }
-
-    let tableData = [];
-
-    if (pendingStudents) {
-      for (const studentUID in pendingStudents) {
-        const student = {
-          ...pendingStudents[studentUID],
-          studentUID: studentUID,
-          status: "pending"
+function initialSetupData() {
+  firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (currentUser) {
+      // User is signed in.
+      getSecretaryProfile(currentUser.uid)
+      .then((doc) => {
+        if (doc.exists) {
+          setSecretaryProfile(doc.data());
+          setStudentTable()
+          .then(() => setLocations())
         }
-        tableData.push(student);
-      }
-    }
+        else setSecretaryProfile();
+      })
 
-    if (activeStudents) {
-      for (const studentUID in activeStudents) {
-        const student = {
-          ...activeStudents[studentUID],
-          studentUID: studentUID,
-          status: "active"
+    } else {
+      // No user is signed in.
+    }
+  });
+}
+
+function getSecretaryProfile(secretaryUID) {
+  const secretaryProfileRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
+  return secretaryProfileRef.get();
+}
+
+function setSecretaryProfile(profileData = {}) {
+  currentLocation = profileData['location'];
+
+  if (profileData['secretaryFirstName'] && profileData['secretaryLastName']) {
+    document.getElementById('secretary-name').textContent = "Welcome " + profileData['secretaryFirstName'] + " " + profileData['secretaryLastName'] + "!";
+  }
+  else {
+    document.getElementById('secretary-name').textContent = "Welcome Secretary!";
+  }
+}
+
+function setStudentTable() {
+  let tableData = [];
+  let promises = []
+  for (let i = 0; i < currentLocations.length; i++) {
+    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
+    let locationProm = locationDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        let locationName = doc.get("locationName");
+        currentLocationName = locationName;
+        //document.getElementById("locationName").textContent = locationName;
+
+        let pendingStudents = doc.get("pendingStudents");
+        let activeStudents = doc.get("activeStudents");
+
+        // console.log(pendingStudents);
+        // console.log(activeStudents);
+
+        //for the table
+
+        if (pendingStudents) {
+          for (const studentUID in pendingStudents) {
+            const student = {
+              ...pendingStudents[studentUID],
+              studentUID: studentUID,
+              status: "pending",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
         }
-        tableData.push(student);
-      }
-    }
 
+        if (activeStudents) {
+          for (const studentUID in activeStudents) {
+            const student = {
+              ...activeStudents[studentUID],
+              studentUID: studentUID,
+              status: "active",
+              location: locationName,
+              locationUID: currentLocations[i]
+            }
+            tableData.push(student);
+          }
+        }
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.details);
+    });
+
+    promises.push(locationProm);
+  }
+  
+  return Promise.all(promises)
+  .then(() => {
+    // console.log("tableData", tableData);
     let studentTable = $('#student-table').DataTable( {
       data: tableData,
       columns: [
         { data: 'studentFirstName' },
         { data: 'studentLastName' },
+        { data: 'location'},
         { data: 'status' },
         { data: 'parentFirstName' },
         { data: 'parentLastName'},
@@ -75,14 +116,15 @@ locationDocRef.get()
       "paging": false
     } );
 
-    studentTable.on('click', (args1) => {
-      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
-      let parentUID = tableData[args1.target._DT_CellIndex.row].parentUID;
-      let status = tableData[args1.target._DT_CellIndex.row].status;
+    studentTable.on('click', (args) => {
+      let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+      let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
+      let location = tableData[args.target._DT_CellIndex.row].locationUID;
+      let status = tableData[args.target._DT_CellIndex.row].status;
 
       switch (status) {
         case "pending":
-          pendingStudentSelected(studentUID, parentUID);
+          pendingStudentSelected(studentUID, parentUID, location);
           break;
         case "active":
           activeStudentSelected(studentUID);
@@ -90,17 +132,16 @@ locationDocRef.get()
         default:
           console.log("ERROR: This student isn't active or pending!!!")
       }
-      
     });
-  }
-})
-.catch((error) => {
-  console.log(error);
-  console.log(error.code);
-  console.log(error.message);
-  console.log(error.details);
-});
-
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log(error.code);
+    console.log(error.message);
+    console.log(error.details);
+  });
+  
+}
 
 function goToInquiry() {
   window.location.href = "../inquiry.html";

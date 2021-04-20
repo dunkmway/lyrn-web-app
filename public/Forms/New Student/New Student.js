@@ -230,7 +230,7 @@ function createElements(elementType = [], classes = [], attributes = [], values 
         let studentActTests = doc.data()["studentActTests"];
         if (studentActTests) {
           for (let i = 0; i < studentActTests.length; i++) {
-            console.log(studentActTests[i]["date"]);
+            // console.log(studentActTests[i]["date"]);
             let test = studentActTests[i];
             addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
           }

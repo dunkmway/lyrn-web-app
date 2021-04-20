@@ -56,10 +56,10 @@ var initialsChanged = false;
 function main() {
   initialSetupData()
   .then(() => {
-    console.log("hwData", hwData);
-    console.log("sessionData", sessionData);
-    console.log("sessionDates", sessionDates);
-    console.log("studentProfile", studentProfile);
+    // console.log("hwData", hwData);
+    // console.log("sessionData", sessionData);
+    // console.log("sessionDates", sessionDates);
+    // console.log("studentProfile", studentProfile);
 
     hwChart = setHomeworkChart();
     updateProfileData();
@@ -68,7 +68,7 @@ function main() {
 
 function initialSetupData() {
   currentStudent = queryStrings()["student"];
-  console.log("currentStudent", currentStudent);
+  // console.log("currentStudent", currentStudent);
 
   if (currentStudent) {
     let profileProm = getProfileData(currentStudent)
@@ -131,14 +131,10 @@ function storeHomeworkData(doc) {
       }
     }
   }
-  // englishScores.sort((a,b) => sortHomeworkScores(a,b));
-  // mathScores.sort((a,b) => sortHomeworkScores(a,b));
-  // readingScores.sort((a,b) => sortHomeworkScores(a,b));
-  // scienceScores.sort((a,b) => sortHomeworkScores(a,b));
-  console.log("englishScores", englishScores);
-  console.log("mathScores", mathScores);
-  console.log("readingScores", readingScores);
-  console.log("scienceScores", scienceScores);
+  // console.log("englishScores", englishScores);
+  // console.log("mathScores", mathScores);
+  // console.log("readingScores", readingScores);
+  // console.log("scienceScores", scienceScores);
 
   return Promise.resolve("hw data stored!");
 }
@@ -190,25 +186,15 @@ function storeSessionData(doc) {
   //sort from lowest to highest
   sessionDates.sort(function(a, b){return a - b});
 
-  // //set the sessionDate array
-  // for (let i = 0; i < sessionDates.length; i++) {
-  //   const date = new Date(sessionDates[i]);
-  //   const day = date.getDate();
-  //   const month = date.getMonth()+1;
-  //   const year = date.getFullYear();
-  //   const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
-  //   sessionDates[i] = dateStr;
-  // }
-
-  console.log("englishHours",englishHours);
-  console.log("mathHours", mathHours);
-  console.log("readingHours", readingHours);
-  console.log("scienceHours", scienceHours);
+  // console.log("englishHours",englishHours);
+  // console.log("mathHours", mathHours);
+  // console.log("readingHours", readingHours);
+  // console.log("scienceHours", scienceHours);
 
   for (let i = 0; i < sessionDates.length; i++) {
     compositeHours[sessionDates[i]] = (englishHours[sessionDates[i]] ?? 0) + (mathHours[sessionDates[i]] ?? 0) + (readingHours[sessionDates[i]] ?? 0) + (scienceHours[sessionDates[i]] ?? 0);
   }
-  console.log("compositeHours", compositeHours)
+  // console.log("compositeHours", compositeHours)
 }
 
 function getActProfileData(studentUID) {
@@ -312,8 +298,8 @@ function updateProfileData() {
   const nextTestDate = convertFromDateInt(getNextTestDate()) ? convertFromDateInt(getNextTestDate())['shortDate'] : null;
   const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestDate());
 
-  console.log('nextTestDate', nextTestDate);
-  console.log('testDaysLeft', testDaysLeft);
+  // console.log('nextTestDate', nextTestDate);
+  // console.log('testDaysLeft', testDaysLeft);
 
   document.getElementById('next-test-date').textContent = nextTestDate ?? "...";
   document.getElementById('test-days-left').textContent = testDaysLeft ?? "...";
@@ -339,7 +325,7 @@ function setHomeworkChart() {
     scienceHoursArray.push(scienceHours[sessionDates[i]]);
   }
 
-  console.log("compositeScores", compositeScores);
+  // console.log("compositeScores", compositeScores);
 
   let allHours = [compositeHoursArray.runningTotal(), englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
   let minMax = getMinAndMax(allHours);
@@ -374,11 +360,11 @@ function setHomeworkChart() {
     }
   }
 
-  console.log("compositeHoursScores", compositeHoursScores);
-  console.log("englishHoursScores", englishHoursScores);
-  console.log("mathHoursScores", mathHoursScores);
-  console.log("readingHoursScores", readingHoursScores);
-  console.log("scienceHoursScores", scienceHoursScores);
+  // console.log("compositeHoursScores", compositeHoursScores);
+  // console.log("englishHoursScores", englishHoursScores);
+  // console.log("mathHoursScores", mathHoursScores);
+  // console.log("readingHoursScores", readingHoursScores);
+  // console.log("scienceHoursScores", scienceHoursScores);
 
   for (let i = 0; i < hoursArray.length; i++) {
     compositeHoursScoresArray.push(compositeHoursScores[hoursArray[i]]);
@@ -818,7 +804,7 @@ function updateGoalsModal() {
 }
 
 function updateModalCompositeGoals() {
-  console.log("updating modal")
+  // console.log("updating modal")
   let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[id$='goal']");
   let scoreValues = [];
   for (let i = 0; i < allInputs.length; i++) {
@@ -832,7 +818,7 @@ function goalsUpdated() {
 }
 
 function updateModalCompositeInitials() {
-  console.log("updating modal")
+  // console.log("updating modal")
   let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[id$='initial']");
   let scoreValues = [];
   for (let i = 0; i < allInputs.length; i++) {

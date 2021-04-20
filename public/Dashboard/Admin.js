@@ -32,7 +32,7 @@ function getAdminProfile(adminUID) {
 
 function setAdminProfile(profileData = {}) {
   currentLocations = profileData['locations'];
-  console.log(currentLocations);
+  // console.log(currentLocations);
 
   if (profileData['adminFirstName'] && profileData['adminLastName']) {
     document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
@@ -57,8 +57,8 @@ function setStudentTable() {
         let pendingStudents = doc.get("pendingStudents");
         let activeStudents = doc.get("activeStudents");
 
-        console.log(pendingStudents);
-        console.log(activeStudents);
+        // console.log(pendingStudents);
+        // console.log(activeStudents);
 
         //for the table
 
@@ -101,7 +101,7 @@ function setStudentTable() {
   
   return Promise.all(promises)
   .then(() => {
-    console.log("tableData", tableData);
+    // console.log("tableData", tableData);
     let studentTable = $('#student-table').DataTable( {
       data: tableData,
       columns: [
@@ -210,13 +210,13 @@ function createTutor() {
   let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input");
 
   if (validateFields([...allInputs, document.getElementById("tutorLocation")])) {
-    console.log("all clear");
+    // console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
       allInputValues[allInputs[i].id] = allInputs[i].value;
     }
 
-    console.log(allInputValues);
+    // console.log(allInputValues);
 
     //create the tutor account
     const addUser = firebase.functions().httpsCallable('addUser');
@@ -229,8 +229,8 @@ function createTutor() {
 
       let tutorUID = result.data.user.uid;
       let newUser = result.data.newUser;
-      console.log(tutorUID);
-      console.log(newUser);
+      // console.log(tutorUID);
+      // console.log(newUser);
 
       let currentLocation = document.getElementById("tutorLocation").value;
 
@@ -243,8 +243,8 @@ function createTutor() {
         }
         tutorDocRef.set(tutorDocData)
         .then((result) => {
-          console.log("tutor document successfully written!");
-          console.log(result);
+          // console.log("tutor document successfully written!");
+          // console.log(result);
           document.getElementById("spinnyBoiTutor").style.display = "none";
           closeUser("tutor", true);
         })
@@ -272,7 +272,7 @@ function createTutor() {
     })
   }
   else {
-    console.log("not done yet!!!");
+    // console.log("not done yet!!!");
     document.getElementById("spinnyBoiTutor").style.display = "none";
   }
 }
@@ -281,13 +281,13 @@ function createSecretary() {
   document.getElementById("spinnyBoiSecretary").style.display = "block";
   let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input");
   if (validateFields(allInputs) && validateFields([document.getElementById("secretaryLocation")])) {
-    console.log("all clear");
+    // console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
       allInputValues[allInputs[i].id] = allInputs[i].value;
     }
 
-    console.log(allInputValues);
+    // console.log(allInputValues);
 
     //create the tutor account
     const addUser = firebase.functions().httpsCallable('addUser');
@@ -300,8 +300,8 @@ function createSecretary() {
 
       let secretaryUID = result.data.user.uid;
       let newUser = result.data.newUser;
-      console.log(secretaryUID);
-      console.log(newUser);
+      // console.log(secretaryUID);
+      // console.log(newUser);
 
       let currentLocation = document.getElementById("secretaryLocation").value;
 
@@ -314,8 +314,8 @@ function createSecretary() {
         }
         secretaryDocRef.set(secretaryDocData)
         .then((result) => {
-          console.log("secretary document successfully written!");
-          console.log(result);
+          // console.log("secretary document successfully written!");
+          // console.log(result);
           document.getElementById("spinnyBoiSecretary").style.display = "none";
           closeUser("secretary", true);
         })
@@ -343,7 +343,7 @@ function createSecretary() {
     })
   }
   else {
-    console.log("not done yet!!!");
+    // console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
   }
 }

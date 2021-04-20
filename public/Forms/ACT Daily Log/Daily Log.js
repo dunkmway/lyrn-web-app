@@ -53,8 +53,8 @@ function initialSetup() {
       if (doc.exists) {
         oldTestAnswers = doc.data();
         testAnswers = JSON.parse(JSON.stringify(oldTestAnswers));
-        console.log(oldTestAnswers);
-        console.log(testAnswers);
+        // console.log(oldTestAnswers);
+        // console.log(testAnswers);
 
         //updateTestTypes();
       }
@@ -1019,7 +1019,7 @@ function submitDailyLog() {
       let promises = [sessionProm, hwProm, lessonProm];
       Promise.all(promises)
       .then((result) => {
-        console.log("Everything submitted");
+        // console.log("Everything submitted");
         removeUnloadListener();
         window.location.reload();
         //window.history.back();
@@ -1048,7 +1048,7 @@ function submitFeedback() {
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
-      console.log("feedback saved");
+      // console.log("feedback saved");
     })
     .catch((error) => {
       console.error(error);
@@ -1060,10 +1060,46 @@ function submitFeedback() {
 }
 
 function goToDashboard() {
-  let confirmation = confirm("Are you sure you want to go back to your dashbaord?\nThis will delete all of this log's changes.");
-  if (confirmation) {
-    window.history.back();
-  }
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+
+        switch (role) {
+          case "student":
+            window.location.replace(location.origin + "/Dashboard/Student");
+            break;
+          case "parent":
+            window.location.replace(location.origin + "/Dashboard/Parent");
+            break;
+          case "tutor":
+            window.location.replace(location.origin + "/Dashboard/Tutor");
+            break;
+          case "secretary":
+            window.location.replace(location.origin + "/Dashboard/Secretary");
+            break;
+          case "admin":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          case "dev":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          default:
+            
+        }
+      })
+      .catch((error) => {
+          console.log("error while getting user token. can't confirm role")
+          console.log(error);
+          window.location.replace(location.origin + "/Sign-In/Sign-In");
+      });
+    }
+    else {
+      console.log("no user found")
+      window.location.replace(location.origin + "/Sign-In/Sign-In");
+    }
+  });
 }
 
 //TESTING

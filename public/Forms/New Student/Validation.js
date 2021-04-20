@@ -202,7 +202,7 @@ function submitData() {
     //special case for actTest (will be added to the student data)
     let actTestArray = [];
     let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-    console.log(actTestDivs);
+    //console.log(actTestDivs);
     for (let i = 0; i < actTestDivs.length; i++) {
       let actTest = {}
       actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
@@ -224,8 +224,8 @@ function submitData() {
     .then((result) => {
       let studentUID = result.data.user.uid;
       let newUser = result.data.newUser;
-      console.log(studentUID);
-      console.log(newUser);
+      //console.log(studentUID);
+      //console.log(newUser);
 
       if (newUser) {
         var GET = {};
@@ -250,8 +250,8 @@ function submitData() {
         }
         let studentProm = studentDocRef.set(studentDocData)
         .then((result) => {
-          console.log("student document successfully written!");
-          console.log(result);
+          // console.log("student document successfully written!");
+          // console.log(result);
         })
         .catch((error) => {
           console.log(error);
@@ -275,8 +275,8 @@ function submitData() {
           [`pendingStudents.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
         })
         .then((result) => {
-          console.log("location document successfully written!");
-          console.log(result);
+          // console.log("location document successfully written!");
+          // console.log(result);
         })
         .catch((error) => {
           console.log(error);
@@ -298,8 +298,8 @@ function submitData() {
         }
         let parentProm = parentDocRef.update(parentDocData)
         .then((result) => {
-          console.log("parent document successfully written!");
-          console.log(result);
+          // console.log("parent document successfully written!");
+          // console.log(result);
         })
         .catch((error) => {
           console.log(error);
@@ -313,8 +313,8 @@ function submitData() {
         const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
         let pendingProm = pendingDocRef.delete()
         .then((result) => {
-          console.log("pending document successfully deleted!");
-          console.log(result);
+          // console.log("pending document successfully deleted!");
+          // console.log(result);
         })
         .catch((error) => {
           console.log(error);
@@ -328,8 +328,8 @@ function submitData() {
         let promises = [studentProm ,parentProm, pendingProm, locationProm];
         Promise.all(promises)
         .then(() => {
-          console.log("data successfully submitted")
-          window.history.back();
+          // console.log("data successfully submitted")
+          goToDashboard();
         })
         .catch((error) => {
           console.log(error);
@@ -483,7 +483,7 @@ function update() {
     //special case for actTest (will be added to the student data)
     let actTestArray = [];
     let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-    console.log(actTestDivs);
+    // console.log(actTestDivs);
     for (let i = 0; i < actTestDivs.length; i++) {
       let actTest = {}
       actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
@@ -521,8 +521,8 @@ function update() {
     }
     let parentProm = parentDocRef.update(parentDocData)
     .then((result) => {
-      console.log("parent document successfully written!");
-      console.log(result);
+      // console.log("parent document successfully written!");
+      // console.log(result);
     })
     .catch((error) => {
       console.log(error);
@@ -543,8 +543,8 @@ function update() {
       ...pendingData
     })
     .then((result) => {
-      console.log("pending document successfully written!");
-      console.log(result);
+      // console.log("pending document successfully written!");
+      // console.log(result);
     })
     .catch((error) => {
       console.log(error);
@@ -567,8 +567,8 @@ function update() {
       [`pendingStudents.${studentTempUID}`]: pendingStudent
     })
     .then((result) => {
-      console.log("location document successfully written!");
-      console.log(result);
+      // console.log("location document successfully written!");
+      // console.log(result);
     })
     .catch((error) => {
       console.log(error);
@@ -581,8 +581,8 @@ function update() {
     let promises = [parentProm, pendingProm, locationProm];
     Promise.all(promises)
     .then(() => {
-      console.log("data successfully updated")
-      window.history.back();
+      // console.log("data successfully updated")
+      goToDashboard();
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
         loadingBlocks[i].style.display = "none";
@@ -619,4 +619,47 @@ function update() {
       submitButtons[i].disabled = false;
     }
   }
+}
+
+function goToDashboard() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+
+        switch (role) {
+          case "student":
+            window.location.replace(location.origin + "/Dashboard/Student");
+            break;
+          case "parent":
+            window.location.replace(location.origin + "/Dashboard/Parent");
+            break;
+          case "tutor":
+            window.location.replace(location.origin + "/Dashboard/Tutor");
+            break;
+          case "secretary":
+            window.location.replace(location.origin + "/Dashboard/Secretary");
+            break;
+          case "admin":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          case "dev":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          default:
+            
+        }
+      })
+      .catch((error) => {
+          console.log("error while getting user token. can't confirm role")
+          console.log(error);
+          window.location.replace(location.origin + "/Sign-In/Sign-In");
+      });
+    }
+    else {
+      console.log("no user found")
+      window.location.replace(location.origin + "/Sign-In/Sign-In");
+    }
+  });
 }
