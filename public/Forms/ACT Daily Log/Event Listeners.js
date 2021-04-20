@@ -73,7 +73,48 @@ popupAnswers.addEventListener('click', function(event) {
 
     // Check to see if the question is an endpoint
     if (guessEndPoints.includes(question)) {
-      console.log(question, "is a guess end point... I need to remove something")
+      // marking only one question, (set it as the end point)
+      if (guess_end == 0) {
+        guess_end = question;
+
+        // Check to see how many times the question can be found
+        let count = 0;
+        for (let i = 0; i < guessEndPoints.length; i++) {
+          if (guessEndPoints[i] == guess_start) {
+            count++;
+          }
+        }
+
+        // Add the question a second time (if needed) to mark only this question
+        if (count == 1) {
+          tempAnswers[test][section]['GuessEndPoints'].push(guess_end)
+        }
+
+        guess_start = 0;
+      }
+      // Trying to remove the block / question
+      else {
+        const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
+
+        // Removing the last point
+        if (index == tempAnswers[test][section]['GuessEndPoints'].length - 1) {
+          if (tempAnswers[test][section]['GuessEndPoints'].length % 2 == 0) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index - 1,2)
+          }
+          else {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index,1)
+          }
+        }
+        else {
+          if (index % 2 == 0) {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index,2)
+          }
+          else {
+            tempAnswers[test][section]['GuessEndPoints'].splice(index - 1,2)
+          }
+        }
+        console.log(question, "is a guess end point... I need to remove something")
+      }
     }
     // Not an end point
     else {
