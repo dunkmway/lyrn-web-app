@@ -795,7 +795,7 @@ p.errorMessage {
     justify-content: space-around;
     text-align: center;
     border-radius: 50%;
-    padding: 2.5px;
+    /*padding: 2.5px;*/
 }
 
 .popupDash {
