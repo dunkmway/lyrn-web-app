@@ -286,6 +286,18 @@
                 </div>
             </div>
 
+            <div id = "toggleDiv" class = "input-row-center">
+
+                <button id = "answerButton" class = "smallButton buttonToggleOn" onclick="toggleButtons('answer')">
+                    Answers
+                </button>
+
+                <button id = "guessButton" class = "smallButton buttonToggleOff" onclick="toggleButtons('guess')">
+                    Guesses
+                </button>
+
+            </div>
+
             <div id = "popupInfo" class = "input-row">
 
                 <div class = "side">
@@ -296,8 +308,8 @@
                     </div>
                 </div>
 
-                    <div id = "passage">
-                    </div>
+                <div id = "passage">
+                </div>
 
                 <div class = "side">
                     <div class = "circle button2" onclick="nextPassage(this)">

@@ -2,7 +2,7 @@
 
 // The actual tests with their answers and scaled scores
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => console.log(testData));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data))//.then(() => console.log(testData));
 
 // Student test information
 let oldTestAnswers = {};
@@ -14,6 +14,7 @@ initialSetup();
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
 let lastView = 'Daily Log';
+let mark_type = 'answer';
 let tab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
@@ -232,6 +233,17 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     // clear the test formatting
     clearInCenterFormating();
 
+    // Reset the toggle buttons (between answer and guess)
+    toggleButtons('answer');
+
+    // Add final guess point for passages if needed
+    const info = getTestInfo();
+    if (info[2] != undefined) {
+      for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]; i++) {
+        checkPassageGuesses(i + 1);
+      }
+    }
+
     // update test visuals
     updateTestGraphics(test_view_type);
 
@@ -272,6 +284,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
     else {
       if (id == "dailyLog") {
+
         if (lastView == "dailyLog") {
           if (tab == 'dailyLog') {
             swap();
@@ -280,6 +293,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
           form.style.display = "none"
           lastView = 'none';
         }
+
         else {
           if (tab == 'none') {
             swap();
@@ -288,6 +302,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
           lastView = id;
           form.style.display = "block"
         }
+
       }
       else {
         if (!id.includes('Popup')) {
@@ -298,8 +313,8 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
   }
 
-  console.log("temp", tempAnswers);
-  console.log("test", testAnswers);
+  //console.log("temp", tempAnswers);
+  //console.log("test", testAnswers);
 
   // Open the last form / popup
   if (id == undefined) {
@@ -621,6 +636,9 @@ function updatePopupGraphics(id, test, section, passageNumber) {
     timeMinutes.parentNode.style.visibility = "visible";
   }
 
+  // Reset the toggles back to marking answers
+  //toggleButtons('answer');
+
 }
 
 function shouldMarkAsGuessed(test, section, question) {
@@ -678,6 +696,64 @@ function resetMessages() {
   assignMessage.style.display = "none";
 }
 
+function getPassageFirstQuestion(passageNumber) {
+  const info = getTestInfo();
+
+  for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"].length; i++) {
+    if (parseInt(testData[info[0]][info[1].toLowerCase() + "Answers"][i]['passageNumber']) == parseInt(passageNumber)) {
+      return i + 1;
+    }
+  }
+}
+
+function getPassageLastQuestion(passageNumber) {
+  const info = getTestInfo();
+
+  for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"].length; i++) {
+    if (parseInt(testData[info[0]][info[1].toLowerCase() + "Answers"][i]['passageNumber']) == (parseInt(passageNumber) + 1)) {
+      return i;
+    }
+  }
+
+  return testData[info[0]][info[1].toLowerCase() + "Answers"].length;
+}
+
+function checkPassageGuesses(passageNumber, submitting = 'False') {
+  const info = getTestInfo();
+
+  const start = getPassageFirstQuestion(passageNumber);
+  const end = getPassageLastQuestion(passageNumber);
+
+  let count = 0;
+  const guessEndPoints = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints'] ?? [];
+  for (let i = 0; i < guessEndPoints.length; i++) {
+    if (parseInt(guessEndPoints[i]) >= start && parseInt(guessEndPoints[i]) <= end) {
+      // Add the endpoint to the testAnswers if it's not there
+      if (submitting == 'True') {
+        if (testAnswers[info[0]]?.[info[1]]?.['GuessEndPoints'] == undefined) {
+          setObjectValue([info[0], info[1], 'GuessEndPoints'], [], testAnswers);
+        }
+        if (!testAnswers[info[0]][info[1]]['GuessEndPoints'].includes(guessEndPoints[i]) || (i > 0 && guessEndPoints[i] == guessEndPoints[i - 1])) {
+          testAnswers[info[0]][info[1]]['GuessEndPoints'].push(guessEndPoints[i])
+        }
+      }
+      count++;
+    }
+  }
+
+  // Add an end point if needed
+  if (count % 2 == 1) {
+    tempAnswers[info[0]][info[1]]['GuessEndPoints'].push(end.toString());
+    
+    // Add it to the testAnswers
+    if (submitting == 'True' && !testAnswers[info[0]][info[1]]['GuessEndPoints'].includes(end.toString())) {
+      testAnswers[info[0]][info[1]]['GuessEndPoints'].push(end.toString())
+    }
+    guess_start = 0;
+    guess_end = end.toString()
+  }
+}
+
 function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
   // Grab the test info
   let info = getTestInfo();
@@ -717,6 +793,7 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
         setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
         setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
       }
+      checkPassageGuesses(info[2], 'True');
     }
     else {
       // reset the temp answers
@@ -789,9 +866,9 @@ function resetAnswers() {
 
 function getTestInfo() {
   let headerText = document.getElementById("answersPopupHeader").innerHTML;
-  let test = headerText.split(" - ")[0];
-  let section = headerText.split(" - ")[1];
-  let passageNumber = headerText.split(" - ")[2];
+  let test = headerText.split(" - ")[0] ?? undefined;
+  let section = headerText.split(" - ")[1] ?? undefined;
+  let passageNumber = headerText.split(" - ")[2] ?? undefined;
 
   return [test, section, passageNumber]
 }
@@ -826,6 +903,7 @@ function removeAnswers() {
   for (let box = 0; box < test_boxes.length; box++) {
     test_boxes[box].classList.remove('highlight');
   }
+
 }
 
 function removeTest() {
@@ -1210,4 +1288,26 @@ function swap() {
   let nav = document.getElementById("sideNav");
   nav.classList.toggle("nav_disabled")
   nav.classList.toggle("nav_enabled")
+}
+
+function toggleButtons(active) {
+  // Find the buttons to toggle
+  let answerButton = document.getElementById("answerButton");
+  let guessButton = document.getElementById("guessButton");
+
+  // Swap the buttons (if needed)
+  if (active == 'answer') {
+    mark_type = 'answer';
+    answerButton.classList.add("buttonToggleOn")
+    answerButton.classList.remove("buttonToggleOff")
+    guessButton.classList.add("buttonToggleOff")
+    guessButton.classList.remove("buttonToggleOn")
+  }
+  else if (active == 'guess') {
+    mark_type = 'guess';
+    answerButton.classList.remove("buttonToggleOn")
+    answerButton.classList.add("buttonToggleOff")
+    guessButton.classList.add("buttonToggleOn")
+    guessButton.classList.remove("buttonToggleOff")
+  }
 }
