@@ -1,12 +1,15 @@
 // In Center Tests - Popup
 inCenterTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
-  else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
@@ -14,13 +17,16 @@ inCenterTests.addEventListener('click', function(event)  {
 // Homework Tests - Popup
 let homeworkTests = document.getElementById("homeworkTests");
 homeworkTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
-  else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
@@ -28,13 +34,16 @@ homeworkTests.addEventListener('click', function(event)  {
 // Other Tests - Popup
 let otherTests = document.getElementById("otherTests");
 otherTests.addEventListener('click', function(event)  {
-  if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "homework") {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
   else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
     openForm('testAnswersPopup', undefined, event.target);
   }
-  else if (event.target.className.includes("button2") && event.target.className.includes("gridBox") && test_view_type == "assign") {
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
   }
 })
@@ -45,29 +54,51 @@ let guess_end = 0;
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function(event) {
 
+  // Identify whether you are selecting the child or the parent div
+  let is_child = false;
+  if (event.target.className.includes('popup')) {
+    is_child = true;
+  }
+
   // Needed info
   const headerText = document.getElementById("answersPopupHeader").innerHTML;
   const test = headerText.split(" - ")[0];
   const section = headerText.split(" - ")[1];
   const passageNumber = headerText.split(" - ")[2];
-  const question = event.target.parentNode.getAttribute("data-question");
+  let question = undefined;
+  if (is_child == true) {
+    question = event.target.parentNode.getAttribute("data-question");
+  }
+  else {
+    question = event.target.getAttribute("data-question");
+  }
 
   // Check to see if we're marking a question as wrong / correct
-  if (event.target.parentNode.className.includes('input-row-center') && mark_type == 'answer') {
+  if ((event.target.parentNode.className.includes('input-row-center') || event.target.className.includes('input-row-center')) && mark_type == 'answer') {
 
     // If marked correct (not found), mark it wrong
     if (!tempAnswers[test]?.[section]?.[passageNumber]?.['Answers'].includes(question)) {
-      tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
+      if (is_child == true) {
+        tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
+      }
+      else {
+        tempAnswers[test][section][passageNumber]['Answers'].push(event.target.querySelectorAll("div")[0].innerHTML)
+      }
     }
     // If marked wrong, change it to correct
     else {
-      tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+      if (is_child == true) {
+        tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+      }
+      else {
+        tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+      }
     }
 
     openForm('testAnswersPopup');
   }
   // Check to see if we're marking a question as a guess
-  else if (event.target.parentNode.className.includes('input-row-center') && mark_type == 'guess') {
+  else if ((event.target.parentNode.className.includes('input-row-center') || event.target.className.includes('input-row-center')) && mark_type == 'guess') {
 
     const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints'] ?? [];
 
@@ -113,7 +144,6 @@ popupAnswers.addEventListener('click', function(event) {
             tempAnswers[test][section]['GuessEndPoints'].splice(index - 1,2)
           }
         }
-        console.log(question, "is a guess end point... I need to remove something")
       }
     }
     // Not an end point
@@ -248,105 +278,30 @@ popupAnswers.addEventListener('click', function(event) {
   }
 })
 
-
-
-
-// Listen for wrong answers
-/*let popupAnswers = document.getElementById("passage")
-popupAnswers.addEventListener('click', function(event) {
-  if (event.target.parentNode.className.includes('input-row-center')) {
-    const headerText = document.getElementById("answersPopupHeader").innerHTML;
-    const test = headerText.split(" - ")[0];
-    const section = headerText.split(" - ")[1];
-    const passageNumber = headerText.split(" - ")[2];
-    const question = event.target.parentNode.getAttribute("data-question");
-    const isMarkedWrong = tempAnswers[test]?.[section]?.[passageNumber]?.['Answers'].includes(event.target.parentNode.getAttribute("data-question"));
-    const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints'];
-    let isGuessEndPoint = false;
-    if (guessEndPoints != undefined) {
-      isGuessEndPoint = guessEndPoints.includes(question);
-    }
-
-    // If not marked, mark the question wrong
-    if (isMarkedWrong == false && isGuessEndPoint == false) {
-      tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
-    }
-    // If marked wrong and is not an endpoint, reset and mark as a guess endpoint
-    else if (isMarkedWrong == true && isGuessEndPoint == false) {
-      tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
-      if (!shouldMarkAsGuessed(test, section, question) || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
-        if (guessEndPoints == undefined || parseInt(question) > parseInt(guessEndPoints[guessEndPoints.length - 1])) {
-          if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined) {
-            tempAnswers[test][section]['GuessEndPoints'].push(question);
-          }
-          else {
-            tempAnswers[test][section]['GuessEndPoints'] = []
-            tempAnswers[test][section]['GuessEndPoints'].push(question);
-          }
-        }
-        else {
-          // Just mark the individual question
-          tempAnswers[test][section]['GuessEndPoints'].push(question);
-          tempAnswers[test][section]['GuessEndPoints'].push(question);
-        }
-      }
-    }
-    // If marked as an endpoint, mark wrong
-    else if (isMarkedWrong == false && isGuessEndPoint == true) {
-      tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
-    }
-    // if marked wrong and is a guess endpoint, reset
-    else if (isMarkedWrong == true && isGuessEndPoint == true) {
-      // Remove the guess color class
-      tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
-
-      if (guessEndPoints.length % 2 == 0) {
-        if (guessEndPoints.length == 1) {
-          delete tempAnswers[test][section]['GuessEndPoints']
-        }
-        else {
-          const index = getArrayIndex(question, tempAnswers[test][section]['GuessEndPoints'])
-          tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-          if (index % 2 == 1) {
-            tempAnswers[test][section]['GuessEndPoints'].splice(index - 1, 1)
-          }
-          else if (tempAnswers[test][section]['GuessEndPoints'].length > index) {
-            tempAnswers[test][section]['GuessEndPoints'].splice(index, 1)
-          }
-        }
-
-        if (tempAnswers[test]?.[section]?.['GuessEndPoints'] != undefined && tempAnswers[test][section]['GuessEndPoints'].length == 0) {
-          delete tempAnswers[test][section]['GuessEndPoints']
-        }
-      }
-      else {
-        tempAnswers[test][section]['GuessEndPoints'].push(question);
-      }
-
-    }
-
-    // Sort the guessed questions array
-    try {
-      tempAnswers[test][section]['GuessEndPoints'].sort(function(a, b){return a-b})
-    }
-    catch {
-      2 + 2;
-    }
-
-    openForm('testAnswersPopup');
-  }
-})*/
-
 // Close the popup if they click outside of it
 testAnswersPopup = document.getElementById("testAnswersPopup")
 testAnswersPopup.addEventListener('click', function(event) {
-  const doubleParent = event.target.parentNode.parentNode ?? undefined;
+  // Get the id of the target
+  const id = event.target.id;
+
+  // Check to see if there is a parent
+  let parentId = undefined;
+  try {
+    parentId = event.target.parentNode.id;
+  }
+  catch {
+    parentId = undefined;
+  }
+
+  // Check to see if there is a double parent
   let doubleParentId = undefined;
-  if (doubleParent != undefined) {
+  try {
     doubleParentId = event.target.parentNode.parentNode.id;
   }
-  const parentId = event.target.parentNode.id;
-  const id = event.target.id;
+  catch {
+    doubleParentId = undefined;
+  }
+
   if (doubleParentId != 'popupButtons' && parentId != 'popupButtons' && id != 'popupButtons'
       && doubleParentId != 'submitHomeworkPopup' && parentId != 'submitHomeworkPopup' && id != 'submitHomeworkPopup'
       && doubleParentId != 'perfectScorePopup' && parentId != 'perfectScorePopup' && id != 'perfectScorePopup') {
