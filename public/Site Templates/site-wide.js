@@ -62,8 +62,8 @@ function checkPermissions() {
             user.getIdTokenResult()
             .then((idTokenResult) => {
                 let role = idTokenResult.claims.role;
-                console.log(currentPath);
-                console.log(role);
+                // console.log(currentPath);
+                // console.log(role);
     
                 switch (role) {
                     case "student":
@@ -100,7 +100,7 @@ function checkPermissions() {
                         //UNLIMITED POWER!!!
                         break;
                     default:
-                        console.log("default");
+                        // console.log("default");
                         window.location.replace(location.origin + "/Sign-In/Sign-In");
                 }
                 clearLoadingScreen();
@@ -114,7 +114,7 @@ function checkPermissions() {
         else {
             if (!publicPages.includes(currentPath)) {
                 //access denied
-                console.log("no user is logged in and they are not on a private page")
+                // console.log("no user is logged in and they are not on a private page")
                 window.location.replace(location.origin + "/Sign-In/Sign-In");
             }
             clearLoadingScreen();

@@ -29,7 +29,7 @@ function login() {
 
   firebase.auth().signInWithEmailAndPassword(username, password)
   .then((result) => {
-    console.log(result);
+    // console.log(result);
     result.user.getIdTokenResult()
     .then((idTokenResult) => {
       // Confirm the user is an Admin.
@@ -80,7 +80,7 @@ function setSession() {
 //set auth persistence to session
 return firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
 .then(function() {
-  console.log("set persistence")
+  // console.log("set persistence")
 // Existing and future Auth states are now persisted in the current
 // session only. Closing the window would clear any existing state even
 // if a user forgets to sign out.

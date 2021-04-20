@@ -53,10 +53,10 @@ function createInquiry() {
       studentInputValues[studentInputs[i].id] = studentInputs[i].value;
     }
 
-    console.log(allInputValues);
-    console.log(locationInputValues);
-    console.log(parentInputValues);
-    console.log(studentInputValues);
+    // console.log(allInputValues);
+    // console.log(locationInputValues);
+    // console.log(parentInputValues);
+    // console.log(studentInputValues);
     
     //create the parent account
     const addUser = firebase.functions().httpsCallable('addUser');
@@ -69,8 +69,8 @@ function createInquiry() {
 
       let parentUID = result.data.user.uid;
       newUser = result.data.newUser;
-      console.log(parentUID);
-      console.log(newUser);
+      // console.log(parentUID);
+      // console.log(newUser);
 
       if (newUser) {
         //set up the location pending doc
@@ -82,8 +82,8 @@ function createInquiry() {
           lastModifiedDate: (new Date().getTime()) 
         })
         .then((docRef) => {
-          console.log("pending document successfully written!");
-          console.log(docRef.id);
+          // console.log("pending document successfully written!");
+          // console.log(docRef.id);
 
           let pendingStudentDoc = docRef.id;
 
@@ -97,8 +97,8 @@ function createInquiry() {
           }
           let parentProm = parentDocRef.set(parentDocData)
           .then((result) => {
-            console.log("parent document successfully written!");
-            console.log(result);
+            // console.log("parent document successfully written!");
+            // console.log(result);
           })
           .catch((error) => {
             console.log(error);
@@ -120,8 +120,8 @@ function createInquiry() {
             [`pendingStudents.${pendingStudentDoc}`]: pendingStudent
           })
           .then((result) => {
-            console.log("location document successfully written!");
-            console.log(result);
+            // console.log("location document successfully written!");
+            // console.log(result);
           })
           .catch((error) => {
             console.log(error);
@@ -134,7 +134,8 @@ function createInquiry() {
           let promises = [pendingProm, parentProm, locationProm];
           Promise.all(promises)
           .then(() => {
-            window.history.back();
+            //go back to the user's dashboard
+            goToDashboard();
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("spinnyBoi").style.display = "none";
           })
@@ -196,6 +197,49 @@ function getParentInputs() {
 
 function getStudentInputs() {
   return document.getElementById("inquiryForm").querySelectorAll(".student-data");
+}
+
+function goToDashboard() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+
+        switch (role) {
+          case "student":
+            window.location.replace(location.origin + "/Dashboard/Student");
+            break;
+          case "parent":
+            window.location.replace(location.origin + "/Dashboard/Parent");
+            break;
+          case "tutor":
+            window.location.replace(location.origin + "/Dashboard/Tutor");
+            break;
+          case "secretary":
+            window.location.replace(location.origin + "/Dashboard/Secretary");
+            break;
+          case "admin":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          case "dev":
+            window.location.replace(location.origin + "/Dashboard/Admin");
+            break;
+          default:
+            
+        }
+      })
+      .catch((error) => {
+          console.log("error while getting user token. can't confirm role")
+          console.log(error);
+          window.location.replace(location.origin + "/Sign-In/Sign-In");
+      });
+    }
+    else {
+      console.log("no user found")
+      window.location.replace(location.origin + "/Sign-In/Sign-In");
+    }
+  });
 }
 
 function validateFields(inputs) {

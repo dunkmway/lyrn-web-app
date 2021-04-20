@@ -71,7 +71,7 @@ function updateLessonData() {
   setObjectValue([section, lesson], value, lessonData);
   updateLessonGraphics();
 
-  console.log(lessonData);
+  // console.log(lessonData);
 }
 
 function resetLessonData() {
@@ -91,7 +91,7 @@ function resetLessonData() {
   }
   updateLessonGraphics();
 
-  console.log(lessonData);
+  // console.log(lessonData);
 }
 
 
