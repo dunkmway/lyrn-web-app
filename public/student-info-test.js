@@ -50,6 +50,7 @@ let scienceHoursScoresArray = [];
 var hwChart;
 
 var goalsChanged = false;
+var initialsChanged = false;
 
 
 function main() {
@@ -272,10 +273,10 @@ function updateProfileData() {
   document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
   document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
 
-  const englishInitialScore = initialScore(englishScores);
-  const mathInitialScore = initialScore(mathScores);
-  const readingInitialScore = initialScore(readingScores);
-  const scienceInitialScore = initialScore(scienceScores);
+  const englishInitialScore = actProfile['englishInitial'];
+  const mathInitialScore = actProfile['mathInitial'];
+  const readingInitialScore = actProfile['readingInitial'];
+  const scienceInitialScore = actProfile['scienceInitial'];
   const compositeInitialScore = roundedAvg([englishInitialScore, mathInitialScore, readingInitialScore, scienceInitialScore]);
 
   document.getElementById('composite-initial-score').textContent = compositeInitialScore ?? "...";
@@ -747,9 +748,18 @@ main();
 
 
 function openUpdateGoals() {
-  console.log(actProfile);
-  document.getElementById("update-goals-section").style.display = "flex";
-  updateGoalsModal();
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          document.getElementById("update-goals-section").style.display = "flex";
+          updateGoalsModal();
+        }
+      })
+    }
+  });
 }
 
 function closeModal(modalID, submitted = false) {
@@ -792,6 +802,11 @@ function updateGoalsModal() {
   document.getElementById("updated-reading-goal").value = actProfile["readingGoal"] ?? "";
   document.getElementById("updated-science-goal").value = actProfile["scienceGoal"] ?? "";
 
+  document.getElementById("updated-english-initial").value = actProfile["englishInitial"] ?? "";
+  document.getElementById("updated-math-initial").value = actProfile["mathInitial"] ?? "";
+  document.getElementById("updated-reading-initial").value = actProfile["readingInitial"] ?? "";
+  document.getElementById("updated-science-initial").value = actProfile["scienceInitial"] ?? "";
+
   for (let i = 0; i < actProfile["testDateGoals"].length; i++) {
     const addTestDateButton = document.getElementById("addTestDateGoalButton");
     let dateStr = convertFromDateInt(actProfile["testDateGoals"][i])['mm/dd/yyyy'];
@@ -799,11 +814,12 @@ function updateGoalsModal() {
   }
   
   updateModalCompositeGoals();
+  updateModalCompositeInitials();
 }
 
 function updateModalCompositeGoals() {
   console.log("updating modal")
-  let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[class*='score']");
+  let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[id$='goal']");
   let scoreValues = [];
   for (let i = 0; i < allInputs.length; i++) {
     scoreValues.push(parseInt(allInputs[i].value));
@@ -815,7 +831,21 @@ function goalsUpdated() {
   goalsChanged = true;
 }
 
-function submitUpdatedGoals() {
+function updateModalCompositeInitials() {
+  console.log("updating modal")
+  let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[id$='initial']");
+  let scoreValues = [];
+  for (let i = 0; i < allInputs.length; i++) {
+    scoreValues.push(parseInt(allInputs[i].value));
+  }
+  document.getElementById("updated-composite-initial").textContent = roundedAvg(scoreValues) ?? "...";
+}
+
+function initialsUpdated() {
+  initialsChanged = true;
+}
+
+function submitUpdatedInfo() {
   document.getElementById("spinnyBoiGoals").style.display = "block";
   document.getElementById("errMsgGoals").textContent = null;
 
@@ -840,11 +870,17 @@ function submitUpdatedGoals() {
   }
 
   if (allClear) {
-    let goalData = {
+    let infoData = {
       englishGoal : parseInt(document.getElementById("updated-english-goal").value),
       mathGoal : parseInt(document.getElementById("updated-math-goal").value),
       readingGoal : parseInt(document.getElementById("updated-reading-goal").value),
       scienceGoal : parseInt(document.getElementById("updated-science-goal").value),
+
+      englishInitial : parseInt(document.getElementById("updated-english-initial").value),
+      mathInitial : parseInt(document.getElementById("updated-math-initial").value),
+      readingInitial : parseInt(document.getElementById("updated-reading-initial").value),
+      scienceInitial : parseInt(document.getElementById("updated-science-initial").value),
+
       testDateGoals : goalDates
     }
 
@@ -852,14 +888,20 @@ function submitUpdatedGoals() {
     actProfileDocRef.get()
     .then((doc) => {
       if (doc.exists) {
-        actProfileDocRef.update(goalData)
+        actProfileDocRef.update(infoData)
         .then(() => {
           //update the local object as well
-          actProfile["englishGoal"] = goalData["englishGoal"];
-          actProfile["mathGoal"] = goalData["mathGoal"];
-          actProfile["readingGoal"] = goalData["readingGoal"];
-          actProfile["scienceGoal"] = goalData["scienceGoal"];
-          actProfile["testDateGoals"] = goalData["testDateGoals"];
+          actProfile["englishGoal"] = infoData["englishGoal"];
+          actProfile["mathGoal"] = infoData["mathGoal"];
+          actProfile["readingGoal"] = infoData["readingGoal"];
+          actProfile["scienceGoal"] = infoData["scienceGoal"];
+
+          actProfile["englishInitial"] = infoData["englishInitial"];
+          actProfile["mathInitial"] = infoData["mathInitial"];
+          actProfile["readingInitial"] = infoData["readingInitial"];
+          actProfile["scienceInitial"] = infoData["scienceInitial"];
+
+          actProfile["testDateGoals"] = infoData["testDateGoals"];
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
           updateProfileData()
@@ -872,14 +914,20 @@ function submitUpdatedGoals() {
         });
       }
       else {
-        actProfileDocRef.set(goalData)
+        actProfileDocRef.set(infoData)
         .then(() => {
           //update the local object as well
-          actProfile["englishGoal"] = goalData["englishGoal"];
-          actProfile["mathGoal"] = goalData["mathGoal"];
-          actProfile["readingGoal"] = goalData["readingGoal"];
-          actProfile["scienceGoal"] = goalData["scienceGoal"];
-          actProfile["testDateGoals"] = goalData["testDateGoals"];
+          actProfile["englishGoal"] = infoData["englishGoal"];
+          actProfile["mathGoal"] = infoData["mathGoal"];
+          actProfile["readingGoal"] = infoData["readingGoal"];
+          actProfile["scienceGoal"] = infoData["scienceGoal"];
+
+          actProfile["englishInitial"] = infoData["englishInitial"];
+          actProfile["mathInitial"] = infoData["mathInitial"];
+          actProfile["readingInitial"] = infoData["readingInitial"];
+          actProfile["scienceInitial"] = infoData["scienceInitial"];
+
+          actProfile["testDateGoals"] = infoData["testDateGoals"];
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
           updateProfileData()

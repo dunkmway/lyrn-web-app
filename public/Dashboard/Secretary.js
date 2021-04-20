@@ -4,8 +4,7 @@ let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
 
 
 
-
-
+//FIXME: Need to update the secratary page to the lastest interation (see admin page for example).
 
 const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocation)
 locationDocRef.get()
@@ -16,6 +15,8 @@ locationDocRef.get()
 
     let pendingStudents = doc.get("pendingStudents");
     let activeStudents = doc.get("activeStudents");
+    console.log(pendingStudents);
+    console.log(activeStudents);
     // if (pendingStudents) {
     //   const pendingStudentElem = document.getElementById("pendingStudents");
     //   for (const object in pendingStudents) {
@@ -42,6 +43,7 @@ locationDocRef.get()
       for (const studentUID in pendingStudents) {
         const student = {
           ...pendingStudents[studentUID],
+          studentUID: studentUID,
           status: "pending"
         }
         tableData.push(student);

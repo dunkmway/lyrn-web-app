@@ -37,59 +37,88 @@
         <h1>Update Goals</h1>
         </div>
         <div id="form-scroll-block">
-        <div id="spinnyBoiGoals" class="loader"></div>
-        <form onsubmit="return false">
-            <div class="input-row">
-            </div>
-            <div class="input-row">
-            <div class="input-block">
-                <h4>Composite Goal:</h4>
-                <h2 id="updated-composite-goal"></h2>
-            </div>
-            </div>
+            <div id="spinnyBoiGoals" class="loader"></div>
+            <form onsubmit="return false">
+                <div class="input-row">
+                    <div class="input-block">
+                        <h4>Initial Composite:</h4>
+                        <h2 id="updated-composite-initial"></h2>
+                    </div>
+                </div>
 
-            <div class="input-row">
-            <div class="input-block">
-                <label for="updated-english-goal" class="label">English Goal:</label>
-                <input id="updated-english-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
-            </div>
-            
-            <div class="input-block">
-                <label for="updated-math-goal" class="label">Math Goal:</label>
-                <input id="updated-math-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
-            </div>
-            </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-english-initial" class="label">Initial English:</label>
+                        <input id="updated-english-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                    
+                    <div class="input-block">
+                        <label for="updated-math-initial" class="label">Initial Math:</label>
+                        <input id="updated-math-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                </div>
 
-            <div class="input-row">
-            <div class="input-block">
-                <label for="updated-reading-goal" class="label">Reading Goal:</label>
-                <input id="updated-reading-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
-            </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-reading-initial" class="label">Initial Reading:</label>
+                        <input id="updated-reading-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
 
-            <div class="input-block">
-                <label for="updated-science-goal" class="label">Science Goal:</label>
-                <input id="updated-science-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
-            </div>
-            </div><br>
+                    <div class="input-block">
+                        <label for="updated-science-initial" class="label">Initial Science:</label>
+                        <input id="updated-science-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                </div><br>
 
-            <div>
-            <div class = "input-row">
-                <label for = "test-dates" class="label">Test Date Goals:</label>
-                <img src="../../Images/Add Button.jpg" alt="add test date goal" height=25px class = "firstButton" id="addTestDateGoalButton" onclick="addTestDateGoal(this)">
-                <img src="../../Images/Remove Button.jpg" alt="remove test goal" height=25px class = "" id="removeTestDateGoalButton" onclick="removeTestDateGoal(this)">
-            </div>
-            </div><br>
+                <div class="input-row">
+                    <div class="input-block">
+                        <h4>Composite Goal:</h4>
+                        <h2 id="updated-composite-goal"></h2>
+                    </div>
+                </div>
 
-            <div class="input-row">
-            <p id="errMsgGoals" class="errMsg"></p>
-            </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-english-goal" class="label">English Goal:</label>
+                        <input id="updated-english-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                    
+                    <div class="input-block">
+                        <label for="updated-math-goal" class="label">Math Goal:</label>
+                        <input id="updated-math-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                </div>
 
-            <div class="input-row">
-            <button type = button id="submitBtn" class="button" onclick="closeModal('update-goals-section')">back</button> 
-            <button type = button id="submitBtn" class="button" onclick="submitUpdatedGoals()">submit</button>
-            </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-reading-goal" class="label">Reading Goal:</label>
+                        <input id="updated-reading-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
 
-        </form>
+                    <div class="input-block">
+                        <label for="updated-science-goal" class="label">Science Goal:</label>
+                        <input id="updated-science-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                </div><br>
+
+                <div>
+                    <div class = "input-row">
+                        <label for = "test-dates" class="label">Test Date Goals:</label>
+                        <img src="../../Images/Add Button.jpg" alt="add test date goal" height=25px class = "firstButton" id="addTestDateGoalButton" onclick="addTestDateGoal(this)">
+                        <img src="../../Images/Remove Button.jpg" alt="remove test goal" height=25px class = "" id="removeTestDateGoalButton" onclick="removeTestDateGoal(this)">
+                    </div>
+                </div><br>
+
+                <div class="input-row">
+                    <p id="errMsgGoals" class="errMsg"></p>
+                </div>
+
+                <div class="input-row">
+                    <button type = button id="update-goals-closeBtn" class="button" onclick="closeModal('update-goals-section')">back</button> 
+                    <button type = button id="update-goals-submitBtn" class="button" onclick="submitUpdatedInfo()">submit</button>
+                </div>
+
+            </form>
         </div>
     </div>
     </section>

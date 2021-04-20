@@ -45,8 +45,8 @@ function login() {
         case "tutor":
           window.location.href = "../Dashboard/Tutor.html";
           break;
-        case "secratary":
-          window.location.href = "../Dashboard/Secratary.html";
+        case "secretary":
+          window.location.href = "../Dashboard/Secretary.html";
           break;
         case "admin":
           window.location.href = "../Dashboard/Admin.html";

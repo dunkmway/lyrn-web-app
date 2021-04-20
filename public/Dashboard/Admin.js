@@ -1,7 +1,3 @@
-//window.location.reload();
-//FIXME: need to grab which location we are looking at
-//currently stuck on Sandy
-//let currentLocation = "tykwKFrvmQ8xg2kFfEeA";
 let currentLocations = [];
 let currentLocationNames = [];
 let currentUser = ""
