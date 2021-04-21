@@ -1309,15 +1309,12 @@ function getArrayIndex(value, arr) {
 
 function openTest(test, section = undefined) {
 
-  if (test != "B02") {
-    return
-  }
-
   let path = test + (section != undefined ? (" - " + section) : "");
   let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
+
 }
 
 function swap() {
