@@ -748,10 +748,12 @@ function openUpdateGoals() {
   });
 }
 
-function closeModal(modalID, submitted = false) {
+function closeModal(e, modalID, submitted = false) {
+  //stops children from calling function
+  if (e.target !== e.currentTarget) return;
   let allInputs = document.getElementById(modalID).querySelectorAll("input, select");
 
-  if (goalsChanged && !submitted) {
+  if ((initialsChanged || goalsChanged) && !submitted) {
     let confirmation = confirm("This data has not been saved.\nAre you sure you want to go back?");
     if (confirmation) {
       for(let i = 0; i < allInputs.length; i++) {
@@ -783,20 +785,28 @@ function closeModal(modalID, submitted = false) {
 }
 
 function updateGoalsModal() {
-  document.getElementById("updated-english-goal").value = actProfile["englishGoal"] ?? "";
-  document.getElementById("updated-math-goal").value = actProfile["mathGoal"] ?? "";
-  document.getElementById("updated-reading-goal").value = actProfile["readingGoal"] ?? "";
-  document.getElementById("updated-science-goal").value = actProfile["scienceGoal"] ?? "";
+  // document.getElementById("updated-english-goal").value = actProfile["englishGoal"] ?? "";
+  // document.getElementById("updated-math-goal").value = actProfile["mathGoal"] ?? "";
+  // document.getElementById("updated-reading-goal").value = actProfile["readingGoal"] ?? "";
+  // document.getElementById("updated-science-goal").value = actProfile["scienceGoal"] ?? "";
 
   document.getElementById("updated-english-initial").value = actProfile["englishInitial"] ?? "";
   document.getElementById("updated-math-initial").value = actProfile["mathInitial"] ?? "";
   document.getElementById("updated-reading-initial").value = actProfile["readingInitial"] ?? "";
   document.getElementById("updated-science-initial").value = actProfile["scienceInitial"] ?? "";
 
-  for (let i = 0; i < actProfile["testDateGoals"].length; i++) {
-    const addTestDateButton = document.getElementById("addTestDateGoalButton");
-    let dateStr = convertFromDateInt(actProfile["testDateGoals"][i])['mm/dd/yyyy'];
-    addTestDateGoal(addTestDateButton, dateStr);
+  if (actProfile["testGoals"]) {
+    const testGoals = actProfile["testGoals"];
+    for (let i = 0; i < testGoals.length; i++) {
+      const addTestDateButton = document.getElementById("addTestDateGoalButton");
+      let testDate = testGoals[i].testDate;
+      let dateStr = convertFromDateInt(parseInt(testDate))['mm/dd/yyyy'] ?? "";
+      let englishGoal = testGoals[0].englishGoal ?? "";
+      let mathGoal = testGoals[0].mathGoal ?? "";
+      let readingGoal = testGoals[0].readingGoal ?? "";
+      let scienceGoal = testGoals[0].scienceGoal ?? "";
+      addTestDateGoal(addTestDateButton, dateStr, englishGoal, mathGoal, readingGoal, scienceGoal);
+    }
   }
   
   updateModalCompositeGoals();
@@ -804,13 +814,16 @@ function updateGoalsModal() {
 }
 
 function updateModalCompositeGoals() {
-  // console.log("updating modal")
-  let allInputs = document.getElementById("update-goals-section").querySelectorAll("input[id$='goal']");
-  let scoreValues = [];
-  for (let i = 0; i < allInputs.length; i++) {
-    scoreValues.push(parseInt(allInputs[i].value));
+  //update each composite goal based on it's index from the id
+  let allInputsDivs = document.getElementById("update-goals-section").querySelectorAll("div[id^='test-goals']");
+  for (let i = 0; i < allInputsDivs.length; i++) {
+    let testGoals = allInputsDivs[i].querySelectorAll(`input[id*='score-goal-${i+1}'`);
+    let scoreValues = []
+    for (let j = 0; j < testGoals.length; j++) {
+      scoreValues.push(parseInt(testGoals[j].value));
+    }
+    document.getElementById(`updated-composite-goal-${i+1}`).textContent = roundedAvg(scoreValues) ?? "...";
   }
-  document.getElementById("updated-composite-goal").textContent = roundedAvg(scoreValues) ?? "...";
 }
 
 function goalsUpdated() {
@@ -834,6 +847,7 @@ function initialsUpdated() {
 function submitUpdatedInfo() {
   document.getElementById("spinnyBoiGoals").style.display = "block";
   document.getElementById("errMsgGoals").textContent = null;
+  document.getElementById("update-goals-submitBtn").disbaled = true;
 
   let allClear = true;
 
@@ -855,19 +869,39 @@ function submitUpdatedInfo() {
     }
   }
 
+  let allInputs = goalsSection.querySelectorAll("input");
+  for (let i = 0; i < allInputs.length; i++) {
+    if (!allInputs.value) {
+      document.getElementById("errMsgGoals").textContent = "Please complete all empty fields."
+      allClear = false;
+    }
+  }
+
   if (allClear) {
+    let testData = [];
+    let allInputsDivs = document.getElementById("update-goals-section").querySelectorAll("div[id^='test-goals']");
+    for (let i = 0; i < allInputsDivs.length; i++) {
+      let testDate = goalDates[i];
+      let englishGoal = document.getElementById(`updated-english-score-goal-${i+1}`).value;
+      let mathGoal = document.getElementById(`updated-math-score-goal-${i+1}`).value;
+      let readingGoal = document.getElementById(`updated-reading-score-goal-${i+1}`).value;
+      let scienceGoal = document.getElementById(`updated-science-score-goal-${i+1}`).value;
+
+      testData.push({
+          testDate : testDate,
+          englishGoal : englishGoal,
+          mathGoal : mathGoal,
+          readingGoal : readingGoal,
+          scienceGoal : scienceGoal 
+      });
+    }
     let infoData = {
-      englishGoal : parseInt(document.getElementById("updated-english-goal").value),
-      mathGoal : parseInt(document.getElementById("updated-math-goal").value),
-      readingGoal : parseInt(document.getElementById("updated-reading-goal").value),
-      scienceGoal : parseInt(document.getElementById("updated-science-goal").value),
+      englishInitial : document.getElementById("updated-english-initial").value ? parseInt(document.getElementById("updated-english-initial").value) : null,
+      mathInitial : document.getElementById("updated-math-initial").value ? parseInt(document.getElementById("updated-math-initial").value) : null,
+      readingInitial : document.getElementById("updated-reading-initial").value ? parseInt(document.getElementById("updated-reading-initial").value) : null,
+      scienceInitial : document.getElementById("updated-science-initial").value ? parseInt(document.getElementById("updated-science-initial").value) : null,
 
-      englishInitial : parseInt(document.getElementById("updated-english-initial").value),
-      mathInitial : parseInt(document.getElementById("updated-math-initial").value),
-      readingInitial : parseInt(document.getElementById("updated-reading-initial").value),
-      scienceInitial : parseInt(document.getElementById("updated-science-initial").value),
-
-      testDateGoals : goalDates
+      testGoals : testData
     }
 
     const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
@@ -877,25 +911,22 @@ function submitUpdatedInfo() {
         actProfileDocRef.update(infoData)
         .then(() => {
           //update the local object as well
-          actProfile["englishGoal"] = infoData["englishGoal"];
-          actProfile["mathGoal"] = infoData["mathGoal"];
-          actProfile["readingGoal"] = infoData["readingGoal"];
-          actProfile["scienceGoal"] = infoData["scienceGoal"];
-
           actProfile["englishInitial"] = infoData["englishInitial"];
           actProfile["mathInitial"] = infoData["mathInitial"];
           actProfile["readingInitial"] = infoData["readingInitial"];
           actProfile["scienceInitial"] = infoData["scienceInitial"];
 
-          actProfile["testDateGoals"] = infoData["testDateGoals"];
+          actProfile["testGoals"] = infoData["testGoals"];
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
+          document.getElementById("update-goals-submitBtn").disbaled = false;
           updateProfileData()
-          closeModal('update-goals-section', true);
+          closeModal(Event,'update-goals-section', true);
         })
         .catch((error) => {
           console.log(error)
           document.getElementById("spinnyBoiGoals").style.display = "none";
+          document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
         });
       }
@@ -903,25 +934,22 @@ function submitUpdatedInfo() {
         actProfileDocRef.set(infoData)
         .then(() => {
           //update the local object as well
-          actProfile["englishGoal"] = infoData["englishGoal"];
-          actProfile["mathGoal"] = infoData["mathGoal"];
-          actProfile["readingGoal"] = infoData["readingGoal"];
-          actProfile["scienceGoal"] = infoData["scienceGoal"];
-
           actProfile["englishInitial"] = infoData["englishInitial"];
           actProfile["mathInitial"] = infoData["mathInitial"];
           actProfile["readingInitial"] = infoData["readingInitial"];
           actProfile["scienceInitial"] = infoData["scienceInitial"];
 
-          actProfile["testDateGoals"] = infoData["testDateGoals"];
+          actProfile["testGoals"] = infoData["testGoals"];
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
+          document.getElementById("update-goals-submitBtn").disbaled = false;
           updateProfileData()
-          closeModal('update-goals-section', true);
+          closeModal(Event, 'update-goals-section', true);
         })
         .catch((error) => {
           console.log(error)
           document.getElementById("spinnyBoiGoals").style.display = "none";
+          document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
         });
       }
@@ -929,27 +957,101 @@ function submitUpdatedInfo() {
     .catch((error) => {
       console.log(error)
       document.getElementById("spinnyBoiGoals").style.display = "none";
+      document.getElementById("update-goals-submitBtn").disbaled = false;
       document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
     });
   }
+  else {
+    document.getElementById("spinnyBoiGoals").style.display = "none";
+    document.getElementById("update-goals-submitBtn").disbaled = false;
+  }
 }
 
-function addTestDateGoal(e, dateStr = "") {
+function addTestDateGoal(e, dateStr = "", englishGoal = "", mathGoal = "", readingGoal = "", scienceGoal = "") {
   let testDateGoalBlock = e.parentNode.parentNode;
   let numChildren = (testDateGoalBlock.childElementCount - 1);
-  
+
+  let newTestDiv = createElement(
+    'div',
+    [],
+    ['id'],
+    ['test-goals-' + (numChildren + 1)],
+    ""
+    );
+  let firstRow = createElement(
+    'div',
+    ['input-row'],
+    [],
+    [],
+    ""
+  );
+  let secondRow = createElement(
+    'div',
+    ['input-row'],
+    [],
+    [],
+    ""
+  );
   let newTestDate = createElements(
     ['label', 'input'],
     [['label'], ['input']],
-    [['for'], ['id', 'onclick', 'placeholder', 'value']],
-    [['updated-test-date-goal-' + (numChildren + 1)], ['updated-test-date-goal-' + (numChildren + 1), "goalsUpdated()", "mm/dd/yyyy", dateStr]],
+    [['for'], ['id', 'onclick', 'onkeydown', 'onkeyup', 'placeholder', 'value']],
+    [['updated-test-date-goal-' + (numChildren + 1)], ['updated-test-date-goal-' + (numChildren + 1), "goalsUpdated()", "enforceNumericFormat(event)", "formatToDate(event)", "mm/dd/yyyy", dateStr]],
     ['Date ' + (numChildren + 1),""],
     ['input-block']
   );
-  newTestDate.addEventListener('keydown',enforceNumericFormat);
-  newTestDate.addEventListener('keyup',formatToDate);
-  testDateGoalBlock.appendChild(newTestDate);
+  let newCompositeGoal = createElements(
+    ['h4', 'h2'],
+    [[], []],
+    [[], ['id']],
+    [[], ['updated-composite-goal-' + (numChildren + 1)]],
+    ['Composite Goal:', "..."],
+    ['input-block']
+  );
+  let newEnglishGoal = createElements(
+    ['label', 'input'],
+    [['label'], ['input', 'score']],
+    [['for'], ['id', 'onchange', 'onkeydown', 'onkeyup', 'placeholder', 'min', 'max', 'value']],
+    [['updated-english-score-goal-' + (numChildren + 1)], ['updated-english-score-goal-' + (numChildren + 1), "updateModalCompositeGoals(); goalsUpdated()", "enforceNumericFormat(event)", "formatToNumber(event)", "24", "0", "36", englishGoal]],
+    ['English Goal:', ""],
+    ['input-block']
+  );
+  let newMathGoal = createElements(
+    ['label', 'input'],
+    [['label'], ['input', 'score']],
+    [['for'], ['id', 'onchange', 'onkeydown', 'onkeyup', 'placeholder', 'min', 'max', 'value']],
+    [['updated-math-score-goal-' + (numChildren + 1)], ['updated-math-score-goal-' + (numChildren + 1), "updateModalCompositeGoals(); goalsUpdated()", "enforceNumericFormat(event)", "formatToNumber(event)", "24", "0", "36", mathGoal]],
+    ['Math Goal:', ""],
+    ['input-block']
+  );
+  let newReadingGoal = createElements(
+    ['label', 'input'],
+    [['label'], ['input', 'score']],
+    [['for'], ['id', 'onchange', 'onkeydown', 'onkeyup', 'placeholder', 'min', 'max', 'value']],
+    [['updated-reading-score-goal-' + (numChildren + 1)], ['updated-reading-score-goal-' + (numChildren + 1), "updateModalCompositeGoals(); goalsUpdated()", "enforceNumericFormat(event)", "formatToNumber(event)", "24", "0", "36", readingGoal]],
+    ['Reading Goal:', ""],
+    ['input-block']
+  );
+  let newScienceGoal = createElements(
+    ['label', 'input'],
+    [['label'], ['input', 'score']],
+    [['for'], ['id', 'onchange', 'onkeydown', 'onkeyup', 'placeholder', 'min', 'max', 'value']],
+    [['updated-science-score-goal-' + (numChildren + 1)], ['updated-science-score-goal-' + (numChildren + 1), "updateModalCompositeGoals(); goalsUpdated()", "enforceNumericFormat(event)", "formatToNumber(event)", "24", "0", "36", scienceGoal]],
+    ['Science Goal:', ""],
+    ['input-block']
+  );
 
+  firstRow.appendChild(newEnglishGoal);
+  firstRow.appendChild(newMathGoal);
+  secondRow.appendChild(newReadingGoal);
+  secondRow.appendChild(newScienceGoal);
+
+  newTestDiv.appendChild(newTestDate);
+  newTestDiv.appendChild(newCompositeGoal);
+  newTestDiv.appendChild(firstRow);
+  newTestDiv.appendChild(secondRow);
+
+  testDateGoalBlock.appendChild(newTestDiv);
 }
 
 function removeTestDateGoal(e) {
@@ -1053,22 +1155,22 @@ const formatToNumber = (event) => {
   	input = Number(target.value)
   }
 
-  	//remove leading zeros
-  	if (input < min) {
-    	target.value = min;
-      target.dispatchEvent(new Event('change'));
-  	}
-  	else if (input > max) {
-    	target.value = max;
-      target.dispatchEvent(new Event('change'));
-  	}
+  //remove leading zeros
+  if (input < min) {
+    target.value = min;
+    target.dispatchEvent(new Event('change'));
+  }
+  else if (input > max) {
+    target.value = max;
+    target.dispatchEvent(new Event('change'));
+  }
 }
 
-document.getElementById("updated-english-goal").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-english-goal").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-math-goal").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-math-goal").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-reading-goal").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-reading-goal").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-science-goal").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-science-goal").addEventListener('keyup',formatToNumber);
+document.getElementById("updated-english-initial").addEventListener('keydown',enforceNumericFormat);
+document.getElementById("updated-english-initial").addEventListener('keyup',formatToNumber);
+document.getElementById("updated-math-initial").addEventListener('keydown',enforceNumericFormat);
+document.getElementById("updated-math-initial").addEventListener('keyup',formatToNumber);
+document.getElementById("updated-reading-initial").addEventListener('keydown',enforceNumericFormat);
+document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
+document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
+document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
