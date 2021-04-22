@@ -221,10 +221,10 @@ function updateProfileData() {
   document.getElementById('reading-score').textContent = currentReadingScore ?? "";
   document.getElementById('science-score').textContent = currentScienceScore ?? "";
 
-  const englishGoal = getNextTestGoals()["englishGoal"];
-  const mathGoal = getNextTestGoals()["mathGoal"]
-  const readingGoal = getNextTestGoals()["readingGoal"]
-  const scienceGoal = getNextTestGoals()["scienceGoal"]
+  const englishGoal = getNextTestGoals()?.["englishGoal"];
+  const mathGoal = getNextTestGoals()?.["mathGoal"]
+  const readingGoal = getNextTestGoals()?.["readingGoal"]
+  const scienceGoal = getNextTestGoals()?.["scienceGoal"]
   const compositeGoal = roundedAvg([englishGoal, mathGoal, readingGoal, scienceGoal]);
 
   document.getElementById('english-goal').textContent = englishGoal ?? "...";
@@ -295,8 +295,8 @@ function updateProfileData() {
   document.getElementById('reading-hours/point').textContent = readingHoursPerPoint ?? "...";
   document.getElementById('science-hours/point').textContent = scienceHoursPerPoint ?? "...";
 
-  const nextTestDate = convertFromDateInt(getNextTestGoals()["testDate"]) ? convertFromDateInt(getNextTestGoals()["testDate"])['shortDate'] : null;
-  const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestGoals()["testDate"]);
+  const nextTestDate = convertFromDateInt(getNextTestGoals()?.["testDate"]) ? convertFromDateInt(getNextTestGoals()["testDate"])['shortDate'] : null;
+  const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestGoals()?.["testDate"]);
 
   // console.log('nextTestDate', nextTestDate);
   // console.log('testDaysLeft', testDaysLeft);
