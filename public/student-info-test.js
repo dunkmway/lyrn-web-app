@@ -221,10 +221,10 @@ function updateProfileData() {
   document.getElementById('reading-score').textContent = currentReadingScore ?? "";
   document.getElementById('science-score').textContent = currentScienceScore ?? "";
 
-  const englishGoal = actProfile["englishGoal"];
-  const mathGoal = actProfile["mathGoal"]
-  const readingGoal = actProfile["readingGoal"]
-  const scienceGoal = actProfile["scienceGoal"]
+  const englishGoal = getNextTestGoals()["englishGoal"];
+  const mathGoal = getNextTestGoals()["mathGoal"]
+  const readingGoal = getNextTestGoals()["readingGoal"]
+  const scienceGoal = getNextTestGoals()["scienceGoal"]
   const compositeGoal = roundedAvg([englishGoal, mathGoal, readingGoal, scienceGoal]);
 
   document.getElementById('english-goal').textContent = englishGoal ?? "...";
@@ -295,8 +295,8 @@ function updateProfileData() {
   document.getElementById('reading-hours/point').textContent = readingHoursPerPoint ?? "...";
   document.getElementById('science-hours/point').textContent = scienceHoursPerPoint ?? "...";
 
-  const nextTestDate = convertFromDateInt(getNextTestDate()) ? convertFromDateInt(getNextTestDate())['shortDate'] : null;
-  const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestDate());
+  const nextTestDate = convertFromDateInt(getNextTestGoals()["testDate"]) ? convertFromDateInt(getNextTestGoals()["testDate"])['shortDate'] : null;
+  const testDaysLeft = dateDayDifference(new Date().getTime(), getNextTestGoals()["testDate"]);
 
   // console.log('nextTestDate', nextTestDate);
   // console.log('testDaysLeft', testDaysLeft);
@@ -653,11 +653,11 @@ function roundedAvg(values) {
   return Math.round(total / array.length);
 }
 
-function getNextTestDate() {
-  if (actProfile["testDateGoals"]) {
-    for (let i = 0; i < actProfile["testDateGoals"].length; i++) {
-      if (dateDayDifference(new Date().getTime(), actProfile["testDateGoals"][i]) > 0) {
-        return actProfile["testDateGoals"][i];
+function getNextTestGoals() {
+  if (actProfile["testGoals"]) {
+    for (let i = 0; i < actProfile["testGoals"].length; i++) {
+      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0) {
+        return actProfile["testGoals"][i];
       }
     }
   } 
@@ -871,7 +871,7 @@ function submitUpdatedInfo() {
 
   let allInputs = goalsSection.querySelectorAll("input");
   for (let i = 0; i < allInputs.length; i++) {
-    if (!allInputs.value) {
+    if (!allInputs[i].value) {
       document.getElementById("errMsgGoals").textContent = "Please complete all empty fields."
       allClear = false;
     }
@@ -882,10 +882,10 @@ function submitUpdatedInfo() {
     let allInputsDivs = document.getElementById("update-goals-section").querySelectorAll("div[id^='test-goals']");
     for (let i = 0; i < allInputsDivs.length; i++) {
       let testDate = goalDates[i];
-      let englishGoal = document.getElementById(`updated-english-score-goal-${i+1}`).value;
-      let mathGoal = document.getElementById(`updated-math-score-goal-${i+1}`).value;
-      let readingGoal = document.getElementById(`updated-reading-score-goal-${i+1}`).value;
-      let scienceGoal = document.getElementById(`updated-science-score-goal-${i+1}`).value;
+      let englishGoal = document.getElementById(`updated-english-score-goal-${i+1}`).value ? parseInt(document.getElementById(`updated-english-score-goal-${i+1}`).value) : null;
+      let mathGoal = document.getElementById(`updated-math-score-goal-${i+1}`).value ? parseInt(document.getElementById(`updated-math-score-goal-${i+1}`).value) : null;
+      let readingGoal = document.getElementById(`updated-reading-score-goal-${i+1}`).value ? parseInt(document.getElementById(`updated-reading-score-goal-${i+1}`).value) : null;
+      let scienceGoal = document.getElementById(`updated-science-score-goal-${i+1}`).value ? parseInt(document.getElementById(`updated-science-score-goal-${i+1}`).value) : null;
 
       testData.push({
           testDate : testDate,
