@@ -31,7 +31,7 @@
         <div class="loading-ring"></div>
     </section>
 
-    <section id="update-goals-section" class="modal">
+    <section id="update-goals-section" class="modal" onclick="closeModal(event, 'update-goals-section')">
     <div id="update-goals-div" class="registration-block">
         <div class="heading-block">
         <h1>Update Goals</h1>
@@ -70,7 +70,7 @@
                     </div>
                 </div><br>
 
-                <div class="input-row">
+                <!-- <div class="input-row">
                     <div class="input-block">
                         <h4>Composite Goal:</h4>
                         <h2 id="updated-composite-goal"></h2>
@@ -99,7 +99,7 @@
                         <label for="updated-science-goal" class="label">Science Goal:</label>
                         <input id="updated-science-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
                     </div>
-                </div><br>
+                </div><br> -->
 
                 <div>
                     <div class = "input-row">
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="input-row">
-                    <button type = button id="update-goals-closeBtn" class="button" onclick="closeModal('update-goals-section')">back</button> 
+                    <button type = button id="update-goals-closeBtn" class="button" onclick="closeModal(event, 'update-goals-section')">back</button> 
                     <button type = button id="update-goals-submitBtn" class="button" onclick="submitUpdatedInfo()">submit</button>
                 </div>
 
