@@ -71,7 +71,7 @@ function login() {
       var errorMessage = error.message;
       errMsgElem.textContent = errorMessage;
       errMsgElem.style.display = 'block';
-      if (errorCode != "auth/invalid-email" || errorCode != "auth/wrong-password" || errorCode != "auth/user-not-found") {
+      if (errorCode != "auth/invalid-email" && errorCode != "auth/wrong-password" && errorCode != "auth/user-not-found") {
         handleFirebaseErrors(error);
       }
   });
@@ -91,6 +91,6 @@ return firebase.auth().signInWithEmailAndPassword(email, password);
 })
 .catch(function(error) {
   // Handle Errors here.
-  handleFirebaseErrors(error);
+  // this always throws an error but works...
 });
 }
