@@ -1107,8 +1107,9 @@ function validateSessionInfo() {
 
   for (let i = 0; i < numSessions; i++) {
     let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
+    let notes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-    if (section.value == "" || time.value == "") {
+    if (section.value == "" || notes.value == "" || time.value == "") {
       document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
       return false;
     }
