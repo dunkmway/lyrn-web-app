@@ -110,6 +110,10 @@ body {
   align-items: center;
 }
 
+.justify-space-between {
+  justify-content: space-between;
+}
+
 .button {
   margin-top: 20px;
   /*margin-right: 50px;*/

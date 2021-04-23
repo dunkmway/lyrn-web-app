@@ -84,3 +84,9 @@ admin.initializeApp();
     });
     return promise;
 });
+
+exports.sendErrorReport = functions.https.onCall((data, context) => {
+    const errorRef = admin.firestore().collection("Error-Reports").doc();
+    errorRef.set(data.report)
+    .then().catch();
+});

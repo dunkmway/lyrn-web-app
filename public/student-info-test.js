@@ -74,16 +74,19 @@ function initialSetupData() {
     let profileProm = getProfileData(currentStudent)
     .then((doc) => storeProfileData(doc))
 
-    let hwSetupProm = getHomeworkData(currentStudent)
-    .then((doc) => storeHomeworkData(doc))
+    // let hwSetupProm = getHomeworkData(currentStudent)
+    // .then((doc) => storeHomeworkData(doc))
 
     let sessionSetupProm = getSessionData(currentStudent)
     .then((doc) => storeSessionData(doc))
 
     let actProfileProm = getActProfileData(currentStudent)
     .then((doc) => storeActProfileData(doc))
+    //need the actProfile object first
+    .then(() => getHomeworkData(currentStudent))
+    .then((doc) => storeHomeworkData(doc))
 
-    let promises = [profileProm, hwSetupProm, sessionSetupProm, actProfileProm];
+    let promises = [profileProm, /*hwSetupProm,*/ sessionSetupProm, actProfileProm];
     return Promise.all(promises);
   }
 
@@ -131,6 +134,17 @@ function storeHomeworkData(doc) {
       }
     }
   }
+
+  //FIXME:
+  //add the initial scores
+  //they will be set at a date time of -9999999998 (one millisecond after the beginning of time) unless we want them to have a meaningful date
+  //eventully when we score the practice test this score will not have meaning
+
+  englishScores["-9999999998"] = actProfile["englishInitial"];
+  mathScores["-9999999998"] = actProfile["mathInitial"];
+  readingScores["-9999999998"] = actProfile["readingInitial"];
+  scienceScores["-9999999998"] = actProfile["scienceInitial"];
+
   // console.log("englishScores", englishScores);
   // console.log("mathScores", mathScores);
   // console.log("readingScores", readingScores);
@@ -246,18 +260,18 @@ function updateProfileData() {
   document.getElementById('reading-total-hours').textContent = readingTotalHours ?? "...";
   document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "...";
 
-  //composite is not superscored but is highest at any given session
-  const compositeHighestScore = highestScore(compositeScores);
-  const englishHighestScore = highestScore(englishScores);
-  const mathHighestScore = highestScore(mathScores);
-  const readingHighestScore = highestScore(readingScores);
-  const scienceHighestScore = highestScore(scienceScores);
+  // //composite is not superscored but is highest at any given session
+  // const compositeHighestScore = highestScore(compositeScores);
+  // const englishHighestScore = highestScore(englishScores);
+  // const mathHighestScore = highestScore(mathScores);
+  // const readingHighestScore = highestScore(readingScores);
+  // const scienceHighestScore = highestScore(scienceScores);
 
-  document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
-  document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
-  document.getElementById('math-highest-score').textContent = mathHighestScore ?? "...";
-  document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
-  document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
+  // document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
+  // document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
+  // document.getElementById('math-highest-score').textContent = mathHighestScore ?? "...";
+  // document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
+  // document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
 
   const englishInitialScore = actProfile['englishInitial'];
   const mathInitialScore = actProfile['mathInitial'];
@@ -303,6 +317,9 @@ function updateProfileData() {
 
   document.getElementById('next-test-date').textContent = nextTestDate ?? "...";
   document.getElementById('test-days-left').textContent = testDaysLeft ?? "...";
+
+  //update the chart
+  hwChart.update("none");
 }
 
 function setHomeworkChart() {
@@ -454,7 +471,19 @@ function setHomeworkChart() {
         y: {
           ticks: {
             stepSize: 1
-          }
+          },
+          suggestedMin: Math.min(
+            actProfile['englishInitial'],
+            actProfile['mathInitial'],
+            actProfile['readingInitial'],
+            actProfile['scienceInitial']
+          ),
+          suggestedMax: Math.max(
+            getNextTestGoals()?.["englishGoal"], 
+            getNextTestGoals()?.["mathGoal"], 
+            getNextTestGoals()?.["readingGoal"], 
+            getNextTestGoals()?.["scienceGoal"]
+          )
         },
       },
       tooltips: {
@@ -480,6 +509,20 @@ function setHomeworkChart() {
         //     console.log(legendItem);
         //     console.log(legend);
         //   }
+        // }
+        goalLine: false
+        //goalLine: {
+        //   goals: [
+        //     roundedAvg([
+        //       getNextTestGoals()?.["englishGoal"], 
+        //       getNextTestGoals()?.["mathGoal"], 
+        //       getNextTestGoals()?.["readingGoal"], 
+        //       getNextTestGoals()?.["scienceGoal"]]),
+        //     getNextTestGoals()?.["englishGoal"], 
+        //     getNextTestGoals()?.["mathGoal"], 
+        //     getNextTestGoals()?.["readingGoal"], 
+        //     getNextTestGoals()?.["scienceGoal"]
+        //   ]
         // }
       }
     }
@@ -725,7 +768,30 @@ const plugin = {
   }
 }
 
+const goalLinePlugin = {
+  id: "goalLine",
+  afterDatasetDraw : function(chart, args, options) {
+    var ctxPlugin = chart.ctx;
+    var xAxis = chart.scales['x'];
+    var yAxis = chart.scales['y'];
+
+    let goals = options['goals'];
+    let currentGoal = goals?.[args['index']] ? parseInt(goals[args['index']]) : null;
+    let goalPixelHeight = yAxis.getPixelForValue(currentGoal)
+    let lineColor = args['meta']['_dataset']['backgroundColor'];
+
+    ctxPlugin.strokeStyle = lineColor;
+    ctxPlugin.lineWidth = "2"
+    ctxPlugin.setLineDash([15, 10])
+    ctxPlugin.beginPath();
+    ctxPlugin.moveTo(xAxis.left, goalPixelHeight);
+    ctxPlugin.lineTo(xAxis.right, goalPixelHeight);
+    ctxPlugin.stroke();
+  }
+}
+
 Chart.register(plugin);
+Chart.register(goalLinePlugin);
 
 main();
 
@@ -924,7 +990,7 @@ function submitUpdatedInfo() {
           closeModal(Event,'update-goals-section', true);
         })
         .catch((error) => {
-          console.log(error)
+          handleFirebaseErrors(error);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -947,7 +1013,7 @@ function submitUpdatedInfo() {
           closeModal(Event, 'update-goals-section', true);
         })
         .catch((error) => {
-          console.log(error)
+          handleFirebaseErrors(error);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -955,7 +1021,7 @@ function submitUpdatedInfo() {
       }
     })
     .catch((error) => {
-      console.log(error)
+      handleFirebaseErrors(error);
       document.getElementById("spinnyBoiGoals").style.display = "none";
       document.getElementById("update-goals-submitBtn").disbaled = false;
       document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."

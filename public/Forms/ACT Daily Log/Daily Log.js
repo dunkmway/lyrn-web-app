@@ -60,10 +60,7 @@ function initialSetup() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
+      handleFirebaseErrors(error);
     });
   }
 }
@@ -1025,7 +1022,7 @@ function submitDailyLog() {
         //window.history.back();
       })
       .catch((error) => {
-        console.error(error);
+        handleFirebaseErrors(error);
         document.getElementById("errMsg").textContent = error;
         document.getElementById("spinnyBoi").style.display = "none";
       });
@@ -1051,7 +1048,7 @@ function submitFeedback() {
       // console.log("feedback saved");
     })
     .catch((error) => {
-      console.error(error);
+      handleFirebaseErrors(error);
     });
   }
   else {
@@ -1090,13 +1087,10 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-          console.log("error while getting user token. can't confirm role")
-          console.log(error);
-          window.location.replace(location.origin + "/Sign-In/Sign-In");
+        handleFirebaseErrors(error);
       });
     }
     else {
-      console.log("no user found")
       window.location.replace(location.origin + "/Sign-In/Sign-In");
     }
   });
@@ -1183,7 +1177,7 @@ function submitSessionInfo() {
         }
       })
       .catch((error) => {
-        console.error(error);
+        handleFirebaseErrors(error);
         return Promise.reject(error);
       });
     }
@@ -1222,7 +1216,7 @@ function submitHW() {
       }
     })
     .catch((error) => {
-      console.error(error);
+      handleFirebaseErrors(error);
       return Promise.reject(error);
     });
   }
