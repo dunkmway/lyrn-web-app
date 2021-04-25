@@ -254,11 +254,8 @@ function submitData() {
           // console.log(result);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
         });
 
         //update the active student object for this location
@@ -279,11 +276,8 @@ function submitData() {
           // console.log(result);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
         });
 
         //update the parent doc
@@ -302,11 +296,8 @@ function submitData() {
           // console.log(result);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
         });
 
         //delete the location pending doc
@@ -317,11 +308,8 @@ function submitData() {
           // console.log(result);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
         });
 
         //verify that all promises have resolved
@@ -332,11 +320,8 @@ function submitData() {
           goToDashboard();
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
           let loadingBlocks = document.getElementsByClassName("spinnyBoi");
           for (let i = 0; i < loadingBlocks.length; i ++) {
             loadingBlocks[i].style.display = "none";
@@ -361,10 +346,7 @@ function submitData() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
+      handleFirebaseErrors(error);
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
         loadingBlocks[i].style.display = "none";
@@ -525,11 +507,8 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
-      console.log(error.details);
     });
 
     //set up the location pending doc
@@ -547,11 +526,8 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
-      console.log(error.details);
     });
 
     //update location pending student array
@@ -571,11 +547,8 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
-      console.log(error.details);
     });
 
     let promises = [parentProm, pendingProm, locationProm];
@@ -593,11 +566,8 @@ function update() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
-      console.log(error.details);
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
         loadingBlocks[i].style.display = "none";
@@ -652,13 +622,10 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-          console.log("error while getting user token. can't confirm role")
-          console.log(error);
-          window.location.replace(location.origin + "/Sign-In/Sign-In");
+        handleFirebaseErrors(error);
       });
     }
     else {
-      console.log("no user found")
       window.location.replace(location.origin + "/Sign-In/Sign-In");
     }
   });

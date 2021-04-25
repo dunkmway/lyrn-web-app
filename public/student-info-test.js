@@ -63,6 +63,7 @@ function main() {
 
     hwChart = setHomeworkChart();
     updateProfileData();
+    getGeneralNotes();
   })
 }
 
@@ -74,16 +75,19 @@ function initialSetupData() {
     let profileProm = getProfileData(currentStudent)
     .then((doc) => storeProfileData(doc))
 
-    let hwSetupProm = getHomeworkData(currentStudent)
-    .then((doc) => storeHomeworkData(doc))
+    // let hwSetupProm = getHomeworkData(currentStudent)
+    // .then((doc) => storeHomeworkData(doc))
 
     let sessionSetupProm = getSessionData(currentStudent)
     .then((doc) => storeSessionData(doc))
 
     let actProfileProm = getActProfileData(currentStudent)
     .then((doc) => storeActProfileData(doc))
+    //need the actProfile object first
+    .then(() => getHomeworkData(currentStudent))
+    .then((doc) => storeHomeworkData(doc))
 
-    let promises = [profileProm, hwSetupProm, sessionSetupProm, actProfileProm];
+    let promises = [profileProm, /*hwSetupProm,*/ sessionSetupProm, actProfileProm];
     return Promise.all(promises);
   }
 
@@ -131,6 +135,17 @@ function storeHomeworkData(doc) {
       }
     }
   }
+
+  //FIXME:
+  //add the initial scores
+  //they will be set at a date time of -9999999998 (one millisecond after the beginning of time) unless we want them to have a meaningful date
+  //eventully when we score the practice test this score will not have meaning
+
+  englishScores["-9999999998"] = actProfile["englishInitial"];
+  mathScores["-9999999998"] = actProfile["mathInitial"];
+  readingScores["-9999999998"] = actProfile["readingInitial"];
+  scienceScores["-9999999998"] = actProfile["scienceInitial"];
+
   // console.log("englishScores", englishScores);
   // console.log("mathScores", mathScores);
   // console.log("readingScores", readingScores);
@@ -246,18 +261,18 @@ function updateProfileData() {
   document.getElementById('reading-total-hours').textContent = readingTotalHours ?? "...";
   document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "...";
 
-  //composite is not superscored but is highest at any given session
-  const compositeHighestScore = highestScore(compositeScores);
-  const englishHighestScore = highestScore(englishScores);
-  const mathHighestScore = highestScore(mathScores);
-  const readingHighestScore = highestScore(readingScores);
-  const scienceHighestScore = highestScore(scienceScores);
+  // //composite is not superscored but is highest at any given session
+  // const compositeHighestScore = highestScore(compositeScores);
+  // const englishHighestScore = highestScore(englishScores);
+  // const mathHighestScore = highestScore(mathScores);
+  // const readingHighestScore = highestScore(readingScores);
+  // const scienceHighestScore = highestScore(scienceScores);
 
-  document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
-  document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
-  document.getElementById('math-highest-score').textContent = mathHighestScore ?? "...";
-  document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
-  document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
+  // document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
+  // document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
+  // document.getElementById('math-highest-score').textContent = mathHighestScore ?? "...";
+  // document.getElementById('reading-highest-score').textContent = readingHighestScore ?? "...";
+  // document.getElementById('science-highest-score').textContent = scienceHighestScore ?? "...";
 
   const englishInitialScore = actProfile['englishInitial'];
   const mathInitialScore = actProfile['mathInitial'];
@@ -303,6 +318,9 @@ function updateProfileData() {
 
   document.getElementById('next-test-date').textContent = nextTestDate ?? "...";
   document.getElementById('test-days-left').textContent = testDaysLeft ?? "...";
+
+  //update the chart
+  hwChart.update("none");
 }
 
 function setHomeworkChart() {
@@ -454,7 +472,19 @@ function setHomeworkChart() {
         y: {
           ticks: {
             stepSize: 1
-          }
+          },
+          suggestedMin: Math.min(
+            actProfile['englishInitial'],
+            actProfile['mathInitial'],
+            actProfile['readingInitial'],
+            actProfile['scienceInitial']
+          ),
+          suggestedMax: Math.max(
+            getNextTestGoals()?.["englishGoal"], 
+            getNextTestGoals()?.["mathGoal"], 
+            getNextTestGoals()?.["readingGoal"], 
+            getNextTestGoals()?.["scienceGoal"]
+          )
         },
       },
       tooltips: {
@@ -480,6 +510,20 @@ function setHomeworkChart() {
         //     console.log(legendItem);
         //     console.log(legend);
         //   }
+        // }
+        goalLine: false
+        //goalLine: {
+        //   goals: [
+        //     roundedAvg([
+        //       getNextTestGoals()?.["englishGoal"], 
+        //       getNextTestGoals()?.["mathGoal"], 
+        //       getNextTestGoals()?.["readingGoal"], 
+        //       getNextTestGoals()?.["scienceGoal"]]),
+        //     getNextTestGoals()?.["englishGoal"], 
+        //     getNextTestGoals()?.["mathGoal"], 
+        //     getNextTestGoals()?.["readingGoal"], 
+        //     getNextTestGoals()?.["scienceGoal"]
+        //   ]
         // }
       }
     }
@@ -725,7 +769,30 @@ const plugin = {
   }
 }
 
+const goalLinePlugin = {
+  id: "goalLine",
+  afterDatasetDraw : function(chart, args, options) {
+    var ctxPlugin = chart.ctx;
+    var xAxis = chart.scales['x'];
+    var yAxis = chart.scales['y'];
+
+    let goals = options['goals'];
+    let currentGoal = goals?.[args['index']] ? parseInt(goals[args['index']]) : null;
+    let goalPixelHeight = yAxis.getPixelForValue(currentGoal)
+    let lineColor = args['meta']['_dataset']['backgroundColor'];
+
+    ctxPlugin.strokeStyle = lineColor;
+    ctxPlugin.lineWidth = "2"
+    ctxPlugin.setLineDash([15, 10])
+    ctxPlugin.beginPath();
+    ctxPlugin.moveTo(xAxis.left, goalPixelHeight);
+    ctxPlugin.lineTo(xAxis.right, goalPixelHeight);
+    ctxPlugin.stroke();
+  }
+}
+
 Chart.register(plugin);
+Chart.register(goalLinePlugin);
 
 main();
 
@@ -924,7 +991,7 @@ function submitUpdatedInfo() {
           closeModal(Event,'update-goals-section', true);
         })
         .catch((error) => {
-          console.log(error)
+          handleFirebaseErrors(error);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -947,7 +1014,7 @@ function submitUpdatedInfo() {
           closeModal(Event, 'update-goals-section', true);
         })
         .catch((error) => {
-          console.log(error)
+          handleFirebaseErrors(error);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -955,7 +1022,7 @@ function submitUpdatedInfo() {
       }
     })
     .catch((error) => {
-      console.log(error)
+      handleFirebaseErrors(error);
       document.getElementById("spinnyBoiGoals").style.display = "none";
       document.getElementById("update-goals-submitBtn").disbaled = false;
       document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -1070,6 +1137,161 @@ function removeAllTestDateGoals() {
   while (removeTestDateGoal(element) > 0);
 }
 
+function getGeneralNotes() {
+  const generalNotes = actProfile["generalNotes"];
+  let noteTimes = [];
+  for (const time in generalNotes) {
+    noteTimes.push(parseInt(time));
+  }
+
+  noteTimes.sort((a,b) => {return a-b});
+  for (let i = 0; i < noteTimes.length; i++) {
+    setGeneralNotes(generalNotes[noteTimes[i]]["note"], noteTimes[i], generalNotes[noteTimes[i]]["user"]);
+  }
+}
+
+function setGeneralNotes(note, time, author) {
+  firebase.auth().onAuthStateChanged((user) => {
+    const currentUser = user?.uid ?? null;
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (note) {
+          let messageBlock = document.getElementById('student-general-notes');
+          let message = document.createElement('div');
+          message.innerHTML = note;
+          //author's name element
+          let authorElem = document.createElement('p');
+          authorElem.classList.add("author");
+          message.appendChild(authorElem);
+
+          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
+          getUserDisplayName({
+            uid : author
+          })
+          .then((result) => {
+            const authorName = result.data ?? "anonymous";
+            authorElem.innerHTML = authorName;
+            scrollBottomGeneralNotes();
+          })
+          .catch((error) => handleFirebaseErrors(error));
+
+          message.setAttribute('data-time', time);
+          message.classList.add("student-general-note");
+          if (currentUser == author) {
+            message.classList.add("right");
+          }
+          else {
+            message.classList.add("left");
+          }
+
+          const getUserRole = firebase.functions().httpsCallable('getUserRole');
+          getUserRole({
+            uid : author
+          })
+          .then((result) => {
+            const authorRole = result.data ?? null;
+            if (authorRole == "admin") {
+              message.classList.add("important");
+            }
+            scrollBottomGeneralNotes();
+          })
+          .catch((error) => handleFirebaseErrors(error));
+          
+
+          //only give the option to delete if the currentUser is the author or an admin
+          if (author == currentUser || role == "admin" || role == "dev") {
+            let deleteMessage = document.createElement('div');
+            deleteMessage.classList.add("delete");
+            let theX = document.createElement('p');
+            theX.innerHTML = "X";
+            deleteMessage.appendChild(theX);
+            deleteMessage.addEventListener('click', (event) => deleteGeneralNote(event));
+            message.appendChild(deleteMessage);
+          }
+
+          messageBlock.appendChild(message);
+          document.getElementById('student-general-notes-input').value = null;
+          scrollBottomGeneralNotes();
+        }
+      })
+      .catch((error) => handleFirebaseErrors(error));
+    }
+  });
+}
+
+function deleteGeneralNote(event) {
+  let message = event.target.closest(".student-general-note");
+  let confirmation = confirm("Are you sure you want to delete this message?");
+  if (confirmation) {
+    const time = message.dataset.time;
+    const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+    actProfileDocRef.update({
+      [`generalNotes.${time}`] : firebase.firestore.FieldValue.delete()
+    })
+    .then(() => {
+      message.remove();
+    })
+    .catch((error) => {
+      handleFirebaseErrors(erros);
+    })
+  }
+}
+
+function scrollBottomGeneralNotes() {
+  let notes = document.getElementById("student-general-notes");
+  notes.scrollTop = notes.scrollHeight;
+}
+
+function sendGeneralNotes() {
+  firebase.auth().onAuthStateChanged((user) => {
+    const currentUser = user?.uid ?? null;
+    const note = document.getElementById('student-general-notes-input').value;
+    const time = new Date().getTime();
+
+    const data = {
+      user : currentUser,
+      note : note
+    } 
+
+    if (note) {
+      //upload the note to firebase
+      const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+      actProfileDocRef.get()
+      .then((doc) => {
+        if (doc.exists) {
+          actProfileDocRef.update({
+            [`generalNotes.${time}`] : data
+          })
+          .then(() => {
+            //send the note into the message div
+            setGeneralNotes(note, time, currentUser);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+          });
+        }
+        else {
+          actProfileDocRef.set({
+            [`generalNotes.${time}`] : data
+          })
+          .then(() => {
+            //send the note into the message div
+            setGeneralNotes(note, time, currentUser);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+          });
+        }
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error);
+      });
+    }
+  });
+}
+
 /**
  * Description:
  *   checks if the key event is a numeric input
@@ -1174,3 +1396,20 @@ document.getElementById("updated-reading-initial").addEventListener('keydown',en
 document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
 document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
 document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
+
+// general notes enter key will submit the note
+document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.key == "Enter") {
+    event.preventDefault();
+    sendGeneralNotes();
+  }
+});
+
+//stop scroll of the section when in the message div
+document.getElementById("student-general-notes").addEventListener("mouseover", (event) => {
+  document.getElementById("student-data-section").style.overflow = 'hidden';
+});
+
+document.getElementById("student-general-notes").addEventListener("mouseout", (event) => {
+  document.getElementById("student-data-section").style.overflow = 'auto';
+});

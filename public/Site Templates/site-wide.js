@@ -16,6 +16,10 @@ measurementId: "G-EJTMKB10B7"
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
+
+
+window.onerror = sendErrorReport;
+
 checkPermissions();
 
 function checkPermissions() {
@@ -106,8 +110,7 @@ function checkPermissions() {
                 clearLoadingScreen();
             })
             .catch((error) => {
-                console.log("error while getting user token. can't confirm role")
-                console.log(error);
+                handleFirebaseErrors(error);
                 window.location.replace(location.origin + "/Sign-In/Sign-In");
             });
         }
@@ -131,6 +134,7 @@ function signOut() {
         })
         .catch((error) => {
             // An error happened.
+            handleFirebaseErrors(error);
         });
     }
 }
@@ -139,4 +143,48 @@ function clearLoadingScreen() {
     if (document.getElementById("loading-screen")) {
         document.getElementById("loading-screen").style.display = "none";
     }   
+}
+
+function sendErrorReport(msg, url, lineNo, columnNo, error) {
+    let userMsg = prompt("OH NO!!! An error has occured.\nLet us know what happened and we'll get right on it!") ?? null;
+    var report = {
+        UserMessage: userMsg,
+        Message: msg,
+        URL: url,
+        Line: lineNo,
+        Column: columnNo,
+        Error: JSON.stringify(error),
+        Timestamp: (new Date().getTime())
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            report.User = user.uid;
+        }
+        const errorRef = firebase.firestore().collection("Error-Reports").doc();
+        errorRef.set(report)
+        .then().catch();
+        return false;
+    });
+}
+
+function handleFirebaseErrors(err) {
+    //new Error().stack is non standard and may not work as intented on all browsers
+    const msg = "firebase error";
+    const url = window.location.href;
+    const stack = new Error().stack;
+    let lineNo;
+    let columnNo;
+    if (stack) {
+        const traceSplit = new Error().stack.split('\n')[1].split(':');
+        columnNo = parseInt(traceSplit.pop());
+        lineNo = parseInt(traceSplit.pop());
+    }
+    else {
+        columnNo = 0;
+        lineNo = 0;
+    }
+    const error = err;
+
+    sendErrorReport(msg, url, lineNo, columnNo, error);
 }

@@ -14,10 +14,7 @@ function setLocations () {
     }
   })
   .catch((error) => {
-    console.log(error);
-    console.log(error.code);
-    console.log(error.message);
-    console.log(error.details);
+    handleFirebaseErrors(error);
   });
 }
 
@@ -101,11 +98,8 @@ function createInquiry() {
             // console.log(result);
           })
           .catch((error) => {
-            console.log(error);
-            console.log(error.code);
-            console.log(error.message);
+            handleFirebaseErrors(error);
             document.getElementById("errMsg").textContent = error.message;
-            console.log(error.details);
           });
 
           //update location pending student array
@@ -124,11 +118,8 @@ function createInquiry() {
             // console.log(result);
           })
           .catch((error) => {
-            console.log(error);
-            console.log(error.code);
-            console.log(error.message);
+            handleFirebaseErrors(error);
             document.getElementById("errMsg").textContent = error.message;
-            console.log(error.details);
           });
 
           let promises = [pendingProm, parentProm, locationProm];
@@ -140,21 +131,15 @@ function createInquiry() {
             document.getElementById("spinnyBoi").style.display = "none";
           })
           .catch((error) => {
-            console.log(error);
-            console.log(error.code);
-            console.log(error.message);
+            handleFirebaseErrors(error);
             document.getElementById("errMsg").textContent = error.message;
-            console.log(error.details);
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("spinnyBoi").style.display = "none";
           });
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
-          console.log(error.details);
           document.getElementById("submitBtn").disabled = false;
           document.getElementById("spinnyBoi").style.display = "none";
         });
@@ -167,11 +152,8 @@ function createInquiry() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
-      console.log(error.details);
       document.getElementById("submitBtn").disabled = false;
       document.getElementById("spinnyBoi").style.display = "none";
     });
@@ -230,13 +212,10 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-          console.log("error while getting user token. can't confirm role")
-          console.log(error);
-          window.location.replace(location.origin + "/Sign-In/Sign-In");
+        handleFirebaseErrors(error);
       });
     }
     else {
-      console.log("no user found")
       window.location.replace(location.origin + "/Sign-In/Sign-In");
     }
   });

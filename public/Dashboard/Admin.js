@@ -90,10 +90,7 @@ function setStudentTable() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
+      handleFirebaseErrors(error);
     });
 
     promises.push(locationProm);
@@ -136,10 +133,7 @@ function setStudentTable() {
     });
   })
   .catch((error) => {
-    console.log(error);
-    console.log(error.code);
-    console.log(error.message);
-    console.log(error.details);
+    handleFirebaseErrors(error);
   });
   
 }
@@ -249,12 +243,9 @@ function createTutor() {
           closeUser("tutor", true);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiTutor").style.display = "none";
-          console.log(error.details);
         });
       }
       else {
@@ -263,12 +254,9 @@ function createTutor() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiTutor").style.display = "none";
-      console.log(error.details);
     })
   }
   else {
@@ -320,12 +308,9 @@ function createSecretary() {
           closeUser("secretary", true);
         })
         .catch((error) => {
-          console.log(error);
-          console.log(error.code);
-          console.log(error.message);
+          handleFirebaseErrors(error);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiSecretary").style.display = "none";
-          console.log(error.details);
         });
       }
       else {
@@ -334,12 +319,9 @@ function createSecretary() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
+      handleFirebaseErrors(error);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiSecretary").style.display = "none";
-      console.log(error.details);
     })
   }
   else {
@@ -364,6 +346,7 @@ function resetPassword() {
         .catch(function(error) {
           // An error happened.
           alert("There was an issue with your password reset. \nPlease try again later.");
+          handleFirebaseErrors(error);
         });
       } else {
         // No user is signed in.

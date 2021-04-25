@@ -60,19 +60,20 @@ function login() {
       }
     })
     .catch((error) => {
-      console.log(error);
+      handleFirebaseErrors(error);
     });
 
     //window.location.href = "../post-sign-in.html";
   })
-  .catch(function(error) {
+  .catch((error) => {
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
-      console.log('Error code: ' + errorCode);
-      console.log('Error message: ' + errorMessage);
       errMsgElem.textContent = errorMessage;
       errMsgElem.style.display = 'block';
+      if (errorCode != "auth/invalid-email" && errorCode != "auth/wrong-password" && errorCode != "auth/user-not-found") {
+        handleFirebaseErrors(error);
+      }
   });
 }
 
@@ -90,7 +91,6 @@ return firebase.auth().signInWithEmailAndPassword(email, password);
 })
 .catch(function(error) {
   // Handle Errors here.
-  var errorCode = error.code;
-  var errorMessage = error.message;
+  // this always throws an error but works...
 });
 }

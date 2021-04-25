@@ -19,7 +19,7 @@ let tab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
-let storage = firebase.storage()
+let storage = firebase.storage();
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
@@ -60,10 +60,7 @@ function initialSetup() {
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
+      handleFirebaseErrors(error);
     });
   }
 }
@@ -1025,7 +1022,7 @@ function submitDailyLog() {
         //window.history.back();
       })
       .catch((error) => {
-        console.error(error);
+        handleFirebaseErrors(error);
         document.getElementById("errMsg").textContent = error;
         document.getElementById("spinnyBoi").style.display = "none";
       });
@@ -1051,7 +1048,7 @@ function submitFeedback() {
       // console.log("feedback saved");
     })
     .catch((error) => {
-      console.error(error);
+      handleFirebaseErrors(error);
     });
   }
   else {
@@ -1090,13 +1087,10 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-          console.log("error while getting user token. can't confirm role")
-          console.log(error);
-          window.location.replace(location.origin + "/Sign-In/Sign-In");
+        handleFirebaseErrors(error);
       });
     }
     else {
-      console.log("no user found")
       window.location.replace(location.origin + "/Sign-In/Sign-In");
     }
   });
@@ -1113,8 +1107,9 @@ function validateSessionInfo() {
 
   for (let i = 0; i < numSessions; i++) {
     let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
+    let notes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
     let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-    if (section.value == "" || time.value == "") {
+    if (section.value == "" || notes.value == "" || time.value == "") {
       document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
       return false;
     }
@@ -1183,7 +1178,7 @@ function submitSessionInfo() {
         }
       })
       .catch((error) => {
-        console.error(error);
+        handleFirebaseErrors(error);
         return Promise.reject(error);
       });
     }
@@ -1222,7 +1217,7 @@ function submitHW() {
       }
     })
     .catch((error) => {
-      console.error(error);
+      handleFirebaseErrors(error);
       return Promise.reject(error);
     });
   }

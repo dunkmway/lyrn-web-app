@@ -262,9 +262,6 @@ function createElements(elementType = [], classes = [], attributes = [], values 
       }
     })
     .catch((error) => {
-      console.log(error);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.details);
+      handleFirebaseErrors(error);
     });
   }

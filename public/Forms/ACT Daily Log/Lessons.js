@@ -26,7 +26,7 @@ function getLessonData() {
       }
     })
     .catch((error) => {
-      console.error(error);
+      handleFirebaseErrors(error);
       return Promise.reject(error);
     });
   }
@@ -180,7 +180,7 @@ function setLessonData() {
         return lessonDocRef.set(lessonData);
       })
       .catch((error) => {
-        console.error(error);
+        handleFirebaseErrors(error);
         return Promise.reject(error);
       });
     }
