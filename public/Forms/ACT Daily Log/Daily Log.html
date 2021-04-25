@@ -124,7 +124,7 @@
     </section>
 
     <section id="student-data-section">
-        <div class="flex-row align-center">
+        <div id="big-picture-info" class="flex-row align-center">
             <div id="student-general-info">
                 <h1 id="student-name"></h1>
                 <div class="flex-row">
@@ -294,6 +294,13 @@
             <div id="hw-canvas-div">
                 <canvas id="hw-canvas"></canvas>
             </div>
+        </div>
+
+        <div id="student-general-notes-div">
+            <h2 class="label">General Notes</h2>
+            <div id="student-general-notes">
+            </div>
+            <textarea id="student-general-notes-input"></textarea>
         </div>
     </section>
 
@@ -2455,7 +2462,7 @@
                 </div>
                 
                 <div class = "input-row">
-                    <textarea placeholder="Session Notes" id = "sectionNotes1" rows = "10" cols="80"></textarea>
+                    <textarea class="textarea" placeholder="Session Notes" id = "sectionNotes1" rows = "10" cols="80"></textarea>
                 </div>
 
                 <div class = "input-row">

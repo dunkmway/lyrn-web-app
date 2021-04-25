@@ -19,7 +19,7 @@ let tab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
-let storage = firebase.storage()
+let storage = firebase.storage();
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded

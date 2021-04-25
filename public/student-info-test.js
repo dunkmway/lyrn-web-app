@@ -63,6 +63,7 @@ function main() {
 
     hwChart = setHomeworkChart();
     updateProfileData();
+    getGeneralNotes();
   })
 }
 
@@ -1136,6 +1137,114 @@ function removeAllTestDateGoals() {
   while (removeTestDateGoal(element) > 0);
 }
 
+function getGeneralNotes() {
+  const generalNotes = actProfile["generalNotes"];
+  for (const time in generalNotes) {
+    setGeneralNotes(generalNotes[time]["note"], time, generalNotes[time]["user"]);
+  }
+}
+
+function setGeneralNotes(note, time, author) {
+  firebase.auth().onAuthStateChanged((user) => {
+    const currentUser = user?.uid ?? null;
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (note) {
+          let messageBlock = document.getElementById('student-general-notes');
+          let message = document.createElement('div');
+          message.innerHTML = note;
+          message.setAttribute('data-time', time);
+          message.setAttribute('data-user', author);
+          message.classList.add("student-general-note");
+
+          //only give the option to delete if the currentUser is the author or an admin
+          if (author == currentUser || role == "admin") {
+            let deleteMessage = document.createElement('div');
+            deleteMessage.classList.add("delete");
+            let theX = document.createElement('p');
+            theX.innerHTML = "X";
+            deleteMessage.appendChild(theX);
+            deleteMessage.addEventListener('click', (event) => deleteGeneralNote(event));
+            message.appendChild(deleteMessage);
+          }
+
+          messageBlock.appendChild(message);
+          document.getElementById('student-general-notes-input').value = null;
+        }
+      })
+      .catch((error) => handleFirebaseErrors(error));
+    }
+  });
+}
+
+function deleteGeneralNote(event) {
+  let message = event.target.closest(".student-general-note");
+  let confirmation = confirm("Are you sure you want to delete this message?");
+  if (confirmation) {
+    const time = message.dataset.time;
+    const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+    actProfileDocRef.update({
+      [`generalNotes.${time}`] : firebase.firestore.FieldValue.delete()
+    })
+    .then(() => {
+      message.remove();
+    })
+    .catch((error) => {
+      handleFirebaseErrors(erros);
+    })
+  }
+}
+
+function sendGeneralNotes() {
+  firebase.auth().onAuthStateChanged((user) => {
+    const currentUser = user?.uid ?? null;
+    const note = document.getElementById('student-general-notes-input').value;
+    const time = new Date().getTime();
+
+    const data = {
+      user : currentUser,
+      note : note
+    } 
+
+    if (note) {
+      //upload the note to firebase
+      const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+      actProfileDocRef.get()
+      .then((doc) => {
+        if (doc.exists) {
+          actProfileDocRef.update({
+            [`generalNotes.${time}`] : data
+          })
+          .then(() => {
+            //send the note into the message div
+            setGeneralNotes(note, time, currentUser);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+          });
+        }
+        else {
+          actProfileDocRef.set({
+            [`generalNotes.${time}`] : data
+          })
+          .then(() => {
+            //send the note into the message div
+            setGeneralNotes(note, time, currentUser);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+          });
+        }
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error);
+      });
+    }
+  });
+}
+
 /**
  * Description:
  *   checks if the key event is a numeric input
@@ -1240,3 +1349,11 @@ document.getElementById("updated-reading-initial").addEventListener('keydown',en
 document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
 document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
 document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
+
+// general notes enter key will submit the note
+document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.key == "Enter") {
+    event.preventDefault();
+    sendGeneralNotes();
+  }
+});
