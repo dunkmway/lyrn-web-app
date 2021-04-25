@@ -1173,12 +1173,32 @@ function setGeneralNotes(note, time, author) {
           .then((result) => {
             const authorName = result.data ?? "anonymous";
             authorElem.innerHTML = authorName;
-            console.log("authorName", authorName);
+            scrollBottomGeneralNotes();
           })
           .catch((error) => handleFirebaseErrors(error));
 
           message.setAttribute('data-time', time);
           message.classList.add("student-general-note");
+          if (currentUser == author) {
+            message.classList.add("right");
+          }
+          else {
+            message.classList.add("left");
+          }
+
+          const getUserRole = firebase.functions().httpsCallable('getUserRole');
+          getUserRole({
+            uid : author
+          })
+          .then((result) => {
+            const authorRole = result.data ?? null;
+            if (authorRole == "admin") {
+              message.classList.add("important");
+            }
+            scrollBottomGeneralNotes();
+          })
+          .catch((error) => handleFirebaseErrors(error));
+          
 
           //only give the option to delete if the currentUser is the author or an admin
           if (author == currentUser || role == "admin" || role == "dev") {
@@ -1193,6 +1213,7 @@ function setGeneralNotes(note, time, author) {
 
           messageBlock.appendChild(message);
           document.getElementById('student-general-notes-input').value = null;
+          scrollBottomGeneralNotes();
         }
       })
       .catch((error) => handleFirebaseErrors(error));
@@ -1216,6 +1237,11 @@ function deleteGeneralNote(event) {
       handleFirebaseErrors(erros);
     })
   }
+}
+
+function scrollBottomGeneralNotes() {
+  let notes = document.getElementById("student-general-notes");
+  notes.scrollTop = notes.scrollHeight;
 }
 
 function sendGeneralNotes() {
@@ -1377,4 +1403,13 @@ document.getElementById("student-general-notes-input").addEventListener('keydown
     event.preventDefault();
     sendGeneralNotes();
   }
+});
+
+//stop scroll of the section when in the message div
+document.getElementById("student-general-notes").addEventListener("mouseover", (event) => {
+  document.getElementById("student-data-section").style.overflow = 'hidden';
+});
+
+document.getElementById("student-general-notes").addEventListener("mouseout", (event) => {
+  document.getElementById("student-data-section").style.overflow = 'auto';
 });

@@ -37,19 +37,23 @@ body {
 
 #student-general-notes-div {
     margin: 0px 50px 50px 50px;
-    max-width: 500px;
+    width: 400px;
 }
 #student-general-notes {
     max-height: 250px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px 0 10px
 }
 
 .student-general-note {
-    background-color: #C4CCE8;
     border-radius: 10px;
     margin-bottom: 10px;
-    padding: 5px 20px 5px 5px;
+    padding: 5px 25px 5px 10px;
     position: relative;
+    max-width: 70%;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
 }
 
 .student-general-note .delete {
@@ -72,16 +76,33 @@ body {
 }
 
 .student-general-note .author {
+    position: relative;
     text-align: right;
     font-weight: 200;
     font-size: 12px;
     color: #8A8B8A;
+    right: -20px;
+}
+
+.student-general-note.right {
+    align-self: flex-end;
+    background-color: #C4CCE8;
+}
+
+.student-general-note.left {
+    align-self: flex-start;
+    background-color: #CCE8C4;
+}
+
+.student-general-note.important {
+    border-color: #4177DA;
+    border-style: solid;
 }
 
 #student-general-notes-input {
     resize: none;
     display: block;
-    width: 400px;
+    width: 99%;
     height: 50px;
     font-size: 16px;
     font-weight: 300;

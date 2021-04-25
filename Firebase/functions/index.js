@@ -114,6 +114,19 @@ exports.getUserDisplayName = functions.https.onCall((data, context) => {
     return promise;
 });
 
+exports.getUserRole = functions.https.onCall((data, context) => {
+    const promise = new Promise((resolve, reject) => {
+        admin.auth().getUser(data.uid)
+        .then((userRecord) => {
+            resolve(userRecord.customClaims.role);
+        })
+        .catch((error) => {
+            reject(new functions.https.HttpsError(error.code, error.message, error.details));
+        });
+    });
+    return promise;
+});
+
  exports.addUser = functions.https.onCall((data, context) => {
     const promise = new Promise((resolve, reject) => {
         if (context.auth) {
