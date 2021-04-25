@@ -39,6 +39,10 @@ body {
     margin: 0px 50px 50px 50px;
     max-width: 500px;
 }
+#student-general-notes {
+    max-height: 250px;
+    overflow-y: auto;
+}
 
 .student-general-note {
     background-color: #C4CCE8;
@@ -67,6 +71,13 @@ body {
     cursor: pointer;
 }
 
+.student-general-note .author {
+    text-align: right;
+    font-weight: 200;
+    font-size: 12px;
+    color: #8A8B8A;
+}
+
 #student-general-notes-input {
     resize: none;
     display: block;
@@ -75,6 +86,7 @@ body {
     font-size: 16px;
     font-weight: 300;
     border-radius: 10px; 
+    margin-top: 10px;
 }
 
 .fixed {

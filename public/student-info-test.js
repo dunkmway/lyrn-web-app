@@ -1139,8 +1139,14 @@ function removeAllTestDateGoals() {
 
 function getGeneralNotes() {
   const generalNotes = actProfile["generalNotes"];
+  let noteTimes = [];
   for (const time in generalNotes) {
-    setGeneralNotes(generalNotes[time]["note"], time, generalNotes[time]["user"]);
+    noteTimes.push(parseInt(time));
+  }
+
+  noteTimes.sort((a,b) => {return a-b});
+  for (let i = 0; i < noteTimes.length; i++) {
+    setGeneralNotes(generalNotes[noteTimes[i]]["note"], noteTimes[i], generalNotes[noteTimes[i]]["user"]);
   }
 }
 
@@ -1155,12 +1161,27 @@ function setGeneralNotes(note, time, author) {
           let messageBlock = document.getElementById('student-general-notes');
           let message = document.createElement('div');
           message.innerHTML = note;
+          //author's name element
+          let authorElem = document.createElement('p');
+          authorElem.classList.add("author");
+          message.appendChild(authorElem);
+
+          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
+          getUserDisplayName({
+            uid : author
+          })
+          .then((result) => {
+            const authorName = result.data ?? "anonymous";
+            authorElem.innerHTML = authorName;
+            console.log("authorName", authorName);
+          })
+          .catch((error) => handleFirebaseErrors(error));
+
           message.setAttribute('data-time', time);
-          message.setAttribute('data-user', author);
           message.classList.add("student-general-note");
 
           //only give the option to delete if the currentUser is the author or an admin
-          if (author == currentUser || role == "admin") {
+          if (author == currentUser || role == "admin" || role == "dev") {
             let deleteMessage = document.createElement('div');
             deleteMessage.classList.add("delete");
             let theX = document.createElement('p');
