@@ -7,12 +7,19 @@
     <link href="Dev.css" rel="stylesheet">
     <link href="../Site Templates/site-wide.css" rel="stylesheet">
 
+    <!-- datatable requirments -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
+    <!-- firebase requirements -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
 
+    <script src="../Site Templates/generalFunctions.js"></script>
     <script src="../Site Templates/site-wide.js"></script>
     <script src="Dev.js"></script>
 
@@ -27,6 +34,23 @@
       <button class="button" onclick="window.location.href='Admin.html'">Go to Admin</button>
       <button class="button" onclick="window.location.href='Secretary.html'">Go to Secretary</button>
       <button class="button" onclick="window.location.href='Tutor.html'">Go to Tutor</button>
+    </div>
+
+    <div>
+      <table id="error-table" class="display compact cell-border">
+        <thead>
+          <tr>
+            <th>Message</th>
+            <th>Time</th>
+            <th>URL</th>
+            <th>Line</th>
+            <th>Column</th>
+            <th>User</th>
+            <th>User Message</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+      </table>
     </div>
     
   </body>
