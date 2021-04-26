@@ -1,5 +1,7 @@
 function validateInputCompletion(input) {
-  if (input.value.trim() == "") {
+  //only required fields
+
+  if (input.hasAttribute('required') && !input.value.trim()) {
     return false;
   }
   return true;
@@ -163,165 +165,180 @@ function submitData() {
     }
   }
 
-    // Create the student and parent dictionaries
+  // Create the student and parent dictionaries
   if (allClear) {
-    for (let i = 0; i < allInputs.length; i++) {
-      //student inputs
-      if (!allInputs[i].id.includes("parent") && !allInputs[i].id.includes("actTest")) {
-        if (allInputs[i].id.includes("Array")) {
-          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+    let confirmation = confirm("Are you sure you are ready to submit this student?");
+    if (confirmation) {
+      for (let i = 0; i < allInputs.length; i++) {
+        //student inputs
+        if (!allInputs[i].id.includes("parent") && !allInputs[i].id.includes("actTest")) {
+          if (allInputs[i].id.includes("Array")) {
+            if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
+              studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            }
+            else {
+              studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+              studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            }
           }
           else {
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            studentInfo[allInputs[i].id] = allInputs[i].value;
           }
         }
-        else {
-          studentInfo[allInputs[i].id] = allInputs[i].value;
-        }
-      }
-
-      //parent inputs
-      if (!allInputs[i].id.includes("student") && !allInputs[i].id.includes("actTest")) {
-        if (allInputs[i].id.includes("Array")) {
-          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+  
+        //parent inputs
+        if (!allInputs[i].id.includes("student") && !allInputs[i].id.includes("actTest")) {
+          if (allInputs[i].id.includes("Array")) {
+            if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
+              parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            }
+            else {
+              parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+              parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            }
           }
           else {
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
+            parentInfo[allInputs[i].id] = allInputs[i].value;
           }
         }
-        else {
-          parentInfo[allInputs[i].id] = allInputs[i].value;
-        }
       }
-    }
-
-    //special case for actTest (will be added to the student data)
-    let actTestArray = [];
-    let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-    //console.log(actTestDivs);
-    for (let i = 0; i < actTestDivs.length; i++) {
-      let actTest = {}
-      actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
-      actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
-      actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
-      actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
-      actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
-      actTestArray.push(actTest);
-    }
-    studentInfo["studentActTests"] = actTestArray;
-
-    //create the student account
-    const addUser = firebase.functions().httpsCallable('addUser');
-    addUser({
-      email: studentInfo['studentEmail'],
-      password: "abc123",
-      role: "student"
-    })
-    .then((result) => {
-      let studentUID = result.data.user.uid;
-      let newUser = result.data.newUser;
-      //console.log(studentUID);
-      //console.log(newUser);
-
-      if (newUser) {
-        var GET = {};
-        var queryString = window.location.search.replace(/^\?/, '');
-        queryString.split(/\&/).forEach(function(keyValuePair) {
-        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-        GET[paramName] = paramValue;
-        });
-
-        const studentTempUID = GET["student"];
-        const parentUID = GET["parent"];
-        const location = GET["location"];
-
-        //set up the student doc
-        let studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-        let studentDocData = {
-          ...studentInfo,
-          // role: "student",
-          parent: parentUID,
-          location: location
-        }
-        let studentProm = studentDocRef.set(studentDocData)
-        .then((result) => {
-          // console.log("student document successfully written!");
-          // console.log(result);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error);
-          document.getElementById("errMsg").textContent = error.message;
-        });
-
-        //update the active student object for this location
-        const locationDocRef = firebase.firestore().collection("Locations").doc(location);
-        let activeStudent = {
-          studentFirstName: studentInfo["studentFirstName"],
-          studentLastName: studentInfo["studentLastName"],
-          parentUID: parentUID,
-          parentFirstName: parentInfo["parentFirstName"],
-          parentLastName: parentInfo["parentLastName"]
-        }
-        let locationProm = locationDocRef.update({
-          [`activeStudents.${studentUID}`]: activeStudent,
-          [`pendingStudents.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
-        })
-        .then((result) => {
-          // console.log("location document successfully written!");
-          // console.log(result);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error);
-          document.getElementById("errMsg").textContent = error.message;
-        });
-
-        //update the parent doc
-        const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-        parentDocData = {
-          ...parentInfo,
-          [`active.${studentUID}`]: {
+  
+      //special case for actTest (will be added to the student data)
+      let actTestArray = [];
+      let actTestDivs = document.querySelectorAll("div[id^='actTest']");
+      //console.log(actTestDivs);
+      for (let i = 0; i < actTestDivs.length; i++) {
+        let actTest = {}
+        actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
+        actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
+        actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
+        actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
+        actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
+        actTestArray.push(actTest);
+      }
+      studentInfo["studentActTests"] = actTestArray;
+  
+      //create the student account
+      const addUser = firebase.functions().httpsCallable('addUser');
+      addUser({
+        email: studentInfo['studentEmail'],
+        password: "abc123",
+        role: "student"
+      })
+      .then((result) => {
+        let studentUID = result.data.user.uid;
+        let newUser = result.data.newUser;
+        //console.log(studentUID);
+        //console.log(newUser);
+  
+        if (newUser) {
+          var GET = {};
+          var queryString = window.location.search.replace(/^\?/, '');
+          queryString.split(/\&/).forEach(function(keyValuePair) {
+          var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+          var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+          GET[paramName] = paramValue;
+          });
+  
+          const studentTempUID = GET["student"];
+          const parentUID = GET["parent"];
+          const location = GET["location"];
+  
+          //set up the student doc
+          let studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+          let studentDocData = {
+            ...studentInfo,
+            // role: "student",
+            parent: parentUID,
+            location: location
+          }
+          let studentProm = studentDocRef.set(studentDocData)
+          .then((result) => {
+            // console.log("student document successfully written!");
+            // console.log(result);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+            document.getElementById("errMsg").textContent = error.message;
+          });
+  
+          //update the active student object for this location
+          const locationDocRef = firebase.firestore().collection("Locations").doc(location);
+          let activeStudent = {
             studentFirstName: studentInfo["studentFirstName"],
-            studentLastName: studentInfo["studentLastName"]
-          },
-          [`pending.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
+            studentLastName: studentInfo["studentLastName"],
+            parentUID: parentUID,
+            parentFirstName: parentInfo["parentFirstName"],
+            parentLastName: parentInfo["parentLastName"]
+          }
+          let locationProm = locationDocRef.update({
+            [`activeStudents.${studentUID}`]: activeStudent,
+            [`pendingStudents.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
+          })
+          .then((result) => {
+            // console.log("location document successfully written!");
+            // console.log(result);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+            document.getElementById("errMsg").textContent = error.message;
+          });
+  
+          //update the parent doc
+          const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+          parentDocData = {
+            ...parentInfo,
+            [`active.${studentUID}`]: {
+              studentFirstName: studentInfo["studentFirstName"],
+              studentLastName: studentInfo["studentLastName"]
+            },
+            [`pending.${studentTempUID}`]: firebase.firestore.FieldValue.delete()
+          }
+          let parentProm = parentDocRef.update(parentDocData)
+          .then((result) => {
+            // console.log("parent document successfully written!");
+            // console.log(result);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+            document.getElementById("errMsg").textContent = error.message;
+          });
+  
+          //delete the location pending doc
+          const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
+          let pendingProm = pendingDocRef.delete()
+          .then((result) => {
+            // console.log("pending document successfully deleted!");
+            // console.log(result);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+            document.getElementById("errMsg").textContent = error.message;
+          });
+  
+          //verify that all promises have resolved
+          let promises = [studentProm ,parentProm, pendingProm, locationProm];
+          Promise.all(promises)
+          .then(() => {
+            // console.log("data successfully submitted")
+            goToDashboard();
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error);
+            document.getElementById("errMsg").textContent = error.message;
+            let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+            for (let i = 0; i < loadingBlocks.length; i ++) {
+              loadingBlocks[i].style.display = "none";
+            }
+            let submitButtons = document.getElementsByClassName("submitButton");
+            for (let i = 0; i < submitButtons.length; i ++) {
+              submitButtons[i].disabled = false;
+            }
+          });
         }
-        let parentProm = parentDocRef.update(parentDocData)
-        .then((result) => {
-          // console.log("parent document successfully written!");
-          // console.log(result);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error);
-          document.getElementById("errMsg").textContent = error.message;
-        });
-
-        //delete the location pending doc
-        const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
-        let pendingProm = pendingDocRef.delete()
-        .then((result) => {
-          // console.log("pending document successfully deleted!");
-          // console.log(result);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error);
-          document.getElementById("errMsg").textContent = error.message;
-        });
-
-        //verify that all promises have resolved
-        let promises = [studentProm ,parentProm, pendingProm, locationProm];
-        Promise.all(promises)
-        .then(() => {
-          // console.log("data successfully submitted")
-          goToDashboard();
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error);
-          document.getElementById("errMsg").textContent = error.message;
+        else {
+          //the student already exists
+          document.getElementById("errMsg").textContent = "This student already exists!";
           let loadingBlocks = document.getElementsByClassName("spinnyBoi");
           for (let i = 0; i < loadingBlocks.length; i ++) {
             loadingBlocks[i].style.display = "none";
@@ -330,11 +347,10 @@ function submitData() {
           for (let i = 0; i < submitButtons.length; i ++) {
             submitButtons[i].disabled = false;
           }
-        });
-      }
-      else {
-        //the student already exists
-        document.getElementById("errMsg").textContent = "This student already exists!";
+        }
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error);
         let loadingBlocks = document.getElementsByClassName("spinnyBoi");
         for (let i = 0; i < loadingBlocks.length; i ++) {
           loadingBlocks[i].style.display = "none";
@@ -343,19 +359,8 @@ function submitData() {
         for (let i = 0; i < submitButtons.length; i ++) {
           submitButtons[i].disabled = false;
         }
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error);
-      let loadingBlocks = document.getElementsByClassName("spinnyBoi");
-      for (let i = 0; i < loadingBlocks.length; i ++) {
-        loadingBlocks[i].style.display = "none";
-      }
-      let submitButtons = document.getElementsByClassName("submitButton");
-      for (let i = 0; i < submitButtons.length; i ++) {
-        submitButtons[i].disabled = false;
-      }
-    });
+      });
+    }
   }
   else {
     //validation failed
@@ -368,8 +373,6 @@ function submitData() {
       submitButtons[i].disabled = false;
     }
   }
-
-  
 }
 
 function update() {

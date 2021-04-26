@@ -33,7 +33,7 @@ function createInquiry() {
   let parentInputValues = {};
   let studentInputValues = {};
 
-  if (validateFields(allInputs)) {
+  if (validateFields(allInputs) && confirm("Are you sure you are ready to submit this inquiry?")) {
     for(let i = 0; i < allInputs.length; i++) {
       allInputValues[allInputs[i].id] = allInputs[i].value;
     }
