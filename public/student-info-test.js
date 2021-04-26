@@ -1158,8 +1158,21 @@ function setGeneralNotes(note, time, author) {
       .then((idTokenResult) => {
         let role = idTokenResult.claims.role;
         if (note) {
+          //all the messages
           let messageBlock = document.getElementById('student-general-notes');
+          //the div that contains the time and message
+          let messageDiv = document.createElement('div');
+          //the message itself
           let message = document.createElement('div');
+          //time for the message
+          let timeElem = document.createElement('p');
+
+          //display the time above the mesasge
+          timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
+          timeElem.classList.add('time');
+          messageDiv.appendChild(timeElem);
+
+          //set up the message
           message.innerHTML = note;
           //author's name element
           let authorElem = document.createElement('p');
@@ -1180,10 +1193,10 @@ function setGeneralNotes(note, time, author) {
           message.setAttribute('data-time', time);
           message.classList.add("student-general-note");
           if (currentUser == author) {
-            message.classList.add("right");
+            messageDiv.classList.add("right");
           }
           else {
-            message.classList.add("left");
+            messageDiv.classList.add("left");
           }
 
           const getUserRole = firebase.functions().httpsCallable('getUserRole');
@@ -1210,8 +1223,9 @@ function setGeneralNotes(note, time, author) {
             deleteMessage.addEventListener('click', (event) => deleteGeneralNote(event));
             message.appendChild(deleteMessage);
           }
-
-          messageBlock.appendChild(message);
+          
+          messageDiv.appendChild(message);
+          messageBlock.appendChild(messageDiv);
           document.getElementById('student-general-notes-input').value = null;
           scrollBottomGeneralNotes();
         }
