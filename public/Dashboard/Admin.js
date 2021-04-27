@@ -90,7 +90,7 @@ function setStudentTable() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
     });
 
     promises.push(locationProm);
@@ -133,7 +133,7 @@ function setStudentTable() {
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error);
+    handleFirebaseErrors(error, document.currentScript.src);
   });
   
 }
@@ -243,7 +243,7 @@ function createTutor() {
           closeUser("tutor", true);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiTutor").style.display = "none";
         });
@@ -254,7 +254,7 @@ function createTutor() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiTutor").style.display = "none";
     })
@@ -308,7 +308,7 @@ function createSecretary() {
           closeUser("secretary", true);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiSecretary").style.display = "none";
         });
@@ -319,7 +319,7 @@ function createSecretary() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiSecretary").style.display = "none";
     })
@@ -346,7 +346,7 @@ function resetPassword() {
         .catch(function(error) {
           // An error happened.
           alert("There was an issue with your password reset. \nPlease try again later.");
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
         });
       } else {
         // No user is signed in.

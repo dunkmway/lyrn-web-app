@@ -54,14 +54,14 @@ function setErrorTable() {
           errorTable.row($(event.target).parents('tr')).remove().draw();
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           console.log(error);
         });
       }
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error);
+    handleFirebaseErrors(error, document.currentScript.src);
     console.log(error);
   });
 }

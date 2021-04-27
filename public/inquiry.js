@@ -14,7 +14,7 @@ function setLocations () {
     }
   })
   .catch((error) => {
-    handleFirebaseErrors(error);
+    handleFirebaseErrors(error, document.currentScript.src);
   });
 }
 
@@ -98,7 +98,7 @@ function createInquiry() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
 
@@ -118,7 +118,7 @@ function createInquiry() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
 
@@ -131,14 +131,14 @@ function createInquiry() {
             document.getElementById("spinnyBoi").style.display = "none";
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
             document.getElementById("submitBtn").disabled = false;
             document.getElementById("spinnyBoi").style.display = "none";
           });
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("submitBtn").disabled = false;
           document.getElementById("spinnyBoi").style.display = "none";
@@ -152,7 +152,7 @@ function createInquiry() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("submitBtn").disabled = false;
       document.getElementById("spinnyBoi").style.display = "none";
@@ -212,7 +212,7 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
       });
     }
     else {

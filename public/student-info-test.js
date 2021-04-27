@@ -1008,7 +1008,7 @@ function submitUpdatedInfo() {
           closeModal(Event,'update-goals-section', true);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -1031,7 +1031,7 @@ function submitUpdatedInfo() {
           closeModal(Event, 'update-goals-section', true);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
           document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -1039,7 +1039,7 @@ function submitUpdatedInfo() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("spinnyBoiGoals").style.display = "none";
       document.getElementById("update-goals-submitBtn").disbaled = false;
       document.getElementById("errMsgGoals").textContent = "There was an issue with saving these goals. Please try again."
@@ -1205,7 +1205,7 @@ function setGeneralNotes(note, time, author) {
             authorElem.innerHTML = authorName;
             scrollBottomGeneralNotes();
           })
-          .catch((error) => handleFirebaseErrors(error));
+          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
 
           message.setAttribute('data-time', time);
           message.classList.add("student-note");
@@ -1227,7 +1227,7 @@ function setGeneralNotes(note, time, author) {
             }
             scrollBottomGeneralNotes();
           })
-          .catch((error) => handleFirebaseErrors(error));
+          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
           
 
           //only give the option to delete if the currentUser is the author or an admin
@@ -1248,7 +1248,7 @@ function setGeneralNotes(note, time, author) {
         }
       })
       .catch((error) =>  {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
         console.log(error);
       });
     }
@@ -1268,7 +1268,7 @@ function deleteGeneralNote(event) {
       message.remove();
     })
     .catch((error) => {
-      handleFirebaseErrors(erros);
+      handleFirebaseErrors(error, document.currentScript.src);
     })
   }
 }
@@ -1303,7 +1303,7 @@ function sendGeneralNotes() {
             setGeneralNotes(note, time, currentUser);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
           });
         }
         else {
@@ -1315,12 +1315,12 @@ function sendGeneralNotes() {
             setGeneralNotes(note, time, currentUser);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
           });
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
       });
     }
   });
@@ -1378,7 +1378,7 @@ function setNotes(type, note, time, author, isSessionNote) {
             authorElem.innerHTML = authorName;
             scrollBottomNotes(type);
           })
-          .catch((error) => handleFirebaseErrors(error));
+          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
 
           messageDiv.setAttribute('data-time', time);
           message.classList.add("student-note");
@@ -1400,7 +1400,7 @@ function setNotes(type, note, time, author, isSessionNote) {
             }
             scrollBottomNotes(type);
           })
-          .catch((error) => handleFirebaseErrors(error));
+          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
 
           if (isSessionNote) {
             message.classList.add('session');
@@ -1425,7 +1425,7 @@ function setNotes(type, note, time, author, isSessionNote) {
         }
       })
       .catch((error) =>  {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
         console.log(error);
       });
     }
@@ -1445,7 +1445,7 @@ function deleteNote(type, event) {
       message.remove();
     })
     .catch((error) => {
-      handleFirebaseErrors(erros);
+      handleFirebaseErrors(error, document.currentScript.src);
     })
   }
 }
@@ -1478,7 +1478,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
         });
       }
       else {
@@ -1490,12 +1490,12 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
         });
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       console.log(error);
     });
   }

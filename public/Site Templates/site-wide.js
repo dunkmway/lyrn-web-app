@@ -110,7 +110,7 @@ function checkPermissions() {
                 clearLoadingScreen();
             })
             .catch((error) => {
-                handleFirebaseErrors(error);
+                handleFirebaseErrors(error, document.currentScript.src);
                 window.location.replace(location.origin + "/Sign-In/Sign-In");
             });
         }
@@ -134,7 +134,7 @@ function signOut() {
         })
         .catch((error) => {
             // An error happened.
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
         });
     }
 }
@@ -168,10 +168,10 @@ function sendErrorReport(msg, url, lineNo, columnNo, error) {
     });
 }
 
-function handleFirebaseErrors(err) {
+function handleFirebaseErrors(err, file) {
     //new Error().stack is non standard and may not work as intented on all browsers
     const msg = "firebase error";
-    const url = window.location.href;
+    const url = file;
     const stack = new Error().stack;
     let lineNo;
     let columnNo;

@@ -60,7 +60,7 @@ function initialSetup() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
     });
   }
 }
@@ -1022,7 +1022,7 @@ function submitDailyLog() {
         //window.history.back();
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
         document.getElementById("errMsg").textContent = error;
         document.getElementById("spinnyBoi").style.display = "none";
       });
@@ -1048,7 +1048,7 @@ function submitFeedback() {
       // console.log("feedback saved");
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
     });
   }
   else {
@@ -1087,7 +1087,7 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
       });
     }
     else {
@@ -1180,12 +1180,12 @@ function submitSessionInfo() {
           }
         })
         .catch((error) => {
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
           return Promise.reject(error);
         });
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
         return Promise.reject(error);
       });
     }
@@ -1224,7 +1224,7 @@ function submitHW() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       return Promise.reject(error);
     });
   }

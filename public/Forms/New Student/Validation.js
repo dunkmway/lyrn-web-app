@@ -258,7 +258,7 @@ function submitData() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
   
@@ -280,7 +280,7 @@ function submitData() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
   
@@ -300,7 +300,7 @@ function submitData() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
   
@@ -312,7 +312,7 @@ function submitData() {
             // console.log(result);
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
           });
   
@@ -324,7 +324,7 @@ function submitData() {
             goToDashboard();
           })
           .catch((error) => {
-            handleFirebaseErrors(error);
+            handleFirebaseErrors(error, document.currentScript.src);
             document.getElementById("errMsg").textContent = error.message;
             let loadingBlocks = document.getElementsByClassName("spinnyBoi");
             for (let i = 0; i < loadingBlocks.length; i ++) {
@@ -350,7 +350,7 @@ function submitData() {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
         let loadingBlocks = document.getElementsByClassName("spinnyBoi");
         for (let i = 0; i < loadingBlocks.length; i ++) {
           loadingBlocks[i].style.display = "none";
@@ -510,7 +510,7 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
     });
 
@@ -529,7 +529,7 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
     });
 
@@ -550,7 +550,7 @@ function update() {
       // console.log(result);
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
     });
 
@@ -569,7 +569,7 @@ function update() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error);
+      handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
@@ -625,7 +625,7 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error);
+        handleFirebaseErrors(error, document.currentScript.src);
       });
     }
     else {

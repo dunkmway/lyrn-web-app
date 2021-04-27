@@ -74,7 +74,7 @@ function setStudentTable() {
     }
   })
   .catch((error) => {
-    handleFirebaseErrors(error);
+    handleFirebaseErrors(error, document.currentScript.src);
   });
 }
 
@@ -100,7 +100,7 @@ function resetPassword() {
         .catch(function(error) {
           // An error happened.
           alert("There was an issue with your password reset. \nPlease try again later.");
-          handleFirebaseErrors(error);
+          handleFirebaseErrors(error, document.currentScript.src);
         });
       } else {
         // No user is signed in.
