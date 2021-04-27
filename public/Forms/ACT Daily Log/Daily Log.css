@@ -25,10 +25,9 @@ body {
     z-index: 1;
 }
 
-/* #scores-chart {
-    overflow-y: auto;
-    height: 100%;
-} */
+#scores-chart {
+    flex: 1;
+}
 
 #hw-canvas-div {
     /* width: 100%;
@@ -37,8 +36,12 @@ body {
 }
 
 #student-general-notes-div {
-    margin: 0px 50px 50px 50px;
+    margin: 50px 0px 50px 20px;
     width: 400px;
+    border-color: black;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
 }
 
 .section-notes-div {
@@ -57,6 +60,12 @@ body {
     display: flex;
     flex-direction: column;
     padding: 0 10px 0 10px
+}
+
+.student-notes-label {
+    padding: 10px;
+    color: white;
+    border-radius: 10px 10px 0px 0px;
 }
 
 .student-notes :first-child {

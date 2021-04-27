@@ -365,7 +365,7 @@ function setHomeworkChart() {
   let allHours = [compositeHoursArray.runningTotal(), englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
   let minMax = getMinAndMax(allHours);
 
-  for (let i = minMax['min']; i <= minMax['max']; i+=5) {
+  for (let i = minMax['min']; i <= minMax['max']; i+=15) {
     hoursArray.push(i);
   }
 
@@ -749,8 +749,9 @@ function setHourAxis() {
   let minMax = getMinAndMax(datasetHours);
   let hours = [];
 
-  for (let i = minMax['min']; i <= minMax['max']; i+=5) {
-    hours.push(i);
+  for (let i = minMax['min']; i <= minMax['max']; i+=15) {
+    let timeSpent = (i / 60).toString()
+    hours.push(timeSpent);
   }
 
   hwChart.data.labels = hours;
@@ -1407,8 +1408,8 @@ function setNotes(type, note, time, author, isSessionNote) {
           }
           
 
-          //only give the option to delete if the currentUser is the author or an admin
-          if (author == currentUser || role == "admin" || role == "dev") {
+          //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
+          if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
             let deleteMessage = document.createElement('div');
             deleteMessage.classList.add("delete");
             let theX = document.createElement('p');
@@ -1461,8 +1462,6 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
     note : note,
     isSessionNote : isSessionNote
   } 
-
-  console.log(`${type}.${time}`)
 
   if (note) {
     //upload the note to firebase
@@ -1611,7 +1610,7 @@ document.getElementById("updated-science-initial").addEventListener('keyup',form
 
 // general notes enter key will submit the note
 document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.key == "Enter") {
+  if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     sendGeneralNotes();
   }
