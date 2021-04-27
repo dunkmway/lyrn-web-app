@@ -1124,58 +1124,65 @@ function submitSessionInfo() {
   let numSessions = dailyLogSessions.length;
 
   let sectionInfo = {};
-  for (let i = 0; i < numSessions; i++) {
-    let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
-    let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-    let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
-
-    sectionInfo[section.value] = {
-      time: parseInt(time.value),
-      sectionNotes: sectionNotes.value
-    }
-  }
-
-  
   let sessionTimeNum = date.getTime();
   let currentUser = firebase.auth().currentUser;
+
   if (currentUser) {
     let tutor = currentUser.uid;
-
-    //get the number of hw's not completed from the hw
-
-    sessionInfo["incompleteHomework"] = numHomeworkNotComplete();
-    sessionInfo["sections"] = sectionInfo;
-    sessionInfo["tutor"] = tutor;
-    //set this session doc to firebase
     const studentUID = queryStrings()["student"];
-
     if (studentUID) {
-      let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("sessions");
-      //need to somehow get this promise to return when complete....
-      return sessionDocRef.get()
-      .then((doc) => {
-        if (doc.exists) {
-          //doc exists - update the doc
-          return sessionDocRef.update({
-            [`${sessionTimeNum.toString()}`]: sessionInfo,
-            // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
-            // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
-            // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
-            // scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
-            // [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
-          })
+      //create the session info
+      let sessionNoteProms = [];
+
+      for (let i = 0; i < numSessions; i++) {
+        let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
+        let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
+        let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
+    
+        sessionNoteProms.push(sendNotes(section.value.toLowerCase(), sectionNotes.value, sessionTimeNum, tutor, true));
+    
+        sectionInfo[section.value] = {
+          time: parseInt(time.value),
+          sectionNotes: sectionNotes.value
         }
-        else {
-          //doc does not exist - set the doc
-          return sessionDocRef.set({
-            [`${sessionTimeNum.toString()}`]: sessionInfo,
-            // englishTotalTime: sectionInfo.English?.time ?? 0,
-            // mathTotalTime: sectionInfo.Math?.time ?? 0,
-            // readingTotalTime: sectionInfo.Reading?.time ?? 0,
-            // scienceTotalTime: sectionInfo.Science?.time ?? 0,
-            // tutors: {[`${tutor}`]: 1}
-          })
-        }
+      }
+
+      Promise.all(sessionNoteProms).then(() => {
+        sessionInfo["incompleteHomework"] = numHomeworkNotComplete();
+        sessionInfo["sections"] = sectionInfo;
+        sessionInfo["tutor"] = tutor;
+
+        let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("sessions");
+        //need to somehow get this promise to return when complete....
+        return sessionDocRef.get()
+        .then((doc) => {
+          if (doc.exists) {
+            //doc exists - update the doc
+            return sessionDocRef.update({
+              [`${sessionTimeNum.toString()}`]: sessionInfo,
+              // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
+              // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
+              // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
+              // scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
+              // [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
+            })
+          }
+          else {
+            //doc does not exist - set the doc
+            return sessionDocRef.set({
+              [`${sessionTimeNum.toString()}`]: sessionInfo,
+              // englishTotalTime: sectionInfo.English?.time ?? 0,
+              // mathTotalTime: sectionInfo.Math?.time ?? 0,
+              // readingTotalTime: sectionInfo.Reading?.time ?? 0,
+              // scienceTotalTime: sectionInfo.Science?.time ?? 0,
+              // tutors: {[`${tutor}`]: 1}
+            })
+          }
+        })
+        .catch((error) => {
+          handleFirebaseErrors(error);
+          return Promise.reject(error);
+        });
       })
       .catch((error) => {
         handleFirebaseErrors(error);

@@ -114,6 +114,10 @@ body {
   justify-content: space-between;
 }
 
+.justify-space-evenly {
+  justify-content:space-evenly;
+}
+
 .button {
   margin-top: 20px;
   /*margin-right: 50px;*/

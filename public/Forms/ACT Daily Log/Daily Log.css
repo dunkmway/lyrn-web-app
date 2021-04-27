@@ -40,29 +40,45 @@ body {
     margin: 0px 50px 50px 50px;
     width: 400px;
 }
-#student-general-notes {
-    max-height: 400px;
+
+.section-notes-div {
+    margin: 10px;
+    flex: 1;
+    border-color: black;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
+    max-width: 40%;
+}
+
+.student-notes {
+    height: 400px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     padding: 0 10px 0 10px
 }
 
-#student-general-notes .time {
+.student-notes :first-child {
+    margin-top: auto;
+}
+
+.student-notes .time {
     font-weight: 200;
     font-size: 12px;
     color: #8A8B8A;
 }
 
-.student-general-note {
+.student-note {
     border-radius: 10px;
     margin-bottom: 10px;
     padding: 5px 25px 5px 10px;
     position: relative;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+    white-space: pre-wrap;
 }
 
-.student-general-note .delete {
+.student-note .delete {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -81,7 +97,7 @@ body {
     cursor: pointer;
 }
 
-.student-general-note .author {
+.student-note .author {
     position: relative;
     text-align: right;
     font-weight: 200;
@@ -90,30 +106,35 @@ body {
     right: -20px;
 }
 
-#student-general-notes .right {
+.student-notes .right {
     align-self: flex-end;
     max-width: 80%;
 }
 
-#student-general-notes .right .student-general-note{
+.student-notes .right .student-note{
     background-color: #C4CCE8;
 }
 
-#student-general-notes .left {
+.student-notes .left {
     align-self: flex-start;
     max-width: 80%;
 }
 
-#student-general-notes .left .student-general-note{
+.student-notes .left .student-note{
     background-color: #CCE8C4;
 }
 
-.student-general-note.important {
+.student-note.important {
     border-color: #4177DA;
     border-style: solid;
 }
 
-#student-general-notes-input {
+.student-note.session {
+    border-color: #DAA441;
+    border-style: solid;
+}
+
+.student-notes-input {
     resize: none;
     display: block;
     width: 99%;
