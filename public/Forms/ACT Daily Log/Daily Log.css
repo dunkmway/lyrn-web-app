@@ -146,7 +146,8 @@ body {
 .student-notes-input {
     resize: none;
     display: block;
-    width: 99%;
+    width: 100%;
+    box-sizing: border-box;
     height: 50px;
     font-size: 16px;
     font-weight: 300;
