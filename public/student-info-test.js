@@ -1482,7 +1482,9 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
       }
       else {
         return studentNotesDocRef.set({
-          [`${type}.${time}`] : data
+          type : {
+            time : data
+          }
         })
         .then(() => {
           //send the note into the message div
