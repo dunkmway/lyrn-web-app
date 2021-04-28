@@ -35,11 +35,11 @@ const enforceNumericFormat = (event) => {
 };
 
 const enforceDecimalFormat = (event) => {
-	// Input must be of a valid number format or a modifier key, and not longer than ten digits
+	// Input must be of a valid number format or a modifier key
 	const key = event.keyCode;
-	if(!isNumericInput(event) && !isModifierKey(event) && key != 190){
-		event.preventDefault();
-	}
+	if (!isNumericInput(event) && key != 190 && key != 8) {
+    event.preventDefault();
+  }
 };
 
 const formatToPhone = (event) => {
