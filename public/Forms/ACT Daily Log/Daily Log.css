@@ -1046,8 +1046,6 @@ p.errorMessage {
   z-index: 4;
   bottom: 6.5%;
   right: 2%
-  /*left: 50%;*/
-  /*margin-left: -80px;*/
 }
 
 /* Popup arrow */
@@ -1060,6 +1058,33 @@ p.errorMessage {
   border-width: 5px;
   border-style: solid;
   border-color: #555 transparent transparent transparent;
+}
+
+.printPopup {
+  visibility: hidden;
+  width: 170px;
+  background-color: rgb(150, 150, 150);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0px 8px 0px;
+  position: absolute;
+  z-index: 4;
+  height: max-content;
+  right: 515px;
+}
+
+/* Popup arrow */
+.printPopup::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 10px);
+  left: 180px;
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+  transform: rotate(-90deg);
 }
 
 /* Toggle this class - hide and show the popup */
