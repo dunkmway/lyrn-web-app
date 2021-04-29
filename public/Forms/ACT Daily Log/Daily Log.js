@@ -313,6 +313,9 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     }
   }
 
+  // Close the print popup if it is open
+  togglePrintPopup();
+
   //console.log("temp", tempAnswers);
   //console.log("test", testAnswers);
 
@@ -1292,21 +1295,6 @@ function getArrayIndex(value, arr) {
   return -1;
 }
 
-/*function openTest() {
-
-  let info = getTestInfo();
-
-  if (info[0] != "B02") {
-    return
-  }
-
-  let path = info[0] + (info[1] != undefined ? (" - " + info[1]) : "");
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
-  ref.getDownloadURL().then((url) => {
-      open(url);
-    })
-}*/
-
 function openTest(test, section = undefined) {
 
   let path = test + (section != undefined ? (" - " + section) : "");
@@ -1342,5 +1330,89 @@ function toggleButtons(active) {
     answerButton.classList.add("buttonToggleOff")
     guessButton.classList.add("buttonToggleOn")
     guessButton.classList.remove("buttonToggleOff")
+  }
+}
+
+function togglePrintPopup(test = undefined) {
+
+  // Grab the printPopup element
+  let popup = document.getElementById("printPopup");
+
+  // Either display or hide the popup
+  if (test == popup.getAttribute('data-test') || test == undefined) {
+    popup.classList.remove("show");
+    popup.setAttribute('data-test', 'None')
+  }
+  else {
+    popup.classList.add("show");
+    popup.setAttribute("data-test", test);
+  }
+
+}
+
+function popupPrint(section = undefined) {
+  let popup = document.getElementById("printPopup");
+  openTest(popup.getAttribute("data-test"), section);
+}
+
+function adjustPrintPopup() {
+  
+  // No test selected, do nothing
+  if (scrollingTarget == undefined) {
+    return;
+  }
+
+  // Set needed variables
+  let popup = document.getElementById("printPopup");
+  const testLocation = scrollingTarget.getBoundingClientRect().top + (scrollingTarget.clientHeight * 0.5) + 5
+  const pageBottom = window.innerHeight;
+  const offset = popup.getBoundingClientRect().height * 0.5;
+
+  // Set the min height for scrolling
+  let minHeight = document.getElementById('homeworkTestHeaders').getBoundingClientRect().bottom;
+  if (minHeight == 0) {
+    minHeight = document.getElementById('inCenterTestHeaders').getBoundingClientRect().bottom;
+    if (minHeight == 0) {
+      minHeight = document.getElementById('otherTestHeaders').getBoundingClientRect().bottom;
+    }
+  }
+
+  // Set the min height for scrolling
+  let maxHeight = document.getElementById('homeworkSubmitDiv').getBoundingClientRect().top;
+  if (maxHeight == 0) {
+    maxHeight = document.getElementById('inCenterSubmitDiv').getBoundingClientRect().top;
+    if (minHeight == 0) {
+      maxHeight = document.getElementById('otherSubmitDiv').getBoundingClientRect().top;
+    }
+  }
+
+  // Set the height for the printPopup
+  // Normal
+  if (testLocation < maxHeight && testLocation > minHeight) {
+    if (testLocation + offset >= pageBottom) {
+      popup.style.top = (window.innerHeight - popup.clientHeight).toString() + 'px';
+    }
+    else if (testLocation - offset <= 0) {
+      popup.style.top = '0px';
+    }
+    else {
+      popup.style.top = ( testLocation - offset).toString() + 'px';
+    }
+  }
+  // Off the bottom of the page
+  else if (testLocation + offset >= pageBottom) {
+    popup.style.top = (window.innerHeight - popup.clientHeight).toString() + 'px';
+  }
+  // Off the top of the page
+  else if (testLocation - offset <= 0 && testLocation > minHeight) {
+    popup.style.top = '0px';
+  }
+  // Before minHeight
+  else if (testLocation < minHeight) {
+    popup.style.top = (minHeight - offset).toString() + 'px';
+  }
+  // After maxHeight
+  else if (testLocation > maxHeight) {
+    popup.style.top = (maxHeight - offset).toString() + 'px';
   }
 }

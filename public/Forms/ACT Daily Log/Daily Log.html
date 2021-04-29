@@ -298,14 +298,36 @@
     </section>
 
     <section id="section">
-        <!-- <h2 id="studentName" style="color: white;"></h2>
-        <button onclick="goToTesting()">TESTING</button> -->
 
         <div id = "sideNav" class = "nav_disabled">
             <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog');addUnloadListener()">Daily Log</div>
             <div id = "testReviewNav" class = "button2" onclick = "openForm('dailyLog')">Test Review</div>
             <div id = "scoresNav" class = "button2" onclick = "openForm('dailyLog')">Test Scores</div>
             <div id = "previousLogsNav" class = "button2" onclick = "openForm('dailyLog')">Prior Logs</div>
+        </div>
+
+        <div id = "printPopup" class = "printPopup" data-test = "">
+
+            <button class = "button2" onclick="popupPrint()">
+                Full Test
+            </button>
+
+            <button class = "button2" onclick="popupPrint('English')">
+                English
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Math')">
+                Math
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Reading')">
+                Reading
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Science')">
+                Science
+            </button>
+
         </div>
 
         <div id = "testAnswersPopup" class = "metaForm noselect">
@@ -456,7 +478,7 @@
                     Submit
                 </button>
                 
-                <div id = "perfectScorePopup" class = "popup">
+                <div id = "perfectScorePopup" class = "popup" data-test = "">
                     <button class = "longButton button2 green" onclick="submitAnswersPopup('grade')">
                         Grade Passage
                     </button>
@@ -474,6 +496,7 @@
                     </button>
                 </div>
 
+                
                 <div id = "submitHomeworkPopup" class = "popup">
 
                     <p id = 'assignFirst' style="color: white; display:none;">Test must be assigned first</p>
@@ -517,76 +540,6 @@
 
         </div>
 
-        <!--<div id = "homeworkPopup" class = "input-block noselect">
-
-            <div id = "homeworkPopupHeader">
-                <div id = "homeworkHeaderText">
-                </div>
-            </div>
-
-            <div class = "input-row-center">
-                <button class = "green button" onclick="setHomeworkStatus('in-time', 'True')">
-                    Completed <span class = "smallerText"><br>(in-time)</span>
-                </button>
-
-                <button class = "orange button" onclick="setHomeworkStatus('forgot')">
-                    Completed <span class = "smallerText"><br>(forgotten)</span>
-                </button>
-            </div>
-
-            <div class = "input-row-center">
-                <button class = "greenShade button" onclick="setHomeworkStatus('not in time', 'True')">
-                    Completed <span class = "smallerText"><br>(not in time)</span>
-                </button>
-
-                <button class = "greenShade button" onclick="setHomeworkStatus('partial', 'True')">
-                    Partial <span class = "smallerText"><br>(time remaining)</span>
-                </button>
-            </div>
-
-            <div class = "input-row-center">
-
-                <button class = "greenShade button" onclick="setHomeworkStatus('poor conditions', 'True')">
-                    Poor Conditions
-                </button>
-
-                <button class = "greenShade button" onclick="setHomeworkStatus('previously completed')">
-                    Mark as Completed
-                </button>
-            </div>
-
-            <br>
-
-            <div class = "input-row-center">
-                <button class = "red button" onclick="setHomeworkStatus('in-center', 'True')">
-                    Completed <span class = "smallerText"><br>(in-center)</span>
-                </button>
-
-                <button class = "gray button" onclick="setHomeworkStatus('did not do')">
-                    Didn't do
-                </button>
-            </div>
-
-            <br>
-
-            <div class = "input-row-center">
-                <button class = "purple button" onclick="removeTest()">
-                    Remove
-                </button>
-
-                <button class = "purple button" onclick="openForm()">
-                    Back
-                </button>
-            </div>
-
-            <div class = "input-row-center">
-                <button class = "purple button" onclick="openTest()">
-                    Print
-                </button>
-            </div>
-
-        </div>-->
-
         <div id = "inCenterTestsForm" class = "metaForm noselect">
             <div id = "inCenterTestsTabs" class = "input-row">
 
@@ -607,7 +560,7 @@
             <div id = "inCenterStatusDiv" class = "input-row-center">
             </div>
 
-            <div class = "testHeaders">
+            <div id = "inCenterTestHeaders" class = "testHeaders">
                 <div class = "gridBox">
                     Tests
                 </div>
@@ -791,7 +744,7 @@
 
             </div>
 
-            <div class = "testHeaders">
+            <div id = "homeworkTestHeaders" class = "testHeaders">
 
                 <div class = "gridBox">
                     Tests
@@ -951,8 +904,7 @@
                         Back
                     </button>
 
-                </div>
-
+            </div>
 
         </div>
 
@@ -978,7 +930,7 @@
 
             </div>
 
-            <div class = "testHeaders">
+            <div id = "otherTestHeaders" class = "testHeaders">
 
                 <div class = "gridBox">
                     Tests
@@ -1460,24 +1412,6 @@
 
                 <div class = "gridBox button2" data-test = "72G" data-section = "Science">
                 </div>
-
-
-                <div class = "gridBox" data-test = "68G">
-                    <p class = "gridBox-p">68G</p>
-                </div>
-
-                <div class = "gridBox button2" data-test = "68G" data-section = "English">
-                </div>
-
-                <div class = "gridBox button2" data-test = "68G" data-section = "Math">
-                </div>
-
-                <div class = "gridBox button2" data-test = "68G" data-section = "Reading">
-                </div>
-
-                <div class = "gridBox button2" data-test = "68G" data-section = "Science">
-                </div>
-
 
                 <div class = "gridBox" data-test = "70G">
                     <p class = "gridBox-p">70G</p>
@@ -2403,7 +2337,7 @@
                 </div>
                 <div class="input-row">
                     <div class="input-block">
-                        <label for="homeworkStatus" class="label">Homework Status:</label>
+                        <label for="homeworkStatus" class="label">Grade Homework:</label>
                         <button type = "button" onclick = "openForm('homeworkTestsForm', 'homework')">Homework Status</button>
                     </div>
                 </div>
