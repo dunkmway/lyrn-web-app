@@ -1,4 +1,7 @@
+let scrollingTarget = undefined;
+
 // In Center Tests - Popup
+let inCenterTests = document.getElementById("inCenterTests");
 inCenterTests.addEventListener('click', function(event)  {
   const test = event.target.getAttribute("data-test") ?? undefined;
   const section = event.target.getAttribute("data-section") ?? undefined;
@@ -11,6 +14,16 @@ inCenterTests.addEventListener('click', function(event)  {
   }
   else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
+  }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
   }
 })
 
@@ -29,6 +42,20 @@ homeworkTests.addEventListener('click', function(event)  {
   else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
   }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
+  }
+})
+
+homeworkTests.addEventListener('scroll', function(event)  {
+  adjustPrintPopup();
 })
 
 // Other Tests - Popup
@@ -45,6 +72,16 @@ otherTests.addEventListener('click', function(event)  {
   }
   else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
     setHomeworkStatus('assigned', 'False', event.target)
+  }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
   }
 })
 
