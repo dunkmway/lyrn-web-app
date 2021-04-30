@@ -43,6 +43,22 @@ function setStudentTable() {
             studentUID: studentUID,
             status: "active"
           }
+          //adjust type to be readable
+          if (student.studentType == 'act') {
+            student.studentType = 'ACT'
+          }
+          else if (student.studentType == 'subject-tutoring') {
+            student.studentType = 'ST'
+          }
+          else if (student.studentType == 'math-program') {
+            student.studentType = 'Math Program'
+          }
+          else if (student.studentType == 'phonics-program') {
+            student.studentType = 'Phonics Program'
+          }
+          else {
+            student.studentType == "";
+          }
           tableData.push(student);
         }
       }
@@ -51,7 +67,8 @@ function setStudentTable() {
         data: tableData,
         columns: [
           { data: 'studentFirstName' },
-          { data: 'studentLastName' }
+          { data: 'studentLastName' },
+          { data: 'studentType'},
         ],
         "scrollY": "400px",
         "scrollCollapse": true,
@@ -64,10 +81,15 @@ function setStudentTable() {
 
         switch (status) {
           case "active":
+          if (type == 'ACT') {
             activeStudentSelected(studentUID);
-            break;
-          default:
-            console.log("ERROR: This student isn't active or pending!!!")
+          }
+          else {
+            alert("nothing to see here...yet")
+          }
+          break;
+        default:
+          console.log("ERROR: This student isn't active or pending!!!")
         }
         
       })

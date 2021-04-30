@@ -36,6 +36,16 @@
                     <option selected disabled value="">select a location</option>
                   </select>
               </div>
+              <div class="input-block">
+                <label for="studentType" class="label">Student Type:</label>
+                <select id="studentType" class="input student-data" required>
+                  <option selected disabled value="">select a type</option>
+                  <option value="act">ACT</option>
+                  <option value="subject-tutoring">Subject Tutoring</option>
+                  <option value="math-program">Math Program</option>
+                  <option value="phonics-program">Phonics Program</option>
+                </select>
+            </div>
             </div>
             <div class="input-row">
               <div class="input-block">
@@ -385,12 +395,23 @@
 
             <div class="input-row">
               <div class="input-block">
-                  <label for="parentPhoneNumber" class="label">Phone Number:</label>
+                  <label for="parentPhoneNumber" class="label">Parent Phone Number:</label>
                   <input id="parentPhoneNumber" placeholder="(123) 123-1234" class="input parent-data">
               </div>
               <div class="input-block">
-                  <label for="parentEmail" class="label">Email Address:</label>
+                  <label for="parentEmail" class="label">Parent Email Address:</label>
                   <input id="parentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input parent-data" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="studentPhoneNumber" class="label">Student Phone Number:</label>
+                  <input id="studentPhoneNumber" placeholder="(123) 123-1234" class="input student-data">
+              </div>
+              <div class="input-block">
+                  <label for="studentEmail" class="label">Student Email Address:</label>
+                  <input id="studentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input student-data">
               </div>
             </div><br>
 

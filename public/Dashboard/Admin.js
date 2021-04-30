@@ -71,6 +71,22 @@ function setStudentTable() {
               location: locationName,
               locationUID: currentLocations[i]
             }
+            //adjust type to be readable
+            if (student.studentType == 'act') {
+              student.studentType = 'ACT'
+            }
+            else if (student.studentType == 'subject-tutoring') {
+              student.studentType = 'ST'
+            }
+            else if (student.studentType == 'math-program') {
+              student.studentType = 'Math Program'
+            }
+            else if (student.studentType == 'phonics-program') {
+              student.studentType = 'Phonics Program'
+            }
+            else {
+              student.studentType == "";
+            }
             tableData.push(student);
           }
         }
@@ -83,6 +99,22 @@ function setStudentTable() {
               status: "active",
               location: locationName,
               locationUID: currentLocations[i]
+            }
+            //adjust type to be readable
+            if (student.studentType == 'act') {
+              student.studentType = 'ACT'
+            }
+            else if (student.studentType == 'subject-tutoring') {
+              student.studentType = 'ST'
+            }
+            else if (student.studentType == 'math-program') {
+              student.studentType = 'Math Program'
+            }
+            else if (student.studentType == 'phonics-program') {
+              student.studentType = 'Phonics Program'
+            }
+            else {
+              student.studentType == "";
             }
             tableData.push(student);
           }
@@ -104,6 +136,7 @@ function setStudentTable() {
       columns: [
         { data: 'studentFirstName' },
         { data: 'studentLastName' },
+        { data: 'studentType'},
         { data: 'location'},
         { data: 'status' },
         { data: 'parentFirstName' },
@@ -119,13 +152,24 @@ function setStudentTable() {
       let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
       let location = tableData[args.target._DT_CellIndex.row].locationUID;
       let status = tableData[args.target._DT_CellIndex.row].status;
+      let type = tableData[args.target._DT_CellIndex.row].studentType;
 
       switch (status) {
         case "pending":
-          pendingStudentSelected(studentUID, parentUID, location);
+          if (type == 'ACT') {
+            pendingStudentSelected(studentUID, parentUID, location);
+          }
+          else {
+            alert("nothing to see here...yet")
+          }
           break;
         case "active":
-          activeStudentSelected(studentUID);
+          if (type == 'ACT') {
+            activeStudentSelected(studentUID);
+          }
+          else {
+            alert("nothing to see here...yet")
+          }
           break;
         default:
           console.log("ERROR: This student isn't active or pending!!!")

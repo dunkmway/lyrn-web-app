@@ -174,8 +174,15 @@ exports.getUserRole = functions.https.onCall((data, context) => {
     return promise;
 });
 
-// exports.sendErrorReport = functions.https.onCall((data, context) => {
-//     const errorRef = admin.firestore().collection("Error-Reports").doc();
-//     errorRef.set(data.report)
-//     .then().catch();
-// });
+exports.updateUserEmail = functions.https.onCall((data, context) => {
+    return admin.auth().updateUser(data.uid, {
+      email: data.email,
+    })
+    .then((userRecord) => {
+      // See the UserRecord reference doc for the contents of userRecord.
+      console.log('Successfully updated user', userRecord.toJSON());
+    })
+    .catch((error) => {
+      console.log('Error updating user:', error);
+    });
+});

@@ -42,30 +42,31 @@ function updateLessonData() {
   const lesson = this.id.split("-")[1];
 
   let value = {};
-  const lessonStatus = lessonData[section]?.[lesson]?.status
+  const lessonStatus = lessonData[section]?.[lesson]?.status;
+  const lessonTime = date.getTime();
   switch (lessonStatus) {
     case "needs review":
       value = {
         status: "proficient",
-        date: date.getTime()
+        date: lessonTime
       };
       break;
     case "proficient":
       value = {
         status: "mastered",
-        date: date.getTime()
+        date: lessonTime
       };
       break;
     case "mastered":
       value = {
         status: "needs review",
-        date: date.getTime()
+        date: lessonTime
       };
       break;
     default:
       value = {
         status: "needs review",
-        date: date.getTime()
+        date: lessonTime
       };
   }
   setObjectValue([section, lesson], value, lessonData);
@@ -130,7 +131,7 @@ function updateLessonGraphics() {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
       const status = lessonData[section][lesson].status;
-      const dateTime = lessonData[section][lesson].date ? date : null
+      const dateTime = new Date(lessonData[section][lesson].date);
 
       const lessonElem = document.getElementById(id);
 

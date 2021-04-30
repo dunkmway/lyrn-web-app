@@ -1235,7 +1235,7 @@ function submitHW() {
 }
 
 function validateHW() {
-  //FIXME: check for hw not done and add to object
+  //FIXME: see if hw was assigned or alternative
   //find all of the hw that was assigned last session and check if it's status has changed
   for (const test in oldTestAnswers) {
     for (const section in oldTestAnswers[test]) {
