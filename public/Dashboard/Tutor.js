@@ -111,7 +111,7 @@ function setStudentTable() {
 }
 
 
-function activeStudentSelected(studentUID) {
+function actStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }
