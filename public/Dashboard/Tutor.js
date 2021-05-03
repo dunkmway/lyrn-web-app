@@ -78,6 +78,7 @@ function setStudentTable() {
       studentTable.on('click', (args1) => {
         let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
         let status = tableData[args1.target._DT_CellIndex.row].status;
+        let type = tableData[args1.target._DT_CellIndex.row].studentType;
 
         switch (status) {
           case "active":
@@ -106,6 +107,7 @@ function setStudentTable() {
     }
   })
   .catch((error) => {
+    console.log(error);
     handleFirebaseErrors(error, document.currentScript.src);
   });
 }
