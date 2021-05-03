@@ -50,7 +50,7 @@ function setStudentTable() {
     .then((doc) => {
       if (doc.exists) {
         let locationName = doc.get("locationName");
-        currentLocationName = locationName;
+        currentLocationNames.push(locationName);
         //document.getElementById("locationName").textContent = locationName;
 
         let pendingStudents = doc.get("pendingStudents");
@@ -70,6 +70,22 @@ function setStudentTable() {
               location: locationName,
               locationUID: currentLocations[i]
             }
+            //adjust type to be readable
+            if (student.studentType == 'act') {
+              student.studentType = 'ACT'
+            }
+            else if (student.studentType == 'subject-tutoring') {
+              student.studentType = 'ST'
+            }
+            else if (student.studentType == 'math-program') {
+              student.studentType = 'Math Program'
+            }
+            else if (student.studentType == 'phonics-program') {
+              student.studentType = 'Phonics Program'
+            }
+            else {
+              student.studentType == "";
+            }
             tableData.push(student);
           }
         }
@@ -82,6 +98,22 @@ function setStudentTable() {
               status: "active",
               location: locationName,
               locationUID: currentLocations[i]
+            }
+            //adjust type to be readable
+            if (student.studentType == 'act') {
+              student.studentType = 'ACT'
+            }
+            else if (student.studentType == 'subject-tutoring') {
+              student.studentType = 'ST'
+            }
+            else if (student.studentType == 'math-program') {
+              student.studentType = 'Math Program'
+            }
+            else if (student.studentType == 'phonics-program') {
+              student.studentType = 'Phonics Program'
+            }
+            else {
+              student.studentType == "";
             }
             tableData.push(student);
           }
@@ -103,6 +135,7 @@ function setStudentTable() {
       columns: [
         { data: 'studentFirstName' },
         { data: 'studentLastName' },
+        { data: 'studentType'},
         { data: 'location'},
         { data: 'status' },
         { data: 'parentFirstName' },
@@ -118,13 +151,34 @@ function setStudentTable() {
       let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
       let location = tableData[args.target._DT_CellIndex.row].locationUID;
       let status = tableData[args.target._DT_CellIndex.row].status;
+      let type = tableData[args.target._DT_CellIndex.row].studentType;
 
       switch (status) {
         case "pending":
-          pendingStudentSelected(studentUID, parentUID, location);
+          if (type == 'ACT') {
+            pendingStudentSelected(studentUID, parentUID, location);
+          }
+          else {
+            alert("nothing to see here...yet")
+          }
           break;
         case "active":
-          activeStudentSelected(studentUID);
+          if (type == 'ACT') {
+            actStudentSelected(studentUID);
+          }
+          else if (type == 'ST') {
+            subjectTutoringStudentSelected(studentUID);
+          }
+          //FIXME: these will need to be redirected to the proper page once we have them
+          else if (type == 'Math Program') {
+            subjectTutoringStudentSelected(studentUID);
+          }
+          else if (type == 'Phonics Program') {
+            subjectTutoringStudentSelected(studentUID);
+          }
+          else {
+            alert("nothing to see here...yet")
+          }
           break;
         default:
           console.log("ERROR: This student isn't active or pending!!!")
@@ -274,12 +328,17 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 // }
 
-function pendingStudentSelected(studentUID, parentUID) {
-  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + currentLocation;
+function pendingStudentSelected(studentUID, parentUID, location) {
+  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + location;
   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
-function activeStudentSelected(studentUID) {
+function actStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+}
+
+function subjectTutoringStudentSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../subject-tutoring-dash.html" + queryStr;
 }
