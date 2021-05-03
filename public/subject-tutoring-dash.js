@@ -74,56 +74,67 @@ function setStudentSTProfile() {
 }
 
 function updateStudentExpectation() {
-  const studentUID = queryStrings()['student'];
-  let studentExpectationElem = document.getElementById('student-expectation');
-  let parent = studentExpectationElem.parentNode;
-  let expectationTag = studentExpectationElem.tagName;
-  if (expectationTag == "INPUT") {
-    //update the goal and send it back to an H2 tag
-    let expectationStr = studentExpectationElem.value;
-    const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
-    studentSTProfileRef.get()
-    .then((doc) => {
-      if(doc.exists) {
-        studentSTProfileRef.update({
-          expectation : expectationStr
-        })
-        .then(() => {
-          //remove the input and replace it with the text
-          studentExpectationElem.remove();
-          let newElem = document.createElement('h2');
-          newElem.id = 'student-expectation';
-          newElem.innerHTML = expectationStr;
-          parent.appendChild(newElem);
-        })
-        .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
-      }
-      else {
-        studentSTProfileRef.set({
-          expectation : expectationStr
-        })
-        .then(() => {
-          //remove the input and replace it with the text
-          studentExpectationElem.remove();
-          let newElem = document.createElement('h2');
-          newElem.id = 'student-expectation';
-          newElem.innerHTML = expectationStr;
-          parent.appendChild(newElem);
-        })
-        .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
-      }
-    })
-  }
-  else {
-    //turn the element into an input to allow for changes
-    let expectationStr = studentExpectationElem.innerHTML;
-    studentExpectationElem.remove();
-    let newElem = document.createElement('input');
-    newElem.id = 'student-expectation';
-    newElem.value = expectationStr;
-    newElem.classList.add("expectation-input");
-    parent.appendChild(newElem);
-  }
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'admin' || role == 'dev' || role == 'secretary') {
+          const studentUID = queryStrings()['student'];
+          let studentExpectationElem = document.getElementById('student-expectation');
+          let parent = studentExpectationElem.parentNode;
+          let expectationTag = studentExpectationElem.tagName;
+          if (expectationTag == "INPUT") {
+            //update the goal and send it back to an H2 tag
+            let expectationStr = studentExpectationElem.value;
+            const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
+            studentSTProfileRef.get()
+            .then((doc) => {
+              if(doc.exists) {
+                studentSTProfileRef.update({
+                  expectation : expectationStr
+                })
+                .then(() => {
+                  //remove the input and replace it with the text
+                  studentExpectationElem.remove();
+                  let newElem = document.createElement('h2');
+                  newElem.id = 'student-expectation';
+                  newElem.innerHTML = expectationStr;
+                  parent.appendChild(newElem);
+                })
+                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+              }
+              else {
+                studentSTProfileRef.set({
+                  expectation : expectationStr
+                })
+                .then(() => {
+                  //remove the input and replace it with the text
+                  studentExpectationElem.remove();
+                  let newElem = document.createElement('h2');
+                  newElem.id = 'student-expectation';
+                  newElem.innerHTML = expectationStr;
+                  parent.appendChild(newElem);
+                })
+                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+              }
+            })
+          }
+          else {
+            //turn the element into an input to allow for changes
+            let expectationStr = studentExpectationElem.innerHTML;
+            studentExpectationElem.remove();
+            let newElem = document.createElement('input');
+            newElem.id = 'student-expectation';
+            newElem.value = expectationStr;
+            newElem.classList.add("expectation-input");
+            parent.appendChild(newElem);
+          }
+        }
+      })
+      .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+    }
+  });
 }
 
 //all of the notes stuff
