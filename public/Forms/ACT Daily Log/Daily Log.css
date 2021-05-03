@@ -1,15 +1,8 @@
 body {
-    /* background-image: url("../../Images/Glacier5.jpg");
-    background-size: cover;
-    background-repeat: no-repeat; */
     background-color: white;
     font-family: Roboto, sans-serif;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    height: 100vh;
-    width: 100vw;
 }
 
 #student-data-section {

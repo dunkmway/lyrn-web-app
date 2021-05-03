@@ -1238,13 +1238,13 @@ function submitHW() {
 }
 
 function validateHW() {
-  //FIXME: check for hw not done and add to object
+  //FIXME: see if hw was assigned or alternative
   //find all of the hw that was assigned last session and check if it's status has changed
   for (const test in oldTestAnswers) {
     for (const section in oldTestAnswers[test]) {
       if (oldTestAnswers[test][section]["TestType"] == "homework") {
         if (oldTestAnswers[test][section]["Status"] == "assigned") {
-          if (testAnswers[test][section]["Status"] == "assigned") {
+          if (testAnswers?.[test]?.[section]?.["Status"] == "assigned") {
             document.getElementById("errMsg").textContent = "Please report on test " + test + " " + section;
             return false;
           }

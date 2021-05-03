@@ -156,112 +156,127 @@ function createElements(elementType = [], classes = [], attributes = [], values 
   }
 }
 
-  function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
-    let question = document.createElement(elementType);
+function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
+  let question = document.createElement(elementType);
 
-    if (attributes.length == values.length && attributes.length > 0) {
-      for (let i = 0; i < attributes.length; i++) {
-        question.setAttribute(attributes[i], values[i]);
-      }
+  if (attributes.length == values.length && attributes.length > 0) {
+    for (let i = 0; i < attributes.length; i++) {
+      question.setAttribute(attributes[i], values[i]);
     }
-
-    if (classes != "") {
-      question.className = classes;
-    }
-
-    if (text != "") {
-      question.innerHTML = text;
-    }
-    return question;
-
   }
 
-  function combineElements(objects = [], flexType = "input-row")
+  if (classes != "") {
+    question.className = classes;
+  }
+
+  if (text != "") {
+    question.innerHTML = text;
+  }
+  return question;
+
+}
+
+function combineElements(objects = [], flexType = "input-row")
+{
+  let item = createElement("div", flexType, [], [], "");
+
+  if (objects.length > 1)
   {
-    let item = createElement("div", flexType, [], [], "");
-
-    if (objects.length > 1)
+    for (let i = 0; i < objects.length; i++)
     {
-      for (let i = 0; i < objects.length; i++)
-      {
-        item.appendChild(objects[i]);
-      }
+      item.appendChild(objects[i]);
     }
-
-    return item;
-
   }
 
-  /**
-   * Description:
-   * grabs the query string for this url which should include a uid and location
-   * then pulls the corresponding data from the pending collection in the given location
-   * fills in all of the data that we have stored
-   */
-  function fillInData() {
-    var GET = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-        GET[paramName] = paramValue;
-    });
+  return item;
 
-    const studentTempUID = GET["student"];
-    //const parentUID = GET["parent"];
-    const location = GET["location"];
+}
 
-    //grab the pending data for this parent's student
-    const pendingDocRef = firebase.firestore().collection("Locations").doc(location).collection("Pending").doc(studentTempUID);
-    pendingDocRef.get()
-    .then((doc) => {
-      if(doc.exists) {
-        //FIXME: need to set the inputs that are dynamically created
-        for(const key in doc.data()) {
-          let element = document.getElementById(key);
-          if (element) {
-            element.value = doc.data()[key];
-          }
-        }
+/**
+ * Description:
+ * grabs the query string for this url which should include a uid and location
+ * then pulls the corresponding data from the pending collection in the given location
+ * fills in all of the data that we have stored
+ */
+function fillInData() {
+  var GET = {};
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+      GET[paramName] = paramValue;
+  });
 
-        //special case for dynamic elements
+  const studentUID = GET["student"];
+  const parentUID = GET["parent"];
+  const location = GET["location"];
 
-        //act tests
-        let studentActTests = doc.data()["studentActTests"];
-        if (studentActTests) {
-          for (let i = 0; i < studentActTests.length; i++) {
-            // console.log(studentActTests[i]["date"]);
-            let test = studentActTests[i];
-            addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
-          }
-        }
-        
-        //scholarship goals
-        let studentScholarshipArray = doc.data()["studentScholarshipArray"];
-        if (studentScholarshipArray) {
-          for (let i = 0; i < studentScholarshipArray.length; i++) {
-            addElement("studentScholarshipArray",studentScholarshipArray[i]);
-          }
-        }
+  //grab the student data
+  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  studentDocRef.get()
+  .then((studentDoc) => {
+    if(studentDoc.exists) {
+      setAllData(studentDoc.data());
+    }
 
-        //top colleges
-        let studentCollegeArray = doc.data()["studentCollegeArray"];
-        if (studentCollegeArray) {
-          for (let i = 0; i < studentCollegeArray.length; i++) {
-            addElement("studentCollegeArray",studentCollegeArray[i]);
-          }
-        }
-
-        //extracurriculars
-        let studentExtracurricularArray = doc.data()["studentExtracurricularArray"];
-        if (studentExtracurricularArray) {
-          for (let i = 0; i < studentExtracurricularArray.length; i++) {
-            addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
-          }
-        }
+    //grab the parents second because they will have more data (parent already exists from previous student)
+    const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+    parentDocRef.get()
+    .then((parentDoc) => {
+      if(parentDoc.exists) {
+        setAllData(parentDoc.data());
       }
     })
     .catch((error) => {
       handleFirebaseErrors(error, document.currentScript.src);
     });
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, document.currentScript.src);
+  });
+}
+
+function setAllData(data) {
+  for(const key in data) {
+    let element = document.getElementById(key);
+    if (element) {
+      element.value = data[key];
+    }
   }
+
+  //special case for dynamic elements
+
+  //act tests
+  let studentActTests = data["studentActTests"];
+  if (studentActTests) {
+    for (let i = 0; i < studentActTests.length; i++) {
+      // console.log(studentActTests[i]["date"]);
+      let test = studentActTests[i];
+      addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
+    }
+  }
+  
+  //scholarship goals
+  let studentScholarshipArray = data["studentScholarshipArray"];
+  if (studentScholarshipArray) {
+    for (let i = 0; i < studentScholarshipArray.length; i++) {
+      addElement("studentScholarshipArray",studentScholarshipArray[i]);
+    }
+  }
+
+  //top colleges
+  let studentCollegeArray = data["studentCollegeArray"];
+  if (studentCollegeArray) {
+    for (let i = 0; i < studentCollegeArray.length; i++) {
+      addElement("studentCollegeArray",studentCollegeArray[i]);
+    }
+  }
+
+  //extracurriculars
+  let studentExtracurricularArray = data["studentExtracurricularArray"];
+  if (studentExtracurricularArray) {
+    for (let i = 0; i < studentExtracurricularArray.length; i++) {
+      addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
+    }
+  }
+}
