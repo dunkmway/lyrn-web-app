@@ -81,12 +81,22 @@ function setStudentTable() {
 
         switch (status) {
           case "active":
-          if (type == 'ACT') {
-            activeStudentSelected(studentUID);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
+            if (type == 'ACT') {
+              actStudentSelected(studentUID);
+            }
+            else if (type == 'ST') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            //FIXME: these will need to be redirected to the proper page once we have them
+            else if (type == 'Math Program') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            else if (type == 'Phonics Program') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            else {
+              alert("nothing to see here...yet")
+            }
           break;
         default:
           console.log("ERROR: This student isn't active or pending!!!")
@@ -104,6 +114,11 @@ function setStudentTable() {
 function activeStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+}
+
+function subjectTutoringStudentSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../subject-tutoring-dash.html" + queryStr;
 }
 
 function resetPassword() {

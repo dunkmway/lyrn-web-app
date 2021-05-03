@@ -106,30 +106,44 @@ function submit() {
 }
 
 function submitData() {
-  updateData()
-  .then(() => {
-    var GET = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-    });
-
-    const studentUID = GET["student"];
-    const location = GET["location"];
-
-    moveToLocationActive(location, studentUID)
+  if (isFormValid()) {
+    updateData()
     .then(() => {
-      goToDashboard();
-      let loadingBlocks = document.getElementsByClassName("spinnyBoi");
-      for (let i = 0; i < loadingBlocks.length; i ++) {
-        loadingBlocks[i].style.display = "none";
-      }
-      let submitButtons = document.getElementsByClassName("submitButton");
-      for (let i = 0; i < submitButtons.length; i ++) {
-        submitButtons[i].disabled = false;
-      }
+      var GET = {};
+      var queryString = window.location.search.replace(/^\?/, '');
+      queryString.split(/\&/).forEach(function(keyValuePair) {
+        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+        GET[paramName] = paramValue;
+      });
+
+      const studentUID = GET["student"];
+      const location = GET["location"];
+
+      moveToLocationActive(location, studentUID)
+      .then(() => {
+        goToDashboard();
+        let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+        for (let i = 0; i < loadingBlocks.length; i ++) {
+          loadingBlocks[i].style.display = "none";
+        }
+        let submitButtons = document.getElementsByClassName("submitButton");
+        for (let i = 0; i < submitButtons.length; i ++) {
+          submitButtons[i].disabled = false;
+        }
+      })
+      .catch((error) => {
+        //handleFirebaseErrors(error, document.currentScript.src);
+        document.getElementById("errMsg").textContent = error.message;
+        let loadingBlocks = document.getElementsByClassName("spinnyBoi");
+        for (let i = 0; i < loadingBlocks.length; i ++) {
+          loadingBlocks[i].style.display = "none";
+        }
+        let submitButtons = document.getElementsByClassName("submitButton");
+        for (let i = 0; i < submitButtons.length; i ++) {
+          submitButtons[i].disabled = false;
+        }
+      });
     })
     .catch((error) => {
       //handleFirebaseErrors(error, document.currentScript.src);
@@ -143,19 +157,50 @@ function submitData() {
         submitButtons[i].disabled = false;
       }
     });
-  })
-  .catch((error) => {
-    //handleFirebaseErrors(error, document.currentScript.src);
-    document.getElementById("errMsg").textContent = error.message;
-    let loadingBlocks = document.getElementsByClassName("spinnyBoi");
-    for (let i = 0; i < loadingBlocks.length; i ++) {
-      loadingBlocks[i].style.display = "none";
+  }
+}
+
+function isFormValid() {
+  let allInputs = document.querySelectorAll("input, select");
+
+  //validate the fields to make sure that everything is filled out
+  let allClear = true;
+
+  //check for completion
+  for (let i = 0; i < allInputs.length; i++) {
+    if(allInputs[i].hasAttribute("required") && allInputs[i].value == "") {
+      allInputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [allInputs[i].id + "ErrorMessage"], "* Required *"));
+      allClear = false;
     }
-    let submitButtons = document.getElementsByClassName("submitButton");
-    for (let i = 0; i < submitButtons.length; i ++) {
-      submitButtons[i].disabled = false;
+
+    // Validate Emails
+    if (allInputs[i].id.includes("Email")) {
+      if (validateInputEmail(allInputs[i]) == false) {
+        allClear = false;
+      }
     }
-  });
+
+    // Validate phoneNumbers
+    if (allInputs[i].id.includes("PhoneNumber")) {
+      if (validateInputPhoneNumbers(allInputs[i]) == false) {
+        allClear = false;
+      }
+    }
+
+    if (allInputs[i].id.includes("birthday")) {
+      if (validateInputBirthday(allInputs[i]) == false) {
+        allClear = false;
+      }
+    }
+
+    if (allInputs[i].id.includes("zipCode")) {
+      if (validateInputZipCode(allInputs[i]) == false) {
+        allClear = false;
+      }
+    }
+  }
+
+  return allClear;
 }
 
 function update() {
@@ -203,153 +248,103 @@ function updateData() {
       errorMessages[i].remove()
   }
 
-  //validate the fields to make sure that everything is filled out
-  let allClear = true;
-
   // Dictionaries to hold firebase info
   let studentInfo = {};
   let parentInfo = {};
 
-  //check for completion
+  // Create the student and parent dictionaries
+
   for (let i = 0; i < allInputs.length; i++) {
-    if(allInputs[i].hasAttribute("required") && allInputs[i].value == "") {
-      allInputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [allInputs[i].id + "ErrorMessage"], "* Required *"));
-      allClear = false;
-    }
-
-    // Validate Emails
-    if (allInputs[i].id.includes("Email")) {
-      if (validateInputEmail(allInputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    // Validate phoneNumbers
-    if (allInputs[i].id.includes("PhoneNumber")) {
-      if (validateInputPhoneNumbers(allInputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    if (allInputs[i].id.includes("birthday")) {
-      if (validateInputBirthday(allInputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    if (allInputs[i].id.includes("zipCode")) {
-      if (validateInputZipCode(allInputs[i]) == false) {
-        allClear = false;
-      }
-    }
-  }
-
-    // Create the student and parent dictionaries
-  if (allClear) {
-    for (let i = 0; i < allInputs.length; i++) {
-      //student inputs
-      if (!allInputs[i].id.includes("parent") && !allInputs[i].id.includes("actTest")) {
-        if (allInputs[i].id.includes("Array")) {
-          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
-          }
-          else {
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-            studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
-          }
+    //student inputs
+    if (!allInputs[i].id.includes("parent") && !allInputs[i].id.includes("actTest")) {
+      if (allInputs[i].id.includes("Array")) {
+        if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in studentInfo) {
+          studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
         }
         else {
-          studentInfo[allInputs[i].id] = allInputs[i].value;
+          studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+          studentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
         }
       }
+      else {
+        studentInfo[allInputs[i].id] = allInputs[i].value;
+      }
+    }
 
-      //parent inputs
-      if (!allInputs[i].id.includes("student") && !allInputs[i].id.includes("actTest")) {
-        if (allInputs[i].id.includes("Array")) {
-          if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
-          }
-          else {
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-            parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
-          }
+    //parent inputs
+    if (!allInputs[i].id.includes("student") && !allInputs[i].id.includes("actTest")) {
+      if (allInputs[i].id.includes("Array")) {
+        if (allInputs[i].parentNode.querySelector('label').getAttribute('for') in parentInfo) {
+          parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
         }
         else {
-          parentInfo[allInputs[i].id] = allInputs[i].value;
+          parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+          parentInfo[allInputs[i].parentNode.querySelector('label').getAttribute('for')].push(allInputs[i].value)
         }
       }
-    }
-
-    //special case for actTest (will be added to the student data)
-    let actTestArray = [];
-    let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-    // console.log(actTestDivs);
-    for (let i = 0; i < actTestDivs.length; i++) {
-      let actTest = {}
-      actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
-      actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
-      actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
-      actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
-      actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
-      actTestArray.push(actTest);
-    }
-    studentInfo["studentActTests"] = actTestArray;
-
-
-
-    //update the pending data for this location
-    var GET = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-    });
-
-    const studentUID = GET["student"];
-    const parentUID = GET["parent"];
-    const location = GET["location"];
-
-    //update the parent doc
-    let parentProm = updateParentDoc(parentUID, parentInfo);
-
-    //update student doc
-    let studentProm = updateStudentDoc(studentUID, studentInfo);
-    //update student email
-    let studentEmail = studentInfo['studentEmail'];
-    let emailProm;
-    if (studentEmail) {
-      const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
-      emailProm = updateUserEmail({
-        uid: studentUID,
-        email : studentEmail,
-      })
-    }
-
-    //update location doc
-    let studentFirstName = studentInfo["studentFirstName"];
-    let studentLastName =studentInfo["studentLastName"];
-    let parentFirstName = parentInfo["parentFirstName"];
-    let parentLastName = parentInfo["parentLastName"];
-
-    let locationProm = updateLocationPending(location, studentUID, 'act', studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-
-    //wait for all promises to resolve
-    let promises = [parentProm, studentProm, emailProm, locationProm];
-    return Promise.all(promises)
-  }
-  else {
-    //validation failed
-    let loadingBlocks = document.getElementsByClassName("spinnyBoi");
-      for (let i = 0; i < loadingBlocks.length; i ++) {
-        loadingBlocks[i].style.display = "none";
+      else {
+        parentInfo[allInputs[i].id] = allInputs[i].value;
       }
-    let submitButtons = document.getElementsByClassName("submitButton");
-    for (let i = 0; i < submitButtons.length; i ++) {
-      submitButtons[i].disabled = false;
     }
-    return Promise.reject("Please fill in all required fields.");
   }
+
+  //special case for actTest (will be added to the student data)
+  let actTestArray = [];
+  let actTestDivs = document.querySelectorAll("div[id^='actTest']");
+  // console.log(actTestDivs);
+  for (let i = 0; i < actTestDivs.length; i++) {
+    let actTest = {}
+    actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
+    actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
+    actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
+    actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
+    actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
+    actTestArray.push(actTest);
+  }
+  studentInfo["studentActTests"] = actTestArray;
+
+
+
+  //update the pending data for this location
+  var GET = {};
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+    var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+    var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+    GET[paramName] = paramValue;
+  });
+
+  const studentUID = GET["student"];
+  const parentUID = GET["parent"];
+  const location = GET["location"];
+
+  //update the parent doc
+  let parentProm = updateParentDoc(parentUID, parentInfo);
+
+  //update student doc
+  let studentProm = updateStudentDoc(studentUID, studentInfo);
+  //update student email
+  let studentEmail = studentInfo['studentEmail'];
+  let emailProm;
+  if (studentEmail) {
+    const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
+    emailProm = updateUserEmail({
+      uid: studentUID,
+      email : studentEmail,
+    })
+  }
+
+  //update location doc
+  let studentFirstName = studentInfo["studentFirstName"];
+  let studentLastName =studentInfo["studentLastName"];
+  let parentFirstName = parentInfo["parentFirstName"];
+  let parentLastName = parentInfo["parentLastName"];
+
+  let locationProm = updateLocationPending(location, studentUID, 'act', studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+
+  //wait for all promises to resolve
+  let promises = [parentProm, studentProm, emailProm, locationProm];
+  return Promise.all(promises)
 }
 
 function updateStudentDoc(studentUID, studentData) {

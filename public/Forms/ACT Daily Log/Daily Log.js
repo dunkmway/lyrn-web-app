@@ -1241,7 +1241,7 @@ function validateHW() {
     for (const section in oldTestAnswers[test]) {
       if (oldTestAnswers[test][section]["TestType"] == "homework") {
         if (oldTestAnswers[test][section]["Status"] == "assigned") {
-          if (testAnswers[test][section]["Status"] == "assigned") {
+          if (testAnswers?.[test]?.[section]?.["Status"] == "assigned") {
             document.getElementById("errMsg").textContent = "Please report on test " + test + " " + section;
             return false;
           }

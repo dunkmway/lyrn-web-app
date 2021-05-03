@@ -165,7 +165,17 @@ function setStudentTable() {
           break;
         case "active":
           if (type == 'ACT') {
-            activeStudentSelected(studentUID);
+            actStudentSelected(studentUID);
+          }
+          else if (type == 'ST') {
+            subjectTutoringStudentSelected(studentUID);
+          }
+          //FIXME: these will need to be redirected to the proper page once we have them
+          else if (type == 'Math Program') {
+            subjectTutoringStudentSelected(studentUID);
+          }
+          else if (type == 'Phonics Program') {
+            subjectTutoringStudentSelected(studentUID);
           }
           else {
             alert("nothing to see here...yet")
@@ -539,7 +549,12 @@ function pendingStudentSelected(studentUID, parentUID, location) {
   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
 }
 
-function activeStudentSelected(studentUID) {
+function actStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+}
+
+function subjectTutoringStudentSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../subject-tutoring-dash.html" + queryStr;
 }

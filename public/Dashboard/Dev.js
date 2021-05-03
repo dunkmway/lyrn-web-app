@@ -40,7 +40,7 @@ function setErrorTable() {
       "pageLength" : 10,
     });
 
-    $('#error-table tbody').on('click', 'tr', (event) => {
+    $('#error-table tbody').on('dblclick', 'tr', (event) => {
       const row = errorTable.row(event.target).index();
       let docUID = tableData[row].docUID;
       let confirmation = confirm("Are you sure you want to delete this error?\nThis action cannot be undone!");
