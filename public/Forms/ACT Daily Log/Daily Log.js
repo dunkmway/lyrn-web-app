@@ -2,7 +2,7 @@
 
 // The actual tests with their answers and scaled scores
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data))//.then(() => console.log(testData));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() )//.then(() => console.log(testData));
 
 // Student test information
 let oldTestAnswers = {};
@@ -13,9 +13,10 @@ initialSetup();
 // Other needed info
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
-let lastView = 'Daily Log';
 let mark_type = 'answer';
-let tab = 'none';
+let lastView = 'none';
+let tab = false;
+let lastTab = 'none';
 let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
@@ -211,7 +212,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 
   // An array of all the forms that could be displayed
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests"];
 
   // If selecting a lessons form, adjust the id accordingly
   if (id == '1' || id == '2' || id == '3' || id == '4') {
@@ -274,32 +275,16 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 
   // Hide all forms except for the one selected
+  let form = undefined;
   for (let i = 0; i < forms.length; i++) {
-    let form = document.getElementById(forms[i]);
+  form = document.getElementById(forms[i]);
     if (forms[i] != id) {
       form.style.display = "none";
     }
     else {
       if (id == "dailyLog") {
-
-        if (lastView == "dailyLog") {
-          if (tab == 'dailyLog') {
-            swap();
-            tab = 'none';
-          }
-          form.style.display = "none"
-          lastView = 'none';
-        }
-
-        else {
-          if (tab == 'none') {
-            swap();
-            tab = 'dailyLog';
-          }
-          lastView = id;
-          form.style.display = "block"
-        }
-
+        lastView = id;
+        form.style.display = "block"
       }
       else {
         if (!id.includes('Popup')) {
@@ -319,6 +304,34 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   // Open the last form / popup
   if (id == undefined) {
     openForm(lastView);
+  }
+}
+
+function openTab(toTab) {
+
+  // Toggle whether a form is open or not
+  if (tab == true && toTab == lastTab) {
+    tab = false;
+    swap();
+  }
+  else {
+    if (tab == false) {
+      swap();
+    }
+    tab = true;
+    lastTab = toTab;
+  }
+
+  // Change the position of the tabs
+  if (toTab != lastTab) {
+  }
+
+  // Open the form
+  if (tab == true) {
+    openForm(toTab)
+  }
+  else {
+    openForm('none');
   }
 }
 
@@ -607,6 +620,7 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer])
       ele.setAttribute("data-answer", passageAnswers[answer])
+      ele.classList.add('redOnHover')
       if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
         ele.classList.add('red')
       }
@@ -621,6 +635,7 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       passage.appendChild(ele);
       ele.setAttribute("data-question", passageNumbers[answer]);
       ele.setAttribute("data-answer", passageAnswers[answer]);
+      ele.classList.add('redOnHover')
       if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
         ele.classList.add('red')
       }
@@ -1416,5 +1431,23 @@ function adjustPrintPopup() {
   // After maxHeight
   else if (testLocation > maxHeight) {
     popup.style.top = (maxHeight - offset).toString() + 'px';
+  }
+}
+
+function scaledScoresTestsSetup() {
+
+  let form = document.getElementById('scaledScoresTestsList')
+
+  let tests = Object.keys(testData)
+  tests.reverse();
+
+  for (let i = 0; i < tests.length; i++) {
+    if (i != 0) {
+      ele = createElements([['p']], [['testRow']], [[]], [[]], [tests[i]], ['input-row-center', 'button2'])
+    }
+    else {
+      ele = createElements([['p']], [['testRow']], [[]], [[]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
+    }
+    form.appendChild(ele);
   }
 }

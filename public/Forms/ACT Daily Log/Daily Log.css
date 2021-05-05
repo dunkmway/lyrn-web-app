@@ -789,6 +789,7 @@ p.errorMessage {
     height: 7%;
     justify-content: center;
 }
+
 .loader {
     display: none;
     border: 20px solid white;
@@ -813,6 +814,10 @@ p.errorMessage {
 }
 
 #testAnswersPopup {
+    display: none;
+}
+
+#scaledScoresTests {
     display: none;
 }
 
@@ -917,6 +922,20 @@ p.errorMessage {
     text-align: center;
     border-radius: 50%;
     /*padding: 2.5px;*/
+}
+
+.testRow {
+    height: 40px;
+    width: 70%;
+    font-size: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.testRow:hover {
+    background-color: rgb(255, 0, 0, 0.7);
 }
 
 .popupDash {
@@ -1181,4 +1200,13 @@ p.errorMessage {
 
 #guessButton {
   margin-left: 20px;
+}
+
+.formBody {
+    height: 85%;
+    overflow-y: scroll;
+}
+
+.redOnHover:hover {
+    background-color: rgb(255, 0, 0, 0.7);
 }
