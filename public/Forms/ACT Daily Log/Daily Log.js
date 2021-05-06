@@ -2,7 +2,7 @@
 
 // The actual tests with their answers and scaled scores
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() )//.then(() => console.log(testData));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() ).then(() => console.log(testData));
 
 // Student test information
 let oldTestAnswers = {};
@@ -212,7 +212,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 
   // An array of all the forms that could be displayed
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests", "scaledScores"];
 
   // If selecting a lessons form, adjust the id accordingly
   if (id == '1' || id == '2' || id == '3' || id == '4') {
@@ -1350,6 +1350,26 @@ function toggleButtons(active) {
   }
 }
 
+function toggleScoresButtons(active = 'scores') {
+  // Find the buttons to toggle
+  let answerButton = document.getElementById("fullAnswersButton");
+  let scoresButton = document.getElementById("scoresButton");
+
+  // Swap the buttons (if needed)
+  if (active == 'scores') {
+    answerButton.classList.remove("buttonToggleOn")
+    answerButton.classList.add("buttonToggleOff")
+    scoresButton.classList.add("buttonToggleOn")
+    scoresButton.classList.remove("buttonToggleOff")
+  }
+  else if (active == 'answers') {
+    answerButton.classList.add("buttonToggleOn")
+    answerButton.classList.remove("buttonToggleOff")
+    scoresButton.classList.add("buttonToggleOff")
+    scoresButton.classList.remove("buttonToggleOn")
+  }
+}
+
 function togglePrintPopup(test = undefined) {
 
   // Grab the printPopup element
@@ -1443,11 +1463,90 @@ function scaledScoresTestsSetup() {
 
   for (let i = 0; i < tests.length; i++) {
     if (i != 0) {
-      ele = createElements([['p']], [['testRow']], [[]], [[]], [tests[i]], ['input-row-center', 'button2'])
+      ele = createElements([['p']], [['testRow']], [['onclick']], [["openScores('" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'button2'])
     }
     else {
-      ele = createElements([['p']], [['testRow']], [[]], [[]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
+      ele = createElements([['p']], [['testRow']], [['onclick']], [["openScores('" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
     }
     form.appendChild(ele);
   }
+}
+
+function openScores(test) {
+
+  // Get the start of the absolute score for each scaled score: if to get a 34 you needed a 71 - 73, you will get 71
+  //    Also, if you couldn't get a 33 ( '-' as the absolute score) then you would see 71 (same start as the 34)
+  let english = testData[test]?.['englishScores'];
+  let math = testData[test]?.['mathScores'];
+  let reading = testData[test]?.['readingScores'];
+  let science = testData[test]?.['scienceScores'];
+
+  // Conver the strings to integers
+  for (let i = 0; i < english.length; i++) {
+    english[i] = parseInt(english[i]);
+    math[i] = parseInt(math[i]);
+    reading[i] = parseInt(reading[i]);
+    science[i] = parseInt(science[i]);
+  }
+
+  // Make it dynamic
+  let values = [english, math, reading, science]
+  let maxScores = [75, 60, 40, 40]
+
+  // Get the location to add the scaled scores to
+  let body = document.getElementById("scaledScoresBody")
+
+  // Change the header
+  let header = document.getElementById("scaledScoresHeader")
+  header.innerHTML = "Scaled Scores - " + test
+
+  // Remove the old scaled scores
+  const childCount = body.childElementCount;
+  let children = body.querySelectorAll("div");
+  for (let i = 0; i < childCount; i++) {
+    children[i].remove();
+  }
+
+  // Set the buttons to the correct position
+  toggleScoresButtons('scores');
+
+  // Populate the scaled scores
+  for (let i = 0; i < (english.length * 6); i++) {
+    let ele = undefined;
+    let row = Math.floor(i / 6)
+    let col = i % 6;
+    if (col == 0 || col == 5) {
+      ele = createElements([['p']], [[]], [[]], [[]], [(36 - row).toString()], ['gridBoxScores'])
+      ele.style.backgroundColor = "rgb(200, 200, 200)"
+    }
+    else {
+      if (row != 0) {
+        if (values[col - 1][row] == values[col - 1][row - 1]) {
+          ele = createElements([['p']], [[]], [[]], [[]], ['-'], ['gridBoxScores'])
+        }
+        else if (values[col - 1][row] == values[col - 1][row - 1] - 1) {
+          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString()], ['gridBoxScores'])
+        }
+        else {
+          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString() + ' - ' + (values[col - 1][row - 1] - 1).toString()], ['gridBoxScores'])
+        }
+      }
+      else {
+        if (values[col - 1][row] == maxScores[col - 1]) {
+          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString()], ['gridBoxScores'])
+        }
+        else {
+          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString() + ' - ' + maxScores[col - 1].toString()], ['gridBoxScores'])
+        }
+      }
+
+      // Add a slight gray to the odd rows
+      if (row % 2 == 1) {
+        ele.style.backgroundColor = "rgb(230, 230, 230)"
+      }
+    }
+    body.append(ele)
+  }
+
+  openForm('scaledScores');
 }

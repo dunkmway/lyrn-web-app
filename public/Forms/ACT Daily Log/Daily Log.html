@@ -371,13 +371,54 @@
 
         </div>
 
-        <div id = "scaledScoresTests" class = "metaForm noselect">
 
-            <div id = "scaledScoresTestsHeader" class="heading-block">
-                TESTS
+        <div id = "scaledScores" class = "metaForm noselect">
+
+            <div id = "scaledScoresHeader" class="heading-block">
             </div>
 
-            <div id = 'scaledScoresTestsList' class = "formBody">
+            <div id = "scoresAnswersToggle" class = "input-row-center">
+
+                <button id = "scoresButton" class = "smallButton buttonToggleOn" onclick="toggleScoresButtons('scores')">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton" class = "smallButton buttonToggleOff" onclick="toggleScoresButtons('answers')">
+                    Answers
+                </button>
+
+            </div>
+
+
+            <div id = "scaledScoresHeaders" class = "scoresHeaders">
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+                <div class = "gridBoxScores">
+                    English
+                </div>
+
+                <div class = "gridBoxScores">
+                    Math
+                </div>
+
+                <div class = "gridBoxScores">
+                    Reading
+                </div>
+
+                <div class = "gridBoxScores">
+                    Science
+                </div>
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+            </div>
+
+            <div id = 'scaledScoresBody' class = "scoresBody">
             </div>
 
             <div class = "input-row-center formEnd-center">
@@ -386,6 +427,17 @@
                     Back
                 </button>
 
+            </div>
+        </div>
+
+
+        <div id = "scaledScoresTests" class = "metaForm noselect">
+
+            <div id = "scaledScoresTestsHeader" class="heading-block">
+                Test List
+            </div>
+
+            <div id = 'scaledScoresTestsList' class = "formBody">
             </div>
 
         </div>
@@ -1534,7 +1586,6 @@
 
             </div>
 
-
         <div id = "englishLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
                 <h2>English</h2>
@@ -1700,7 +1751,6 @@
 
 
         </div>
-
 
         <div id = "mathLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
@@ -2132,7 +2182,6 @@
 
         </div>
 
-
         <div id = "readingLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
                 <h2>Reading</h2>
@@ -2250,7 +2299,6 @@
 
 
         </div>
-
 
         <div id = "scienceLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
@@ -2381,7 +2429,6 @@
 
 
         </div>
-
 
         <form id = "dailyLog" onsubmit="return false">
             <div id="spinnyBoi" class="loader"></div>
