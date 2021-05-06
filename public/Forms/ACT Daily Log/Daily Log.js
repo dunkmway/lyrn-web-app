@@ -2,7 +2,7 @@
 
 // The actual tests with their answers and scaled scores
 let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() ).then(() => console.log(testData));
+fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() )//.then(() => console.log(testData));
 
 // Student test information
 let oldTestAnswers = {};
@@ -212,7 +212,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 
   // An array of all the forms that could be displayed
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests", "scaledScores"];
+  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests", "scaledScores", "answers"];
 
   // If selecting a lessons form, adjust the id accordingly
   if (id == '1' || id == '2' || id == '3' || id == '4') {
@@ -1472,7 +1472,14 @@ function scaledScoresTestsSetup() {
   }
 }
 
-function openScores(test) {
+function openScores(test = undefined) {
+
+  // Change the header
+  let header = document.getElementById("scaledScoresHeader")
+  if (test == undefined) {
+    test = header.innerHTML.split(' - ')[1]
+  }
+  header.innerHTML = "Scaled Scores - " + test
 
   // Get the start of the absolute score for each scaled score: if to get a 34 you needed a 71 - 73, you will get 71
   //    Also, if you couldn't get a 33 ( '-' as the absolute score) then you would see 71 (same start as the 34)
@@ -1496,19 +1503,12 @@ function openScores(test) {
   // Get the location to add the scaled scores to
   let body = document.getElementById("scaledScoresBody")
 
-  // Change the header
-  let header = document.getElementById("scaledScoresHeader")
-  header.innerHTML = "Scaled Scores - " + test
-
   // Remove the old scaled scores
   const childCount = body.childElementCount;
   let children = body.querySelectorAll("div");
   for (let i = 0; i < childCount; i++) {
     children[i].remove();
   }
-
-  // Set the buttons to the correct position
-  toggleScoresButtons('scores');
 
   // Populate the scaled scores
   for (let i = 0; i < (english.length * 6); i++) {
@@ -1549,4 +1549,75 @@ function openScores(test) {
   }
 
   openForm('scaledScores');
+}
+
+function openAnswers(test = undefined) {
+
+  // Change the header
+  let header = document.getElementById("answersHeader")
+  if (test == undefined) {
+    let testHeader = document.getElementById("scaledScoresHeader")
+    test = testHeader.innerHTML.split(' - ')[1]
+  }
+  header.innerHTML = "Answers - " + test
+
+  // Get the start of the absolute score for each scaled score: if to get a 34 you needed a 71 - 73, you will get 71
+  //    Also, if you couldn't get a 33 ( '-' as the absolute score) then you would see 71 (same start as the 34)
+  let english = testData[test]?.['englishAnswers'];
+  let math = testData[test]?.['mathAnswers'];
+  let reading = testData[test]?.['readingAnswers'];
+  let science = testData[test]?.['scienceAnswers'];
+
+  // Make it dynamic
+  let values = [english, math, reading, science]
+  let maxScores = [75, 60, 40, 40]
+
+  // Get the location of the section blocks
+  let sectionLocations = [document.getElementById("englishAnswers"),
+                          document.getElementById("mathAnswers"),
+                          document.getElementById("readingAnswers"),
+                          document.getElementById("scienceAnswers")]
+  
+  // Get the boxes within each section block: to delete
+  let answerBlocks = []
+  for (let i = 0; i < sectionLocations.length; i++) {
+    answerBlocks.push(sectionLocations[i].querySelectorAll("div"))
+  }
+
+  // Remove the old answers
+  for (let section = 0; section < answerBlocks.length; section++) {
+    let childCount = answerBlocks[section].length;
+    for (let i = 0; i < childCount; i++) {
+      answerBlocks[section][i].remove();
+    }
+  }
+
+  // Populate the scaled scores
+  for (let section = 0; section < answerBlocks.length; section++) {
+    for (let i = 0; i < (11 * Math.floor((values[section].length + 5) / 10)) + 11; i++) {
+      let ele = undefined;
+      let qNumber = (i - 11) - (Math.floor((i - 11) / 11));
+      if (i < 11 && i > 0) {
+        ele = createElements([['p']], [[]], [[]], [[]], ['+' + i.toString()], ['gridBoxAnswers'])
+      }
+      else if (i % 11 == 0) {
+        if (i != 0) {
+          ele = createElements([['p']], [[]], [[]], [[]], [(Math.floor((i - 11) / 11) * 10).toString()], ['gridBoxAnswers'])
+        }
+        else {
+          ele = createElements([['p']], [[]], [[]], [[]], [], ['gridBoxAnswers'])
+        }
+      }
+      else if (qNumber > 0 && qNumber < (maxScores[section] + 1)) {
+        ele = createElements([['p']], [[]], [[]], [[]], [values[section][qNumber - 1][qNumber]], ['gridBoxAnswers'])
+      }
+      else {
+        ele = createElements([['p']], [[]], [[]], [[]], ['X'], ['gridBoxAnswers'])
+        ele.style.backgroundColor = "rgb(230, 230, 230)"
+      }
+        sectionLocations[section].append(ele);
+    }
+  }
+
+  openForm('answers');
 }

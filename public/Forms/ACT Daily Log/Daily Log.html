@@ -371,7 +371,6 @@
 
         </div>
 
-
         <div id = "scaledScores" class = "metaForm noselect">
 
             <div id = "scaledScoresHeader" class="heading-block">
@@ -379,11 +378,11 @@
 
             <div id = "scoresAnswersToggle" class = "input-row-center">
 
-                <button id = "scoresButton" class = "smallButton buttonToggleOn" onclick="toggleScoresButtons('scores')">
+                <button id = "scoresButton" class = "smallButton buttonToggleOn" onclick="openScores()">
                     Scores
                 </button>
 
-                <button id = "fullAnswersButton" class = "smallButton buttonToggleOff" onclick="toggleScoresButtons('answers')">
+                <button id = "fullAnswersButton" class = "smallButton buttonToggleOff" onclick="openAnswers()">
                     Answers
                 </button>
 
@@ -430,6 +429,67 @@
             </div>
         </div>
 
+        <div id = "answers" class = "metaForm noselect">
+
+            <div id = "answersHeader" class="heading-block">
+            </div>
+
+            <div id = "answersScoresToggle" class = "input-row-center">
+
+                <button id = "scoresButton2" class = "smallButton buttonToggleOff" onclick="openScores()">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton2" class = "smallButton buttonToggleOn" onclick="openAnswers()">
+                    Answers
+                </button>
+
+            </div>
+
+            <div id = "answersBody" class = "input-block">
+                <div class = "sectionHeader">
+                    English
+                </div>
+                <div id = "englishAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Math
+                </div>
+                <div id = "mathAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Reading
+                </div>
+                <div id = "readingAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Science
+                </div>
+                <div id = "scienceAnswers" class = "answers">
+                </div>
+
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button class = "button" onclick = "openForm('scaledScoresTests')">
+                    Back
+                </button>
+
+            </div>
+        </div>
 
         <div id = "scaledScoresTests" class = "metaForm noselect">
 
@@ -1584,7 +1644,7 @@
                 </div>
 
 
-            </div>
+        </div>
 
         <div id = "englishLessonsForm" class = "metaForm noselect">
             <div class="heading-block">

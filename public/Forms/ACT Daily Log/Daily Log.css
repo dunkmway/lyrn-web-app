@@ -351,6 +351,21 @@ body {
     border-top-width: 0px;
 }
 
+.gridBoxAnswers {
+    border-style: solid;
+    border-color: black;
+    border-width: 0px 0px 1px 1px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gridBoxAnswers:nth-child(-n+11) {
+    border-top-width: 0px;
+}
+
 .border {
     border-top-style: solid;
     border-color: black;
@@ -851,6 +866,10 @@ p.errorMessage {
     display: none;
 }
 
+#answers {
+    display: none;
+}
+
 #homeworkPopup {
     display: none;
     width: 350px;
@@ -935,6 +954,10 @@ p.errorMessage {
 }
 
 #scoresAnswersToggle {
+    height: 7.5%;
+}
+
+#answersScoresToggle {
     height: 7.5%;
 }
 
@@ -1241,6 +1264,11 @@ p.errorMessage {
   margin-bottom: 15px;
 }
 
+#fullAnswersButton2 {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
 #scoresButton {
   margin-bottom: 15px;
 }
@@ -1258,6 +1286,38 @@ p.errorMessage {
     grid-auto-rows: 1.3em;
 }
 
+#answersBody {
+    height: 75%;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
 .redOnHover:hover {
     background-color: rgb(255, 0, 0, 0.7);
+}
+
+.sectionHeader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 24px;
+    height: 1.5em;
+    width: calc(99% - 1px);
+    border-style: solid;
+    border-width: 1px;
+}
+
+.answers {
+    width: 99%;
+    display: grid;
+    border-right-width: 1px;
+    border-right-style: solid;
+    grid-template-columns: 10% 9% 9% 9% 9% 9% 9% 9% 9% 9% 9%;
+    grid-auto-rows: 1.3em;
+}
+
+.space {
+    height: 20px;
 }
