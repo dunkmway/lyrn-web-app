@@ -342,9 +342,9 @@
     <section id="section">
 
         <div id = "sideNav" class = "nav_disabled">
-            <div id = "dailyLogNav" class = "button2" onclick = "openForm('dailyLog');addUnloadListener()">Daily Log</div>
-            <div id = "testReviewNav" class = "button2" onclick = "openForm('dailyLog')">Test Review</div>
-            <div id = "scoresNav" class = "button2" onclick = "openForm('dailyLog')">Test Scores</div>
+            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog');addUnloadListener()">Daily Log</div>
+            <div id = "testReviewNav" class = "button2" onclick = "openTab('dailyLog')">Test Review</div>
+            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests')">Test Scores</div>
         </div>
 
         <div id = "printPopup" class = "printPopup" data-test = "">
@@ -371,11 +371,142 @@
 
         </div>
 
+        <div id = "scaledScores" class = "metaForm noselect">
+
+            <div id = "scaledScoresHeader" class="heading-block">
+            </div>
+
+            <div id = "scoresAnswersToggle" class = "input-row-center">
+
+                <button id = "scoresButton" class = "smallButton buttonToggleOn" onclick="openForm('scaledScores')">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton" class = "smallButton buttonToggleOff" onclick="openForm('answers')">
+                    Answers
+                </button>
+
+            </div>
+
+
+            <div id = "scaledScoresHeaders" class = "scoresHeaders">
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+                <div class = "gridBoxScores">
+                    English
+                </div>
+
+                <div class = "gridBoxScores">
+                    Math
+                </div>
+
+                <div class = "gridBoxScores">
+                    Reading
+                </div>
+
+                <div class = "gridBoxScores">
+                    Science
+                </div>
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+            </div>
+
+            <div id = 'scaledScoresBody' class = "scoresBody">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button class = "button" onclick = "openForm('scaledScoresTests')">
+                    Back
+                </button>
+
+            </div>
+        </div>
+
+        <div id = "answers" class = "metaForm noselect">
+
+            <div id = "answersHeader" class="heading-block">
+            </div>
+
+            <div id = "answersScoresToggle" class = "input-row-center">
+
+                <button id = "scoresButton2" class = "smallButton buttonToggleOff" onclick="openForm('scaledScores')">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton2" class = "smallButton buttonToggleOn" onclick="openForm('answers')">
+                    Answers
+                </button>
+
+            </div>
+
+            <div id = "answersBody" class = "input-block">
+                <div class = "sectionHeader">
+                    English
+                </div>
+                <div id = "englishAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Math
+                </div>
+                <div id = "mathAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Reading
+                </div>
+                <div id = "readingAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Science
+                </div>
+                <div id = "scienceAnswers" class = "answers">
+                </div>
+
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button class = "button" onclick = "openForm('scaledScoresTests')">
+                    Back
+                </button>
+
+            </div>
+        </div>
+
+        <div id = "scaledScoresTests" class = "metaForm noselect">
+
+            <div id = "scaledScoresTestsHeader" class="heading-block">
+                Test List
+            </div>
+
+            <div id = 'scaledScoresTestsList' class = "formBody">
+            </div>
+
+        </div>
+
         <div id = "testAnswersPopup" class = "metaForm noselect">
 
             <div id = "answersPopupHeader" class="heading-block">
-                <div id = "headerText">
-                </div>
+                <!--<div id = "headerText">
+                </div>-->
             </div>
 
             <div id = "toggleDiv" class = "input-row-center">
@@ -949,7 +1080,6 @@
 
         </div>
 
-
         <div id = "otherTestsForm" class = "metaForm noselect">
             <div id = "otherTestsTabs" class = "input-row">
 
@@ -1514,8 +1644,7 @@
                 </div>
 
 
-            </div>
-
+        </div>
 
         <div id = "englishLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
@@ -1682,7 +1811,6 @@
 
 
         </div>
-
 
         <div id = "mathLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
@@ -2114,7 +2242,6 @@
 
         </div>
 
-
         <div id = "readingLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
                 <h2>Reading</h2>
@@ -2232,7 +2359,6 @@
 
 
         </div>
-
 
         <div id = "scienceLessonsForm" class = "metaForm noselect">
             <div class="heading-block">
@@ -2364,7 +2490,6 @@
 
         </div>
 
-
         <form id = "dailyLog" onsubmit="return false">
             <div id="spinnyBoi" class="loader"></div>
             <div class="heading-block">
@@ -2479,11 +2604,11 @@
                 <p id="errMsg" style="color: red;"></p>
             </div>
 
-            <div class = "input-row-center formEnd">
+            <div class = "input-row-center formEnd-center">
 
-                <button class = "button" onclick = "goToDashboard()">
+                <!--<button class = "button" onclick = "goToDashboard()">
                     Back
-                </button>
+                </button>-->
 
                 <button class = "button" onclick="submitDailyLog()">
                     Submit

@@ -246,6 +246,16 @@ body {
     border-width: 1px 0px 2px 0px;
 }
 
+.scoresHeaders {
+    height: 2.5%;
+    display: grid;
+    grid-template-columns: 14% 18% 18% 18% 18% 14%;
+    grid-template-rows: 100%;
+    text-align: center;
+    border-style: solid;
+    border-width: 1px 0px 2px 0px;
+}
+
 #englishLessons {
     height: 82%;
     display: grid;
@@ -322,6 +332,37 @@ body {
 }
 
 .gridBox2:nth-child(-n+3) {
+    border-top-width: 0px;
+}
+
+.gridBoxScores {
+    border-style: solid;
+    border-color: black;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gridBoxScores:nth-child(-n+6) {
+    border-top-width: 0px;
+}
+
+.gridBoxAnswers {
+    border-style: solid;
+    border-color: black;
+    border-width: 0px 0px 1px 1px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gridBoxAnswers:nth-child(-n+11) {
     border-top-width: 0px;
 }
 
@@ -789,6 +830,7 @@ p.errorMessage {
     height: 7%;
     justify-content: center;
 }
+
 .loader {
     display: none;
     border: 20px solid white;
@@ -813,6 +855,18 @@ p.errorMessage {
 }
 
 #testAnswersPopup {
+    display: none;
+}
+
+#scaledScoresTests {
+    display: none;
+}
+
+#scaledScores {
+    display: none;
+}
+
+#answers {
     display: none;
 }
 
@@ -899,6 +953,14 @@ p.errorMessage {
     height: 10%;
 }
 
+#scoresAnswersToggle {
+    height: 7.5%;
+}
+
+#answersScoresToggle {
+    height: 7.5%;
+}
+
 #timingBlock {
     height: 5%;
 }
@@ -917,6 +979,20 @@ p.errorMessage {
     text-align: center;
     border-radius: 50%;
     /*padding: 2.5px;*/
+}
+
+.testRow {
+    height: 40px;
+    width: 70%;
+    font-size: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.testRow:hover {
+    background-color: rgb(255, 0, 0, 0.7);
 }
 
 .popupDash {
@@ -1181,4 +1257,67 @@ p.errorMessage {
 
 #guessButton {
   margin-left: 20px;
+}
+
+#fullAnswersButton {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+#fullAnswersButton2 {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+#scoresButton {
+  margin-bottom: 15px;
+}
+
+.formBody {
+    height: 92%;
+    overflow-y: scroll;
+}
+
+.scoresBody {
+    height: 75%;
+    overflow-y: scroll;
+    display: grid;
+    grid-template-columns: 14% 18% 18% 18% 18% 14%;
+    grid-auto-rows: 1.3em;
+}
+
+#answersBody {
+    height: 75%;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+.redOnHover:hover {
+    background-color: rgb(255, 0, 0, 0.7);
+}
+
+.sectionHeader {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    font-size: 24px;
+    height: 1.5em;
+    width: calc(99% - 1px);
+    border-style: solid;
+    border-width: 1px;
+}
+
+.answers {
+    width: 99%;
+    display: grid;
+    border-right-width: 1px;
+    border-right-style: solid;
+    grid-template-columns: 10% 9% 9% 9% 9% 9% 9% 9% 9% 9% 9%;
+    grid-auto-rows: 1.3em;
+}
+
+.space {
+    height: 20px;
 }
