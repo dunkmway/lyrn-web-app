@@ -204,7 +204,7 @@ function removeSession(self) {
  * @param {String} id the id of the form to display
  * @param {String} test_view_type the type of tests to display, if applicable
  */
-function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined) {
+function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined, scaledScoresTest = undefined) {
 
   // Change the test view type
   if (view_type != undefined) {
@@ -272,6 +272,12 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
 
     // update popup visuals
     updatePopupGraphics(id, test, section, (passageNumber ?? 1));
+  }
+  else if (id == 'scaledScores') {
+    openScores(scaledScoresTest);
+  }
+  else if (id == 'answers') {
+    openAnswers(scaledScoresTest);
   }
 
   // Hide all forms except for the one selected
@@ -1463,10 +1469,10 @@ function scaledScoresTestsSetup() {
 
   for (let i = 0; i < tests.length; i++) {
     if (i != 0) {
-      ele = createElements([['p']], [['testRow']], [['onclick']], [["openScores('" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'button2'])
+      ele = createElements([['p']], [['testRow']], [['onclick']], [["openForm('scaledScores', undefined, undefined, undefined, '" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'button2'])
     }
     else {
-      ele = createElements([['p']], [['testRow']], [['onclick']], [["openScores('" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
+      ele = createElements([['p']], [['testRow']], [['onclick']], [["openForm('scaledScores', undefined, undefined, undefined, '" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
     }
     form.appendChild(ele);
   }
@@ -1547,8 +1553,6 @@ function openScores(test = undefined) {
     }
     body.append(ele)
   }
-
-  openForm('scaledScores');
 }
 
 function openAnswers(test = undefined) {
@@ -1618,6 +1622,4 @@ function openAnswers(test = undefined) {
         sectionLocations[section].append(ele);
     }
   }
-
-  openForm('answers');
 }
