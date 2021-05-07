@@ -38,7 +38,7 @@ admin.initializeApp();
     });
  });
 
- exports.setUserDisplayName = functions.https.onRequest((request, response) => {
+ exports.setAllUsersDisplayName = functions.https.onRequest((request, response) => {
     const listAllUsers = (nextPageToken) => {
         // List batch of users, 1000 at a time.
         admin.auth().listUsers(1000, nextPageToken)
@@ -177,6 +177,19 @@ exports.getUserRole = functions.https.onCall((data, context) => {
 exports.updateUserEmail = functions.https.onCall((data, context) => {
     return admin.auth().updateUser(data.uid, {
       email: data.email,
+    })
+    .then((userRecord) => {
+      // See the UserRecord reference doc for the contents of userRecord.
+      console.log('Successfully updated user', userRecord.toJSON());
+    })
+    .catch((error) => {
+      console.log('Error updating user:', error);
+    });
+});
+
+exports.updateUserDisplayName = functions.https.onCall((data, context) => {
+    return admin.auth().updateUser(data.uid, {
+        displayName : data.displayName
     })
     .then((userRecord) => {
       // See the UserRecord reference doc for the contents of userRecord.

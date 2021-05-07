@@ -97,7 +97,24 @@ function createInquiry() {
               locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
             }
 
-            let promises = [studentProm, parentProm, locationProm];
+            let studentDisplayNameProm;
+            if (studentFirstName) {
+              const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+              studentDisplayNameProm = updateUserDisplayName({
+                uid: studentUID,
+                displayName: studentFirstName + " " + studentLastName 
+              })
+            }
+            let parentDisplayNameProm;
+            if (parentFirstName) {
+              const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+              parentDisplayNameProm = updateUserDisplayName({
+                uid: parentUID,
+                displayName: parentFirstName + " " + parentLastName 
+              })
+            }
+
+            let promises = [studentProm, parentProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
             Promise.all(promises)
             .then(() => {
               //go back to the user's dashboard
