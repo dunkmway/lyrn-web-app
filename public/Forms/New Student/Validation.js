@@ -342,8 +342,25 @@ function updateData() {
 
   let locationProm = updateLocationPending(location, studentUID, 'act', studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
+  let studentDisplayNameProm;
+  if (studentFirstName) {
+    const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+    studentDisplayNameProm = updateUserDisplayName({
+      uid: studentUID,
+      displayName: studentFirstName + " " + studentLastName 
+    })
+  }
+  let parentDisplayNameProm;
+  if (parentFirstName) {
+    const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+    parentDisplayNameProm = updateUserDisplayName({
+      uid: parentUID,
+      displayName: parentFirstName + " " + parentLastName 
+    })
+  }
+
   //wait for all promises to resolve
-  let promises = [parentProm, studentProm, emailProm, locationProm];
+  let promises = [parentProm, studentProm, emailProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
   return Promise.all(promises)
 }
 

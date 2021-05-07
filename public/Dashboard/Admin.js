@@ -291,10 +291,20 @@ function createTutor() {
         }
         tutorDocRef.set(tutorDocData)
         .then((result) => {
-          // console.log("tutor document successfully written!");
-          // console.log(result);
-          document.getElementById("spinnyBoiTutor").style.display = "none";
-          closeUser("tutor", true);
+          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+          updateUserDisplayName({
+            uid: tutorUID,
+            displayName: allInputValues["tutorFirstName"] + " " + allInputValues["tutorLastName"]
+          })
+          .then(() => {
+            document.getElementById("spinnyBoiTutor").style.display = "none";
+            closeUser("tutor", true);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error, document.currentScript.src);
+            document.getElementById("errMsg").textContent = error.message;
+            document.getElementById("spinnyBoiTutor").style.display = "none";
+          });
         })
         .catch((error) => {
           handleFirebaseErrors(error, document.currentScript.src);
@@ -356,10 +366,20 @@ function createSecretary() {
         }
         secretaryDocRef.set(secretaryDocData)
         .then((result) => {
-          // console.log("secretary document successfully written!");
-          // console.log(result);
-          document.getElementById("spinnyBoiSecretary").style.display = "none";
-          closeUser("secretary", true);
+          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+          updateUserDisplayName({
+            uid: secretaryUID,
+            displayName: allInputValues["secretaryFirstName"] + " " + allInputValues["secretaryLastName"]
+          })
+          .then(() => {
+            document.getElementById("spinnyBoiTutor").style.display = "none";
+            closeUser("tutor", true);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error, document.currentScript.src);
+            document.getElementById("errMsg").textContent = error.message;
+            document.getElementById("spinnyBoiTutor").style.display = "none";
+          });
         })
         .catch((error) => {
           handleFirebaseErrors(error, document.currentScript.src);
