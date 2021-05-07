@@ -10,6 +10,21 @@ let testAnswers = {};
 let tempAnswers = {};
 initialSetup();
 
+// Current tests in use
+const hwTests = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
+const icTests = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
+const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
+                  '61F', '55C', '58E', '71C', '71G', '68A', '72F', '71H',
+                  '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '65C']
+        
+// For maintaining a 'memory' with tabs
+let tabEles = document.getElementById('sideNav').querySelectorAll('div');
+let lastTabViews = {};
+for (let i = 0; i < tabEles.length; i++) {
+  setObjectValue([tabEles[i].id], [undefined, undefined, undefined, undefined, undefined], lastTabViews)
+}
+let currentTab = undefined;
+
 // Other needed info
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
@@ -21,6 +36,8 @@ let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
 let storage = firebase.storage();
+
+let testsAreSetup = false;
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
@@ -206,6 +223,15 @@ function removeSession(self) {
  */
 function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined, scaledScoresTest = undefined) {
 
+  // update the last view (remembering)
+  lastTabViews[currentTab] = [id, view_type, element, pNumber, scaledScoresTest]
+
+  // Setup the tests if need be
+  if (testsAreSetup == false && id == 'dailyLog') {
+    testSetup();
+    testsAreSetup = true;
+  }
+
   // Change the test view type
   if (view_type != undefined) {
     test_view_type = view_type;
@@ -293,7 +319,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
         form.style.display = "block"
       }
       else {
-        if (!id.includes('Popup')) {
+        if (!id.includes('Popup') && !id.includes('answers') && !id.includes('scaledScores')) {
           lastView = id;
         }
         form.style.display = "flex";
@@ -313,7 +339,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 }
 
-function openTab(toTab) {
+function openTab(toTab, ele) {
 
   // Toggle whether a form is open or not
   if (tab == true && toTab == lastTab) {
@@ -329,14 +355,21 @@ function openTab(toTab) {
   }
 
   // Change the position of the tabs
-  if (toTab != lastTab) {
-  }
+  //if (toTab != lastTab) {
+  //}
 
   // Open the form
   if (tab == true) {
-    openForm(toTab)
+    currentTab = ele.id;
+    if (lastTabViews[ele.id][0] != undefined) {
+      openForm(lastTabViews[ele.id][0], lastTabViews[ele.id][1], lastTabViews[ele.id][2], lastTabViews[ele.id][3], lastTabViews[ele.id][4])
+    }
+    else {
+      openForm(toTab);
+    }
   }
   else {
+    currentTab = undefined;
     openForm('none');
   }
 }
@@ -1621,5 +1654,61 @@ function openAnswers(test = undefined) {
       }
         sectionLocations[section].append(ele);
     }
+  }
+}
+
+function testSetup() {
+  let inCenterDiv = document.getElementById('inCenterTests')
+  let homeworkDiv = document.getElementById('homeworkTests')
+  let otherDiv = document.getElementById('otherTests')
+
+  const sections = ['English', 'Math', 'Reading', 'Science']
+
+  // Setup the 'homework' tests
+  for (let i = 0; i < 5 * hwTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = hwTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    homeworkDiv.append(ele)
+  }
+
+// Setup the 'in Center' tests
+for (let i = 0; i < 5 * icTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = icTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    inCenterDiv.append(ele)
+  }
+
+// Setup the 'Other' tests
+for (let i = 0; i < 5 * othTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = othTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    otherDiv.append(ele)
   }
 }
