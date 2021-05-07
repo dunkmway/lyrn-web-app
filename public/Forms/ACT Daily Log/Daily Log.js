@@ -10,6 +10,12 @@ let testAnswers = {};
 let tempAnswers = {};
 initialSetup();
 
+const hwTests = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
+const icTests = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
+const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
+                  '61F', '55C', '58E', '71C', '71G', '68A', '72F', '71H',
+                  '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '65C']
+
 // Other needed info
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
 let test_view_type = undefined;
@@ -21,6 +27,8 @@ let newStatus = undefined;
 let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
 let date = new Date()
 let storage = firebase.storage();
+
+let testsAreSetup = false;
 
 function initialSetup() {
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
@@ -205,6 +213,12 @@ function removeSession(self) {
  * @param {String} test_view_type the type of tests to display, if applicable
  */
 function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined, scaledScoresTest = undefined) {
+
+  // Setup the tests if need be
+  if (testsAreSetup == false && id == 'dailyLog') {
+    testSetup();
+    testsAreSetup = true;
+  }
 
   // Change the test view type
   if (view_type != undefined) {
@@ -1621,5 +1635,61 @@ function openAnswers(test = undefined) {
       }
         sectionLocations[section].append(ele);
     }
+  }
+}
+
+function testSetup() {
+  let inCenterDiv = document.getElementById('inCenterTests')
+  let homeworkDiv = document.getElementById('homeworkTests')
+  let otherDiv = document.getElementById('otherTests')
+
+  const sections = ['English', 'Math', 'Reading', 'Science']
+
+  // Setup the 'homework' tests
+  for (let i = 0; i < 5 * hwTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = hwTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    homeworkDiv.append(ele)
+  }
+
+// Setup the 'in Center' tests
+for (let i = 0; i < 5 * icTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = icTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    inCenterDiv.append(ele)
+  }
+
+// Setup the 'Other' tests
+for (let i = 0; i < 5 * othTests.length; i++) {
+    let ele = undefined;
+    let ele2 = undefined;
+    let test = othTests[(Math.floor(i / 5))]
+    if (i % 5 != 0) {
+      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
+    }
+    else {
+      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
+      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
+      ele.append(ele2)
+    }
+    otherDiv.append(ele)
   }
 }
