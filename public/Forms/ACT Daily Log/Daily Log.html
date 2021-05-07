@@ -342,9 +342,9 @@
     <section id="section">
 
         <div id = "sideNav" class = "nav_disabled">
-            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog');addUnloadListener()">Daily Log</div>
-            <div id = "testReviewNav" class = "button2" onclick = "openTab('dailyLog')">Test Review</div>
-            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests')">Test Scores</div>
+            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog', this);addUnloadListener()">Daily Log</div>
+            <div id = "testReviewNav" class = "button2">Test Review</div>
+            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests', this)">Test Scores</div>
         </div>
 
         <div id = "printPopup" class = "printPopup" data-test = "">

@@ -10,11 +10,20 @@ let testAnswers = {};
 let tempAnswers = {};
 initialSetup();
 
+// Current tests in use
 const hwTests = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
 const icTests = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
 const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
                   '61F', '55C', '58E', '71C', '71G', '68A', '72F', '71H',
                   '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '65C']
+        
+// For maintaining a 'memory' with tabs
+let tabEles = document.getElementById('sideNav').querySelectorAll('div');
+let lastTabViews = {};
+for (let i = 0; i < tabEles.length; i++) {
+  setObjectValue([tabEles[i].id], [undefined, undefined, undefined, undefined, undefined], lastTabViews)
+}
+let currentTab = undefined;
 
 // Other needed info
 let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
@@ -214,6 +223,9 @@ function removeSession(self) {
  */
 function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined, scaledScoresTest = undefined) {
 
+  // update the last view (remembering)
+  lastTabViews[currentTab] = [id, view_type, element, pNumber, scaledScoresTest]
+
   // Setup the tests if need be
   if (testsAreSetup == false && id == 'dailyLog') {
     testSetup();
@@ -307,7 +319,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
         form.style.display = "block"
       }
       else {
-        if (!id.includes('Popup')) {
+        if (!id.includes('Popup') && !id.includes('answers') && !id.includes('scaledScores')) {
           lastView = id;
         }
         form.style.display = "flex";
@@ -327,7 +339,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
   }
 }
 
-function openTab(toTab) {
+function openTab(toTab, ele) {
 
   // Toggle whether a form is open or not
   if (tab == true && toTab == lastTab) {
@@ -343,14 +355,21 @@ function openTab(toTab) {
   }
 
   // Change the position of the tabs
-  if (toTab != lastTab) {
-  }
+  //if (toTab != lastTab) {
+  //}
 
   // Open the form
   if (tab == true) {
-    openForm(toTab)
+    currentTab = ele.id;
+    if (lastTabViews[ele.id][0] != undefined) {
+      openForm(lastTabViews[ele.id][0], lastTabViews[ele.id][1], lastTabViews[ele.id][2], lastTabViews[ele.id][3], lastTabViews[ele.id][4])
+    }
+    else {
+      openForm(toTab);
+    }
   }
   else {
+    currentTab = undefined;
     openForm('none');
   }
 }
