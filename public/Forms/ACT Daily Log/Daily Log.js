@@ -11,11 +11,12 @@ let tempAnswers = {};
 initialSetup();
 
 // Current tests in use
-const hwTests = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
-const icTests = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
+const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
+const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
 const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
-                  '61F', '55C', '58E', '71C', '71G', '68A', '72F', '71H',
-                  '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '65C']
+                  '61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F',
+                  '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
+                  '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // For maintaining a 'memory' with tabs
 let tabEles = document.getElementById('sideNav').querySelectorAll('div');
@@ -661,7 +662,7 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       ele.setAttribute("data-answer", passageAnswers[answer])
       ele.classList.add('redOnHover')
       if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('red')
+        ele.classList.add('Qred')
       }
     }
     else {
@@ -676,7 +677,7 @@ function updatePopupGraphics(id, test, section, passageNumber) {
       ele.setAttribute("data-answer", passageAnswers[answer]);
       ele.classList.add('redOnHover')
       if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('red')
+        ele.classList.add('Qred')
       }
     }
   }
