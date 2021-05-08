@@ -163,6 +163,7 @@ body {
 
 .pink {
     background-color: pink;
+    z-index: 3;
 }
 
 .greenShade {
@@ -201,6 +202,22 @@ body {
 
 .red {
     background-color: red;
+}
+
+.Qred {
+    position:relative;
+}
+
+.Qred:before {
+    position:absolute;
+    z-index:2;
+    top:0;
+    left:11.25%;
+    width: 22%;
+    height: 100%;
+    content:"";
+    background-color:red;
+    border-radius: 22.5px;
 }
 
 .line {
@@ -970,6 +987,7 @@ p.errorMessage {
 }
 
 .popupValue {
+    z-index: 3;
     height: 40px;
     width: 40px;
     font-size: 20px;
@@ -1320,4 +1338,8 @@ p.errorMessage {
 
 .space {
     height: 20px;
+}
+
+#passage .input-row-center {
+    border-radius: 22.5px;
 }
