@@ -28,14 +28,14 @@ body {
     margin: 0px 50px 0px 50px;
 }
 
-#student-general-notes-div {
+/* #student-general-notes-div {
     margin: 50px 0px 50px 20px;
     width: 400px;
     border-color: black;
     border-style: solid;
     border-radius: 10px;
     border-width: 1px;
-}
+} */
 
 .section-notes-div {
     margin: 10px;
@@ -45,6 +45,10 @@ body {
     border-radius: 10px;
     border-width: 1px;
     max-width: 40%;
+}
+
+#student-notes-section {
+    margin: 0 5% 0 5%;
 }
 
 .student-notes {
@@ -59,6 +63,18 @@ body {
     padding: 10px;
     color: white;
     border-radius: 10px 10px 0px 0px;
+}
+
+.chat-area-hidden {
+    display: none;
+}
+
+.chat-area-visible {
+    display: block;
+}
+
+.chat-label-selected {
+    padding-top: 20px;
 }
 
 .student-notes :first-child {
@@ -146,6 +162,10 @@ body {
     font-weight: 300;
     border-radius: 10px; 
     margin-top: 10px;
+}
+
+.flex-grow {
+    flex: 1;
 }
 
 .fixed {
@@ -529,7 +549,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 98vh;
+    /* min-height: 98vh; */
     width: 98vw;
 }
 
