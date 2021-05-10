@@ -978,6 +978,7 @@ function removeTest() {
       delete testAnswers[test]
     }
 
+    // If it was assigned before this session, mark it as assigned again
     if (oldStatus == 'assigned') {
       setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
     }
