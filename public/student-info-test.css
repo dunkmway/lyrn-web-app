@@ -117,6 +117,9 @@ body {
 .justify-space-evenly {
   justify-content:space-evenly;
 }
+.align-flex-end {
+  align-items: flex-end;
+}
 
 .button {
   margin-top: 20px;

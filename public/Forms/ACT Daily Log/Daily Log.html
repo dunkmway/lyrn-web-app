@@ -136,7 +136,7 @@
                     <p>Days Left</p>
                 </div>
             </div>
-            <div class="flex-row"  onclick="openUpdateGoals()">
+            <div class="flex-row" ondblclick="openUpdateGoals()">
                 <div class="score-box composite">
                 <p id="composite-score"></p>
                 <div class="tooltip">
@@ -284,6 +284,50 @@
                 </div>
             </div>
         </div>
+
+        <!------------------->
+        <!-- Section Notes -->
+        <!------------------->
+
+        <div id="student-notes-section">
+            <div id="student-notes-labels" class="flex-row justify-space-evenly align-flex-end">
+                <h2 id="general-chat-label" class="student-notes-label composite flex-grow">General Notes</h2>
+                <h2 id="english-chat-label" class="student-notes-label english flex-grow">English</h2>
+                <h2 id="math-chat-label" class="student-notes-label math flex-grow">Math</h2>
+                <h2 id="reading-chat-label" class="student-notes-label reading flex-grow">Reading</h2>
+                <h2 id="science-chat-label" class="student-notes-label science flex-grow">Science</h2>
+            </div>
+            <div id="general-chat-area" class="chat-area-hidden">
+                <div id="student-general-notes" class="student-notes">
+                </div>
+                <textarea id="student-general-notes-input" class="student-notes-input" placeholder="Any general notes?"></textarea>
+            </div>
+            <div id="english-chat-area" class="chat-area-hidden">
+                <div id="student-english-notes" class="student-notes">
+                </div>
+                <textarea id="student-english-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="math-chat-area" class="chat-area-hidden">
+                <div id="student-math-notes" class="student-notes">
+                </div>
+                <textarea id="student-math-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="reading-chat-area" class="chat-area-hidden">
+                <div id="student-reading-notes" class="student-notes">
+                </div>
+                <textarea id="student-reading-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="science-chat-area" class="chat-area-hidden">
+                <div id="student-science-notes" class="student-notes">
+                </div>
+                <textarea id="student-science-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+        </div>
+
+        <!-------------->
+        <!-- HW Chart -->
+        <!-------------->
+
         <div id="scores-chart">
             <div class="flex-column justify-center ">
                 <div class="flex-row">
@@ -296,17 +340,14 @@
             </div>
         </div>
 
-        <div id="student-general-notes-div">
+        <!-- <div id="student-general-notes-div">
             <h2 class="student-notes-label composite">General Notes</h2>
             <div id="student-general-notes" class="student-notes">
             </div>
             <textarea id="student-general-notes-input" class="student-notes-input" placeholder="Any general notes?"></textarea>
-        </div>
+        </div> -->
 
-        <!------------------->
-        <!-- Section Notes -->
-        <!------------------->
-        <div id="student-section-notes" class="flex-row justify-space-evenly">
+        <!-- <div id="student-section-notes" class="flex-row justify-space-evenly">
             <div id="student-english-notes-div" class="section-notes-div">
                 <h2 class="student-notes-label english">English</h2>
                 <div id="student-english-notes" class="student-notes">
@@ -336,7 +377,7 @@
                 </div>
                 <textarea id="student-science-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
             </div>
-        </div>
+        </div> -->
     </section>
 
     <section id="section">

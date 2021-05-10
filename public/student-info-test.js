@@ -64,11 +64,13 @@ function main() {
 
     hwChart = setHomeworkChart();
     updateProfileData();
-    getGeneralNotes();
+    //getGeneralNotes();
+    getNotes('general');
     getNotes('english');
     getNotes('math');
     getNotes('reading');
     getNotes('science');
+    reorderNotes();
   })
 }
 
@@ -1155,177 +1157,177 @@ function removeAllTestDateGoals() {
   while (removeTestDateGoal(element) > 0);
 }
 
-function getGeneralNotes() {
-  const generalNotes = actProfile["generalNotes"];
-  let noteTimes = [];
-  for (const time in generalNotes) {
-    noteTimes.push(parseInt(time));
-  }
+// function getGeneralNotes() {
+//   const generalNotes = actProfile["generalNotes"];
+//   let noteTimes = [];
+//   for (const time in generalNotes) {
+//     noteTimes.push(parseInt(time));
+//   }
 
-  noteTimes.sort((a,b) => {return a-b});
-  for (let i = 0; i < noteTimes.length; i++) {
-    setGeneralNotes(generalNotes[noteTimes[i]]["note"], noteTimes[i], generalNotes[noteTimes[i]]["user"]);
-  }
-}
+//   noteTimes.sort((a,b) => {return a-b});
+//   for (let i = 0; i < noteTimes.length; i++) {
+//     setGeneralNotes(generalNotes[noteTimes[i]]["note"], noteTimes[i], generalNotes[noteTimes[i]]["user"]);
+//   }
+// }
 
-function setGeneralNotes(note, time, author) {
-  firebase.auth().onAuthStateChanged((user) => {
-    const currentUser = user?.uid ?? null;
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (note) {
-          //all the messages
-          let messageBlock = document.getElementById('student-general-notes');
-          //the div that contains the time and message
-          let messageDiv = document.createElement('div');
-          //the message itself
-          let message = document.createElement('div');
-          //time for the message
-          let timeElem = document.createElement('p');
+// function setGeneralNotes(note, time, author) {
+//   firebase.auth().onAuthStateChanged((user) => {
+//     const currentUser = user?.uid ?? null;
+//     if (user) {
+//       user.getIdTokenResult()
+//       .then((idTokenResult) => {
+//         let role = idTokenResult.claims.role;
+//         if (note) {
+//           //all the messages
+//           let messageBlock = document.getElementById('student-general-notes');
+//           //the div that contains the time and message
+//           let messageDiv = document.createElement('div');
+//           //the message itself
+//           let message = document.createElement('div');
+//           //time for the message
+//           let timeElem = document.createElement('p');
 
-          //display the time above the mesasge
-          timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
-          timeElem.classList.add('time');
-          messageDiv.appendChild(timeElem);
+//           //display the time above the mesasge
+//           timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
+//           timeElem.classList.add('time');
+//           messageDiv.appendChild(timeElem);
 
-          //set up the message
-          message.innerHTML = note;
-          //author's name element
-          let authorElem = document.createElement('p');
-          authorElem.classList.add("author");
-          message.appendChild(authorElem);
+//           //set up the message
+//           message.innerHTML = note;
+//           //author's name element
+//           let authorElem = document.createElement('p');
+//           authorElem.classList.add("author");
+//           message.appendChild(authorElem);
 
-          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
-          getUserDisplayName({
-            uid : author
-          })
-          .then((result) => {
-            const authorName = result.data ?? "anonymous";
-            authorElem.innerHTML = authorName;
-            scrollBottomGeneralNotes();
-          })
-          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+//           const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
+//           getUserDisplayName({
+//             uid : author
+//           })
+//           .then((result) => {
+//             const authorName = result.data ?? "anonymous";
+//             authorElem.innerHTML = authorName;
+//             scrollBottomGeneralNotes();
+//           })
+//           .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
 
-          message.setAttribute('data-time', time);
-          message.classList.add("student-note");
-          if (currentUser == author) {
-            messageDiv.classList.add("right");
-          }
-          else {
-            messageDiv.classList.add("left");
-          }
+//           message.setAttribute('data-time', time);
+//           message.classList.add("student-note");
+//           if (currentUser == author) {
+//             messageDiv.classList.add("right");
+//           }
+//           else {
+//             messageDiv.classList.add("left");
+//           }
 
-          const getUserRole = firebase.functions().httpsCallable('getUserRole');
-          getUserRole({
-            uid : author
-          })
-          .then((result) => {
-            const authorRole = result.data ?? null;
-            if (authorRole == "admin") {
-              message.classList.add("important");
-            }
-            scrollBottomGeneralNotes();
-          })
-          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+//           const getUserRole = firebase.functions().httpsCallable('getUserRole');
+//           getUserRole({
+//             uid : author
+//           })
+//           .then((result) => {
+//             const authorRole = result.data ?? null;
+//             if (authorRole == "admin") {
+//               message.classList.add("important");
+//             }
+//             scrollBottomGeneralNotes();
+//           })
+//           .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
           
 
-          //only give the option to delete if the currentUser is the author or an admin
-          if (author == currentUser || role == "admin" || role == "dev") {
-            let deleteMessage = document.createElement('div');
-            deleteMessage.classList.add("delete");
-            let theX = document.createElement('p');
-            theX.innerHTML = "X";
-            deleteMessage.appendChild(theX);
-            deleteMessage.addEventListener('click', (event) => deleteGeneralNote(event));
-            message.appendChild(deleteMessage);
-          }
+//           //only give the option to delete if the currentUser is the author or an admin
+//           if (author == currentUser || role == "admin" || role == "dev") {
+//             let deleteMessage = document.createElement('div');
+//             deleteMessage.classList.add("delete");
+//             let theX = document.createElement('p');
+//             theX.innerHTML = "X";
+//             deleteMessage.appendChild(theX);
+//             deleteMessage.addEventListener('click', (event) => deleteGeneralNote(event));
+//             message.appendChild(deleteMessage);
+//           }
           
-          messageDiv.appendChild(message);
-          messageBlock.appendChild(messageDiv);
-          document.getElementById('student-general-notes-input').value = null;
-          scrollBottomGeneralNotes();
-        }
-      })
-      .catch((error) =>  {
-        handleFirebaseErrors(error, document.currentScript.src);
-        console.log(error);
-      });
-    }
-  });
-}
+//           messageDiv.appendChild(message);
+//           messageBlock.appendChild(messageDiv);
+//           document.getElementById('student-general-notes-input').value = null;
+//           scrollBottomGeneralNotes();
+//         }
+//       })
+//       .catch((error) =>  {
+//         handleFirebaseErrors(error, document.currentScript.src);
+//         console.log(error);
+//       });
+//     }
+//   });
+// }
 
-function deleteGeneralNote(event) {
-  let message = event.target.closest(".student-note").parentNode;
-  let confirmation = confirm("Are you sure you want to delete this message?");
-  if (confirmation) {
-    const time = message.dataset.time;
-    const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
-    actProfileDocRef.update({
-      [`generalNotes.${time}`] : firebase.firestore.FieldValue.delete()
-    })
-    .then(() => {
-      message.remove();
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
-    })
-  }
-}
+// function deleteGeneralNote(event) {
+//   let message = event.target.closest(".student-note").parentNode;
+//   let confirmation = confirm("Are you sure you want to delete this message?");
+//   if (confirmation) {
+//     const time = message.dataset.time;
+//     const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+//     actProfileDocRef.update({
+//       [`generalNotes.${time}`] : firebase.firestore.FieldValue.delete()
+//     })
+//     .then(() => {
+//       message.remove();
+//     })
+//     .catch((error) => {
+//       handleFirebaseErrors(error, document.currentScript.src);
+//     })
+//   }
+// }
 
-function scrollBottomGeneralNotes() {
-  let notes = document.getElementById("student-general-notes");
-  notes.scrollTop = notes.scrollHeight;
-}
+// function scrollBottomGeneralNotes() {
+//   let notes = document.getElementById("student-general-notes");
+//   notes.scrollTop = notes.scrollHeight;
+// }
 
-function sendGeneralNotes() {
-  firebase.auth().onAuthStateChanged((user) => {
-    const currentUser = user?.uid ?? null;
-    const note = document.getElementById('student-general-notes-input').value;
-    const time = new Date().getTime();
+// function sendGeneralNotes() {
+//   firebase.auth().onAuthStateChanged((user) => {
+//     const currentUser = user?.uid ?? null;
+//     const note = document.getElementById('student-general-notes-input').value;
+//     const time = new Date().getTime();
 
-    const data = {
-      user : currentUser,
-      note : note
-    } 
+//     const data = {
+//       user : currentUser,
+//       note : note
+//     } 
 
-    if (note) {
-      //upload the note to firebase
-      const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
-      actProfileDocRef.get()
-      .then((doc) => {
-        if (doc.exists) {
-          actProfileDocRef.update({
-            [`generalNotes.${time}`] : data
-          })
-          .then(() => {
-            //send the note into the message div
-            setGeneralNotes(note, time, currentUser);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, document.currentScript.src);
-          });
-        }
-        else {
-          actProfileDocRef.set({
-            [`generalNotes.${time}`] : data
-          })
-          .then(() => {
-            //send the note into the message div
-            setGeneralNotes(note, time, currentUser);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, document.currentScript.src);
-          });
-        }
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, document.currentScript.src);
-      });
-    }
-  });
-}
+//     if (note) {
+//       //upload the note to firebase
+//       const actProfileDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("ACT").doc("profile");
+//       actProfileDocRef.get()
+//       .then((doc) => {
+//         if (doc.exists) {
+//           actProfileDocRef.update({
+//             [`generalNotes.${time}`] : data
+//           })
+//           .then(() => {
+//             //send the note into the message div
+//             setGeneralNotes(note, time, currentUser);
+//           })
+//           .catch((error) => {
+//             handleFirebaseErrors(error, document.currentScript.src);
+//           });
+//         }
+//         else {
+//           actProfileDocRef.set({
+//             [`generalNotes.${time}`] : data
+//           })
+//           .then(() => {
+//             //send the note into the message div
+//             setGeneralNotes(note, time, currentUser);
+//           })
+//           .catch((error) => {
+//             handleFirebaseErrors(error, document.currentScript.src);
+//           });
+//         }
+//       })
+//       .catch((error) => {
+//         handleFirebaseErrors(error, document.currentScript.src);
+//       });
+//     }
+//   });
+// }
 
 //all of the notes stuff
 function getNotes(type) {
@@ -1339,6 +1341,78 @@ function getNotes(type) {
   for (let i = 0; i < noteTimes.length; i++) {
     setNotes(type, notes[noteTimes[i]]["note"], noteTimes[i], notes[noteTimes[i]]["user"], notes[noteTimes[i]]["isSessionNote"]);
   }
+}
+
+function reorderNotes() {
+
+  //get the last sections that have been taught
+  let labelOrder = getLastSectionsTaught();
+  labelOrder.splice(0,0,'general');
+
+  let labelWrapper = document.getElementById("student-notes-labels");
+  let elements = document.createDocumentFragment();
+
+  labelOrder.forEach((type) => {
+    let item = document.getElementById(type + "-chat-label").cloneNode(true);
+    item.addEventListener('click', changeChatArea);
+    elements.appendChild(item);
+  })
+
+  labelWrapper.innerHTML = null;
+  labelWrapper.appendChild(elements);
+
+}
+
+function getLastSectionsTaught() {
+  let sectionsTaught = []
+
+  //start from the latest dates
+  for (let i = sessionDates.length - 1; i > -1; i--) {
+    //get the sections taught for this section
+    for (const section in sessionData[sessionDates[i]]['sections']) {
+      //if the section hasn't been pushed yet, add it
+      if (!sectionsTaught.includes(section.toLowerCase())) {
+        sectionsTaught.push(section.toLowerCase());
+      }
+    }
+  }
+
+  //make sure the array contains all of the sections
+  const allSections = ['english', 'math', 'reading', 'science'];
+  allSections.forEach((section) => {
+    if (!sectionsTaught.includes(section)) {
+      sectionsTaught.push(section);
+    }
+  })
+  return sectionsTaught;
+}
+
+function showNotes(type) {
+  let chatArea = document.getElementById(type + "-chat-area");
+  let chatLabel = document.getElementById(type + "-chat-label");
+
+  chatArea.classList.remove("chat-area-hidden");
+  chatArea.classList.add("chat-area-visible");
+
+  chatLabel.classList.add("chat-label-selected");
+}
+
+function hideNotes(type) {
+  let chatArea = document.getElementById(type + "-chat-area");
+  let chatLabel = document.getElementById(type + "-chat-label");
+
+  chatArea.classList.remove("chat-area-visible");
+  chatArea.classList.add("chat-area-hidden");
+
+  chatLabel.classList.remove("chat-label-selected");
+}
+
+function hideAllNotes() {
+  hideNotes('general');
+  hideNotes('english');
+  hideNotes('math');
+  hideNotes('reading');
+  hideNotes('science');
 }
 
 function setNotes(type, note, time, author, isSessionNote) {
@@ -1383,6 +1457,7 @@ function setNotes(type, note, time, author, isSessionNote) {
 
           messageDiv.setAttribute('data-time', time);
           message.classList.add("student-note");
+          message.classList.add(type)
           if (currentUser == author) {
             messageDiv.classList.add("right");
           }
@@ -1614,7 +1689,10 @@ document.getElementById("updated-science-initial").addEventListener('keyup',form
 document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
-    sendGeneralNotes();
+    const currentUser = firebase.auth().currentUser.uid;
+    const note = document.getElementById('student-general-notes-input').value;
+    const time = new Date().getTime();
+    sendNotes('general', note, time, currentUser);
   }
 });
 
@@ -1657,6 +1735,18 @@ document.getElementById("student-science-notes-input").addEventListener('keydown
     sendNotes('science', note, time, currentUser);
   }
 });
+
+//hiding and showing notes
+function changeChatArea() {
+  let type = this.id.split('-')[0];
+  if (!(this.classList.contains('chat-label-selected'))) {
+    hideAllNotes();
+    showNotes(type);
+  }
+  else {
+    hideNotes(type);
+  }
+}
 
 //stop scroll of the section when in the message div
 document.getElementById("student-general-notes").addEventListener("mouseover", (event) => {

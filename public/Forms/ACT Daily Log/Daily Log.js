@@ -1319,7 +1319,7 @@ function numHomeworkNotComplete() {
     for (const section in oldTestAnswers[test]) {
       if (oldTestAnswers[test][section]["TestType"] == "homework") {
         if (oldTestAnswers[test][section]["Status"] == "assigned") {
-          if (testAnswers[test][section]["Status"] == "forgot" || testAnswers[test][section]["Status"] == "did not do") {
+          if (testAnswers?.[test]?.[section]?.["Status"] == "forgot" || testAnswers?.[test]?.[section]?.["Status"] == "did not do") {
             incomplete++;
           }
         }
