@@ -449,11 +449,11 @@ function setHomeworkChart() {
   }
 
   //set initials at hour 0
-  compositeHoursScoresArray[0] = initialComposite;
-  englishHoursScoresArray[0] = actProfile['englishInitial'] ?? null;
-  mathHoursScoresArray[0] = actProfile['mathInitial'] ?? null;
-  readingHoursScoresArray[0] = actProfile['readingInitial'] ?? null;
-  scienceHoursScoresArray[0] = actProfile['scienceInitial'] ?? null;
+  compositeHoursScoresArray[0] = 0;
+  englishHoursScoresArray[0] = 0;
+  mathHoursScoresArray[0] = 0;
+  readingHoursScoresArray[0] = 0;
+  scienceHoursScoresArray[0] = 0;
 
   //initial in session dates
   sessionDateStr.push("Initial");
