@@ -1179,6 +1179,7 @@ p.errorMessage {
   z-index: 4;
   height: max-content;
   right: 515px;
+  top: 0px;
 }
 
 /* Popup arrow */
