@@ -1423,6 +1423,7 @@ function reorderNotes() {
   //get the last sections that have been taught
   let labelOrder = getLastSectionsTaught();
   labelOrder.splice(0,0,'general');
+  labelOrder.reverse();
 
   let labelWrapper = document.getElementById("student-notes-labels");
   let elements = document.createDocumentFragment();
