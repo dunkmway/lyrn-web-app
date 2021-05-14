@@ -345,6 +345,22 @@ function updateProfileData() {
 function setHomeworkChart() {
   //set up arrays for each test type
 
+  //add the initial scores to the array
+  englishTestArray.push(actProfile['englishInitial'] ?? null);
+  mathTestArray.push(actProfile['mathInitial'] ?? null);
+  readingTestArray.push(actProfile['readingInitial'] ?? null);
+  scienceTestArray.push(actProfile['scienceInitial'] ?? null);
+
+  let initialComposite = roundedAvg([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
+  compositeTestArray.push(initialComposite);
+
+  compositeHoursArray.push(0);
+  englishHoursArray.push(0);
+  mathHoursArray.push(0);
+  readingHoursArray.push(0);
+  scienceHoursArray.push(0);
+
+  //set up the rest of the tests
   for (let i = 0; i < sessionDates.length; i++) {
     englishTestArray.push(englishScores[sessionDates[i]]);
     mathTestArray.push(mathScores[sessionDates[i]]);
@@ -360,6 +376,23 @@ function setHomeworkChart() {
     mathHoursArray.push(mathHours[sessionDates[i]]);
     readingHoursArray.push(readingHours[sessionDates[i]]);
     scienceHoursArray.push(scienceHours[sessionDates[i]]);
+  }
+
+  //set releative scores
+  for (let i = 0; i < compositeTestArray.length; i++) {
+    compositeTestArray[i] = compositeTestArray[i] - initialComposite;
+  }
+  for (let i = 0; i < englishTestArray.length; i++) {
+    englishTestArray[i] = englishTestArray[i] - actProfile['englishInitial'];
+  }
+  for (let i = 0; i < mathTestArray.length; i++) {
+    mathTestArray[i] = mathTestArray[i] - actProfile['mathInitial'];
+  }
+  for (let i = 0; i < readingTestArray.length; i++) {
+    readingTestArray[i] = readingTestArray[i] - actProfile['readingInitial'];
+  }
+  for (let i = 0; i < scienceTestArray.length; i++) {
+    scienceTestArray[i] = scienceTestArray[i] - actProfile['scienceInitial'];
   }
 
   // console.log("compositeScores", compositeScores);
@@ -397,11 +430,15 @@ function setHomeworkChart() {
     }
   }
 
+
+
   // console.log("compositeHoursScores", compositeHoursScores);
   // console.log("englishHoursScores", englishHoursScores);
   // console.log("mathHoursScores", mathHoursScores);
   // console.log("readingHoursScores", readingHoursScores);
   // console.log("scienceHoursScores", scienceHoursScores);
+
+
 
   for (let i = 0; i < hoursArray.length; i++) {
     compositeHoursScoresArray.push(compositeHoursScores[hoursArray[i]]);
@@ -411,6 +448,15 @@ function setHomeworkChart() {
     scienceHoursScoresArray.push(scienceHoursScores[hoursArray[i]]);
   }
 
+  //set initials at hour 0
+  compositeHoursScoresArray[0] = 0;
+  englishHoursScoresArray[0] = 0;
+  mathHoursScoresArray[0] = 0;
+  readingHoursScoresArray[0] = 0;
+  scienceHoursScoresArray[0] = 0;
+
+  //initial in session dates
+  sessionDateStr.push("Initial");
   //set the sessionDate array in mm/dd/yyyy format
   for (let i = 0; i < sessionDates.length; i++) {
     const date = new Date(sessionDates[i]);
@@ -490,20 +536,31 @@ function setHomeworkChart() {
       scales: {
         y: {
           ticks: {
-            stepSize: 1
+            stepSize: 1,
+            callback: function(value, index, values) {
+              if (parseInt(value) > 0) {
+                return '+' + value;
+              }
+              else if (parseInt(value) < 0) {
+                return '-' + value;
+              }
+              else {
+                return value;
+              }
+            }
           },
-          suggestedMin: Math.min(
-            actProfile['englishInitial'],
-            actProfile['mathInitial'],
-            actProfile['readingInitial'],
-            actProfile['scienceInitial']
-          ),
-          suggestedMax: Math.max(
-            getNextTestGoals()?.["englishGoal"], 
-            getNextTestGoals()?.["mathGoal"], 
-            getNextTestGoals()?.["readingGoal"], 
-            getNextTestGoals()?.["scienceGoal"]
-          )
+          // suggestedMin: Math.min(
+          //   actProfile['englishInitial'],
+          //   actProfile['mathInitial'],
+          //   actProfile['readingInitial'],
+          //   actProfile['scienceInitial']
+          // ),
+          // suggestedMax: Math.max(
+          //   getNextTestGoals()?.["englishGoal"], 
+          //   getNextTestGoals()?.["mathGoal"], 
+          //   getNextTestGoals()?.["readingGoal"], 
+          //   getNextTestGoals()?.["scienceGoal"]
+          // )
         },
       },
       tooltips: {
@@ -522,6 +579,24 @@ function setHomeworkChart() {
         }
       },
       plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label
+              let value = context.parsed.y
+              console.log(value)
+              if (parseInt(value) > 0) {
+                return label + ' +' + value;
+              }
+              else if (parseInt(value) < 0) {
+                return label + ' -' + value;
+              }
+              else {
+                return label +  ' ' + value.toString();
+              }
+            }
+          }
+        },
         averagePerHour: false,
         // legend: {
         //   onClick: function(event, legendItem, legend) {
@@ -1154,7 +1229,7 @@ function removeTestDateGoal(e) {
 
 function removeAllTestDateGoals() {
   let element = document.getElementById("removeTestDateGoalButton");
-  while (removeTestDateGoal(element) > 0);
+  while (removeTestDateGoal(element) > 0) {}
 }
 
 // function getGeneralNotes() {
@@ -1348,6 +1423,7 @@ function reorderNotes() {
   //get the last sections that have been taught
   let labelOrder = getLastSectionsTaught();
   labelOrder.splice(0,0,'general');
+  labelOrder.reverse();
 
   let labelWrapper = document.getElementById("student-notes-labels");
   let elements = document.createDocumentFragment();
