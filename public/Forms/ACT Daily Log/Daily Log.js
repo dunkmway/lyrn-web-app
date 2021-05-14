@@ -1455,11 +1455,11 @@ function adjustPrintPopup() {
     }
   }
 
-  // Set the min height for scrolling
+  // Set the max height for scrolling
   let maxHeight = document.getElementById('homeworkSubmitDiv').getBoundingClientRect().top;
   if (maxHeight == 0) {
     maxHeight = document.getElementById('inCenterSubmitDiv').getBoundingClientRect().top;
-    if (minHeight == 0) {
+    if (maxHeight == 0) {
       maxHeight = document.getElementById('otherSubmitDiv').getBoundingClientRect().top;
     }
   }
@@ -1714,3 +1714,4 @@ for (let i = 0; i < 5 * othTests.length; i++) {
     otherDiv.append(ele)
   }
 }
+
