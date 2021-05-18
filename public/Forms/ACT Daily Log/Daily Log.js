@@ -571,7 +571,8 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
 
   // Exit the popup
   let popup = document.getElementById("submitHomeworkPopup")
-  if (gradeHomework == 'True' && (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')) {
+  if (gradeHomework == 'True' && (   (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')
+                                  || (oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot'))) {
     newStatus = status;
     submitAnswersPopup();
   }
@@ -580,9 +581,16 @@ function setHomeworkStatus(status, gradeHomework = "False", element = undefined)
     openForm(lastView);
   }
   else if (gradeHomework == 'True' && (current_status != 'assigned' && current_status != 'reassigned' && current_status != 'forgot')) {
-    resetMessages();
-    let assignMessage = document.getElementById("assignFirst")
-    assignMessage.style.display = "inline";
+    if ((oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot' || oldStatus == undefined)) {
+      resetMessages();
+      let assignMessage = document.getElementById("assignFirst")
+      assignMessage.style.display = "inline";
+    }
+    else {
+      resetMessages();
+      let alreadyGradedTest = document.getElementById("alreadyGradedTest")
+      alreadyGradedTest.style.display = "inline";
+    }
   }
 
 }
@@ -746,9 +754,11 @@ function resetMessages() {
   let guessMessage = document.getElementById("guessFirst");
   let gradeMessage = document.getElementById("gradeFirst");
   let assignMessage = document.getElementById("assignFirst")
+  let alreadyGradedTest = document.getElementById("alreadyGradedTest")
   guessMessage.style.display = "none";
   gradeMessage.style.display = "none";
   assignMessage.style.display = "none";
+  alreadyGradedTest.style.display = "none";
 }
 
 function getPassageFirstQuestion(passageNumber) {
@@ -817,6 +827,20 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
   let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
   let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
 
+  // Check to see if the test can be submitted (all passages have been looked at)
+  let canSubmitTest = false;
+  if (test_view_type == 'homework') {
+    let pCount = 0;
+    for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
+      if (!keys_to_skip.includes(key)) {
+        pCount++;
+      }
+    }
+    if (pCount == last_passage_number) {
+      canSubmitTest = true;
+    }
+  }
+
   // Toggle the submit button popups
   let popup = document.getElementById("submitHomeworkPopup")
   let popup2 = document.getElementById("perfectScorePopup")
@@ -855,7 +879,8 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
       setObjectValue([info[0], info[1], info[2]], testAnswers[info[0]][info[1]][info[2]], tempAnswers);
     }
   }
-  else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
+  //else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
+  else if (test_view_type == 'homework' && canSubmitTest == true && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
 
     if (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) {
       // Calculate how many questions they got correct
@@ -877,7 +902,7 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
       }
 
       // Set the information
-      if (info[2] == last_passage_number) {
+      if (canSubmitTest == true) {
         setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
         setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
         setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
@@ -891,11 +916,12 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
     }
   }
   else {
+    console.log(canSubmitTest)
     gradeMessage.style.display = "inline";
   }
 
   // Go back to one of the test forms
-  if (!(info[2] != last_passage_number && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && swap == 'False') {
+  if (!(canSubmitTest == false && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && swap == 'False') {
     popup.classList.remove("show");
     openForm(lastView);
   }
