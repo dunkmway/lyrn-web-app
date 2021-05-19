@@ -901,7 +901,7 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
         }
       }
 
-      // Set the information
+      // Set the information (ADD FUNCTION HERE)
       if (canSubmitTest == true) {
         setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
         setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
