@@ -565,5 +565,9 @@ const parentPhone = document.getElementById('parentPhoneNumber');
 parentPhone.addEventListener('keydown',enforceNumericFormat);
 parentPhone.addEventListener('keyup',formatToPhone);
 
+const studentPhone = document.getElementById('studentPhoneNumber');
+studentPhone.addEventListener('keydown',enforceNumericFormat);
+studentPhone.addEventListener('keyup',formatToPhone);
+
 const inputZipcode = document.getElementById('zipCode');
 inputZipcode.addEventListener('keydown',enforceNumericFormat);
