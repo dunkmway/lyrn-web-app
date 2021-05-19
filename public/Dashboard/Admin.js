@@ -121,6 +121,11 @@ function setStudentTable() {
             else {
               student.studentType == "";
             }
+
+            //adjust name to be last, first
+            student.studentName = student.studentLastName + ", " + student.studentFirstName
+            student.parentName = student.parentLastName + ", " + student.parentFirstName
+
             tableData.push(student);
           }
         }
@@ -139,13 +144,11 @@ function setStudentTable() {
     let studentTable = $('#student-table').DataTable( {
       data: tableData,
       columns: [
-        { data: 'studentLastName' },
-        { data: 'studentFirstName' },
+        { data: 'studentName' },
         { data: 'studentType'},
         { data: 'location'},
         { data: 'status' },
-        { data: 'parentLastName'},
-        { data: 'parentFirstName' },
+        { data: 'parentName'},
       ],
       "scrollY": "400px",
       "scrollCollapse": true,
