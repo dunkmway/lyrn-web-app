@@ -383,9 +383,18 @@
     <section id="section">
 
         <div id = "sideNav" class = "nav_disabled">
-            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog', this);addUnloadListener()">Daily Log</div>
-            <div id = "testReviewNav" class = "button2">Test Review</div>
-            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests', this)">Test Scores</div>
+            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog', this);addUnloadListener()">
+                <img src="../../Images/Daily Log.png" alt="Daily Log Icon Image" height=40px width=40px class = 'icon'>
+                Daily Log
+            </div>
+            <div id = "testReviewNav" class = "button2">
+                <img id = 'testReviewIcon' src="../../Images/Test Review Icon.png" alt="Test Review Icon Image" height=50px width=50px class = 'icon'>
+                Test Review
+            </div>
+            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests', this)">
+                <img src="../../Images/Scaled Scores.png" alt="Scaled Scores Icon Image" height=40px width=40px class = 'icon'>
+                Test Scores
+            </div>
         </div>
 
         <div id = "printPopup" class = "printPopup" data-test = "">

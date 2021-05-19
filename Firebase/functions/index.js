@@ -232,7 +232,7 @@ exports.setMessage = functions.https.onCall((data, context) => {
                 ref = generateRef(['Students', data.id, 'Writing-Program', 'notes'])
                 break;
             case ('Location'):
-                ref = generateRef(['Students', data.id, 'Data', 'notes'])
+                //ref = generateRef(['Students', data.id, 'Data', 'notes'])
                 break;
             default:
                 reject('Reference location does not exist');
