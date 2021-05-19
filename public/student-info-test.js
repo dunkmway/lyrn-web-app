@@ -1,6 +1,12 @@
 let currentStudent = "";
 let currentTutor = "";
 
+const compositeColor = "#595959";
+const englishColor = "#4848FF";
+const mathColor = "#FF48A3";
+const readingColor = "#FFFF48";
+const scienceColor = "#48FFA3";
+
 let studentProfile = {};
 let hwData = {};
 let sessionData = {};
@@ -249,11 +255,11 @@ function updateProfileData() {
   const currentScienceScore = latestScore(scienceScores);
   const currentCompositeScore = roundedAvg([currentEnglishScore, currentMathScore, currentReadingScore, currentScienceScore]);
 
-  document.getElementById('composite-score').innerHTML = currentCompositeScore ?? "";
-  document.getElementById('english-score').textContent = currentEnglishScore ?? "";
-  document.getElementById('math-score').textContent = currentMathScore ?? "";
-  document.getElementById('reading-score').textContent = currentReadingScore ?? "";
-  document.getElementById('science-score').textContent = currentScienceScore ?? "";
+  document.getElementById('composite-score').innerHTML = currentCompositeScore ?? null;
+  document.getElementById('english-score').textContent = currentEnglishScore ?? null;
+  document.getElementById('math-score').textContent = currentMathScore ?? null;
+  document.getElementById('reading-score').textContent = currentReadingScore ?? null;
+  document.getElementById('science-score').textContent = currentScienceScore ?? null;
 
   const englishGoal = getNextTestGoals()?.["englishGoal"];
   const mathGoal = getNextTestGoals()?.["mathGoal"]
@@ -378,7 +384,7 @@ function setHomeworkChart() {
     scienceHoursArray.push(scienceHours[sessionDates[i]]);
   }
 
-  //set releative scores
+  //set relative scores
   for (let i = 0; i < compositeTestArray.length; i++) {
     compositeTestArray[i] = compositeTestArray[i] - initialComposite;
   }
@@ -467,6 +473,52 @@ function setHomeworkChart() {
     sessionDateStr.push(dateStr);
   }
 
+  //prep work for the goal lines
+  const compositeGoal = roundedAvg([
+    getNextTestGoals()?.["englishGoal"], 
+    getNextTestGoals()?.["mathGoal"], 
+    getNextTestGoals()?.["readingGoal"], 
+    getNextTestGoals()?.["scienceGoal"]
+  ]);
+  const englishGoal = getNextTestGoals()?.["englishGoal"];
+  const mathGoal = getNextTestGoals()?.["mathGoal"];
+  const readingGoal = getNextTestGoals()?.["readingGoal"];
+  const scienceGoal = getNextTestGoals()?.["scienceGoal"];
+
+  const relativeCompositeGoal = compositeGoal - initialComposite;
+  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"];
+  const relativeMathGoal = mathGoal - actProfile["mathInitial"];
+  const relativeReadingGoal = readingGoal - actProfile["readingInitial"];
+  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"];
+
+  //see if any relative scores are the same
+  let relativeGoals = [relativeCompositeGoal, relativeEnglishGoal, relativeMathGoal, relativeReadingGoal, relativeScienceGoal];
+  let borderDashGoals = [null, null, null, null, null];
+  let borderDashOffsetGoals = [null, null, null, null, null];
+  const defaultBorderDash = [25, 10]
+  const defaultDashOffsetChange = defaultBorderDash[0] + defaultBorderDash[1];
+
+  for (let i = 0; i < relativeGoals.length; i++) {
+    //if the border dash has not been set yet
+    if (borderDashGoals[i] == null) {
+      let matchIndexes = [];
+      for (let j = 0; j < relativeGoals.length; j++) {
+        //if a goal matches another goal
+        if (i!=j && relativeGoals[i] == relativeGoals[j]) {
+          matchIndexes.push(j);
+        }
+      }
+
+      //adjust the border according to the matches
+      for (let j = 0; j < matchIndexes.length; j++) {
+        borderDashGoals[matchIndexes[j]] = [defaultBorderDash[0], defaultBorderDash[1] + defaultDashOffsetChange * (matchIndexes.length)];
+        borderDashOffsetGoals[matchIndexes[j]] = defaultDashOffsetChange * (j + 1);
+      }
+      borderDashGoals[i] = [defaultBorderDash[0], defaultBorderDash[1] + defaultDashOffsetChange * (matchIndexes.length)];
+      borderDashOffsetGoals[i] = 0;
+    }
+  }
+
   var ctxHW = document.getElementById("hw-canvas");
   return new Chart(ctxHW, {
     // The type of chart we want to create
@@ -478,18 +530,20 @@ function setHomeworkChart() {
       datasets: [
         {
           label: "Composite",
-          backgroundColor: "#595959",
-          borderColor: "#595959",
+          order: 1,
+          backgroundColor: compositeColor,
+          borderColor: compositeColor,
+          borderWidth: 7,
           fill: false,
           stepped: true,
-          pointRadius: 5,
-          pointHoverRadius: 10,
+          pointRadius: 3,
+          pointHoverRadius: 8,
           data: compositeTestArray,
         },
         {
           label: "English",
-          backgroundColor: "#4848FF",
-          borderColor: "#4848FF",
+          backgroundColor: englishColor,
+          borderColor: englishColor,
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -498,8 +552,8 @@ function setHomeworkChart() {
         },
         {
           label: "Math",
-          backgroundColor: "#FF48A3",
-          borderColor: "#FF48A3",
+          backgroundColor: mathColor,
+          borderColor: mathColor,
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -508,8 +562,8 @@ function setHomeworkChart() {
         },
         {
           label: "Reading",
-          backgroundColor: "#FFFF48",
-          borderColor: "#FFFF48",
+          backgroundColor: readingColor,
+          borderColor: readingColor,
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -518,8 +572,8 @@ function setHomeworkChart() {
         },
         {
           label: "Science",
-          backgroundColor: "#48FFA3",
-          borderColor: "#48FFA3",
+          backgroundColor: scienceColor,
+          borderColor: scienceColor,
           fill: false,
           stepped: true,
           pointRadius: 5,
@@ -541,9 +595,6 @@ function setHomeworkChart() {
               if (parseInt(value) > 0) {
                 return '+' + value;
               }
-              else if (parseInt(value) < 0) {
-                return '-' + value;
-              }
               else {
                 return value;
               }
@@ -555,12 +606,12 @@ function setHomeworkChart() {
           //   actProfile['readingInitial'],
           //   actProfile['scienceInitial']
           // ),
-          // suggestedMax: Math.max(
-          //   getNextTestGoals()?.["englishGoal"], 
-          //   getNextTestGoals()?.["mathGoal"], 
-          //   getNextTestGoals()?.["readingGoal"], 
-          //   getNextTestGoals()?.["scienceGoal"]
-          // )
+          suggestedMax: Math.max(
+            getNextTestGoals()?.["englishGoal"] - actProfile["englishInitial"] + 2, 
+            getNextTestGoals()?.["mathGoal"] - actProfile["mathInitial"] + 2,
+            getNextTestGoals()?.["readingGoal"] - actProfile["readingInitial"] + 2,
+            getNextTestGoals()?.["scienceGoal"] - actProfile["scienceInitial"] + 2
+          )
         },
       },
       tooltips: {
@@ -579,46 +630,124 @@ function setHomeworkChart() {
         }
       },
       plugins: {
+        //fixme: I want the tooltip to show the actual score
         tooltip: {
           callbacks: {
             label: function(context) {
               let label = context.dataset.label
               let value = context.parsed.y
-              console.log(value)
-              if (parseInt(value) > 0) {
-                return label + ' +' + value;
-              }
-              else if (parseInt(value) < 0) {
-                return label + ' -' + value;
-              }
-              else {
-                return label +  ' ' + value.toString();
+
+              //check for the section and add the intial back
+              //piggy back off this callback to show the annotation of the sections goal
+              switch (label) {
+                case ("Composite"):
+                  return label + " " + (value + initialComposite).toString();
+                case ("English"):
+                  return label + " " + (value + actProfile['englishInitial']).toString();
+                case ("Math"):
+                  return label + " " + (value + actProfile['mathInitial']).toString();
+                case ("Reading"):
+                  return label + " " + (value + actProfile['readingInitial']).toString();
+                case ("Science"):
+                  return label + " " + (value + actProfile['scienceInitial']).toString();
+                default:
+                  return null
+
               }
             }
           }
         },
-        averagePerHour: false,
-        // legend: {
-        //   onClick: function(event, legendItem, legend) {
-        //     console.log(event);
-        //     console.log(legendItem);
-        //     console.log(legend);
-        //   }
-        // }
-        goalLine: false
-        //goalLine: {
-        //   goals: [
-        //     roundedAvg([
-        //       getNextTestGoals()?.["englishGoal"], 
-        //       getNextTestGoals()?.["mathGoal"], 
-        //       getNextTestGoals()?.["readingGoal"], 
-        //       getNextTestGoals()?.["scienceGoal"]]),
-        //     getNextTestGoals()?.["englishGoal"], 
-        //     getNextTestGoals()?.["mathGoal"], 
-        //     getNextTestGoals()?.["readingGoal"], 
-        //     getNextTestGoals()?.["scienceGoal"]
-        //   ]
-        // }
+        autocolors: false,
+        annotation: {
+          drawTime: 'beforeDatasetsDraw',
+          annotations: {
+            compositeGoal: {
+              type: 'line',
+              yMin: relativeCompositeGoal,
+              yMax: relativeCompositeGoal,
+              borderColor: compositeColor,
+              borderWidth: 2,
+              borderDash: borderDashGoals[0],
+              borderDashOffset: borderDashOffsetGoals[0],
+              label: {
+                xAdjust: borderDashOffsetGoals[0] - 6,
+                backgroundColor: compositeColor,
+                color: "white",
+                enabled: true,
+                content: compositeGoal,
+                position: "start",
+              }
+            },
+            englishGoal: {
+              type: 'line',
+              yMin: relativeEnglishGoal,
+              yMax: relativeEnglishGoal,
+              borderColor: englishColor,
+              borderWidth: 2,
+              borderDash: borderDashGoals[1],
+              borderDashOffset: borderDashOffsetGoals[1],
+              label: {
+                xAdjust: borderDashOffsetGoals[1] - 6,
+                backgroundColor: englishColor,
+                color: "white",
+                enabled: true,
+                content: englishGoal,
+                position: "start",
+              }
+            },
+            mathGoal: {
+              type: 'line',
+              yMin: relativeMathGoal,
+              yMax: relativeMathGoal,
+              borderColor: mathColor,
+              borderWidth: 2,
+              borderDash: borderDashGoals[2],
+              borderDashOffset: borderDashOffsetGoals[2],
+              label: {
+                xAdjust: borderDashOffsetGoals[2] - 6,
+                backgroundColor: mathColor,
+                color: "white",
+                enabled: true,
+                content: mathGoal,
+                position: "start",
+              }
+            },
+            readingGoal: {
+              type: 'line',
+              yMin: relativeReadingGoal,
+              yMax: relativeReadingGoal,
+              borderColor: readingColor,
+              borderWidth: 2,
+              borderDash: borderDashGoals[3],
+              borderDashOffset: borderDashOffsetGoals[3],
+              label: {
+                xAdjust: borderDashOffsetGoals[3] - 6,
+                backgroundColor: readingColor,
+                color: "white",
+                enabled: true,
+                content: readingGoal,
+                position: "start",
+              }
+            },
+            scienceGoal: {
+              type: 'line',
+              yMin: relativeScienceGoal,
+              yMax: relativeScienceGoal,
+              borderColor: scienceColor,
+              borderWidth: 2,
+              borderDash: borderDashGoals[4],
+              borderDashOffset: borderDashOffsetGoals[4],
+              label: {
+                xAdjust: borderDashOffsetGoals[4] - 6,
+                backgroundColor: scienceColor,
+                color: "white",
+                enabled: true,
+                content: scienceGoal,
+                position: "start",
+              }
+            }
+          }
+        }
       }
     }
   });
@@ -838,56 +967,56 @@ function setHourAxis() {
   hwChart.update("none");
 }
 
-const plugin = {
-  id: "averagePerHour",
-  afterDatasetDraw: function(chart, args, options) {
-    var ctxPlugin = chart.ctx;
-    var xAxis = chart.scales['x'];
-    var yAxis = chart.scales['y'];
+// const plugin = {
+//   id: "averagePerHour",
+//   afterDatasetDraw: function(chart, args, options) {
+//     var ctxPlugin = chart.ctx;
+//     var xAxis = chart.scales['x'];
+//     var yAxis = chart.scales['y'];
     
-    ctxPlugin.strokeStyle = '#a9a9a9';
-    ctxPlugin.beginPath();
-    ctxPlugin.moveTo(xAxis.left, yAxis.bottom);
-    ctxPlugin.lineTo(xAxis.right, yAxis.top);
-    ctxPlugin.stroke();
+//     ctxPlugin.strokeStyle = '#a9a9a9';
+//     ctxPlugin.beginPath();
+//     ctxPlugin.moveTo(xAxis.left, yAxis.bottom);
+//     ctxPlugin.lineTo(xAxis.right, yAxis.top);
+//     ctxPlugin.stroke();
 
-    ctxPlugin.save();
-    ctxPlugin.translate(xAxis.right - 150,yAxis.top + 75);
-    var rotation = Math.atan((yAxis.top - yAxis.bottom) / (xAxis.right - xAxis.left))
-    ctxPlugin.rotate(rotation);
+//     ctxPlugin.save();
+//     ctxPlugin.translate(xAxis.right - 150,yAxis.top + 75);
+//     var rotation = Math.atan((yAxis.top - yAxis.bottom) / (xAxis.right - xAxis.left))
+//     ctxPlugin.rotate(rotation);
 
-    var diagonalText = 'FIXME: not optimal!';
-    ctxPlugin.font = "16px Arial";
-    ctxPlugin.fillStyle = "#a9a9a9";
-    ctxPlugin.fillText(diagonalText, 0, 0);
-    ctxPlugin.restore();
-  }
-}
+//     var diagonalText = 'FIXME: not optimal!';
+//     ctxPlugin.font = "16px Arial";
+//     ctxPlugin.fillStyle = "#a9a9a9";
+//     ctxPlugin.fillText(diagonalText, 0, 0);
+//     ctxPlugin.restore();
+//   }
+// }
 
-const goalLinePlugin = {
-  id: "goalLine",
-  afterDatasetDraw : function(chart, args, options) {
-    var ctxPlugin = chart.ctx;
-    var xAxis = chart.scales['x'];
-    var yAxis = chart.scales['y'];
+// const goalLinePlugin = {
+//   id: "goalLine",
+//   afterDatasetDraw : function(chart, args, options) {
+//     var ctxPlugin = chart.ctx;
+//     var xAxis = chart.scales['x'];
+//     var yAxis = chart.scales['y'];
 
-    let goals = options['goals'];
-    let currentGoal = goals?.[args['index']] ? parseInt(goals[args['index']]) : null;
-    let goalPixelHeight = yAxis.getPixelForValue(currentGoal)
-    let lineColor = args['meta']['_dataset']['backgroundColor'];
+//     let goals = options['goals'];
+//     let currentGoal = goals?.[args['index']] ? parseInt(goals[args['index']]) : null;
+//     let goalPixelHeight = yAxis.getPixelForValue(currentGoal)
+//     let lineColor = args['meta']['_dataset']['backgroundColor'];
 
-    ctxPlugin.strokeStyle = lineColor;
-    ctxPlugin.lineWidth = "2"
-    ctxPlugin.setLineDash([15, 10])
-    ctxPlugin.beginPath();
-    ctxPlugin.moveTo(xAxis.left, goalPixelHeight);
-    ctxPlugin.lineTo(xAxis.right, goalPixelHeight);
-    ctxPlugin.stroke();
-  }
-}
+//     ctxPlugin.strokeStyle = lineColor;
+//     ctxPlugin.lineWidth = "2"
+//     ctxPlugin.setLineDash([15, 10])
+//     ctxPlugin.beginPath();
+//     ctxPlugin.moveTo(xAxis.left, goalPixelHeight);
+//     ctxPlugin.lineTo(xAxis.right, goalPixelHeight);
+//     ctxPlugin.stroke();
+//   }
+// }
 
-Chart.register(plugin);
-Chart.register(goalLinePlugin);
+// Chart.register(plugin);
+// Chart.register(goalLinePlugin);
 
 main();
 

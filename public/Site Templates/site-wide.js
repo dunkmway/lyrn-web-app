@@ -40,15 +40,16 @@ function checkPermissions() {
     const tutorPages = [
         "/Dashboard/Tutor",
         "/Forms/ACT%20Daily%20Log/Daily%20Log",
-        "/student-info-test"
+        "/student-info-test",
+        "/subject-tutoring-dash"
     ]
     
     const secretaryPages = [
         "/Dashboard/Secretary",
         "/inquiry",
         "/Forms/New%20Student/New%20Student%20Form",
-        "/Forms/ACT%20Daily%20Log/Daily%20Log"
-        
+        "/Forms/ACT%20Daily%20Log/Daily%20Log",
+        "/subject-tutoring-dash"
     ]
     
     const adminPages = [
