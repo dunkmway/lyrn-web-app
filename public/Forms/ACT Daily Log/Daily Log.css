@@ -695,6 +695,25 @@ button {
     }
 }
 
+@media (any-hover: hover) {
+
+    .testRow:hover {
+        background-color: rgb(255, 0, 0, 0.7);
+    }
+
+    .nav_enabled div:hover {
+        right: 470px;
+        text-align: left;
+        padding-left: 60px;
+    }
+
+    .nav_disabled div:hover {
+        right: -30px;
+        text-align: left;
+        padding-left: 60px;
+    }
+}
+
 .button {
     margin-left: 3px;
     margin-right: 3px;
@@ -1086,10 +1105,10 @@ p.errorMessage {
 
 .nav_enabled div {
     position: absolute;
-    right: 385px;
+    right: 365px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
-    width: 130px;
+    width: 170px;
     font-size: 20px;
     color: white;
     border-radius: 5px 0px 0px 5px;
@@ -1098,16 +1117,17 @@ p.errorMessage {
 }
 
 .nav_enabled div:hover {
-    right: 490px;
+    right: 470px;
     text-align: left;
+    padding-left: 60px;
 }
 
 .nav_disabled div {
     position: absolute;
-    right: -115px;
+    right: -135px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
-    width: 130px;
+    width: 170px;
     font-size: 20px;
     color: white;
     border-radius: 10px 0px 0px 10px;
@@ -1116,8 +1136,9 @@ p.errorMessage {
 }
 
 .nav_disabled div:hover {
-    right: -10px;
+    right: -30px;
     text-align: left;
+    padding-left: 60px;
 }
 
 #dailyLogNav {
@@ -1363,4 +1384,16 @@ p.errorMessage {
 
 #passage .input-row-center {
     border-radius: 22.5px;
+}
+
+.icon {
+    position: absolute;
+    left: 10px;
+    top: calc(50% - 20px)
+}
+
+#testReviewIcon {
+    position: absolute;
+    left: 10px;
+    top: calc(50% - 25px)
 }
