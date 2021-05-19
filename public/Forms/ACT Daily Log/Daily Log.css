@@ -249,7 +249,9 @@ body {
 }
 
 #dailyLog {
-    position: absolute;
+    display: none;
+    z-index: 2;
+    position: fixed;
     top: 0px;
     right: 0px;
     width: 500px;
@@ -457,7 +459,7 @@ body {
 }
 
 .metaForm {
-    position: absolute;
+    position: fixed;
     display: flex;
     --display: none;
     flex-direction: column;
@@ -505,11 +507,6 @@ body {
     flex-direction: column;
     justify-content: center;
     padding-bottom: 10px;
-}
-
-#dailyLog {
-    display: none;
-    z-index: 2;
 }
 
 #homeworkTestsForm {
@@ -682,36 +679,6 @@ button {
     justify-content: left;
     width: max-content;
     margin-left: 10px;
-}
-
-@media screen and (max-width: 1000px) {
-    .input-row-buttons {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: stretch;
-        padding-left: 8%;
-        padding-right: 8%;
-    }
-}
-
-@media (any-hover: hover) {
-
-    .testRow:hover {
-        background-color: rgb(255, 0, 0, 0.7);
-    }
-
-    .nav_enabled div:hover {
-        right: 470px;
-        text-align: left;
-        padding-left: 60px;
-    }
-
-    .nav_disabled div:hover {
-        right: -30px;
-        text-align: left;
-        padding-left: 60px;
-    }
 }
 
 .button {
@@ -895,12 +862,10 @@ p.errorMessage {
     width: 100px;
     height: 100px;
     animation: spin 2s linear infinite;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    left: calc(100% - 325px);
+    top: calc(50% - 50px);
     margin: auto;
-    position: absolute;
+    position: fixed;
 }
 
 .testP {
@@ -1104,7 +1069,7 @@ p.errorMessage {
 }
 
 .nav_enabled div {
-    position: absolute;
+    position: fixed;
     right: 365px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
@@ -1123,7 +1088,7 @@ p.errorMessage {
 }
 
 .nav_disabled div {
-    position: absolute;
+    position: fixed;
     right: -135px;
     transition: 0.2s;
     padding: 20px 0px 20px 30px;
@@ -1396,4 +1361,34 @@ p.errorMessage {
     position: absolute;
     left: 10px;
     top: calc(50% - 25px)
+}
+
+@media screen and (max-width: 1000px) {
+    .input-row-buttons {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        padding-left: 8%;
+        padding-right: 8%;
+    }
+}
+
+@media (any-hover: hover) {
+
+    .testRow:hover {
+        background-color: rgb(255, 0, 0, 0.7);
+    }
+
+    .nav_enabled div:hover {
+        right: 470px;
+        text-align: left;
+        padding-left: 60px;
+    }
+
+    .nav_disabled div:hover {
+        right: -30px;
+        text-align: left;
+        padding-left: 60px;
+    }
 }

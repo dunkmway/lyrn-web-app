@@ -2,10 +2,10 @@ let currentStudent = "";
 let currentTutor = "";
 
 const compositeColor = "#595959";
-const englishColor = "#4848FF";
-const mathColor = "#FF48A3";
-const readingColor = "#FFFF48";
-const scienceColor = "#48FFA3";
+const englishColor = "#5600F7";
+const mathColor = "#F70056";
+const readingColor = "#00E6BC";
+const scienceColor = "#C00BE0";
 
 let studentProfile = {};
 let hwData = {};
