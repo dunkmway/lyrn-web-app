@@ -1025,6 +1025,7 @@ main();
 
 
 function openUpdateGoals() {
+  document.addEventListener('keyup', escapeKeyEventListner("update-goals-section"));
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       user.getIdTokenResult()
@@ -1040,6 +1041,7 @@ function openUpdateGoals() {
 }
 
 function closeModal(e, modalID, submitted = false) {
+  document.removeEventListener('keyup', escapeKeyEventListner("update-goals-section"));
   //stops children from calling function
   if (e.target !== e.currentTarget) return;
   let allInputs = document.getElementById(modalID).querySelectorAll("input, select");
@@ -1993,3 +1995,10 @@ document.getElementById("student-science-notes").addEventListener("mouseover", (
 document.getElementById("student-science-notes").addEventListener("mouseout", (event) => {
   document.getElementById("student-data-section").style.overflow = 'auto';
 });
+
+function escapeKeyEventListner(event, modalID) {
+  console.log(event);
+  if (event.key == "Escape") {
+    closeModal(Event, modalID, false);
+  }
+}

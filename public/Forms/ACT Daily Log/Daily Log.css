@@ -1081,11 +1081,11 @@ p.errorMessage {
     text-align: right;
 }
 
-.nav_enabled div:hover {
+/* .nav_enabled div:hover {
     right: 470px;
     text-align: left;
     padding-left: 60px;
-}
+} */
 
 .nav_disabled div {
     position: fixed;
@@ -1100,11 +1100,11 @@ p.errorMessage {
     text-align: right;
 }
 
-.nav_disabled div:hover {
+/* .nav_disabled div:hover {
     right: -30px;
     text-align: left;
     padding-left: 60px;
-}
+} */
 
 #dailyLogNav {
     top: 30px;

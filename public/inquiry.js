@@ -350,10 +350,15 @@ function validateFields(inputs) {
         allClear = false;
       }
     }
-
-
-
   }
+
+  //parent and student must have different emails
+  if (document.getElementById("parentEmail").value.trim() == document.getElementById("studentEmail").value.trim()) {
+    document.getElementById("parentEmail").parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["parentEmail" + "ErrorMessage"], "The student and parent cannot have the same email!"));
+    document.getElementById("studentEmail").parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["parentEmail" + "ErrorMessage"], "The student and parent cannot have the same email!"));
+    allClear = false;
+  }
+
   return allClear;
 }
 
