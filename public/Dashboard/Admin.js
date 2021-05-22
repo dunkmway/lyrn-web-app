@@ -156,41 +156,44 @@ function setStudentTable() {
     } );
 
     studentTable.on('click', (args) => {
-      let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-      let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
-      let location = tableData[args.target._DT_CellIndex.row].locationUID;
-      let status = tableData[args.target._DT_CellIndex.row].status;
-      let type = tableData[args.target._DT_CellIndex.row].studentType;
+      //this should fix some "cannot read property of undefined" errors
+      if (args?.target?._DT_CellIndex) {
+        let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+        let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
+        let location = tableData[args.target._DT_CellIndex.row].locationUID;
+        let status = tableData[args.target._DT_CellIndex.row].status;
+        let type = tableData[args.target._DT_CellIndex.row].studentType;
 
-      switch (status) {
-        case "pending":
-          if (type == 'ACT') {
-            pendingStudentSelected(studentUID, parentUID, location);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
-          break;
-        case "active":
-          if (type == 'ACT') {
-            actStudentSelected(studentUID);
-          }
-          else if (type == 'ST') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          //FIXME: these will need to be redirected to the proper page once we have them
-          else if (type == 'Math Program') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          else if (type == 'Phonics Program') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
-          break;
-        default:
-          console.log("ERROR: This student isn't active or pending!!!")
+        switch (status) {
+          case "pending":
+            if (type == 'ACT') {
+              pendingStudentSelected(studentUID, parentUID, location);
+            }
+            else {
+              alert("nothing to see here...yet")
+            }
+            break;
+          case "active":
+            if (type == 'ACT') {
+              actStudentSelected(studentUID);
+            }
+            else if (type == 'ST') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            //FIXME: these will need to be redirected to the proper page once we have them
+            else if (type == 'Math Program') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            else if (type == 'Phonics Program') {
+              subjectTutoringStudentSelected(studentUID);
+            }
+            else {
+              alert("nothing to see here...yet")
+            }
+            break;
+          default:
+            console.log("ERROR: This student isn't active or pending!!!")
+        }
       }
     });
   })
