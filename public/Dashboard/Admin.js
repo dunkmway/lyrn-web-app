@@ -180,7 +180,7 @@ function setStudentTable() {
           }
           //FIXME: these will need to be redirected to the proper page once we have them
           else if (type == 'Math Program') {
-            subjectTutoringStudentSelected(studentUID);
+            mathProgramSelected(studentUID);
           }
           else if (type == 'Phonics Program') {
             subjectTutoringStudentSelected(studentUID);
@@ -585,4 +585,9 @@ function actStudentSelected(studentUID) {
 function subjectTutoringStudentSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../subject-tutoring-dash.html" + queryStr;
+}
+
+function mathProgramSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../math-program.html" + queryStr;
 }
