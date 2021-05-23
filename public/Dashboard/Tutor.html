@@ -37,9 +37,12 @@
       </div>
       <div class="input-row">
         <div class="input-block">
-          <!-- <p><b>Beta Update:</b></p>
-          <p>Everything should be up and running for the daily log!</p>
-          <p>Please make sure and change your password after signing into your account for the first time.</p> -->
+          <p><b>Hey Everyone!</b></p>
+          <p>We hope everything is going smoothly as we transition online.</p>
+          <p>We would love to hear your feedback, suggestions, and especially bugs.</p>
+          <p>Take a look below the student list for a place to post your feedback.</p>
+          <p>We might not get to it for some time but we'll definitly be taking a look at them.</p>
+          <p>If you want us to remember your idea this is definitly the place to put it.</p>
           <button class="button" onclick="resetPassword()">reset password</button>
         </div>
       </div>
@@ -54,6 +57,14 @@
             </tr>
           </thead>
         </table>
+      </div>
+
+      <!-- feedback area -->
+      <div style="margin: 25px;">
+        <h3>Feedback</h3>
+        <textarea id="feedback_input" class="feedback_input" placeholder="any feedback?"></textarea>
+        <p id="feedback_error_msg"></p>
+        <button id="feedback_submit_btn" class="button" onclick="submitFeedback()">Submit</button>
       </div>
     </section>
   </body>

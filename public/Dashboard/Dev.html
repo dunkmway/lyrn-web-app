@@ -30,10 +30,11 @@
       <div class="loading-ring"></div>
     </section>
 
-    <div class="flex-row">
+    <div class="flex-row justify-space-between" style="margin: 20px;">
       <button class="button" onclick="window.location.href='Admin.html'">Go to Admin</button>
       <!-- <button class="button" onclick="window.location.href='Secretary.html'">Go to Secretary</button>
       <button class="button" onclick="window.location.href='Tutor.html'">Go to Tutor</button> -->
+      <button class="button" onclick="signOut()">Sign Out</button>
     </div>
 
     <div>
@@ -48,6 +49,18 @@
             <th>User</th>
             <th>User Message</th>
             <th>Error</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div>
+      <table id="feedback-table" class="display compact cell-border">
+        <thead>
+          <tr>
+            <th>Feedback</th>
+            <th>Time</th>
+            <th>User</th>
           </tr>
         </thead>
       </table>

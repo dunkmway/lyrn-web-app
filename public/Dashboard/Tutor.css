@@ -69,6 +69,14 @@ select {
   color: #110D65;
 }
 
+.feedback_input {
+  height: 100px;
+  width: 500px;
+  resize: none;
+  display: block;
+  font-size: 16px;
+}
+
 .button {
   margin-top: 20px;
   margin-right: 50px;

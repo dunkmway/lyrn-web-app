@@ -1,4 +1,5 @@
 setErrorTable();
+setFeedbackTable();
 
 function setErrorTable() {
   let tableData = [];
@@ -33,9 +34,6 @@ function setErrorTable() {
         { data: 'UserMessage' },
         { data: 'Error' },
       ],
-      // "scrollY": "400px",
-      // "scrollCollapse": true,
-      // "paging": false,
       "autoWidth": false,
       "pageLength" : 10,
     });
@@ -52,6 +50,59 @@ function setErrorTable() {
           tableData.splice(row, 1);
           //remove the row (parent) that was clicked
           errorTable.row($(event.target).parents('tr')).remove().draw();
+        })
+        .catch((error) => {
+          handleFirebaseErrors(error, document.currentScript.src);
+          console.log(error);
+        });
+      }
+    });
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, document.currentScript.src);
+    console.log(error);
+  });
+}
+
+function setFeedbackTable() {
+  let tableData = [];
+  const feedbackCollectionRef = firebase.firestore().collection("Feedback");
+  feedbackCollectionRef.get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      let feedbackData = {
+        docUID : doc.id,
+        feedback : data["feedback"],
+        time : convertFromDateInt(parseInt(data["timestamp"]))["longDate"],
+        user : data["user"],
+      }
+      tableData.push(feedbackData);
+    });
+
+    let feedbackTable = $('#feedback-table').DataTable({
+      data: tableData,
+      columns: [
+        { data: 'feedback' },
+        { data: 'time' },
+        { data: 'user' },
+      ],
+      "autoWidth": false,
+      "pageLength" : 10,
+    });
+
+    $('#feedback-table tbody').on('dblclick', 'tr', (event) => {
+      const row = feedbackTable.row(event.target).index();
+      let docUID = tableData[row].docUID;
+      let confirmation = confirm("Are you sure you want to delete this feedback?\nThis action cannot be undone!");
+      if (confirmation) {
+        const feedbackDocRef = firebase.firestore().collection("Feedback").doc(docUID);
+        feedbackDocRef.delete()
+        .then(() => {
+          //update the tableData array
+          tableData.splice(row, 1);
+          //remove the row (parent) that was clicked
+          feedbackTable.row($(event.target).parents('tr')).remove().draw();
         })
         .catch((error) => {
           handleFirebaseErrors(error, document.currentScript.src);

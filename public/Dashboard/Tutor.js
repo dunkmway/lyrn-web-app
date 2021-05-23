@@ -179,3 +179,40 @@ function setTutorProfile(profileData = {}) {
     currentLocation = profileData['location'];
   }
 }
+
+function submitFeedback() {
+  let submitBtn = document.getElementById("feedback_submit_btn");
+  let errorMsg = document.getElementById("feedback_error_msg");
+
+  submitBtn.disabled = true;
+  errorMsg.textContent = "";
+
+  let feedbackInput = document.getElementById("feedback_input");
+
+  //check for a valid input
+  if (feedbackInput.value.trim() != "") {
+    let valid = confirm("Are you sure you're ready to submit this feedback?");
+    if (valid) {
+      const feedbackRef = firebase.firestore().collection("Feedback").doc();
+      feedbackRef.set({
+        user: firebase.auth().currentUser.uid,
+        feedback: feedbackInput.value,
+        timestamp: (new Date().getTime())
+      })
+      .then(() => {
+        feedbackInput.value = "";
+        submitBtn.disabled = false;
+        errorMsg.textContent = "We got it! Thanks for the feedback";
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, document.currentScript.src);
+        submitBtn.disabled = false;
+        errorMsg.textContent = "You're feedback was too honest for the computer to process. Please try again later.";
+      })
+    }
+  }
+  else {
+    document.getElementById("feedback_error_msg").textContent = "...you didn't even write anything."
+    submitBtn.disabled = false;
+  }
+} 
