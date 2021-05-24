@@ -282,9 +282,18 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     let section = undefined;
     let passageNumber = undefined;
     if (element != undefined) {
-      test = element.getAttribute("data-test") ?? element.parentNode.getAttribute("data-test");
-      section = element.getAttribute("data-section") ?? element.parentNode.getAttribute("data-section");
-      passageNumber = element.getAttribute("data-passageNumber");
+      try {
+        test = element.getAttribute("data-test") ?? element.parentNode.getAttribute("data-test");
+        section = element.getAttribute("data-section") ?? element.parentNode.getAttribute("data-section");
+        passageNumber = element.getAttribute("data-passageNumber");
+      }
+      catch {
+        let headerText = document.getElementById("answersPopupHeader").innerHTML;
+        test = headerText.split(" - ")[0];
+        section = headerText.split(" - ")[1];
+        passageNumber = headerText.split(" - ")[2];
+      }
+      console.log(test, section, passageNumber)
     }
     else {
       let headerText = document.getElementById("answersPopupHeader").innerHTML;
