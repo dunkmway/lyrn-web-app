@@ -1,6 +1,7 @@
 body {
   background-color: white;
   font-family: Roboto, sans-serif;
+  font-weight: 200;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -18,9 +19,11 @@ body {
 }
 
 .expectation-input {
-  font-size: 1.5em;
+  font-size: 1em;
   font-weight: bold;
-  width: 100%;
+  width: 500px;
+  height: 4.5em;
+  border-width: 2px;
 }
 
 #student-log-notes-div {

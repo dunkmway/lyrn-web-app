@@ -485,11 +485,11 @@ function setHomeworkChart() {
   const readingGoal = getNextTestGoals()?.["readingGoal"];
   const scienceGoal = getNextTestGoals()?.["scienceGoal"];
 
-  const relativeCompositeGoal = compositeGoal - initialComposite;
-  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"];
-  const relativeMathGoal = mathGoal - actProfile["mathInitial"];
-  const relativeReadingGoal = readingGoal - actProfile["readingInitial"];
-  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"];
+  const relativeCompositeGoal = compositeGoal - initialComposite || null;
+  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"] || null;
+  const relativeMathGoal = mathGoal - actProfile["mathInitial"] || null;
+  const relativeReadingGoal = readingGoal - actProfile["readingInitial"] || null;
+  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"] || null;
 
   //see if any relative scores are the same
   let relativeGoals = [relativeCompositeGoal, relativeEnglishGoal, relativeMathGoal, relativeReadingGoal, relativeScienceGoal];
@@ -663,6 +663,14 @@ function setHomeworkChart() {
           annotations: {
             compositeGoal: {
               type: 'line',
+              display: () => {
+                if (relativeCompositeGoal) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              },
               yMin: relativeCompositeGoal,
               yMax: relativeCompositeGoal,
               borderColor: compositeColor,
@@ -680,6 +688,14 @@ function setHomeworkChart() {
             },
             englishGoal: {
               type: 'line',
+              display: () => {
+                if (relativeEnglishGoal) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              },
               yMin: relativeEnglishGoal,
               yMax: relativeEnglishGoal,
               borderColor: englishColor,
@@ -697,6 +713,14 @@ function setHomeworkChart() {
             },
             mathGoal: {
               type: 'line',
+              display: () => {
+                if (relativeMathGoal) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              },
               yMin: relativeMathGoal,
               yMax: relativeMathGoal,
               borderColor: mathColor,
@@ -714,6 +738,14 @@ function setHomeworkChart() {
             },
             readingGoal: {
               type: 'line',
+              display: () => {
+                if (relativeReadingGoal) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              },
               yMin: relativeReadingGoal,
               yMax: relativeReadingGoal,
               borderColor: readingColor,
@@ -731,6 +763,14 @@ function setHomeworkChart() {
             },
             scienceGoal: {
               type: 'line',
+              display: () => {
+                if (relativeScienceGoal) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              },
               yMin: relativeScienceGoal,
               yMax: relativeScienceGoal,
               borderColor: scienceColor,
@@ -966,57 +1006,6 @@ function setHourAxis() {
   });
   hwChart.update("none");
 }
-
-// const plugin = {
-//   id: "averagePerHour",
-//   afterDatasetDraw: function(chart, args, options) {
-//     var ctxPlugin = chart.ctx;
-//     var xAxis = chart.scales['x'];
-//     var yAxis = chart.scales['y'];
-    
-//     ctxPlugin.strokeStyle = '#a9a9a9';
-//     ctxPlugin.beginPath();
-//     ctxPlugin.moveTo(xAxis.left, yAxis.bottom);
-//     ctxPlugin.lineTo(xAxis.right, yAxis.top);
-//     ctxPlugin.stroke();
-
-//     ctxPlugin.save();
-//     ctxPlugin.translate(xAxis.right - 150,yAxis.top + 75);
-//     var rotation = Math.atan((yAxis.top - yAxis.bottom) / (xAxis.right - xAxis.left))
-//     ctxPlugin.rotate(rotation);
-
-//     var diagonalText = 'FIXME: not optimal!';
-//     ctxPlugin.font = "16px Arial";
-//     ctxPlugin.fillStyle = "#a9a9a9";
-//     ctxPlugin.fillText(diagonalText, 0, 0);
-//     ctxPlugin.restore();
-//   }
-// }
-
-// const goalLinePlugin = {
-//   id: "goalLine",
-//   afterDatasetDraw : function(chart, args, options) {
-//     var ctxPlugin = chart.ctx;
-//     var xAxis = chart.scales['x'];
-//     var yAxis = chart.scales['y'];
-
-//     let goals = options['goals'];
-//     let currentGoal = goals?.[args['index']] ? parseInt(goals[args['index']]) : null;
-//     let goalPixelHeight = yAxis.getPixelForValue(currentGoal)
-//     let lineColor = args['meta']['_dataset']['backgroundColor'];
-
-//     ctxPlugin.strokeStyle = lineColor;
-//     ctxPlugin.lineWidth = "2"
-//     ctxPlugin.setLineDash([15, 10])
-//     ctxPlugin.beginPath();
-//     ctxPlugin.moveTo(xAxis.left, goalPixelHeight);
-//     ctxPlugin.lineTo(xAxis.right, goalPixelHeight);
-//     ctxPlugin.stroke();
-//   }
-// }
-
-// Chart.register(plugin);
-// Chart.register(goalLinePlugin);
 
 main();
 
@@ -1894,6 +1883,7 @@ document.getElementById("updated-science-initial").addEventListener('keyup',form
 
 // general notes enter key will submit the note
 document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -1904,6 +1894,7 @@ document.getElementById("student-general-notes-input").addEventListener('keydown
 });
 
 document.getElementById("student-english-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -1914,6 +1905,7 @@ document.getElementById("student-english-notes-input").addEventListener('keydown
 });
 
 document.getElementById("student-math-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -1924,6 +1916,7 @@ document.getElementById("student-math-notes-input").addEventListener('keydown', 
 });
 
 document.getElementById("student-reading-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -1934,6 +1927,7 @@ document.getElementById("student-reading-notes-input").addEventListener('keydown
 });
 
 document.getElementById("student-science-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -2002,3 +1996,19 @@ function escapeKeyEventListner(event, modalID) {
     closeModal(Event, modalID, false);
   }
 }
+
+document.getElementById("student-general-info").addEventListener("dblclick", () => {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          const studentUID = queryStrings()['student']
+          let queryStr = "?student=" + studentUID;
+          window.location.href = "../../inquiry.html" + queryStr;
+        }
+      })
+    }
+  });
+});
