@@ -3,7 +3,7 @@ let studentNotesData = {};
 let studentSTProfileData = {};
 
 const studentGrade = 11;
-let currentLessonData = {};
+let currentLessonData = undefined;
 let date = new Date()
 let colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
 const links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
@@ -14,9 +14,10 @@ const links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
                'https://www.khanacademy.org/math/cc-sixth-grade-math',
                'https://www.khanacademy.org/math/cc-seventh-grade-math',
                'https://www.khanacademy.org/math/cc-eighth-grade-math',
-               'https://www.khanacademy.org/math/cc-eighth-grade-math',
-               'https://www.khanacademy.org/math/cc-eighth-grade-math',
-               'https://www.khanacademy.org/math/cc-eighth-grade-math'];
+               'https://www.khanacademy.org/math/algebra',
+               'https://www.khanacademy.org/math/geometry',
+               'https://www.khanacademy.org/math/algebra2',
+               'https://www.khanacademy.org/math/trigonometry',];
 
 main();
 function main() {
@@ -82,52 +83,58 @@ const grade8 = {'Numbers and Operations' : ['Repeating decimals', 'Square roots 
                 'Geometric Transformations' : ['Transformations intro', 'Translations', 'Rotations', 'Reflections', 'Properties and definitions of transformations', 'Dilations', 'Congruence and similarity'],
                 'Data and Modeling' : ['Introduction to scatter plots', 'Interpreting scatter plots', 'Estimating lines of best fit', 'Two-way tables']}
 
-const grade9 = {'Solving Equations and Inequalities' : ['Linear equations with variables on both sides', 'Linear equations with parentheses', 'Analyzing the number of solutions to linear equations', 'Linear equations with unknown coefficients', 'Multi-step inequalities', 'Compound inequalities'],
+const grade9 = {'Algebra Foundations' : ['Overview and history of algebra', 'Introduction to variables', 'Substitutions and evaulating expressions', 'Combining like terms', 'Introduction to equivalent expressions', 'Division by zero'],
+                'Solving Equations & Inequalities' : ['Linear equations with variables on both sides', 'Linear equations with parentheses', 'Analyzing the number of solutions to linear equations', 'Linear equations with unknown coefficients', 'Multi-step inequalities', 'Compound inequalities'],
                 'Working with Units' : ['Rate conversion', 'Appropriate units', 'Word problems with multiple units'],
-                'Linear Equation and Graphs' : ['Two-variable linear equations intro', 'x-intercepts and y-intercepts', 'Slope', 'Horizontal and verticle lines', 'Intro to slope-intercept form', 'graphing slope-intercept equations', 'Writing slope-intercept equations', 'Point-slope form', 'Standard form', 'Summary: Forms of two-variable linear equations'],
-                'Functions' : ['Evaluating functions', 'Inputs and outputs of a function', 'Functions and equations', 'Interpreting function notation', 'Introduction to the domain and range of a function', 'Determining the domain of a runction', 'Recognizing functions', 'Maximum and minimum points', 'Intervals where a function is positive, negative, increasing, or decreasing', 'Interpreting features of graphs', 'Average rate of change', 'Average rate of change word problems'],
-                'Linear Word Problems' : ['Interpreting linear functions and equations', 'Comparing linear functions', 'Constructing linear models for real-world relationships', 'Linear models word problems'],
-                'Systems of Equations' : ['Systems of equations overview', 'Introduction to systems of equations', 'Equivalent systems of equations and the elimination method', 'Solving systems of equations with substitution', 'Manipulating expressions with unknown variables', 'Number of solutions to systems of equations', 'Solving any system of linear equations', 'Systems of equations word problems'],
-                'Inequalities (Systems and Graphs)' : ['Checking solutions of two-variable inequalities', 'Graphing two-variable inequalities', 'Modeling with linear inequalities'],
-                'Scatterplots' : ['Creating and interpreting scatterplots', 'Estimating with trend lines'],
-                'Data Distributions' : ['Displays of distributions', 'Summarizing enter of distributions (central tendency)', 'Box and whisker plots', 'Comparing distributions'],
-                'Two-Way Tables' : ['Two-way frequency tables', 'Two-way relative frequency tables'],
+                'Linear Equations & Graphs' : ['Two-variable linear equations intro', 'Slope', 'Horizontal & vertical lines', 'x-intercepts and y-intercepts', 'Applying intercepts and slope'],
+                'Forms of Linear Equations' : ['Intro to slope-intercept form', 'Graphing slope-intercept equations', 'Writing slope-intercept equations', 'Point-slope form', 'Standard form', 'Summary: Forms of two-variable linear equations'],
+                'Systems of Equations' : ['Introduction to systems of equations', 'Solving systems of equations with substitution', 'Solving systems of equations with elimination', 'Equivalent sytems of equations', 'Number of solutions to systems of equations', 'Systems of equations word problems'],
+                'Inequalities (systems & Graphs)' : ['Checking solutions of two-variable inequalities', 'Graphing two-variable inequalities', 'Modeling with linear inequalities'],
+                'Functions' : ['Evaluating functions', 'Inputs and outputs of a function', 'Functions and equations', 'Interpretting function notation', 'Introduction to the domain and range of a function', 'Determining the domain of a function', 'Recognizing functions', 'Maximum and minimum points', 'Intervals where a function is positive, negative, or decreasing', 'Interpretting features of graphs', 'Average rate of change', 'Average rate of change word problems', 'Intro to inverse functions'],
                 'Sequences' : ['Introduction to arithmetic sequences', 'Constructing arithmetic sequences', 'Introduction to geometric sequences', 'Constructing geometric sequences', 'Modeling with sequences', 'General sequences'],
-                'Rational Exponents and Radicals' : ['Exponent properties review', 'Radicals', 'Rational exponents intro', 'Properties of exponents (rational exponents)', 'Advanced exponent and radical evaluation', 'Simplifying square roots', 'Simplifying radicals (higher-index roots)'],
-                'Exponential Growth and Decay' : ['Exponential vs. linear growth', 'Exponential expressions', 'Graphs of exponential growth', 'Exponential vs. linear growth over time', 'Exponential decay', 'Exponential functions from tables and graphs'],
-                'Geometric Transformations' : ['Introduction to rigid transformations', 'Translations', 'Rotations', 'Reflections', 'Rigid transformations overview', 'Dilations', 'Properties and definitions of transformations', 'Symmetry'],
-                'Congruence' : ['Transformations and congruence', 'Triangle congruence', 'Theorems concerning triangel properties', 'Working with triangles', 'Theorems concerning quadrilateral properties', 'Proofs of general theorems that use triangle congruence', 'Constructing bisectors of lines and angles'],
-                'Analytic Geometry' : ['Distance and midpoints', 'Dividing line segments', 'Problem solving with distance on the coordinate plane', 'Parallel and perpendicular lines on the coordinate plane', 'Equations of parallel and perpendicular lines', 'Coordinate plane proofs']}
+                'Absolute Value & Piecewise Functions' : ['Graphs of absolute value functions', 'Piecewise functions'],
+                'Exponents & Radicals' : ['Exponent properties review', 'Radicals', 'Simplifying square roots'],
+                'Exponential Growth and Decay' : ['Exponential vs. linear growth', 'Exponential expressions', 'Graphs of exponential growth', 'Exponential vs. linear growth over time', 'Exponential growth and decay', 'Exponential functions from tables and graphs', 'Exponential vs. linear models'],
+                'Quadratics: Multiplying and Factoring' : ['Multiplying monomials by polynomials', 'Multiplying binomials', 'Special products of binomials', 'Introduction to factoring', 'Factoring quadratics intro', 'Factoring quadratics by grouping', 'Factoring quadratics with difference of squares', 'Factoring quadratics with perfect squares', 'Strategy in factoring quadratics'],
+                'Quadratic Functions & Equations' : ['Intro to parabolas', 'Solving and graphing with factored form', 'Solving by taking the square root', 'Vertex form', 'Solving quadratics by factoring', 'The quadratic formula', 'Completing the square intro', 'More on completing the square', 'Strategizing to solve quadratic equations', 'Quadratic standard form', 'Features & forms of quadratics functions', 'Comparing quadratic functions', 'Transforming quadratic functions'],
+                'Irrational Numbers' : ['Irrational numbers', 'Sums and products of rational and irrational numbers', 'Proofs concerning irrational numbers']};
 
-const grade10 = {'Absolute Value and Piecewise Functions' : ['Graphs of absolute value functions', 'Piecewise Functions'],
-                 'Polynomials' : ['Intro to polynomials', 'Adding and subtracting polynomials', 'Adding and subtracting polynomials: two variables', 'Multiplying monomials', 'Multiplying monomials by polynomials', 'Multiplying binomials', 'Multiplying binomials by polynomials', 'Special products of binomials', 'Polynomials word problems', 'Long division of polynomials', 'Synthetic division of polynomials', 'Practive dividing polynomials with remainders'],
-                 'Factorization' : ['Introduction to factorization', 'Factoring monomials', 'Factoring polynomials by takin gcommon factors', 'Evauluating expressions with unknown variables', 'Factoring quadratics intro', 'Factoring quadratics by grouping', 'Factoring polynomials with quadratic forms', 'Factoring quadratics: Difference of squares', 'Factoring quadratics: Perfect squares', 'Strategy in factoring quadratics', 'Factoring polynomials with special product forms', 'Polynomial remainder theorem'],
-                 'Quadratics' : ['Parabolas intro', 'Quadratic factored form', 'Solving quadratics by taking square roots', 'Quadratic vertex form', 'Solving quadratics by factoring', 'Completing the square', 'The quadratic formula', 'Quadratic standard form', 'Features and forms of quadratic functions', 'Transforming parabolas'],
-                 'Irrational Nubmers' : ['Irrational numbers', 'Sums and products of rational/irrational numbers', 'Proofs concerning irrational numbers'],
-                 'Complex Numbers' : ['What are the imaginary numbers', 'What are the complex numbers', 'The complex plane', 'Adding and subtracting complex numbers', 'Multiplying complex numbers'],
-                 'Exponential Growth and Decay' : ['Equivalent forms of exponential expressions', 'Exponential equations: properties of exponents', 'Interpreting the rate of change of exponential models', 'Constructing exponential models according to rate of change', 'Advanced interpretation of exponential models', 'Distinguishing between linear and exponential growth'],
-                 'Modeling with Algebra' : ['Modeling with one-variable equations & inequalities', 'Manipulating formulas'],
-                 'Similarity' : ['Definitions of similarity', 'Introduction to triangle similarity', 'Solving similar triangles', 'Angle bisector theorem', 'Solving problems with similar & congruent triangles', 'Solving modeling problems with similar and congruent triangles'],
-                 'Right Triangles and Trigonomotry' : ['Pythagorean theorem', 'Pythagorean theorem proofs', 'Special right triangles', 'Introduction to the trigonometric ratios', 'Solving for a side in a right triange using the trig ratios', 'Solving for an angle in a right triangle using the trig ratios', 'Modeling with right triangles', 'Trigonometric ratios and similarity', 'Sine and cosine of complementary angles'],
-                 'Solid Geometry' : ['Solid geometry intro', 'Density', '2D vs. 3D objects'],
-                 'Circles' : ['Circle basics', 'Arc measure', 'Arc length (from degrees)', 'Introduction to radians', 'Arc length (from radians)', 'Sectors', 'Inscribed angles', 'Inscribed shapes problem solving', 'Properties of tangents', 'Area of incribed triangle', 'Constructing regular polygons incribed in circles', 'Constructing circumcircles and incircles', 'Constructing a line tangent to a circle'],
-                 'Conic Sections' : ['Introduction to conic sections', 'Features of a circle', 'Standard equation of a circle', 'Expanded equation of a circle', 'Focus & directrix of a parabola'],
-                 'Probability' : ['Probability basics', 'Counting with combinations', 'Probability with counting, permutations, and combinations', 'Multiplication rule for independent events', 'Multiplication rule for dependent events', 'Addition rule for probability', 'Conditional probability', 'Simulation and randomness', 'Expected value']}
+const grade10 = {'Performing Transformations' : ['Intro to Euclidean geometry', 'Introduction to rigid transformations', 'Translations', 'Rotations', 'Reflections', 'Dilations'],
+                 'Transformation Properties and Proofs' : ['Rigid transformations overview', 'Dilation preserved properties', 'Properties and definitions of transformations', 'Symmetry', 'Proofs with transformations'],
+                 'Congruence' : ['Transformations & congruence', 'Triangle congruence from transformations', 'Congruent triangles', 'Theorems concerning triangle properties', 'Working with triangles', 'Theorems concerning quadrilateral properties', 'Proofs of general theorems', 'Constructing lines and angles'],
+                 'Similarity' : ['Definitions of similarity', 'Introduction to triangle similarity', 'Solving similar triangles', 'Angle bisector theorem', 'Solving problems with similar and congruent trianges', 'Proving relationships using similarity', 'Solving modeling problems with similar and congruent triangles'],
+                 'Right Triangles and Trigonometry' : ['Pythagorean theorem', 'Pythagorean theorem proofs', 'Special right triangles', 'Ratios in right triangles', 'Introduction to the trigonometric ratios', 'Solving for a side in a right triangle using the ratios', 'Solving for an angle in a right triangle using the ratios', 'Sine and Cosine of complementary angles', 'Modeling with right triangles'],
+                 'Non-right Triangles & Trigonometry (Advanced)' : ['Law of sines', 'Law of cosines', 'Solving general triangles'],
+                 'Analytic geometry' : ['Distance and midpoints', 'Dividing line segments', 'Problem solving with distance on the coordinate plane', 'Parallel and perpendicular lines on the coordinate plane', 'Equations of parallel and perpendicular lines'],
+                 'Conic Sections' : ['Graphs of circles intro', 'Standard equation of a circle', 'Expanded equation of a circle', 'Focus and directrix of a parabola'],
+                 'Circles' : ['Circle basics', 'Arc measure', 'Arc length (from degrees)', 'Introduction to radians', 'Arc length (from radians)', 'Sectors', 'Inscribed angles', 'Inscribed shapes problem solving', 'Proofs with inscribed shapes', 'Properties of tangents', 'Constructing regular polygons inscribed in circles', 'Constructing circumcircles and incircles', 'Constructing a line tangent to a circle'],
+                 'Solid Geometry' : ['2D vs 3D objects', "Cavalieri's principle and dissection methods", 'Volume and surface area', 'Density']};
 
-const grade11 = {'Functions' : ['Combining functions', 'Composing function', 'Modeling situations by combining and composing functions', 'Shifting functions', 'stretching functions', 'Introduction to inverses of functions', 'Finding inverse functions', 'Verifying that functions are inverses', 'Determining whether a function is invertible'],
-                 'Polynomials' : ['Binomial theorem', 'Understanding the binomial theorem', 'Advanced polynomial factorization methods', 'Proving polynomial identities', 'Polynomial identities with complex numbers', 'Quadratic equations with complex numbers', 'Fundamental theorem of Algebra', 'Finding zeroes of polynomials', 'Zeroes of polynomials and their graphs', 'End behavior of polynomial functions', 'Graphs of polynomials', 'Introduction to symmetry of functions', 'Symmetry of polynomial functions'],
-                 'Radical Relationships' : ['Square-root equations', 'Extraneous solutions of radical equations', 'Cube-root equations', 'Domain of radical functions', 'Graphs of radical functions'],
-                 'Rational Relationships' : ['Simplifying rational expressions', 'Multiplying and dividing rational expressions', 'Adding and subtracting rational expressions', 'Nested fractions', 'Rational equations', 'Direct and inverse variation', 'End behavior of rational functions', 'Discontinuities of rational functions', 'Graphs of rational functions', 'Modeling with rational functions'],
-                 'Exponentials and Logarithms' : ['Introduction to logarithmss', 'The constant e and the natural logarithm', 'Properties of logarithms', 'Change of base formula for logarithms', 'Exponential equations: logarithms', 'Solving exponential models', 'Graphs of exponential functions', 'Graphs of logarithmic functions', 'Logarithmic scale'],
-                 'Trigonometry' : ['Law of sines', 'Law of cosines', 'Solving general triangles', 'Introduction to radians', 'Unit circle definition of sine, cosine, and tangent', 'Graphs of sine, cosine, and tangent', 'Basic trigonometric identities', 'Trigonometric values of special angles', 'Pythagorean identity', 'Introduction to amplitude, midline, and extrema of sinusoidal functions', 'Finding amplitude and midline from formula', 'Period of sinusoidal functions', 'Graphing sinusoidal functions', 'Constructing sinusoidal functions'],
-                 'Series' : ['Basic sigma notation', 'Finite arithmetic series', 'Finite geometric series', 'Finite geometric series applications'],
-                 'Study Design' : ['Samples and surveys', 'Observational studies and expreiments'],
-                 'Binomial Probability' : ['Binomial Probability'],
-                 'Normal Distributions' : ['Normal Distributions']}
+const grade11 = {'Polynomial Arithmetic' : ['Intro to polynomials', 'Average rate of change of polynomials', 'Adding and subtracting polynomials', 'Multiplying monomials by polynomials', 'Multiplying binomials by polynomials', 'Special products of polynomials'],
+                 'Complex Numbers' : ['The imaginary unit i', 'Complex numbers introduction', 'The complex plane', 'Adding and subtracting complex numbers', 'Multiplying complex numbers', 'Quadratic equations with complex solutions'],
+                 'Polynomial Factorization' : ['Factoring monomials', 'Greatest common factor', 'Taking common factors', 'Factoring higher degree polynomials', 'Factoring using structure', 'Polynomial identities', 'Geometric series'],
+                 'Polynomial Division' : ['Dividing polynomials by x', 'Dividing quadratics by linear factors', 'Dividing polynomials by linear factors', 'Polynomial Remainder Theorem'],
+                 'Polynomial Graphs' : ['Zeroes of polynomials', 'Positive and negative intervals of polynomials', 'End behavior of polynomials', 'Putting it all together'],
+                 'Rational Exponents and Radicals' : ['Rational exponents', 'Properties of exponents (rational exponents)', 'Evaluating exponents and radicals', 'Equivalent forms of exponential expressions', 'Solving exponential equations using properties of exponents'],
+                 'Exponential Models' : ['Interpretting the rate of change exponential models', 'Constructing exponential models according to rate of change', 'Advanced interpretation of exponential models'],
+                 'Logarithms' : ['Introduction to logarithms', 'The constant e and the natural logarithm', 'Properties of logarithms', 'The change of base formula for logarithms', 'Solving exponential equations with logarithms', 'Solving exponential models'],
+                 'Transformations of Functions' : ['Shifting functions', 'Reflecting functions', 'Symmetry of functions', 'Scaling functions', 'Putting it all together', 'Graphs of square and cube root functions', 'Graphs of exponential functions', 'Graphs of logarithmic functions'],
+                 'Equations' : ['Rational equations', 'Square-root equations', 'Extraneous solutions', 'Cube-root equations', 'Quadratic systems', 'Solving equations by graphing'],
+                 'Trigonometry' : ['Unit circle introduction', 'Radians', 'The Pythagorean identity', 'Trigonometric values of special angles', 'Graphs of sin(x), cos(x), and tan(x)', 'Amplitude, midline, and period', 'Transforming sinusoidal graphs', 'Graphing sinusoidal functions', 'Sinusoidal models'],
+                 'Modeling' : ['Modeling with function combination', 'Interpreting features of functions', 'Maniuplating formulas', 'Modeling with two variables', 'Modeling with multiple variables'],
+                 'Rational Functions' : ['Cancelling common factors', 'End behavior of rational functions', 'Discontinuities of rational functions', 'Graphs of rational functions', 'Modeling with rational functions', 'Multiplying and dividing rational expressions', 'Adding and subtracting rational expressions intro', 'Adding and subtracting rational expressions (factored)', 'Adding and subtracting rational expressions (not factored)']};
+
+const grade12 = {'Right Triangles & Trigonometry' : ['Ratios in right triangles', 'Introduction to the trigonometric ratios', 'Solving for a side in a right triangle using the trigonometric ratios', 'Solving for an angle in a right triangle using the trigonometric ratios', 'Sine and cosine of complementary angles', 'Modeling with right triangles', 'The reciprocal trigonometric ratios'],
+                 'Trigonometric Functions' : ['Unit circle introduction', 'Radians', 'The Pythagorean identity', 'Trigonometric values of special angles', 'Graphs of sin(x), cos(x), and tan(x)', 'Amplitude, midline, and period', 'Transforming sinusoidal graphs', 'Graphing sinusoidal functions', 'Sinusoidal models', 'Long live Tau'],
+                 'Non-right Triangles and Trigonometry' : ['Law of sines', 'Law of cosines', 'Solving general triangles'],
+                 'Trigonometric Equations and Identities' : ['Inverse trigonometric functions', 'Sinusoidal equations', 'Sinusoidal models', 'Trigonometric identities', 'Angle addition identities', 'Using trigonometric identities', 'Challenging trigonometric problems']}
 
 const lessonInfo = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11]
 let lessonList = document.getElementById('lessonList');
-initializeEmptyLessonsMap();
+
+if (currentLessonData == undefined) {
+  initializeEmptyLessonsMap();
+}
 populateLessons();
 document.getElementById('programLink').setAttribute('href', links[studentGrade - 1])
 
@@ -514,6 +521,7 @@ function populateLessons() {
 }
 
 function initializeEmptyLessonsMap() {
+  currentLessonData = {};
   const gradeLessons = lessonInfo[studentGrade - 1]
   const sections = Object.keys(gradeLessons);
   let lessons = undefined;

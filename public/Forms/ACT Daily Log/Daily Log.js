@@ -293,7 +293,6 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
         section = headerText.split(" - ")[1];
         passageNumber = headerText.split(" - ")[2];
       }
-      console.log(test, section, passageNumber)
     }
     else {
       let headerText = document.getElementById("answersPopupHeader").innerHTML;
