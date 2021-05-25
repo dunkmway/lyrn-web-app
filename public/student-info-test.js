@@ -485,11 +485,11 @@ function setHomeworkChart() {
   const readingGoal = getNextTestGoals()?.["readingGoal"];
   const scienceGoal = getNextTestGoals()?.["scienceGoal"];
 
-  const relativeCompositeGoal = compositeGoal - initialComposite || null;
-  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"] || null;
-  const relativeMathGoal = mathGoal - actProfile["mathInitial"] || null;
-  const relativeReadingGoal = readingGoal - actProfile["readingInitial"] || null;
-  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"] || null;
+  const relativeCompositeGoal = compositeGoal - initialComposite ?? null;
+  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"] ?? null;
+  const relativeMathGoal = mathGoal - actProfile["mathInitial"] ?? null;
+  const relativeReadingGoal = readingGoal - actProfile["readingInitial"] ?? null;
+  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"] ?? null;
 
   //see if any relative scores are the same
   let relativeGoals = [relativeCompositeGoal, relativeEnglishGoal, relativeMathGoal, relativeReadingGoal, relativeScienceGoal];
@@ -664,7 +664,7 @@ function setHomeworkChart() {
             compositeGoal: {
               type: 'line',
               display: () => {
-                if (relativeCompositeGoal) {
+                if (relativeCompositeGoal || relativeCompositeGoal == 0) {
                   return true;
                 }
                 else {
@@ -689,7 +689,7 @@ function setHomeworkChart() {
             englishGoal: {
               type: 'line',
               display: () => {
-                if (relativeEnglishGoal) {
+                if (relativeEnglishGoal || relativeEnglishGoal == 0) {
                   return true;
                 }
                 else {
@@ -714,7 +714,7 @@ function setHomeworkChart() {
             mathGoal: {
               type: 'line',
               display: () => {
-                if (relativeMathGoal) {
+                if (relativeMathGoal || relativeMathGoal == 0) {
                   return true;
                 }
                 else {
@@ -739,7 +739,7 @@ function setHomeworkChart() {
             readingGoal: {
               type: 'line',
               display: () => {
-                if (relativeReadingGoal) {
+                if (relativeReadingGoal || relativeReadingGoal == 0) {
                   return true;
                 }
                 else {
@@ -764,7 +764,7 @@ function setHomeworkChart() {
             scienceGoal: {
               type: 'line',
               display: () => {
-                if (relativeScienceGoal) {
+                if (relativeScienceGoal || relativeScienceGoal == 0) {
                   return true;
                 }
                 else {
