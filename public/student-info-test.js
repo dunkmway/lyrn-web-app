@@ -1094,10 +1094,10 @@ function updateGoalsModal() {
       const addTestDateButton = document.getElementById("addTestDateGoalButton");
       let testDate = testGoals[i].testDate;
       let dateStr = convertFromDateInt(parseInt(testDate))['mm/dd/yyyy'] ?? "";
-      let englishGoal = testGoals[0].englishGoal ?? "";
-      let mathGoal = testGoals[0].mathGoal ?? "";
-      let readingGoal = testGoals[0].readingGoal ?? "";
-      let scienceGoal = testGoals[0].scienceGoal ?? "";
+      let englishGoal = testGoals[i].englishGoal ?? "";
+      let mathGoal = testGoals[i].mathGoal ?? "";
+      let readingGoal = testGoals[i].readingGoal ?? "";
+      let scienceGoal = testGoals[i].scienceGoal ?? "";
       addTestDateGoal(addTestDateButton, dateStr, englishGoal, mathGoal, readingGoal, scienceGoal);
     }
   }
