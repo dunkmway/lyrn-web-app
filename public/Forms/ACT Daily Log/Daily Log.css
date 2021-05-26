@@ -1,6 +1,7 @@
 body {
     background-color: white;
     font-family: Roboto, sans-serif;
+    font-weight: 200;
     margin: 0;
     padding: 0;
 }
@@ -10,6 +11,14 @@ body {
     width: 100%;
     overflow-y: auto;
 }
+
+#student-general-info {
+    user-select: none;
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+  }
 
 #big-picture-info {
     position: sticky;

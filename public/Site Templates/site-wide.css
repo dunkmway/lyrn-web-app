@@ -8,6 +8,7 @@
   position: absolute;
   background-color: white;
   z-index: 999;
+  display: flex;
 }
 
 .loading-ring {

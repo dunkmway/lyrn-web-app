@@ -189,3 +189,55 @@ function handleFirebaseErrors(err, file) {
 
     sendErrorReport(msg, url, lineNo, columnNo, error);
 }
+
+function goToDashboard() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            user.getIdTokenResult()
+            .then((idTokenResult) => {
+                let role = idTokenResult.claims.role;
+    
+                switch (role) {
+                    case "student":
+                    window.location.replace(location.origin + "/Dashboard/Student");
+                    break;
+                    case "parent":
+                    window.location.replace(location.origin + "/Dashboard/Parent");
+                    break;
+                    case "tutor":
+                    window.location.replace(location.origin + "/Dashboard/Tutor");
+                    break;
+                    case "secretary":
+                    window.location.replace(location.origin + "/Dashboard/Secretary");
+                    break;
+                    case "admin":
+                    window.location.replace(location.origin + "/Dashboard/Admin");
+                    break;
+                    case "dev":
+                    window.location.replace(location.origin + "/Dashboard/Admin");
+                    break;
+                    default:
+                    
+                }
+            })
+            .catch((error) => {
+            handleFirebaseErrors(error, document.currentScript.src);
+            });
+        }
+        else {
+            window.location.replace(location.origin + "/Sign-In/Sign-In");
+        }
+    });
+}
+
+function queryStrings() {
+    var GET = {};
+    var queryString = window.location.search.replace(/^\?/, '');
+    queryString.split(/\&/).forEach(function(keyValuePair) {
+        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+        GET[paramName] = paramValue;
+    });
+  
+    return GET;
+  }

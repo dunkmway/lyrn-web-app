@@ -111,9 +111,9 @@ const parentPhone = document.getElementById('parentPhoneNumber');
 parentPhone.addEventListener('keydown',enforceNumericFormat);
 parentPhone.addEventListener('keyup',formatToPhone);
 
-const inputWorkPhone = document.getElementById('parentWorkPhoneNumber');
-inputWorkPhone.addEventListener('keydown',enforceNumericFormat);
-inputWorkPhone.addEventListener('keyup',formatToPhone);
+const workPhone = document.getElementById('parentWorkPhoneNumber');
+workPhone.addEventListener('keydown',enforceNumericFormat);
+workPhone.addEventListener('keyup',formatToPhone);
 
 const studentPhone = document.getElementById('studentPhoneNumber');
 studentPhone.addEventListener('keydown',enforceNumericFormat);

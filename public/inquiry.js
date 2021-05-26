@@ -1,3 +1,168 @@
+let studentData = {};
+let parentData = {};
+let typeData = {};
+
+function initialSetup() {
+  setLocations();
+  setupDuplicates();
+  fillInData();
+}
+
+/*****************************************************************************
+ * Description:
+ *   This will add a generic input to the end of the input-block
+*****************************************************************************/
+function addElement(id, value = "") {
+
+  let placeholders = {}
+  placeholders['studentScholarshipArray'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
+  placeholders['studentCollegeArray'] = ['Massachusetts Institute of Technology (MIT)', 'Brigham Young University (BYU)', 'University of Utah (UoU)', 'Utah State University (USU)', 'Utah Valley University (UVU)'];
+  placeholders['studentExtracurricularArray'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
+
+  let phrase = "label[for=\"" + id + "\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+
+  let newElement = document.createElement("input");
+  newElement.setAttribute("type", "text");
+  newElement.setAttribute("id", id + (parentElement.childElementCount - 1).toString());
+  newElement.setAttribute("value", value);
+
+  if (parentElement.childElementCount - 1 < placeholders[id].length) {
+    newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 1]);
+  }
+  else {
+    newElement.setAttribute("placeholder", "Other");
+  }
+
+  newElement.className = "input";
+  parentElement.appendChild(newElement);
+}
+
+/*****************************************************************************
+ * Description:
+ *   This will remove the given element plus its grandparents and down
+*****************************************************************************/
+function removeElement(id) {
+  let phrase = "label[for=\"" + id + "\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+
+  if (parentElement.childElementCount > 1) {
+    parentElement.lastChild.remove();
+  }
+}
+
+function addActTest(date = "", english = "", math = "", reading = "", science = "") {
+  placeholders = ['7/17/2021', '9/11/2021', '10/23/2021', '12/11/2021', '2/5/2022', '4/9/2022', '6/11/2022', '7/16/2022']
+  let id = "studentACTDateArray"
+
+  let phrase = "label[for^=\"studentACTTest\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+
+  let numChildren = (parentElement.childElementCount - 1);
+
+  let scores = []
+  let dateElem = createElement("div", "input-row")
+  let element;
+  if (numChildren + 1 < placeholders.length) {
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date", ""], "input-block")
+    element.addEventListener('keydown',enforceNumericFormat);
+    element.addEventListener('keyup',formatToDate);
+  }
+  else {
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
+  }
+
+  dateElem.appendChild(element)
+
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36", english]], ["English:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestMath" + (numChildren + 1).toString()],["actTestMath" + (numChildren + 1).toString(), "25", "2", "0", "36", math]], ["Math:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestReading" + (numChildren + 1).toString()],["actTestReading" + (numChildren + 1).toString(), "25", "2", "0", "36", reading]], ["Reading:", ""], "input-block"))
+  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestScience" + (numChildren + 1).toString()],["actTestScience" + (numChildren + 1).toString(), "25", "2", "0", "36", science]], ["Science:", ""], "input-block"))
+
+  for (let ele = 0; ele < scores.length; ele++) {
+    scores[ele].addEventListener('keydown',enforceNumericFormat);
+    scores[ele].addEventListener('keyup',formatToNumber);
+  }
+
+  let score = combineElements(scores, "input-row")
+  let actTestDiv = document.createElement("div");
+  actTestDiv.id = "actTest" + (numChildren + 1).toString();
+  parentElement.appendChild(actTestDiv);
+  actTestDiv.appendChild(dateElem);
+  actTestDiv.appendChild(score);
+}
+
+function removeActTest() {
+  let phrase = "label[for^=\"studentACTTestsArray\"]";
+  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+  children = parentElement.querySelectorAll("div[id^='actTest']")
+
+  let numChildren = (parentElement.childElementCount - 1);
+
+  if (numChildren >= 1) {
+    children[children.length - 1].remove()
+    // children[children.length - 2].remove()
+  }
+
+}
+
+
+
+function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "input-row") {
+  if (elementType.length >= 0) {
+    let elements = createElement("div", flexType);
+
+    if (attributes.length == values.length && attributes.length >= 0) {
+      for (let i = 0; i < elementType.length; i++) {
+        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
+      }
+    }
+
+    return elements;
+
+  }
+}
+
+function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
+  let question = document.createElement(elementType);
+
+  if (attributes.length == values.length && attributes.length > 0) {
+    for (let i = 0; i < attributes.length; i++) {
+      question.setAttribute(attributes[i], values[i]);
+    }
+  }
+
+  if (classes != "") {
+    question.className = classes;
+  }
+
+  if (text != "") {
+    question.innerHTML = text;
+  }
+  return question;
+
+}
+
+function combineElements(objects = [], flexType = "input-row")
+{
+  let item = createElement("div", flexType, [], [], "");
+
+  if (objects.length > 1)
+  {
+    for (let i = 0; i < objects.length; i++)
+    {
+      item.appendChild(objects[i]);
+    }
+  }
+
+  return item;
+
+}
+
+
+/**
+ * Set the wasatch location options
+ */
 function setLocations () {
   const wasatchRef = firebase.firestore().collection("Wasatch").doc("general");
   wasatchRef.get()
@@ -18,46 +183,258 @@ function setLocations () {
   });
 }
 
-function createInquiry() {
-  document.getElementById("errMsg").textContent = "";
-  document.getElementById("submitBtn").disabled = true;
-  document.getElementById("spinnyBoi").style.display = "block";
-  let allInputs = getAllInputs();
-  let allInputValues = {};
+/**
+ * Description:
+ * grabs the query string for this url which should include a uid and location
+ * then pulls the corresponding data from the pending collection in the given location
+ * fills in all of the data that we have stored
+ */
+ function fillInData() {
 
-  let locationInputs = getLocationInputs();
+  const studentUID = queryStrings()["student"];
+
+  if (studentUID) {
+    //grab the student data
+    const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+    studentDocRef.get()
+    .then((studentDoc) => {
+      if(studentDoc.exists) {
+        setAllData(studentDoc.data());
+        studentData = studentDoc.data();
+      }
+
+      //if the student is ACT then they have more data in their type
+      if (studentData["studentType"] == "act") {
+        const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
+        typeDocRef.get()
+        .then((typeDoc) => {
+          if(typeDoc.exists) {
+            setAllData(typeDoc.data());
+            typeData = typeDoc.data();
+          }
+        })
+        .catch((error) => {
+          handleFirebaseErrors(error, document.currentScript.src);
+        });
+      }
+
+      //grab the parents second because they will have more data (parent already exists from previous student)
+      const parentDocRef = firebase.firestore().collection("Parents").doc(studentDoc.data()["parent"]);
+      parentDocRef.get()
+      .then((parentDoc) => {
+        if(parentDoc.exists) {
+          setAllData(parentDoc.data());
+          parentData = parentDoc.data();
+        }
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, document.currentScript.src);
+      });
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, document.currentScript.src);
+      
+    });
+  }
+}
+
+function setAllData(data) {
+  for(const key in data) {
+    let element = document.getElementById(key);
+    if (element) {
+      element.value = data[key];
+      element.dispatchEvent(new Event('change'));
+    }
+  }
+
+  //special case for dynamic elements
+
+  //act tests
+  let studentActTests = data["studentActTests"];
+  if (studentActTests) {
+    for (let i = 0; i < studentActTests.length; i++) {
+      // console.log(studentActTests[i]["date"]);
+      let test = studentActTests[i];
+      addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
+    }
+  }
+  
+  //scholarship goals
+  let studentScholarshipArray = data["studentScholarshipArray"];
+  if (studentScholarshipArray) {
+    for (let i = 0; i < studentScholarshipArray.length; i++) {
+      addElement("studentScholarshipArray",studentScholarshipArray[i]);
+    }
+  }
+
+  //top colleges
+  let studentCollegeArray = data["studentCollegeArray"];
+  if (studentCollegeArray) {
+    for (let i = 0; i < studentCollegeArray.length; i++) {
+      addElement("studentCollegeArray",studentCollegeArray[i]);
+    }
+  }
+
+  //extracurriculars
+  let studentExtracurricularArray = data["studentExtracurricularArray"];
+  if (studentExtracurricularArray) {
+    for (let i = 0; i < studentExtracurricularArray.length; i++) {
+      addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
+    }
+  }
+}
+
+function submitRegistration() {
+  const studentUID = queryStrings()["student"];
+  //if a student UID is a query string then the submit should be an update
+  if (studentUID) {
+    updateRegistration();
+  }
+  //else the submit should be a set
+  else {
+    createRegistration();
+  }
+}
+
+function objectifyRegistration() {
+  let allInputs = getAllInputs();
   let parentInputs = getParentInputs();
   let studentInputs = getStudentInputs();
+  let typeInputs = getTypeInputs();
+  let adminInputs = getAdminInputs();
 
-  let locationInputValues = {};
+  let allInputValues = {}
   let parentInputValues = {};
   let studentInputValues = {};
+  let typeInputValues = {};
+  let adminInputValues ={};
 
-  if (validateFields(allInputs) && confirm("Are you sure you are ready to submit this inquiry?")) {
-    for(let i = 0; i < allInputs.length; i++) {
-      allInputValues[allInputs[i].id] = allInputs[i].value;
+  //convert input arrays into objects
+  for (let i = 0; i < allInputs.length; i++) {
+    //check for duplicate id's
+    let id = allInputs[i].id;
+    if (id.includes('_duplicate')) {
+      id = id.split('_')[0];
+    }
+    allInputValues[id] = allInputs[i].value;
+  }
+
+  for (let i = 0; i < parentInputs.length; i++) {
+    //check for duplicate id's
+    let id = parentInputs[i].id;
+    if (id.includes('_duplicate')) {
+      id = id.split('_')[0];
+    }
+    parentInputValues[id] = parentInputs[i].value;
+  }
+
+  for (let i = 0; i < studentInputs.length; i++) {
+    //check for duplicate id's
+    let id = studentInputs[i].id;
+    if (id.includes('_duplicate')) {
+      id = id.split('_')[0];
+    }
+    studentInputValues[id] = studentInputs[i].value;
+  }
+  //add in location and type to the student
+  studentInputValues["location"] = allInputValues["location"];
+  studentInputValues["studentType"] = allInputValues["studentType"];
+
+  if (typeInputs) {
+    for (let i = 0; i < typeInputs.length; i++) {
+      if (typeInputs[i].id.includes("Array")) {
+        if (typeInputs[i].parentNode.querySelector('label').getAttribute('for') in typeInputValues) {
+          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')].push(typeInputs[i].value)
+        }
+        else {
+          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')].push(typeInputs[i].value)
+        }
+      }
+      else {
+        //check for duplicate id's
+        let id = typeInputs[i].id;
+        if (id.includes('_duplicate')) {
+          id = id.split('_')[0];
+        }
+        //check for the act test
+        if (!id.includes("actTest")) {
+          typeInputValues[id] = typeInputs[i].value;
+        }
+      }
     }
 
-    for(let i = 0; i < locationInputs.length; i++) {
-      locationInputValues[locationInputs[i].id] = locationInputs[i].value;
+    //special case for actTest
+    let actTestArray = [];
+    let actTestDivs = document.querySelectorAll("div[id^='actTest']");
+    for (let i = 0; i < actTestDivs.length; i++) {
+      let actTest = {}
+      actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
+      actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
+      actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
+      actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
+      actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
+      actTestArray.push(actTest);
     }
+    typeInputValues["studentActTests"] = actTestArray;
+  }
 
-    for(let i = 0; i < parentInputs.length; i++) {
-      parentInputValues[parentInputs[i].id] = parentInputs[i].value;
+  for (let i = 0; i < adminInputs.length; i++) {
+    //check for duplicate id's
+    let id = adminInputs[i].id;
+    if (id.includes('_duplicate')) {
+      id = id.split('_')[0];
     }
+    adminInputValues[id] = adminInputs[i].value;
+  }
 
-    for(let i = 0; i < studentInputs.length; i++) {
-      studentInputValues[studentInputs[i].id] = studentInputs[i].value;
-    }
+  return {
+    allValues: allInputValues,
+    parentValues: parentInputValues,
+    studentValues: studentInputValues,
+    typeValues: typeInputValues,
+    adminValues: adminInputValues 
+  }
+}
 
+/**
+ * 
+ * @param {boolean} status if the submit button should be disabled and loader spinning
+ */
+function isWorking(status) {
+  if (status) {
+    document.getElementById("errMsg").textContent = "";
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("spinnyBoi").style.display = "block";
+  }
+  else {
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("spinnyBoi").style.display = "none";
+  }
+}
+
+function createRegistration() {
+  // put into working status
+  isWorking(true);
+
+  const registrationObject = objectifyRegistration();
+
+  let allInputValues = registrationObject["allValues"];
+  let parentInputValues = registrationObject["parentValues"];
+  let studentInputValues = registrationObject["studentValues"];
+  let typeInputValues = registrationObject["typeValues"];
+  let adminInputValues = registrationObject["adminValues"];
+
+  //validate and confirm submission
+  if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
     //if no student email was created, generate one
     let randomNumber = Math.round(Math.random() * 10000).toString().padStart(4, '0');
-    studentInputValues['studentEmail'] = studentInputValues['studentEmail'] || studentInputValues['studentFirstName'] + studentInputValues['studentLastName'] + randomNumber + '@wasatchtutors.com';
+    studentInputValues['studentEmail'] = studentInputValues['studentEmail'].trim() || studentInputValues['studentFirstName'].trim() + studentInputValues['studentLastName'].trim() + randomNumber + '@wasatchtutors.com';
 
     //create the student account
     const addUser = firebase.functions().httpsCallable('addUser');
     addUser({
-      email: studentInputValues['studentEmail'],
+      email: studentInputValues['studentEmail'].trim(),
       password: "abc123",
       role: "student"
     })
@@ -69,7 +446,7 @@ function createInquiry() {
         //create the parent account
         const addUser = firebase.functions().httpsCallable('addUser');
         addUser({
-          email: parentInputValues['parentEmail'],
+          email: parentInputValues['parentEmail'].trim(),
           password: "abc123",
           role: "parent"
         })
@@ -79,23 +456,19 @@ function createInquiry() {
 
           //new parent
           if (newParent) {
-            let studentProm = setStudentDoc(studentUID, parentUID, {...locationInputValues, ...studentInputValues})
-            let parentProm = setParentDoc(parentUID, studentUID, {...locationInputValues, ...parentInputValues})
-            let locationProm;
+            let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
+            let parentProm = setParentDoc(parentUID, studentUID, parentInputValues);
+
+            let studentType = allInputValues['studentType'];
+            let typeProm = setTypeDoc(studentUID, studentType, typeInputValues);
 
             let locationUID = allInputValues["location"];
-            let studentType = allInputValues['studentType'];
             let studentFirstName = allInputValues["studentFirstName"];
             let studentLastName = allInputValues["studentLastName"];
             let parentFirstName = allInputValues["parentFirstName"];
             let parentLastName = allInputValues["parentLastName"];
 
-            if (studentType == 'act') {
-              locationProm = updateLocationPending(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-            }
-            else {
-              locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-            }
+            let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
             let studentDisplayNameProm;
             if (studentFirstName) {
@@ -114,89 +487,186 @@ function createInquiry() {
               })
             }
 
-            let promises = [studentProm, parentProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
+            let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
             Promise.all(promises)
             .then(() => {
-              //go back to the user's dashboard
-              goToDashboard();
-              document.getElementById("submitBtn").disabled = false;
-              document.getElementById("spinnyBoi").style.display = "none";
+              //go back
+              history.back();
+              isWorking(false);
             })
             .catch((error) => {
               handleFirebaseErrors(error, document.currentScript.src);
               document.getElementById("errMsg").textContent = error.message;
-              document.getElementById("submitBtn").disabled = false;
-              document.getElementById("spinnyBoi").style.display = "none";
+              isWorking(false);
             });
           }
           else {
             //the parent already exists. add the student to this parent after confirmation
             let confirmation = confirm('This parent already exists. Would you like to add this student to this parent?')
             if (confirmation) {
-              let studentProm = setStudentDoc(studentUID, parentUID, {...locationInputValues, ...studentInputValues})
-              let parentProm = updateParentChildren(parentUID, studentUID)
-              let locationProm;
+              let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
+              let parentProm = updateParentChildren(parentUID, studentUID);
+
+              let studentType = allInputValues['studentType'];
+              let typeProm;
+              if (studentType == "act") {
+                typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+              }
 
               let locationUID = allInputValues["location"];
-              let studentType = allInputValues['studentType'];
               let studentFirstName = allInputValues["studentFirstName"];
               let studentLastName = allInputValues["studentLastName"];
               let parentFirstName = allInputValues["parentFirstName"];
               let parentLastName = allInputValues["parentLastName"];
 
-              if (studentType == 'act') {
-                locationProm = updateLocationPending(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-              }
-              else {
-                locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+              let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+
+              let studentDisplayNameProm;
+              if (studentFirstName) {
+                const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+                studentDisplayNameProm = updateUserDisplayName({
+                  uid: studentUID,
+                  displayName: studentFirstName + " " + studentLastName 
+                })
               }
 
-              let promises = [studentProm, parentProm, locationProm];
+              let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm];
               Promise.all(promises)
               .then(() => {
-                //go back to the user's dashboard
-                goToDashboard();
-                document.getElementById("submitBtn").disabled = false;
-                document.getElementById("spinnyBoi").style.display = "none";
+                //go back
+                history.back();
+                isWorking(false);
               })
               .catch((error) => {
                 handleFirebaseErrors(error, document.currentScript.src);
                 document.getElementById("errMsg").textContent = error.message;
-                document.getElementById("submitBtn").disabled = false;
-                document.getElementById("spinnyBoi").style.display = "none";
+                isWorking(false);
               });
             }
             else {
-              document.getElementById("submitBtn").disabled = false;
-              document.getElementById("spinnyBoi").style.display = "none";
+              isWorking(false);
             }
           }
         })
         .catch((error) => {
           handleFirebaseErrors(error, document.currentScript.src);
           document.getElementById("errMsg").textContent = error.message;
-          document.getElementById("submitBtn").disabled = false;
-          document.getElementById("spinnyBoi").style.display = "none";
+          isWorking(false);
         });
       }
       //this student already exists. prompt to try again if not a mistake
       else {
-        alert("It looks like this student already exists. If you think this is a mistake please try submitting the inquiry again.");
-        document.getElementById("submitBtn").disabled = false;
-        document.getElementById("spinnyBoi").style.display = "none";
+        alert("It looks like this student already exists. If you think this is a mistake please try submitting the registration again.");
+        isWorking(false);
       }
     })
     .catch((error) => {
       handleFirebaseErrors(error, document.currentScript.src);
       document.getElementById("errMsg").textContent = error.message;
-      document.getElementById("submitBtn").disabled = false;
-      document.getElementById("spinnyBoi").style.display = "none";
+      isWorking(false);
     });
   }
   else {
     //validation failed
-    document.getElementById("submitBtn").disabled = false;
-    document.getElementById("spinnyBoi").style.display = "none";
+    isWorking(false);
+  }
+}
+
+function updateRegistration() {
+  // put into working status
+  isWorking(true);
+
+  const registrationObject = objectifyRegistration();
+
+  let allInputValues = registrationObject["allValues"];
+  let parentInputValues = registrationObject["parentValues"];
+  let studentInputValues = registrationObject["studentValues"];
+  let typeInputValues = registrationObject["typeValues"];
+  let adminInputValues = registrationObject["adminValues"];
+
+  //validate and confirm submission
+  if (validateFields(getAllInputs()) && 
+    haveStudentEmail() && 
+    confirm("Are you sure you are ready to update this registration form?")
+    ) {
+    const studentUID = queryStrings()["student"];
+    const parentUID = studentData["parent"];
+
+    let studentProm = updateStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
+    let parentProm = updateParentDoc(parentUID, studentUID, parentInputValues);
+
+    let studentType = allInputValues['studentType'];
+    let typeProm;
+    if (studentType == "act") {
+      typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+    }
+
+    let locationUID = allInputValues["location"];
+    let studentFirstName = allInputValues["studentFirstName"];
+    let studentLastName = allInputValues["studentLastName"];
+    let parentFirstName = allInputValues["parentFirstName"];
+    let parentLastName = allInputValues["parentLastName"];
+
+    let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+
+    //update student email
+    let studentEmail = studentInputValues['studentEmail'];
+    let studentEmailProm;
+    if (studentEmail) {
+      const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
+      emailProm = updateUserEmail({
+        uid: studentUID,
+        email : studentEmail,
+      })
+    }
+
+    //update parent email
+    let parentEmail = parentInputValues['parentEmail'];
+    let parentEmailProm;
+    if (parentEmail) {
+      const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
+      emailProm = updateUserEmail({
+        uid: studentUID,
+        email : parentEmail,
+      })
+    }
+
+    //update student display name
+    let studentDisplayNameProm;
+    if (studentFirstName) {
+      const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+      studentDisplayNameProm = updateUserDisplayName({
+        uid: studentUID,
+        displayName: studentFirstName + " " + studentLastName 
+      })
+    }
+
+    //update parent display name
+    let parentDisplayNameProm;
+    if (parentFirstName) {
+      const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+      parentDisplayNameProm = updateUserDisplayName({
+        uid: parentUID,
+        displayName: parentFirstName + " " + parentLastName 
+      })
+    }
+
+    let promises = [studentProm, parentProm, typeProm, locationProm, studentEmailProm, parentEmailProm, studentDisplayNameProm, parentDisplayNameProm];
+    Promise.all(promises)
+    .then(() => {
+      //go back
+      history.back();
+      isWorking(false);
+    })
+    .catch((error) => {
+      console.log(error);
+      handleFirebaseErrors(error, document.currentScript.src);
+      document.getElementById("errMsg").textContent = error.message;
+      isWorking(false);
+    });
+  }
+  else {
+    isWorking(false);
   }
 }
 
@@ -204,7 +674,9 @@ function setStudentDoc(studentUID, parentUID, studentValues) {
   const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
   let studentDocData = {
     ...studentValues,
-    parent: parentUID
+    parent: parentUID,
+    dateCreated: (new Date().getTime()),
+    dateModified: (new Date().getTime())
   }
   return studentDocRef.set(studentDocData);
 }
@@ -213,15 +685,55 @@ function setParentDoc(parentUID, studentUID, parentValues) {
   const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
   let parentDocData = {
     ...parentValues,
-    students : [studentUID]
+    students : [studentUID],
+    dateCreated: (new Date().getTime()),
+    dateModified: (new Date().getTime())
   }
   return parentDocRef.set(parentDocData)
+}
+
+function setTypeDoc(studentUID, studentType, typeValues) {
+  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
+  return typeDocRef.set({
+    ...typeValues,
+    dateCreated: (new Date().getTime()),
+    dateModified: (new Date().getTime())
+  })
+}
+
+function updateStudentDoc(studentUID, parentUID, studentValues) {
+  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  let studentDocData = {
+    ...studentValues,
+    parent: parentUID,
+    dateModified: (new Date().getTime())
+  }
+  return studentDocRef.update(studentDocData);
+}
+
+function updateParentDoc(parentUID, studentUID, parentValues) {
+  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+  let parentDocData = {
+    ...parentValues,
+    students : [studentUID],
+    dateModified: (new Date().getTime())
+  }
+  return parentDocRef.update(parentDocData)
+}
+
+function updateTypeDoc(studentUID, studentType, typeValues) {
+  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
+  return typeDocRef.update({
+    ...typeValues,
+    dateModified: (new Date().getTime())
+  })
 }
 
 function updateParentChildren(parentUID, studentUID) {
   const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
   return parentDocRef.update({
-    students : firebase.firestore.FieldValue.arrayUnion(studentUID)
+    students : firebase.firestore.FieldValue.arrayUnion(studentUID),
+    dateModified: (new Date().getTime())
   })
 }
 
@@ -240,75 +752,44 @@ function updateLocationActive(locationUID, studentUID, studentType, studentFirst
   })
 }
 
-function updateLocationPending(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
-  const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
-  let pendingStudent = {
-    studentType : studentType,
-    studentFirstName : studentFirstName,
-    studentLastName : studentLastName,
-    parentUID: parentUID,
-    parentFirstName: parentFirstName,
-    parentLastName: parentLastName
-  }
-  return locationDocRef.update({
-    [`pendingStudents.${studentUID}`]: pendingStudent
-  })
-}
-
 function getAllInputs() {
-  return document.getElementById("inquiryForm").querySelectorAll("input, select");
+  return document.querySelectorAll("input, select, textarea");
 }
 
-function getLocationInputs() {
-  return document.getElementById("inquiryForm").querySelectorAll(".location-data");
+function getRequiredInputs() {
+  return document.getElementById("required_info").querySelectorAll("input, select, textarea");
 }
 
 function getParentInputs() {
-  return document.getElementById("inquiryForm").querySelectorAll(".parent-data");
+  return document.getElementById("parent_info").querySelectorAll("input, select, textarea");
 }
 
 function getStudentInputs() {
-  return document.getElementById("inquiryForm").querySelectorAll(".student-data");
+  return document.getElementById("student_info").querySelectorAll("input, select, textarea");
 }
 
-function goToDashboard() {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
+function getTypeInputs() {
+  let studentType = document.getElementById("studentType").value;
+  if (studentType) {
+    return document.getElementById(studentType + "_info").querySelectorAll("input, select, textarea");
+  }
+}
 
-        switch (role) {
-          case "student":
-            window.location.replace(location.origin + "/Dashboard/Student");
-            break;
-          case "parent":
-            window.location.replace(location.origin + "/Dashboard/Parent");
-            break;
-          case "tutor":
-            window.location.replace(location.origin + "/Dashboard/Tutor");
-            break;
-          case "secretary":
-            window.location.replace(location.origin + "/Dashboard/Secretary");
-            break;
-          case "admin":
-            window.location.replace(location.origin + "/Dashboard/Admin");
-            break;
-          case "dev":
-            window.location.replace(location.origin + "/Dashboard/Admin");
-            break;
-          default:
-            
-        }
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, document.currentScript.src);
-      });
-    }
-    else {
-      window.location.replace(location.origin + "/Sign-In/Sign-In");
-    }
-  });
+function getAdminInputs() {
+  return document.getElementById("admin_info").querySelectorAll("input, select, textarea");
+}
+
+function haveStudentEmail() {
+  let studentEmail = document.getElementById("studentEmail");
+
+  //if we don't have the email return false
+  if (!studentEmail.value.trim()) {
+    studentEmail.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["studentEmail" + "ErrorMessage"], "* Required *"));
+    return false;
+  }
+  else {
+    return true;
+  }
 }
 
 function validateFields(inputs) {
@@ -326,7 +807,7 @@ function validateFields(inputs) {
     }
 
     // Validate Emails
-    if (inputs[i].id == 'parentEmail') {
+    if (inputs[i].id.includes("Email") && inputs[i].value != "") {
       if (validateInputEmail(inputs[i]) == false) {
         allClear = false;
       }
@@ -361,6 +842,40 @@ function validateFields(inputs) {
 
   return allClear;
 }
+
+function changeRegistrationBlock(elem) {
+  let registrationID = "";
+  if (elem.id === "type") {
+    registrationID = document.getElementById("studentType").value || null;
+  }
+  else {
+    registrationID = elem.id;
+  }
+
+  if (registrationID) {
+    registrationID += "_info"
+    let registrationBlocks = document.querySelectorAll("div[id$=_info]");
+    let progressArrows = document.querySelectorAll(".step");
+
+    removeCurrentClass(registrationBlocks);
+    removeCurrentClass(progressArrows);
+
+    document.getElementById(registrationID).classList.add("current");
+    elem.classList.add("current");
+    }
+}
+
+function removeCurrentClass(blocks) {
+  blocks.forEach((elem) => {
+    elem.classList.remove("current")
+  });
+}
+
+
+
+
+
+
 
 /**
  * Description:
@@ -546,6 +1061,37 @@ function validateInputBirthday(input) {
   return true;
 }
 
+const parentPhone = document.getElementById('parentPhoneNumber');
+parentPhone.addEventListener('keydown',enforceNumericFormat);
+parentPhone.addEventListener('keyup',formatToPhone);
+
+const workPhone = document.getElementById('parentWorkPhoneNumber');
+workPhone.addEventListener('keydown',enforceNumericFormat);
+workPhone.addEventListener('keyup',formatToPhone);
+
+const studentPhone = document.getElementById('studentPhoneNumber');
+studentPhone.addEventListener('keydown',enforceNumericFormat);
+studentPhone.addEventListener('keyup',formatToPhone);
+
+const inputZipcode = document.getElementById('zipCode');
+inputZipcode.addEventListener('keydown',enforceNumericFormat);
+
+const birthdayElem = document.getElementById('studentBirthday');
+birthdayElem.addEventListener('keydown',enforceNumericFormat);
+birthdayElem.addEventListener('keyup',formatToDate);
+
+// const goalACTDate = document.getElementById('studentDesiredACTDate');
+// goalACTDate.addEventListener('keydown',enforceNumericFormat);
+// goalACTDate.addEventListener('keyup',formatToDate);
+
+const goalACTScore = document.getElementById('studentDesiredACTScore');
+goalACTScore.addEventListener('keydown',enforceNumericFormat);
+goalACTScore.addEventListener('keyup',formatToNumber);
+
+const gpa = document.getElementById('studentGpa');
+gpa.addEventListener('keydown',enforceDecimalFormat);
+gpa.addEventListener('keyup',formatToNumber);
+
 function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
   let question = document.createElement(elementType);
 
@@ -565,14 +1111,50 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
   return question;
 }
 
+function capitalizeFirstLettersInString(string) {
+  let words = string.split(' ');
+  for (let i = 0; i < words.length; i++) {
+    words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+  }
 
-const parentPhone = document.getElementById('parentPhoneNumber');
-parentPhone.addEventListener('keydown',enforceNumericFormat);
-parentPhone.addEventListener('keyup',formatToPhone);
+  return words.join(" ");
+}
 
-const studentPhone = document.getElementById('studentPhoneNumber');
-studentPhone.addEventListener('keydown',enforceNumericFormat);
-studentPhone.addEventListener('keyup',formatToPhone);
+const studentType = document.getElementById('studentType');
+studentType.addEventListener('change', () => {
+  let type = studentType.options[studentType.selectedIndex].textContent;
+  //show the act tab
+  if (type == "ACT") {
+    document.getElementById("type").classList.remove("hidden");
+  }
+  //hide the tab
+  else {
+    document.getElementById("type").classList.add("hidden");
+  }
+});
 
-const inputZipcode = document.getElementById('zipCode');
-inputZipcode.addEventListener('keydown',enforceNumericFormat);
+function setupDuplicates() {
+  let duplicateInputs = document.querySelectorAll("input[id$='_duplicate'");
+
+
+  duplicateInputs.forEach((duplicateElem) => {
+    let originalElem = document.getElementById(duplicateElem.id.split('_')[0]);
+
+    originalElem.addEventListener('change', () => {
+      duplicateElem.value = originalElem.value;
+    });
+
+    duplicateElem.addEventListener('change', () => {
+      originalElem.value = duplicateElem.value;
+    });
+
+    // duplicateElem.value = originalElem.value;
+  });
+}
+
+function goBack() {
+  let confirmation = confirm("Are you sure you want to go back? Any changes you made will be lost.")
+  if (confirmation) {
+    history.back()
+  }
+}

@@ -9,6 +9,7 @@ function main() {
     setStudentProfile();
     setStudentSTProfile();
     getNotes('log');
+    allowExpectationChange();
   })
 }
 
@@ -70,71 +71,59 @@ function setStudentProfile() {
 }
 
 function setStudentSTProfile() {
-  document.getElementById('student-expectation').innerHTML = studentSTProfileData['expectation'] || "No expectation set."
+  document.getElementById('student-expectation').value = studentSTProfileData['expectation'] || "No expectation set."
 }
 
-function updateStudentExpectation() {
+function allowExpectationChange() {
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       user.getIdTokenResult()
       .then((idTokenResult) => {
         let role = idTokenResult.claims.role;
         if (role == 'admin' || role == 'dev' || role == 'secretary') {
-          const studentUID = queryStrings()['student'];
-          let studentExpectationElem = document.getElementById('student-expectation');
-          let parent = studentExpectationElem.parentNode;
-          let expectationTag = studentExpectationElem.tagName;
-          if (expectationTag == "INPUT") {
-            //update the goal and send it back to an H2 tag
-            let expectationStr = studentExpectationElem.value;
-            const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
-            studentSTProfileRef.get()
-            .then((doc) => {
-              if(doc.exists) {
-                studentSTProfileRef.update({
-                  expectation : expectationStr
-                })
-                .then(() => {
-                  //remove the input and replace it with the text
-                  studentExpectationElem.remove();
-                  let newElem = document.createElement('h2');
-                  newElem.id = 'student-expectation';
-                  newElem.innerHTML = expectationStr;
-                  parent.appendChild(newElem);
-                })
-                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
-              }
-              else {
-                studentSTProfileRef.set({
-                  expectation : expectationStr
-                })
-                .then(() => {
-                  //remove the input and replace it with the text
-                  studentExpectationElem.remove();
-                  let newElem = document.createElement('h2');
-                  newElem.id = 'student-expectation';
-                  newElem.innerHTML = expectationStr;
-                  parent.appendChild(newElem);
-                })
-                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
-              }
-            })
-          }
-          else {
-            //turn the element into an input to allow for changes
-            let expectationStr = studentExpectationElem.innerHTML;
-            studentExpectationElem.remove();
-            let newElem = document.createElement('input');
-            newElem.id = 'student-expectation';
-            newElem.value = expectationStr;
-            newElem.classList.add("expectation-input");
-            parent.appendChild(newElem);
-          }
+          document.getElementById("student-expectation").disabled = false;
+          document.getElementById("student-expectation").addEventListener('keydown', updateStudentExpectation)
         }
       })
-      .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+      .catch((error) => console.log(error));
+      // .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
     }
   });
+}
+
+function updateStudentExpectation(event) {
+  if (event.repeat) {return};
+  if (!event.ctrlKey && event.key == "Enter") {
+    event.preventDefault();
+    let studentExpectationElem = document.getElementById('student-expectation');
+    let expectationStr = studentExpectationElem.value;
+
+    studentExpectationElem.style.borderColor = null;
+
+    const studentSTProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Subject-Tutoring').doc('profile');
+    studentSTProfileRef.get()
+    .then((doc) => {
+      if(doc.exists) {
+        studentSTProfileRef.update({
+          expectation : expectationStr
+        })
+        .then(() => {
+          studentExpectationElem.style.borderColor = "green";
+        })
+        .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+      }
+      else {
+        studentSTProfileRef.set({
+          expectation : expectationStr
+        })
+        .then(() => {
+          studentExpectationElem.style.borderColor = "green";
+        })
+        .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+      }
+    })
+    .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+  }
 }
 
 //all of the notes stuff
@@ -320,6 +309,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
 }
 
 document.getElementById("student-log-notes-input").addEventListener('keydown', (event) =>  {
+  if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
@@ -327,4 +317,20 @@ document.getElementById("student-log-notes-input").addEventListener('keydown', (
     const time = new Date().getTime();
     sendNotes('log', note, time, currentUser);
   }
+});
+
+document.getElementById("student-general-info").addEventListener("dblclick", () => {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          const studentUID = queryStrings()['student']
+          let queryStr = "?student=" + studentUID;
+          window.location.href = "inquiry.html" + queryStr;
+        }
+      })
+    }
+  });
 });

@@ -291,7 +291,6 @@ function updateData() {
   //special case for actTest (will be added to the student data)
   let actTestArray = [];
   let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-  // console.log(actTestDivs);
   for (let i = 0; i < actTestDivs.length; i++) {
     let actTest = {}
     actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
