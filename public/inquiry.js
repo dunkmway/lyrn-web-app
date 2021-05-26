@@ -460,7 +460,10 @@ function createRegistration() {
             let parentProm = setParentDoc(parentUID, studentUID, parentInputValues);
 
             let studentType = allInputValues['studentType'];
-            let typeProm = setTypeDoc(studentUID, studentType, typeInputValues);
+            let typeProm;
+            if (studentType == "act") {
+              typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+            }
 
             let locationUID = allInputValues["location"];
             let studentFirstName = allInputValues["studentFirstName"];
@@ -491,7 +494,7 @@ function createRegistration() {
             Promise.all(promises)
             .then(() => {
               //go back
-              history.back();
+              goToDashboard();
               isWorking(false);
             })
             .catch((error) => {
@@ -534,7 +537,7 @@ function createRegistration() {
               Promise.all(promises)
               .then(() => {
                 //go back
-                history.back();
+                goToDashboard();
                 isWorking(false);
               })
               .catch((error) => {

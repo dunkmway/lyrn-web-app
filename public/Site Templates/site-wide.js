@@ -41,7 +41,9 @@ function checkPermissions() {
         "/Dashboard/Tutor",
         "/Forms/ACT%20Daily%20Log/Daily%20Log",
         "/student-info-test",
-        "/subject-tutoring-dash"
+        "/subject-tutoring-dash",
+        "/math-program",
+        "/phonics-program"
     ]
     
     const secretaryPages = [
