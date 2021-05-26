@@ -295,7 +295,7 @@ body {
     text-decoration: none;
 }
 
-/*.button {
+.button {
   margin-top: 20px;
   width: 140px;
   height: 45px;
@@ -320,7 +320,7 @@ body {
   transform: translateY(-7px);
 }
 
-.input-row-center {
+/*.input-row-center {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -333,3 +333,4 @@ body {
     height: 7%;
     justify-content: space-between;
 }*/
+

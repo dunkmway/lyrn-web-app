@@ -2,8 +2,11 @@ let studentProfileData = {};
 let studentNotesData = {};
 let studentSTProfileData = {};
 
-const studentGrade = 11;
+// Set the math program data
+let studentGrade = 1;
 let currentLessonData = undefined;
+getLessons()
+
 let date = new Date()
 let colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
 const links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
@@ -129,37 +132,38 @@ const grade12 = {'Right Triangles & Trigonometry' : ['Ratios in right triangles'
                  'Non-right Triangles and Trigonometry' : ['Law of sines', 'Law of cosines', 'Solving general triangles'],
                  'Trigonometric Equations and Identities' : ['Inverse trigonometric functions', 'Sinusoidal equations', 'Sinusoidal models', 'Trigonometric identities', 'Angle addition identities', 'Using trigonometric identities', 'Challenging trigonometric problems']}
 
-const lessonInfo = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11]
+const lessonInfo = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11, grade12]
 let lessonList = document.getElementById('lessonList');
 
-if (currentLessonData == undefined) {
-  initializeEmptyLessonsMap();
-}
-populateLessons();
-document.getElementById('programLink').setAttribute('href', links[studentGrade - 1])
+let grade = document.getElementById('student-grade')
+grade.addEventListener('change', (e) => {
+  studentGrade = e.target.value;
+  currentLessonData['grade'] = studentGrade;
+  populateLessons()
+})
 
 lessonList.addEventListener('click', (e) => {
   if (e.target.className.includes('button2')) {
     let section = e.target.getAttribute('data-section');
     let lesson = e.target.getAttribute('data-lesson');
-    if (currentLessonData[section][lesson]['status'] == 'not assigned') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'needs help', currentLessonData);
+    if (currentLessonData[studentGrade][section][lesson]['status'] == 'not assigned') {
+      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
+      setObjectValue([studentGrade, section, lesson, 'status'], 'needs help', currentLessonData);
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'needs help') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'assigned', currentLessonData);
+    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'needs help') {
+      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
+      setObjectValue([studentGrade, section, lesson, 'status'], 'assigned', currentLessonData);
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'assigned') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'mastered', currentLessonData);
+    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'assigned') {
+      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
+      setObjectValue([studentGrade, section, lesson, 'status'], 'mastered', currentLessonData);
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'mastered') {
-      setObjectValue([section, lesson, 'date'], undefined, currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'not assigned', currentLessonData);
+    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'mastered') {
+      setObjectValue([studentGrade, section, lesson, 'date'], 0, currentLessonData);
+      setObjectValue([studentGrade, section, lesson, 'status'], 'not assigned', currentLessonData);
       populateLessons()
     }
   }
@@ -492,6 +496,7 @@ function removeLessons() {
 
 function populateLessons() {
   removeLessons();
+  document.getElementById('programLink').setAttribute('href', links[studentGrade - 1])
   let gradeLessons = lessonInfo[studentGrade - 1]
 
   // Add the lessons
@@ -509,10 +514,9 @@ function populateLessons() {
       const lesson = gradeLessons[sections[i]][j]
       const element1 = createElement('div', ['gridBox'], [], [] , lesson);
       const element2 = createElement('div', ['gridBox', 'button2'], ['data-section', 'data-lesson'], [sections[i], lesson], "")
-      element2.classList.add(colors[currentLessonData[sections[i]][lesson]['status']])
-      const dateInfo = convertFromDateInt(currentLessonData[sections[i]][lesson]['date']);
-      if (dateInfo != undefined) {
-        element2.innerHTML = dateInfo['shortDate']
+      element2.classList.add(colors[currentLessonData[studentGrade][sections[i]][lesson]['status']])
+      if (currentLessonData[studentGrade][sections[i]][lesson]['date'] != 0) {
+        element2.innerHTML = convertFromDateInt(currentLessonData[studentGrade][sections[i]][lesson]['date'])['shortDate'];
       }
       lessonList.append(element1);
       lessonList.append(element2);
@@ -521,16 +525,20 @@ function populateLessons() {
 }
 
 function initializeEmptyLessonsMap() {
-  currentLessonData = {};
-  const gradeLessons = lessonInfo[studentGrade - 1]
-  const sections = Object.keys(gradeLessons);
-  let lessons = undefined;
-  for (let i = 0; i < sections.length; i++) {
-    lessons = Object.values(gradeLessons[sections[i]]);
-    for (let j = 0; j < lessons.length; j++) {
-      setObjectValue([sections[i], lessons[j], 'date'], undefined, currentLessonData);
-      setObjectValue([sections[i], lessons[j], 'status'], 'not assigned', currentLessonData);
+  currentLessonData = {'grade' : studentGrade, 1 : {}, 2 : {}, 3 : {}, 4 : {}, 5 : {}, 6 : {}, 7 : {}, 8 : {}, 9 : {}, 10 : {}, 11 : {}, 12 : {}};
+  for (let g = 1; g < 13; g++) {
+    const gradeLessons = lessonInfo[g - 1]
+    const sections = Object.keys(gradeLessons);
+    let lessons = undefined;
+    let tmp = {};
+    for (let i = 0; i < sections.length; i++) {
+      lessons = Object.values(gradeLessons[sections[i]]);
+      for (let j = 0; j < lessons.length; j++) {
+        setObjectValue([sections[i], lessons[j], 'date'], 0, tmp);
+        setObjectValue([sections[i], lessons[j], 'status'], 'not assigned', tmp);
+      }
     }
+    setObjectValue([g], tmp, currentLessonData)
   }
 }
 
@@ -567,3 +575,37 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
   // Return the element
   return element;
 }
+
+function getLessons() {
+  return new Promise((resolve, reject) => {
+    let student = queryStrings()['student'];
+    lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
+
+    lessonsRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        currentLessonData = doc.data();
+        studentGrade = doc.data()['grade'];
+      }
+      else {
+        if (currentLessonData == undefined) {
+          initializeEmptyLessonsMap();
+        }
+      }
+      populateLessons();
+      document.getElementById('student-grade').value = studentGrade;
+    })
+    .then(() => resolve())
+    .catch((error) => reject('Fb error:' + error))
+  })
+}
+
+function submitLessons() {
+  let student = queryStrings()['student'];
+  lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
+
+  //console.log(currentLessonData)
+  lessonsRef.set(currentLessonData)
+  .catch((error) => reject('Fb error:' + error))
+}
+

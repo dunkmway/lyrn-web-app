@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subject Tutoring</title>
+    <title>Math Program</title>
     <link href="math-program.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
 
@@ -26,6 +26,21 @@
 
   <div id="student-general-info" ondblclick="updateStudentExpectation()">
     <h1 id="student-name"></h1>
+    <label>Program Grade</label>
+    <select id="student-grade">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+    </select>
     <h2 id="student-expectation"></h2>
 </div>
 
@@ -65,6 +80,8 @@
     </div>-->
 
   </div>
+
+  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
 
 
 </body>
