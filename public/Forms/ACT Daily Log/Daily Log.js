@@ -281,7 +281,7 @@ function openForm(id = undefined, view_type = undefined, element = undefined, pN
     let test = undefined;
     let section = undefined;
     let passageNumber = undefined;
-    if (element) {
+    if (element != undefined) {
       test = element.getAttribute("data-test") ?? element.parentNode.getAttribute("data-test");
       section = element.getAttribute("data-section") ?? element.parentNode.getAttribute("data-section");
       passageNumber = element.getAttribute("data-passageNumber");
