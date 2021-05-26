@@ -111,7 +111,7 @@ function checkPermissions() {
                 clearLoadingScreen();
             })
             .catch((error) => {
-                handleFirebaseErrors(error, document.currentScript.src);
+                handleFirebaseErrors(error, window.location.href);
                 window.location.replace(location.origin + "/Sign-In/Sign-In");
             });
         }
@@ -135,7 +135,7 @@ function signOut() {
         })
         .catch((error) => {
             // An error happened.
-            handleFirebaseErrors(error, document.currentScript.src);
+            handleFirebaseErrors(error, window.location.href);
         });
     }
 }
@@ -221,7 +221,7 @@ function goToDashboard() {
                 }
             })
             .catch((error) => {
-            handleFirebaseErrors(error, document.currentScript.src);
+            handleFirebaseErrors(error, window.location.href);
             });
         }
         else {

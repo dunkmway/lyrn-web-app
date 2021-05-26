@@ -180,8 +180,6 @@ border-left: 17px solid #23468c;
   flex-direction: row;
   justify-content: left;
   align-items: stretch;
-  padding-left: 8%;
-  padding-right: 8%;
 }
 
 @media screen and (max-width: 1000px) {
@@ -190,26 +188,6 @@ border-left: 17px solid #23468c;
       flex-direction: column;
       justify-content: center;
       align-items: stretch;
-      padding-left: 8%;
-      padding-right: 8%;
-  }
-}
-
-.input-row-buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  width: max-content;
-}
-
-@media screen and (max-width: 1000px) {
-  .input-row-buttons {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: stretch;
-      padding-left: 8%;
-      padding-right: 8%;
   }
 }
 
@@ -314,12 +292,7 @@ select {
 }
 
 .label {
-  width: auto;
-  text-align: left;
-  margin-bottom: 5px;
-  margin-top: 5px;
   color: black;
-  position: relative;
 }
 
 .more-info {

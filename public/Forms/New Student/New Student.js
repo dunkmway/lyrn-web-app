@@ -228,11 +228,11 @@ function fillInData() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
   });
 }
 

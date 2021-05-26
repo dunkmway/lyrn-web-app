@@ -121,7 +121,7 @@ function setStudentTable() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     });
 
     promises.push(locationProm);
@@ -186,7 +186,7 @@ function setStudentTable() {
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
   });
   
 }
