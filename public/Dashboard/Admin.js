@@ -132,7 +132,7 @@ function setStudentTable() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     });
 
     promises.push(locationProm);
@@ -198,7 +198,7 @@ function setStudentTable() {
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
   });
   
 }
@@ -312,13 +312,13 @@ function createTutor() {
             closeUser("tutor", true);
           })
           .catch((error) => {
-            handleFirebaseErrors(error, document.currentScript.src);
+            handleFirebaseErrors(error, window.location.href);
             document.getElementById("errMsg").textContent = error.message;
             document.getElementById("spinnyBoiTutor").style.display = "none";
           });
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiTutor").style.display = "none";
         });
@@ -329,7 +329,7 @@ function createTutor() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiTutor").style.display = "none";
     })
@@ -387,13 +387,13 @@ function createSecretary() {
             closeUser("tutor", true);
           })
           .catch((error) => {
-            handleFirebaseErrors(error, document.currentScript.src);
+            handleFirebaseErrors(error, window.location.href);
             document.getElementById("errMsg").textContent = error.message;
             document.getElementById("spinnyBoiTutor").style.display = "none";
           });
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
           document.getElementById("errMsg").textContent = error.message;
           document.getElementById("spinnyBoiSecretary").style.display = "none";
         });
@@ -404,7 +404,7 @@ function createSecretary() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       document.getElementById("spinnyBoiSecretary").style.display = "none";
     })
@@ -431,7 +431,7 @@ function resetPassword() {
         .catch(function(error) {
           // An error happened.
           alert("There was an issue with your password reset. \nPlease try again later.");
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
         });
       } else {
         // No user is signed in.

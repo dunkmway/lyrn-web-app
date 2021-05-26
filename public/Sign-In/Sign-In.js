@@ -60,7 +60,7 @@ function login() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     });
 
     //window.location.href = "../post-sign-in.html";
@@ -72,7 +72,7 @@ function login() {
       errMsgElem.textContent = errorMessage;
       errMsgElem.style.display = 'block';
       if (errorCode != "auth/invalid-email" && errorCode != "auth/wrong-password" && errorCode != "auth/user-not-found") {
-        handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
       }
   });
 }

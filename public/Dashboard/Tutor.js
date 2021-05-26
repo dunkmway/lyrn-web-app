@@ -70,7 +70,7 @@ function setStudentTable() {
     })
     .catch((error) => {
       console.log(error);
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     });
     promises.push(locationProm);
   }
@@ -121,7 +121,7 @@ function setStudentTable() {
   })
   .catch((error) => {
     console.log(error);
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
   });
 }
 
@@ -152,7 +152,7 @@ function resetPassword() {
         .catch(function(error) {
           // An error happened.
           alert("There was an issue with your password reset. \nPlease try again later.");
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
         });
       } else {
         // No user is signed in.
@@ -205,7 +205,7 @@ function submitFeedback() {
         errorMsg.textContent = "We got it! Thanks for the feedback";
       })
       .catch((error) => {
-        handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
         submitBtn.disabled = false;
         errorMsg.textContent = "You're feedback was too honest for the computer to process. Please try again later.";
       })

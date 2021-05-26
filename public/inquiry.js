@@ -20,15 +20,15 @@ function addElement(id, value = "") {
   placeholders['studentExtracurricularArray'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
 
   let phrase = "label[for=\"" + id + "\"]";
-  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+  let parentElement = document.querySelector(phrase).parentNode;
 
   let newElement = document.createElement("input");
   newElement.setAttribute("type", "text");
-  newElement.setAttribute("id", id + (parentElement.childElementCount - 1).toString());
+  newElement.setAttribute("id", id + (parentElement.childElementCount - 2).toString());
   newElement.setAttribute("value", value);
 
-  if (parentElement.childElementCount - 1 < placeholders[id].length) {
-    newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 1]);
+  if (parentElement.childElementCount - 3 < placeholders[id].length) {
+    newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 3]);
   }
   else {
     newElement.setAttribute("placeholder", "Other");
@@ -44,9 +44,9 @@ function addElement(id, value = "") {
 *****************************************************************************/
 function removeElement(id) {
   let phrase = "label[for=\"" + id + "\"]";
-  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+  let parentElement = document.querySelector(phrase).parentNode;
 
-  if (parentElement.childElementCount > 1) {
+  if (parentElement.childElementCount > 3) {
     parentElement.lastChild.remove();
   }
 }
@@ -56,20 +56,20 @@ function addActTest(date = "", english = "", math = "", reading = "", science = 
   let id = "studentACTDateArray"
 
   let phrase = "label[for^=\"studentACTTest\"]";
-  let parentElement = document.querySelector(phrase).parentNode.parentNode;
+  let parentElement = document.querySelector(phrase).parentNode;
 
-  let numChildren = (parentElement.childElementCount - 1);
+  let numChildren = (parentElement.childElementCount - 4);
 
   let scores = []
   let dateElem = createElement("div", "input-row")
   let element;
   if (numChildren + 1 < placeholders.length) {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date", ""], "input-block")
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date " + (numChildren + 1).toString(), ""], "input-block")
     element.addEventListener('keydown',enforceNumericFormat);
     element.addEventListener('keyup',formatToDate);
   }
   else {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date", ""], "input-block")
+    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date " + (numChildren + 1).toString(), ""], "input-block")
   }
 
   dateElem.appendChild(element)
@@ -94,10 +94,10 @@ function addActTest(date = "", english = "", math = "", reading = "", science = 
 
 function removeActTest() {
   let phrase = "label[for^=\"studentACTTestsArray\"]";
-  let parentElement = document.querySelector(phrase).parentNode.parentNode;
-  children = parentElement.querySelectorAll("div[id^='actTest']")
+  let parentElement = document.querySelector(phrase).parentNode;
+  let children = parentElement.querySelectorAll("div[id^='actTest']")
 
-  let numChildren = (parentElement.childElementCount - 1);
+  let numChildren = (parentElement.childElementCount - 4);
 
   if (numChildren >= 1) {
     children[children.length - 1].remove()
@@ -179,7 +179,7 @@ function setLocations () {
     }
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
   });
 }
 
@@ -214,7 +214,7 @@ function setLocations () {
           }
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
         });
       }
 
@@ -228,11 +228,11 @@ function setLocations () {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
       });
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       
     });
   }
@@ -495,7 +495,7 @@ function createRegistration() {
               isWorking(false);
             })
             .catch((error) => {
-              handleFirebaseErrors(error, document.currentScript.src);
+              handleFirebaseErrors(error, window.location.href);
               document.getElementById("errMsg").textContent = error.message;
               isWorking(false);
             });
@@ -538,7 +538,7 @@ function createRegistration() {
                 isWorking(false);
               })
               .catch((error) => {
-                handleFirebaseErrors(error, document.currentScript.src);
+                handleFirebaseErrors(error, window.location.href);
                 document.getElementById("errMsg").textContent = error.message;
                 isWorking(false);
               });
@@ -549,7 +549,7 @@ function createRegistration() {
           }
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
           document.getElementById("errMsg").textContent = error.message;
           isWorking(false);
         });
@@ -561,7 +561,7 @@ function createRegistration() {
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       isWorking(false);
     });
@@ -660,7 +660,7 @@ function updateRegistration() {
     })
     .catch((error) => {
       console.log(error);
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       isWorking(false);
     });
@@ -884,7 +884,7 @@ function removeCurrentClass(blocks) {
  */
 const isModifierKey = (event) => {
 	const key = event.keyCode;
-	return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+	return (key === 35 || key === 36) || // Allow Shift, Home, End
 		(key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
 		(key > 36 && key < 41) || // Allow left, up, right, down
 		(
@@ -901,29 +901,29 @@ const isModifierKey = (event) => {
  */
 const isNumericInput = (event) => {
 	const key = event.keyCode;
-	return ((key >= 48 && key <= 57) || // Allow number line
-		(key >= 96 && key <= 105) // Allow number pad
+	return (
+    ((key >= 48 && key <= 57) || // Allow number line
+		(key >= 96 && key <= 105)) // Allow number pad 
+    && (!event.shiftKey) // Do not allow shift key
 	);
 };
 
 const enforceNumericFormat = (event) => {
-	// Input must be of a valid number format or a modifier key, and not longer than ten digits
-	if(!isNumericInput(event) && !isModifierKey(event)){
+	// Input must be of a valid number format or a modifier key
+	if(!isNumericInput(event) && !isModifierKey(event)) {
 		event.preventDefault();
 	}
 };
 
 const enforceDecimalFormat = (event) => {
-	// Input must be of a valid number format or a modifier key, and not longer than ten digits
+	// Input must be of a valid number format or a modifier key or decimal point
 	const key = event.keyCode;
-	if(!isNumericInput(event) && !isModifierKey(event) && key != 190){
+	if(!isNumericInput(event) && !isModifierKey(event) && key != 190) {
 		event.preventDefault();
 	}
 };
 
 const formatToPhone = (event) => {
-	if(isModifierKey(event)) {return;}
-
 	// I am lazy and don't like to type things more than once
 	const target = event.target;
 	const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
@@ -937,8 +937,6 @@ const formatToPhone = (event) => {
 };
 
 const formatToDate = (event) => {
-	if(isModifierKey(event)) {return;}
-
 	// I am lazy and don't like to type things more than once
 	const target = event.target;
 	const input = event.target.value.replace(/\D/g,'').substring(0,8); // First ten digits of input only
@@ -960,9 +958,17 @@ const formatToDate = (event) => {
 };
 
 const formatToNumber = (event) => {
-  if(isModifierKey(event)) {return;}
-
   const target = event.target;
+
+  //remove non numbers from input if they have snuck past
+  let strArray = target.value.split('');
+  strArray.forEach((char, index) => {
+    if (isNaN(char) && char != '.') {
+      strArray[index] = '';
+    }
+  });
+  target.value = strArray.join('');
+  
   const min = Number(target.getAttribute("min"));
   const max = Number(target.getAttribute("max"));
   let input = ""

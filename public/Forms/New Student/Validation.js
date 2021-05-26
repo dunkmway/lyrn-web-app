@@ -133,7 +133,7 @@ function submitData() {
         }
       })
       .catch((error) => {
-        //handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
         document.getElementById("errMsg").textContent = error.message;
         let loadingBlocks = document.getElementsByClassName("spinnyBoi");
         for (let i = 0; i < loadingBlocks.length; i ++) {
@@ -146,7 +146,7 @@ function submitData() {
       });
     })
     .catch((error) => {
-      //handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       let loadingBlocks = document.getElementsByClassName("spinnyBoi");
       for (let i = 0; i < loadingBlocks.length; i ++) {
@@ -217,7 +217,7 @@ function update() {
     }
   })
   .catch((error) => {
-    //handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
     document.getElementById("errMsg").textContent = error.message;
     let loadingBlocks = document.getElementsByClassName("spinnyBoi");
     for (let i = 0; i < loadingBlocks.length; i ++) {
@@ -433,7 +433,7 @@ function goToDashboard() {
         }
       })
       .catch((error) => {
-        handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
       });
     }
     else {

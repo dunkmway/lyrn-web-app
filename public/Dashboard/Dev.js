@@ -52,14 +52,14 @@ function setErrorTable() {
           errorTable.row($(event.target).parents('tr')).remove().draw();
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
           console.log(error);
         });
       }
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
     console.log(error);
   });
 }
@@ -105,14 +105,14 @@ function setFeedbackTable() {
           feedbackTable.row($(event.target).parents('tr')).remove().draw();
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
           console.log(error);
         });
       }
     });
   })
   .catch((error) => {
-    handleFirebaseErrors(error, document.currentScript.src);
+    handleFirebaseErrors(error, window.location.href);
     console.log(error);
   });
 }

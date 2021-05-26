@@ -259,7 +259,7 @@ function updateStudentExpectation() {
                   newElem.innerHTML = expectationStr;
                   parent.appendChild(newElem);
                 })
-                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+                .catch((error) => handleFirebaseErrors(error, window.location.href));
               }
               else {
                 studentSTProfileRef.set({
@@ -273,7 +273,7 @@ function updateStudentExpectation() {
                   newElem.innerHTML = expectationStr;
                   parent.appendChild(newElem);
                 })
-                .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+                .catch((error) => handleFirebaseErrors(error, window.location.href));
               }
             })
           }
@@ -289,7 +289,7 @@ function updateStudentExpectation() {
           }
         }
       })
-      .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+      .catch((error) => handleFirebaseErrors(error, window.location.href));
     }
   });
 }
@@ -346,7 +346,7 @@ function setNotes(type, note, time, author, isSessionNote) {
             authorElem.innerHTML = authorName;
             scrollBottomNotes(type);
           })
-          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+          .catch((error) => handleFirebaseErrors(error, window.location.href));
 
           messageDiv.setAttribute('data-time', time);
           message.classList.add("student-note");
@@ -368,7 +368,7 @@ function setNotes(type, note, time, author, isSessionNote) {
             }
             scrollBottomNotes(type);
           })
-          .catch((error) => handleFirebaseErrors(error, document.currentScript.src));
+          .catch((error) => handleFirebaseErrors(error, window.location.href));
 
           if (isSessionNote) {
             message.classList.add('session');
@@ -394,7 +394,7 @@ function setNotes(type, note, time, author, isSessionNote) {
         }
       })
       .catch((error) =>  {
-        handleFirebaseErrors(error, document.currentScript.src);
+        handleFirebaseErrors(error, window.location.href);
         console.log(error);
       });
     }
@@ -415,7 +415,7 @@ function deleteNote(type, event) {
       message.remove();
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
     })
   }
 }
@@ -448,7 +448,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
         });
       }
       else {
@@ -462,12 +462,12 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
-          handleFirebaseErrors(error, document.currentScript.src);
+          handleFirebaseErrors(error, window.location.href);
         });
       }
     })
     .catch((error) => {
-      handleFirebaseErrors(error, document.currentScript.src);
+      handleFirebaseErrors(error, window.location.href);
       console.log(error);
     });
   }
