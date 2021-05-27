@@ -185,7 +185,7 @@ function setStudentTable() {
               mathProgramSelected(studentUID);
             }
             else if (type == 'Phonics Program') {
-              subjectTutoringStudentSelected(studentUID);
+              phonicsProgramSelected(studentUID);
             }
             else {
               alert("nothing to see here...yet")
@@ -593,4 +593,9 @@ function subjectTutoringStudentSelected(studentUID) {
 function mathProgramSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../math-program.html" + queryStr;
+}
+
+function phonicsProgramSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../phonics-program.html" + queryStr;
 }
