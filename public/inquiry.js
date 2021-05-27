@@ -462,7 +462,7 @@ function createRegistration() {
             let studentType = allInputValues['studentType'];
             let typeProm;
             if (studentType == "act") {
-              typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+              typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
             }
 
             let locationUID = allInputValues["location"];
@@ -513,7 +513,7 @@ function createRegistration() {
               let studentType = allInputValues['studentType'];
               let typeProm;
               if (studentType == "act") {
-                typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+                typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
               }
 
               let locationUID = allInputValues["location"];
