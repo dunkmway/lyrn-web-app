@@ -189,6 +189,7 @@ function handleFirebaseErrors(err, file) {
     }
     const error = err;
 
+    // alert(msg + "\n" + url + "\n" + lineNo + "\n" + columnNo + "\n")
     sendErrorReport(msg, url, lineNo, columnNo, error);
 }
 

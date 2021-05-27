@@ -1612,96 +1612,96 @@ function hideAllNotes() {
 }
 
 function setNotes(type, note, time, author, isSessionNote) {
-  firebase.auth().onAuthStateChanged((user) => {
-    const currentUser = user?.uid ?? null;
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (note) {
-          //all the messages
-          let messageBlock = document.getElementById('student-' + type + '-notes');
-          //the div that contains the time and message
-          let messageDiv = document.createElement('div');
-          //the message itself
-          let message = document.createElement('div');
-          //time for the message
-          let timeElem = document.createElement('p');
+  const user = firebase.auth().currentUser;
+  const currentUser = user?.uid ?? null;
+  if (user) {
+    user.getIdTokenResult()
+    .then((idTokenResult) => {
+      let role = idTokenResult.claims.role;
+      if (note) {
+        //all the messages
+        let messageBlock = document.getElementById('student-' + type + '-notes');
+        //the div that contains the time and message
+        let messageDiv = document.createElement('div');
+        //the message itself
+        let message = document.createElement('div');
+        //time for the message
+        let timeElem = document.createElement('p');
 
-          //display the time above the mesasge
-          timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
-          timeElem.classList.add('time');
-          messageDiv.appendChild(timeElem);
+        //display the time above the mesasge
+        timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
+        timeElem.classList.add('time');
+        messageDiv.appendChild(timeElem);
 
-          //set up the message
-          message.innerHTML = note;
-          //author's name element
-          let authorElem = document.createElement('p');
-          authorElem.classList.add("author");
-          message.appendChild(authorElem);
+        //set up the message
+        message.innerHTML = note;
+        //author's name element
+        let authorElem = document.createElement('p');
+        authorElem.classList.add("author");
+        message.appendChild(authorElem);
 
-          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
-          getUserDisplayName({
-            uid : author
-          })
-          .then((result) => {
-            const authorName = result.data ?? "anonymous";
-            authorElem.innerHTML = authorName;
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          messageDiv.setAttribute('data-time', time);
-          message.classList.add("student-note");
-          message.classList.add(type)
-          if (currentUser == author) {
-            messageDiv.classList.add("right");
-          }
-          else {
-            messageDiv.classList.add("left");
-          }
-
-          const getUserRole = firebase.functions().httpsCallable('getUserRole');
-          getUserRole({
-            uid : author
-          })
-          .then((result) => {
-            const authorRole = result.data ?? null;
-            if (authorRole == "admin") {
-              message.classList.add("important");
-            }
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          if (isSessionNote) {
-            message.classList.add('session');
-          }
-          
-
-          //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
-          if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
-            let deleteMessage = document.createElement('div');
-            deleteMessage.classList.add("delete");
-            let theX = document.createElement('p');
-            theX.innerHTML = "X";
-            deleteMessage.appendChild(theX);
-            deleteMessage.addEventListener('click', (event) => deleteNote(type, event));
-            message.appendChild(deleteMessage);
-          }
-          
-          messageDiv.appendChild(message);
-          messageBlock.appendChild(messageDiv);
-          document.getElementById('student-' + type + '-notes-input').value = null;
+        const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
+        getUserDisplayName({
+          uid : author
+        })
+        .then((result) => {
+          const authorName = result.data ?? "anonymous";
+          authorElem.innerHTML = authorName;
           scrollBottomNotes(type);
+        })
+        // .catch((error) => handleFirebaseErrors(error, window.location.href));
+        .catch((error) => console.log(error));
+
+        messageDiv.setAttribute('data-time', time);
+        message.classList.add("student-note");
+        message.classList.add(type)
+        if (currentUser == author) {
+          messageDiv.classList.add("right");
         }
-      })
-      .catch((error) =>  {
-        handleFirebaseErrors(error, window.location.href);
-        console.log(error);
-      });
-    }
-  });
+        else {
+          messageDiv.classList.add("left");
+        }
+
+        const getUserRole = firebase.functions().httpsCallable('getUserRole');
+        getUserRole({
+          uid : author
+        })
+        .then((result) => {
+          const authorRole = result.data ?? null;
+          if (authorRole == "admin") {
+            message.classList.add("important");
+          }
+          scrollBottomNotes(type);
+        })
+        // .catch((error) => handleFirebaseErrors(error, window.location.href));
+        .catch((error) => console.log(error));
+
+        if (isSessionNote) {
+          message.classList.add('session');
+        }
+
+        //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
+        if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
+          let deleteMessage = document.createElement('div');
+          deleteMessage.classList.add("delete");
+          let theX = document.createElement('p');
+          theX.innerHTML = "X";
+          deleteMessage.appendChild(theX);
+          deleteMessage.addEventListener('click', (event) => deleteNote(type, event));
+          message.appendChild(deleteMessage);
+        }
+        
+        messageDiv.appendChild(message);
+        messageBlock.appendChild(messageDiv);
+        document.getElementById('student-' + type + '-notes-input').value = null;
+        scrollBottomNotes(type);
+      }
+    })
+    .catch((error) =>  {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    });
+  }
 }
 
 function deleteNote(type, event) {
@@ -1889,7 +1889,8 @@ document.getElementById("student-general-notes-input").addEventListener('keydown
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-general-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('general', note, time, currentUser);
+    sendNotes('general', note, time, currentUser)
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
   }
 });
 
@@ -1900,7 +1901,8 @@ document.getElementById("student-english-notes-input").addEventListener('keydown
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-english-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('english', note, time, currentUser);
+    sendNotes('english', note, time, currentUser)
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
   }
 });
 
@@ -1911,7 +1913,8 @@ document.getElementById("student-math-notes-input").addEventListener('keydown', 
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-math-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('math', note, time, currentUser);
+    sendNotes('math', note, time, currentUser)
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
   }
 });
 
@@ -1922,7 +1925,8 @@ document.getElementById("student-reading-notes-input").addEventListener('keydown
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-reading-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('reading', note, time, currentUser);
+    sendNotes('reading', note, time, currentUser)
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
   }
 });
 
@@ -1933,7 +1937,8 @@ document.getElementById("student-science-notes-input").addEventListener('keydown
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-science-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('science', note, time, currentUser);
+    sendNotes('science', note, time, currentUser)
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
   }
 });
 
