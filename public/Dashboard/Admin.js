@@ -71,22 +71,22 @@ function setStudentTable() {
               location: locationName,
               locationUID: currentLocations[i]
             }
-            //adjust type to be readable
-            if (student.studentType == 'act') {
-              student.studentType = 'ACT'
-            }
-            else if (student.studentType == 'subject-tutoring') {
-              student.studentType = 'ST'
-            }
-            else if (student.studentType == 'math-program') {
-              student.studentType = 'Math Program'
-            }
-            else if (student.studentType == 'phonics-program') {
-              student.studentType = 'Phonics Program'
-            }
-            else {
-              student.studentType == "";
-            }
+            // //adjust type to be readable
+            // if (student.studentType == 'act') {
+            //   student.studentType = 'ACT'
+            // }
+            // else if (student.studentType == 'subject-tutoring') {
+            //   student.studentType = 'ST'
+            // }
+            // else if (student.studentType == 'math-program') {
+            //   student.studentType = 'Math Program'
+            // }
+            // else if (student.studentType == 'phonics-program') {
+            //   student.studentType = 'Phonics Program'
+            // }
+            // else {
+            //   student.studentType == "";
+            // }
 
             //adjust name to be last, first
             student.studentName = student.studentLastName + ", " + student.studentFirstName
@@ -105,22 +105,22 @@ function setStudentTable() {
               location: locationName,
               locationUID: currentLocations[i]
             }
-            //adjust type to be readable
-            if (student.studentType == 'act') {
-              student.studentType = 'ACT'
-            }
-            else if (student.studentType == 'subject-tutoring') {
-              student.studentType = 'ST'
-            }
-            else if (student.studentType == 'math-program') {
-              student.studentType = 'Math Program'
-            }
-            else if (student.studentType == 'phonics-program') {
-              student.studentType = 'Phonics Program'
-            }
-            else {
-              student.studentType == "";
-            }
+            // //adjust type to be readable
+            // if (student.studentType == 'act') {
+            //   student.studentType = 'ACT'
+            // }
+            // else if (student.studentType == 'subject-tutoring') {
+            //   student.studentType = 'ST'
+            // }
+            // else if (student.studentType == 'math-program') {
+            //   student.studentType = 'Math Program'
+            // }
+            // else if (student.studentType == 'phonics-program') {
+            //   student.studentType = 'Phonics Program'
+            // }
+            // else {
+            //   student.studentType == "";
+            // }
 
             //adjust name to be last, first
             student.studentName = student.studentLastName + ", " + student.studentFirstName
@@ -145,7 +145,6 @@ function setStudentTable() {
       data: tableData,
       columns: [
         { data: 'studentName' },
-        { data: 'studentType'},
         { data: 'location'},
         { data: 'status' },
         { data: 'parentName'},
@@ -159,41 +158,47 @@ function setStudentTable() {
       //this should fix some "cannot read property of undefined" errors
       if (args?.target?._DT_CellIndex) {
         let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-        let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
-        let location = tableData[args.target._DT_CellIndex.row].locationUID;
-        let status = tableData[args.target._DT_CellIndex.row].status;
-        let type = tableData[args.target._DT_CellIndex.row].studentType;
+        setupNavigationModal(studentUID);
+        document.getElementById("navigationSection").style.display = "flex";
 
-        switch (status) {
-          case "pending":
-            if (type == 'ACT') {
-              pendingStudentSelected(studentUID, parentUID, location);
-            }
-            else {
-              alert("nothing to see here...yet")
-            }
-            break;
-          case "active":
-            if (type == 'ACT') {
-              actStudentSelected(studentUID);
-            }
-            else if (type == 'ST') {
-              subjectTutoringStudentSelected(studentUID);
-            }
-            //FIXME: these will need to be redirected to the proper page once we have them
-            else if (type == 'Math Program') {
-              mathProgramSelected(studentUID);
-            }
-            else if (type == 'Phonics Program') {
-              phonicsProgramSelected(studentUID);
-            }
-            else {
-              alert("nothing to see here...yet")
-            }
-            break;
-          default:
-            console.log("ERROR: This student isn't active or pending!!!")
-        }
+
+
+
+        // let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
+        // let location = tableData[args.target._DT_CellIndex.row].locationUID;
+        // let status = tableData[args.target._DT_CellIndex.row].status;
+        // let type = tableData[args.target._DT_CellIndex.row].studentType;
+
+        // switch (status) {
+        //   case "pending":
+        //     if (type == 'ACT') {
+        //       pendingStudentSelected(studentUID, parentUID, location);
+        //     }
+        //     else {
+        //       alert("nothing to see here...yet")
+        //     }
+        //     break;
+        //   case "active":
+        //     if (type == 'ACT') {
+        //       actStudentSelected(studentUID);
+        //     }
+        //     else if (type == 'ST') {
+        //       subjectTutoringStudentSelected(studentUID);
+        //     }
+        //     //FIXME: these will need to be redirected to the proper page once we have them
+        //     else if (type == 'Math Program') {
+        //       mathProgramSelected(studentUID);
+        //     }
+        //     else if (type == 'Phonics Program') {
+        //       subjectTutoringStudentSelected(studentUID);
+        //     }
+        //     else {
+        //       alert("nothing to see here...yet")
+        //     }
+        //     break;
+        //   default:
+        //     console.log("ERROR: This student isn't active or pending!!!")
+        // }
       }
     });
   })
@@ -223,12 +228,12 @@ function goToInquiry() {
   window.location.href = "../inquiry.html";
 }
 
-function popUpUser(user) {
-  document.getElementById("add-" + user + "-section").style.display = "flex";
+function openModal(type) {
+  document.getElementById("add-" + type + "-section").style.display = "flex";
 }
 
-function closeUser(user, submitted = false) {
-  let allInputs = document.getElementById("add-" + user + "-section").querySelectorAll("input, select");
+function closeModal(type, submitted = false) {
+  let allInputs = document.getElementById("add-" + type + "-section").querySelectorAll("input, select");
   let allClear = true;
   for(let i = 0; i < allInputs.length; i++) {
     if (allInputs[i].value != "") {
@@ -238,12 +243,12 @@ function closeUser(user, submitted = false) {
   }
 
   if (!allClear && !submitted) {
-    let confirmation = confirm("This " + user + " has not been saved.\nAre you sure you want to go back?");
+    let confirmation = confirm("This " + type + " has not been saved.\nAre you sure you want to go back?");
     if (confirmation) {
       for(let i = 0; i < allInputs.length; i++) {
         allInputs[i].value = "";
       }
-      document.getElementById("add-" + user + "-section").style.display = "none";
+      document.getElementById("add-" + type + "-section").style.display = "none";
       let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
       for (let err = errorMessages.length - 1; err >= 0; err--) {
@@ -255,7 +260,7 @@ function closeUser(user, submitted = false) {
     for(let i = 0; i < allInputs.length; i++) {
       allInputs[i].value = "";
     }
-    document.getElementById("add-" + user + "-section").style.display = "none";
+    document.getElementById("add-" + type + "-section").style.display = "none";
     let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
 
     for (let err = errorMessages.length - 1; err >= 0; err--) {
@@ -266,6 +271,7 @@ function closeUser(user, submitted = false) {
 
 function createTutor() {
   document.getElementById("spinnyBoiTutor").style.display = "block";
+  document.getElementById("tutorErrMsg").textContent = null;
   let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input");
 
   if (validateFields([...allInputs, document.getElementById("tutorLocation")])) {
@@ -309,28 +315,28 @@ function createTutor() {
           })
           .then(() => {
             document.getElementById("spinnyBoiTutor").style.display = "none";
-            closeUser("tutor", true);
+            closeModal("tutor", true);
           })
           .catch((error) => {
             handleFirebaseErrors(error, window.location.href);
-            document.getElementById("errMsg").textContent = error.message;
+            document.getElementById("tutorErrMsg").textContent = error.message;
             document.getElementById("spinnyBoiTutor").style.display = "none";
           });
         })
         .catch((error) => {
           handleFirebaseErrors(error, window.location.href);
-          document.getElementById("errMsg").textContent = error.message;
+          document.getElementById("tutorErrMsg").textContent = error.message;
           document.getElementById("spinnyBoiTutor").style.display = "none";
         });
       }
       else {
-        document.getElementById("errMsg").textContent = "This tutor already exists!";
+        document.getElementById("tutorErrMsg").textContent = "This tutor already exists!";
         document.getElementById("spinnyBoiTutor").style.display = "none";
       }
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
-      document.getElementById("errMsg").textContent = error.message;
+      document.getElementById("tutorErrMsg").textContent = error.message;
       document.getElementById("spinnyBoiTutor").style.display = "none";
     })
   }
@@ -342,6 +348,7 @@ function createTutor() {
 
 function createSecretary() {
   document.getElementById("spinnyBoiSecretary").style.display = "block";
+  document.getElementById("secretaryErrMsg").textContent = null;
   let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input");
   if (validateFields(allInputs) && validateFields([document.getElementById("secretaryLocation")])) {
     // console.log("all clear");
@@ -384,34 +391,87 @@ function createSecretary() {
           })
           .then(() => {
             document.getElementById("spinnyBoiTutor").style.display = "none";
-            closeUser("tutor", true);
+            closeModal("tutor", true);
           })
           .catch((error) => {
             handleFirebaseErrors(error, window.location.href);
-            document.getElementById("errMsg").textContent = error.message;
+            document.getElementById("secretaryErrMsg").textContent = error.message;
             document.getElementById("spinnyBoiTutor").style.display = "none";
           });
         })
         .catch((error) => {
           handleFirebaseErrors(error, window.location.href);
-          document.getElementById("errMsg").textContent = error.message;
+          document.getElementById("secretaryErrMsg").textContent = error.message;
           document.getElementById("spinnyBoiSecretary").style.display = "none";
         });
       }
       else {
-        document.getElementById("errMsg").textContent = "This tutor already exists!";
+        document.getElementById("secretaryErrMsg").textContent = "This tutor already exists!";
         document.getElementById("spinnyBoiSecretary").style.display = "none";
       }
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
-      document.getElementById("errMsg").textContent = error.message;
+      document.getElementById("secretaryErrMsg").textContent = error.message;
       document.getElementById("spinnyBoiSecretary").style.display = "none";
     })
   }
   else {
     // console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
+  }
+}
+
+function createSchool() {
+  document.getElementById("spinnyBoiSchool").style.display = "block";
+  document.getElementById("schoolErrMsg").textContent = null;
+  let allInputs = document.getElementById("add-school-section").querySelectorAll("input, select");
+
+  if (validateFields(allInputs)) {
+    let allInputValues = {};
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputValues[allInputs[i].id] = allInputs[i].value.trim();
+    }
+
+    let schoolRef = firebase.firestore().collection("Schools").doc();
+    schoolRef.set(allInputValues)
+    .then(() => {
+      document.getElementById("spinnyBoiSchool").style.display = "none";
+      closeModal("school", true);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("schoolErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiSchool").style.display = "none";
+    })
+  }
+  else {
+    document.getElementById("spinnyBoiSchool").style.display = "none";
+  }
+}
+
+function createExtracurricular() {
+  document.getElementById("spinnyBoiExtracurricular").style.display = "block";
+  document.getElementById("extracurricularErrMsg").textContent = null;
+  let extracurricular = document.getElementById("extracurricular")
+
+  if (validateFields([extracurricular])) {
+    let extracurricularRef = firebase.firestore().collection("Dynamic-Content").doc("extracurriculars");
+    extracurricularRef.update({
+      extracurriculars: firebase.firestore.FieldValue.arrayUnion(extracurricular.value.trim())
+    })
+    .then(() => {
+      document.getElementById("spinnyBoiExtracurricular").style.display = "none";
+      closeModal("extracurricular", true);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("extracurricularErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiExtracurricular").style.display = "none";
+    })
+  }
+  else {
+    document.getElementById("spinnyBoiExtracurricular").style.display = "none";
   }
 }
 
@@ -574,6 +634,31 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 //   let queryStr = "?student=" + studentUID;
 //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 // }
+
+function setupNavigationModal(studentUID) {
+  const modal = document.getElementById("navigationSection");
+  let queryStr = "?student=" + studentUID;
+
+  document.getElementById("actNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr
+  };
+  document.getElementById("subjectTutoringNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../subject-tutoring-dash.html" + queryStr
+  };
+  document.getElementById("mathProgramNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../math-program.html" + queryStr
+  };
+  document.getElementById("phonicsProgramNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../phonics-program.html" + queryStr
+  };
+}
+
+
+
 
 function pendingStudentSelected(studentUID, parentUID, location) {
   let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + location;

@@ -4,6 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Inquiry</title>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- semantic UI -->
+    <link async rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.css"/>
+    <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.js"></script>
+
     <link href="inquiry.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
 
@@ -543,7 +550,9 @@
             <!-- Student School -->
             <div class="input-block">
               <label for="studentSchool" class="label">School:</label>
-              <input type="text" placeholder = "Alta" id="studentSchool" class="input">
+              <select id="studentSchool" class="input">
+                <option disabled value="">Select a Wasatch Location First</option>
+              <select>
             </div>
             <!-- Student Grade -->
             <div class="input-block">
@@ -564,6 +573,15 @@
                 <option value="11">11</option>
                 <option value="12">12</option>
                 <option value="C">C</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <!-- Student Extracurriculars -->
+            <div class="input-block">
+              <label for="studentExtracurriculars" class="label">Extracurriculars</label>
+              <select id="studentExtracurriculars" name="studentExtracurriculars" class="ui dropdown" multiple>
               </select>
             </div>
           </div>
@@ -690,14 +708,14 @@
             </div>
           </div>
 
-          <div class="input-row">
+          <!-- <div class="input-row"> -->
             <!-- Student Extracurriculars -->
-            <div class="input-block">
+            <!-- <div class="input-block">
               <label for="studentExtracurricularArray" class="label">Extracurricular(s):</label>
               <img src="Images/Add Button.png" alt="add extracurricular" height=25px id="addExtracurricularButton" onclick="addElement('studentExtracurricularArray')">
               <img src="Images/Remove Button.png" alt="remove extracurricular" height=25px id="removeExtracurricularButton" onclick="removeElement('studentExtracurricularArray')">
             </div>
-          </div>
+          </div> -->
 
           <div class="input-row">
             <!-- Student Accomodations -->

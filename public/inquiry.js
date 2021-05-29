@@ -2,8 +2,13 @@ let studentData = {};
 let parentData = {};
 let typeData = {};
 
+
 function initialSetup() {
+  //set up the semantic ui dropdowns
+  $('.ui.dropdown').dropdown();
+
   setLocations();
+  setExtracurriculars();
   setupDuplicates();
   fillInData();
 }
@@ -167,7 +172,7 @@ function setLocations () {
   const wasatchRef = firebase.firestore().collection("Wasatch").doc("general");
   wasatchRef.get()
   .then((doc) => {
-    if (doc) {
+    if (doc.exists) {
       const locationElem = document.getElementById("location");
       let locations = doc.get("locations");
       for (let locationUID in locations) {
@@ -203,20 +208,20 @@ function setLocations () {
         studentData = studentDoc.data();
       }
 
-      //if the student is ACT then they have more data in their type
-      if (studentData["studentType"] == "act") {
-        const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
-        typeDocRef.get()
-        .then((typeDoc) => {
-          if(typeDoc.exists) {
-            setAllData(typeDoc.data());
-            typeData = typeDoc.data();
-          }
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-        });
-      }
+      //check for act type info just in case
+      const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
+      typeDocRef.get()
+      .then((typeDoc) => {
+        if(typeDoc.exists) {
+          //pull up the act tab
+          document.getElementById("type").classList.remove("hidden");
+          setAllData(typeDoc.data());
+          typeData = typeDoc.data();
+        }
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, window.location.href);
+      });
 
       //grab the parents second because they will have more data (parent already exists from previous student)
       const parentDocRef = firebase.firestore().collection("Parents").doc(studentDoc.data()["parent"]);
@@ -247,7 +252,7 @@ function setAllData(data) {
     }
   }
 
-  //special case for dynamic elements
+  //special case
 
   //act tests
   let studentActTests = data["studentActTests"];
@@ -275,13 +280,20 @@ function setAllData(data) {
     }
   }
 
+  // //extracurriculars
+  // let studentExtracurricularArray = data["studentExtracurricularArray"];
+  // if (studentExtracurricularArray) {
+  //   for (let i = 0; i < studentExtracurricularArray.length; i++) {
+  //     addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
+  //   }
+  // }
+
   //extracurriculars
-  let studentExtracurricularArray = data["studentExtracurricularArray"];
-  if (studentExtracurricularArray) {
-    for (let i = 0; i < studentExtracurricularArray.length; i++) {
-      addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
-    }
+  let studentExtracurriculars = data["studentExtracurriculars"]
+  if (studentExtracurriculars) {
+    $("#studentExtracurriculars").closest(".ui.dropdown").dropdown("set selected", studentExtracurriculars);
   }
+
 }
 
 function submitRegistration() {
@@ -339,6 +351,10 @@ function objectifyRegistration() {
   //add in location and type to the student
   studentInputValues["location"] = allInputValues["location"];
   studentInputValues["studentType"] = allInputValues["studentType"];
+
+  //handle the extracurriculars dropdown
+  studentInputValues["studentExtracurriculars"] = getDropdownValues("studentExtracurriculars")
+
 
   if (typeInputs) {
     for (let i = 0; i < typeInputs.length; i++) {
@@ -429,12 +445,12 @@ function createRegistration() {
   if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
     //if no student email was created, generate one
     let randomNumber = Math.round(Math.random() * 10000).toString().padStart(4, '0');
-    studentInputValues['studentEmail'] = studentInputValues['studentEmail'].trim() || studentInputValues['studentFirstName'].trim() + studentInputValues['studentLastName'].trim() + randomNumber + '@wasatchtutors.com';
+    studentInputValues['studentEmail'] = studentInputValues['studentEmail'].replace(/\s+/g, '') || studentInputValues['studentFirstName'].replace(/\s+/g, '') + studentInputValues['studentLastName'].replace(/\s+/g, '') + randomNumber + '@wasatchtutors.com';
 
     //create the student account
     const addUser = firebase.functions().httpsCallable('addUser');
     addUser({
-      email: studentInputValues['studentEmail'].trim(),
+      email: studentInputValues['studentEmail'].replace(/\s+/g, ''),
       password: "abc123",
       role: "student"
     })
@@ -446,7 +462,7 @@ function createRegistration() {
         //create the parent account
         const addUser = firebase.functions().httpsCallable('addUser');
         addUser({
-          email: parentInputValues['parentEmail'].trim(),
+          email: parentInputValues['parentEmail'].replace(/\s+/g, ''),
           password: "abc123",
           role: "parent"
         })
@@ -462,7 +478,7 @@ function createRegistration() {
             let studentType = allInputValues['studentType'];
             let typeProm;
             if (studentType == "act") {
-              typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+              typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
             }
 
             let locationUID = allInputValues["location"];
@@ -471,7 +487,7 @@ function createRegistration() {
             let parentFirstName = allInputValues["parentFirstName"];
             let parentLastName = allInputValues["parentLastName"];
 
-            let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+            let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
             let studentDisplayNameProm;
             if (studentFirstName) {
@@ -498,6 +514,33 @@ function createRegistration() {
               isWorking(false);
             })
             .catch((error) => {
+              //remove the student since the inquiry failed
+              const deleteUser = firebase.functions().httpsCallable('deleteUser');
+              deleteUser({
+                uid: studentUID,
+              })
+              .then(() => {
+                isWorking(false);
+              })
+              .catch((error) => {
+                handleFirebaseErrors(error, window.location.href);
+                document.getElementById("errMsg").textContent = error.message;
+                isWorking(false);
+              });
+
+              //remove the parent since the inquiry failed
+              deleteUser({
+                uid: parentUID,
+              })
+              .then(() => {
+                isWorking(false);
+              })
+              .catch((error) => {
+                handleFirebaseErrors(error, window.location.href);
+                document.getElementById("errMsg").textContent = error.message;
+                isWorking(false);
+              });
+
               handleFirebaseErrors(error, window.location.href);
               document.getElementById("errMsg").textContent = error.message;
               isWorking(false);
@@ -513,7 +556,7 @@ function createRegistration() {
               let studentType = allInputValues['studentType'];
               let typeProm;
               if (studentType == "act") {
-                typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
+                typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
               }
 
               let locationUID = allInputValues["location"];
@@ -522,7 +565,7 @@ function createRegistration() {
               let parentFirstName = allInputValues["parentFirstName"];
               let parentLastName = allInputValues["parentLastName"];
 
-              let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+              let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
               let studentDisplayNameProm;
               if (studentFirstName) {
@@ -541,17 +584,57 @@ function createRegistration() {
                 isWorking(false);
               })
               .catch((error) => {
+                //remove the student since the inquiry failed
+                const deleteUser = firebase.functions().httpsCallable('deleteUser');
+                deleteUser({
+                  uid: studentUID,
+                })
+                .then(() => {
+                  isWorking(false);
+                })
+                .catch((error) => {
+                  handleFirebaseErrors(error, window.location.href);
+                  document.getElementById("errMsg").textContent = error.message;
+                  isWorking(false);
+                });
+
                 handleFirebaseErrors(error, window.location.href);
                 document.getElementById("errMsg").textContent = error.message;
                 isWorking(false);
               });
             }
             else {
-              isWorking(false);
+              //remove the student since the inquiry was cancelled
+              const deleteUser = firebase.functions().httpsCallable('deleteUser');
+              deleteUser({
+                uid: studentUID,
+              })
+              .then(() => {
+                isWorking(false);
+              })
+              .catch((error) => {
+                handleFirebaseErrors(error, window.location.href);
+                document.getElementById("errMsg").textContent = error.message;
+                isWorking(false);
+              });
             }
           }
         })
         .catch((error) => {
+          //remove the student since the inquiry failed
+          const deleteUser = firebase.functions().httpsCallable('deleteUser');
+          deleteUser({
+            uid: studentUID,
+          })
+          .then(() => {
+            isWorking(false);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error, window.location.href);
+            document.getElementById("errMsg").textContent = error.message;
+            isWorking(false);
+          });
+
           handleFirebaseErrors(error, window.location.href);
           document.getElementById("errMsg").textContent = error.message;
           isWorking(false);
@@ -564,6 +647,20 @@ function createRegistration() {
       }
     })
     .catch((error) => {
+      //remove the student since the inquiry failed (this one is just in case the student was created but another part of add student failed)
+      const deleteUser = firebase.functions().httpsCallable('deleteUser');
+      deleteUser({
+        uid: studentUID,
+      })
+      .then(() => {
+        isWorking(false);
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, window.location.href);
+        document.getElementById("errMsg").textContent = error.message;
+        isWorking(false);
+      });
+
       handleFirebaseErrors(error, window.location.href);
       document.getElementById("errMsg").textContent = error.message;
       isWorking(false);
@@ -610,7 +707,7 @@ function updateRegistration() {
     let parentFirstName = allInputValues["parentFirstName"];
     let parentLastName = allInputValues["parentLastName"];
 
-    let locationProm = updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
+    let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
     //update student email
     let studentEmail = studentInputValues['studentEmail'];
@@ -678,8 +775,8 @@ function setStudentDoc(studentUID, parentUID, studentValues) {
   let studentDocData = {
     ...studentValues,
     parent: parentUID,
-    dateCreated: (new Date().getTime()),
-    dateModified: (new Date().getTime())
+    createdDate: (new Date().getTime()),
+    lastModifiedDate: (new Date().getTime())
   }
   return studentDocRef.set(studentDocData);
 }
@@ -689,8 +786,8 @@ function setParentDoc(parentUID, studentUID, parentValues) {
   let parentDocData = {
     ...parentValues,
     students : [studentUID],
-    dateCreated: (new Date().getTime()),
-    dateModified: (new Date().getTime())
+    createdDate: (new Date().getTime()),
+    lastModifiedDate: (new Date().getTime())
   }
   return parentDocRef.set(parentDocData)
 }
@@ -699,8 +796,8 @@ function setTypeDoc(studentUID, studentType, typeValues) {
   const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
   return typeDocRef.set({
     ...typeValues,
-    dateCreated: (new Date().getTime()),
-    dateModified: (new Date().getTime())
+    createdDate: (new Date().getTime()),
+    lastModifiedDate: (new Date().getTime())
   })
 }
 
@@ -709,7 +806,7 @@ function updateStudentDoc(studentUID, parentUID, studentValues) {
   let studentDocData = {
     ...studentValues,
     parent: parentUID,
-    dateModified: (new Date().getTime())
+    lastModifiedDate: (new Date().getTime())
   }
   return studentDocRef.update(studentDocData);
 }
@@ -719,7 +816,7 @@ function updateParentDoc(parentUID, studentUID, parentValues) {
   let parentDocData = {
     ...parentValues,
     students : [studentUID],
-    dateModified: (new Date().getTime())
+    lastModifiedDate: (new Date().getTime())
   }
   return parentDocRef.update(parentDocData)
 }
@@ -728,7 +825,7 @@ function updateTypeDoc(studentUID, studentType, typeValues) {
   const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
   return typeDocRef.update({
     ...typeValues,
-    dateModified: (new Date().getTime())
+    lastModifiedDate: (new Date().getTime())
   })
 }
 
@@ -736,14 +833,13 @@ function updateParentChildren(parentUID, studentUID) {
   const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
   return parentDocRef.update({
     students : firebase.firestore.FieldValue.arrayUnion(studentUID),
-    dateModified: (new Date().getTime())
+    lastModifiedDate: (new Date().getTime())
   })
 }
 
-function updateLocationActive(locationUID, studentUID, studentType, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
+function updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
   const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
   let activeStudent = {
-    studentType : studentType,
     studentFirstName : studentFirstName,
     studentLastName : studentLastName,
     parentUID: parentUID,
@@ -1141,6 +1237,82 @@ studentType.addEventListener('change', () => {
     document.getElementById("type").classList.add("hidden");
   }
 });
+
+const wasatchLocation = document.getElementById('location');
+wasatchLocation.addEventListener('change', () => {
+  clearSchoolOptions();
+
+  let location = wasatchLocation.value;
+  const schoolRef = firebase.firestore().collection("Schools");
+  schoolRef.where("schoolLocation", "==", location).get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const id = doc.id;
+      setSchoolOption(id, data.schoolName);
+    })
+    setSchoolOption("", "none of these")
+    //reset student school
+    document.getElementById("studentSchool").value = studentData["studentSchool"] ?? ""
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+  });
+})
+
+function setSchoolOption(schoolId, schoolName) {
+  let option = document.createElement('option');
+  option.value = schoolId;
+  option.innerHTML = schoolName;
+  document.getElementById("studentSchool").appendChild(option);
+}
+
+function clearSchoolOptions() {
+  document.getElementById("studentSchool").innerHTML = null;
+  let option = document.createElement('option');
+  option.value = "";
+  option.innerHTML = "select a school";
+  option.selected = true;
+  option.disabled = true;
+
+  document.getElementById("studentSchool").appendChild(option);
+}
+
+function setExtracurriculars() {
+  const extracurricularRef = firebase.firestore().collection("Dynamic-Content").doc("extracurriculars");
+  extracurricularRef.get()
+  .then((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      const extracurricularElem = document.getElementById("studentExtracurriculars");
+
+      let extracurricularArray = data.extracurriculars;
+      extracurricularArray.sort();
+
+      extracurricularArray.forEach((extra) => {
+        let option = document.createElement("option");
+        option.value = extra;
+        option.innerText = extra;
+        extracurricularElem.appendChild(option);
+      });
+    }
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+  });
+}
+
+function getDropdownValues(dropdownId) {
+  const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
+  
+  let values = []
+  inputs.forEach((input) => {
+    values.push(input.dataset.value)
+  })
+
+  return values;
+}
+
 
 function setupDuplicates() {
   let duplicateInputs = document.querySelectorAll("input[id$='_duplicate'");

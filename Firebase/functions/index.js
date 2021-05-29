@@ -174,6 +174,17 @@ exports.addUser = functions.https.onCall((data, context) => {
     return promise;
 });
 
+exports.deleteUser = functions.https.onCall((data, context) => {
+    return admin.auth().deleteUser(data.uid)
+    .then(() => {
+        console.log('Successfully deleted user');
+    })
+    .catch((error) => {
+        console.log('Error deleting user:', error);
+    });
+});
+
+
 exports.updateUserEmail = functions.https.onCall((data, context) => {
     return admin.auth().updateUser(data.uid, {
         email: data.email,

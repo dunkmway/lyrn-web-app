@@ -43,22 +43,6 @@ function setStudentTable() {
               status: "active",
               location: locationName,
             }
-            //adjust type to be readable
-            if (student.studentType == 'act') {
-              student.studentType = 'ACT'
-            }
-            else if (student.studentType == 'subject-tutoring') {
-              student.studentType = 'ST'
-            }
-            else if (student.studentType == 'math-program') {
-              student.studentType = 'Math Program'
-            }
-            else if (student.studentType == 'phonics-program') {
-              student.studentType = 'Phonics Program'
-            }
-            else {
-              student.studentType == "";
-            }
 
             //adjust name to be last, first
             student.studentName = student.studentLastName + ", " + student.studentFirstName
@@ -81,7 +65,6 @@ function setStudentTable() {
       data: tableData,
       columns: [
         { data: 'studentName' },
-        { data: 'studentType'},
         { data: 'location'}
       ],
       "scrollY": "400px",
@@ -89,32 +72,11 @@ function setStudentTable() {
       "paging": false
     } );
 
-    studentTable.on('click', (args1) => {
-      let studentUID = tableData[args1.target._DT_CellIndex.row].studentUID;
-      let status = tableData[args1.target._DT_CellIndex.row].status;
-      let type = tableData[args1.target._DT_CellIndex.row].studentType;
-
-      switch (status) {
-        case "active":
-          if (type == 'ACT') {
-            actStudentSelected(studentUID);
-          }
-          else if (type == 'ST') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          //FIXME: these will need to be redirected to the proper page once we have them
-          else if (type == 'Math Program') {
-            mathProgramSelected(studentUID);
-          }
-          else if (type == 'Phonics Program') {
-            phonicsProgramSelected(studentUID);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
-        break;
-        default:
-          console.log("ERROR: This student isn't active or pending!!!")
+    studentTable.on('click', (args) => {
+      if (args?.target?._DT_CellIndex) {
+        let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+        setupNavigationModal(studentUID);
+        document.getElementById("navigationSection").style.display = "flex";
       }
       
     });
@@ -123,6 +85,28 @@ function setStudentTable() {
     console.log(error);
     handleFirebaseErrors(error, window.location.href);
   });
+}
+
+function setupNavigationModal(studentUID) {
+  const modal = document.getElementById("navigationSection");
+  let queryStr = "?student=" + studentUID;
+
+  document.getElementById("actNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr
+  };
+  document.getElementById("subjectTutoringNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../subject-tutoring-dash.html" + queryStr
+  };
+  document.getElementById("mathProgramNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../math-program.html" + queryStr
+  };
+  document.getElementById("phonicsProgramNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../phonics-program.html" + queryStr
+  };
 }
 
 
