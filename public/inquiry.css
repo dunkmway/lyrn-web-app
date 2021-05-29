@@ -264,6 +264,10 @@ select {
   -webkit-appearance: none;
 }
 
+.ui.dropdown {
+  display: block !important;
+}
+
 .loader {
   display: none;
   border: 20px solid white;

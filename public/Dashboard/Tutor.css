@@ -107,3 +107,32 @@ select {
     margin: 0;
     padding: 0;
   }
+  
+.add-user-section {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+#navigationModal {
+  padding: 25px;
+  background-color: white;
+  border-radius: 10px;
+  position: relative;
+}
+
+#navigationModal .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: black;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+}

@@ -29,6 +29,23 @@ body {
   z-index: 100;
 }
 
+#navigationModal {
+  padding: 25px;
+  background-color: white;
+  border-radius: 10px;
+  position: relative;
+}
+
+#navigationModal .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: black;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .heading-block {
   background-color: #110D65;
   font-size: 24px;
@@ -95,6 +112,21 @@ body {
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
 }
 
+.rangeInput {
+  display: flex;
+  flex-direction: row;
+
+}
+
+.rangeInput > :first-child::after {
+  margin: 0 5px 0 5px;
+  content: "to";
+}
+
+.range {
+  width: 75px;
+}
+
 .label {
   /* align-self: flex-start; */
   text-align: left;
@@ -132,7 +164,7 @@ body {
 .button {
   margin-top: 20px;
   margin-right: 50px;
-  width: 140px;
+  min-width: 140px;
   height: 45px;
   font-size: 14px;
   font-weight: 500;
