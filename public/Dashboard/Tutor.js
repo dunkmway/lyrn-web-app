@@ -120,6 +120,16 @@ function subjectTutoringStudentSelected(studentUID) {
   window.location.href = "../subject-tutoring-dash.html" + queryStr;
 }
 
+function mathProgramSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../math-program.html" + queryStr;
+}
+
+function phonicsProgramSelected(studentUID) {
+  let queryStr = "?student=" + studentUID;
+  window.location.href = "../phonics-program.html" + queryStr;
+}
+
 function resetPassword() {
   let confirmation = confirm("Are you sure you want to reset your password?");
   if (confirmation) {

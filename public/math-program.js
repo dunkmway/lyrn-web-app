@@ -1,26 +1,28 @@
-let studentProfileData = {};
-let studentNotesData = {};
-let studentSTProfileData = {};
+let student_profile_data = {};
+let student_math_program_profile_data = {};
 
 // Set the math program data
-let studentGrade = 1;
-let currentLessonData = undefined;
+let student_grade = 1;
+let current_lesson_data = undefined;
+let student_notes_data = {};
+let note_flag = false;
+let lesson_flag_counter = 0;
 getLessons()
 
-let date = new Date()
-let colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
-const links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
-               'https://www.khanacademy.org/math/cc-2nd-grade-math',
-               'https://www.khanacademy.org/math/cc-third-grade-math',
-               'https://www.khanacademy.org/math/cc-fourth-grade-math',
-               'https://www.khanacademy.org/math/cc-fifth-grade-math',
-               'https://www.khanacademy.org/math/cc-sixth-grade-math',
-               'https://www.khanacademy.org/math/cc-seventh-grade-math',
-               'https://www.khanacademy.org/math/cc-eighth-grade-math',
-               'https://www.khanacademy.org/math/algebra',
-               'https://www.khanacademy.org/math/geometry',
-               'https://www.khanacademy.org/math/algebra2',
-               'https://www.khanacademy.org/math/trigonometry',];
+let session_date = new Date()
+let css_colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
+const program_links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
+                       'https://www.khanacademy.org/math/cc-2nd-grade-math',
+                       'https://www.khanacademy.org/math/cc-third-grade-math',
+                       'https://www.khanacademy.org/math/cc-fourth-grade-math',
+                       'https://www.khanacademy.org/math/cc-fifth-grade-math',
+                       'https://www.khanacademy.org/math/cc-sixth-grade-math',
+                       'https://www.khanacademy.org/math/cc-seventh-grade-math',
+                       'https://www.khanacademy.org/math/cc-eighth-grade-math',
+                       'https://www.khanacademy.org/math/algebra',
+                       'https://www.khanacademy.org/math/geometry',
+                       'https://www.khanacademy.org/math/algebra2',
+                       'https://www.khanacademy.org/math/trigonometry',];
 
 main();
 function main() {
@@ -133,38 +135,42 @@ const grade12 = {'Right Triangles & Trigonometry' : ['Ratios in right triangles'
                  'Non-right Triangles and Trigonometry' : ['Law of sines', 'Law of cosines', 'Solving general triangles'],
                  'Trigonometric Equations and Identities' : ['Inverse trigonometric functions', 'Sinusoidal equations', 'Sinusoidal models', 'Trigonometric identities', 'Angle addition identities', 'Using trigonometric identities', 'Challenging trigonometric problems']}
 
-const lessonInfo = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11, grade12]
-let lessonList = document.getElementById('lessonList');
+const lesson_info = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11, grade12]
+let lesson_list = document.getElementById('lessonList');
 
-let grade = document.getElementById('student-grade')
-grade.addEventListener('change', (e) => {
-  studentGrade = e.target.value;
-  currentLessonData['grade'] = studentGrade;
+let grade_element = document.getElementById('student-grade')
+grade_element.addEventListener('change', (e) => {
+  student_grade = e.target.value;
+  current_lesson_data['grade'] = student_grade;
   populateLessons()
 })
 
-lessonList.addEventListener('click', (e) => {
+lesson_list.addEventListener('click', (e) => {
   if (e.target.className.includes('button2')) {
     let section = e.target.getAttribute('data-section');
     let lesson = e.target.getAttribute('data-lesson');
-    if (currentLessonData[studentGrade][section][lesson]['status'] == 'not assigned') {
-      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([studentGrade, section, lesson, 'status'], 'needs help', currentLessonData);
+    if (current_lesson_data[student_grade][section][lesson]['status'] == 'not assigned') {
+      setObjectValue([student_grade, section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([student_grade, section, lesson, 'status'], 'needs help', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'needs help') {
-      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([studentGrade, section, lesson, 'status'], 'assigned', currentLessonData);
+    else if (current_lesson_data[student_grade][section][lesson]['status'] == 'needs help') {
+      setObjectValue([student_grade, section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([student_grade, section, lesson, 'status'], 'assigned', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'assigned') {
-      setObjectValue([studentGrade, section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([studentGrade, section, lesson, 'status'], 'mastered', currentLessonData);
+    else if (current_lesson_data[student_grade][section][lesson]['status'] == 'assigned') {
+      setObjectValue([student_grade, section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([student_grade, section, lesson, 'status'], 'mastered', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[studentGrade][section][lesson]['status'] == 'mastered') {
-      setObjectValue([studentGrade, section, lesson, 'date'], 0, currentLessonData);
-      setObjectValue([studentGrade, section, lesson, 'status'], 'not assigned', currentLessonData);
+    else if (current_lesson_data[student_grade][section][lesson]['status'] == 'mastered') {
+      setObjectValue([student_grade, section, lesson, 'date'], 0, current_lesson_data);
+      setObjectValue([student_grade, section, lesson, 'status'], 'not assigned', current_lesson_data);
+      lesson_flag_counter -= 3;
       populateLessons()
     }
   }
@@ -175,7 +181,7 @@ function retrieveInitialData() {
 
   let profileProm = getStudentProfile(student);
   let notesProm = getStudentNotes(student);
-  let stProfileProm = getStudentSTProfile(student); 
+  let stProfileProm = getStudentMathProgramProfile(student); 
 
   let promises = [profileProm, notesProm, stProfileProm];
   return Promise.all(promises);
@@ -186,27 +192,27 @@ function getStudentProfile(studentUID) {
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentProfileData = doc.data();
+      student_profile_data = doc.data();
     }
   })
 }
 
 function getStudentNotes(studentUID) {
-  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('notes');
+  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUID).collection('Math-Program').doc('notes');
   return studentNotesRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentNotesData = doc.data();
+      student_notes_data = doc.data();
     }
   })
 }
 
-function getStudentSTProfile(studentUID) {
-  const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
-  return studentSTProfileRef.get()
+function getStudentMathProgramProfile(studentUID) {
+  const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Math-Program').doc('profile');
+  return studentMathProgramProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentSTProfileData = doc.data();
+      student_math_program_profile_data = doc.data();
     }
   })
 }
@@ -224,11 +230,11 @@ function queryStrings() {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = studentProfileData['studentFirstName'] + " " + studentProfileData['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
 }
 
 function setStudentSTProfile() {
-  document.getElementById('student-expectation').innerHTML = studentSTProfileData['expectation'] || "No expectation set."
+  document.getElementById('student-expectation').innerHTML = student_math_program_profile_data['expectation'] || "No expectation set."
 }
 
 function allowExpectationChange() {
@@ -257,11 +263,11 @@ function updateStudentExpectation(event) {
 
     studentExpectationElem.style.borderColor = null;
 
-    const studentSTProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Subject-Tutoring').doc('profile');
-    studentSTProfileRef.get()
+    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Math-Program').doc('profile');
+    studentMathProgramProfileRef.get()
     .then((doc) => {
       if(doc.exists) {
-        studentSTProfileRef.update({
+        studentMathProgramProfileRef.update({
           expectation : expectationStr
         })
         .then(() => {
@@ -270,7 +276,7 @@ function updateStudentExpectation(event) {
         .catch((error) => handleFirebaseErrors(error, window.location.href));
       }
       else {
-        studentSTProfileRef.set({
+        studentMathProgramProfileRef.set({
           expectation : expectationStr
         })
         .then(() => {
@@ -285,7 +291,7 @@ function updateStudentExpectation(event) {
 
 //all of the notes stuff
 function getNotes(type) {
-  const notes = studentNotesData[type];
+  const notes = student_notes_data[type];
   let noteTimes = [];
   for (const time in notes) {
     noteTimes.push(parseInt(time));
@@ -396,7 +402,7 @@ function deleteNote(type, event) {
   if (confirmation) {
     const currentStudent = queryStrings()['student'];
     const time = message.dataset.time;
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
+    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Math-Program").doc("notes");
     studentNotesDocRef.update({
       [`${type}.${time}`] : firebase.firestore.FieldValue.delete()
     })
@@ -425,7 +431,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
 
   if (note) {
     //upload the note to firebase
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
+    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Math-Program").doc("notes");
     studentNotesDocRef.get()
     .then((doc) => {
       if (doc.exists) {
@@ -434,6 +440,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
         })
         .then(() => {
           //send the note into the message div
+          note_flag = true;
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
@@ -448,6 +455,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
         })
         .then(() => {
           //send the note into the message div
+          note_flag = true;
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
@@ -470,13 +478,13 @@ document.getElementById("student-log-notes-input").addEventListener('keydown', (
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-log-notes-input').value;
-    const time = new Date().getTime();
+    const time = session_date.getTime();
     sendNotes('log', note, time, currentUser);
   }
 });
 
 function removeLessons() {
-  let children = lessonList.querySelectorAll('div');
+  let children = lesson_list.querySelectorAll('div');
   const numChildren = children.length;
   for (let child = 0; child < numChildren; child++) {
     children[child].remove()
@@ -485,8 +493,8 @@ function removeLessons() {
 
 function populateLessons() {
   removeLessons();
-  document.getElementById('programLink').setAttribute('href', links[studentGrade - 1])
-  let gradeLessons = lessonInfo[studentGrade - 1]
+  document.getElementById('programLink').setAttribute('href', program_links[student_grade - 1])
+  let gradeLessons = lesson_info[student_grade - 1]
 
   // Add the lessons
   let sections = Object.keys(gradeLessons)
@@ -495,28 +503,28 @@ function populateLessons() {
     const element1 = createElement('div', ['sectionGridBox'], [], [], sections[i])
     const element2 = createElement('div', ['sectionGridBox'], [], [], "")
     element1.style.fontWeight = 'bold'
-    lessonList.append(element1);
-    lessonList.append(element2);
+    lesson_list.append(element1);
+    lesson_list.append(element2);
     
     // Add the lessons
     for (let j = 0; j < Object.values(gradeLessons[sections[i]]).length; j++) {
       const lesson = gradeLessons[sections[i]][j]
       const element1 = createElement('div', ['gridBox'], [], [] , lesson);
       const element2 = createElement('div', ['gridBox', 'button2'], ['data-section', 'data-lesson'], [sections[i], lesson], "")
-      element2.classList.add(colors[currentLessonData[studentGrade][sections[i]][lesson]['status']])
-      if (currentLessonData[studentGrade][sections[i]][lesson]['date'] != 0) {
-        element2.innerHTML = convertFromDateInt(currentLessonData[studentGrade][sections[i]][lesson]['date'])['shortDate'];
+      element2.classList.add(css_colors[current_lesson_data[student_grade][sections[i]][lesson]['status']])
+      if (current_lesson_data[student_grade][sections[i]][lesson]['date'] != 0) {
+        element2.innerHTML = convertFromDateInt(current_lesson_data[student_grade][sections[i]][lesson]['date'])['shortDate'];
       }
-      lessonList.append(element1);
-      lessonList.append(element2);
+      lesson_list.append(element1);
+      lesson_list.append(element2);
     }
   }
 }
 
 function initializeEmptyLessonsMap() {
-  currentLessonData = {'grade' : studentGrade, 1 : {}, 2 : {}, 3 : {}, 4 : {}, 5 : {}, 6 : {}, 7 : {}, 8 : {}, 9 : {}, 10 : {}, 11 : {}, 12 : {}};
+  current_lesson_data = {'grade' : student_grade, 1 : {}, 2 : {}, 3 : {}, 4 : {}, 5 : {}, 6 : {}, 7 : {}, 8 : {}, 9 : {}, 10 : {}, 11 : {}, 12 : {}};
   for (let g = 1; g < 13; g++) {
-    const gradeLessons = lessonInfo[g - 1]
+    const gradeLessons = lesson_info[g - 1]
     const sections = Object.keys(gradeLessons);
     let lessons = undefined;
     let tmp = {};
@@ -527,7 +535,7 @@ function initializeEmptyLessonsMap() {
         setObjectValue([sections[i], lessons[j], 'status'], 'not assigned', tmp);
       }
     }
-    setObjectValue([g], tmp, currentLessonData)
+    setObjectValue([g], tmp, current_lesson_data)
   }
 }
 
@@ -573,16 +581,16 @@ function getLessons() {
     lessonsRef.get()
     .then((doc) => {
       if (doc.exists) {
-        currentLessonData = doc.data();
-        studentGrade = doc.data()['grade'];
+        current_lesson_data = doc.data();
+        student_grade = doc.data()['grade'];
       }
       else {
-        if (currentLessonData == undefined) {
+        if (current_lesson_data == undefined) {
           initializeEmptyLessonsMap();
         }
       }
       populateLessons();
-      document.getElementById('student-grade').value = studentGrade;
+      document.getElementById('student-grade').value = student_grade;
     })
     .then(() => resolve())
     .catch((error) => reject('Fb error:' + error))
@@ -590,12 +598,24 @@ function getLessons() {
 }
 
 function submitLessons() {
-  let student = queryStrings()['student'];
-  lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
+  if (note_flag == true) {
+    if (lesson_flag_counter > 0) {
+      const confirmation = window.confirm("Are you sure you are ready to submit this session?");
+      if (confirmation == true) {
+        let student = queryStrings()['student'];
+        lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
 
-  //console.log(currentLessonData)
-  lessonsRef.set(currentLessonData)
-  .catch((error) => reject('Fb error:' + error))
+        lessonsRef.set(current_lesson_data).then(() => goToDashboard())
+        .catch((error) => reject('Fb error:' + error))
+      }
+    }
+    else {
+      document.getElementById('errorMessage').innerHTML = 'Please mark a lesson'
+    }
+  }
+  else {
+    document.getElementById('errorMessage').innerHTML = 'Please enter a comment for what occurred during the session'
+  }
 }
 
 document.getElementById("student-general-info").addEventListener("dblclick", () => {
@@ -613,4 +633,3 @@ document.getElementById("student-general-info").addEventListener("dblclick", () 
     }
   });
 });
-

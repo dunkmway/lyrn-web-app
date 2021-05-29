@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Program</title>
-    <link href="math-program.css" rel="stylesheet">
+    <title>Phonics Program</title>
+    <link href="phonics-program.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
     <script src="Site Templates/site-wide.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
-    <script src="math-program.js" defer></script>
+    <script src="phonics-program.js" defer></script>
 </head>
 
 <body>
@@ -24,24 +24,9 @@
     <div class="loading-ring"></div>
   </section>
 
-  <div id="student-general-info">
+  <div id="student-general-info" ondblclick="updateStudentExpectation()">
     <h1 id="student-name"></h1>
-    <label>Program Grade</label>
-    <select id="student-grade">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-    </select>
-    <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+    <h2 id="student-expectation"></h2>
 </div>
 
   <div id="student-log-notes-div">
@@ -53,7 +38,7 @@
 
   <div id = "lessonsForm" class = "metaForm noselect">
     <div class="heading-block">
-        <h2><a id = "programLink" target="_blank">Math Program</a></h2>
+        <h2>Phonics Program</h2>
     </div>
 
     <div class = "lessonHeaders">
