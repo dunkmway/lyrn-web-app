@@ -254,10 +254,6 @@ function setAllData(data) {
 
   //special case
 
-  //reset school since the wasatch location probably cleared the high school list
-  let studentSchool = data["studentSchool"];
-  document.getElementById("studentSchool").value = studentSchool;
-
   //act tests
   let studentActTests = data["studentActTests"];
   if (studentActTests) {
@@ -1256,6 +1252,8 @@ wasatchLocation.addEventListener('change', () => {
       setSchoolOption(id, data.schoolName);
     })
     setSchoolOption("", "none of these")
+    //reset student school
+    document.getElementById("studentSchool").value = studentData["studentSchool"] ?? ""
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
