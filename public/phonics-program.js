@@ -1,26 +1,19 @@
-let studentProfileData = {};
-let studentNotesData = {};
-let studentSTProfileData = {};
+// Set the Fb objects
+let current_lesson_data = undefined;
+let student_phonics_program_profile_data = {};
+let student_notes_data = {};
+let student_profile_data = {};
+let storage = firebase.storage();
 
-// Set the math program data
-let currentLessonData = undefined;
+// Flags
+let note_flag = false;
+let lesson_flag_counter = 0;
+
+// Set other global variables
+let session_date = new Date()
+let css_colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
+
 getLessons()
-
-let date = new Date()
-let colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
-const links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
-               'https://www.khanacademy.org/math/cc-2nd-grade-math',
-               'https://www.khanacademy.org/math/cc-third-grade-math',
-               'https://www.khanacademy.org/math/cc-fourth-grade-math',
-               'https://www.khanacademy.org/math/cc-fifth-grade-math',
-               'https://www.khanacademy.org/math/cc-sixth-grade-math',
-               'https://www.khanacademy.org/math/cc-seventh-grade-math',
-               'https://www.khanacademy.org/math/cc-eighth-grade-math',
-               'https://www.khanacademy.org/math/algebra',
-               'https://www.khanacademy.org/math/geometry',
-               'https://www.khanacademy.org/math/algebra2',
-               'https://www.khanacademy.org/math/trigonometry',];
-
 main();
 function main() {
   retrieveInitialData()
@@ -31,7 +24,7 @@ function main() {
   })
 }
 
-const lessonData = {'Consonants (Say, Sound, Write)' : ['b, f, m, k, r, t', 'p, j, h, s, n, d', 'c, l, g, w, y, v, z, q, x'],
+const lesson_data = {'Consonants (Say, Sound, Write)' : ['b, f, m, k, r, t', 'p, j, h, s, n, d', 'c, l, g, w, y, v, z, q, x'], // These lessons are missing in Fb storage
                     'Short Vowels' : ['a', 'i', 'u', 'e', 'o'],
                     'Initial Consonant Blends' : ['bl, cl, fl, gl', 'sk, sl, pl', 'cr, dr, gr', 'br, fr, pr, tr', 'sm, sn, sp', 'st, sw, tw'],
                     'Final Consonat Blends' : ['-mp, -sk, -st', '-ft, -lt, -nt', '-lf, -lp, -nd, -nk'],
@@ -45,43 +38,47 @@ const lessonData = {'Consonants (Say, Sound, Write)' : ['b, f, m, k, r, t', 'p, 
                     'Common Endings' : ['-ful, -ing, -est, -ed, -ness'],
                     'Rules for Syllable Division (Between 2-Consonants)' : ['VC/CV rule', 'VC/V rule'],
                     'Open and Closed Syllables' : ['Open/closed syllables'],
-                    'Syllables ending in -y and -le' : ['syllables ending in -y and -le'],
+                    'Syllables ending in -y and -le' : ['Syllables ending in -y and -le'],
                     'Vowel and Digraph Syllables' : ['Vowel/digraph syllables'],
                     'Three-Syllable Words' : ['3-syllable words'],
                     'Three sounds of -ed' : ['-ed = (ed)', '-ed = (d/t)'],
-                    'Word Families' : ['-all/-alk', '-old, -olt, -oll', '-ild, -ind', '-qu'],
+                    'Word Families' : ['-all/-alk', '-old, -olt, -oll', '-ild, -ind', 'qu'],
                     'Three-Letter Blends' : ['thr, shr, scr', 'str, spr, spl'],
                     '-ey Words' : ['-ey words'],
                     'Vowel Plus r' : ['ar words', 'or', 'er, ir, ur', 'wor, war'],
                     'Second Sound of ea' : ['igh', 'oo', 'ea', 'ie'],
                     'Dipthongs' : ['oi/oy', 'ou/ow', 'au/aw', 'ew/ui/ue/ou'],
-                    'Soft c and g and Silent Consonants' : ['Soft c', 'Soft g', '-dge', '-mb', 'kn', 'wr', 'Silent t', 'Silent h', 'ear = /air/', 'ph', 'ei/eigh'],
-                    'Suffixes and Endings' : ['-ness, -less', '-ous, -or', '-isty, -ity', '-ture, -ment', '-able, -ible', '-sion, -tion', '-ance, -ence', '-tive, -sive', '-ify, -ize', 'endings']}
+                    'Soft c and g and Silent Consonants' : ['Soft c', 'Soft g', '-dge', '-mb', 'kn', 'wr', 'Silent t', 'Silent h', 'ear = (air)', 'ph', 'ei/eigh'],
+                    'Suffixes and Endings' : ['-ness, -less', '-ous, -or', '-ist, -ity', '-ture, -ment', '-able, -ible', '-sion, -tion', '-ance, -ence', '-tive, -sive', '-ify, -ize', 'endings']}
 
-let lessonList = document.getElementById('lessonList');
+let lesson_list = document.getElementById('lessonList');
 
-lessonList.addEventListener('click', (e) => {
+lesson_list.addEventListener('click', (e) => {
   if (e.target.className.includes('button2')) {
     let section = e.target.getAttribute('data-section');
     let lesson = e.target.getAttribute('data-lesson');
-    if (currentLessonData[section][lesson]['status'] == 'not assigned') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'needs help', currentLessonData);
+    if (current_lesson_data[section][lesson]['status'] == 'not assigned') {
+      setObjectValue([section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([section, lesson, 'status'], 'needs help', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'needs help') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'assigned', currentLessonData);
+    else if (current_lesson_data[section][lesson]['status'] == 'needs help') {
+      setObjectValue([section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([section, lesson, 'status'], 'assigned', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'assigned') {
-      setObjectValue([section, lesson, 'date'], date.getTime(), currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'mastered', currentLessonData);
+    else if (current_lesson_data[section][lesson]['status'] == 'assigned') {
+      setObjectValue([section, lesson, 'date'], session_date.getTime(), current_lesson_data);
+      setObjectValue([section, lesson, 'status'], 'mastered', current_lesson_data);
+      lesson_flag_counter += 1;
       populateLessons()
     }
-    else if (currentLessonData[section][lesson]['status'] == 'mastered') {
-      setObjectValue([section, lesson, 'date'], 0, currentLessonData);
-      setObjectValue([section, lesson, 'status'], 'not assigned', currentLessonData);
+    else if (current_lesson_data[section][lesson]['status'] == 'mastered') {
+      setObjectValue([section, lesson, 'date'], 0, current_lesson_data);
+      setObjectValue([section, lesson, 'status'], 'not assigned', current_lesson_data);
+      lesson_flag_counter -= 3;
       populateLessons()
     }
   }
@@ -92,38 +89,38 @@ function retrieveInitialData() {
 
   let profileProm = getStudentProfile(student);
   let notesProm = getStudentNotes(student);
-  let stProfileProm = getStudentSTProfile(student); 
+  let phonicsProgramProfileProm = getStudentPhonicsProgramProfile(student); 
 
-  let promises = [profileProm, notesProm, stProfileProm];
+  let promises = [profileProm, notesProm, phonicsProgramProfileProm];
   return Promise.all(promises);
 }
 
-function getStudentProfile(studentUID) {
-  const studentProfileRef = firebase.firestore().collection('Students').doc(studentUID);
+function getStudentProfile(studentUId) {
+  const studentProfileRef = firebase.firestore().collection('Students').doc(studentUId);
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentProfileData = doc.data();
+      student_profile_data = doc.data();
     }
   })
 }
 
-function getStudentNotes(studentUID) {
-  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('notes');
+function getStudentNotes(studentUId) {
+  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('notes');
   return studentNotesRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentNotesData = doc.data();
+      student_notes_data = doc.data();
     }
   })
 }
 
-function getStudentSTProfile(studentUID) {
-  const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
-  return studentSTProfileRef.get()
+function getStudentPhonicsProgramProfile(studentUId) {
+  const studentPhonicsProgramRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('profile');
+  return studentPhonicsProgramRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentSTProfileData = doc.data();
+      student_phonics_program_profile_data = doc.data();
     }
   })
 }
@@ -141,11 +138,11 @@ function queryStrings() {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = studentProfileData['studentFirstName'] + " " + studentProfileData['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
 }
 
 function setStudentSTProfile() {
-  document.getElementById('student-expectation').innerHTML = studentSTProfileData['expectation'] || "No expectation set."
+  document.getElementById('student-expectation').innerHTML = student_phonics_program_profile_data['expectation'] || "No expectation set."
 }
 
 function updateStudentExpectation() {
@@ -155,18 +152,18 @@ function updateStudentExpectation() {
       .then((idTokenResult) => {
         let role = idTokenResult.claims.role;
         if (role == 'admin' || role == 'dev' || role == 'secretary') {
-          const studentUID = queryStrings()['student'];
+          const studentUId = queryStrings()['student'];
           let studentExpectationElem = document.getElementById('student-expectation');
           let parent = studentExpectationElem.parentNode;
           let expectationTag = studentExpectationElem.tagName;
           if (expectationTag == "INPUT") {
             //update the goal and send it back to an H2 tag
             let expectationStr = studentExpectationElem.value;
-            const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
-            studentSTProfileRef.get()
+            const studentPhonicsProgramRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('profile');
+            studentPhonicsProgramRef.get()
             .then((doc) => {
               if(doc.exists) {
-                studentSTProfileRef.update({
+                studentPhonicsProgramRef.update({
                   expectation : expectationStr
                 })
                 .then(() => {
@@ -180,7 +177,7 @@ function updateStudentExpectation() {
                 .catch((error) => handleFirebaseErrors(error, window.location.href));
               }
               else {
-                studentSTProfileRef.set({
+                studentPhonicsProgramRef.set({
                   expectation : expectationStr
                 })
                 .then(() => {
@@ -214,7 +211,7 @@ function updateStudentExpectation() {
 
 //all of the notes stuff
 function getNotes(type) {
-  const notes = studentNotesData[type];
+  const notes = student_notes_data[type];
   let noteTimes = [];
   for (const time in notes) {
     noteTimes.push(parseInt(time));
@@ -325,7 +322,7 @@ function deleteNote(type, event) {
   if (confirmation) {
     const currentStudent = queryStrings()['student'];
     const time = message.dataset.time;
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
+    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Phonics-Program").doc("notes");
     studentNotesDocRef.update({
       [`${type}.${time}`] : firebase.firestore.FieldValue.delete()
     })
@@ -354,7 +351,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
 
   if (note) {
     //upload the note to firebase
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
+    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Phonics-Program").doc("notes");
     studentNotesDocRef.get()
     .then((doc) => {
       if (doc.exists) {
@@ -363,6 +360,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
         })
         .then(() => {
           //send the note into the message div
+          note_flag = true;
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
@@ -377,6 +375,7 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
         })
         .then(() => {
           //send the note into the message div
+          note_flag = true;
           setNotes(type, note, time, author, isSessionNote);
         })
         .catch((error) => {
@@ -399,13 +398,13 @@ document.getElementById("student-log-notes-input").addEventListener('keydown', (
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-log-notes-input').value;
-    const time = new Date().getTime();
+    const time = session_date.getTime();
     sendNotes('log', note, time, currentUser);
   }
 });
 
 function removeLessons() {
-  let children = lessonList.querySelectorAll('div');
+  let children = lesson_list.querySelectorAll('div');
   const numChildren = children.length;
   for (let child = 0; child < numChildren; child++) {
     children[child].remove()
@@ -416,39 +415,40 @@ function populateLessons() {
   removeLessons();
 
   // Add the lessons
-  let sections = Object.keys(lessonData)
+  let sections = Object.keys(lesson_data)
   for (let i = 0; i < sections.length; i++) {
     // Add the section
     const element1 = createElement('div', ['sectionGridBox'], [], [], sections[i])
     const element2 = createElement('div', ['sectionGridBox'], [], [], "")
     element1.style.fontWeight = 'bold'
-    lessonList.append(element1);
-    lessonList.append(element2);
+    lesson_list.append(element1);
+    lesson_list.append(element2);
     
     // Add the lessons
-    for (let j = 0; j < Object.values(lessonData[sections[i]]).length; j++) {
-      const lesson = lessonData[sections[i]][j]
-      const element1 = createElement('div', ['gridBox'], [], [] , lesson);
+    for (let j = 0; j < Object.values(lesson_data[sections[i]]).length; j++) {
+      const lesson = lesson_data[sections[i]][j]
+      const element1 = createElement('div', ['gridBox'], ['onclick'], ["openLesson('" + lesson + "')"] , lesson);
+      element1.style.cursor = 'pointer';
       const element2 = createElement('div', ['gridBox', 'button2'], ['data-section', 'data-lesson'], [sections[i], lesson], "")
-      element2.classList.add(colors[currentLessonData[sections[i]][lesson]['status']])
-      if (currentLessonData[sections[i]][lesson]['date'] != 0) {
-        element2.innerHTML = convertFromDateInt(currentLessonData[sections[i]][lesson]['date'])['shortDate'];
+      element2.classList.add(css_colors[current_lesson_data[sections[i]][lesson]['status']])
+      if (current_lesson_data[sections[i]][lesson]['date'] != 0) {
+        element2.innerHTML = convertFromDateInt(current_lesson_data[sections[i]][lesson]['date'])['shortDate'];
       }
-      lessonList.append(element1);
-      lessonList.append(element2);
+      lesson_list.append(element1);
+      lesson_list.append(element2);
     }
   }
 }
 
 function initializeEmptyLessonsMap() {
-  currentLessonData = {}
-  const sections = Object.keys(lessonData);
+  current_lesson_data = {}
+  const sections = Object.keys(lesson_data);
   let lessons = undefined;
   for (let i = 0; i < sections.length; i++) {
-    lessons = Object.values(gradeLessons[sections[i]]);
+    lessons = Object.values(lesson_data[sections[i]]);
     for (let j = 0; j < lessons.length; j++) {
-      setObjectValue([sections[i], lessons[j], 'date'], 0, currentLessonData);
-      setObjectValue([sections[i], lessons[j], 'status'], 'not assigned', currentLessonData);
+      setObjectValue([sections[i], lessons[j], 'date'], 0, current_lesson_data);
+      setObjectValue([sections[i], lessons[j], 'status'], 'not assigned', current_lesson_data);
     }
   }
 }
@@ -495,10 +495,10 @@ function getLessons() {
     lessonsRef.get()
     .then((doc) => {
       if (doc.exists) {
-        currentLessonData = doc.data();
+        current_lesson_data = doc.data();
       }
       else {
-        if (currentLessonData == undefined) {
+        if (current_lesson_data == undefined) {
           initializeEmptyLessonsMap();
         }
       }
@@ -510,11 +510,31 @@ function getLessons() {
 }
 
 function submitLessons() {
-  let student = queryStrings()['student'];
-  lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
+  if (note_flag == true) {
+    if (lesson_flag_counter > 0) {
+      const confirmation = window.confirm("Are you sure you are ready to submit this session?");
+      if (confirmation == true) {
+        const student = queryStrings()['student'];
+        lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
 
-  console.log(currentLessonData)
-  //lessonsRef.set(currentLessonData)
-  //.catch((error) => reject('Fb error:' + error))
+        lessonsRef.set(current_lesson_data).then(() => goToDashboard())
+        .catch((error) => reject('Fb error:' + error))
+      }
+    }
+    else {
+      document.getElementById('errorMessage').innerHTML = 'Please mark a lesson'
+    }
+  }
+  else {
+    document.getElementById('errorMessage').innerHTML = 'Please enter a comment for what occurred during the session'
+  }
 }
 
+function openLesson(lesson) {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Phonics Program/Lesson pdfs/' + (lesson.replaceAll('/', ', ')) + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
