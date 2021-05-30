@@ -21,11 +21,10 @@ function initializeLessonList() {
       const sections = Object.keys(act_lesson_list)
       for (let i = 0; i < sections.length; i++) {
         let location = document.getElementById(sections[i] + 'Lessons')
-        console.log(location)
         for (let j = 0; j < act_lesson_list[sections[i]]['lessons'].length; j++) {
           let ele1 = createElement('div', ['gridBox2'], [], [], act_lesson_list[sections[i]]['lessons'][j])
           let ele2 = createElement('div', ['gridBox2'], [], [], act_lesson_list[sections[i]]['ranks'][j])
-          let ele3 = createElement('div', ['gridBox2', 'button2'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
+          let ele3 = createElement('div', ['gridBox2', 'button2'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('-', '_').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
           location.append(ele1)
           location.append(ele2)
           location.append(ele3)
