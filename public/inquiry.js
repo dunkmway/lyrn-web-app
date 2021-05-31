@@ -175,12 +175,30 @@ function setLocations () {
     if (doc.exists) {
       const locationElem = document.getElementById("location");
       let locations = doc.get("locations");
+      let locationArray = []
       for (let locationUID in locations) {
-        let option = document.createElement("option");
-        option.value = locationUID;
-        option.innerText = locations[locationUID]["name"];
-        locationElem.appendChild(option);
+        locationArray.push({
+          locationUID : locationUID,
+          locationName: locations[locationUID]["name"]
+        })
       }
+
+      //alphabetize the list
+      locationArray.sort((a,b) => {
+        let locationNameA = a.locationName;
+        let locationNameB = b.locationName;
+  
+        if (locationNameA < locationNameB) {return -1}
+        else if (locationNameA > locationNameB) {return 1}
+        else {return 0}
+      });
+  
+      locationArray.forEach((location) => {
+        let option = document.createElement("option");
+        option.value = location.locationUID;
+        option.innerText = location.locationName;
+        locationElem.appendChild(option);
+      })
     }
   })
   .catch((error) => {
@@ -1243,13 +1261,32 @@ wasatchLocation.addEventListener('change', () => {
   clearSchoolOptions();
 
   let location = wasatchLocation.value;
+  let schools = [];
   const schoolRef = firebase.firestore().collection("Schools");
   schoolRef.where("schoolLocation", "==", location).get()
   .then((querySnapshot) => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       const id = doc.id;
-      setSchoolOption(id, data.schoolName);
+      const schoolName = data.schoolName;
+      schools.push({
+        id : id,
+        schoolName: schoolName
+      })
+    })
+
+    //sort the school alphabetically
+    schools.sort((a,b) => {
+      let schoolNameA = a.schoolName;
+      let schoolNameB = b.schoolName;
+
+      if (schoolNameA < schoolNameB) {return -1}
+      else if (schoolNameA > schoolNameB) {return 1}
+      else {return 0}
+    });
+
+    schools.forEach((school) => {
+      setSchoolOption(school.id, school.schoolName);
     })
     setSchoolOption("", "none of these")
     //reset student school
