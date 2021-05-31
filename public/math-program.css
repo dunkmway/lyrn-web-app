@@ -238,8 +238,6 @@ body {
     align-items: left;
     padding-right: 0.1em;
     padding-left: 3em;
-    word-wrap: break-word;
-    word-break: break-all;
 }
 
 .gridBox:nth-child(-n+2) {
