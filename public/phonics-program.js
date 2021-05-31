@@ -146,68 +146,39 @@ function setStudentSTProfile() {
   document.getElementById('student-expectation').innerHTML = student_phonics_program_profile_data['expectation'] || "No expectation set."
 }
 
-function updateStudentExpectation() {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (role == 'admin' || role == 'dev' || role == 'secretary') {
-          const studentUId = queryStrings()['student'];
-          let studentExpectationElem = document.getElementById('student-expectation');
-          let parent = studentExpectationElem.parentNode;
-          let expectationTag = studentExpectationElem.tagName;
-          if (expectationTag == "INPUT") {
-            //update the goal and send it back to an H2 tag
-            let expectationStr = studentExpectationElem.value;
-            const studentPhonicsProgramRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('profile');
-            studentPhonicsProgramRef.get()
-            .then((doc) => {
-              if(doc.exists) {
-                studentPhonicsProgramRef.update({
-                  expectation : expectationStr
-                })
-                .then(() => {
-                  //remove the input and replace it with the text
-                  studentExpectationElem.remove();
-                  let newElem = document.createElement('h2');
-                  newElem.id = 'student-expectation';
-                  newElem.innerHTML = expectationStr;
-                  parent.appendChild(newElem);
-                })
-                .catch((error) => handleFirebaseErrors(error, window.location.href));
-              }
-              else {
-                studentPhonicsProgramRef.set({
-                  expectation : expectationStr
-                })
-                .then(() => {
-                  //remove the input and replace it with the text
-                  studentExpectationElem.remove();
-                  let newElem = document.createElement('h2');
-                  newElem.id = 'student-expectation';
-                  newElem.innerHTML = expectationStr;
-                  parent.appendChild(newElem);
-                })
-                .catch((error) => handleFirebaseErrors(error, window.location.href));
-              }
-            })
-          }
-          else {
-            //turn the element into an input to allow for changes
-            let expectationStr = studentExpectationElem.innerHTML;
-            studentExpectationElem.remove();
-            let newElem = document.createElement('input');
-            newElem.id = 'student-expectation';
-            newElem.value = expectationStr;
-            newElem.classList.add("expectation-input");
-            parent.appendChild(newElem);
-          }
-        }
-      })
-      .catch((error) => handleFirebaseErrors(error, window.location.href));
-    }
-  });
+function updateStudentExpectation(event) {
+  if (event.repeat) {return};
+  if (!event.ctrlKey && event.key == "Enter") {
+    event.preventDefault();
+    let studentExpectationElem = document.getElementById('student-expectation');
+    let expectationStr = studentExpectationElem.value;
+
+    studentExpectationElem.style.borderColor = null;
+
+    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Math-Program').doc('profile');
+    studentMathProgramProfileRef.get()
+    .then((doc) => {
+      if(doc.exists) {
+        studentMathProgramProfileRef.update({
+          expectation : expectationStr
+        })
+        .then(() => {
+          studentExpectationElem.style.borderColor = "green";
+        })
+        .catch((error) => handleFirebaseErrors(error, window.location.href));
+      }
+      else {
+        studentMathProgramProfileRef.set({
+          expectation : expectationStr
+        })
+        .then(() => {
+          studentExpectationElem.style.borderColor = "green";
+        })
+        .catch((error) => handleFirebaseErrors(error, window.location.href));
+      }
+    })
+    .catch((error) => handleFirebaseErrors(error, window.location.href));
+  }
 }
 
 //all of the notes stuff
