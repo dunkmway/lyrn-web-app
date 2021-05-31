@@ -4,7 +4,6 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  overflow-y: hidden;
   height: 100vh;
   width: 100vw;
 }
@@ -18,13 +17,16 @@ body {
 }
 
 .expectation-input {
-  font-size: 1.5em;
+  font-size: 1em;
   font-weight: bold;
-  width: 100%;
+  width: 500px;
+  height: 4.5em;
+  border-width: 2px;
+  display: block;
 }
 
 #student-log-notes-div {
-  margin: 50px 0px 50px 20px;
+  margin: 50px 0px 0px 20px;
   width: 400px;
   border-color: black;
   border-style: solid;
@@ -296,7 +298,6 @@ body {
 }
 
 .button {
-  margin-top: 20px;
   width: 140px;
   height: 45px;
   font-size: 14px;

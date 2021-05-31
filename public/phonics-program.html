@@ -26,8 +26,13 @@
 
   <div id="student-general-info" ondblclick="updateStudentExpectation()">
     <h1 id="student-name"></h1>
-    <h2 id="student-expectation"></h2>
-</div>
+  </div>
+
+  <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+
+  <p>This button will submit your lesson (note submitted and at least one lesson taught)</p>
+  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
+  <p id = 'errorMessage' style = "color:red"></p>
 
   <div id="student-log-notes-div">
     <h2 class="student-notes-label background-black">Notes</h2>
@@ -57,9 +62,6 @@
     </div>
 
   </div>
-
-  <p id = 'errorMessage' style = "color:red"></p>
-  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
 
 
 </body>

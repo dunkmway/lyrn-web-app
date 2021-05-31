@@ -24,25 +24,49 @@
     <div class="loading-ring"></div>
   </section>
 
+  <section id="helpModal" class="helpModal" onclick="closeHelp(event)">
+    <div class="helpContainer">
+      <h3 style="margin-top: 0px;">Some things to remember when teaching the Math Program...</h3>
+      <ol>
+        <li>We are the teachers. Use Khan Academy and the in-center worksheets for example problems only.</li>
+        <li>Keep track of lessons taught here. The student may create an account at home but don't rely on Khan academy to track lesson progress.</li>
+        <li>That being said lesson colors are as follow:</li>
+        <ul>
+          <li>Red : Needs review</li>
+          <li>Yellow : Proficient</li>
+          <li>Green : Mastered</li>
+        </ul>
+        <li>Quick hint! If you click on "Math Program" over there to the left, it will send you to Khan academy for the selected program grade. Pretty sweet huh?</li>
+        <li>We have forms to send home after every lesson with the student to tell the parent what we worked on in center. That way if the student wants to practice at home they know what lessons to go over.</li>
+      </ol>
+    </div>
+  </section>
+
   <div id="student-general-info">
     <h1 id="student-name"></h1>
-    <label>Program Grade</label>
-    <select id="student-grade">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-    </select>
-    <textarea id="student-expectation" class="expectation-input" disabled></textarea>
-</div>
+  </div>
+
+  <label>Program Grade</label>
+  <select id="student-grade">
+    <option value="0">K</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+  </select>
+  <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+
+  <p>This button will submit your lesson (note submitted and at least one lesson taught)</p>
+  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
+  <p id = 'errorMessage' style = "color:red"></p>
 
   <div id="student-log-notes-div">
     <h2 class="student-notes-label background-black">Notes</h2>
@@ -54,6 +78,7 @@
   <div id = "lessonsForm" class = "metaForm noselect">
     <div class="heading-block">
         <h2><a id = "programLink" target="_blank">Math Program</a></h2>
+        <p class="mathProgramHelp" onclick="openHelp()">?</p>
     </div>
 
     <div class = "lessonHeaders">
@@ -72,9 +97,6 @@
     </div>
 
   </div>
-
-  <p id = 'errorMessage' style = "color:red"></p>
-  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
 
 
 </body>

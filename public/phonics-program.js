@@ -21,6 +21,7 @@ function main() {
     setStudentProfile();
     setStudentSTProfile();
     getNotes('log');
+    allowExpectationChange();
   })
 }
 
@@ -537,4 +538,21 @@ function openLesson(lesson) {
       open(url);
     })
 
+}
+
+function allowExpectationChange() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'admin' || role == 'dev' || role == 'secretary') {
+          document.getElementById("student-expectation").disabled = false;
+          document.getElementById("student-expectation").addEventListener('keydown', updateStudentExpectation)
+        }
+      })
+      .catch((error) => console.log(error));
+      // .catch((error) => handleFirebaseErrors(error, window.location.href));
+    }
+  });
 }

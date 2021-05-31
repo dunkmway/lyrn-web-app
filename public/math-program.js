@@ -2,7 +2,7 @@ let student_profile_data = {};
 let student_math_program_profile_data = {};
 
 // Set the math program data
-let student_grade = 1;
+let student_grade = 0;
 let current_lesson_data = undefined;
 let student_notes_data = {};
 let note_flag = false;
@@ -11,7 +11,8 @@ getLessons()
 
 let session_date = new Date()
 let css_colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
-const program_links = ['https://www.khanacademy.org/math/cc-1st-grade-math',
+const program_links = ['https://www.khanacademy.org/math/cc-kindergarten-math',
+                       'https://www.khanacademy.org/math/cc-1st-grade-math',
                        'https://www.khanacademy.org/math/cc-2nd-grade-math',
                        'https://www.khanacademy.org/math/cc-third-grade-math',
                        'https://www.khanacademy.org/math/cc-fourth-grade-math',
@@ -34,6 +35,11 @@ function main() {
     allowExpectationChange();
   })
 }
+const gradeK = {'Count and Cardinality' : ['Know number names and the count sequence', 'Count to tell the number of objects', 'Compare numbers'],
+                'Operation and Algebraic Thinking' : ['Understanding addition as putting together and adding to', 'Undertand subtraction as taking apart and taking from'],
+                'Number and Operation in Base Ten' : ['Work with numbers 11-19 to gain foundations for place values'],
+                'Measurement and Data' : ['Describe and compare measurable attributes', 'Classify objects and count the number of objects in ech category'],
+                'Geometry' : ['Identify and describe chapes', 'Analyze, compare, create, and compose shapes']}
 
 const grade1 = {'Place Value' : ['Numbers 0 to 120', 'Ones and tens', 'Comparing 2-digit numbers'],
                 'Addition and Subtraction' : ['Relate addition and subtraction', 'Adding within 20', 'Subtraction within 20', 'Equal sign', 'Missing number within 20', 'Word problems within 20', "Word problems with 'more' and 'fewer'", "Adding 1's and 10's", 'Intro to addition with 2-digit numbers'],
@@ -135,7 +141,7 @@ const grade12 = {'Right Triangles & Trigonometry' : ['Ratios in right triangles'
                  'Non-right Triangles and Trigonometry' : ['Law of sines', 'Law of cosines', 'Solving general triangles'],
                  'Trigonometric Equations and Identities' : ['Inverse trigonometric functions', 'Sinusoidal equations', 'Sinusoidal models', 'Trigonometric identities', 'Angle addition identities', 'Using trigonometric identities', 'Challenging trigonometric problems']}
 
-const lesson_info = [grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11, grade12]
+const lesson_info = [gradeK, grade1, grade2, grade3, grade4, grade5, grade6, grade7, grade8, grade9, grade10, grade11, grade12]
 let lesson_list = document.getElementById('lessonList');
 
 let grade_element = document.getElementById('student-grade')
@@ -493,8 +499,8 @@ function removeLessons() {
 
 function populateLessons() {
   removeLessons();
-  document.getElementById('programLink').setAttribute('href', program_links[student_grade - 1])
-  let gradeLessons = lesson_info[student_grade - 1]
+  document.getElementById('programLink').setAttribute('href', program_links[student_grade])
+  let gradeLessons = lesson_info[student_grade]
 
   // Add the lessons
   let sections = Object.keys(gradeLessons)
@@ -522,9 +528,9 @@ function populateLessons() {
 }
 
 function initializeEmptyLessonsMap() {
-  current_lesson_data = {'grade' : student_grade, 1 : {}, 2 : {}, 3 : {}, 4 : {}, 5 : {}, 6 : {}, 7 : {}, 8 : {}, 9 : {}, 10 : {}, 11 : {}, 12 : {}};
-  for (let g = 1; g < 13; g++) {
-    const gradeLessons = lesson_info[g - 1]
+  current_lesson_data = {'grade' : student_grade, 0 : {}, 1 : {}, 2 : {}, 3 : {}, 4 : {}, 5 : {}, 6 : {}, 7 : {}, 8 : {}, 9 : {}, 10 : {}, 11 : {}, 12 : {}};
+  for (let g = 0; g < 13; g++) {
+    const gradeLessons = lesson_info[g]
     const sections = Object.keys(gradeLessons);
     let lessons = undefined;
     let tmp = {};
@@ -633,3 +639,12 @@ document.getElementById("student-general-info").addEventListener("dblclick", () 
     }
   });
 });
+
+function openHelp() {
+  document.getElementById("helpModal").style.display = "flex";
+}
+
+function closeHelp(e) {
+  if (e.target !== e.currentTarget) return;
+  document.getElementById("helpModal").style.display = "none";
+}
