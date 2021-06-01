@@ -155,7 +155,7 @@ function updateStudentExpectation(event) {
 
     studentExpectationElem.style.borderColor = null;
 
-    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Math-Program').doc('profile');
+    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Phonics-Program').doc('profile');
     studentMathProgramProfileRef.get()
     .then((doc) => {
       if(doc.exists) {
