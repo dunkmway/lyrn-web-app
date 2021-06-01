@@ -4,6 +4,7 @@ let student_phonics_program_profile_data = {};
 let student_notes_data = {};
 let student_profile_data = {};
 let storage = firebase.storage();
+let lesson_data = undefined;
 
 // Flags
 let note_flag = false;
@@ -13,7 +14,6 @@ let lesson_flag_counter = 0;
 let session_date = new Date()
 let css_colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
 
-getLessons()
 main();
 function main() {
   retrieveInitialData()
@@ -22,35 +22,9 @@ function main() {
     setStudentSTProfile();
     getNotes('log');
     allowExpectationChange();
+    getLessonNames();
   })
 }
-
-const lesson_data = {'Consonants (Say, Sound, Write)' : ['b, f, m, k, r, t', 'p, j, h, s, n, d', 'c, l, g, w, y, v, z, q, x'], // These lessons are missing in Fb storage
-                    'Short Vowels' : ['a', 'i', 'u', 'e', 'o'],
-                    'Initial Consonant Blends' : ['bl, cl, fl, gl', 'sk, sl, pl', 'cr, dr, gr', 'br, fr, pr, tr', 'sm, sn, sp', 'st, sw, tw'],
-                    'Final Consonat Blends' : ['-mp, -sk, -st', '-ft, -lt, -nt', '-lf, -lp, -nd, -nk'],
-                    'Two and Three Letter Words' : ['Long vowel at end'],
-                    'Silent -e Words' : ['Silent e', 'Silent e with blends'],
-                    'Diagraphs / Trigraphs' : ['sh', 'th, wh', 'ch/tch', 'ng'],
-                    'ee-ea' : ['ee-ea'],
-                    'ai-ay' : ['ai-ay'],
-                    'oa-ow' : ['oa-ow'],
-                    'Compound Words' : ['Compound words'],
-                    'Common Endings' : ['-ful, -ing, -est, -ed, -ness'],
-                    'Rules for Syllable Division (Between 2-Consonants)' : ['VC/CV rule', 'VC/V rule'],
-                    'Open and Closed Syllables' : ['Open/closed syllables'],
-                    'Syllables ending in -y and -le' : ['Syllables ending in -y and -le'],
-                    'Vowel and Digraph Syllables' : ['Vowel/digraph syllables'],
-                    'Three-Syllable Words' : ['3-syllable words'],
-                    'Three sounds of -ed' : ['-ed = (ed)', '-ed = (d/t)'],
-                    'Word Families' : ['-all/-alk', '-old, -olt, -oll', '-ild, -ind', 'qu'],
-                    'Three-Letter Blends' : ['thr, shr, scr', 'str, spr, spl'],
-                    '-ey Words' : ['-ey words'],
-                    'Vowel Plus r' : ['ar words', 'or', 'er, ir, ur', 'wor, war'],
-                    'Second Sound of ea' : ['igh', 'oo', 'ea', 'ie'],
-                    'Dipthongs' : ['oi/oy', 'ou/ow', 'au/aw', 'ew/ui/ue/ou'],
-                    'Soft c and g and Silent Consonants' : ['Soft c', 'Soft g', '-dge', '-mb', 'kn', 'wr', 'Silent t', 'Silent h', 'ear = (air)', 'ph', 'ei/eigh'],
-                    'Suffixes and Endings' : ['-ness, -less', '-ous, -or', '-ist, -ity', '-ture, -ment', '-able, -ible', '-sion, -tion', '-ance, -ence', '-tive, -sive', '-ify, -ize', 'endings']}
 
 let lesson_list = document.getElementById('lessonList');
 
@@ -417,6 +391,13 @@ function populateLessons() {
 
   // Add the lessons
   let sections = Object.keys(lesson_data)
+
+  // Remove 'order' from sections
+  const index = sections.indexOf('order');
+  if (index > -1) {
+    sections.splice(index, 1);
+  }
+
   for (let i = 0; i < sections.length; i++) {
     // Add the section
     const element1 = createElement('div', ['sectionGridBox'], [], [], sections[i])
@@ -444,6 +425,13 @@ function populateLessons() {
 function initializeEmptyLessonsMap() {
   current_lesson_data = {}
   const sections = Object.keys(lesson_data);
+
+  // Remove 'order' from sections
+  const index = sections.indexOf('order');
+  if (index > -1) {
+    sections.splice(index, 1);
+  }
+
   let lessons = undefined;
   for (let i = 0; i < sections.length; i++) {
     lessons = Object.values(lesson_data[sections[i]]);
@@ -575,4 +563,14 @@ function allowExpectationChange() {
       // .catch((error) => handleFirebaseErrors(error, window.location.href));
     }
   });
+}
+
+function getLessonNames() {
+  let ref = firebase.firestore().collection('Dynamic-Content').doc('phonics-program-lessons')
+  ref.get()
+  .then((doc) => {
+    lesson_data = doc.data()['lessons']
+    getLessons()
+  })
+  .catch((error) => handleFirebaseErrors(error, window.location.href));
 }
