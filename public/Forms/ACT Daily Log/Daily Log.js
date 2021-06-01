@@ -1767,6 +1767,8 @@ function forEachDocument() {
   .onSnapshot((querySnapshot) => {
     querySnapshot.forEach((doc) => {
       setInfo(doc.id)
+      console.log(doc.data()); // For data inside doc
+      console.log(doc.id); // For doc name
     })
   })
 }
