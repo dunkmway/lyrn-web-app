@@ -491,6 +491,9 @@ function updateHomeworkTest(testBox, test, section) {
   // Get the status from the testAnswers, if it exists
   let status = testAnswers[test]?.[section]?.["Status"];
 
+  // Get the total number of questions in the passage
+  let numberOfQuestions = testData[test][section.toLowerCase() + 'Answers'].length;
+
   // If it does exist, change the background color and inner html
   if (status != undefined) {
     testBox.classList.add(coloring[testAnswers[test][section]["Status"]]);
@@ -500,9 +503,13 @@ function updateHomeworkTest(testBox, test, section) {
       testBox.classList.add("homeworkBox");
     }
     else {
-      //testBox.innerHTML = convertFromDateInt(testAnswers[test]?.[section]?.['Date'])['shortDate'] ?? ""; // Show the date
+      if (testAnswers[test]?.[section]?.['Score'] != undefined) {
+        testBox.innerHTML = testAnswers[test]?.[section]?.['Score'].toString() + ' / ' + numberOfQuestions.toString()
+        testBox.classList.add("white");
+        testBox.style.fontSize = '1.5em';
+      }
       // Adding 8 hours to show the number of days since it was assigned / not finished
-      if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
+      else if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
         testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
       }
       else {
@@ -916,8 +923,13 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
         setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
         setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
         setObjectValue([info[0], info[1], 'Score'], score, testAnswers);
-        setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
         setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
+        if (newStatus == 'in-time' || newStatus == 'in-center') {
+          setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
+        }
+        else {
+          delete testAnswers[info[0]][info[1]]['ScaledScore']
+        }
       }
     }
     else {
@@ -1748,3 +1760,45 @@ for (let i = 0; i < 5 * othTests.length; i++) {
   }
 }
 
+/*testInformation = {};
+
+function forEachDocument() {
+  firebase.firestore().collection('Students')
+  .onSnapshot((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      setInfo(doc.id)
+    })
+  })
+}
+
+function resetTests(studentUID) {
+  let ref = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
+  
+  const keys = Object.keys(testInformation)
+  for (let i = 0; i < keys.length; i++) {
+    let sections = Object.keys(testInformation[keys[i]])
+    for (let j = 0; j < sections.length; j++) {
+      let status = testInformation[keys[i]][sections[j]]['Status']
+      if (status == 'not in time' || status == 'partial' || status == 'poor conditions') {
+        delete testInformation[keys[i]][sections[j]]['ScaledScore']
+      }
+    }
+  }
+
+  ref.set(testInformation)
+
+}
+
+function setInfo(studentUID) {
+  let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
+  return hwDocRef.get()
+  .then((doc) => {
+    if (doc.exists) {
+      testInformation = doc.data();
+      resetTests(studentUID)
+    }
+  })
+  .catch(-1);
+}
+
+forEachDocument()*/

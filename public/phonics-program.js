@@ -511,24 +511,44 @@ function getLessons() {
 }
 
 function submitLessons() {
-  if (note_flag == true) {
-    if (lesson_flag_counter > 0) {
-      const confirmation = window.confirm("Are you sure you are ready to submit this session?");
-      if (confirmation == true) {
-        const student = queryStrings()['student'];
-        lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (note_flag == true || role == 'admin' || role == 'dev') {
+            if (lesson_flag_counter > 0 || role == 'admin' || role == 'dev') {
+              let confirmation = undefined
+              if (role == 'admin' || role == 'dev') {
+                confirmation = window.confirm("Are you sure you are ready submit your changes");
+              }
+              else {
+                confirmation = window.confirm("Are you sure you are ready to submit this session?");
+              }
+              if (confirmation == true) {
+                let student = queryStrings()['student'];
+                lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
 
-        lessonsRef.set(current_lesson_data).then(() => goToDashboard())
-        .catch((error) => reject('Fb error:' + error))
-      }
+                lessonsRef.set(current_lesson_data).then(() => goToDashboard())
+                .catch((error) => reject('Fb error:' + error))
+              }
+            }
+            else {
+              document.getElementById('errorMessage').innerHTML = 'Please mark a lesson'
+            }
+          }
+          else {
+            document.getElementById('errorMessage').innerHTML = 'Please enter a comment for what occurred during the session'
+          }
+      })
+      .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      });
     }
     else {
-      document.getElementById('errorMessage').innerHTML = 'Please mark a lesson'
+      console.log("bad user")
     }
-  }
-  else {
-    document.getElementById('errorMessage').innerHTML = 'Please enter a comment for what occurred during the session'
-  }
+  })
 }
 
 function openLesson(lesson) {
