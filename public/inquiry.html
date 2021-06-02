@@ -551,15 +551,15 @@
             <div class="input-block">
               <label for="studentSchool" class="label">School:</label>
               <select id="studentSchool" class="input">
-                <option disabled value="">Select a Wasatch Location First</option>
+                <option disabled value="">Select a Wasatch Location first</option>
               <select>
             </div>
             <!-- Student Grade -->
             <div class="input-block">
-              <label for="studentGrade" class="label">Grade:</label>
+              <label for="studentGrade" class="label" data-save='false'>Grade:</label>
               <select id="studentGrade" class="input">
                 <option value="">Select a grade</option>
-                <option value="K">K</option>
+                <option value="0">K</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -572,12 +572,18 @@
                 <option value="10">10</option>
                 <option value="11">11</option>
                 <option value="12">12</option>
-                <option value="C">C</option>
+                <option value="-1">C</option>
               </select>
             </div>
           </div>
 
           <div class="input-row">
+            <!-- Student Graduation Year -->
+            <div class="input-block">
+              <label for="studentGraduation" class="label">Estimated Graduation Year:</label>
+              <input type="text" placeholder = "2020" id="studentGraduation" class="input" min="0" max="9999">
+            </div>
+
             <!-- Student Extracurriculars -->
             <div class="input-block">
               <label for="studentExtracurriculars" class="label">Extracurriculars</label>

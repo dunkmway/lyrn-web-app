@@ -271,6 +271,10 @@ select {
   display: block !important;
 }
 
+.input:disabled {
+  visibility: hidden;
+}
+
 .loader {
   display: none;
   border: 20px solid white;

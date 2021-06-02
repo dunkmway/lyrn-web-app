@@ -346,7 +346,9 @@ function objectifyRegistration() {
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
-    allInputValues[id] = allInputs[i].value;
+    if (allInputs[i].dataset.save != 'false') {
+      allInputValues[id] = allInputs[i].value;
+    }
   }
 
   for (let i = 0; i < parentInputs.length; i++) {
@@ -355,7 +357,9 @@ function objectifyRegistration() {
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
-    parentInputValues[id] = parentInputs[i].value;
+    if (parentInputs[i].dataset.save != 'false') {
+      parentInputValues[id] = parentInputs[i].value;
+    }
   }
 
   for (let i = 0; i < studentInputs.length; i++) {
@@ -364,7 +368,9 @@ function objectifyRegistration() {
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
-    studentInputValues[id] = studentInputs[i].value;
+    if (studentInputs[i].dataset.save != 'false') {
+      studentInputValues[id] = studentInputs[i].value;
+    } 
   }
   //add in location and type to the student
   studentInputValues["location"] = allInputValues["location"];
@@ -392,7 +398,7 @@ function objectifyRegistration() {
           id = id.split('_')[0];
         }
         //check for the act test
-        if (!id.includes("actTest")) {
+        if (!id.includes("actTest") && typeInputs[i].dataset.save != 'false') {
           typeInputValues[id] = typeInputs[i].value;
         }
       }
@@ -419,7 +425,9 @@ function objectifyRegistration() {
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
-    adminInputValues[id] = adminInputs[i].value;
+    if (adminInputs[i].dataset.save != false) {
+      adminInputValues[id] = adminInputs[i].value;
+    }
   }
 
   return {
@@ -1214,6 +1222,54 @@ goalACTScore.addEventListener('keyup',formatToNumber);
 const gpa = document.getElementById('studentGpa');
 gpa.addEventListener('keydown',enforceDecimalFormat);
 gpa.addEventListener('keyup',formatToNumber);
+
+const graduation = document.getElementById('studentGraduation');
+graduation.addEventListener('keydown', enforceNumericFormat);
+graduation.addEventListener('keyup', formatToNumber);
+
+//grade should change graduation year
+
+const grade = document.getElementById('studentGrade');
+grade.addEventListener('change', updateGraduationYear);
+graduation.addEventListener('change', updateGrade);
+
+function updateGraduationYear() {
+  console.log("Updating gradution year");
+  if (grade.value > -1) {
+    graduation.disabled = false;
+    let gradeVal = parseInt(grade.value);
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let yearsUntilGraduation = currentMonth < 7 ? 12 - gradeVal : 13 - gradeVal;
+    let graduationYear = currentYear + yearsUntilGraduation;
+
+    graduation.value = graduationYear;
+  }
+  //college
+  else {
+    graduation.value = "-1"
+    graduation.disabled = true;
+  }
+}
+
+function updateGrade() {
+  console.log("Updating grade");
+  if (graduation.value) {
+    let graduationYear = parseInt(graduation.value);
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let yearsUntilGraduation = graduationYear - currentYear;
+    if (yearsUntilGraduation < 0) {
+      grade.value = -1;
+      return;
+    }
+    let gradeVal = currentMonth < 7 ? 12 - yearsUntilGraduation : 13 - yearsUntilGraduation
+
+    grade.value = gradeVal
+  }
+}
 
 function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
   let question = document.createElement(elementType);
