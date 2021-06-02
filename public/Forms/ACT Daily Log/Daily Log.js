@@ -1,8 +1,8 @@
 /* Global Variables */
 
 // The actual tests with their answers and scaled scores
-let testData;
-fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup() )//.then(() => console.log(testData));
+let testData = {};
+//fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup())// splitTests();} )//.then(() => console.log(testData));
 
 // Student test information
 let oldTestAnswers = {};
@@ -41,6 +41,9 @@ let storage = firebase.storage();
 let testsAreSetup = false;
 
 function initialSetup() {
+  // Grab the test data from Fb
+  grabTestData();
+
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
   const studentUID = queryStrings()["student"];
 
@@ -1804,3 +1807,30 @@ function setInfo(studentUID) {
 }
 
 forEachDocument()*/
+
+/*function splitTests() {
+  let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
+
+  // For each test
+  const tests = Object.keys(testData)
+  for (let i = 0; i < tests.length; i++) {
+    //ref.doc(tests[i]).set(testData[tests[i]])
+
+    console.log(tests[i]) // test name
+    console.log(testData[tests[i]]) // test data
+  }
+}*/
+
+function grabTestData() {
+  // Fb reference
+  let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
+
+  // Grab all tests from the Dynamic-Content collection and piece them together
+  ref.get()
+  .then((snapshot) => {
+    snapshot.forEach((doc) => {
+      testData[doc.id] = doc.data()
+    })
+  })
+  .then(() => scaledScoresTestsSetup())
+}
