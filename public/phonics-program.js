@@ -361,13 +361,7 @@ function populateLessons() {
   removeLessons();
 
   // Add the lessons
-  let sections = Object.keys(lesson_data)
-
-  // Remove 'order' from sections
-  const index = sections.indexOf('order');
-  if (index > -1) {
-    sections.splice(index, 1);
-  }
+  let sections = lesson_data['order']
 
   for (let i = 0; i < sections.length; i++) {
     // Add the section
