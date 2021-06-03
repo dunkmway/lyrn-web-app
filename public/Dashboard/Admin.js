@@ -684,3 +684,31 @@ function phonicsProgramSelected(studentUID) {
   let queryStr = "?student=" + studentUID;
   window.location.href = "../phonics-program.html" + queryStr;
 }
+
+function handleSchoolGrade() {
+  const schoolGradeMin = document.getElementById("schoolGradeMin");
+  const schoolGradeMax = document.getElementById("schoolGradeMax");
+  //undo the formatting for college stuff
+  schoolGradeMax.disabled = false;
+  schoolGradeMax.style.visibility = "visible";
+  schoolGradeMin.parentNode.parentNode.classList.remove("noRange");
+
+  let minGrade = parseInt(schoolGradeMin.value);
+  let maxGrade = parseInt(schoolGradeMax.value);
+
+  //check for college values
+  if (minGrade == -1 || maxGrade == -1) {
+    schoolGradeMin.value = -1;
+    schoolGradeMax.value = "";
+    schoolGradeMax.disabled = true;
+    schoolGradeMax.style.visibility = "hidden";
+    schoolGradeMin.parentNode.parentNode.classList.add("noRange");
+    return;
+  }
+
+  //make sure that min < max
+  if (minGrade > maxGrade) {
+    schoolGradeMin.value = maxGrade;
+    schoolGradeMax.value = minGrade;
+  }
+}

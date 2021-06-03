@@ -115,12 +115,15 @@ body {
 .rangeInput {
   display: flex;
   flex-direction: row;
-
 }
 
 .rangeInput > :first-child::after {
   margin: 0 5px 0 5px;
   content: "to";
+}
+
+.rangeInput.noRange > :first-child::after {
+  content: none;
 }
 
 .range {
@@ -143,7 +146,7 @@ body {
   font-weight: 500;
   margin: 0;
   padding-left: 10px;
-  padding-right: 50px;
+  padding-right: 20px;
   border: none;
   background: url("../Images/select-dropdown.png") no-repeat 95%;
   color: #110D65;

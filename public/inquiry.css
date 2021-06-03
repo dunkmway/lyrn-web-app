@@ -231,7 +231,6 @@ border-left: 17px solid #23468c;
 
 .input {
   width: 90%;
-  /* max-width: 300px; */
   height: 2em;
   font-size: 16px;
   font-weight: 200;
@@ -269,6 +268,20 @@ select {
 
 .ui.dropdown {
   display: block !important;
+  max-width: 400px !important;
+  font-size: 16px !important;
+  font-weight: 200 !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  border: none !important;
+  background-color: rgb(200, 200, 200, .25) !important;
+  border-radius: 10px !important;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1) !important;
+  margin-bottom: 5px !important;
+}
+
+.ui.dropdown>.dropdown.icon:before {
+  content: url("Images/select-dropdown.png");
 }
 
 .input:disabled {

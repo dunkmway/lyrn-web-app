@@ -1263,11 +1263,12 @@ function updateGrade() {
     let yearsUntilGraduation = graduationYear - currentYear;
     if (yearsUntilGraduation < 0) {
       grade.value = -1;
+      graduation.disabled = true;
       return;
     }
-    let gradeVal = currentMonth < 7 ? 12 - yearsUntilGraduation : 13 - yearsUntilGraduation
+    let gradeVal = currentMonth < 7 ? 12 - yearsUntilGraduation : 13 - yearsUntilGraduation;
 
-    grade.value = gradeVal
+    grade.value = gradeVal;
   }
 }
 

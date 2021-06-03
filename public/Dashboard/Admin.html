@@ -162,9 +162,9 @@
                   <label for="schoolGradeMin" class="label">School Grades:</label>
                   <div class="rangeInput">
                     <div>
-                      <select id="schoolGradeMin" placeholder="" class="select range" required>
+                      <select id="schoolGradeMin" placeholder="" class="select range" onchange="handleSchoolGrade()" required>
                         <option selected disabled value=""></option>
-                        <option value="k">K</option>
+                        <option value="0">K</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -177,13 +177,13 @@
                         <option value="10">10</option>
                         <option value="11">11</option>
                         <option value="12">12</option>
-                        <option value="c">C</option>
+                        <option value="-1">C</option>
                       </select>
                     </div>
                     <div>
-                      <select id="schoolGradeMax" placeholder="" class="select range" required>
+                      <select id="schoolGradeMax" placeholder="" class="select range" onchange="handleSchoolGrade()" required>
                         <option selected disabled value=""></option>
-                        <option value="k">K</option>
+                        <option value="0">K</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -196,7 +196,7 @@
                         <option value="10">10</option>
                         <option value="11">11</option>
                         <option value="12">12</option>
-                        <option value="c">C</option>
+                        <option value="-1">C</option>
                       </select>
                     </div>
                   </div>
