@@ -39,6 +39,7 @@ function convertFromDateInt(date) {
         'milliseconds' : current_date.getMilliseconds(),
         'integerValue' : date,
         'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
+        'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
         'longDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString().padStart(2,'0') + ":" + current_date.getMinutes().toString().padStart(2,'0'),
         'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0')
     };

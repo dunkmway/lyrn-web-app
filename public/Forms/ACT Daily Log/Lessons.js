@@ -22,9 +22,9 @@ function initializeLessonList() {
       for (let i = 0; i < sections.length; i++) {
         let location = document.getElementById(sections[i] + 'Lessons')
         for (let j = 0; j < act_lesson_list[sections[i]]['lessons'].length; j++) {
-          let ele1 = createElement('div', ['gridBox2'], [], [], act_lesson_list[sections[i]]['lessons'][j])
-          let ele2 = createElement('div', ['gridBox2'], [], [], act_lesson_list[sections[i]]['ranks'][j])
-          let ele3 = createElement('div', ['gridBox2', 'button2'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('-', '_').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
+          let ele1 = createElement('div', ['gridBox-3'], [], [], act_lesson_list[sections[i]]['lessons'][j])
+          let ele2 = createElement('div', ['gridBox-3'], [], [], act_lesson_list[sections[i]]['ranks'][j])
+          let ele3 = createElement('div', ['gridBox-3', 'cursor'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('-', '_').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
           location.append(ele1)
           location.append(ele2)
           location.append(ele3)
@@ -165,7 +165,7 @@ function updateLessonGraphics() {
     for (const lesson in lessonData[section]) {
       const id = section + "-" + lesson;
       const status = lessonData[section][lesson].status;
-      const dateTime = new Date(lessonData[section][lesson].date);
+      const dateInt = lessonData[section][lesson].date;
 
       const lessonElem = document.getElementById(id);
 
@@ -183,11 +183,8 @@ function updateLessonGraphics() {
           lessonElem.style.backgroundColor = null;
       }
 
-      if (dateTime) {
-        const day = dateTime.getDate()
-        const month = dateTime.getMonth()+1;
-        const year = dateTime.getFullYear()
-        const dateStr = month.toString() + "/" + day.toString() + "/" + year.toString();
+      if (dateInt != 0) {
+        const dateStr = convertFromDateInt(dateInt)['shortestDate']
         lessonElem.innerHTML = dateStr;
       }
       else {
