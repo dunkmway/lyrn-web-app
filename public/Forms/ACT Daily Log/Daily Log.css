@@ -84,6 +84,8 @@ div p {
     grid-auto-rows: auto;
     text-align: center;
     overflow-y: auto;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
 }
 
 .cursor {
@@ -111,13 +113,11 @@ div p {
 }
 
 .student-notes-input {
-    position:absolute;
-    bottom: 0px;
     resize: none;
     display: block;
     width: 100%;
     box-sizing: border-box;
-    height: 50px;
+    height: 10%;
     font-size: 16px;
     font-weight: 300;
     border-radius: 13px; 
@@ -129,17 +129,25 @@ div p {
 }
 
 .chat-area-visible {
-    height: calc(100% - 10px);
+    background-color: yellowgreen;
+    height: calc(80% - 10px);
     display: block;
 }
 
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
 
 #topNavigationBanner {
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
-    height: 10vh;
+    height: 9vh;
     width: 99vw;
     background-color: rgb(210, 210, 210);
     z-index: 1;
@@ -148,15 +156,15 @@ div p {
 
 #mainBody {
     position: relative;
-    height: 90vh;
+    height: 91vh;
     width: 100vw;
     background-color: #8986b2;
     z-index: 1;
 }
 
 #logo {
-    height: calc(0.75 * 10vh);
-    width: calc(0.75 * 2.51 * 10vh);
+    height: calc(0.75 * 9vh);
+    width: calc(0.75 * 2.51 * 9vh);
 }
 
 #nameSection {

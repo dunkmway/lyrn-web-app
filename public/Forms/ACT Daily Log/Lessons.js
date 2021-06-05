@@ -105,8 +105,6 @@ function updateLessonData() {
   }
   setObjectValue([section, lesson], value, lessonData);
   updateLessonGraphics();
-
-  // console.log(lessonData);
 }
 
 function resetLessonData() {
@@ -125,8 +123,6 @@ function resetLessonData() {
     delete lessonData[section][lesson];
   }
   updateLessonGraphics();
-
-  // console.log(lessonData);
 }
 
 
@@ -138,10 +134,10 @@ function updateLessonGraphics() {
   let readingParent = document.getElementById("readingLessons");
   let scienceParent = document.getElementById("scienceLessons");
 
-  let englishLessons = englishParent.querySelectorAll(".button2");
-  let mathLessons = mathParent.querySelectorAll(".button2");
-  let readingLessons = readingParent.querySelectorAll(".button2");
-  let scienceLessons = scienceParent.querySelectorAll(".button2");
+  let englishLessons = englishParent.querySelectorAll(".cursor");
+  let mathLessons = mathParent.querySelectorAll(".cursor");
+  let readingLessons = readingParent.querySelectorAll(".cursor");
+  let scienceLessons = scienceParent.querySelectorAll(".cursor");
 
   for (let i = 0; i < englishLessons.length; i++) {
     englishLessons[i].style.backgroundColor = null;
@@ -235,10 +231,10 @@ function setLessonEventListeners() {
   let readingParent = document.getElementById("readingLessons");
   let scienceParent = document.getElementById("scienceLessons");
 
-  let englishLessons = englishParent.querySelectorAll(".button2");
-  let mathLessons = mathParent.querySelectorAll(".button2");
-  let readingLessons = readingParent.querySelectorAll(".button2");
-  let scienceLessons = scienceParent.querySelectorAll(".button2");
+  let englishLessons = englishParent.querySelectorAll(".cursor");
+  let mathLessons = mathParent.querySelectorAll(".cursor");
+  let readingLessons = readingParent.querySelectorAll(".cursor");
+  let scienceLessons = scienceParent.querySelectorAll(".cursor");
 
   for (let i = 0; i < englishLessons.length; i++) {
     englishLessons[i].addEventListener("click", updateLessonData);
