@@ -1,6 +1,9 @@
-let studentProfileData = {};
-let studentNotesData = {};
-let studentSTProfileData = {};
+let student_profile_data = {};
+let student_notes_data = {};
+let student_st_profile_data = {};
+
+const CURRENT_STUDENT_UID = queryStrings()['student'];
+const CURRENT_STUDENT_TYPE = "subjectTutoring";
 
 main();
 function main() {
@@ -8,7 +11,7 @@ function main() {
   .then(() => {
     setStudentProfile();
     setStudentSTProfile();
-    getNotes('log');
+    getMessages('general');
     allowExpectationChange();
   })
 }
@@ -29,7 +32,7 @@ function getStudentProfile(studentUID) {
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentProfileData = doc.data();
+      student_profile_data = doc.data();
     }
   })
 }
@@ -39,7 +42,7 @@ function getStudentNotes(studentUID) {
   return studentNotesRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentNotesData = doc.data();
+      student_notes_data = doc.data();
     }
   })
 }
@@ -49,7 +52,7 @@ function getStudentSTProfile(studentUID) {
   return studentSTProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentSTProfileData = doc.data();
+      student_st_profile_data = doc.data();
     }
   })
 }
@@ -67,11 +70,11 @@ function queryStrings() {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = studentProfileData['studentFirstName'] + " " + studentProfileData['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
 }
 
 function setStudentSTProfile() {
-  document.getElementById('student-expectation').value = studentSTProfileData['expectation'] || "No expectation set."
+  document.getElementById('student-expectation').value = student_st_profile_data['expectation'] || "No expectation set."
 }
 
 function allowExpectationChange() {
@@ -127,17 +130,104 @@ function updateStudentExpectation(event) {
 }
 
 //all of the notes stuff
-function getNotes(type) {
-  const notes = studentNotesData[type];
-  let noteTimes = [];
-  for (const time in notes) {
-    noteTimes.push(parseInt(time));
-  }
+// function getNotes(type) {
+//   const notes = studentNotesData[type];
+//   let noteTimes = [];
+//   for (const time in notes) {
+//     noteTimes.push(parseInt(time));
+//   }
 
-  noteTimes.sort((a,b) => {return a-b});
-  for (let i = 0; i < noteTimes.length; i++) {
-    setNotes(type, notes[noteTimes[i]]["note"], noteTimes[i], notes[noteTimes[i]]["user"], notes[noteTimes[i]]["isSessionNote"]);
-  }
+//   noteTimes.sort((a,b) => {return a-b});
+//   for (let i = 0; i < noteTimes.length; i++) {
+//     setNotes(type, notes[noteTimes[i]]["note"], noteTimes[i], notes[noteTimes[i]]["user"], notes[noteTimes[i]]["isSessionNote"]);
+//   }
+// }
+
+function getMessages(type) {
+  const getStudentMessages = firebase.functions().httpsCallable('getStudentMessages');
+  getStudentMessages({
+    studentUID: CURRENT_STUDENT_UID,
+    studentType: CURRENT_STUDENT_TYPE,
+    conversationType: type,
+  })
+  .then((res) => {
+    const messages = res.data;
+    messages.forEach((message) => setMessage(message, type));
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  })
+}
+
+function setMessage(mes, type) {
+  const currentUser = firebase.auth().currentUser;
+  currentUser.getIdTokenResult()
+  .then((idTokenResult) => {
+    const currentUserRole = idTokenResult.claims.role;
+
+    //all the messages
+    let messageBlock = document.getElementById('student-' + type + '-notes');
+    //the div that contains the time and message
+    let messageDiv = document.createElement('div');
+    //the message itself
+    let message = document.createElement('div');
+    //time for the message
+    let timeElem = document.createElement('p');
+
+    //display the time above the mesasge
+    timeElem.innerHTML = convertFromDateInt(mes.timestamp)['shortDate'];
+    timeElem.classList.add('time');
+    messageDiv.appendChild(timeElem);
+
+    //set up the message
+    message.innerHTML = mes.message;
+    //author's name element
+    let authorElem = document.createElement('p');
+    authorElem.classList.add("author");
+    message.appendChild(authorElem);
+    authorElem.innerHTML = mes.author;
+
+    //give the message an id
+    messageDiv.setAttribute('data-id', mes.id);
+    message.classList.add("student-note");
+
+    //current user's message should be on the right
+    if (mes.currentUserIsAuthor) {
+      messageDiv.classList.add("right");
+    }
+    else {
+      messageDiv.classList.add("left");
+    }
+
+    //see if the message is important
+    if (mes.isImportant) {
+      message.classList.add("important");
+    }
+
+    //only give the option to delete if the currentUser is the author, admin, or dev.
+    if ((mes.currentUserIsAuthor || currentUserRole == "admin" || currentUserRole == "dev")) {
+      let deleteMessage = document.createElement('div');
+      deleteMessage.classList.add("delete");
+      let theX = document.createElement('p');
+      theX.innerHTML = "X";
+      theX.classList.add('no-margins');
+      deleteMessage.appendChild(theX);
+      deleteMessage.addEventListener('click', (event) => deleteMessage(event));
+      message.appendChild(deleteMessage);
+    }
+    
+    messageDiv.appendChild(message);
+    messageBlock.appendChild(messageDiv);
+    document.getElementById('student-' + type + '-notes-input').value = null;
+    
+    messageDiv.scrollIntoView();
+    // scrollBottomMessages(type);
+  })
+  .catch((error) =>  {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  });
 }
 
 function setNotes(type, note, time, author, isSessionNote) {
@@ -176,7 +266,7 @@ function setNotes(type, note, time, author, isSessionNote) {
           .then((result) => {
             const authorName = result.data ?? "anonymous";
             authorElem.innerHTML = authorName;
-            scrollBottomNotes(type);
+            scrollBottomMessages(type);
           })
           .catch((error) => handleFirebaseErrors(error, window.location.href));
 
@@ -198,7 +288,7 @@ function setNotes(type, note, time, author, isSessionNote) {
             if (authorRole == "admin") {
               message.classList.add("important");
             }
-            scrollBottomNotes(type);
+            scrollBottomMessages(type);
           })
           .catch((error) => handleFirebaseErrors(error, window.location.href));
 
@@ -209,20 +299,21 @@ function setNotes(type, note, time, author, isSessionNote) {
 
           //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
           if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
-            let deleteMessage = document.createElement('div');
-            deleteMessage.classList.add("delete");
+            let deleteWrapper = document.createElement('div');
+            deleteWrapper.classList.add("delete");
             let theX = document.createElement('p');
             theX.innerHTML = "X";
             theX.classList.add('no-margins');
-            deleteMessage.appendChild(theX);
-            deleteMessage.addEventListener('click', (event) => deleteNote(type, event));
-            message.appendChild(deleteMessage);
+            deleteWrapper.appendChild(theX);
+            deleteWrapper.addEventListener('click', (event) => deleteMessage(event));
+            message.appendChild(deleteWrapper);
           }
           
           messageDiv.appendChild(message);
           messageBlock.appendChild(messageDiv);
           document.getElementById('student-' + type + '-notes-input').value = null;
-          scrollBottomNotes(type);
+          messageDiv.scrollIntoView();
+          scrollBottomMessages(type);
         }
       })
       .catch((error) =>  {
@@ -233,16 +324,13 @@ function setNotes(type, note, time, author, isSessionNote) {
   });
 }
 
-function deleteNote(type, event) {
+function deleteMessage(event) {
   let message = event.target.closest(".student-note").parentNode;
   let confirmation = confirm("Are you sure you want to delete this message?");
   if (confirmation) {
-    const currentStudent = queryStrings()['student'];
-    const time = message.dataset.time;
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
-    studentNotesDocRef.update({
-      [`${type}.${time}`] : firebase.firestore.FieldValue.delete()
-    })
+    const id = message.dataset.id;
+    const messageDocRef = firebase.firestore().collection("Student-Chats").doc(id);
+    messageDocRef.delete()
     .then(() => {
       message.remove();
     })
@@ -252,9 +340,28 @@ function deleteNote(type, event) {
   }
 }
 
-function scrollBottomNotes(type) {
-  let notes = document.getElementById("student-" + type + "-notes");
-  notes.scrollTop = notes.scrollHeight;
+function scrollBottomMessages(type) {
+  let messages = document.getElementById("student-" + type + "-notes");
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function sendMessage(student, studentType, conversationType, message, timestamp, author) {
+  const conversation = student + '-' + studentType + '-' + conversationType;
+  const saveStudentMessage = firebase.functions().httpsCallable('saveStudentMessage');
+  saveStudentMessage({
+    conversation: conversation,
+    timestamp: timestamp,
+    message: message,
+    author: author,
+  })
+  .then((result) => {
+    const mes = result.data;
+    setMessage(mes, conversationType);
+  })
+  .catch((error) => {
+    console.log(error);
+    handleFirebaseErrors(error, window.location.href);
+  });
 }
 
 function sendNotes(type, note, time, author, isSessionNote = false) {
@@ -308,14 +415,14 @@ function sendNotes(type, note, time, author, isSessionNote = false) {
   }
 }
 
-document.getElementById("student-log-notes-input").addEventListener('keydown', (event) =>  {
+document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
   if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-log-notes-input').value;
+    const message = document.getElementById('student-general-notes-input').value;
     const time = new Date().getTime();
-    sendNotes('log', note, time, currentUser);
+    sendMessage(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general', message, time, currentUser);
   }
 });
 
@@ -324,10 +431,9 @@ document.getElementById("student-general-info").addEventListener("dblclick", () 
     if (user) {
       user.getIdTokenResult()
       .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
+        const role = idTokenResult.claims.role;
         if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          const studentUID = queryStrings()['student']
-          let queryStr = "?student=" + studentUID;
+          let queryStr = "?student=" + CURRENT_STUDENT_UID;
           window.location.href = "inquiry.html" + queryStr;
         }
       })
