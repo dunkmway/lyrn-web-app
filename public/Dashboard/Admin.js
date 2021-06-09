@@ -390,13 +390,13 @@ function createSecretary() {
             displayName: allInputValues["secretaryFirstName"] + " " + allInputValues["secretaryLastName"]
           })
           .then(() => {
-            document.getElementById("spinnyBoiTutor").style.display = "none";
-            closeModal("tutor", true);
+            document.getElementById("spinnyBoiSecretary").style.display = "none";
+            closeModal("secretary", true);
           })
           .catch((error) => {
             handleFirebaseErrors(error, window.location.href);
             document.getElementById("secretaryErrMsg").textContent = error.message;
-            document.getElementById("spinnyBoiTutor").style.display = "none";
+            document.getElementById("spinnyBoiSecretary").style.display = "none";
           });
         })
         .catch((error) => {
@@ -699,7 +699,7 @@ function handleSchoolGrade() {
   //check for college values
   if (minGrade == -1 || maxGrade == -1) {
     schoolGradeMin.value = -1;
-    schoolGradeMax.value = "";
+    schoolGradeMax.value = null;
     schoolGradeMax.disabled = true;
     schoolGradeMax.style.visibility = "hidden";
     schoolGradeMin.parentNode.parentNode.classList.add("noRange");
@@ -712,3 +712,40 @@ function handleSchoolGrade() {
     schoolGradeMax.value = minGrade;
   }
 }
+
+function submitFeedback() {
+  let submitBtn = document.getElementById("feedback_submit_btn");
+  let errorMsg = document.getElementById("feedback_error_msg");
+
+  submitBtn.disabled = true;
+  errorMsg.textContent = "";
+
+  let feedbackInput = document.getElementById("feedback_input");
+
+  //check for a valid input
+  if (feedbackInput.value.trim() != "") {
+    let valid = confirm("Are you sure you're ready to submit this feedback?");
+    if (valid) {
+      const feedbackRef = firebase.firestore().collection("Feedback").doc();
+      feedbackRef.set({
+        user: firebase.auth().currentUser.uid,
+        feedback: feedbackInput.value,
+        timestamp: (new Date().getTime())
+      })
+      .then(() => {
+        feedbackInput.value = "";
+        submitBtn.disabled = false;
+        errorMsg.textContent = "We got it! Thanks for the feedback";
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, window.location.href);
+        submitBtn.disabled = false;
+        errorMsg.textContent = "You're feedback was too honest for the computer to process. Please try again later.";
+      })
+    }
+  }
+  else {
+    document.getElementById("feedback_error_msg").textContent = "...you didn't even write anything."
+    submitBtn.disabled = false;
+  }
+} 
