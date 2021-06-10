@@ -69,7 +69,7 @@ function main() {
     // console.log("studentProfile", studentProfile);
 
     hwChart = setHomeworkChart();
-    updateProfileData();
+    //updateProfileData();
     //getGeneralNotes();
     getNotes('general');
     getNotes('english');
@@ -1200,7 +1200,7 @@ function submitUpdatedInfo() {
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
-          updateProfileData()
+          //updateProfileData()
           closeModal(Event,'update-goals-section', true);
         })
         .catch((error) => {
@@ -1223,7 +1223,7 @@ function submitUpdatedInfo() {
 
           document.getElementById("spinnyBoiGoals").style.display = "none";
           document.getElementById("update-goals-submitBtn").disbaled = false;
-          updateProfileData()
+          //updateProfileData()
           closeModal(Event, 'update-goals-section', true);
         })
         .catch((error) => {
@@ -1870,17 +1870,17 @@ const formatToNumber = (event) => {
   }
 }
 
-document.getElementById("updated-english-initial").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-english-initial").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-math-initial").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-math-initial").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-reading-initial").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
-document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
-document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
+//document.getElementById("updated-english-initial").addEventListener('keydown',enforceNumericFormat);
+//document.getElementById("updated-english-initial").addEventListener('keyup',formatToNumber);
+//document.getElementById("updated-math-initial").addEventListener('keydown',enforceNumericFormat);
+//document.getElementById("updated-math-initial").addEventListener('keyup',formatToNumber);
+//document.getElementById("updated-reading-initial").addEventListener('keydown',enforceNumericFormat);
+//document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
+//document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
+//document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
 
 // general notes enter key will submit the note
-document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
+/*document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
   if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
@@ -2007,4 +2007,4 @@ document.getElementById("student-general-info").addEventListener("dblclick", () 
       })
     }
   });
-});
+});*/

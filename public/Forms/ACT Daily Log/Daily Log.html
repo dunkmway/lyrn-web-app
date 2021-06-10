@@ -8,9 +8,9 @@
     <link href="Daily Log.css" rel="stylesheet">
     <link href="../../Site Templates/site-wide.css" rel="stylesheet">
 
-    <!-- Charts.js
+    <!-- Charts.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
@@ -26,7 +26,7 @@
     <script src="Daily Log.js" defer></script>
     <!--<script src="Event Listeners.js" defer></script>-->
     <script src="Lessons.js" defer></script>
-    <!--<script src="../../student-info-test.js" defer></script>-->
+    <script src="../../student-info-test.js" defer></script>
 </head>
 
 
@@ -39,7 +39,9 @@
         <img id = 'logo' src='../../Images/Wasatch Logo.png'>
     </section>
 
-    <section id = 'mainBody'>
+
+
+    <section id = 'compositeSection' class = 'mainBody'>
 
         <div id = 'nameSection'>
             <p>Composite</p>
@@ -50,23 +52,75 @@
             <button onclick = "changeSection('science')">Science</button>
         </div>
 
+        <div id = 'generalChat' class = 'metaForm'>
 
-        <div id = "englishLessonsForm" class = "metaForm noselect" style = 'display: none;'>
-            <div class="heading-block">
-                <h2>English</h2>
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor">
+                    <h2>Lessons</h2>
+                </div>
+            </div>
+
+            <div id="generalChatArea" class="chatArea">
+
+                <div id="studentGeneralNotes" class="studentNotes">
+                </div>
+
+            </div>
+            <textarea id="studentGeneralNotesInput" class="studentNotesInput visibleBlock" placeholder="Any general notes?"></textarea>
+
+        </div>
+
+        <div id="scores-chart">
+            <div class="flex-column justify-center ">
+                <div class="flex-row">
+                    <button class="button" onclick="setSessionAxis()">Sessions</button>
+                    <button class="button" onclick="setHourAxis()">Hours</button>
+                </div>
+            </div>
+            <canvas id="hw-canvas" style = 'flex: 1;'></canvas>
+        </div>
+
+    </section>
+
+
+
+    <section id = 'englishSection' class = 'mainBody hidden'>
+
+        <div id = 'nameSection'>
+            <p>English</p>
+            <button onclick = "changeSection('composite')">Composite</button>
+            <button onclick = "changeSection('english')">English</button>
+            <button onclick = "changeSection('math')">Math</button>
+            <button onclick = "changeSection('reading')">Reading</button>
+            <button onclick = "changeSection('science')">Science</button>
+        </div>
+
+        <div id = "englishLessonsForm" class = "metaForm noselect hidden">
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor" onclick = "swap('english', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('english', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
             </div>
 
             <div class = "lessonHeaders">
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Lesson
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Rank
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Date
                 </div>
 
@@ -77,22 +131,65 @@
 
         </div>
 
-        <div id = "mathLessonsForm" class = "metaForm noselect" style = 'display: none;'>
-            <div class="heading-block">
-                <h2>Math</h2>
+        <div id = 'englishChat' class = 'metaForm'>
+
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('english', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor" onclick = "swap('english', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
             </div>
+
+            <div id="englishChatArea" class="chatArea">
+
+                <div id="studentEnglishNotes" class="studentNotes">
+                </div>
+
+            </div>
+            <textarea id="studentEnglishNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+        </div>
+
+    </section>
+
+
+
+    <section id = 'mathSection' class = 'mainBody hidden'>
+
+        <div id = 'nameSection'>
+            <p>Math</p>
+            <button onclick = "changeSection('composite')">Composite</button>
+            <button onclick = "changeSection('english')">English</button>
+            <button onclick = "changeSection('math')">Math</button>
+            <button onclick = "changeSection('reading')">Reading</button>
+            <button onclick = "changeSection('science')">Science</button>
+        </div>
+
+        <div id = "mathLessonsForm" class = "metaForm noselect hidden">
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor" onclick = "swap('math', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('math', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
+            </div>
+
 
             <div id = "mathHeaders" class = "lessonHeaders">
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Lesson
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Rank
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Date
                 </div>
 
@@ -103,22 +200,66 @@
 
         </div>
 
-        <div id = "readingLessonsForm" class = "metaForm noselect" style = 'display: none;'>
-            <div class="heading-block">
-                <h2>Reading</h2>
+        <div id = 'mathChat' class = 'metaForm'>
+
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('math', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor" onclick = "swap('math', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
             </div>
+
+
+            <div id="mathChatArea" class="chatArea">
+
+                <div id="studentMathNotes" class="studentNotes">
+                </div>
+
+            </div>
+            <textarea id="studentMathNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+        </div>
+
+    </section>
+
+
+
+    <section id = 'readingSection' class = 'mainBody hidden'>
+
+        <div id = 'nameSection'>
+            <p>Reading</p>
+            <button onclick = "changeSection('composite')">Composite</button>
+            <button onclick = "changeSection('english')">English</button>
+            <button onclick = "changeSection('math')">Math</button>
+            <button onclick = "changeSection('reading')">Reading</button>
+            <button onclick = "changeSection('science')">Science</button>
+        </div>
+
+        <div id = "readingLessonsForm" class = "metaForm noselect hidden">
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor" onclick = "swap('reading', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('reading', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
+            </div>
+
 
             <div class = "lessonHeaders">
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Lesson
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Rank
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Date
                 </div>
 
@@ -129,22 +270,66 @@
 
         </div>
 
-        <div id = "scienceLessonsForm" class = "metaForm noselect" style = "display: none;">
-            <div class="heading-block">
-                <h2>Science</h2>
+        <div id = 'readingChat' class = 'metaForm'>
+
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('reading', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor" onclick = "swap('reading', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
             </div>
+
+
+            <div id="readingChatArea" class="chatArea">
+
+                <div id="studentReadingNotes" class="studentNotes">
+                </div>
+            
+            </div>
+            <textarea id="studentReadingNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+        </div>
+
+    </section>
+
+
+
+    <section id = 'scienceSection' class = 'mainBody hidden'>
+
+        <div id = 'nameSection'>
+            <p>Science</p>
+            <button onclick = "changeSection('composite')">Composite</button>
+            <button onclick = "changeSection('english')">English</button>
+            <button onclick = "changeSection('math')">Math</button>
+            <button onclick = "changeSection('reading')">Reading</button>
+            <button onclick = "changeSection('science')">Science</button>
+        </div>
+
+        <div id = "scienceLessonsForm" class = "metaForm noselect hidden">
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor" onclick = "swap('science', 'chat')">
+                    <h2>Chat</h2>
+                </div>
+
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('science', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
+            </div>
+
 
             <div class = "lessonHeaders">
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Lesson
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Rank
                 </div>
 
-                <div class = "gridBox-3">
+                <div class = "gridBox3">
                     Date
                 </div>
 
@@ -155,58 +340,29 @@
 
         </div>
 
-        <div class = 'metaForm'>
+        <div id = 'scienceChat' class = 'metaForm'>
 
-            <div class = 'heading-block visible'></div>
-            <div id="general-chat-area" class="chat-area-visible">
+            <div class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swap('science', 'chat')">
+                    <h2>Chat</h2>
+                </div>
 
-                <div id="student-general-notes" class="student-notes">
+                <div class="headingBlock noselect cursor" onclick = "swap('science', 'lessons')">
+                    <h2>Lessons</h2>
+                </div>
+            </div>
+
+
+            <div id="scienceChatArea" class="chatArea">
+
+                <div id="studentScienceNotes" class="studentNotes">
                 </div>
 
             </div>
-            <textarea id="student-general-notes-input" class="student-notes-input visible" placeholder="Any general notes?"></textarea>
-
-
-            <div class = 'heading-block hidden'></div>
-            <div id="english-chat-area" class="chat-area-hidden">
-
-                <div id="student-english-notes" class="student-notes">
-                </div>
-
-            </div>
-            <textarea id="student-english-notes-input" class="student-notes-input hidden" placeholder="Any section specific notes?"></textarea>
-
-
-            <div class = 'heading-block hidden'></div>
-            <div id="math-chat-area" class="chat-area-hidden">
-
-                <div id="student-math-notes" class="student-notes">
-                </div>
-
-            </div>
-            <textarea id="student-math-notes-input" class="student-notes-input hidden" placeholder="Any section specific notes?"></textarea>
-
-
-            <div class = 'heading-block hidden'></div>
-            <div id="reading-chat-area" class="chat-area-hidden">
-
-                <div id="student-reading-notes" class="student-notes">
-                </div>
-            
-            </div>
-            <textarea id="student-reading-notes-input" class="student-notes-input hidden" placeholder="Any section specific notes?"></textarea>
-
-
-            <div class = 'heading-block hidden'></div>
-            <div id="science-chat-area" class="chat-area-hidden">
-
-                <div id="student-science-notes" class="student-notes">
-                </div>
-
-            </div>
-            <textarea id="student-science-notes-input" class="student-notes-input hidden" placeholder="Any section specific notes?"></textarea>
+            <textarea id="studentScienceNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
 
         </div>
 
     </section>
+
 </body>

@@ -104,28 +104,8 @@ function grabTestData() {
 function changeSection(section) {
 
   // Setup the forms
-  let goodForms = undefined
-  switch(section) {
-    case('composite'):
-      goodForms = []
-      break;
-    case('english'):
-      goodForms = ['englishLessonsForm']
-      break;
-    case('math'):
-      goodForms = ['mathLessonsForm']
-      break;
-    case('reading'):
-      goodForms = ['readingLessonsForm']
-      break;
-    case('science'):
-      goodForms = ['scienceLessonsForm']
-      break;
-    default:
-      goodForms = []
-      break;
-  }
-  const allForms = ["englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm"];
+  let goodForms = [section + 'Section']
+  const allForms = ["compositeSection", "englishSection", "mathSection", "readingSection", "scienceSection"];
 
   // Hide all forms except for the desired form(s)
   let form = undefined;
@@ -137,5 +117,19 @@ function changeSection(section) {
     else {
       form.style.display = "none";
     }
+  }
+}
+
+function swap(section, swapTo) {
+  let chat = document.getElementById(section + 'Chat')
+  let lessons = document.getElementById(section + 'LessonsForm')
+
+  if (swapTo == 'chat') {
+    chat.classList.remove('hidden')
+    lessons.classList.add('hidden')
+  }
+  else if (swapTo == 'lessons') {
+    chat.classList.add('hidden')
+    lessons.classList.remove('hidden')
   }
 }

@@ -22,9 +22,9 @@ function initializeLessonList() {
       for (let i = 0; i < sections.length; i++) {
         let location = document.getElementById(sections[i] + 'Lessons')
         for (let j = 0; j < act_lesson_list[sections[i]]['lessons'].length; j++) {
-          let ele1 = createElement('div', ['gridBox-3'], [], [], act_lesson_list[sections[i]]['lessons'][j])
-          let ele2 = createElement('div', ['gridBox-3'], [], [], act_lesson_list[sections[i]]['ranks'][j])
-          let ele3 = createElement('div', ['gridBox-3', 'cursor'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('-', '_').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
+          let ele1 = createElement('div', ['gridBox3'], [], [], act_lesson_list[sections[i]]['lessons'][j])
+          let ele2 = createElement('div', ['gridBox3'], [], [], act_lesson_list[sections[i]]['ranks'][j])
+          let ele3 = createElement('div', ['gridBox3', 'cursor'], ['id'], [sections[i] + '-' + act_lesson_list[sections[i]]['lessons'][j].replaceAll('/', '').replaceAll('-', '_').replaceAll('  ', ' ').replaceAll(' ', '_').toLowerCase()], '');
           location.append(ele1)
           location.append(ele2)
           location.append(ele3)
