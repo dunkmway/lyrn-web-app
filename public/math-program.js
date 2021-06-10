@@ -12,6 +12,7 @@ let note_flag = false;
 let lesson_flag_counter = 0;
 let session_date = new Date()
 let css_colors = {'assigned' : 'yellow', 'needs help' : 'red', 'mastered' : 'green', 'not assigned' : 'blank'}
+let storage = firebase.storage();
 
 function main() {
   retrieveInitialData()
@@ -36,7 +37,7 @@ grade_element.addEventListener('change', (e) => {
 })
 
 lesson_list.addEventListener('click', (e) => {
-  if (e.target.className.includes('button2')) {
+  if (e.target.getAttribute('onclick') == undefined && e.target.className.includes('button2')) {
     let section = e.target.getAttribute('data-section');
     let lesson = e.target.getAttribute('data-lesson');
     if (current_lesson_data[student_grade][section][lesson]['status'] == 'not assigned') {
@@ -398,12 +399,18 @@ function populateLessons() {
     lesson_list.append(element2);
     
     // Add the lessons
-    console.log(current_lesson_data)
-    console.log(sections[i])
     for (let j = 0; j < Object.values(gradeLessons[sections[i]]).length; j++) {
       const lesson = gradeLessons[sections[i]][j]
-      console.log('  ', lesson)
-      const element1 = createElement('div', ['gridBox'], [], [] , lesson);
+      let element1 = undefined
+      if (sections[i] == 'Tests') {
+        element1 = createElement('div', ['gridBox', 'button2'], ['onclick'], ["openTest('" + lesson.split('-')[0] + "')"] , lesson);
+      }
+      else if (sections[i] == 'Multiplication Tables') {
+        element1 = createElement('div', ['gridBox', 'button2'], ['onclick'], ["openMultiplicationTable('" + lesson + "')"] , lesson);
+      }
+      else {
+        element1 = createElement('div', ['gridBox'], [], [] , lesson);
+      }
       const element2 = createElement('div', ['gridBox', 'button2'], ['data-section', 'data-lesson'], [sections[i], lesson], "")
       element2.classList.add(css_colors[current_lesson_data[student_grade][sections[i]][lesson]['status']])
       if (current_lesson_data[student_grade][sections[i]][lesson]['date'] != 0) {
@@ -576,4 +583,24 @@ function getLinks() {
     program_links = doc.data()['links']
   })
   .catch((error) => handleFirebaseErrors(error, window.location.href));
+}
+
+function openTest(type) {
+
+  if (type == 'Pre' || type == 'Post') {
+    let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Math Program/' + type + ' Test - ' + student_grade.toString() + '.pdf');
+    ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+  }
+
+}
+
+function openMultiplicationTable(number) {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Math Program/Multiplication Tables/' + number + '.pdf');
+  ref.getDownloadURL().then((url) => {
+    open(url);
+  })
+
 }
