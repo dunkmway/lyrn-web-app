@@ -357,7 +357,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
                     return Promise.all(chatPromises)
                 }
                 else {
-                    console.log("This student isn't ACT or does not have a notes doc");
                     return Promise.resolve();
                 }
             })
@@ -386,7 +385,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
                     return Promise.all(chatPromises)
                 }
                 else {
-                    console.log("This student isn't Subject-Tutoring or does not have a notes doc");
                     return Promise.resolve();
                 }
             })
@@ -415,7 +413,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
                     return Promise.all(chatPromises)
                 }
                 else {
-                    console.log("This student isn't Math-Program or does not have a notes doc");
                     return Promise.resolve();
                 }
             })
@@ -444,7 +441,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
                     return Promise.all(chatPromises)
                 }
                 else {
-                    console.log("This student isn't Math-Program or does not have a notes doc");
                     return Promise.resolve();
                 }
             })
@@ -479,10 +475,25 @@ function createMessage_TEMP(studentUID, type, time, messages) {
         message: messages[time].note,
         author: messages[time].user,
     }
-    const chatRef =  admin.firestore().collection("Student-Chats").doc();
-    return chatRef.set(message)
-    .then(() => {
-        console.log("Successfully transferred " + type + " chat message for user", studentUID)
+
+    const displayName = getUserDisplayNamePrivate(messages[time].user)
+    const role = getUserRolePrivate(messages[time].user)
+
+    Promise.all([displayName, role])
+    .then((values) => {
+        message.authorName = values[0];
+        message.authorRole = values[1];
+
+        const chatRef =  admin.firestore().collection("Student-Chats").doc();
+        return chatRef.set(message)
+        .then(() => {
+            console.log("Successfully transferred " + type + " chat message for user", studentUID)
+        })
+        .catch((error) => {
+            new functions.https.HttpsError(error.code, error.message, error.details)
+            console.log(error)
+            response.status(500).send(error)
+        });
     })
     .catch((error) => {
         new functions.https.HttpsError(error.code, error.message, error.details)
@@ -496,18 +507,19 @@ exports.saveStudentMessage = functions.https.onCall((data, context) => {
         conversation: data.conversation,
         timestamp: data.timestamp,
         message: data.message,
-        author: data.author,
+        author: context.auth.uid,
+        authorName: context.auth.token.name,
+        authorRole: context.auth.token.role
     }
     const chatRef =  admin.firestore().collection("Student-Chats").doc();
     return chatRef.set(mes)
     .then(() => {
-        const authorUID = data.author;
         return {
             timestamp: data.timestamp,
             message: data.message,
-            id: chatRef.id,
-            currentUserIsAuthor: context.auth.uid == authorUID,
             author: context.auth.token.name,
+            id: chatRef.id,
+            currentUserIsAuthor: true,
             isImportant: context.auth.token.role == 'admin'
         };
     })
@@ -526,47 +538,20 @@ exports.getStudentMessages = functions.https.onCall((data, context) => {
     const chatRef = admin.firestore().collection("Student-Chats").where("conversation", "==", conversation).orderBy("timestamp", "asc")
     return chatRef.get()
     .then((querySnapshot) => {
-        let messages = new Array(querySnapshot.size)
-        let promises = [];
-        let index = 0;
+        let messages = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const authorUID = data.author;
-
             const clientMessage = {
                 timestamp: data.timestamp,
                 message: data.message,
+                author: data.authorName,
                 id: doc.id,
-                currentUserIsAuthor: context.auth.uid == authorUID
+                currentUserIsAuthor: context.auth.uid == data.author,
+                isImportant: data.authorRole == "admin"
             };
-            const displayName = getUserDisplayNamePrivate(authorUID)
-            const role = getUserRolePrivate(authorUID)
-
-            promises.push(displayName);
-            promises.push(role);
-
-            Promise.all([index, clientMessage, displayName, role])
-            .then((values) => {
-                messages[values[0]] = {
-                    ...values[1],
-                    author: values[2],
-                    isImportant: values[3] == "admin"
-                };
-            })
-            .catch((error) => {
-                new functions.https.HttpsError(error.code, error.message, error.details);
-            });
-
-            index++;
+            messages.push(clientMessage);
         })
-        return Promise.all(promises)
-        .then(() => {
-            console.log(messages)
-            return messages;
-        })
-        .catch((error) => {
-            new functions.https.HttpsError(error.code, error.message, error.details);
-        });
+        return messages;
     })
     .catch((error) => {
         console.log(error)

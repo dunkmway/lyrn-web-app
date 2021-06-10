@@ -161,6 +161,7 @@ function getMessages(type) {
 }
 
 function setMessage(mes, type) {
+  console.log(mes);
   const currentUser = firebase.auth().currentUser;
   currentUser.getIdTokenResult()
   .then((idTokenResult) => {
@@ -345,14 +346,13 @@ function scrollBottomMessages(type) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-function sendMessage(student, studentType, conversationType, message, timestamp, author) {
+function sendMessage(student, studentType, conversationType, message, timestamp) {
   const conversation = student + '-' + studentType + '-' + conversationType;
   const saveStudentMessage = firebase.functions().httpsCallable('saveStudentMessage');
   saveStudentMessage({
     conversation: conversation,
     timestamp: timestamp,
     message: message,
-    author: author,
   })
   .then((result) => {
     const mes = result.data;
