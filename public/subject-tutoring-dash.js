@@ -10,7 +10,7 @@ function main() {
   .then(() => {
     setStudentProfile();
     setStudentSTProfile();
-    getMessages('general');
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
     allowExpectationChange();
   })
 }
@@ -19,7 +19,7 @@ function retrieveInitialData() {
   let profileProm = getStudentProfile(CURRENT_STUDENT_UID);
   let stProfileProm = getStudentSTProfile(CURRENT_STUDENT_UID); 
 
-  let promises = [profileProm, notesProm, stProfileProm];
+  let promises = [profileProm, stProfileProm];
   return Promise.all(promises);
 }
 
