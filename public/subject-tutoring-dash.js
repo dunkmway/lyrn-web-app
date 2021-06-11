@@ -33,16 +33,6 @@ function getStudentProfile(studentUID) {
   })
 }
 
-function getStudentNotes(studentUID) {
-  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('notes');
-  return studentNotesRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      student_notes_data = doc.data();
-    }
-  })
-}
-
 function getStudentSTProfile(studentUID) {
   const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
   return studentSTProfileRef.get()
@@ -113,16 +103,7 @@ function updateStudentExpectation(event) {
   }
 }
 
-document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const message = document.getElementById('student-general-notes-input').value;
-    const time = new Date().getTime();
-    sendMessage(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general', message, time, currentUser);
-  }
-});
+document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general'));
 
 document.getElementById("student-general-info").addEventListener("dblclick", () => {
   firebase.auth().onAuthStateChanged((user) => {
