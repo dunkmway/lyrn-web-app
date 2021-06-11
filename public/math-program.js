@@ -412,9 +412,11 @@ function populateLessons() {
         element1 = createElement('div', ['gridBox'], [], [] , lesson);
       }
       const element2 = createElement('div', ['gridBox', 'button2'], ['data-section', 'data-lesson'], [sections[i], lesson], "")
-      element2.classList.add(css_colors[current_lesson_data[student_grade][sections[i]][lesson]['status']])
-      if (current_lesson_data[student_grade][sections[i]][lesson]['date'] != 0) {
-        element2.innerHTML = convertFromDateInt(current_lesson_data[student_grade][sections[i]][lesson]['date'])['shortDate'];
+      if (current_lesson_data[student_grade]?.[sections[i]]?.[lesson]?.['date'] != undefined) {
+        element2.classList.add(css_colors[current_lesson_data[student_grade][sections[i]][lesson]['status']])
+        if (current_lesson_data[student_grade]?.[sections[i]]?.[lesson]?.['date'] != 0) {
+          element2.innerHTML = convertFromDateInt(current_lesson_data[student_grade][sections[i]][lesson]['date'])['shortDate'];
+        }
       }
       lesson_list.append(element1);
       lesson_list.append(element2);
