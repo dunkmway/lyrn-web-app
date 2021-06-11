@@ -129,24 +129,6 @@ div p {
     border-right-width: 0px;
 }
 
-.studentNotesInput {
-    resize: none;
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    height: 10%;
-    font-size: 16px;
-    font-weight: 300;
-    border-radius: 13px; 
-    margin-top: 10px;
-}
-
-.chatArea {
-    background-color: yellowgreen;
-    height: calc(82% - 10px);
-    display: block;
-}
-
 .hidden {
     display: none;
 }

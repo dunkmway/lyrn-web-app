@@ -5,7 +5,6 @@ let testData = {};
 let oldTestAnswers = {};
 let testAnswers = {};
 let tempAnswers = {};
-initialSetup();
 
 // Current tests in use
 const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
@@ -23,6 +22,11 @@ let mark_type = 'answer';
 let newStatus = undefined;
 let date = new Date()
 let storage = firebase.storage();
+
+const CURRENT_STUDENT_UID = queryStrings()['student'];
+const CURRENT_STUDENT_TYPE = "act";
+
+initialSetup();
 
 /**
  * create html element
@@ -61,6 +65,11 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
 function initialSetup() {
   // Grab the test data from Fb
   grabTestData();
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'english');
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'math');
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading');
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science');
 
   //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
   const studentUID = queryStrings()["student"];
@@ -133,3 +142,9 @@ function swap(section, swapTo) {
     lessons.classList.remove('hidden')
   }
 }
+
+document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general'));
+document.getElementById("englishStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'english'));
+document.getElementById("mathStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'math'));
+document.getElementById("readingStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading'));
+document.getElementById("scienceStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science'));

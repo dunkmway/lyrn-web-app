@@ -1,0 +1,94 @@
+.studentMessages {
+  height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 0 10px
+}
+
+.studentMessages :first-child {
+  margin-top: auto;
+}
+
+.studentMessages .time {
+  font-weight: 200;
+  font-size: 12px;
+  color: #8A8B8A;
+}
+
+.studentMessage {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 5px 25px 5px 10px;
+  position: relative;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap;
+}
+
+.studentMessage .delete {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: white;
+  color: #C4CCE8;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.studentMessage .author {
+  position: relative;
+  text-align: right;
+  font-weight: 200;
+  font-size: 12px;
+  color: #8A8B8A;
+  right: -20px;
+}
+
+.studentMessages .right {
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+.studentMessages .right .studentMessage{
+  background-color: #C4CCE8;
+}
+
+.studentMessages .left {
+  align-self: flex-start;
+  max-width: 80%;
+}
+
+.studentMessages .left .studentMessage{
+  background-color: #CCE8C4;
+}
+
+.studentMessage.important {
+  border-color: #4177DA;
+  border-style: solid;
+}
+
+.studentMessage.session {
+  border-color: #DAA441;
+  border-style: solid;
+}
+
+.studentMessagesInput {
+  resize: none;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 300;
+  border-radius: 10px; 
+  margin-top: 10px;
+}

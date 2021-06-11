@@ -20,9 +20,15 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
 
-    <!-- Our code -->
+    <!-- site wide -->
     <script src="../../Site Templates/site-wide.js" defer></script>
     <script src="../../Site Templates/generalFunctions.js" defer></script>
+
+    <!-- Student Chats -->
+    <link href="../../Site Templates/student-chat.css" rel="stylesheet">
+    <script src="../../Site Templates/student-chat.js" defer></script>
+
+    <!-- Our code -->
     <script src="Daily Log.js" defer></script>
     <!--<script src="Event Listeners.js" defer></script>-->
     <script src="Lessons.js" defer></script>
@@ -64,13 +70,8 @@
                 </div>
             </div>
 
-            <div id="generalChatArea" class="chatArea">
-
-                <div id="studentGeneralNotes" class="studentNotes">
-                </div>
-
-            </div>
-            <textarea id="studentGeneralNotesInput" class="studentNotesInput visibleBlock" placeholder="Any general notes?"></textarea>
+            <div id="generalStudentMessages" class="studentMessages"></div>
+            <textarea id="generalStudentMessagesInput" class="studentMessagesInput visibleBlock" placeholder="Any general notes?"></textarea>
 
         </div>
 
@@ -142,14 +143,8 @@
                     <h2>Lessons</h2>
                 </div>
             </div>
-
-            <div id="englishChatArea" class="chatArea">
-
-                <div id="studentEnglishNotes" class="studentNotes">
-                </div>
-
-            </div>
-            <textarea id="studentEnglishNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+            <div id="englishStudentMessages" class="studentMessages"></div>
+            <textarea id="englishStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
 
     </section>
@@ -211,15 +206,8 @@
                     <h2>Lessons</h2>
                 </div>
             </div>
-
-
-            <div id="mathChatArea" class="chatArea">
-
-                <div id="studentMathNotes" class="studentNotes">
-                </div>
-
-            </div>
-            <textarea id="studentMathNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+            <div id="mathStudentMessages" class="studentMessages"></div>
+            <textarea id="mathStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
 
     </section>
@@ -281,15 +269,8 @@
                     <h2>Lessons</h2>
                 </div>
             </div>
-
-
-            <div id="readingChatArea" class="chatArea">
-
-                <div id="studentReadingNotes" class="studentNotes">
-                </div>
-            
-            </div>
-            <textarea id="studentReadingNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
+            <div id="readingStudentMessages" class="studentMessages"></div>
+            <textarea id="readingStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
 
     </section>
@@ -351,16 +332,8 @@
                     <h2>Lessons</h2>
                 </div>
             </div>
-
-
-            <div id="scienceChatArea" class="chatArea">
-
-                <div id="studentScienceNotes" class="studentNotes">
-                </div>
-
-            </div>
-            <textarea id="studentScienceNotesInput" class="studentNotesInput" placeholder="Any section specific notes?"></textarea>
-
+            <div id="scienceStudentMessages" class="studentMessages"></div>
+            <textarea id="scienceStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
 
     </section>

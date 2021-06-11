@@ -71,12 +71,12 @@ function main() {
     hwChart = setHomeworkChart();
     //updateProfileData();
     //getGeneralNotes();
-    getNotes('general');
-    getNotes('english');
-    getNotes('math');
-    getNotes('reading');
-    getNotes('science');
-    reorderNotes();
+    // getNotes('general');
+    // getNotes('english');
+    // getNotes('math');
+    // getNotes('reading');
+    // getNotes('science');
+    // reorderNotes();
   })
 }
 

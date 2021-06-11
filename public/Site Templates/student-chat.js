@@ -1,13 +1,13 @@
-function getMessages(type) {
+function getStudentMessages(studentUID, studentType, conversationType) {
   const getStudentMessages = firebase.functions().httpsCallable('getStudentMessages');
   getStudentMessages({
-    studentUID: CURRENT_STUDENT_UID,
-    studentType: CURRENT_STUDENT_TYPE,
-    conversationType: type,
+    studentUID: studentUID,
+    studentType: studentType,
+    conversationType: conversationType,
   })
   .then((res) => {
     const messages = res.data;
-    messages.forEach((message) => setMessage(message, type));
+    messages.forEach((message) => setStudentMessage(message, conversationType));
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
@@ -15,7 +15,7 @@ function getMessages(type) {
   })
 }
 
-function setMessage(mes, type) {
+function setStudentMessage(mes, type) {
   console.log(mes);
   const currentUser = firebase.auth().currentUser;
   currentUser.getIdTokenResult()
@@ -23,7 +23,7 @@ function setMessage(mes, type) {
     const currentUserRole = idTokenResult.claims.role;
 
     //all the messages
-    let messageBlock = document.getElementById('student-' + type + '-notes');
+    let messageBlock = document.getElementById(type + 'StudentMessages');
     //the div that contains the time and message
     let messageDiv = document.createElement('div');
     //the message itself
@@ -46,7 +46,7 @@ function setMessage(mes, type) {
 
     //give the message an id
     messageDiv.setAttribute('data-id', mes.id);
-    message.classList.add("student-note");
+    message.classList.add("studentMessage");
 
     //current user's message should be on the right
     if (mes.currentUserIsAuthor) {
@@ -67,7 +67,7 @@ function setMessage(mes, type) {
       deleteMessage.classList.add("delete");
       let theX = document.createElement('p');
       theX.innerHTML = "X";
-      theX.classList.add('no-margins');
+      theX.classList.add('noMargins');
       deleteMessage.appendChild(theX);
       deleteMessage.addEventListener('click', (event) => deleteMessage(event));
       message.appendChild(deleteMessage);
@@ -75,7 +75,7 @@ function setMessage(mes, type) {
     
     messageDiv.appendChild(message);
     messageBlock.appendChild(messageDiv);
-    document.getElementById('student-' + type + '-notes-input').value = null;
+    document.getElementById(type + 'StudentMessagesInput').value = null;
     
     messageDiv.scrollIntoView();
     // scrollBottomMessages(type);
@@ -83,5 +83,49 @@ function setMessage(mes, type) {
   .catch((error) =>  {
     handleFirebaseErrors(error, window.location.href);
     console.log(error);
+  });
+}
+
+function deleteStudentMessage(event) {
+  let message = event.target.closest(".studentMessage").parentNode;
+  let confirmation = confirm("Are you sure you want to delete this message?");
+  if (confirmation) {
+    const id = message.dataset.id;
+    const messageDocRef = firebase.firestore().collection("Student-Chats").doc(id);
+    messageDocRef.delete()
+    .then(() => {
+      message.remove();
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+    })
+  }
+}
+
+function submitStudentMessage(event, studentUID, studentType, conversationType) {
+  if (event.repeat) {return};
+  if (!event.ctrlKey && event.key == "Enter") {
+    event.preventDefault();
+    const message = document.getElementById(conversationType + 'StudentMessagesInput').value;
+    const time = new Date().getTime();
+    sendStudentMessage(studentUID, studentType, conversationType, message, time);
+  }
+} 
+
+function sendStudentMessage(studentUID, studentType, conversationType, message, timestamp) {
+  const conversation = studentUID + '-' + studentType + '-' + conversationType;
+  const saveStudentMessage = firebase.functions().httpsCallable('saveStudentMessage');
+  saveStudentMessage({
+    conversation: conversation,
+    timestamp: timestamp,
+    message: message,
+  })
+  .then((result) => {
+    const mes = result.data;
+    setStudentMessage(mes, conversationType);
+  })
+  .catch((error) => {
+    console.log(error);
+    handleFirebaseErrors(error, window.location.href);
   });
 }
