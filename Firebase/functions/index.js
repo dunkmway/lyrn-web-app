@@ -10,6 +10,14 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
     response.send("Hello from Firebase!");
 });
 
+exports.nonExportedFunctionTest = functions.https.onRequest((request, response) => {
+    response.send(outsideFunction());
+})
+
+function outsideFunction() {
+    return "Hello Exports"
+}
+
 
 //don't let this request go public becuase it could really mess things up!!!
 exports.setCustomClaimsRequest = functions.https.onRequest((request, response) => {
@@ -292,4 +300,281 @@ function generateRef(path) {
     }
 
     return ref;
+}
+
+
+//take all of the messages from the students and put them into the chat collection
+exports.transferChatMessages = functions.https.onRequest((request, response) => {
+    const queryRef = admin.firestore().collection("Students").limit(4);
+    let allDone = queryRef.get()
+    .then((querySnapshot) => {
+        let studentPromises = []
+        querySnapshot.forEach((doc) => {
+            const studentUID = doc.id;
+            console.log("Got the profile doc for student", studentUID);
+            //get the notes doc for this student
+
+
+            //ACT
+            const actNotesRef = admin.firestore().collection("Students").doc(studentUID).collection("ACT").doc("notes");
+            let actPromise = actNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    console.log("Got the notes doc for student", studentUID);
+                    const notesData = notesDoc.data();
+                    const generalNotes = notesData.general;
+                    const englishNotes = notesData.english;
+                    const mathNotes = notesData.math;
+                    const readingNotes = notesData.reading;
+                    const scienceNotes = notesData.science;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in generalNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-general", time, generalNotes));
+                    }
+
+                    //english notes
+                    for (const time in englishNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-english", time, englishNotes));
+                    }
+
+                    //math notes
+                    for (const time in mathNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-math", time, mathNotes));
+                    }
+
+                    //reading notes
+                    for (const time in readingNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-reading", time, readingNotes));
+                    }
+
+                    //science notes
+                    for (const time in scienceNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-science", time, scienceNotes));
+                    }
+
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                new functions.https.HttpsError(error.code, error.message, error.details)
+                console.log(error)
+                response.status(500).send(error)
+            });
+            studentPromises.push(actPromise);
+
+
+            //Subject-Tutoring
+            const stNotesRef = admin.firestore().collection("Students").doc(studentUID).collection("Subject-Tutoring").doc("notes");
+            let stPromise = stNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    console.log("Got the notes doc for student", studentUID);
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "subjectTutoring-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                new functions.https.HttpsError(error.code, error.message, error.details)
+                console.log(error)
+                response.status(500).send(error)
+            });
+            studentPromises.push(stPromise);
+
+
+            //Math-Program
+            const mpNotesRef = admin.firestore().collection("Students").doc(studentUID).collection("Math-Program").doc("notes");
+            let mpPromise = mpNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    console.log("Got the notes doc for student", studentUID);
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "mathProgram-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                new functions.https.HttpsError(error.code, error.message, error.details)
+                console.log(error)
+                response.status(500).send(error)
+            });
+            studentPromises.push(mpPromise);
+
+
+            //Phonics-Program
+            const ppNotesRef = admin.firestore().collection("Students").doc(studentUID).collection("Phonics-Program").doc("notes");
+            let ppPromise = ppNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    console.log("Got the notes doc for student", studentUID);
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "phonicsProgram-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                new functions.https.HttpsError(error.code, error.message, error.details)
+                console.log(error)
+                response.status(500).send(error)
+            });
+            studentPromises.push(ppPromise);
+        });
+        return Promise.all(studentPromises)
+    })
+    .catch((error) => {
+        new functions.https.HttpsError(error.code, error.message, error.details)
+        console.log(error)
+        response.status(500).send(error)
+    });
+
+    allDone.then(() => {
+        response.send("Successfully transferred chat messages!");
+    }).catch((error) => {
+        new functions.https.HttpsError(error.code, error.message, error.details)
+        console.log(error)
+        response.status(500).send(error)
+    })
+});
+
+function createMessage_TEMP(studentUID, type, time, messages) {
+    const message = {
+        conversation: studentUID + "-" + type,
+        timestamp: parseInt(time),
+        message: messages[time].note,
+        author: messages[time].user,
+    }
+
+    const displayName = getUserDisplayNamePrivate(messages[time].user)
+    const role = getUserRolePrivate(messages[time].user)
+
+    Promise.all([displayName, role])
+    .then((values) => {
+        message.authorName = values[0];
+        message.authorRole = values[1];
+
+        const chatRef =  admin.firestore().collection("Student-Chats").doc();
+        return chatRef.set(message)
+        .then(() => {
+            console.log("Successfully transferred " + type + " chat message for user", studentUID)
+        })
+        .catch((error) => {
+            new functions.https.HttpsError(error.code, error.message, error.details)
+            console.log(error)
+            response.status(500).send(error)
+        });
+    })
+    .catch((error) => {
+        new functions.https.HttpsError(error.code, error.message, error.details)
+        console.log(error)
+        response.status(500).send(error)
+    });
+}
+
+exports.saveStudentMessage = functions.https.onCall((data, context) => {
+    const mes = {
+        conversation: data.conversation,
+        timestamp: data.timestamp,
+        message: data.message,
+        author: context.auth.uid,
+        authorName: context.auth.token.name,
+        authorRole: context.auth.token.role
+    }
+    const chatRef =  admin.firestore().collection("Student-Chats").doc();
+    return chatRef.set(mes)
+    .then(() => {
+        return {
+            timestamp: data.timestamp,
+            message: data.message,
+            author: context.auth.token.name,
+            id: chatRef.id,
+            currentUserIsAuthor: true,
+            isImportant: context.auth.token.role == 'admin'
+        };
+    })
+    .catch((error) => {
+        console.log(error);
+        // return Promise.reject(new functions.https.HttpsError(error.code, error.message, error.details));
+    })
+});
+
+exports.getStudentMessages = functions.https.onCall((data, context) => {
+    const studentUID = data.studentUID;
+    const studentType = data.studentType;
+    const conversationType = data.conversationType;
+    const conversation = studentUID + "-" + studentType + "-" + conversationType;
+
+    const chatRef = admin.firestore().collection("Student-Chats").where("conversation", "==", conversation).orderBy("timestamp", "asc")
+    return chatRef.get()
+    .then((querySnapshot) => {
+        let messages = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const clientMessage = {
+                timestamp: data.timestamp,
+                message: data.message,
+                author: data.authorName,
+                id: doc.id,
+                currentUserIsAuthor: context.auth.uid == data.author,
+                isImportant: data.authorRole == "admin"
+            };
+            messages.push(clientMessage);
+        })
+        return messages;
+    })
+    .catch((error) => {
+        console.log(error)
+        new functions.https.HttpsError(error.code, error.message, error.details);
+    });
+});
+
+function getUserDisplayNamePrivate(uid) {
+    return admin.auth().getUser(uid)
+    .then((userRecord) => {
+        return userRecord.displayName;
+    })
+    .catch((error) => {
+        new functions.https.HttpsError(error.code, error.message, error.details);
+    });
+}
+
+function getUserRolePrivate(uid) {
+    return admin.auth().getUser(uid)
+    .then((userRecord) => {
+        return userRecord.customClaims.role;
+    })
+    .catch((error) => {
+        new functions.https.HttpsError(error.code, error.message, error.details);
+    });
 }

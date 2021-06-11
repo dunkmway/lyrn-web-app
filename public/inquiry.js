@@ -1433,3 +1433,55 @@ function goBack() {
     history.back()
   }
 }
+
+function marketingCheck(type) {
+  let moreWrapper = document.getElementById(type + "MarketingMoreWrapper");
+  let moreLabel = document.getElementById(type + "MarketingMoreLabel");
+  let marketingValue = document.getElementById(type + "Marketing").value;
+
+  switch (marketingValue) {
+    case 'family':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Who in your family referred you?";
+      break
+    case 'friend':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Which one of your friends referred you?";
+      break;
+    case 'social media':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'online':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'drive by':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'flyer':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'ad':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'school':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'other':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Please specify";
+      break;
+    default:
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+  }
+}
+
+document.getElementById("parentMarketing").addEventListener('change', () => marketingCheck('parent'));
+document.getElementById("studentMarketing").addEventListener('change', () => marketingCheck('student'));
