@@ -7,39 +7,144 @@ document.getElementById("mathStudentMessagesInput").addEventListener('keydown', 
 document.getElementById("readingStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading'));
 document.getElementById("scienceStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science'));
 
+let scrollingTarget = undefined;
+
+// In Center Tests - Popup
+let inCenterTests = document.getElementById("inCenterTests");
+inCenterTests.addEventListener('click', function(event)  {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
+    setHomeworkStatus('assigned', 'False', event.target)
+  }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
+  }
+})
+
+// Homework Tests - Popup
+let homeworkTests = document.getElementById("homeworkTests");
+homeworkTests.addEventListener('click', function(event)  {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
+    setHomeworkStatus('assigned', 'False', event.target)
+  }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
+  }
+})
+
+homeworkTests.addEventListener('scroll', function(event)  {
+  adjustPrintPopup();
+})
+
+// Other Tests - Popup
+let otherTests = document.getElementById("otherTests");
+otherTests.addEventListener('click', function(event)  {
+  const test = event.target.getAttribute("data-test") ?? undefined;
+  const section = event.target.getAttribute("data-section") ?? undefined;
+  const type = testAnswers[test]?.[section]?.['TestType'] ?? undefined;
+  if (event.target.className.includes("button2") && test_view_type == "homework" && type != 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("border") && test_view_type == 'inCenter') {
+    openForm('testAnswersPopup', undefined, event.target);
+  }
+  else if (event.target.className.includes("button2") && test_view_type == "assign" && type != 'inCenter') {
+    setHomeworkStatus('assigned', 'False', event.target)
+  }
+  else if (event.target.className.includes("gridBox-p") ) {
+    togglePrintPopup(event.target.parentNode.getAttribute("data-test"));
+    scrollingTarget = event.target.parentNode;
+    adjustPrintPopup();
+  }
+  else if ( (event.target.className.includes("gridBox") && event.target.getAttribute("data-section") == undefined) ) {
+    togglePrintPopup(event.target.getAttribute("data-test"));
+    scrollingTarget = event.target;
+    adjustPrintPopup();
+  }
+})
+
 // Listen for wrong answers or guesses
 let guess_start = 0;
 let guess_end = 0;
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function(event) {
 
-  // Needed info
-  const test = current_test
-  const section = current_section
-  const passageNumber = current_passage_number
+  // Identify whether you are selecting the child or the parent div
+  let is_child = false;
+  if (event.target.className.includes('popup')) {
+    is_child = true;
+  }
 
-  // identify the question number
+  // Needed info
+  const headerText = document.getElementById("answersPopupHeader").innerHTML;
+  const test = headerText.split(" - ")[0];
+  const section = headerText.split(" - ")[1];
+  const passageNumber = headerText.split(" - ")[2];
   let question = undefined;
-  let location = event.target.closest("div[id='passage'] > div")
-  question = location.getAttribute("data-question");
+  if (is_child == true) {
+    question = event.target.parentNode.getAttribute("data-question");
+  }
+  else {
+    question = event.target.getAttribute("data-question");
+  }
 
   // Check to see if we're marking a question as wrong / correct
-  if (location.className.includes('input-row-center') && mark_type == 'answer') {
+  if ((event.target.parentNode.className.includes('input-row-center') || event.target.className.includes('input-row-center')) && mark_type == 'answer') {
 
     // If marked correct (not found), mark it wrong
     if (!tempAnswers[test]?.[section]?.[passageNumber]?.['Answers'].includes(question)) {
-      tempAnswers[test][section][passageNumber]['Answers'].push(question)
+      if (is_child == true) {
+        tempAnswers[test][section][passageNumber]['Answers'].push(event.target.parentNode.querySelectorAll("div")[0].innerHTML)
+      }
+      else {
+        tempAnswers[test][section][passageNumber]['Answers'].push(event.target.querySelectorAll("div")[0].innerHTML)
+      }
     }
     // If marked wrong, change it to correct
     else {
-      tempAnswers[test][section][passageNumber]['Answers'].splice(tempAnswers[test][section][passageNumber]['Answers'].indexOf(question),1)
+      if (is_child == true) {
+        tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.parentNode.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+      }
+      else {
+        tempAnswers[test][section][passageNumber]['Answers'].splice(getArrayIndex(event.target.querySelectorAll("div")[0].innerHTML, tempAnswers[test][section][passageNumber]['Answers']),1)
+      }
     }
 
-    swapTestForm(test, section, passageNumber)
+    openForm('testAnswersPopup');
   }
-
   // Check to see if we're marking a question as a guess
-  else if (location.className.includes('input-row-center') && mark_type == 'guess') {
+  else if ((event.target.parentNode.className.includes('input-row-center') || event.target.className.includes('input-row-center')) && mark_type == 'guess') {
 
     const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints'] ?? [];
 
@@ -215,7 +320,7 @@ popupAnswers.addEventListener('click', function(event) {
       }
     }
 
-    swapTestForm(test, section, passageNumber)
+    openForm('testAnswersPopup');
   }
 })
 

@@ -16,7 +16,6 @@ function getStudentMessages(studentUID, studentType, conversationType) {
 }
 
 function setStudentMessage(mes, type) {
-  console.log(mes);
   const currentUser = firebase.auth().currentUser;
   currentUser.getIdTokenResult()
   .then((idTokenResult) => {

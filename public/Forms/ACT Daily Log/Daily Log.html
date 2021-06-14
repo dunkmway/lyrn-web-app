@@ -30,7 +30,7 @@
 
     <!-- Our code -->
     <script src="Daily Log.js" defer></script>
-    <!--<script src="Event Listeners.js" defer></script>-->
+    <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
     <script src="../../student-info-test.js" defer></script>
 </head>
@@ -58,15 +58,219 @@
             <button onclick = "changeSection('science')">Science</button>
         </div>
 
-        <div id = 'generalChat' class = 'metaForm'>
+        <div id = "testAnswersPopup" class = "metaForm noselect">
 
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor activeTab">
+            <div id = 'answersPopupHeader' class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swapTestForm('Chat')">
                     <h2>Chat</h2>
                 </div>
+            </div>
 
-                <div class="headingBlock noselect cursor">
-                    <h2>Lessons</h2>
+            <div id = "toggleDiv" class = "input-row-center">
+
+                <button id = "answerButton" class = "smallButton buttonToggleOn" onclick="toggleButtons('answer')">
+                    Answers
+                </button>
+
+                <button id = "guessButton" class = "smallButton buttonToggleOff" onclick="toggleButtons('guess')">
+                    Guesses
+                </button>
+
+            </div>
+
+            <div id = "popupInfo" class = "input-row">
+
+                <div class = "side">
+                    <div class = "circle cursor" onclick="previousPassage(this)">
+                        <div id = "leftArrow">
+                            &#8249;
+                        </div>
+                    </div>
+                </div>
+
+                <div id = "passage">
+                </div>
+
+                <div class = "side">
+                    <div class = "circle cursor" onclick="nextPassage(this)">
+                        <div id = "rightArrow">
+                            &#8250;
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id = "timingBlock" class="input-row-center">
+                <label for="time" class="label">Time:</label>
+                <select id = "time-minutes">
+                    <option value = "0">Minutes</option>
+                    <option value = "1">1</option>
+                    <option value = "2">2</option>
+                    <option value = "3">3</option>
+                    <option value = "4">4</option>
+                    <option value = "5">5</option>
+                    <option value = "6">6</option>
+                    <option value = "7">7</option>
+                    <option value = "8">8</option>
+                    <option value = "9">9</option>
+                    <option value = "10">10</option>
+                    <option value = "11">11</option>
+                    <option value = "12">12</option>
+                    <option value = "13">13</option>
+                    <option value = "14">14</option>
+                    <option value = "15">15</option>
+                    <option value = "16">16</option>
+                    <option value = "17">17</option>
+                    <option value = "18">18</option>
+                    <option value = "19">19</option>
+                    <option value = "20">20</option>
+                </select>
+
+                <select id = "time-seconds">
+                    <option value = "0">Seconds</option>
+                    <option value = "1">1</option>
+                    <option value = "2">2</option>
+                    <option value = "3">3</option>
+                    <option value = "4">4</option>
+                    <option value = "5">5</option>
+                    <option value = "6">6</option>
+                    <option value = "7">7</option>
+                    <option value = "8">8</option>
+                    <option value = "9">9</option>
+                    <option value = "10">10</option>
+                    <option value = "11">11</option>
+                    <option value = "12">12</option>
+                    <option value = "13">13</option>
+                    <option value = "14">14</option>
+                    <option value = "15">15</option>
+                    <option value = "16">16</option>
+                    <option value = "17">17</option>
+                    <option value = "18">18</option>
+                    <option value = "19">19</option>
+                    <option value = "20">20</option>
+                    <option value = "21">21</option>
+                    <option value = "22">22</option>
+                    <option value = "23">23</option>
+                    <option value = "24">24</option>
+                    <option value = "25">25</option>
+                    <option value = "26">26</option>
+                    <option value = "27">27</option>
+                    <option value = "28">28</option>
+                    <option value = "29">29</option>
+                    <option value = "30">30</option>
+                    <option value = "31">31</option>
+                    <option value = "32">32</option>
+                    <option value = "33">33</option>
+                    <option value = "34">34</option>
+                    <option value = "35">35</option>
+                    <option value = "36">36</option>
+                    <option value = "37">37</option>
+                    <option value = "38">38</option>
+                    <option value = "39">39</option>
+                    <option value = "40">40</option>
+                    <option value = "41">41</option>
+                    <option value = "42">42</option>
+                    <option value = "43">43</option>
+                    <option value = "44">44</option>
+                    <option value = "45">45</option>
+                    <option value = "46">46</option>
+                    <option value = "47">47</option>
+                    <option value = "48">48</option>
+                    <option value = "49">49</option>
+                    <option value = "50">50</option>
+                    <option value = "51">51</option>
+                    <option value = "52">52</option>
+                    <option value = "53">53</option>
+                    <option value = "54">54</option>
+                    <option value = "55">55</option>
+                    <option value = "56">56</option>
+                    <option value = "57">57</option>
+                    <option value = "58">58</option>
+                    <option value = "59">59</option>
+                    <option value = "60">60</option>
+                </select>
+            </div>
+
+            <div id = "popupButtons" class = "input-row-center">
+                <button class = "smallButton button" onclick="resetAnswers()">
+                    Reset
+                </button>
+                <button class = "smallButton button" onclick="removeTest()">
+                    Remove
+                </button>
+                <button class = "smallButton button" onclick="submitAnswersPopup('False', 'True')">
+                    Submit
+                </button>
+                
+                <div id = "perfectScorePopup" class = "popup" data-test = "">
+                    <button class = "longButton button cursor green" onclick="submitAnswersPopup('grade')">
+                        Grade Passage
+                    </button>
+
+                    <button class = "longButton button cursor greenShade" onclick="submitAnswersPopup('together')">
+                        Worked Together
+                    </button>
+
+                    <button class = "longButton button cursor greenShade" onclick="submitAnswersPopup('popcorn')">
+                        Popcorned Problems
+                    </button>
+
+                    <button class = "longButton button cursor greenShade" onclick="submitAnswersPopup('prior')">
+                        Prior Completion
+                    </button>
+                </div>
+
+                
+                <div id = "submitHomeworkPopup" class = "popup">
+
+                    <p id = 'assignFirst' style="color: white; display:none;">Test must be assigned first</p>
+                    <p id = 'alreadyGradedTest' style="color: white; display:none;">This test can't be changed</p>
+                    <p id = 'gradeFirst' style="color: white; display:none;">Entire test must be graded first</p>
+                    <p id = 'guessFirst' style="color: white; display:none;">Test must contain at least 1 guess</p>
+                    
+                    <button class = "green cursor" onclick="setHomeworkStatus('in-time', 'True')">
+                        Completed <span class = "smallerText"><br>(in-time)</span>
+                    </button>
+
+                    <button class = "orange cursor" onclick="setHomeworkStatus('forgot')">
+                        Completed <span class = "smallerText"><br>(forgotten)</span>
+                    </button>
+
+                    <button class = "greenShade cursor" onclick="setHomeworkStatus('not in time', 'True')">
+                        Completed <span class = "smallerText"><br>(not in time)</span>
+                    </button>
+
+                    <button class = "greenShade cursor" onclick="setHomeworkStatus('partial', 'True')">
+                        Partial <span class = "smallerText"><br>(time remaining)</span>
+                    </button>
+
+                    <button class = "greenShade cursor" onclick="setHomeworkStatus('poor conditions', 'True')">
+                        Poor Conditions
+                    </button>
+
+                    <button class = "greenShade cursor" onclick="setHomeworkStatus('previously completed')">
+                        Mark as Completed
+                    </button>
+
+                    <button class = "red cursor" onclick="setHomeworkStatus('in-center', 'True')">
+                        Completed <span class = "smallerText"><br>(in-center)</span>
+                    </button>
+
+                    <button class = "gray cursor" onclick="setHomeworkStatus('did not do')">
+                        Didn't do
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id = 'generalChat' class = 'metaForm'>
+
+            <div id = 'generalHeader' class = 'formTab'>
+                <div class="headingBlock noselect cursor activeTab" onclick = "swapTestForm('Chat')">
+                    <h2>Chat</h2>
                 </div>
             </div>
 

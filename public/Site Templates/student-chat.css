@@ -1,5 +1,5 @@
 .studentMessages {
-  height: 400px;
+  height: calc(92% - 70px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -86,7 +86,7 @@
   display: block;
   width: 100%;
   box-sizing: border-box;
-  height: 50px;
+  height: 70px;
   font-size: 16px;
   font-weight: 300;
   border-radius: 10px; 

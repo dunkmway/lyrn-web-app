@@ -53,26 +53,19 @@ div p {
     justify-content: center;
     align-items: center;
     height: 100%;
-    width: 50%;
+    width: 100%;
     background-color: #110D65;
     font-size: 14px;
     color: white;
     text-align: center;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
 }
 
 .headingBlock:first-child{
-    border-top-right-radius: 0px;
+    border-top-left-radius: 15px;
 }
 
 .headingBlock:last-child{
-    border-top-left-radius: 0px;
-}
-
-.activeTab{
-    background-color: white;
-    color: black;
+    border-top-right-radius: 15px;
 }
 
 .inputRowCenter {
@@ -137,6 +130,20 @@ div p {
     display: block;
 }
 
+.flex-column {
+  display: flex;
+  flex-direction: row;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
 #topNavigationBanner {
     display: flex;
     flex-direction: column;
@@ -157,6 +164,269 @@ div p {
     z-index: 1;
 }
 
+.englishColor {
+    background-color: #5600F7;
+    color: white;
+}
+
+.mathColor {
+    background-color: #F70056;
+    color: white;
+}
+
+.readingColor {
+    background-color: #00E6BC;
+    color: white;
+}
+
+.scienceColor {
+    background-color: #C00BE0;
+    color: white;
+}
+
+.green {
+    background-color: green;
+}
+
+.pink {
+    background-color: pink;
+    z-index: 3;
+}
+
+.greenShade {
+    background-color: rgb(0, 191, 0);
+}
+
+.purple {
+    background-color: #110D65;
+}
+
+.white {
+    color: white;
+}
+
+.yellow {
+    background-color: rgb(252, 241, 81);
+}
+
+.orange {
+    background-color: orange;
+}
+
+.gray {
+    background-color: rgb(100, 100, 100);
+}
+
+.red {
+    background-color: red;
+}
+
+.Qred {
+    position:relative;
+}
+
+.Qred:before {
+    position:absolute;
+    z-index:2;
+    top:0;
+    left: calc(50% - 12% - 19% - 20px);
+    width: 30%;
+    min-width: 60px;
+    height: 100%;
+    content:"";
+    background-color:red;
+    border-radius: 22.5px;
+}
+
+.redOnHover:hover {
+    background-color: rgb(255, 0, 0, 0.7);
+}
+
+.activeTab{
+    background-color: white;
+    color: black;
+}
+
+.buttonToggleOn {
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  outline: none;
+  background-color: #110D65;
+  color: #fff;
+}
+
+.buttonToggleOff {
+  color: #110D65;
+  background-color: #fff;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  transform: translateY(-7px);
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 45px;
+  cursor: pointer;
+  outline: none;
+}
+
+.label {
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    color: black;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    padding-left: 8%;
+    padding-right: 8%;
+    align-items: center;
+}
+
+.input-row-center {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 8%;
+    padding-right: 8%;
+    align-items: center;
+}
+
+.side {
+    width: 15%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle {
+    display: flex;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: rgb(200, 200, 200);
+    align-items: center;
+    text-align: center;
+}
+
+.button {
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.button:hover {
+  background-color: #110D65;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  color: #fff;
+  transform: translateY(-7px);
+}
+
+.smallButton {
+  margin-bottom: 10px;
+  width: 100px;
+  height: 33.3px;
+  text-align: center;
+}
+
+.longButton {
+  margin-bottom: 10px;
+  width: 150px;
+  height: 42px;
+  text-align: center;
+}
+
+.popup {
+  visibility: hidden;
+  width: 170px;
+  background-color: rgb(150, 150, 150);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0px 8px 0px;
+  position: absolute;
+  z-index: 4;
+  bottom: 6.5%;
+  right: 2%
+}
+
+/* Popup arrow */
+.popup::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.firstAnswer {
+    margin-top: 10px;
+}
+
+.popupValue {
+    z-index: 3;
+    height: 40px;
+    width: 40px;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.popupDash {
+    height: 40px;
+    width: 38%;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.popupAnswer {
+    height: 40px;
+    width: 40px;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+}
+
 #logo {
     height: calc(0.75 * 9vh);
     width: calc(0.75 * 2.51 * 9vh);
@@ -175,19 +445,47 @@ div p {
     background-color: white;
     height: 80%;
     width: 67%;
-    flex: 1;
 }
 
-.flex-column {
-  display: flex;
-  flex-direction: row;
+#answerButton {
+  margin-left: 20px;
 }
 
-.justify-center {
-  justify-content: center;
+#guessButton {
+  margin-left: 20px;
 }
 
-.flex-row {
-  display: flex;
-  flex-direction: row;
+#toggleDiv {
+    height: 10%;
+}
+
+#leftArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    padding-bottom: 4px;
+}
+
+#passage {
+    width: 70%;
+    max-height: 100%;
+    overflow-y: scroll;
+}
+  
+#rightArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    padding-bottom: 4px;
+}
+
+#timingBlock {
+    height: 5%;
+}
+
+#popupButtons {
+    height: 7%;
+}
+
+#popupInfo {
+    padding: 0px;
+    height: 70%;
 }
