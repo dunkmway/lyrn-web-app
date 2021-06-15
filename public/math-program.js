@@ -27,8 +27,6 @@ function main() {
 }
 main();
 
-let lesson_list = document.getElementById('lessonList');
-
 let grade_element = document.getElementById('student-grade')
 grade_element.addEventListener('change', (e) => {
   student_grade = e.target.value;
@@ -36,6 +34,7 @@ grade_element.addEventListener('change', (e) => {
   populateLessons()
 })
 
+let lesson_list = document.getElementById('lessonList');
 lesson_list.addEventListener('click', (e) => {
   if (e.target.getAttribute('onclick') == undefined && e.target.className.includes('button2')) {
     let section = e.target.getAttribute('data-section');
@@ -494,10 +493,12 @@ function getLessons() {
           initializeEmptyLessonsMap();
         }
       }
+    })
+    .then(() => {
+      updateStudentLessonInfo();
       populateLessons();
       document.getElementById('student-grade').value = student_grade;
-    })
-    .then(() => resolve())
+      resolve();})
     .catch((error) => reject('Fb error:' + error))
   })
 }
@@ -605,4 +606,31 @@ function openMultiplicationTable(number) {
     open(url);
   })
 
+}
+
+function updateStudentLessonInfo() {
+  let obj = {}
+  const grades = Object.keys(lesson_info)
+  for (let i = 0; i < grades.length; i++) {
+    if (!(grades[i] in current_lesson_data)) {
+      obj = {}
+      setObjectValue([grades[i]], obj, current_lesson_data)
+    }
+    const sections = Object.keys(lesson_info[grades[i]])
+    const lessons = Object.values(lesson_info[grades[i]])
+    for (let j = 0; j < sections.length; j++) {
+      if (!(sections[j] in current_lesson_data[grades[i]])) {
+        obj = {}
+        setObjectValue([grades[i], sections[j]], obj, current_lesson_data)
+      }
+      for (let k = 0; k < lessons[j].length; k++) {
+        if (!(lessons[j][k] in current_lesson_data[grades[i]][sections[j]])) {
+          obj = {}
+          setObjectValue([grades[i], sections[j], lessons[j][k]], obj, current_lesson_data)
+          setObjectValue([grades[i], sections[j], lessons[j][k], 'date'],   0, current_lesson_data)
+          setObjectValue([grades[i], sections[j], lessons[j][k], 'status'], 'not assigned', current_lesson_data)
+        }
+      }
+    }
+  }
 }
