@@ -62,7 +62,12 @@ function setObjectValue(propertyPath, value, obj) {
   } 
   else {
     // We set the value to the last property
-    obj[properties[0]] = value
+    if (typeof value == 'object') {
+      obj[properties[0]] = Object.create(value)
+    }
+    else {
+      obj[properties[0]] = value
+    }
     return true // this is the end
   }
 }
