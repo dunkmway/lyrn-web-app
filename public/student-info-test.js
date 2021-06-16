@@ -69,6 +69,12 @@ function main() {
     // console.log("studentProfile", studentProfile);
 
     hwChart = setHomeworkChart();
+
+    // Adjust the chart to have the sizing play nicely
+    let canvas = document.getElementById('hw-canvas')
+    canvas.style.maxWidth = "100%"
+    canvas.style.maxHeight = "90%"
+
     //updateProfileData();
     //getGeneralNotes();
     // getNotes('general');

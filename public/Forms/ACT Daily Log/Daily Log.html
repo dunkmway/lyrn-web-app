@@ -58,8 +58,30 @@
             <button onclick = "changeSection('science')">Science</button>
         </div>
 
-        <div id = 'generalInfo'>
-            <div id="testAnswersPopup" class="metaForm noselect">
+        <div id = 'generalInfo' class = 'input-row-center'>
+
+            <div class = 'graph'>
+                <div id="scores-chart">
+                    <div id = 'graphButtons' class="flex-column justify-center ">
+                        <div class="flex-row">
+                            <button class="button graphButton" onclick="setSessionAxis()">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis()">Hours</button>
+                        </div>
+                    </div>
+                    <canvas id="hw-canvas" style='flex: 1;'></canvas>
+                </div>
+            
+                <div class = 'input-row-center evenlySpaced'>
+                    <div class='item itemB1 cursor display1'>
+                        <h2>What If...?</h2>
+                    </div>
+                    <div class='item itemB2 cursor display1' onclick = "getCoords()">
+                        <h2>Submit</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div id="testAnswersPopup" class="metaForm noselect hidden">
         
                 <div id='answersPopupHeader' class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swapTestForm('Chat')">
@@ -283,30 +305,6 @@
                 <textarea id="generalStudentMessagesInput" class="studentMessagesInput visibleBlock"
                     placeholder="Any general notes?"></textarea>
         
-            </div>
-
-            <!--<div class = 'item itemB1 cursor display1'><h2>What If...?</h2></div>
-            <div class = 'item itemB2 cursor display1'><h2>Submit</h2></div>-->
-        
-            <div class = 'input-column-center'>
-                <div id="scores-chart">
-                    <div class="flex-column justify-center ">
-                        <div class="flex-row">
-                            <button class="button" onclick="setSessionAxis()">Sessions</button>
-                            <button class="button nextButton" onclick="setHourAxis()">Hours</button>
-                        </div>
-                    </div>
-                    <canvas id="hw-canvas" style='flex: 1;'></canvas>
-                </div>
-            
-                <div>
-                    <div class='item itemB1 cursor display1'>
-                        <h2>What If...?</h2>
-                    </div>
-                    <div class='item itemB2 cursor display1'>
-                        <h2>Submit</h2>
-                    </div>
-                </div>
             </div>
 
         </div>
