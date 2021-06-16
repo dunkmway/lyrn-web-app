@@ -59,6 +59,7 @@ var hwChart;
 var goalsChanged = false;
 var initialsChanged = false;
 
+main();
 
 function main() {
   initialSetupData()
@@ -88,7 +89,6 @@ function main() {
 
 function initialSetupData() {
   currentStudent = queryStrings()["student"];
-  // console.log("currentStudent", currentStudent);
 
   if (currentStudent) {
     let profileProm = getProfileData(currentStudent)
@@ -1012,8 +1012,6 @@ function setHourAxis() {
   });
   hwChart.update("none");
 }
-
-main();
 
 
 

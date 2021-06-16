@@ -4,7 +4,7 @@ body {
     font-weight: 200;
     margin: 0;
     padding: 0;
-    overflow-y: hidden;
+    /*overflow-y: hidden;*/
 }
 
 div p {
@@ -485,10 +485,6 @@ div p {
     margin-top: 5vh;
 }
 
-.evenlySpaced {
-    justify-content: space-evenly;
-}
-
 .item:first-child {
     margin-left: 0vw;
 }
@@ -518,6 +514,14 @@ div p {
     flex: 1;
     margin-right: 3%;
     margin-left: 3%;
+}
+
+.bigButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-evenly;
 }
 
 .hidden {
