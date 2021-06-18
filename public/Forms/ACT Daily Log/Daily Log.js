@@ -116,6 +116,9 @@ function changeSection(section) {
   let goodForms = [section + 'Section']
   const allForms = ["compositeSection", "englishSection", "mathSection", "readingSection", "scienceSection"];
 
+  // Update the section Title
+  document.getElementById('sectionTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+
   // Hide all forms except for the desired form(s)
   let form = undefined;
   for (let i = 0; i < allForms.length; i++) {

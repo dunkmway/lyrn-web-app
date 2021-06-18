@@ -7,6 +7,14 @@ const mathColor = "#F70056";
 const readingColor = "#00E6BC";
 const scienceColor = "#C00BE0";
 
+const sectionColors = {
+  'composite' : "#595959",
+  'english' : "#5600F7",
+  'math' : "#F70056",
+  'reading' : "#00E6BC",
+  'science' : "#C00BE0"
+}
+
 let studentProfile = {};
 let hwData = {};
 let sessionData = {};
@@ -74,7 +82,7 @@ function main() {
     // Adjust the chart to have the sizing play nicely
     let canvas = document.getElementById('hw-canvas')
     canvas.style.maxWidth = "100%"
-    canvas.style.maxHeight = "90%"
+    canvas.style.maxHeight = "93%"
 
     //updateProfileData();
     //getGeneralNotes();
@@ -89,13 +97,14 @@ function main() {
 
 function initialSetupData() {
   currentStudent = queryStrings()["student"];
+  // console.log("currentStudent", currentStudent);
 
   if (currentStudent) {
     let profileProm = getProfileData(currentStudent)
-    .then((doc) => storeProfileData(doc))
-
-    // let hwSetupProm = getHomeworkData(currentStudent)
-    // .then((doc) => storeHomeworkData(doc))
+    .then((doc) => {
+      storeProfileData(doc);
+      document.getElementById('studentName').textContent = studentProfile["studentFirstName"] + " " + studentProfile["studentLastName"];
+    })
 
     let sessionSetupProm = getSessionData(currentStudent)
     .then((doc) => storeSessionData(doc))
@@ -253,7 +262,7 @@ function storeStudentNotesData(doc) {
 }
 
 function updateProfileData() {
-  document.getElementById('student-name').textContent = studentProfile["studentFirstName"] + " " + studentProfile["studentLastName"];
+  document.getElementById('studentName').textContent = studentProfile["studentFirstName"] + " " + studentProfile["studentLastName"];
 
   const currentEnglishScore = latestScore(englishScores);
   const currentMathScore = latestScore(mathScores);
@@ -529,10 +538,9 @@ function setHomeworkChart() {
   return new Chart(ctxHW, {
     // The type of chart we want to create
     type: 'line',
-
     // The data for our dataset
     data: {
-      labels: sessionDateStr,
+      labels: sessionDateStr, // x-labels
       datasets: [
         {
           label: "Composite",

@@ -46,17 +46,22 @@
     </section>
 
 
-
-    <section id='compositeSection' class='mainBody'>
-    
-        <div id='nameSection'>
-            <p>Composite</p>
+    <div id='nameSection' class = 'input-row spaced'>
+        <h2 id = 'studentName'></h2>
+        <h1 id = 'sectionTitle'>Composite</h1>
+        <div>
             <button onclick="changeSection('composite')">Composite</button>
             <button onclick="changeSection('english')">English</button>
             <button onclick="changeSection('math')">Math</button>
             <button onclick="changeSection('reading')">Reading</button>
             <button onclick="changeSection('science')">Science</button>
         </div>
+    </div>
+
+
+
+
+    <section id='compositeSection' class='mainBody'>
     
         <div id='generalInfo' class='input-row-center'>
     
@@ -317,15 +322,6 @@
 
     <section id = 'englishSection' class = 'mainBody hidden'>
 
-        <div id = 'nameSection'>
-            <p>English</p>
-            <button onclick = "changeSection('composite')">Composite</button>
-            <button onclick = "changeSection('english')">English</button>
-            <button onclick = "changeSection('math')">Math</button>
-            <button onclick = "changeSection('reading')">Reading</button>
-            <button onclick = "changeSection('science')">Science</button>
-        </div>
-
         <div id = "englishLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
                 <div class="headingBlock noselect cursor" onclick = "swap('english', 'chat')">
@@ -378,15 +374,6 @@
 
 
     <section id = 'mathSection' class = 'mainBody hidden'>
-
-        <div id = 'nameSection'>
-            <p>Math</p>
-            <button onclick = "changeSection('composite')">Composite</button>
-            <button onclick = "changeSection('english')">English</button>
-            <button onclick = "changeSection('math')">Math</button>
-            <button onclick = "changeSection('reading')">Reading</button>
-            <button onclick = "changeSection('science')">Science</button>
-        </div>
 
         <div id = "mathLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
@@ -442,15 +429,6 @@
 
     <section id = 'readingSection' class = 'mainBody hidden'>
 
-        <div id = 'nameSection'>
-            <p>Reading</p>
-            <button onclick = "changeSection('composite')">Composite</button>
-            <button onclick = "changeSection('english')">English</button>
-            <button onclick = "changeSection('math')">Math</button>
-            <button onclick = "changeSection('reading')">Reading</button>
-            <button onclick = "changeSection('science')">Science</button>
-        </div>
-
         <div id = "readingLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
                 <div class="headingBlock noselect cursor" onclick = "swap('reading', 'chat')">
@@ -504,15 +482,6 @@
 
 
     <section id = 'scienceSection' class = 'mainBody hidden'>
-
-        <div id = 'nameSection'>
-            <p>Science</p>
-            <button onclick = "changeSection('composite')">Composite</button>
-            <button onclick = "changeSection('english')">English</button>
-            <button onclick = "changeSection('math')">Math</button>
-            <button onclick = "changeSection('reading')">Reading</button>
-            <button onclick = "changeSection('science')">Science</button>
-        </div>
 
         <div id = "scienceLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>

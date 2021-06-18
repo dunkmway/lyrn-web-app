@@ -208,7 +208,7 @@ div p {
     display: flex;
     flex-direction: column;
     position: relative;
-    height: 91vh;
+    height: 81vh;
     width: 100vw;
     background-color: #8986b2;
     z-index: 1;
@@ -522,6 +522,18 @@ div p {
     justify-content: center;
     align-items: center;
     justify-content: space-evenly;
+}
+
+.spaced {
+    justify-content: space-between;
+}
+
+#sectionTitle {
+    font-size: 3em;
+}
+
+#studentName {
+    font-size: 2em;
 }
 
 .hidden {
