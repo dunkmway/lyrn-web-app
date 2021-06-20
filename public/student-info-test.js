@@ -1,11 +1,15 @@
 let currentStudent = "";
 let currentTutor = "";
 
-const compositeColor = "#595959";
-const englishColor = "#5600F7";
-const mathColor = "#F70056";
-const readingColor = "#00E6BC";
-const scienceColor = "#C00BE0";
+let studentProfile = {};
+let hwData = {};
+let sessionData = {};
+let actProfile = {};
+let studentNotes = {};
+
+let sessionDates = [];
+let hoursArray = [];
+let sessionDateStr = [];
 
 const sectionColors = {
   'composite' : "#595959",
@@ -15,83 +19,99 @@ const sectionColors = {
   'science' : "#C00BE0"
 }
 
-let studentProfile = {};
-let hwData = {};
-let sessionData = {};
-let actProfile = {};
-let studentNotes = {};
+let sectionScores = {
+  'composite' : {},
+  'english' : {},
+  'math' : {},
+  'reading' : {},
+  'science' : {}
+}
 
-let sessionDates = [];
-let hoursArray = [];
+let sectionHours = {
+  'composite' : {},
+  'english' : {},
+  'math' : {},
+  'reading' : {},
+  'science' : {}
+}
 
-let sessionDateStr = [];
+let testArrays = {
+  'composite' : [],
+  'english' : [],
+  'math' : [],
+  'reading' : [],
+  'science' : []
+}
 
-let compositeScores = {};
-let englishScores = {};
-let mathScores = {};
-let readingScores = {};
-let scienceScores = {};
+let sectionHoursArrays = {
+  'composite' : [],
+  'english' : [],
+  'math' : [],
+  'reading' : [],
+  'science' : []
+}
 
-let compositeHours = {};
-let englishHours = {};
-let mathHours = {};
-let readingHours = {};
-let scienceHours = {};
+let sectionHoursScores = {
+  'composite' : {},
+  'english' : {},
+  'math' : {},
+  'reading' : {},
+  'science' :{}
+}
 
-let compositeTestArray = [];
-let englishTestArray = [];
-let mathTestArray = [];
-let readingTestArray = [];
-let scienceTestArray = [];
+let sectionHoursScoresArrays = {
+  'composite' : [],
+  'english' : [],
+  'math' : [],
+  'reading' : [],
+  'science' : []
+}
 
-let compositeHoursArray = [];
-let englishHoursArray = [];
-let mathHoursArray = [];
-let readingHoursArray = [];
-let scienceHoursArray = [];
+let sectionRelativeGoals = {
+  'composite' : undefined,
+  'english' : undefined,
+  'math' : undefined,
+  'reading' : undefined,
+  'science' : undefined
+}
 
-let compositeHoursScores = {};
-let englishHoursScores = {};
-let mathHoursScores = {};
-let readingHoursScores = {};
-let scienceHoursScores = {};
+let borderDashGoals = [null, null, null, null, null];
+let borderDashOffsetGoals = [null, null, null, null, null];
+let compositeGoal = undefined;
 
-let compositeHoursScoresArray = [];
-let englishHoursScoresArray = [];
-let mathHoursScoresArray = [];
-let readingHoursScoresArray = [];
-let scienceHoursScoresArray = [];
+/*let sectionGoals = {
+  'composite' : undefined,
+  'english' : undefined,
+  'math' : undefined,
+  'reading' : undefined,
+  'science' :undefined
+}*/
+let englishGoal = undefined;
+let mathGoal = undefined;
+let readingGoal = undefined;
+let scienceGoal = undefined;
 
 var hwChart;
 
 var goalsChanged = false;
 var initialsChanged = false;
+let initialComposite = undefined;
 
 main();
 
 function main() {
   initialSetupData()
   .then(() => {
-    // console.log("hwData", hwData);
-    // console.log("sessionData", sessionData);
-    // console.log("sessionDates", sessionDates);
-    // console.log("studentProfile", studentProfile);
 
-    hwChart = setHomeworkChart();
+    let compositeChartElement = document.getElementById("hw-canvas");
+    setHomeworkChartData(compositeChartElement);
+    hwChart =  generateChart(compositeChartElement, ['composite', 'english', 'math', 'reading', 'science'])
+    //hwChart = setHomeworkChartData(compositeChartElement);
 
     // Adjust the chart to have the sizing play nicely
     let canvas = document.getElementById('hw-canvas')
     canvas.style.maxWidth = "100%"
     canvas.style.maxHeight = "93%"
-
-    //updateProfileData();
-    //getGeneralNotes();
-    // getNotes('general');
-    // getNotes('english');
-    // getNotes('math');
-    // getNotes('reading');
-    // getNotes('science');
-    // reorderNotes();
   })
 }
 
@@ -149,16 +169,16 @@ function storeHomeworkData(doc) {
 
         switch (section) {
           case "English":
-            englishScores[date] = hwData[test][section]['ScaledScore'];
+            sectionScores['english'][date] = hwData[test][section]['ScaledScore'];
             break;
           case "Math":
-            mathScores[date] = hwData[test][section]['ScaledScore'];
+            sectionScores['math'][date] = hwData[test][section]['ScaledScore'];
             break;
           case "Reading":
-            readingScores[date] = hwData[test][section]['ScaledScore'];
+            sectionScores['reading'][date] = hwData[test][section]['ScaledScore'];
             break;
           case "Science":
-            scienceScores[date] = hwData[test][section]['ScaledScore'];
+            sectionScores['science'][date] = hwData[test][section]['ScaledScore'];
             break;
           default:
             console.log("We have a test with a section that doesn't match!!!")
@@ -172,15 +192,15 @@ function storeHomeworkData(doc) {
   //they will be set at a date time of -9999999998 (one millisecond after the beginning of time) unless we want them to have a meaningful date
   //eventully when we score the practice test this score will not have meaning
 
-  englishScores["-9999999998"] = actProfile["englishInitial"];
-  mathScores["-9999999998"] = actProfile["mathInitial"];
-  readingScores["-9999999998"] = actProfile["readingInitial"];
-  scienceScores["-9999999998"] = actProfile["scienceInitial"];
+  sectionScores['english']["-9999999998"] = actProfile["englishInitial"];
+  sectionScores['math']["-9999999998"] = actProfile["mathInitial"];
+  sectionScores['reading']["-9999999998"] = actProfile["readingInitial"];
+  sectionScores['science']["-9999999998"] = actProfile["scienceInitial"];
 
-  // console.log("englishScores", englishScores);
-  // console.log("mathScores", mathScores);
-  // console.log("readingScores", readingScores);
-  // console.log("scienceScores", scienceScores);
+  // console.log("sectionScores['english']", sectionScores['english']);
+  // console.log("sectionScores['math']", sectionScores['math']);
+  // console.log("sectionScores['reading']", sectionScores['reading']);
+  // console.log("sectionScores['science']", sectionScores['science']);
 
   return Promise.resolve("hw data stored!");
 }
@@ -211,16 +231,16 @@ function storeSessionData(doc) {
         for (let section in sessionData[time]["sections"]) {
           switch (section) {
             case "English":
-              englishHours[numTime] = sessionData[time]["sections"][section]['time'];
+              sectionHours['english'][numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Math":
-              mathHours[numTime] = sessionData[time]["sections"][section]['time'];
+              sectionHours['math'][numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Reading":
-              readingHours[numTime] = sessionData[time]["sections"][section]['time'];
+              sectionHours['reading'][numTime] = sessionData[time]["sections"][section]['time'];
               break;
             case "Science":
-              scienceHours[numTime] = sessionData[time]["sections"][section]['time'];
+              sectionHours['science'][numTime] = sessionData[time]["sections"][section]['time'];
               break;
             default:
               console.log("We have a session with a section that doesn't match!!!")
@@ -232,15 +252,15 @@ function storeSessionData(doc) {
   //sort from lowest to highest
   sessionDates.sort(function(a, b){return a - b});
 
-  // console.log("englishHours",englishHours);
-  // console.log("mathHours", mathHours);
-  // console.log("readingHours", readingHours);
-  // console.log("scienceHours", scienceHours);
+  // console.log("sectionHours['english']",sectionHours['english']);
+  // console.log("sectionHours['math']", sectionHours['math']);
+  // console.log("sectionHours['reading']", sectionHours['reading']);
+  // console.log("sectionHours['science']", sectionHours['science']);
 
   for (let i = 0; i < sessionDates.length; i++) {
-    compositeHours[sessionDates[i]] = (englishHours[sessionDates[i]] ?? 0) + (mathHours[sessionDates[i]] ?? 0) + (readingHours[sessionDates[i]] ?? 0) + (scienceHours[sessionDates[i]] ?? 0);
+    sectionHours['composite'][sessionDates[i]] = (sectionHours['english'][sessionDates[i]] ?? 0) + (sectionHours['math'][sessionDates[i]] ?? 0) + (sectionHours['reading'][sessionDates[i]] ?? 0) + (sectionHours['science'][sessionDates[i]] ?? 0);
   }
-  // console.log("compositeHours", compositeHours)
+  // console.log("sectionHours['composite']", sectionHours['composite'])
 }
 
 function getActProfileData(studentUID) {
@@ -264,10 +284,10 @@ function storeStudentNotesData(doc) {
 function updateProfileData() {
   document.getElementById('studentName').textContent = studentProfile["studentFirstName"] + " " + studentProfile["studentLastName"];
 
-  const currentEnglishScore = latestScore(englishScores);
-  const currentMathScore = latestScore(mathScores);
-  const currentReadingScore = latestScore(readingScores);
-  const currentScienceScore = latestScore(scienceScores);
+  const currentEnglishScore = latestScore(sectionScores['english']);
+  const currentMathScore = latestScore(sectionScores['math']);
+  const currentReadingScore = latestScore(sectionScores['reading']);
+  const currentScienceScore = latestScore(sectionScores['science']);
   const currentCompositeScore = roundedAvg([currentEnglishScore, currentMathScore, currentReadingScore, currentScienceScore]);
 
   document.getElementById('composite-score').innerHTML = currentCompositeScore ?? null;
@@ -276,11 +296,11 @@ function updateProfileData() {
   document.getElementById('reading-score').textContent = currentReadingScore ?? null;
   document.getElementById('science-score').textContent = currentScienceScore ?? null;
 
-  const englishGoal = getNextTestGoals()?.["englishGoal"];
-  const mathGoal = getNextTestGoals()?.["mathGoal"]
-  const readingGoal = getNextTestGoals()?.["readingGoal"]
-  const scienceGoal = getNextTestGoals()?.["scienceGoal"]
-  const compositeGoal = roundedAvg([englishGoal, mathGoal, readingGoal, scienceGoal]);
+  englishGoal = getNextTestGoals()?.["englishGoal"];
+  mathGoal = getNextTestGoals()?.["mathGoal"]
+  readingGoal = getNextTestGoals()?.["readingGoal"]
+  scienceGoal = getNextTestGoals()?.["scienceGoal"]
+  compositeGoal = roundedAvg([englishGoal, mathGoal, readingGoal, scienceGoal]);
 
   document.getElementById('english-goal').textContent = englishGoal ?? "...";
   document.getElementById('math-goal').textContent = mathGoal ?? "...";
@@ -289,11 +309,11 @@ function updateProfileData() {
   document.getElementById('composite-goal').textContent = compositeGoal ?? "...";
 
   //round to nearest .5
-  const compositeTotalHours = Math.round(compositeHoursArray.runningTotal()[compositeHoursArray.runningTotal().length - 1] / 30) / 2;
-  const englishTotalHours = Math.round(englishHoursArray.runningTotal()[englishHoursArray.runningTotal().length - 1] / 30) / 2;
-  const mathTotalHours = Math.round(mathHoursArray.runningTotal()[mathHoursArray.runningTotal().length - 1] / 30) / 2;
-  const readingTotalHours = Math.round(readingHoursArray.runningTotal()[readingHoursArray.runningTotal().length - 1] / 30) / 2;
-  const scienceTotalHours = Math.round(scienceHoursArray.runningTotal()[scienceHoursArray.runningTotal().length - 1] / 30) / 2;
+  const compositeTotalHours = Math.round(sectionHoursArray['composite'].runningTotal()[sectionHoursArray['composite'].runningTotal().length - 1] / 30) / 2;
+  const englishTotalHours = Math.round(sectionHoursArray['english'].runningTotal()[sectionHoursArray['english'].runningTotal().length - 1] / 30) / 2;
+  const mathTotalHours = Math.round(sectionHoursArray['math'].runningTotal()[sectionHoursArray['math'].runningTotal().length - 1] / 30) / 2;
+  const readingTotalHours = Math.round(sectionHoursArray['reading'].runningTotal()[sectionHoursArray['reading'].runningTotal().length - 1] / 30) / 2;
+  const scienceTotalHours = Math.round(sectionHoursArray['science'].runningTotal()[sectionHoursArray['science'].runningTotal().length - 1] / 30) / 2;
 
   document.getElementById('composite-total-hours').textContent = compositeTotalHours ?? "...";
   document.getElementById('english-total-hours').textContent = englishTotalHours ?? "...";
@@ -302,11 +322,11 @@ function updateProfileData() {
   document.getElementById('science-total-hours').textContent = scienceTotalHours ?? "...";
 
   // //composite is not superscored but is highest at any given session
-  // const compositeHighestScore = highestScore(compositeScores);
-  // const englishHighestScore = highestScore(englishScores);
-  // const mathHighestScore = highestScore(mathScores);
-  // const readingHighestScore = highestScore(readingScores);
-  // const scienceHighestScore = highestScore(scienceScores);
+  // const compositeHighestScore = highestScore(sectionScores['composite']);
+  // const englishHighestScore = highestScore(sectionScores['english']);
+  // const mathHighestScore = highestScore(sectionScores['math']);
+  // const readingHighestScore = highestScore(sectionScores['reading']);
+  // const scienceHighestScore = highestScore(sectionScores['science']);
 
   // document.getElementById('composite-highest-score').textContent = compositeHighestScore ?? "...";
   // document.getElementById('english-highest-score').textContent = englishHighestScore ?? "...";
@@ -363,118 +383,108 @@ function updateProfileData() {
   hwChart.update("none");
 }
 
-function setHomeworkChart() {
+function setHomeworkChartData() {
   //set up arrays for each test type
 
   //add the initial scores to the array
-  englishTestArray.push(actProfile['englishInitial'] ?? null);
-  mathTestArray.push(actProfile['mathInitial'] ?? null);
-  readingTestArray.push(actProfile['readingInitial'] ?? null);
-  scienceTestArray.push(actProfile['scienceInitial'] ?? null);
+  testArrays['english'].push(actProfile['englishInitial'] ?? null);
+  testArrays['math'].push(actProfile['mathInitial'] ?? null);
+  testArrays['reading'].push(actProfile['readingInitial'] ?? null);
+  testArrays['science'].push(actProfile['scienceInitial'] ?? null);
 
-  let initialComposite = roundedAvg([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
-  compositeTestArray.push(initialComposite);
+  initialComposite = roundedAvg([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
+  testArrays['composite'].push(initialComposite);
 
-  compositeHoursArray.push(0);
-  englishHoursArray.push(0);
-  mathHoursArray.push(0);
-  readingHoursArray.push(0);
-  scienceHoursArray.push(0);
+  sectionHoursArrays['composite'].push(0);
+  sectionHoursArrays['english'].push(0);
+  sectionHoursArrays['math'].push(0);
+  sectionHoursArrays['reading'].push(0);
+  sectionHoursArrays['science'].push(0);
 
   //set up the rest of the tests
   for (let i = 0; i < sessionDates.length; i++) {
-    englishTestArray.push(englishScores[sessionDates[i]]);
-    mathTestArray.push(mathScores[sessionDates[i]]);
-    readingTestArray.push(readingScores[sessionDates[i]]);
-    scienceTestArray.push(scienceScores[sessionDates[i]]);
+    testArrays['english'].push(sectionScores['english'][sessionDates[i]]);
+    testArrays['math'].push(sectionScores['math'][sessionDates[i]]);
+    testArrays['reading'].push(sectionScores['reading'][sessionDates[i]]);
+    testArrays['science'].push(sectionScores['science'][sessionDates[i]]);
 
-    let scores = [lastScore(englishScores, sessionDates[i]) ?? null, lastScore(mathScores, sessionDates[i]) ?? null, lastScore(readingScores, sessionDates[i]) ?? null, lastScore(scienceScores, sessionDates[i]) ?? null]
-    compositeScores[sessionDates[i]] = roundedAvg(scores);
-    compositeTestArray.push(roundedAvg(scores));
+    let scores = [lastScore(sectionScores['english'], sessionDates[i]) ?? null, lastScore(sectionScores['math'], sessionDates[i]) ?? null, lastScore(sectionScores['reading'], sessionDates[i]) ?? null, lastScore(sectionScores['science'], sessionDates[i]) ?? null]
+    sectionScores['composite'][sessionDates[i]] = roundedAvg(scores);
+    testArrays['composite'].push(roundedAvg(scores));
 
-    compositeHoursArray.push(compositeHours[sessionDates[i]]);
-    englishHoursArray.push(englishHours[sessionDates[i]]);
-    mathHoursArray.push(mathHours[sessionDates[i]]);
-    readingHoursArray.push(readingHours[sessionDates[i]]);
-    scienceHoursArray.push(scienceHours[sessionDates[i]]);
+    sectionHoursArrays['composite'].push(sectionHours['composite'][sessionDates[i]]);
+    sectionHoursArrays['english'].push(sectionHours['english'][sessionDates[i]]);
+    sectionHoursArrays['math'].push(sectionHours['math'][sessionDates[i]]);
+    sectionHoursArrays['reading'].push(sectionHours['reading'][sessionDates[i]]);
+    sectionHoursArrays['science'].push(sectionHours['science'][sessionDates[i]]);
   }
 
   //set relative scores
-  for (let i = 0; i < compositeTestArray.length; i++) {
-    compositeTestArray[i] = compositeTestArray[i] - initialComposite;
+  for (let i = 0; i < testArrays['composite'].length; i++) {
+    testArrays['composite'][i] = testArrays['composite'][i] - initialComposite;
   }
-  for (let i = 0; i < englishTestArray.length; i++) {
-    englishTestArray[i] = englishTestArray[i] - actProfile['englishInitial'];
+  for (let i = 0; i < testArrays['english'].length; i++) {
+    testArrays['english'][i] = testArrays['english'][i] - actProfile['englishInitial'];
   }
-  for (let i = 0; i < mathTestArray.length; i++) {
-    mathTestArray[i] = mathTestArray[i] - actProfile['mathInitial'];
+  for (let i = 0; i < testArrays['math'].length; i++) {
+    testArrays['math'][i] = testArrays['math'][i] - actProfile['mathInitial'];
   }
-  for (let i = 0; i < readingTestArray.length; i++) {
-    readingTestArray[i] = readingTestArray[i] - actProfile['readingInitial'];
+  for (let i = 0; i < testArrays['reading'].length; i++) {
+    testArrays['reading'][i] = testArrays['reading'][i] - actProfile['readingInitial'];
   }
-  for (let i = 0; i < scienceTestArray.length; i++) {
-    scienceTestArray[i] = scienceTestArray[i] - actProfile['scienceInitial'];
+  for (let i = 0; i < testArrays['science'].length; i++) {
+    testArrays['science'][i] = testArrays['science'][i] - actProfile['scienceInitial'];
   }
 
-  // console.log("compositeScores", compositeScores);
+  // console.log("sectionScores['composite']", sectionScores['composite']);
 
-  let allHours = [compositeHoursArray.runningTotal(), englishHoursArray.runningTotal(), mathHoursArray.runningTotal(), readingHoursArray.runningTotal(), scienceHoursArray.runningTotal()];
+  let allHours = [sectionHoursArrays['composite'].runningTotal(), sectionHoursArrays['english'].runningTotal(), sectionHoursArrays['math'].runningTotal(), sectionHoursArrays['reading'].runningTotal(), sectionHoursArrays['science'].runningTotal()];
   let minMax = getMinAndMax(allHours);
 
   for (let i = minMax['min']; i <= minMax['max']; i+=15) {
     hoursArray.push(i);
   }
 
-  for (let i = 1; i < compositeTestArray.length; i++) {
-    if (compositeTestArray[i]) {
-      compositeHoursScores[`${compositeHoursArray.runningTotal()[(i-1)]}`] = compositeTestArray[i];
+  for (let i = 1; i < testArrays['composite'].length; i++) {
+    if (testArrays['composite'][i]) {
+      sectionHoursScores['composite'][`${sectionHoursArrays['composite'].runningTotal()[(i-1)]}`] = testArrays['composite'][i];
     }
   }
-  for (let i = 1; i < englishTestArray.length; i++) {
-    if (englishTestArray[i]) {
-      englishHoursScores[`${englishHoursArray.runningTotal()[(i-1)]}`] = englishTestArray[i];
+  for (let i = 1; i < testArrays['english'].length; i++) {
+    if (testArrays['english'][i]) {
+      sectionHoursScores['english'][`${sectionHoursArrays['english'].runningTotal()[(i-1)]}`] = testArrays['english'][i];
     }
   }
-  for (let i = 1; i < mathTestArray.length; i++) {
-    if (mathTestArray[i]) {
-      mathHoursScores[`${mathHoursArray.runningTotal()[(i-1)]}`] = mathTestArray[i];
+  for (let i = 1; i < testArrays['math'].length; i++) {
+    if (testArrays['math'][i]) {
+      sectionHoursScores['math'][`${sectionHoursArrays['math'].runningTotal()[(i-1)]}`] = testArrays['math'][i];
     }
   }
-  for (let i = 1; i < readingTestArray.length; i++) {
-    if (readingTestArray[i]) {
-      readingHoursScores[`${readingHoursArray.runningTotal()[(i-1)]}`] = readingTestArray[i];
+  for (let i = 1; i < testArrays['reading'].length; i++) {
+    if (testArrays['reading'][i]) {
+      sectionHoursScores['reading'][`${sectionHoursArrays['reading'].runningTotal()[(i-1)]}`] = testArrays['reading'][i];
     }
   }
-  for (let i = 1; i < scienceTestArray.length; i++) {
-    if (scienceTestArray[i]) {
-      scienceHoursScores[`${scienceHoursArray.runningTotal()[(i-1)]}`] = scienceTestArray[i];
+  for (let i = 1; i < testArrays['science'].length; i++) {
+    if (testArrays['science'][i]) {
+      sectionHoursScores['science'][`${sectionHoursArrays['science'].runningTotal()[(i-1)]}`] = testArrays['science'][i];
     }
   }
-
-
-
-  // console.log("compositeHoursScores", compositeHoursScores);
-  // console.log("englishHoursScores", englishHoursScores);
-  // console.log("mathHoursScores", mathHoursScores);
-  // console.log("readingHoursScores", readingHoursScores);
-  // console.log("scienceHoursScores", scienceHoursScores);
-
-
 
   for (let i = 0; i < hoursArray.length; i++) {
-    compositeHoursScoresArray.push(compositeHoursScores[hoursArray[i]]);
-    englishHoursScoresArray.push(englishHoursScores[hoursArray[i]]);
-    mathHoursScoresArray.push(mathHoursScores[hoursArray[i]]);
-    readingHoursScoresArray.push(readingHoursScores[hoursArray[i]]);
-    scienceHoursScoresArray.push(scienceHoursScores[hoursArray[i]]);
+    sectionHoursScoresArrays['composite'].push(sectionHoursScores['composite'][hoursArray[i]]);
+    sectionHoursScoresArrays['english'].push(sectionHoursScores['english'][hoursArray[i]]);
+    sectionHoursScoresArrays['math'].push(sectionHoursScores['math'][hoursArray[i]]);
+    sectionHoursScoresArrays['reading'].push(sectionHoursScores['reading'][hoursArray[i]]);
+    sectionHoursScoresArrays['science'].push(sectionHoursScores['science'][hoursArray[i]]);
   }
 
   //set initials at hour 0
-  compositeHoursScoresArray[0] = 0;
-  englishHoursScoresArray[0] = 0;
-  mathHoursScoresArray[0] = 0;
-  readingHoursScoresArray[0] = 0;
-  scienceHoursScoresArray[0] = 0;
+  sectionHoursScoresArrays['composite'][0] = 0;
+  sectionHoursScoresArrays['english'][0] = 0;
+  sectionHoursScoresArrays['math'][0] = 0;
+  sectionHoursScoresArrays['reading'][0] = 0;
+  sectionHoursScoresArrays['science'][0] = 0;
 
   //initial in session dates
   sessionDateStr.push("Initial");
@@ -489,27 +499,25 @@ function setHomeworkChart() {
   }
 
   //prep work for the goal lines
-  const compositeGoal = roundedAvg([
+  compositeGoal = roundedAvg([
     getNextTestGoals()?.["englishGoal"], 
     getNextTestGoals()?.["mathGoal"], 
     getNextTestGoals()?.["readingGoal"], 
     getNextTestGoals()?.["scienceGoal"]
   ]);
-  const englishGoal = getNextTestGoals()?.["englishGoal"];
-  const mathGoal = getNextTestGoals()?.["mathGoal"];
-  const readingGoal = getNextTestGoals()?.["readingGoal"];
-  const scienceGoal = getNextTestGoals()?.["scienceGoal"];
+  englishGoal = getNextTestGoals()?.["englishGoal"];
+  mathGoal = getNextTestGoals()?.["mathGoal"];
+  readingGoal = getNextTestGoals()?.["readingGoal"];
+  scienceGoal = getNextTestGoals()?.["scienceGoal"];
 
-  const relativeCompositeGoal = compositeGoal - initialComposite ?? null;
-  const relativeEnglishGoal = englishGoal - actProfile["englishInitial"] ?? null;
-  const relativeMathGoal = mathGoal - actProfile["mathInitial"] ?? null;
-  const relativeReadingGoal = readingGoal - actProfile["readingInitial"] ?? null;
-  const relativeScienceGoal = scienceGoal - actProfile["scienceInitial"] ?? null;
+  sectionRelativeGoals['composite'] = compositeGoal - initialComposite ?? null;
+  sectionRelativeGoals['english'] = englishGoal - actProfile["englishInitial"] ?? null;
+  sectionRelativeGoals['math'] = mathGoal - actProfile["mathInitial"] ?? null;
+  sectionRelativeGoals['reading'] = readingGoal - actProfile["readingInitial"] ?? null;
+  sectionRelativeGoals['science'] = scienceGoal - actProfile["scienceInitial"] ?? null;
 
   //see if any relative scores are the same
-  let relativeGoals = [relativeCompositeGoal, relativeEnglishGoal, relativeMathGoal, relativeReadingGoal, relativeScienceGoal];
-  let borderDashGoals = [null, null, null, null, null];
-  let borderDashOffsetGoals = [null, null, null, null, null];
+  let relativeGoals = [sectionRelativeGoals['composite'], sectionRelativeGoals['english'], sectionRelativeGoals['math'], sectionRelativeGoals['reading'], sectionRelativeGoals['science']];
   const defaultBorderDash = [25, 10]
   const defaultDashOffsetChange = defaultBorderDash[0] + defaultBorderDash[1];
 
@@ -534,8 +542,10 @@ function setHomeworkChart() {
     }
   }
 
-  var ctxHW = document.getElementById("hw-canvas");
-  return new Chart(ctxHW, {
+}
+
+function generateChart(element, sections = ['composite', 'english', 'math', 'reading', 'science']) {
+  return new Chart(element, {
     // The type of chart we want to create
     type: 'line',
     // The data for our dataset
@@ -545,54 +555,54 @@ function setHomeworkChart() {
         {
           label: "Composite",
           order: 1,
-          backgroundColor: compositeColor,
-          borderColor: compositeColor,
+          backgroundColor: sectionColors['composite'],
+          borderColor: sectionColors['composite'],
           borderWidth: 7,
           fill: false,
           stepped: true,
           pointRadius: 3,
           pointHoverRadius: 8,
-          data: compositeTestArray,
+          data: testArrays['composite'],
         },
         {
           label: "English",
-          backgroundColor: englishColor,
-          borderColor: englishColor,
+          backgroundColor: sectionColors['english'],
+          borderColor: sectionColors['english'],
           fill: false,
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          data: englishTestArray,
+          data: testArrays['english'],
         },
         {
           label: "Math",
-          backgroundColor: mathColor,
-          borderColor: mathColor,
+          backgroundColor: sectionColors['math'],
+          borderColor: sectionColors['math'],
           fill: false,
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          data: mathTestArray,
+          data: testArrays['math'],
         },
         {
           label: "Reading",
-          backgroundColor: readingColor,
-          borderColor: readingColor,
+          backgroundColor: sectionColors['reading'],
+          borderColor: sectionColors['reading'],
           fill: false,
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          data: readingTestArray,
+          data: testArrays['reading'],
         },
         {
           label: "Science",
-          backgroundColor: scienceColor,
-          borderColor: scienceColor,
+          backgroundColor: sectionColors['science'],
+          borderColor: sectionColors['science'],
           fill: false,
           stepped: true,
           pointRadius: 5,
           pointHoverRadius: 10,
-          data: scienceTestArray,
+          data: testArrays['science'],
         }
       ]
     },
@@ -678,22 +688,22 @@ function setHomeworkChart() {
             compositeGoal: {
               type: 'line',
               display: () => {
-                if (relativeCompositeGoal || relativeCompositeGoal == 0) {
+                if (sectionRelativeGoals['composite'] || sectionRelativeGoals['composite'] == 0) {
                   return true;
                 }
                 else {
                   return false;
                 }
               },
-              yMin: relativeCompositeGoal,
-              yMax: relativeCompositeGoal,
-              borderColor: compositeColor,
+              yMin: sectionRelativeGoals['composite'],
+              yMax: sectionRelativeGoals['composite'],
+              borderColor: sectionColors['composite'],
               borderWidth: 2,
               borderDash: borderDashGoals[0],
               borderDashOffset: borderDashOffsetGoals[0],
               label: {
                 xAdjust: borderDashOffsetGoals[0] - 6,
-                backgroundColor: compositeColor,
+                backgroundColor: sectionColors['composite'],
                 color: "white",
                 enabled: true,
                 content: compositeGoal,
@@ -703,22 +713,22 @@ function setHomeworkChart() {
             englishGoal: {
               type: 'line',
               display: () => {
-                if (relativeEnglishGoal || relativeEnglishGoal == 0) {
+                if (sectionRelativeGoals['english'] || sectionRelativeGoals['english'] == 0) {
                   return true;
                 }
                 else {
                   return false;
                 }
               },
-              yMin: relativeEnglishGoal,
-              yMax: relativeEnglishGoal,
-              borderColor: englishColor,
+              yMin: sectionRelativeGoals['english'],
+              yMax: sectionRelativeGoals['english'],
+              borderColor: sectionColors['english'],
               borderWidth: 2,
               borderDash: borderDashGoals[1],
               borderDashOffset: borderDashOffsetGoals[1],
               label: {
                 xAdjust: borderDashOffsetGoals[1] - 6,
-                backgroundColor: englishColor,
+                backgroundColor: sectionColors['english'],
                 color: "white",
                 enabled: true,
                 content: englishGoal,
@@ -728,22 +738,22 @@ function setHomeworkChart() {
             mathGoal: {
               type: 'line',
               display: () => {
-                if (relativeMathGoal || relativeMathGoal == 0) {
+                if (sectionRelativeGoals['math'] || sectionRelativeGoals['math'] == 0) {
                   return true;
                 }
                 else {
                   return false;
                 }
               },
-              yMin: relativeMathGoal,
-              yMax: relativeMathGoal,
-              borderColor: mathColor,
+              yMin: sectionRelativeGoals['math'],
+              yMax: sectionRelativeGoals['math'],
+              borderColor: sectionColors['math'],
               borderWidth: 2,
               borderDash: borderDashGoals[2],
               borderDashOffset: borderDashOffsetGoals[2],
               label: {
                 xAdjust: borderDashOffsetGoals[2] - 6,
-                backgroundColor: mathColor,
+                backgroundColor: sectionColors['math'],
                 color: "white",
                 enabled: true,
                 content: mathGoal,
@@ -753,22 +763,22 @@ function setHomeworkChart() {
             readingGoal: {
               type: 'line',
               display: () => {
-                if (relativeReadingGoal || relativeReadingGoal == 0) {
+                if (sectionRelativeGoals['reading'] || sectionRelativeGoals['reading'] == 0) {
                   return true;
                 }
                 else {
                   return false;
                 }
               },
-              yMin: relativeReadingGoal,
-              yMax: relativeReadingGoal,
-              borderColor: readingColor,
+              yMin: sectionRelativeGoals['reading'],
+              yMax: sectionRelativeGoals['reading'],
+              borderColor: sectionColors['reading'],
               borderWidth: 2,
               borderDash: borderDashGoals[3],
               borderDashOffset: borderDashOffsetGoals[3],
               label: {
                 xAdjust: borderDashOffsetGoals[3] - 6,
-                backgroundColor: readingColor,
+                backgroundColor: sectionColors['reading'],
                 color: "white",
                 enabled: true,
                 content: readingGoal,
@@ -778,22 +788,22 @@ function setHomeworkChart() {
             scienceGoal: {
               type: 'line',
               display: () => {
-                if (relativeScienceGoal || relativeScienceGoal == 0) {
+                if (sectionRelativeGoals['science'] || sectionRelativeGoals['science'] == 0) {
                   return true;
                 }
                 else {
                   return false;
                 }
               },
-              yMin: relativeScienceGoal,
-              yMax: relativeScienceGoal,
-              borderColor: scienceColor,
+              yMin: sectionRelativeGoals['science'],
+              yMax: sectionRelativeGoals['science'],
+              borderColor: sectionColors['science'],
               borderWidth: 2,
               borderDash: borderDashGoals[4],
               borderDashOffset: borderDashOffsetGoals[4],
               label: {
                 xAdjust: borderDashOffsetGoals[4] - 6,
-                backgroundColor: scienceColor,
+                backgroundColor: sectionColors['science'],
                 color: "white",
                 enabled: true,
                 content: scienceGoal,
@@ -995,7 +1005,7 @@ function dateDayDifference(start, end) {
 }
 
 function setSessionAxis() {
-  let datasets = [compositeTestArray, englishTestArray, mathTestArray, readingTestArray, scienceTestArray];
+  let datasets = [testArrays['composite'], testArrays['english'], testArrays['math'], testArrays['reading'], testArrays['science']];
   hwChart.data.labels = sessionDateStr;
   hwChart.data.datasets.forEach((dataset, index) => {
     dataset.data = datasets[index];
@@ -1004,8 +1014,8 @@ function setSessionAxis() {
 }
 
 function setHourAxis() {
-  let datasets = [/*compositeHoursScoresArray*/[], englishHoursScoresArray, mathHoursScoresArray, readingHoursScoresArray, scienceHoursScoresArray];
-  let datasetHours = [/*compositeHoursArray.runningTotal()*/[], englishHoursArray.runningTotal().slice(0, -1), mathHoursArray.runningTotal().slice(0, -1), readingHoursArray.runningTotal().slice(0, -1), scienceHoursArray.runningTotal().slice(0, -1)];
+  let datasets = [/*sectionHoursScoresArrays['composite']*/[], sectionHoursScoresArrays['english'], sectionHoursScoresArrays['math'], sectionHoursScoresArrays['reading'], sectionHoursScoresArrays['science']];
+  let datasetHours = [/*sectionHoursArray['composite'].runningTotal()*/[], sectionHoursArray['english'].runningTotal().slice(0, -1), sectionHoursArray['math'].runningTotal().slice(0, -1), sectionHoursArray['reading'].runningTotal().slice(0, -1), sectionHoursArray['science'].runningTotal().slice(0, -1)];
   let minMax = getMinAndMax(datasetHours);
   let hours = [];
 
@@ -1881,142 +1891,3 @@ const formatToNumber = (event) => {
     target.dispatchEvent(new Event('change'));
   }
 }
-
-//document.getElementById("updated-english-initial").addEventListener('keydown',enforceNumericFormat);
-//document.getElementById("updated-english-initial").addEventListener('keyup',formatToNumber);
-//document.getElementById("updated-math-initial").addEventListener('keydown',enforceNumericFormat);
-//document.getElementById("updated-math-initial").addEventListener('keyup',formatToNumber);
-//document.getElementById("updated-reading-initial").addEventListener('keydown',enforceNumericFormat);
-//document.getElementById("updated-reading-initial").addEventListener('keyup',formatToNumber);
-//document.getElementById("updated-science-initial").addEventListener('keydown',enforceNumericFormat);
-//document.getElementById("updated-science-initial").addEventListener('keyup',formatToNumber);
-
-// general notes enter key will submit the note
-/*document.getElementById("student-general-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-general-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('general', note, time, currentUser)
-    .catch((error) => handleFirebaseErrors(error, window.location.href));
-  }
-});
-
-document.getElementById("student-english-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-english-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('english', note, time, currentUser)
-    .catch((error) => handleFirebaseErrors(error, window.location.href));
-  }
-});
-
-document.getElementById("student-math-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-math-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('math', note, time, currentUser)
-    .catch((error) => handleFirebaseErrors(error, window.location.href));
-  }
-});
-
-document.getElementById("student-reading-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-reading-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('reading', note, time, currentUser)
-    .catch((error) => handleFirebaseErrors(error, window.location.href));
-  }
-});
-
-document.getElementById("student-science-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-science-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('science', note, time, currentUser)
-    .catch((error) => handleFirebaseErrors(error, window.location.href));
-  }
-});
-
-//hiding and showing notes
-function changeChatArea() {
-  let type = this.id.split('-')[0];
-  if (!(this.classList.contains('chat-label-selected'))) {
-    hideAllNotes();
-    showNotes(type);
-  }
-  else {
-    hideNotes(type);
-  }
-}
-
-//stop scroll of the section when in the message div
-document.getElementById("student-general-notes").addEventListener("mouseover", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'hidden';
-});
-
-document.getElementById("student-general-notes").addEventListener("mouseout", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'auto';
-});
-
-document.getElementById("student-english-notes").addEventListener("mouseover", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'hidden';
-});
-
-document.getElementById("student-english-notes").addEventListener("mouseout", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'auto';
-});
-
-document.getElementById("student-math-notes").addEventListener("mouseover", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'hidden';
-});
-
-document.getElementById("student-math-notes").addEventListener("mouseout", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'auto';
-});
-
-document.getElementById("student-reading-notes").addEventListener("mouseover", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'hidden';
-});
-
-document.getElementById("student-reading-notes").addEventListener("mouseout", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'auto';
-});
-
-document.getElementById("student-science-notes").addEventListener("mouseover", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'hidden';
-});
-
-document.getElementById("student-science-notes").addEventListener("mouseout", (event) => {
-  document.getElementById("student-data-section").style.overflow = 'auto';
-});
-
-document.getElementById("student-general-info").addEventListener("dblclick", () => {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          const studentUID = queryStrings()['student']
-          let queryStr = "?student=" + studentUID;
-          window.location.href = "../../inquiry.html" + queryStr;
-        }
-      })
-    }
-  });
-});*/
