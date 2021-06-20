@@ -210,7 +210,8 @@ div p {
     position: relative;
     height: 81vh;
     width: 100vw;
-    background-color: #8986b2;
+    /*background-color: #8986b2;*/
+    background-color: #4d4d8c;
     z-index: 1;
 }
 
@@ -549,11 +550,11 @@ div p {
     height: 10vh;
     width: 100%;
     align-items: center;
-    /*background-color: blue;*/
-    background-color: #8986b2;
+    /*background-color: #8986b2;*/
+    background-color: #4d4d8c;
 }
 
-#generalInfo {
+.generalInfo {
     height: 80vh;
     width: 100%;
     /*display:grid;
@@ -567,7 +568,7 @@ div p {
     ".   .     .     .   .   .   . ";*/
 }
 
-#scores-chart {
+.scores-chart {
     background-color: white;
     max-width: 67vw;
     max-height: 60vh;

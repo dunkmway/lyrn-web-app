@@ -33,6 +33,7 @@
     <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
     <script src="../../student-info-test.js" defer></script>
+    <script src="../../goals-modal.js" defer></script>
 </head>
 
 
@@ -63,17 +64,17 @@
 
     <section id='compositeSection' class='mainBody'>
     
-        <div id='generalInfo' class='input-row-center'>
+        <div class='genearlInfo input-row-center'>
     
             <div class='graph'>
-                <div id="scores-chart">
-                    <div id='graphButtons' class="flex-column justify-center ">
+                <div class="scores-chart">
+                    <div class="flex-column justify-center ">
                         <div class="flex-row">
-                            <button class="button graphButton" onclick="setSessionAxis()">Sessions</button>
-                            <button class="button nextButton graphButton" onclick="setHourAxis()">Hours</button>
+                            <button class="button graphButton" onclick="setSessionAxis('composite')">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis('composite')">Hours</button>
                         </div>
                     </div>
-                    <canvas id="hw-canvas" style='flex: 1;'></canvas>
+                    <canvas id="compositeCanvas" style='flex: 1;'></canvas>
                 </div>
     
                 <div class='bigButtons'>
@@ -320,60 +321,108 @@
 
 
 
-    <section id = 'englishSection' class = 'mainBody hidden'>
-
-        <div id = "englishLessonsForm" class = "metaForm noselect hidden">
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor" onclick = "swap('english', 'chat')">
-                    <h2>Chat</h2>
+    <section id='englishSection' class='mainBody hidden'>
+    
+        <div class='genearlInfo input-row-center'>
+    
+            <div class='graph'>
+                <div class="scores-chart">
+                    <div class="flex-column justify-center ">
+                        <div class="flex-row">
+                            <button class="button graphButton" onclick="setSessionAxis('english')">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis('english')">Hours</button>
+                        </div>
+                    </div>
+                    <canvas id="englishCanvas" style='flex: 1;'></canvas>
                 </div>
-
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('english', 'lessons')">
-                    <h2>Lessons</h2>
+    
+                <div class='bigButtons'>
+                    <div class='item itemB1 cursor'>
+                        <h2>Practice</h2>
+                    </div>
+                    <div class='item itemB2 cursor'>
+                        <h2>Assign</h2>
+                    </div>
                 </div>
             </div>
-
-            <div class = "lessonHeaders">
-
-                <div class = "gridBox3">
-                    Lesson
+    
+            <div id="englishLessonsForm" class="metaForm noselect hidden">
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('english', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
                 </div>
-
-                <div class = "gridBox3">
-                    Rank
+    
+                <div class="lessonHeaders">
+    
+                    <div class="gridBox3">
+                        Lesson
+                    </div>
+    
+                    <div class="gridBox3">
+                        Rank
+                    </div>
+    
+                    <div class="gridBox3">
+                        Date
+                    </div>
+    
                 </div>
-
-                <div class = "gridBox3">
-                    Date
+    
+                <div id="englishLessons" class="lessonBody">
                 </div>
-
+    
             </div>
-
-            <div id = "englishLessons" class = "lessonBody">
+    
+            <div id='englishChat' class='metaForm'>
+    
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor" onclick="swap('english', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
+                </div>
+                <div id="englishStudentMessages" class="studentMessages"></div>
+                <textarea id="englishStudentMessagesInput" class="studentMessagesInput"
+                    placeholder="Any section specific notes?"></textarea>
             </div>
-
         </div>
-
-        <div id = 'englishChat' class = 'metaForm'>
-
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('english', 'chat')">
-                    <h2>Chat</h2>
-                </div>
-
-                <div class="headingBlock noselect cursor" onclick = "swap('english', 'lessons')">
-                    <h2>Lessons</h2>
-                </div>
-            </div>
-            <div id="englishStudentMessages" class="studentMessages"></div>
-            <textarea id="englishStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
-        </div>
-
+    
     </section>
 
 
 
     <section id = 'mathSection' class = 'mainBody hidden'>
+
+        <div class='genearlInfo input-row-center'>
+    
+            <div class='graph'>
+                <div class="scores-chart">
+                    <div class="flex-column justify-center ">
+                        <div class="flex-row">
+                            <button class="button graphButton" onclick="setSessionAxis('math')">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis('math')">Hours</button>
+                        </div>
+                    </div>
+                    <canvas id="mathCanvas" style='flex: 1;'></canvas>
+                </div>
+    
+                <div class='bigButtons'>
+                    <div class='item itemB1 cursor'>
+                        <h2>Practice</h2>
+                    </div>
+                    <div class='item itemB2 cursor'>
+                        <h2>Assign</h2>
+                    </div>
+                </div>
+            </div>
 
         <div id = "mathLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
@@ -422,12 +471,36 @@
             <div id="mathStudentMessages" class="studentMessages"></div>
             <textarea id="mathStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
+        </div>
 
     </section>
 
 
 
     <section id = 'readingSection' class = 'mainBody hidden'>
+
+        <div class='genearlInfo input-row-center'>
+    
+            <div class='graph'>
+                <div class="scores-chart">
+                    <div class="flex-column justify-center ">
+                        <div class="flex-row">
+                            <button class="button graphButton" onclick="setSessionAxis('reading')">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis('reading')">Hours</button>
+                        </div>
+                    </div>
+                    <canvas id="readingCanvas" style='flex: 1;'></canvas>
+                </div>
+    
+                <div class='bigButtons'>
+                    <div class='item itemB1 cursor'>
+                        <h2>Practice</h2>
+                    </div>
+                    <div class='item itemB2 cursor'>
+                        <h2>Assign</h2>
+                    </div>
+                </div>
+            </div>
 
         <div id = "readingLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
@@ -476,12 +549,36 @@
             <div id="readingStudentMessages" class="studentMessages"></div>
             <textarea id="readingStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
         </div>
+        </div>
 
     </section>
 
 
 
     <section id = 'scienceSection' class = 'mainBody hidden'>
+
+        <div class='genearlInfo input-row-center'>
+    
+            <div class='graph'>
+                <div class="scores-chart">
+                    <div class="flex-column justify-center ">
+                        <div class="flex-row">
+                            <button class="button graphButton" onclick="setSessionAxis('science')">Sessions</button>
+                            <button class="button nextButton graphButton" onclick="setHourAxis('science')">Hours</button>
+                        </div>
+                    </div>
+                    <canvas id="scienceCanvas" style='flex: 1;'></canvas>
+                </div>
+    
+                <div class='bigButtons'>
+                    <div class='item itemB1 cursor'>
+                        <h2>Practice</h2>
+                    </div>
+                    <div class='item itemB2 cursor'>
+                        <h2>Assign</h2>
+                    </div>
+                </div>
+            </div>
 
         <div id = "scienceLessonsForm" class = "metaForm noselect hidden">
             <div class = 'formTab'>
@@ -529,6 +626,7 @@
             </div>
             <div id="scienceStudentMessages" class="studentMessages"></div>
             <textarea id="scienceStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
+        </div>
         </div>
 
     </section>
