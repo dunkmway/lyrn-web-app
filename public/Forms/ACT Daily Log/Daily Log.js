@@ -22,6 +22,7 @@ let test_view_type = undefined;
 let mark_type = 'answer';
 let newStatus = undefined;
 let storage = firebase.storage();
+let testsToGrade = {}
 
 current_test = undefined;
 current_section = undefined;
@@ -260,6 +261,10 @@ function checkForAssignedHomeworks() {
   for (let test = 0; test < tests.length; test++) {
     for (let sec = 0; sec < sections.length; sec++) {
       if (testAnswers[tests[test]][sections[sec]]?.['Status'] == 'assigned' || testAnswers[tests[test]][sections[sec]]?.['Status'] == 'reassigned') {
+        if (!(tests[test] in testsToGrade)) {
+          testsToGrade[tests[test]] = []
+        }
+        testsToGrade[tests[test]].push(sections[sec])
         let tab = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
         let tab2 = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
         tab.setAttribute('onclick', "swapTestForm('" + tests[test] + "', '" + sections[sec] + "')")
@@ -741,4 +746,25 @@ function updateStatusBar(remove = false) {
       }
     }
   }
+}
+
+function hasGradedTests() {
+
+  // Check all of the tests that needed graded at the start of the session
+  tests = Object.keys(testsToGrade)
+  for (let t = 0; t < tests.length; t++) {
+    sections = Object.values(testsToGrade[tests[t]])
+    for (let s = 0; s < sections.length; s++) {
+      let status = testAnswers[tests[t]][sections[s]]['Status']
+      if (status == 'assigned' || status == 'reassigned') {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function submitSession() {
+  const hasGradedTests = hasGradedTests()
 }
