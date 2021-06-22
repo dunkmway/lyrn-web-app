@@ -94,6 +94,7 @@ function deleteStudentMessage(event) {
     messageDocRef.delete()
     .then(() => {
       message.remove();
+      session_message_count -= 1;
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
@@ -122,6 +123,7 @@ function sendStudentMessage(studentUID, studentType, conversationType, message, 
   .then((result) => {
     const mes = result.data;
     setStudentMessage(mes, conversationType);
+    session_message_count += 1;
   })
   .catch((error) => {
     console.log(error);
