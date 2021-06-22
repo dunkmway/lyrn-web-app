@@ -525,7 +525,6 @@ exports.saveStudentMessage = functions.https.onCall((data, context) => {
     })
     .catch((error) => {
         console.log(error);
-        // return Promise.reject(new functions.https.HttpsError(error.code, error.message, error.details));
     })
 });
 

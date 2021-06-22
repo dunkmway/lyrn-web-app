@@ -1,3 +1,5 @@
+let failedMessages = [];
+
 function getStudentMessages(studentUID, studentType, conversationType) {
   const getStudentMessages = firebase.functions().httpsCallable('getStudentMessages');
   getStudentMessages({
@@ -16,6 +18,10 @@ function getStudentMessages(studentUID, studentType, conversationType) {
 }
 
 function setStudentMessage(mes, type) {
+  console.log(mes);
+  //the div that contains the time and message
+  let messageDiv = document.createElement('div');
+
   const currentUser = firebase.auth().currentUser;
   currentUser.getIdTokenResult()
   .then((idTokenResult) => {
@@ -23,8 +29,6 @@ function setStudentMessage(mes, type) {
 
     //all the messages
     let messageBlock = document.getElementById(type + 'StudentMessages');
-    //the div that contains the time and message
-    let messageDiv = document.createElement('div');
     //the message itself
     let message = document.createElement('div');
     //time for the message
@@ -61,15 +65,14 @@ function setStudentMessage(mes, type) {
     }
 
     //only give the option to delete if the currentUser is the author, admin, or dev.
-    if ((mes.currentUserIsAuthor || currentUserRole == "admin" || currentUserRole == "dev")) {
-      let deleteMessage = document.createElement('div');
-      deleteMessage.classList.add("delete");
-      let theX = document.createElement('p');
-      theX.innerHTML = "X";
-      theX.classList.add('noMargins');
-      deleteMessage.appendChild(theX);
-      deleteMessage.addEventListener('click', (event) => deleteMessage(event));
-      message.appendChild(deleteMessage);
+    if ((mes.currentUserIsAuthor || currentUserRole == "admin" || currentUserRole == "dev") && (mes.id != 'pending' && mes.id != 'error')) {
+      setDeleteButton(message);
+    }
+    if (mes.id == 'pending') {
+      setPendingIndicator(message);
+    }
+    if (mes.id == "error") {
+      setReloadButton(message);
     }
     
     messageDiv.appendChild(message);
@@ -77,12 +80,66 @@ function setStudentMessage(mes, type) {
     document.getElementById(type + 'StudentMessagesInput').value = null;
     
     messageDiv.scrollIntoView();
-    // scrollBottomMessages(type);
   })
   .catch((error) =>  {
     handleFirebaseErrors(error, window.location.href);
     console.log(error);
   });
+
+  return messageDiv
+}
+
+function setPendingMessage(message, timestamp, type) {
+  const mes = {
+    message: message,
+    timestamp: timestamp,
+    id: 'pending',
+    currentUserIsAuthor: true,
+    isImportant: false,
+    author: firebase.auth().currentUser.displayName
+  }
+  return setStudentMessage(mes, type);
+  
+}
+
+function setErrorMessage(message, timestamp, type) {
+  const mes = {
+    message: message,
+    timestamp: timestamp,
+    id: 'error',
+    currentUserIsAuthor: true,
+    isImportant: false,
+    author: firebase.auth().currentUser.displayName
+  }
+  return setStudentMessage(mes, type);
+}
+
+function setDeleteButton(message) {
+  let deleteButton = document.createElement('div');
+  deleteButton.classList.add("delete");
+  let theX = document.createElement('p');
+  theX.innerHTML = "X";
+  theX.classList.add('noMargins');
+  deleteButton.appendChild(theX);
+  deleteButton.addEventListener('click', (event) => deleteStudentMessage(event));
+  message.appendChild(deleteButton);
+}
+
+function setReloadButton(message) {
+  let reloadButton = document.createElement('div');
+  reloadButton.classList.add("delete");
+  let theX = document.createElement('p');
+  theX.innerHTML = "⟳";
+  theX.classList.add('noMargins');
+  reloadButton.appendChild(theX);
+  reloadButton.addEventListener('click', (event) => reloadStudentMessage(event));
+  message.appendChild(reloadButton);
+}
+
+function setPendingIndicator(message) {
+  let pendingIndicator = document.createElement('div');
+  pendingIndicator.classList.add("pending");
+  message.appendChild(pendingIndicator);
 }
 
 function deleteStudentMessage(event) {
@@ -101,6 +158,18 @@ function deleteStudentMessage(event) {
   }
 }
 
+function reloadStudentMessage(event) {
+  let messageBlock = event.target.closest(".studentMessage").parentNode;
+  messageBlock.remove();
+  failedMessages.forEach((messageData, index) => {
+    if (messageData.element.isSameNode(messageBlock)) {
+      failedMessages.splice(index, 1);
+      sendStudentMessage(messageData.studentUID, messageData.studentType, messageData.conversationType, messageData.message, messageData.timestamp);
+      return;
+    }
+  })
+}
+
 function submitStudentMessage(event, studentUID, studentType, conversationType) {
   if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
@@ -113,6 +182,8 @@ function submitStudentMessage(event, studentUID, studentType, conversationType) 
 
 function sendStudentMessage(studentUID, studentType, conversationType, message, timestamp) {
   const conversation = studentUID + '-' + studentType + '-' + conversationType;
+  let pendingMessage = setPendingMessage(message, timestamp, conversationType)
+
   const saveStudentMessage = firebase.functions().httpsCallable('saveStudentMessage');
   saveStudentMessage({
     conversation: conversation,
@@ -120,11 +191,22 @@ function sendStudentMessage(studentUID, studentType, conversationType, message, 
     message: message,
   })
   .then((result) => {
+    pendingMessage.remove();
     const mes = result.data;
-    setStudentMessage(mes, conversationType);
+    setStudentMessage(mes, conversationType)
   })
   .catch((error) => {
     console.log(error);
-    handleFirebaseErrors(error, window.location.href);
+    pendingMessage.remove();
+    let errorMessage = setErrorMessage(message, timestamp, conversationType);
+    failedMessages.push({
+      element: errorMessage,
+      studentUID: studentUID,
+      studentType: studentType,
+      conversationType: conversationType,
+      message: message,
+      timestamp: timestamp
+    });
+    handleFirebaseErrors(errorInfo.error, window.location.href);
   });
 }
