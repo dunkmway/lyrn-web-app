@@ -44,6 +44,18 @@
   cursor: pointer;
 }
 
+.studentMessage .pending {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  animation: spin 2s linear infinite;
+  border: 2px solid white;
+  border-top: 2px solid #110D65;
+  border-radius: 50%;
+}
+
 .studentMessage .author {
   position: relative;
   text-align: right;
@@ -77,8 +89,8 @@
   border-style: solid;
 }
 
-.studentMessage.session {
-  border-color: #DAA441;
+.studentMessage.error {
+  border-color: red;
   border-style: solid;
 }
 
