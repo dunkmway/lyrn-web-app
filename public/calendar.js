@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('calendar');
   var calendar = new FullCalendar.Calendar(calendarEl, {
+    height: "90vh",
     initialView: 'timeGridWeek',
-    scrollTime: '07:00:00',
+    hiddenDays: [0, 6],
+    scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
       start:   'today prev,next',
@@ -11,6 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     themeSystem: 'standard',
     editable: true,
+
+    businessHours: [
+      {
+        daysOfWeek: [1, 2, 3, 4],
+        startTime: '09:00',
+        endTime: '17:00'
+      },
+      {
+        daysOfWeek: [5],
+        startTime: '9:00',
+        endTime: '13:00'
+      }
+    ],
 
     events: [
       {
