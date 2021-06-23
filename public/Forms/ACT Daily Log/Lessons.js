@@ -104,6 +104,7 @@ function updateLessonData() {
       };
   }
   setObjectValue([section, lesson], value, lessonData);
+  setLessonData();
   updateLessonGraphics();
 }
 
@@ -122,6 +123,7 @@ function resetLessonData() {
   else {
     delete lessonData[section][lesson];
   }
+  setLessonData();
   updateLessonGraphics();
 }
 

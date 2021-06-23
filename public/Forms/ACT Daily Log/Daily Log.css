@@ -36,6 +36,7 @@ div p {
     z-index: 3;
     border-radius: 15px;
     margin-right: 3%;
+    position: relative;
 }
 
 .formTab {
@@ -411,8 +412,8 @@ div p {
   padding: 8px 0px 8px 0px;
   position: absolute;
   z-index: 4;
-  bottom: 80px;
-  right: calc(3% + 12.5% - 100px - 85px);
+  bottom: calc(7% + 5px);
+  right: calc(50% - 100px - 85px + 5px);
 }
 
 /* Popup arrow */

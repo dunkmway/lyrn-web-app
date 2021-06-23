@@ -22,7 +22,17 @@ let test_view_type = undefined;
 let mark_type = 'answer';
 let newStatus = undefined;
 let storage = firebase.storage();
-let testsToGrade = {}
+let tests_to_grade = {};
+let session_message_count = 0;
+let start_time = 0;
+let session_timer = undefined;
+let timers = {
+  'composite' : 0,
+  'english' : 0,
+  'math' : 0,
+  'reading' : 0,
+  'science' : 0
+}
 
 current_test = undefined;
 current_section = undefined;
@@ -90,6 +100,7 @@ function initialSetup() {
         oldTestAnswers = doc.data();
         testAnswers = JSON.parse(JSON.stringify(oldTestAnswers));
         checkForAssignedHomeworks();
+        getElapsedTime();
       }
     })
     .catch((error) => {
@@ -131,6 +142,8 @@ function changeSection(section) {
       form.style.display = "none";
     }
   }
+
+  getElapsedTime();
 }
 
 function swap(section, swapTo) {
@@ -261,10 +274,10 @@ function checkForAssignedHomeworks() {
   for (let test = 0; test < tests.length; test++) {
     for (let sec = 0; sec < sections.length; sec++) {
       if (testAnswers[tests[test]][sections[sec]]?.['Status'] == 'assigned' || testAnswers[tests[test]][sections[sec]]?.['Status'] == 'reassigned') {
-        if (!(tests[test] in testsToGrade)) {
-          testsToGrade[tests[test]] = []
+        if (!(tests[test] in tests_to_grade)) {
+          tests_to_grade[tests[test]] = []
         }
-        testsToGrade[tests[test]].push(sections[sec])
+        tests_to_grade[tests[test]].push(sections[sec])
         let tab = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
         let tab2 = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
         tab.setAttribute('onclick', "swapTestForm('" + tests[test] + "', '" + sections[sec] + "')")
@@ -716,6 +729,7 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
         else {
           delete testAnswers[current_test][current_section]['ScaledScore']
         }
+        //submitHW();
       }
     }
     else {
@@ -748,12 +762,12 @@ function updateStatusBar(remove = false) {
   }
 }
 
-function hasGradedTests() {
+function checkTests() {
 
   // Check all of the tests that needed graded at the start of the session
-  tests = Object.keys(testsToGrade)
+  tests = Object.keys(tests_to_grade)
   for (let t = 0; t < tests.length; t++) {
-    sections = Object.values(testsToGrade[tests[t]])
+    sections = Object.values(tests_to_grade[tests[t]])
     for (let s = 0; s < sections.length; s++) {
       let status = testAnswers[tests[t]][sections[s]]['Status']
       if (status == 'assigned' || status == 'reassigned') {
@@ -766,5 +780,70 @@ function hasGradedTests() {
 }
 
 function submitSession() {
-  const hasGradedTests = hasGradedTests()
+  getElapsedTime();
+  const hasGradedTests = checkTests()
+
+  if (hasGradedTests == true) {
+    if (session_message_count > 0) {
+      console.log("Nice Work!!")
+      console.log(timers)
+    }
+    else {
+      console.log("Please enter a new message")
+    }
+  }
+  else {
+    console.log("Please grade all tests")
+  }
+}
+
+function submitHW() {
+  const studentUID = queryStrings()["student"];
+  if (studentUID) {
+    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
+    //need to somehow get this promise to return when complete....
+    return hwDocRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        //doc exists - update the doc
+        return hwDocRef.update({
+          ...testAnswers
+        })
+      }
+      else {
+        //doc does not exist - set the doc
+        return hwDocRef.set({
+          ...testAnswers
+        })
+      }
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      return Promise.reject(error);
+    });
+  }
+  else {
+    console.log("There is no student selected!!!");
+    return Promise.reject("There is no student selected!!!");
+  }
+}
+
+function getElapsedTime() {
+
+  // Set the current time
+  const section = document.getElementById('sectionTitle').innerHTML.toLowerCase()
+  
+  // Set the current time
+  let time = Date.now()
+
+  // Update the last time
+  if (session_timer == undefined) {
+    start_time = time;
+  }
+  else {
+    timers[session_timer] += time - start_time;
+  }
+
+  // Update which section we are changing to
+  session_timer = section;
 }
