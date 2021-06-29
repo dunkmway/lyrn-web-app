@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     height: "90vh",
     initialView: 'timeGridWeek',
-    hiddenDays: [0, 6],
+    hiddenDays: [0],
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
@@ -13,6 +13,21 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     themeSystem: 'standard',
     editable: true,
+
+    dateClick: function(info) {
+      alert('Clicked on: ' + info.dateStr);
+    },
+
+    eventClick: function(info) {
+      alert("ID: " + info.event.id + 
+            "\nTitle: " + info.event.title +
+            "\nStart: " + info.event.start +
+            "\nEnd: " + info.event.end
+            );
+    },
+
+    selectable: true,
+    selectMirror: true,
 
     businessHours: [
       {
@@ -31,28 +46,28 @@ document.addEventListener('DOMContentLoaded', function() {
       {
         id: 'a',
         title: 'my event',
-        start: '2021-06-14T10:00:00',
-        end: '2021-06-14T12:00:00',
+        start: '2021-06-24T10:00:00',
+        end: '2021-06-24T12:00:00',
         color: 'yellow',
         textColor: 'black',
       },
       {
         id: 'b',
         title: 'my second event',
-        start: '2021-06-14T10:00:00',
-        end: '2021-06-14T12:00:00',
+        start: '2021-06-23T10:00:00',
+        end: '2021-06-23T12:00:00',
       },
       {
         id: 'c',
         title: 'my third event',
-        start: '2021-06-14T10:00:00',
-        end: '2021-06-14T12:00:00',
+        start: '2021-06-22T10:00:00',
+        end: '2021-06-22T12:00:00',
       },
       {
         id: 'd',
         title: 'my fourth event',
-        start: '2021-06-14T10:00:00',
-        end: '2021-06-14T12:00:00',
+        start: '2021-06-24T10:00:00',
+        end: '2021-06-24T12:00:00',
       },
       {
         title: 'background event',
