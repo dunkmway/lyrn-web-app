@@ -1,3 +1,205 @@
+:root {
+  --primary-color: #110D65
+} 
+
+/* height of time slot */
 .fc .fc-timegrid-slot {
   height: 2em !important;
+}
+
+.displayNone {
+  display: none;
+}
+
+.visibilityHidden {
+  visibility: hidden;
+}
+
+.calendarNav {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  margin: 20px 0px 20px 0px;
+  padding: 0px 10px 0px 10px;
+}
+
+#mainCalendarContent {
+  height: 85vh;
+  display: flex;
+  flex-direction: row;
+}
+
+#calendar {
+  float: left;
+  flex: 1;
+}
+
+#sidebar {
+  position: relative;
+  float: left;
+  width: 20%;
+  max-width: 400px;
+  height: 100%;
+  background-color: #f1f1f1;
+  padding: 5px;
+}
+
+.bottom {
+  position: absolute;
+  bottom: 5px;
+}
+
+.dropbtn {
+  background-color: white;
+  color: var(--primary-color);
+  padding: 8px 16px 8px 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.calendarNav .dropdown {
+  position: relative;
+  display: inline-block;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.dropdown-content div {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content div:hover {background-color: #ddd;}
+
+.calendarNav .dropdown:hover .dropdown-content {display: block;}
+
+.calendarNav .dropdown:hover .dropbtn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.inputRow {
+  display: flex;
+  flex-direction: row;
+  margin: 5px;
+}
+
+.inputRow p {
+  margin-right: 5px;
+  margin-bottom: 0px;
+}
+
+.button {
+  min-width: 75px;
+  height: 30px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  justify-self: flex-end;
+  }
+
+.button:hover {
+  background-color: #110D65;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  color: #fff;
+  transform: translateY(-5px);
+}
+
+select {
+  background: url("Images/select-dropdown.png") no-repeat;
+  background-position: center right;
+  background-origin: content-box;
+  -webkit-appearance: none;
+}
+
+.select {
+  background-color: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  width: 100%;
+  border-color: #DEDEDF;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.ui.dropdown {
+  display: block !important;
+  margin-bottom: 5px !important;
+}
+
+.ui.dropdown>.dropdown.icon:before {
+  content: url("Images/select-dropdown.png") !important;
+}
+
+.more-info {
+  display: inline-block;
+  font-size: 12px;
+  color: white;
+  background-color: lightslategray;
+  text-align: center;
+  width: 18px;
+  height: 18px;
+  content: "?";
+  border: solid;
+  border-radius: 50%;
+  border-color: lightslategray;
+  border-width: 1px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  position: relative;
+  box-sizing: content-box;
+}
+
+.more-info::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: -25%;
+  margin-right: 5px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent lightslategray;
+  visibility: hidden;
+}
+
+.more-info::after {
+  font-size: 16px;
+  color: white;
+  background-color: lightslategray;
+  border-radius: 5px;
+  text-align: center;
+  content: attr(data-more-info);
+  margin-right: 25px;
+  padding: 10px;
+  position: absolute;
+  right: 100%;
+  top: -100%;
+  width: 200px;
+  visibility: hidden;
+  z-index: 100;
+}
+
+.more-info:hover:after {
+  visibility: visible;
+}
+
+.more-info:hover:before {
+  visibility: visible;
 }
