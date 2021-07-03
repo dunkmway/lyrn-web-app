@@ -1,138 +1,44 @@
-let currentStudent = "";
-let currentTutor = "";
-
-let studentProfile = {};
-let hwData = {};
-let sessionData = {};
-let actProfile = {};
-let studentNotes = {};
-
-let sessionDates = [];
-let hoursArray = [];
-let sessionDateStr = [];
-
-const sectionColors = {
-  'composite' : "#595959",
-  'english' : "#5600F7",
-  'math' : "#F70056",
-  'reading' : "#00E6BC",
-  'science' : "#C00BE0"
-}
-
-let sectionScores = {
-  'composite' : {},
-  'english' : {},
-  'math' : {},
-  'reading' : {},
-  'science' : {}
-}
-
-let sectionHours = {
-  'composite' : {},
-  'english' : {},
-  'math' : {},
-  'reading' : {},
-  'science' : {}
-}
-
-let testArrays = {
-  'composite' : [],
-  'english' : [],
-  'math' : [],
-  'reading' : [],
-  'science' : []
-}
-
-let sectionHoursArrays = {
-  'composite' : [],
-  'english' : [],
-  'math' : [],
-  'reading' : [],
-  'science' : []
-}
-
-let sectionHoursScores = {
-  'composite' : {},
-  'english' : {},
-  'math' : {},
-  'reading' : {},
-  'science' :{}
-}
-
-let sectionHoursScoresArrays = {
-  'composite' : [],
-  'english' : [],
-  'math' : [],
-  'reading' : [],
-  'science' : []
-}
-
-let sectionRelativeGoals = {
-  'composite' : undefined,
-  'english' : undefined,
-  'math' : undefined,
-  'reading' : undefined,
-  'science' : undefined
-}
-
-let borderDashGoals = [null, null, null, null, null];
-let borderDashOffsetGoals = [null, null, null, null, null];
-
-let sectionGoals = {
-  'composite' : undefined,
-  'english' : undefined,
-  'math' : undefined,
-  'reading' : undefined,
-  'science' :undefined
-}
-
-let charts = {
-  'composite' : undefined,
-  'english' : undefined,
-  'math' : undefined,
-  'reading' : undefined,
-  'science' :undefined
-}
-
-var goalsChanged = false;
-var initialsChanged = false;
-let initialComposite = undefined;
-
 main();
 
 function main() {
   initialSetupData()
   .then(() => {
+    chartsSetup();
+  })
+}
 
-    let compositeChartElement = document.getElementById("compositeCanvas");
-    let englishChartElement = document.getElementById("englishCanvas");
-    let mathChartElement = document.getElementById("mathCanvas");
-    let readingChartElement = document.getElementById("readingCanvas");
-    let scienceChartElement = document.getElementById("scienceCanvas");
+function chartsSetup() {
+    let chartElements = {
+      'composite': undefined,
+      'english': undefined,
+      'math': undefined,
+      'reading': undefined,
+      'science': undefined
+    }
+
+    for (let i = 0; i < sections.length; i++) {
+      chartElements[sections[i]] = document.getElementById(sections[i] + "Canvas");
+    }
+    chartElements['composite'] = document.getElementById("compositeCanvas");
+
     setHomeworkChartData();
-    charts['composite'] = generateChart(compositeChartElement, ['composite', 'english', 'math', 'reading', 'science'])
-    charts['english'] = generateChart(englishChartElement, ['composite', 'english'])
-    charts['math'] = generateChart(mathChartElement, ['composite', 'math'])
-    charts['reading'] = generateChart(readingChartElement, ['composite', 'reading'])
-    charts['science'] = generateChart(scienceChartElement, ['composite', 'science'])
+
+    for (let i = 0; i < sections.length; i++) {
+      charts[sections[i]] = generateChart(chartElements[sections[i]], ['composite', sections[i]])
+
+      // Adjust the chart to have the sizing play nicely
+      chartElements[sections[i]].style.maxWidth = "100%"
+      chartElements[sections[i]].style.maxHeight = "93%"
+    }
+    charts['composite'] = generateChart(chartElements['composite'], ['composite', 'english', 'math', 'reading', 'science'])
 
     // Adjust the chart to have the sizing play nicely
-    compositeChartElement.style.maxWidth = "100%"
-    compositeChartElement.style.maxHeight = "93%"
-    englishChartElement.style.maxWidth = "100%"
-    englishChartElement.style.maxHeight = "93%"
-    mathChartElement.style.maxWidth = "100%"
-    mathChartElement.style.maxHeight = "93%"
-    readingChartElement.style.maxWidth = "100%"
-    readingChartElement.style.maxHeight = "93%"
-    scienceChartElement.style.maxWidth = "100%"
-    scienceChartElement.style.maxHeight = "93%"
-  })
+    chartElements['composite'].style.maxWidth = "100%"
+    chartElements['composite'].style.maxHeight = "93%"
 }
 
 function initialSetupData() {
   currentStudent = queryStrings()["student"];
-  // console.log("currentStudent", currentStudent);
 
   if (currentStudent) {
     let profileProm = getProfileData(currentStudent)
@@ -281,22 +187,21 @@ function storeStudentNotesData(doc) {
 }
 
 function setHomeworkChartData() {
-  //set up arrays for each test type
+  // set up arrays for each test type
 
-  //add the initial scores to the array
-  testArrays['english'].push(actProfile['englishInitial'] ?? null);
-  testArrays['math'].push(actProfile['mathInitial'] ?? null);
-  testArrays['reading'].push(actProfile['readingInitial'] ?? null);
-  testArrays['science'].push(actProfile['scienceInitial'] ?? null);
-
+  // Set the testArrays
+  for (let i = 0; i < sections.length; i++) {
+    testArrays[sections[i]].push(actProfile[sections[i] + 'Initial'] ?? null);
+  }
   initialComposite = roundedAvg([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
   testArrays['composite'].push(initialComposite);
 
+
+  // Set the section Hours
+  for (let i = 0; i < sections.length; i++) {
+    sectionHoursArrays[sections[i]].push(0);
+  }
   sectionHoursArrays['composite'].push(0);
-  sectionHoursArrays['english'].push(0);
-  sectionHoursArrays['math'].push(0);
-  sectionHoursArrays['reading'].push(0);
-  sectionHoursArrays['science'].push(0);
 
   //set up the rest of the tests
   for (let i = 0; i < sessionDates.length; i++) {
@@ -451,68 +356,6 @@ function queryStrings() {
   return GET;
 }
 
-/**
- * create html elements and return them in a parent div
- * @param {[String]} elementType tag names for the elements that will be created
- * @param {[[String]]} classes classes for each element
- * @param {[[String]]} attributes attributes for each element
- * @param {[[String]]} values values for each attribute for each element
- * @param {[String]} text innerhtml for each element
- * @param {[String]} divClasses calsses for the parent div for the elements
- * @returns {HTMLElement} html div whose children are the requested elements
- */
- function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
-  // Make sure there is something passed into the function
-  if (elementType.length >= 0) {
-    let elements = createElement("div", divClasses);
-
-    // Iterate through each of the elements that need created
-    if (attributes.length == values.length && attributes.length >= 0) {
-      for (let i = 0; i < elementType.length; i++) {
-        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
-      }
-    }
-
-    // Return the element
-    return elements;
-
-  }
-}
-
-/**
- * create html element
- * @param {String} elementType tag name for the element that will be created
- * @param {[String]} classes classes for the element
- * @param {[String]} attributes attributes for the element
- * @param {[String]} values values for each attribute for the element
- * @param {String} text innerhtml for the element
- * @returns {HTMLElement} html element of the given tag
- */
-function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
-  // Initialize the element
-  let element = document.createElement(elementType);
-
-  // Set each of the specified attributes for the element
-  if (attributes.length == values.length && attributes.length > 0) {
-    for (let i = 0; i < attributes.length; i++) {
-      element.setAttribute(attributes[i], values[i]);
-    }
-  }
-
-  // Add the classes to the element
-  for (let i = 0; i < classes.length; i++) {
-    element.classList.add(classes[i]);
-  }
-
-  // Set the inner html text
-  if (text != "") {
-    element.innerHTML = text;
-  }
-
-  // Return the element
-  return element;
-}
-
 Array.prototype.runningTotal = function() {
   let arrayCopy = [...this];
   if (!arrayCopy[0]) {
@@ -629,7 +472,7 @@ function dateDayDifference(start, end) {
 function setSessionAxis(mainSection) {
   // Identify which sections are in the graph
   const currentDatasets = charts[mainSection]['config']['data']['datasets']
-  sections = []
+  const sections = []
   for (let i = 0; i < currentDatasets.length; i++) {
     sections.push(currentDatasets[i]['label'].toLowerCase())
   }
@@ -650,7 +493,7 @@ function setSessionAxis(mainSection) {
 function setHourAxis(mainSection) {
   // Identify which sections are in the graph
   const currentDatasets = charts[mainSection]['config']['data']['datasets']
-  sections = []
+  const sections = []
   for (let i = 0; i < currentDatasets.length; i++) {
     sections.push(currentDatasets[i]['label'].toLowerCase())
   }

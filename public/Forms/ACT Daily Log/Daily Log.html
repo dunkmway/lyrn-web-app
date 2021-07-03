@@ -29,6 +29,7 @@
     <script src="../../Site Templates/student-chat.js" defer></script>
 
     <!-- Our code -->
+    <script src="../../chart-data.js" defer></script>
     <script src="Daily Log.js" defer></script>
     <script src="Event Listeners.js" defer></script>
     <script src="Lessons.js" defer></script>
@@ -59,6 +60,21 @@
         </div>
     </div>
 
+    <!--<div id = 'statusBox'>
+        <p id = 'loading' class = 'hidden'></p>
+        <p id = 'redX' class = 'hidden'>&#10060</p>
+        <p id = 'blueCircle' class = 'hidden'>&#128309</p>
+        <p id = 'greenCircle' class = ''>&#128994</p>
+    </div>-->
+
+
+    <div id = "lessonPopup" onmouseover = "openLessonPopup()" onmouseout = "closeLessonPopup()" class = 'input-column-center hidden'>
+        <button class = "squareButton green white" onclick = "submitLesson('mastered')">Mastered</button>
+        <button class = "squareButton yellow white" onclick = "submitLesson('proficient')">Proficient</button>
+        <button class = "squareButton red white" onclick = "submitLesson('review')">Review</button>
+        <button class = "squareButton" onclick = "submitLesson('remove')">Remove</button>
+    </div>
+    
 
 
 
@@ -78,12 +94,12 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <div class='item itemB1 cursor'>
-                        <h2>What If...?</h2>
-                    </div>
-                    <div class='item itemB2 cursor'>
-                        <h2 onclick="submitSession()">Submit</h2>
-                    </div>
+                    <button class='item itemB1 cursor'>
+                        What If...?
+                    </button>
+                    <button onclick = "submitSession()" class='item itemB2 cursor'>
+                        Submit Session
+                    </button>
                 </div>
             </div>
     
@@ -95,20 +111,8 @@
                     </div>
                 </div>
     
-                <div class='statusBarDiv'>
+                <div class='meter'>
                     <div class='statusBar'></div>
-                </div>
-    
-                <div id="toggleDiv" class="input-row-center">
-    
-                    <button id="answerButton" class="smallButton buttonToggleOn" onclick="toggleButtons('answer')">
-                        Answers
-                    </button>
-    
-                    <button id="guessButton" class="smallButton buttonToggleOff" onclick="toggleButtons('guess')">
-                        Guesses
-                    </button>
-    
                 </div>
     
                 <div id="popupInfo" class="input-row">
@@ -134,109 +138,15 @@
     
                 </div>
     
-                <div id="timingBlock" class="input-row-center">
-                    <label for="time" class="label">Time:</label>
-                    <select id="time-minutes">
-                        <option value="0">Minutes</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="13">13</option>
-                        <option value="14">14</option>
-                        <option value="15">15</option>
-                        <option value="16">16</option>
-                        <option value="17">17</option>
-                        <option value="18">18</option>
-                        <option value="19">19</option>
-                        <option value="20">20</option>
-                    </select>
-    
-                    <select id="time-seconds">
-                        <option value="0">Seconds</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="13">13</option>
-                        <option value="14">14</option>
-                        <option value="15">15</option>
-                        <option value="16">16</option>
-                        <option value="17">17</option>
-                        <option value="18">18</option>
-                        <option value="19">19</option>
-                        <option value="20">20</option>
-                        <option value="21">21</option>
-                        <option value="22">22</option>
-                        <option value="23">23</option>
-                        <option value="24">24</option>
-                        <option value="25">25</option>
-                        <option value="26">26</option>
-                        <option value="27">27</option>
-                        <option value="28">28</option>
-                        <option value="29">29</option>
-                        <option value="30">30</option>
-                        <option value="31">31</option>
-                        <option value="32">32</option>
-                        <option value="33">33</option>
-                        <option value="34">34</option>
-                        <option value="35">35</option>
-                        <option value="36">36</option>
-                        <option value="37">37</option>
-                        <option value="38">38</option>
-                        <option value="39">39</option>
-                        <option value="40">40</option>
-                        <option value="41">41</option>
-                        <option value="42">42</option>
-                        <option value="43">43</option>
-                        <option value="44">44</option>
-                        <option value="45">45</option>
-                        <option value="46">46</option>
-                        <option value="47">47</option>
-                        <option value="48">48</option>
-                        <option value="49">49</option>
-                        <option value="50">50</option>
-                        <option value="51">51</option>
-                        <option value="52">52</option>
-                        <option value="53">53</option>
-                        <option value="54">54</option>
-                        <option value="55">55</option>
-                        <option value="56">56</option>
-                        <option value="57">57</option>
-                        <option value="58">58</option>
-                        <option value="59">59</option>
-                        <option value="60">60</option>
-                    </select>
-                </div>
-    
-                <div id="popupButtons" class="input-row-center">
-                    <button class="smallButton button" onclick="resetAnswers()">
+                <div id="popupButtons" class="input-row-center spacedEvenly">
+                    <button id = 'resetHomework' class="smallButton button" onclick="resetAnswers()">
                         Reset
                     </button>
-                    <button class="smallButton button" onclick="removeTest()">
-                        Remove
-                    </button>
-                    <button class="smallButton button" onclick="submitAnswersPopup('False', 'True')">
+                    <button id = 'submitHomework' class="smallButton button" onclick="toggleHomeworkPopup()">
                         Submit
                     </button>
     
-                    <div id="perfectScorePopup" class="popup" data-test="">
+                    <div id="inCenterPopup" class="popup" data-test="">
                         <button class="longButton button cursor green" onclick="submitAnswersPopup('grade')">
                             Grade Passage
                         </button>
@@ -257,40 +167,33 @@
     
                     <div id="submitHomeworkPopup" class="popup">
     
-                        <p id='assignFirst' style="color: white; display:none;">Test must be assigned first</p>
-                        <p id='alreadyGradedTest' style="color: white; display:none;">This test can't be changed</p>
                         <p id='gradeFirst' style="color: white; display:none;">Entire test must be graded first</p>
-                        <p id='guessFirst' style="color: white; display:none;">Test must contain at least 1 guess</p>
     
-                        <button class="green testSubmitButton" onclick="setHomeworkStatus('in-time', 'True')">
+                        <button class="green testSubmitButton" onclick="gradeHomework('in-time')">
                             Completed <span class="smallerText"><br>(in-time)</span>
                         </button>
     
-                        <button class="orange testSubmitButton" onclick="setHomeworkStatus('forgot')">
+                        <button class="orange testSubmitButton" onclick="gradeHomework('forgot')">
                             Completed <span class="smallerText"><br>(forgotten)</span>
                         </button>
     
-                        <button class="greenShade testSubmitButton" onclick="setHomeworkStatus('not in time', 'True')">
+                        <button class="greenShade testSubmitButton" onclick="gradeHomework('not in time')">
                             Completed <span class="smallerText"><br>(not in time)</span>
                         </button>
     
-                        <button class="greenShade testSubmitButton" onclick="setHomeworkStatus('partial', 'True')">
-                            Partial <span class="smallerText"><br>(time remaining)</span>
-                        </button>
-    
-                        <button class="greenShade testSubmitButton" onclick="setHomeworkStatus('poor conditions', 'True')">
+                        <button class="greenShade testSubmitButton" onclick="gradeHomework('poor conditions')">
                             Poor Conditions
                         </button>
     
-                        <button class="greenShade testSubmitButton" onclick="setHomeworkStatus('previously completed')">
+                        <button class="greenShade testSubmitButton" onclick="gradeHomework('previously completed')">
                             Mark as Completed
                         </button>
     
-                        <button class="red testSubmitButton" onclick="setHomeworkStatus('in-center', 'True')">
+                        <button class="red testSubmitButton" onclick="gradeHomework('in-center')">
                             Completed <span class="smallerText"><br>(in-center)</span>
                         </button>
     
-                        <button class="gray testSubmitButton" onclick="setHomeworkStatus('did not do')">
+                        <button class="gray testSubmitButton" onclick="gradeHomework('did not do')">
                             Didn't do
                         </button>
                     </div>
@@ -307,7 +210,7 @@
                     </div>
                 </div>
     
-                <div class='statusBarDiv'>
+                <div class='meter'>
                     <div class='statusBar'></div>
                 </div>
     
@@ -338,12 +241,15 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <div class='item itemB1 cursor'>
-                        <h2>Practice</h2>
-                    </div>
-                    <div class='item itemB2 cursor'>
-                        <h2>Assign</h2>
-                    </div>
+                    <button class='item itemB1 cursor'>
+                        Practice
+                    </button>
+                    <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor'>
+                        Assign
+                    </button>
+                    <button id = 'unassignEnglish' onclick = "unassignHomework('english')" class = 'item itemB2 cursor hidden'>
+                        Unassign
+                    </button>
                 </div>
             </div>
     
@@ -373,7 +279,7 @@
                     </div>
     
                 </div>
-    
+
                 <div id="englishLessons" class="lessonBody">
                 </div>
     
@@ -415,12 +321,15 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <div class='item itemB1 cursor'>
-                        <h2>Practice</h2>
-                    </div>
-                    <div class='item itemB2 cursor'>
-                        <h2>Assign</h2>
-                    </div>
+                    <button class='item itemB1 cursor'>
+                        Practice
+                    </button>
+                    <button id = 'assignMath' onclick = "assignHomework('math')" class='item itemB2 cursor'>
+                        Assign
+                    </button>
+                    <button id = 'unassignMath' onclick = "unassignHomework('math')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button>
                 </div>
             </div>
 
@@ -492,12 +401,15 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <div class='item itemB1 cursor'>
-                        <h2>Practice</h2>
-                    </div>
-                    <div class='item itemB2 cursor'>
-                        <h2>Assign</h2>
-                    </div>
+                    <button class='item itemB1 cursor'>
+                        Practice
+                    </button>
+                    <button id = 'assignReading' onclick = "assignHomework('reading')" class='item itemB2 cursor'>
+                        Assign
+                    </button>
+                    <button id = 'unassignReading' onclick = "unassignHomework('reading')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button>
                 </div>
             </div>
 
@@ -569,12 +481,15 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <div class='item itemB1 cursor'>
-                        <h2>Practice</h2>
-                    </div>
-                    <div class='item itemB2 cursor'>
-                        <h2>Assign</h2>
-                    </div>
+                    <button class='item itemB1 cursor'>
+                        Practice
+                    </button>
+                    <button id = 'assignScience' onclick = "assignHomework('science')" class='item itemB2 cursor'>
+                        Assign
+                    </button>
+                    <button id = 'unassignScience' onclick = "unassignHomework('science')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button>
                 </div>
             </div>
 

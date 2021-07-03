@@ -1,9 +1,13 @@
 // The actual tests with their answers and scaled scores
-let testData = {};
+// https://codepen.io/mayuMPH/pen/ZjxGEY  - range slider
+let test_answers_data = {};
+
+let test_answers_grading = {};
+let ids = [];
 
 // Student test information
-let oldTestAnswers = {};
-let testAnswers = {};
+let student_tests = {};
+let student_new_tests = {};
 let tempAnswers = {};
 
 // Current tests in use
@@ -15,18 +19,19 @@ const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
                   '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // Other needed info
-const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
-const keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
+const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
+const keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
 const date = new Date()
 let test_view_type = undefined;
-let mark_type = 'answer';
-let newStatus = undefined;
+let new_status = undefined;
 let storage = firebase.storage();
 let tests_to_grade = {};
 let session_message_count = 0;
+let homework_count = 0;
 let start_time = 0;
 let session_timer = undefined;
 let timers = {
+  'grading' : 0,
   'composite' : 0,
   'english' : 0,
   'math' : 0,
@@ -41,75 +46,63 @@ current_passage_number = undefined;
 const CURRENT_STUDENT_UID = queryStrings()['student'];
 const CURRENT_STUDENT_TYPE = "act";
 
+function getStudentTests(studentUID) {
+  const ref = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', studentUID)
+  return ref.get()
+  .then((querySnapshot) => {
+    let finalObj = {}
+    let assignedTests = []
+    querySnapshot.forEach((doc) => {
+      let data = doc.data();
+      let obj = {}
+      obj['date'] = data.date;
+      obj['questions'] = data.questions;
+      obj['score'] = data.score;
+      obj['scaledScore'] = data.scaledScore;
+      obj['status'] = data.status;
+      obj['type'] = data.type;
+
+      // Grab the tests that are in an assigned state that were assigned more than 14 hours before the session started
+      if (data.status == 'assigned') {
+        assignedTests.push({ 'test' : data.test,
+                              'section' : data.section,
+                              'id' : doc.id })
+      }
+
+      setObjectValue([data.section, data.test], obj, finalObj)
+    })
+
+    // add the assigned tests
+    setObjectValue(['assignedTests'], assignedTests, finalObj)
+    return finalObj;
+  })
+}
+
+
 initialSetup();
 
-/**
- * create html element
- * @param {String} elementType tag name for the element that will be created
- * @param {[String]} classes classes for the element
- * @param {[String]} attributes attributes for the element
- * @param {[String]} values values for each attribute for the element
- * @param {String} text innerhtml for the element
- * @returns {HTMLElement} html element of the given tag
- */
-function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
-  // Initialize the element
-  let element = document.createElement(elementType);
-
-  // Set each of the specified attributes for the element
-  if (attributes.length == values.length && attributes.length > 0) {
-    for (let i = 0; i < attributes.length; i++) {
-      element.setAttribute(attributes[i], values[i]);
-    }
-  }
-
-  // Add the classes to the element
-  for (let i = 0; i < classes.length; i++) {
-    element.classList.add(classes[i]);
-  }
-
-  // Set the inner html text
-  if (text != "") {
-    element.innerHTML = text;
-  }
-
-  // Return the element
-  return element;
-}
-
 function initialSetup() {
-  // Grab the test data from Fb
-  grabTestData();
-  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
-  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'english');
-  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'math');
-  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading');
-  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science');
+  // Grab the test answers data from Fb
+  grabTestAnswersData();
 
-  //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
-  const studentUID = queryStrings()["student"];
-
-  if (studentUID) {
-    //get the student's hw scores
-    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-
-    //need to somehow get this promise to return when complete....
-    return hwDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        oldTestAnswers = doc.data();
-        testAnswers = JSON.parse(JSON.stringify(oldTestAnswers));
-        checkForAssignedHomeworks();
-        getElapsedTime();
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-    });
+  // Grab the Chat Messages
+  for (let i = 0; i < sections.length; i++) {
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, sections[i]);
   }
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
+
+  // Grab the student's tests
+  getStudentTests(CURRENT_STUDENT_UID)
+  .then((res) => {
+    // set the working tests object and the old tests object
+    student_new_tests = res;
+    checkForAssignedHomeworks();
+    getElapsedTime();
+  })
+  .catch(() => console.log("I hate assigned promises"))
 }
 
-function grabTestData() {
+function grabTestAnswersData() {
   // Fb reference
   let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
 
@@ -117,7 +110,7 @@ function grabTestData() {
   ref.get()
   .then((snapshot) => {
     snapshot.forEach((doc) => {
-      testData[doc.id] = doc.data()
+      test_answers_data[doc.id] = doc.data()
     })
   })
 }
@@ -146,6 +139,9 @@ function changeSection(section) {
   getElapsedTime();
 }
 
+/*
+Swap between the lessons and chat
+*/
 function swap(section, swapTo) {
   let chat = document.getElementById(section + 'Chat')
   let lessons = document.getElementById(section + 'LessonsForm')
@@ -177,14 +173,15 @@ function swapTestForm(test, section = undefined, passageNumber = undefined) {
   // Change which tab is active
   changeHeaders(test, section)
 
-  // Reset the answers
-  removeAnswers()
+  // Reset the HTML answers
+  removeAnswersFromHTMLForm()
 
   // Swap which popup is being displayed+
   if (test == 'Chat') {
     // swap which popup is being viewed
     chatForm.style.display = 'flex'
     testForm.style.display = 'none'
+    document.getElementById("submitHomeworkPopup").classList.remove("show");
   }
   else {
 
@@ -237,86 +234,57 @@ function changeHeaders(test, section = undefined) {
 
 }
 
-/**
- * create html elements and return them in a parent div
- * @param {[String]} elementType tag names for the elements that will be created
- * @param {[[String]]} classes classes for each element
- * @param {[[String]]} attributes attributes for each element
- * @param {[[String]]} values values for each attribute for each element
- * @param {[String]} text innerhtml for each element
- * @param {[String]} divClasses calsses for the parent div for the elements
- * @returns {HTMLElement} html div whose children are the requested elements
- */
-function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
-  // Make sure there is something passed into the function
-  if (elementType.length >= 0) {
-    let elements = createElement("div", divClasses);
-
-    // Iterate through each of the elements that need created
-    if (attributes.length == values.length && attributes.length >= 0) {
-      for (let i = 0; i < elementType.length; i++) {
-        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
-      }
-    }
-
-    // Return the element
-    return elements;
-
-  }
-}
-
 function checkForAssignedHomeworks() {
   let location = document.getElementById('generalHeader')
   let location2 = document.getElementById('answersPopupHeader')
-  let statusBars = document.getElementsByClassName('statusBarDiv')
-  let tests = Object.keys(testAnswers)
-  const sections = ['English', 'Math', 'Reading', 'Science']
-  for (let test = 0; test < tests.length; test++) {
-    for (let sec = 0; sec < sections.length; sec++) {
-      if (testAnswers[tests[test]][sections[sec]]?.['Status'] == 'assigned' || testAnswers[tests[test]][sections[sec]]?.['Status'] == 'reassigned') {
-        if (!(tests[test] in tests_to_grade)) {
-          tests_to_grade[tests[test]] = []
-        }
-        tests_to_grade[tests[test]].push(sections[sec])
-        let tab = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
-        let tab2 = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + tests[test] + "', '" + sections[sec] + "')"]], [tests[test] + ' - ' + sections[sec][0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', sections[sec].toLowerCase() + 'Color'])
-        tab.setAttribute('onclick', "swapTestForm('" + tests[test] + "', '" + sections[sec] + "')")
-        tab2.setAttribute('onclick', "swapTestForm('" + tests[test] + "', '" + sections[sec] + "')")
-        location.append(tab)
-        location2.append(tab2)
+  let statusBars = document.getElementsByClassName('meter')
+  const testList = student_new_tests['assignedTests'];
 
-        for (let i = 0; i < statusBars.length; i++) {
-          let ele = createElement('div', ['statusBar'], [], [], '')
-          statusBars[i].append(ele);
-        }
+  // For each test that needs to be graded
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+    const id = testList[i]['id']
+
+    // Make sure that the test was assigned before the current day
+    if (student_new_tests[section][test]['date'] < convertFromDateInt(date.getTime())['startOfDayInt']) {
+      // Create the array for the test that needs graded this session
+      setObjectValue([test, section, 'questions'], student_new_tests[section][test]['questions'], test_answers_grading)
+
+      // Create the tab for grading
+      let tab = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + test + "', '" + section + "')"]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+      let tab2 = createElements(['h2'], [[]], [['onclick']], [["swapTestForm('" + test + "', '" + section + "')"]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+      tab.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+      tab2.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+      location.append(tab)
+      location2.append(tab2)
+
+      // Add blank status bars below each test
+      for (let i = 0; i < statusBars.length; i++) {
+        let ele = createElement('div', ['statusBar'], [], [], '')
+        statusBars[i].append(ele);
       }
+
+      // Lower the homework count for each test that needs graded
+      homework_count -= 1;
+    }
+    else {
+
+      ids.push({
+        'type' : 'homework',
+        'section' : section,
+        'action' : 'assign',
+        'id' : id
+      })
+
+      document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1)).classList.add('hidden')
+      document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('hidden')
     }
   }
+
 }
 
-function toggleButtons(active) {
-  // Find the buttons to toggle
-  let answerButton = document.getElementById("answerButton");
-  let guessButton = document.getElementById("guessButton");
-
-  // Swap the buttons (if needed)
-  if (active == 'answer') {
-    mark_type = 'answer';
-    answerButton.classList.add("buttonToggleOn")
-    answerButton.classList.remove("buttonToggleOff")
-    guessButton.classList.add("buttonToggleOff")
-    guessButton.classList.remove("buttonToggleOn")
-  }
-  else if (active == 'guess') {
-    mark_type = 'guess';
-    answerButton.classList.remove("buttonToggleOn")
-    answerButton.classList.add("buttonToggleOff")
-    guessButton.classList.add("buttonToggleOn")
-    guessButton.classList.remove("buttonToggleOff")
-  }
-}
-
-function removeAnswers() {
+function removeAnswersFromHTMLForm() {
   // Remove the answers (if they are there)
   let answerArea = document.getElementById("passage")
   if (answerArea.childElementCount > 0) {
@@ -332,20 +300,12 @@ function removeAnswers() {
   let rightArrow = document.getElementById("rightArrow")
   leftArrow.parentNode.style.visibility = "hidden"
   rightArrow.parentNode.style.visibility = "hidden"
-
-  // Reset the time
-  let timeMinutes = document.getElementById("time-minutes")
-  let timeSeconds = document.getElementById("time-seconds")
-  timeMinutes.parentNode.style.visibility = "hidden";
-
-  timeMinutes.value = "0"
-  timeSeconds.value = "0"
 }
 
 function updatePopupGraphics(test, section, passageNumber = 1) {
 
   // Check to see if either left arrow or right arrows need to be hidden
-  let lastPassageNumber = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
+  let lastPassageNumber = test_answers_data[test][section + "Answers"][test_answers_data[test][section + "Answers"].length - 1]["passageNumber"]
   let leftArrow = document.getElementById("leftArrow")
   let rightArrow = document.getElementById("rightArrow")
 
@@ -358,25 +318,9 @@ function updatePopupGraphics(test, section, passageNumber = 1) {
   }
 
   // Get a list of all the answers for the given section
-  let allAnswers = testData[test][section.toLowerCase() + "Answers"];
+  let allAnswers = test_answers_data[test][section + "Answers"];
   let passageAnswers = []
   let passageNumbers = []
-
-  // Set the temp Answers, if needed
-  if (!(test in tempAnswers) || !(section in tempAnswers[test])) {
-    tempAnswers = {}
-    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
-    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
-    if (testAnswers[test]?.[section] != undefined) {
-      tempAnswers[test][section] = JSON.parse(JSON.stringify(testAnswers[test][section]))
-    }
-  }
-
-  // Add the passageNumber if needed
-  if (!(passageNumber in tempAnswers[test][section])) {
-    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
-    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
-  }
 
   // Get the answers for the passage passed in
   for (let answer = 0; answer < allAnswers.length; answer++) {
@@ -389,257 +333,167 @@ function updatePopupGraphics(test, section, passageNumber = 1) {
   // Display the answers, (color them too if needed)
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
-    if (answer == 0) {
-      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
-        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "cursor"]);
-      } 
-      else {
-        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "cursor"]);
-      }
-      passage.appendChild(ele);
-      ele.setAttribute("data-question", passageNumbers[answer])
-      ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.classList.add('redOnHover')
-      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('Qred')
-      }
-    }
-    else {
-      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
-        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
-      }
-      else {
-        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
-      }
-      passage.appendChild(ele);
-      ele.setAttribute("data-question", passageNumbers[answer]);
-      ele.setAttribute("data-answer", passageAnswers[answer]);
-      ele.classList.add('redOnHover')
-      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('Qred')
-      }
-    }
-  }
-
-  // Set the time
-  if (test_view_type == 'inCenter') {
-    let timeMinutes = document.getElementById("time-minutes")
-    let timeSeconds = document.getElementById("time-seconds")
-    timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
-    timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
-    timeMinutes.parentNode.style.visibility = "visible";
-  }
-}
-
-function shouldMarkAsGuessed(test, section, question) {
-  const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints']
-  if (guessEndPoints == undefined) {
-    return false
-  }
-  else {
-    let pointIndex = 0;
-    for (let point = 0; point < guessEndPoints.length; point++) {
-      if (parseInt(guessEndPoints[point]) >= parseInt(question)) {
-        pointIndex = point;
-        break;
-      }
-    }
-    if (question == guessEndPoints[pointIndex]){
-      return true;
-    }
-    else if (guessEndPoints.length % 2 == 0) {
-      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
-        if (pointIndex % 2 == 1) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      }
-      else {
-        return false;
-      }
-    }
-    else {
-      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
-        if (pointIndex % 2 == 1) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      }
-      else {
-        return true;
-      }
+    ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
+    passage.appendChild(ele);
+    ele.setAttribute("data-question", passageNumbers[answer]);
+    ele.setAttribute("data-answer", passageAnswers[answer]);
+    ele.classList.add('redOnHover')
+    if (test_answers_grading[test][section]['questions'][passageNumbers[answer] - 1]['isWrong'] == true) {
+      ele.querySelectorAll('div')[0].classList.add('Qred')
     }
   }
 }
 
 function resetAnswers() {
+  // Disable the button until everything is done
+  document.getElementById('resetHomework').disabled = true;
+  document.getElementById('submitHomework').disabled = true;
+
   // Remove the answers
-  removeAnswers();
+  removeAnswersFromHTMLForm();
   
-  // Reset the tempAnswers array for the given passage
-  let status = tempAnswers[current_test]?.[current_section]?.['Status'];
-  if (status == undefined || status == 'assigned' || status == 'reassigned') {
-    tempAnswers[current_test][current_section][current_passage_number]['Answers'] = [];
-    tempAnswers[current_test][current_section][current_passage_number]['Time'] = 0;
+  // Reset the answers for the working test
+  let questions = test_answers_grading[current_test][current_section]['questions']
+  for (let i = 0; i < questions.length; i++) {
+    test_answers_grading[current_test][current_section]['questions'][i]['isWrong'] = false
   }
 
-  // Set up the testAnswersPopup again
+  // Reset the test if need be
+  const id = student_new_tests['assignedTests'].filter(function(val) { return val.section == current_section && val.test == current_test})[0]['id']
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+  const studentQuestions = initializeEmptyAnswers(current_test, current_section);
+
+  ref.update({
+    ['questions'] : studentQuestions,
+    ['status'] : student_new_tests[current_section][current_test]['status'],
+    ['date'] : student_new_tests[current_section][current_test]['date'],
+    ['score'] : student_new_tests[current_section][current_test]['score'],
+    ['scaledScore'] : student_new_tests[current_section][current_test]['scaledScore']
+  })
+
+  // Successfully reset the test
+  .then(() => {
+    console.log("Reset", current_test, '-', current_section);
+    document.getElementById('resetHomework').disabled = false;
+    document.getElementById('submitHomework').disabled = false;
+
+    // Remove the green bar status if it's there
+    updateStatusBar(true)
+    
+    // Lower the homework count by 1
+    homework_count -= 1;
+
+  })
+
+  // Wasn't able to reset the test
+  .catch((error) => {
+    console.log(error)
+    document.getElementById('resetHomework').disabled = false;
+    document.getElementById('submitHomework').disabled = false;
+  })
+
+  // Set up the student_testsPopup again
   swapTestForm(current_test, current_section, current_passage_number)
 }
 
-function removeTest() {
-  // Get the test and section from the header
-  const oldStatus = oldTestAnswers[current_test]?.[current_section]?.['Status']
+function toggleHomeworkPopup() {
+  // hide the error message
+  document.getElementById("gradeFirst").style.display = "none";
 
-  // Make sure that the section exists
-  if (testAnswers[current_test]?.[current_section] != undefined && (oldStatus == undefined || oldStatus == 'assigned' || oldStatus == 'reassigned')) {
-    // Delete the section
-    delete testAnswers[current_test][current_section]
-    delete tempAnswers[current_test][current_section]
-
-    // Check to see if the test needs deleted
-    if (objectChildCount([current_test], testAnswers) == 0) {
-      delete testAnswers[current_test]
-    }
-
-    // If it was assigned before this session, mark it as assigned again
-    if (oldStatus == 'assigned' || oldStatus == 'reassigned') {
-      setObjectValue([current_test, current_section], oldTestAnswers[current_test][current_section], testAnswers);
-    }
-  }
-
-  // Return to the last view
-  swapTestForm(current_test, current_section, 1)
-
-  // Remove the green status
-  updateStatusBar(true)
+  // Toggle the submit button popups
+  document.getElementById("submitHomeworkPopup").classList.toggle("show");
 }
 
-function objectChildCount(path, object) {
+function gradeHomework(status) {
 
-  // Initialize a variable
-  let location = object;
+  // Set the status bar as loading
+  updateStatusBar(false, 'loading')
 
-  // Move to the location in the object
-  for (let i = 0; i < path.length; i++) {
-    location = location[path[i]]
-  }
+  // Close the popup
+  toggleHomeworkPopup()
 
-  count = 0;
-  object_keys = Object.keys(location);
-  for (let i = 0; i < object_keys.length; i++) {
-    if (!keys_to_skip.includes(object_keys[i])) {
-      count += 1
-    }
-  }
+  // Disable the buttons until it this function has done its job
+  document.getElementById('resetHomework').disabled = true;
+  document.getElementById('submitHomework').disabled = true;
 
-  return count
-}
+  // Calculate how many questions they missed and got correct
+  let totalMissed = test_answers_grading[current_test][current_section]['questions'].filter(function(val) { return val.isWrong == true} ).length;
+  let score = test_answers_grading[current_test][current_section]['questions'].length - totalMissed;
 
-function resetMessages() {
-  // Reset the messages
-  let guessMessage = document.getElementById("guessFirst");
-  let gradeMessage = document.getElementById("gradeFirst");
-  let assignMessage = document.getElementById("assignFirst")
-  let alreadyGradedTest = document.getElementById("alreadyGradedTest")
-  guessMessage.style.display = "none";
-  gradeMessage.style.display = "none";
-  assignMessage.style.display = "none";
-  alreadyGradedTest.style.display = "none";
-}
-
-function setHomeworkStatus(status, gradeHomework = "False", element = undefined) {
-  // set the test, section, and pre-session status
-  let test = current_test
-  let section = current_section
-  const oldStatus = oldTestAnswers[test]?.[section]?.['Status']
-
-  // Set the status and testType in the testAnswers
-  let current_status = testAnswers[test]?.[section]?.['Status']
-
-  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') &&
-      (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
-    // Didn't mean to assign the homework, undo it
-    if (current_status == 'assigned' && status == 'assigned') {
-      delete testAnswers[test][section];
-      if (Object.keys(testAnswers[test]).length == 0) {
-        delete testAnswers[test]
+  // Calculate the scaled score
+  let scaledScore = -1;
+  if (['in-time', 'in-center'].includes(status)) {
+    for (const [key, value] of Object.entries(test_answers_data[current_test][current_section.toLowerCase() + "Scores"])) {
+      if (score >= parseInt(value, 10)) {
+        scaledScore = 36 - parseInt(key);
+        break;
       }
     }
-    // Set the homework to 'assigned'
-    else if (status == 'assigned' && current_status == undefined) {
-      if (oldStatus == 'assigned') {
-        setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
-      }
-      else {
-        setObjectValue([test, section, "Status"], status, testAnswers)
-        setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-        setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-      }
-    }
-    // homework is being reassigned
-    else if (status == 'assigned' && current_status == 'did not do') {
-      setObjectValue([test, section, "Status"], 'reassigned', testAnswers)
-      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-    }
-    // homework was either left at home ('forgot') or they didn't do it
-    else if (current_status != undefined && status != 'assigned') {
-      setObjectValue([test, section, "Status"], status, testAnswers)
-      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-    }
-  }
-  // Previously completed
-  else if ((current_status == undefined || current_status == 'assigned' || current_status == 'reassigned') && status == 'previously completed') {
-    setObjectValue([test, section, "Status"], status, testAnswers)
-    setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-    setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-    updateStatusBar()
-  }
-  // Partially completed
-  else if (current_status == 'assigned' || current_status == 'reassigned' || status == 'partial') {
-    newStatus = status;
   }
 
-  // Open Test to print (if needed)
-  if (current_status == undefined && (status == 'assigned' || status == 'reassigned')) {
-    openTest(test, section);
+  // Change the score and questions back if they're not applicable
+  if (['forgot', 'previously completed'].includes(status)) {
+    score = -1;
+    setObjectValue([current_test, current_section, 'questions'], initializeEmptyAnswers(current_test, current_section), test_answers_grading)
+    if (status == 'forgot') {
+      status = 'assigned'
+    }
   }
 
-  // Exit the popup
-  let popup = document.getElementById("submitHomeworkPopup")
-  if (gradeHomework == 'True' && (   (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')
-                                  || (oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot'))) {
-    newStatus = status;
-    submitAnswersPopup();
+  // Set the information
+  const id = student_new_tests['assignedTests'].filter(function(val) { return val.section == current_section && val.test == current_test})[0]['id']
+
+  // Get the ref
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+
+  // Remove the test if they didn't do it, so it can be reassigned
+  if (status == 'did not do') {
+    ref.delete()
+    .then(() => {
+      console.log(current_section, "has been removed")
+    })
+    .catch((error) => {
+      console.log(error)
+    })
   }
-  else if (status == 'previously completed' || status == 'assigned' || status == 'reassigned' || ((status == 'forgot' || status == 'did not do') && (current_status == 'assigned' || current_status == 'reassigned') ) ) {
-    popup.classList.remove("show");
-  }
-  else if (gradeHomework == 'True' && (current_status != 'assigned' && current_status != 'reassigned' && current_status != 'forgot')) {
-    if ((oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot' || oldStatus == undefined)) {
-      resetMessages();
-      let assignMessage = document.getElementById("assignFirst")
-      assignMessage.style.display = "inline";
-    }
-    else {
-      resetMessages();
-      let alreadyGradedTest = document.getElementById("alreadyGradedTest")
-      alreadyGradedTest.style.display = "inline";
-    }
+  else {
+    ref.update({
+      ['questions'] : test_answers_grading[current_test][current_section]['questions'],
+      ['score'] : score,
+      ['scaledScore'] : scaledScore,
+      ['status'] : status
+    })
+    .then(() => {
+      // Re-enable the buttons
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
+
+      // Update the status bar to mark the test as completed
+      updateStatusBar()
+
+      // up the homework count
+      homework_count += 1;
+
+      console.log(current_test, '-', current_section, "has been updated")
+    })
+    .catch((error) => {
+      // Re-enable the buttons
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
+
+      // Update the status bar to mark the test as completed
+      updateStatusBar(false, 'red')
+
+      console.log(error)
+    })
   }
 
 }
 
-function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
+/*function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
   // Grab the test info
-  const guesses = tempAnswers[current_test]?.[current_section]?.['GuessEndPoints']
-  const oldStatus = oldTestAnswers[current_test]?.[current_section]?.['Status']
-  let lastPassageNumber = testData[current_test][current_section.toLowerCase() + "Answers"][testData[current_test][current_section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
+  const oldStatus = old_student_tests[current_test]?.[current_section]?.['Status']
+  let lastPassageNumber = test_answers_data[current_test][current_section.toLowerCase() + "Answers"][test_answers_data[current_test][current_section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
 
   // Check to see if the test can be submitted (all passages have been looked at)
   let canSubmitTest = false;
@@ -670,92 +524,229 @@ function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
   }
 
   // Find and define the message elements
-  let guessMessage = document.getElementById("guessFirst");
   let gradeMessage = document.getElementById("gradeFirst");
 
   // Check to see if the test / passage can be graded
   if (test_view_type == 'inCenter' && swap == 'False') {
-    if (oldTestAnswers[current_test]?.[current_section]?.[current_passage_number] == undefined) {
+    if (old_student_tests[current_test]?.[current_section]?.[current_passage_number] == undefined) {
       if (passageGradeType != 'grade') {
-        setObjectValue([current_test, current_section, current_passage_number], tempAnswers[current_test][current_section][current_passage_number], testAnswers);
-        setObjectValue([current_test, current_section, current_passage_number, 'Status'], passageGradeType, testAnswers);
-        setObjectValue([current_test, current_section, 'TestType'], 'inCenter', testAnswers);
+        setObjectValue([current_test, current_section, current_passage_number], tempAnswers[current_test][current_section][current_passage_number], student_tests);
+        setObjectValue([current_test, current_section, current_passage_number, 'Status'], passageGradeType, student_tests);
+        setObjectValue([current_test, current_section, 'TestType'], 'inCenter', student_tests);
       }
       else {
-        setObjectValue([current_test, current_section, current_passage_number], tempAnswers[current_test][current_section][current_passage_number], testAnswers);
-        setObjectValue([current_test, current_section, current_passage_number, 'Status'], 'Completed', testAnswers);
-        setObjectValue([current_test, current_section, 'TestType'], 'inCenter', testAnswers);
+        setObjectValue([current_test, current_section, current_passage_number], tempAnswers[current_test][current_section][current_passage_number], student_tests);
+        setObjectValue([current_test, current_section, current_passage_number, 'Status'], 'Completed', student_tests);
+        setObjectValue([current_test, current_section, 'TestType'], 'inCenter', student_tests);
       }
-      checkPassageGuesses(current_passage_number, 'True');
     }
     else {
       // reset the temp answers
-      setObjectValue([current_test, current_section, current_passage_number], testAnswers[current_test][current_section][current_passage_number], tempAnswers);
+      setObjectValue([current_test, current_section, current_passage_number], student_tests[current_test][current_section][current_passage_number], tempAnswers);
     }
+    popup2.classList.toggle("show")
   }
-  else if (test_view_type == 'homework' && canSubmitTest == true && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
+  else if (test_view_type == 'homework' && canSubmitTest == true && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed')) {
 
-    if (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) {
-      // Calculate how many questions they got correct
-      let totalMissed = 0;
-      for (const [key, value] of Object.entries(tempAnswers[current_test][current_section])) {
-        if (!keys_to_skip.includes(key)) {
-          totalMissed += tempAnswers[current_test][current_section][key]['Answers'].length
-        }
-      }
-      let score = testData[current_test][current_section.toLowerCase() + "Answers"].length - totalMissed;
-    
-      // Calculate the scaled score
-      let scaleScore = 0;
-      for (const [key, value] of Object.entries(testData[current_test][current_section.toLowerCase() + "Scores"])) {
-        if (score >= parseInt(value, 10)) {
-          scaledScore = 36 - parseInt(key);
-          break;
-        }
-      }
-
-      // Set the information
-      if (canSubmitTest == true) {
-        //(ADD FUNCTION HERE)
-        updateStatusBar()
-        setObjectValue([current_test, current_section], tempAnswers[current_test][current_section], testAnswers);
-        setObjectValue([current_test, current_section, 'TestType'], 'homework', testAnswers);
-        setObjectValue([current_test, current_section, 'Date'], date.getTime(), testAnswers);
-        setObjectValue([current_test, current_section, 'Score'], score, testAnswers);
-        setObjectValue([current_test, current_section, 'Status'], (newStatus), testAnswers);
-        if (newStatus == 'in-time' || newStatus == 'in-center') {
-          setObjectValue([current_test, current_section, 'ScaledScore'], scaledScore, testAnswers);
-        }
-        else {
-          delete testAnswers[current_test][current_section]['ScaledScore']
-        }
-        //submitHW();
+    // Calculate how many questions they got correct
+    let totalMissed = 0;
+    for (const [key, value] of Object.entries(tempAnswers[current_test][current_section])) {
+      if (!keys_to_skip.includes(key)) {
+        totalMissed += tempAnswers[current_test][current_section][key]['Answers'].length
       }
     }
-    else {
-      guessMessage.style.display = "inline";
+    let score = test_answers_data[current_test][current_section.toLowerCase() + "Answers"].length - totalMissed;
+
+    // Calculate the scaled score
+    let scaledScore = 0;
+    for (const [key, value] of Object.entries(test_answers_data[current_test][current_section.toLowerCase() + "Scores"])) {
+      if (score >= parseInt(value, 10)) {
+        scaledScore = 36 - parseInt(key);
+        break;
+      }
+    }
+
+    // Set the information
+    if (canSubmitTest == true) {
+      //(ADD FUNCTION HERE)
+      updateStatusBar()
+      setObjectValue([current_test, current_section], tempAnswers[current_test][current_section], student_tests);
+      setObjectValue([current_test, current_section, 'TestType'], 'homework', student_tests);
+      setObjectValue([current_test, current_section, 'Date'], date.getTime(), student_tests);
+      setObjectValue([current_test, current_section, 'Score'], score, student_tests);
+      setObjectValue([current_test, current_section, 'Status'], (new_status), student_tests);
+      if (new_status == 'in-time' || new_status == 'in-center') {
+        setObjectValue([current_test, current_section, 'ScaledScore'], scaledScore, student_tests);
+      }
+      else {
+        delete student_tests[current_test][current_section]['ScaledScore']
+      }
+      popup.classList.toggle("show");
+      submitHW();
     }
   }
   else {
     gradeMessage.style.display = "inline";
   }
+}*/
+
+function assignHomework(section) {
+  // Disable the buttons until homework has been assigned
+  let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+  let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+  assign.disabled = true;
+  unassign.disabled = true;
+
+  // Initialize the object to send to Fb
+  let obj = {}
+
+  // Find the next test
+  let test = undefined;
+  if (section in student_new_tests) {
+    for (let i = 0; i < hwTests.length; i++) {
+      if (hwTests[i] in student_new_tests[section]) {
+      }
+      else {
+        test = hwTests[i]
+        break;
+      }
+    }
+  }
+  else {
+    test = hwTests[0]
+  }
+
+  // They have completed all of the normal hw tests, so start going through the 'other' tests
+  if (test == undefined) {
+    if (section in student_new_tests) {
+      for (let i = 0; i < othTests.length; i++) {
+        if (othTests[i] in student_new_tests[section]) {
+        }
+        else {
+          test = othTests[i]
+          break;
+        }
+      }
+    }
+    else {
+      test = othTests[0]
+    }
+  }
+
+  // Initialize the questions array
+  let studentQuestions = initializeEmptyAnswers(test, section);
+
+  // Initialize the object to send to FB
+  setObjectValue(['test'], test, obj);
+  setObjectValue(['section'], section, obj);
+  setObjectValue(['student'], CURRENT_STUDENT_UID, obj);
+  setObjectValue(['questions'], studentQuestions, obj);
+  setObjectValue(['date'], date.getTime(), obj);
+  setObjectValue(['type'], 'homework', obj);
+  setObjectValue(['status'], 'assigned', obj);
+  setObjectValue(['score'], -1, obj);
+  setObjectValue(['scaledScore'], -1, obj);
+
+  // Send the object to Fb
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc()
+  ref.set(obj)
+
+  // Indicate that the test has been assigned
+  .then(() => {
+    // Swap buttons
+    assign.classList.add('hidden')
+    unassign.classList.remove('hidden')
+
+    // Re-enable the buttons again
+    assign.disabled = false;
+    unassign.disabled = false;
+
+    ids.push({
+      'type' : 'homework',
+      'section' : section,
+      'action' : 'assign',
+      'id' : ref.id
+    })
+    console.log(test, "-", section, "has been assigned")
+  })
+  
+  // Indicate that the test wasn't assigned successfully
+  .catch((error) => {
+    console.log(error)
+    assign.disabled = false;
+    unassign.disabled = false;
+  })
+
+  // Open the test to print
+  openTest(test, section)
 }
 
-function updateStatusBar(remove = false) {
+function initializeEmptyAnswers(test, section) {
+  const questions = test_answers_data[test][section + "Answers"]
+  let studentQuestions = [];
+  for (let i = 0; i < questions.length; i++) {
+    studentQuestions.push({
+      'isWrong' : false,
+      'passageNumber' : questions[i]['passageNumber']
+    })
+  }
+
+  return studentQuestions;
+}
+
+function unassignHomework(section) {
+  // Disable the buttons until homework has been assigned
+  let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+  let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+  assign.disabled = true;
+  unassign.disabled = true;
+
+  // Get the document id to remove
+  const id = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]['id']
+
+  // Remove the id from the list of document ids
+  ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+
+  // Send the request to Fb to remove the assigned test
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+  ref.delete()
+
+  // Indicate that the test has been unassigned
+  .then(() => {
+    // Swap which button is being showed
+    assign.classList.remove('hidden')
+    unassign.classList.add('hidden')
+
+    // Re-enable the buttons again
+    assign.disabled = false;
+    unassign.disabled = false;
+
+    console.log(section, "has been removed")
+  })
+  
+  // Indicate that the test wasn't unassigned successfully
+  .catch((error) => {
+    console.log(error)
+  })
+}
+
+function updateStatusBar(remove = false, colorClass = 'green') {
+
   const searchText = current_test + " - " + current_section[0].toUpperCase()
 
   let headerTabs = document.getElementById('answersPopupHeader').querySelectorAll('h2')
-  let statusBars = document.getElementsByClassName('statusBarDiv')
+  let statusBars = document.getElementsByClassName('meter')
 
   for (let loc = 0; loc < headerTabs.length; loc++) {
     if (headerTabs[loc] != undefined && headerTabs[loc].innerHTML == searchText) {
       for (let i = 0; i < statusBars.length; i++) {
         let bars = statusBars[i].querySelectorAll('div')
+        bars[loc].classList.remove('loading')
         if (remove == false) {
-          bars[loc].classList.add('green')
+          bars[loc].classList.add(colorClass)
         }
         else {
-          bars[loc].classList.remove('green')
+          bars[loc].classList.remove(colorClass)
         }
       }
     }
@@ -765,14 +756,14 @@ function updateStatusBar(remove = false) {
 function checkTests() {
 
   // Check all of the tests that needed graded at the start of the session
-  tests = Object.keys(tests_to_grade)
-  for (let t = 0; t < tests.length; t++) {
-    sections = Object.values(tests_to_grade[tests[t]])
-    for (let s = 0; s < sections.length; s++) {
-      let status = testAnswers[tests[t]][sections[s]]['Status']
-      if (status == 'assigned' || status == 'reassigned') {
-        return false;
-      }
+  const testList = student_new_tests['assignedTests'];
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+
+    let status = student_new_tests[section][test]['status']
+    if (status == 'assigned') {
+      return false;
     }
   }
 
@@ -781,9 +772,8 @@ function checkTests() {
 
 function submitSession() {
   getElapsedTime();
-  const hasGradedTests = checkTests()
 
-  if (hasGradedTests == true) {
+  if (homework_count == 0) {
     if (session_message_count > 0) {
       console.log("Nice Work!!")
       console.log(timers)
@@ -794,37 +784,6 @@ function submitSession() {
   }
   else {
     console.log("Please grade all tests")
-  }
-}
-
-function submitHW() {
-  const studentUID = queryStrings()["student"];
-  if (studentUID) {
-    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-    //need to somehow get this promise to return when complete....
-    return hwDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        //doc exists - update the doc
-        return hwDocRef.update({
-          ...testAnswers
-        })
-      }
-      else {
-        //doc does not exist - set the doc
-        return hwDocRef.set({
-          ...testAnswers
-        })
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      return Promise.reject(error);
-    });
-  }
-  else {
-    console.log("There is no student selected!!!");
-    return Promise.reject("There is no student selected!!!");
   }
 }
 
@@ -846,4 +805,14 @@ function getElapsedTime() {
 
   // Update which section we are changing to
   session_timer = section;
+}
+
+function openTest(test, section = undefined) {
+
+  let path = test + (section != undefined ? (" - " + section.charAt(0).toUpperCase() + section.slice(1)) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
 }

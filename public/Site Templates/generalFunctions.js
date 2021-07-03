@@ -41,7 +41,8 @@ function convertFromDateInt(date) {
         'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
         'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
         'longDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString().padStart(2,'0') + ":" + current_date.getMinutes().toString().padStart(2,'0'),
-        'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0')
+        'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0'),
+        'startOfDayInt' : new Date(year, month - 1, dayOfMonth, 0, 0, 0, 0).getTime()
     };
 }
 
@@ -63,7 +64,7 @@ function setObjectValue(propertyPath, value, obj) {
   else {
     // We set the value to the last property
     if (typeof value == 'object') {
-      obj[properties[0]] = Object.create(value)
+      obj[properties[0]] = JSON.parse(JSON.stringify(value))
     }
     else {
       obj[properties[0]] = value
@@ -71,3 +72,66 @@ function setObjectValue(propertyPath, value, obj) {
     return true // this is the end
   }
 }
+
+/**
+ * create html element
+ * @param {String} elementType tag name for the element that will be created
+ * @param {[String]} classes classes for the element
+ * @param {[String]} attributes attributes for the element
+ * @param {[String]} values values for each attribute for the element
+ * @param {String} text innerhtml for the element
+ * @returns {HTMLElement} html element of the given tag
+ */
+function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
+  // Initialize the element
+  let element = document.createElement(elementType);
+
+  // Set each of the specified attributes for the element
+  if (attributes.length == values.length && attributes.length > 0) {
+    for (let i = 0; i < attributes.length; i++) {
+      element.setAttribute(attributes[i], values[i]);
+    }
+  }
+
+  // Add the classes to the element
+  for (let i = 0; i < classes.length; i++) {
+    element.classList.add(classes[i]);
+  }
+
+  // Set the inner html text
+  if (text != "") {
+    element.innerHTML = text;
+  }
+
+  // Return the element
+  return element;
+}
+
+/**
+ * create html elements and return them in a parent div
+ * @param {[String]} elementType tag names for the elements that will be created
+ * @param {[[String]]} classes classes for each element
+ * @param {[[String]]} attributes attributes for each element
+ * @param {[[String]]} values values for each attribute for each element
+ * @param {[String]} text innerhtml for each element
+ * @param {[String]} divClasses calsses for the parent div for the elements
+ * @returns {HTMLElement} html div whose children are the requested elements
+ */
+ function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
+  // Make sure there is something passed into the function
+  if (elementType.length >= 0) {
+    let elements = createElement("div", divClasses);
+
+    // Iterate through each of the elements that need created
+    if (attributes.length == values.length && attributes.length >= 0) {
+      for (let i = 0; i < elementType.length; i++) {
+        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
+      }
+    }
+
+    // Return the element
+    return elements;
+
+  }
+}
+

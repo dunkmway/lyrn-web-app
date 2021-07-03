@@ -18,7 +18,6 @@ function getStudentMessages(studentUID, studentType, conversationType) {
 }
 
 function setStudentMessage(mes, type) {
-  console.log(mes);
   //the div that contains the time and message
   let messageDiv = document.createElement('div');
 

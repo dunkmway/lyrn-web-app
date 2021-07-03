@@ -49,7 +49,6 @@ div p {
 
 .statusBarDiv {
     height: 0.75%;
-    background-color: purple;
     display: flex;
     flex-direction: row;
 }
@@ -165,7 +164,12 @@ div p {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
+    min-height: 35px;
 }
+
+/*.gridBox3.cursor:nth-child(3n):hover {
+    background: linear-gradient(to left,green 25%, yellow 25% 50%, red 50% 75%, white 75%);
+}*/
 
 .gridBox3:nth-child(-n+3) {
     border-top-width: 0px;
@@ -173,6 +177,7 @@ div p {
 
 .gridBox3:nth-child(3n) {
     border-right-width: 0px;
+    position: relative;
 }
 
 .visibleBlock {
@@ -211,8 +216,8 @@ div p {
     position: relative;
     height: 81vh;
     width: 100vw;
-    /*background-color: #8986b2;*/
-    background-color: #4d4d8c;
+    background-color: #8986b2;
+    /*background-color: #4d4d8c;*/
     z-index: 1;
 }
 
@@ -259,6 +264,7 @@ div p {
 
 .yellow {
     background-color: rgb(252, 241, 81);
+    color: black;
 }
 
 .orange {
@@ -271,23 +277,11 @@ div p {
 
 .red {
     background-color: red;
+    color: white;
 }
 
 .Qred {
-    position:relative;
-}
-
-.Qred:before {
-    position:absolute;
-    z-index:2;
-    top:0;
-    left: calc(50% - 12% - 19% - 20px);
-    width: 30%;
-    min-width: 60px;
-    height: 100%;
-    content:"";
     background-color:red;
-    border-radius: 22.5px;
 }
 
 .redOnHover:hover {
@@ -413,7 +407,7 @@ div p {
   position: absolute;
   z-index: 4;
   bottom: calc(7% + 5px);
-  right: calc(50% - 100px - 85px + 5px);
+  right: calc(50% - 85px - 45px - (.5 * ((100% - 200px) / 3)));
 }
 
 /* Popup arrow */
@@ -434,40 +428,39 @@ div p {
   animation: fadeIn 1s;
 }
 
-.firstAnswer {
-    margin-top: 10px;
-}
-
 .popupValue {
     z-index: 3;
-    height: 40px;
-    width: 40px;
+    height: 35px;
+    width: 35px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
     border-radius: 20px;
+    margin-top: 3px;
 }
 
 .popupDash {
-    height: 40px;
+    height: 35px;
     width: 38%;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
+    margin-top: 3px;
 }
 
 .popupAnswer {
-    height: 40px;
-    width: 40px;
+    height: 35px;
+    width: 35px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
+    margin-top: 3px;
 }
 
 .smallerText {
@@ -476,11 +469,13 @@ div p {
 }
 
 .item {
-    text-align: center;
     background-color: white;
-    display: flex;
+    font-size: 24px;
+    font-weight: bold;
+    /*display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;*/
     border-radius: 14px;
     width: 15vw;
     height: 12vh;
@@ -530,6 +525,10 @@ div p {
     justify-content: space-between;
 }
 
+.spacedEvenly {
+    justify-content: space-evenly;
+}
+
 #sectionTitle {
     font-size: 3em;
 }
@@ -551,8 +550,8 @@ div p {
     height: 10vh;
     width: 100%;
     align-items: center;
-    /*background-color: #8986b2;*/
-    background-color: #4d4d8c;
+    background-color: #8986b2;
+    /*background-color: #4d4d8c;*/
 }
 
 .generalInfo {
@@ -587,10 +586,6 @@ div p {
   margin-left: 20px;
 }
 
-#toggleDiv {
-    height: 10%;
-}
-
 #leftArrow {
     font-size: 35px;
     flex-grow: 1;
@@ -609,15 +604,125 @@ div p {
     padding-bottom: 4px;
 }
 
-#timingBlock {
-    height: 5%;
-}
-
 #popupButtons {
     height: 7%;
 }
 
 #popupInfo {
     padding: 0px;
-    height: 70%;
+    height: 85%;
+}
+
+#statusBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position:fixed;
+    text-align: center;
+    background-color: rgb(180, 180, 180);
+    bottom: 1vh;
+    right: 1vh;
+    height: 26px;
+    width: 26px;
+    vertical-align: middle;
+    z-index: 2;
+}
+
+#statusBox p {
+    margin-bottom: 2px;
+}
+
+#lessonPopup{
+    position: absolute;
+    right: 7.8vw;
+    z-index: 5;
+    padding-right: 5px;
+    box-shadow: -15px 8px 15px rgba(0, 0, 0, 0.1);
+    background-color: rgb(200, 200, 200, 0);
+}
+
+.meter {
+    box-sizing: content-box;
+    /*height: 0.75%;*/
+    height: 6px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.loading {
+    background: linear-gradient(-45deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%, transparent);
+    background-size: 5.5px;
+    animation: move 0.5s linear infinite;
+    background-color: blue;
+    height: 100%;
+}
+
+@keyframes move {
+  100% {
+    background-position: 5.5px 5.5px;
+  }
+  0% {
+    background-position: 0 0;
+  }
+}
+
+.selectedElement {
+    border-style : solid;
+    border-width : 1.5px;
+    border-color : rgb(135, 168, 247);
+    background-color: rgb(135, 168, 247, 0.2);
+    color: black;
+}
+
+.squareButton {
+  width: 110px;
+  height: 35px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s linear 0s;
+}
+  
+.squareButton:hover {
+    text-indent: 20px;
+    filter:brightness(110%)
+}
+
+.loadingRing::after {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  /*border: 4px solid rgba(29, 161, 242, 0.2);
+  border-left-color: rgb(29, 161, 242);*/
+  border: 4px solid rgba(0, 0, 91, 0.2);
+  border-left-color: rgb(0, 0, 91);
+  background: transparent;
+  animation: rotate-s-loader 1s linear infinite;
+  position:absolute;
+  content: '';
+}
+
+@keyframes rotate-s-loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.uhOh::after {
+  position:absolute;
+  color: red;
+  content: '\0021';
+  font-size: 35px;
 }
