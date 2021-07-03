@@ -164,7 +164,7 @@ function reloadStudentMessage(event) {
   failedMessages.forEach((messageData, index) => {
     if (messageData.element.isSameNode(messageBlock)) {
       failedMessages.splice(index, 1);
-      sendStudentMessage(messageData.studentUID, messageData.studentType, messageData.conversationType, messageData.message, messageData.timestamp);
+      sendStudentMessage(messageData.studentUID, messageData.studentType, messageData.conversationType, messageData.message, new Date().getTime());
       return;
     }
   })
@@ -208,6 +208,5 @@ function sendStudentMessage(studentUID, studentType, conversationType, message, 
       message: message,
       timestamp: timestamp
     });
-    handleFirebaseErrors(errorInfo.error, window.location.href);
   });
 }
