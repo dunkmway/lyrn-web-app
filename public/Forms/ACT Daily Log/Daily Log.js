@@ -1411,6 +1411,15 @@ function openTest(test, section = undefined) {
 
 }
 
+function openCramSession(sessionCount) {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
 function swap() {
   let nav = document.getElementById("sideNav");
   nav.classList.toggle("nav_disabled")
