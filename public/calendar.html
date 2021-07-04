@@ -32,7 +32,14 @@
 </head>
 
 <body onload="initialSetup()">
+
+  <!-- Calendar Nav -->
   <div class="calendarNav">
+    <div class="dropdown" id="calendarLocation">
+      <button class="dropbtn">select location</button>
+      <div class="dropdown-content">
+      </div>
+    </div>
     <div class="dropdown">
       <button class="dropbtn">add event</button>
       <div class="dropdown-content">
@@ -41,53 +48,85 @@
         <div>Math Program</div>
         <div>Phonics Program</div>
         <div>Practice Test</div>
-        <div>Review</div>
+        <div>Test Review</div>
         <div>Conference</div>
         <div onclick="setupInputTeacherMeeting()">Teacher Meeting</div>
-        <div>General Info</div>
-        <div>Custom</div>
+        <div onclick="setupInputGeneralInfo()">General Info</div>
       </div>
     </div>
   </div>
 
   <div id="mainCalendarContent">
     <div id='calendar'></div>
-    <div id="sidebar" class="displayNone">
+    <div id="sidebar" class="closed">
+      <!------------------------->
       <!-- add teacher meeting -->
-      <div id="addTeacherMeetingWrapper" class="displayNone">
-        <!-- start and stop -->
-        <div class="inputRow">
-          <div class="more-info " data-more-info="Click and drag over the time you want to have the teacher meeting.">?</div>
-          <p>Start:</p>
-          <p id="addTeacherMeetingStart"></p>
-        </div>
-        <div class="inputRow">
-          <div class="more-info visibilityHidden" data-more-info="">?</div>
-          <p>End:</p>
-          <p id="addTeacherMeetingEnd"></p>
-        </div>
-        <br>
-
-        <!-- centers invited-->
-        <div class="inputRow">
-          <div class="more-info " data-more-info="Select the centers that are invited to this teacher meeting (all staff will be included).">?</div>
-          <label for="addTeacherMeetingCenters" class="label">Which centers?</label>
-        </div>
-        <select id="addTeacherMeetingCenters" name="addTeacherMeetingCenters" class="ui dropdown" multiple></select>
-        <br>
+      <!------------------------->
+      <div id="addTeacherMeetingWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to have the teacher meeting.">?</div>
+        <h3>Add Teacher Meeting</h3>
+        <div class="headerLine"></div>
 
         <!-- where is it being held -->
         <div class="inputRow">
-          <div class="more-info " data-more-info="Select the centers that the meeting will be held at.">?</div>
           <label for="addTeacherMeetingLocation" class="label">Where?</label>
         </div>
-        <select id="addTeacherMeetingLocation" name="addTeacherMeetingLocation" class="select">
-        </select>
+        <input id="addTeacherMeetingLocation" name="addTeacherMeetingLocation" class="input">
 
         <!-- buttons -->
         <div class="bottom">
           <button onclick="cancelAddTeacherMeeting()" class="button">cancel</button>
           <button onclick="submitAddTeacherMeeting()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!-------------------------->
+      <!-- edit teacher meeting -->
+      <!-------------------------->
+      <div id="editTeacherMeetingWrapper" class="sidebarContent displayNone">
+        <h3>Edit Teacher Meeting</h3>
+        <div class="headerLine"></div>
+
+        <!-- where is it being held -->
+        <div class="inputRow">
+          <label for="editTeacherMeetingLocation" class="label">Where?</label>
+        </div>
+        <input id="editTeacherMeetingLocation" name="editTeacherMeetingLocation" class="input">
+
+        <!-- staff in attendance -->
+        <div class="inputRow">
+          <label for="editTeacherMeetingStaff" class="label">Staff</label>
+        </div>
+        <div id="editTeacherMeetingStaff" class="sidebarList">
+        </div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditTeacherMeeting()" class="button">cancel</button>
+          <button onclick="updateEditTeacherMeeting()" class="button">update</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add general info -->
+      <!---------------------->
+      <div id="addGeneralInfoWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add some info.">?</div>
+        <h3>Add General Info</h3>
+        <div class="headerLine"></div>
+
+        <!-- genral info title -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This info will be displayed as the title of the event">?</div>
+          <label for="addGeneralInfoTitle" class="label">Info?</label>
+        </div>
+        <input id="addGeneralInfoTitle" name="addGeneralInfoTitle" class="input">
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelAddGeneralInfo()" class="button">cancel</button>
+          <button onclick="submitAddGeneralInfo()" class="button">submit</button>
         </div>
       </div>
 
