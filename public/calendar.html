@@ -5,10 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TESTING</title>
+  <!-- favicon stuff -->
+  <link rel="apple-touch-icon" sizes="180x180" href="Images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="Images/favicon/site.webmanifest">
+  <!------------------->
+
   <link href="Site Templates/site-wide.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css" rel="stylesheet">
-  <!-- <link href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.css' rel='stylesheet' />
-  <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'> -->
   <link href="calendar.css" rel="stylesheet">
 
   <!-- jQuery -->
@@ -18,7 +23,10 @@
   <link async rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.css"/>
   <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.js"></script>
 
+  <!-- full calendar -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.min.js"></script>
+  <!-- tinycolor -->
+  <script src="https://cdn.jsdelivr.net/npm/tinycolor2@1.4.2/tinycolor.min.js"></script>
   
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -47,9 +55,9 @@
         <div>Subject Tutoring</div>
         <div>Math Program</div>
         <div>Phonics Program</div>
-        <div>Practice Test</div>
+        <div onclick="setupInputPracticeTest()">Practice Test</div>
         <div>Test Review</div>
-        <div>Conference</div>
+        <div onclick="setupInputConference()">Conference</div>
         <div onclick="setupInputTeacherMeeting()">Teacher Meeting</div>
         <div onclick="setupInputGeneralInfo()">General Info</div>
       </div>
@@ -104,6 +112,7 @@
         <div class="bottom">
           <button onclick="cancelEditTeacherMeeting()" class="button">cancel</button>
           <button onclick="updateEditTeacherMeeting()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
         </div>
       </div>
 
@@ -127,6 +136,52 @@
         <div class="bottom">
           <button onclick="cancelAddGeneralInfo()" class="button">cancel</button>
           <button onclick="submitAddGeneralInfo()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add practice test -->
+      <!---------------------->
+      <div id="addPracticeTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a practice test.">?</div>
+        <h3>Add Practice Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student taking the test">?</div>
+          <label for="addPracticeTestStudent" class="label">Student</label>
+        </div>
+        <select id="addPracticeTestStudent" name="addPracticeTestStudent" class="select"></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelAddPracticeTest()" class="button">cancel</button>
+          <button onclick="submitAddPracticeTest()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add conference -->
+      <!---------------------->
+      <div id="addConferenceWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a conference.">?</div>
+        <h3>Add Conference</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the conference">?</div>
+          <label for="addConferenceStudent" class="label">Student</label>
+        </div>
+        <select id="addConferenceStudent" name="addConferenceStudent" class="select"></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelAddConference()" class="button">cancel</button>
+          <button onclick="submitAddConference()" class="button">submit</button>
         </div>
       </div>
 

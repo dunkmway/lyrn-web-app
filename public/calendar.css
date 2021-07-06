@@ -2,6 +2,10 @@
   --primary-color: #110D65
 } 
 
+body {
+  overflow-y: hidden;
+}
+
 /* height of time slot */
 .fc .fc-timegrid-slot {
   height: 2em !important;
@@ -71,7 +75,6 @@
 }
 
 #sidebar {
-  position: relative;
   float: left;
   max-width: 400px;
   height: 100%;
@@ -80,8 +83,8 @@
 }
 
 .sidebarContent {
-  height: calc(100% - 40px);
-  overflow-y: auto;
+  height: 100%;
+  position: relative;
 }
 
 .sidebarList {
@@ -129,7 +132,7 @@
 
 .bottom {
   position: absolute;
-  bottom: 5px;
+  bottom: 0px;
 }
 
 .dropbtn {
@@ -196,7 +199,7 @@
   background-color: #fff;
   border: none;
   border-radius: 15px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); */
   transition: all 0.3s ease 0s;
   cursor: pointer;
   outline: none;
@@ -205,9 +208,19 @@
 
 .button:hover {
   background-color: #110D65;
-  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  /* box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4); */
   color: #fff;
   transform: translateY(-5px);
+}
+
+.button.danger {
+  background-color: #E94D41;
+  color: white;
+}
+
+.button.danger:hover {
+  background-color: white;
+  color: #E94D41;
 }
 
 select {
@@ -253,7 +266,6 @@ select {
   text-align: center;
   width: 18px;
   height: 18px;
-  content: "?";
   border: solid;
   border-radius: 50%;
   border-color: lightslategray;
@@ -292,10 +304,10 @@ select {
   z-index: 100;
 }
 
-.more-info:hover:after {
+.more-info:hover::after {
   visibility: visible;
 }
 
-.more-info:hover:before {
+.more-info:hover::before {
   visibility: visible;
 }
