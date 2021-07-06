@@ -191,9 +191,12 @@ function deleteEventCallback() {
   }
 }
 
-/**
- * for now I'll just grab the ones that are connected to the current user
- */
+//FIXME: work on this so that at any point this function can check the mode we're in and cancel the operation and get ready
+//to go back to default. The issue I have now is changing location doesn't cancel the event to the values stay.
+function cancelEventCallback() {
+
+}
+
 function getEventsUser(user) {
   console.log("user UID", user.uid)
   return firebase.firestore().collection('Events').where("staff", 'array-contains', user.uid).get()
@@ -248,6 +251,10 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar() {
+
+  //call the cancel function on the open sidebar
+  cancelCallback();
+
   main_calendar.setOption('selectable', false);
   main_calendar.unselect();
   main_calendar.getEvents().forEach((event) => {
@@ -286,18 +293,33 @@ function showAddGeneralInfoWrapper() {
   document.getElementById('addGeneralInfoWrapper').classList.remove("displayNone")
 }
 
+function showEditGeneralInfoWrapper() {
+  document.getElementById('editGeneralInfoWrapper').classList.remove("displayNone")
+}
+
 function showAddPracticeTestWrapper() {
   document.getElementById('addPracticeTestWrapper').classList.remove("displayNone")
+}
+
+function showEditPracticeTestWrapper() {
+  document.getElementById('editPracticeTestWrapper').classList.remove("displayNone")
 }
 
 function showAddConferenceWrapper() {
   document.getElementById('addConferenceWrapper').classList.remove("displayNone")
 }
 
+function showEditConferenceWrapper() {
+  document.getElementById('editConferenceWrapper').classList.remove("displayNone")
+}
+
 function setupEditSidebar(eventData, eventID) {
   switch (eventData.type) {
     case 'teacherMeeting':
       setupEditTeacherMeeting(eventData, eventID);
+      break
+    case 'generalInfo':
+      setupEditGeneralInfo(eventData, eventID);
       break
     default:
 
@@ -376,6 +398,25 @@ function setupInputGeneralInfo() {
   main_calendar.setOption('selectable', true);
 
   showAddGeneralInfoWrapper();
+  openCalendarSidebar();
+}
+
+function setupEditGeneralInfo(data, id) {
+  closeCalendarSidebar();
+  calendar_mode = 'editGeneralInfo';
+
+  main_calendar.getEventById(id).setProp('editable', true);
+
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
+
+  //fill in appropriate fields
+  document.getElementById('editGeneralInfoTitle').value = data.title;
+
+  showEditGeneralInfoWrapper();
   openCalendarSidebar();
 }
 
@@ -467,11 +508,7 @@ function cancelEditTeacherMeeting() {
   while (staffNode.firstChild) {
     staffNode.removeChild(staffNode.lastChild);
   }
-  console.log("pending id", pending_calendar_event_id)
-  console.log("pending data", pending_calendar_event)
 
-  console.log("old id", old_calendar_event_id)
-  console.log("old data", old_calendar_event)
   //set the event back to it's original position
   main_calendar.getEventById(pending_calendar_event_id).remove();
   main_calendar.addEvent({

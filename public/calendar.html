@@ -92,6 +92,7 @@
       <!-- edit teacher meeting -->
       <!-------------------------->
       <div id="editTeacherMeetingWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
         <h3>Edit Teacher Meeting</h3>
         <div class="headerLine"></div>
 
@@ -139,6 +140,30 @@
         </div>
       </div>
 
+      <!----------------------->
+      <!-- edit general info -->
+      <!----------------------->
+      <div id="editGeneralInfoWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit General Info</h3>
+        <div class="headerLine"></div>
+
+        <!-- genral info title -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This info will be displayed as the title of the event">?</div>
+          <label for="editGeneralInfoTitle" class="label">Info?</label>
+        </div>
+        <input id="editGeneralInfoTitle" name="editGeneralInfoTitle" class="input">
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditGeneralInfo()" class="button">cancel</button>
+          <button onclick="updateEditGeneralInfo()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
       <!---------------------->
       <!-- add practice test -->
       <!---------------------->
@@ -163,6 +188,30 @@
       </div>
 
       <!---------------------->
+      <!-- edit practice test -->
+      <!---------------------->
+      <div id="editPracticeTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Practice Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student taking the test">?</div>
+          <label for="editPracticeTestStudent" class="label">Student</label>
+        </div>
+        <select id="editPracticeTestStudent" name="editPracticeTestStudent" class="select"></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditPracticeTest()" class="button">cancel</button>
+          <button onclick="updateEditPracticeTest()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
       <!-- add conference -->
       <!---------------------->
       <div id="addConferenceWrapper" class="sidebarContent displayNone">
@@ -182,6 +231,30 @@
         <div class="bottom">
           <button onclick="cancelAddConference()" class="button">cancel</button>
           <button onclick="submitAddConference()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- edit conference -->
+      <!---------------------->
+      <div id="editConferenceWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Conference</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the conference">?</div>
+          <label for="editConferenceStudent" class="label">Student</label>
+        </div>
+        <select id="editConferenceStudent" name="editConferenceStudent" class="select"></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditConference()" class="button">cancel</button>
+          <button onclick="updateEditConference()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
         </div>
       </div>
 
