@@ -122,6 +122,7 @@ function initializeCalendar(events) {
     },
 
     eventClick: function(info) {
+      console.log("Event clicked!")
       getEvent(info.event.id)
       .then((data) => {
         setupEditSidebar(data, info.event.id)
@@ -137,14 +138,9 @@ function initializeCalendar(events) {
     },
 
     eventChange: function(changeInfo) {
-      switch (calendar_mode) {
-        case 'editTeacherMeeting':
-          pending_calendar_event.start = changeInfo.event.start.getTime();
-          pending_calendar_event.end = changeInfo.event?.end?.getTime();
-          pending_calendar_event.allDay = changeInfo.event.allDay;
-          break
-        default:
-      }
+      pending_calendar_event.start = changeInfo.event.start.getTime();
+      pending_calendar_event.end = changeInfo.event?.end?.getTime() ?? changeInfo.event.start.getTime() + 3600000;
+      pending_calendar_event.allDay = changeInfo.event.allDay;
     },
 
     selectable: false,
@@ -207,6 +203,14 @@ function cancelSidebar() {
       allSelectNodes[i].options[j-1].remove();
     }
   }
+
+  //clear all elements within elements with the class 'sidebarList'
+  const allSidebarListNodes = document.getElementById('sidebar').querySelectorAll('.sidebarList');
+  for (let i = 0; i < allSidebarListNodes.length; i++) {
+    while (allSidebarListNodes[i].hasChildNodes()) {
+      allSidebarListNodes[i].removeChild(allSidebarListNodes[i].lastChild);
+    }
+  }
 }
 
 /**
@@ -215,6 +219,21 @@ function cancelSidebar() {
 function cancelSidebarCallback() {
   //FIXME: Check if anything was changed then ask. I'm thinking about putting a change listener that detects changes and sets a flag
   if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
+    closeCalendarSidebar();
+  }
+}
+
+//special case for when editting since we need to cancel a possible event calendar position.
+function cancelEditCallback() {
+  //FIXME: Check if anything was changed then ask. I'm thinking about putting a change listener that detects changes and sets a flag
+  if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
+    //set the event back to it's original position (edit)
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEvent({
+      id: old_calendar_event_id,
+      ...old_calendar_event
+    })
+
     closeCalendarSidebar();
   }
 }
@@ -336,6 +355,7 @@ function showEditConferenceWrapper() {
 }
 
 function setupEditSidebar(eventData, eventID) {
+  console.log(eventData.type);
   switch (eventData.type) {
     case 'teacherMeeting':
       setupEditTeacherMeeting(eventData, eventID);
@@ -343,39 +363,32 @@ function setupEditSidebar(eventData, eventID) {
     case 'generalInfo':
       setupEditGeneralInfo(eventData, eventID);
       break
+    case 'practiceTest':
+      setupEditPracticeTest(eventData, eventID);
+      break
+    case 'conference':
+      setupEditConference(eventData, eventID);
+      break
     default:
-
   }
 }
 
 /**
  * set up for inputing a teacher meeting
  */
-function setupInputTeacherMeeting() {
+function setupAddTeacherMeeting() {
   //close the sidebar just in case another tab is open.
   closeCalendarSidebar();
   calendar_mode = "addTeacherMeeting";
   main_calendar.setOption('selectable', true);
 
   showAddTeacherMeetingWrapper();
-  getLocationList(current_user)
-  .then((locations) => {
-    let locationNames = [];
-    let locationIDs = [];
-    locations.forEach((location) => {
-      locationNames.push(location.name);
-      locationIDs.push(location.id);
-    });
-  })
-  .catch((error) => {console.log(error)});
-
   openCalendarSidebar();
 }
 
 function setupEditTeacherMeeting(data, id) {
   closeCalendarSidebar();
   calendar_mode = 'editTeacherMeeting';
-
   main_calendar.getEventById(id).setProp('editable', true);
 
   //fill in all saved data
@@ -405,15 +418,13 @@ function setupEditTeacherMeeting(data, id) {
     }
     document.getElementById('editTeacherMeetingStaff').appendChild(staffElem);
   })
-  document.getElementById('editTeacherMeetingStaff')
-
   
   //show the edit wrapper and the sidebar
   showEditTeacherMeetingWrapper();
   openCalendarSidebar();
 }
 
-function setupInputGeneralInfo() {
+function setupAddGeneralInfo() {
   //close the sidebar just in case another tab is open.
   closeCalendarSidebar();
   calendar_mode = "addGeneralInfo";
@@ -426,7 +437,6 @@ function setupInputGeneralInfo() {
 function setupEditGeneralInfo(data, id) {
   closeCalendarSidebar();
   calendar_mode = 'editGeneralInfo';
-
   main_calendar.getEventById(id).setProp('editable', true);
 
   //fill in all saved data
@@ -442,18 +452,12 @@ function setupEditGeneralInfo(data, id) {
   openCalendarSidebar();
 }
 
-function setupInputPracticeTest() {
+function setupAddPracticeTest() {
   //close the sidebar just in case another tab is open.
   closeCalendarSidebar();
   calendar_mode = "addPracticeTest";
   main_calendar.setOption('selectable', true);
 
-  //remove all of the students from the list and add them back (in case of location change)
-  //FIXME: Terribly wasteful to get all these students everytime
-  let numOptions = document.getElementById('addPracticeTestStudent').options.length
-  for (let i = numOptions; i > 0; i--) {
-    document.getElementById('addPracticeTestStudent').options[i-1].remove();
-  }
   //add back the default option
   const defaultOption = document.createElement('option');
   defaultOption.value = "";
@@ -462,6 +466,7 @@ function setupInputPracticeTest() {
   defaultOption.setAttribute('disabled', true);
   document.getElementById('addPracticeTestStudent').appendChild(defaultOption);
 
+  //add in the student list. If no location is selected this will reject
   getStudentList(document.getElementById('calendarLocation').dataset.value)
   .then((students) => {
     let studentNames = [];
@@ -482,7 +487,50 @@ function setupInputPracticeTest() {
   openCalendarSidebar();
 }
 
-function setupInputConference() {
+function setupEditPracticeTest(data, id) {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "editPracticeTest";
+  main_calendar.getEventById(id).setProp('editable', true);
+
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
+
+  //add back the default option
+  const defaultOption = document.createElement('option');
+  defaultOption.value = "";
+  defaultOption.textContent = "select a student"
+  defaultOption.setAttribute('selected', true);
+  defaultOption.setAttribute('disabled', true);
+  document.getElementById('editPracticeTestStudent').appendChild(defaultOption);
+
+  //add in the student list. If no location is selected this will reject
+  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById('editPracticeTestStudent'), studentUIDs, studentNames);
+    //select the saved student
+    document.getElementById('editPracticeTestStudent').value = data.student;
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  showEditPracticeTestWrapper();
+  openCalendarSidebar();
+}
+
+function setupAddConference() {
   //close the sidebar just in case another tab is open.
   closeCalendarSidebar();
   calendar_mode = "addConference";
@@ -517,53 +565,47 @@ function setupInputConference() {
   openCalendarSidebar();
 }
 
-function cancelAddTeacherMeeting() {
-  if (confirm("Are you sure you want to cancel this event?")) {
-    document.getElementById('addTeacherMeetingLocation').value = "";
-
-    closeCalendarSidebar();
-  }
-}
-
-function cancelEditTeacherMeeting() {
-  document.getElementById('editTeacherMeetingLocation').value = "";
-  const staffNode = document.getElementById("editTeacherMeetingStaff");
-  while (staffNode.firstChild) {
-    staffNode.removeChild(staffNode.lastChild);
-  }
-
-  //set the event back to it's original position
-  main_calendar.getEventById(pending_calendar_event_id).remove();
-  main_calendar.addEvent({
-    id: old_calendar_event_id,
-    ...old_calendar_event
-  })
-
+function setupEditConference(data, id) {
+  //close the sidebar just in case another tab is open.
   closeCalendarSidebar();
-}
+  calendar_mode = "editConference";
+  main_calendar.getEventById(id).setProp('editable', true);
 
-function cancelAddGeneralInfo() {
-  if (confirm("Are you sure you want to cancel this event?")) {
-    document.getElementById('addGeneralInfoTitle').value = "";
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
 
-    closeCalendarSidebar();
-  }
-}
+  //add back the default option
+  const defaultOption = document.createElement('option');
+  defaultOption.value = "";
+  defaultOption.textContent = "select a student"
+  defaultOption.setAttribute('selected', true);
+  defaultOption.setAttribute('disabled', true);
+  document.getElementById('addConferenceStudent').appendChild(defaultOption);
 
-function cancelAddPracticeTest() {
-  if (confirm("Are you sure you want to cancel this event?")) {
-    document.getElementById('addPracticeTestStudent').value = "";
+  //add in the student list. If no location is selected this will reject
+  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
 
-    closeCalendarSidebar();
-  }
-}
+    addSelectOptions(document.getElementById('editConferenceStudent'), studentUIDs, studentNames);
+    //select the saved student
+    document.getElementById('editConferenceStudent').value = data.student;
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
 
-function cancelAddConference() {
-  if (confirm("Are you sure you want to cancel this event?")) {
-    document.getElementById('addConferenceStudent').value = "";
-
-    closeCalendarSidebar();
-  }
+  showEditConferenceWrapper();
+  openCalendarSidebar();
 }
 
 function submitAddTeacherMeeting() {
@@ -594,7 +636,6 @@ function submitAddTeacherMeeting() {
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
       main_calendar.addEvent(event);
-      document.getElementById('addTeacherMeetingLocation').value = "";
       closeCalendarSidebar();
     })
     .catch((error) => {
@@ -608,11 +649,11 @@ function updateEditTeacherMeeting() {
   pending_calendar_event.meetingLocation = document.getElementById('editTeacherMeetingLocation').value;
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
   .then(() => {
-    document.getElementById('addGeneralInfoTitle').value = "";
-    const staffNode = document.getElementById("editTeacherMeetingStaff");
-    while (staffNode.firstChild) {
-      staffNode.removeChild(staffNode.lastChild);
-    }
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEvent({
+      id: pending_calendar_event_id,
+      ...pending_calendar_event
+    })
     closeCalendarSidebar();
   })
 }
@@ -631,7 +672,7 @@ function submitAddGeneralInfo() {
   if (confirm("Are you sure you want to submit this event?")) {
 
     eventInfo = {
-      type: 'genralInfo',
+      type: 'generalInfo',
       start: start,
       end: end,
       allDay, allDay,
@@ -645,7 +686,6 @@ function submitAddGeneralInfo() {
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
       main_calendar.addEvent(event);
-      document.getElementById('addGeneralInfoTitle').value = ""
       closeCalendarSidebar();
     })
     .catch((error) => {
@@ -653,6 +693,19 @@ function submitAddGeneralInfo() {
       alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+}
+
+function updateEditGeneralInfo() {
+  pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
+  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+  .then(() => {
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEvent({
+      id: pending_calendar_event_id,
+      ...pending_calendar_event
+    })
+    closeCalendarSidebar();
+  })
 }
 
 function submitAddPracticeTest() {
@@ -683,7 +736,6 @@ function submitAddPracticeTest() {
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
       main_calendar.addEvent(event);
-      document.getElementById('addPracticeTestStudent').value = ""
       closeCalendarSidebar();
     })
     .catch((error) => {
@@ -691,6 +743,20 @@ function submitAddPracticeTest() {
       alert("We are having issues saving this practice test :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+}
+
+function updateEditPracticeTest() {
+  pending_calendar_event.student = document.getElementById('editPracticeTestStudent').value;
+  pending_calendar_event.title = document.getElementById('editPracticeTestStudent').options[document.getElementById('editPracticeTestStudent').selectedIndex].text + " - Practice Test";
+  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+  .then(() => {
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEvent({
+      id: pending_calendar_event_id,
+      ...pending_calendar_event
+    })
+    closeCalendarSidebar();
+  })
 }
 
 function submitAddConference() {
@@ -721,7 +787,6 @@ function submitAddConference() {
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
       main_calendar.addEvent(event);
-      document.getElementById('addConferenceStudent').value = ""
       closeCalendarSidebar();
     })
     .catch((error) => {
@@ -731,16 +796,27 @@ function submitAddConference() {
   }
 }
 
+function updateEditConference() {
+  pending_calendar_event.student = document.getElementById('editConferenceStudent').value;
+  pending_calendar_event.title = document.getElementById('editConferenceStudent').options[document.getElementById('editConferenceStudent').selectedIndex].text + " - Conference";
+  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+  .then(() => {
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEvent({
+      id: pending_calendar_event_id,
+      ...pending_calendar_event
+    })
+    closeCalendarSidebar();
+  })
+}
+
 function saveTeacherMeeting(eventInfo) {
   //first get all of the staff that are invited to this meeting
   let promises = [];
-
   let staff = [];
   let staffNames = [];
   let wages = [];
   
-  
-
   promises.push(firebase.firestore().collection('Tutors').where("location", "==", eventInfo.invitedLocation).get()
   .then((tutorSnapshot) => {
     tutorSnapshot.forEach((tutorDoc) => {
@@ -842,7 +918,7 @@ function savePracticeTest(eventInfo) {
   return firebase.firestore().collection("Students").doc(eventInfo.student).get()
   .then((studentDoc) => {
     const data = studentDoc.data();
-    const studentName = data.studentFirstName + " " + data.studentLastName;
+    const studentName = data.studentLastName + ", " + data.studentFirstName;
     const studentParent = data.parent;
 
     const eventRef = firebase.firestore().collection("Events").doc()
@@ -885,7 +961,7 @@ function saveConference(eventInfo) {
   return firebase.firestore().collection("Students").doc(eventInfo.student).get()
   .then((studentDoc) => {
     const data = studentDoc.data();
-    const studentName = data.studentFirstName + " " + data.studentLastName;
+    const studentName = data.studentLastName + ", " + data.studentFirstName;
     const studentParent = data.parent;
 
     const eventRef = firebase.firestore().collection("Events").doc()
