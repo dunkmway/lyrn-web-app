@@ -938,7 +938,6 @@ function getLocationList(user) {
     });
     return Promise.all(locationNameProms)
   });
-
 }
 
 function getStudentList(location) {
