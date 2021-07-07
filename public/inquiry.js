@@ -855,17 +855,22 @@ function updateParentChildren(parentUID, studentUID) {
 }
 
 function updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
-  const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
-  let activeStudent = {
-    studentFirstName : studentFirstName,
-    studentLastName : studentLastName,
-    parentUID: parentUID,
-    parentFirstName: parentFirstName,
-    parentLastName: parentLastName
-  }
-  return locationDocRef.update({
-    [`activeStudents.${studentUID}`]: activeStudent
-  })
+
+  //don't need to do this since we're pulling students for the list from their profile and not the location
+
+  // const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
+  // let activeStudent = {
+  //   studentFirstName : studentFirstName,
+  //   studentLastName : studentLastName,
+  //   parentUID: parentUID,
+  //   parentFirstName: parentFirstName,
+  //   parentLastName: parentLastName
+  // }
+  // return locationDocRef.update({
+  //   [`activeStudents.${studentUID}`]: activeStudent
+  // })
+
+  return Promise.resolve();
 }
 
 function getAllInputs() {
