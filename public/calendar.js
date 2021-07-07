@@ -191,10 +191,32 @@ function deleteEventCallback() {
   }
 }
 
-//FIXME: work on this so that at any point this function can check the mode we're in and cancel the operation and get ready
-//to go back to default. The issue I have now is changing location doesn't cancel the event to the values stay.
-function cancelEventCallback() {
 
+function cancelSidebar() {
+  //clear the input for every input
+  const allInputNodes = document.getElementById('sidebar').querySelectorAll('input');
+  for (let i = 0; i < allInputNodes.length; i++) {
+    allInputNodes[i].value = ""
+  }
+
+  //all selects should be dynamically created on setup so we can remove all elements here
+  const allSelectNodes = document.getElementById('sidebar').querySelectorAll('select');
+  for (let i = 0; i < allSelectNodes.length; i++) {
+    let numOptions = allSelectNodes[i].options.length;
+    for (let j = numOptions; j > 0; j--) {
+      allSelectNodes[i].options[j-1].remove();
+    }
+  }
+}
+
+/**
+ * call this function from the button press that cancels the sidebar
+ */
+function cancelSidebarCallback() {
+  //FIXME: Check if anything was changed then ask. I'm thinking about putting a change listener that detects changes and sets a flag
+  if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
+    closeCalendarSidebar();
+  }
 }
 
 function getEventsUser(user) {
@@ -253,7 +275,7 @@ function openCalendarSidebar() {
 function closeCalendarSidebar() {
 
   //call the cancel function on the open sidebar
-  cancelCallback();
+  cancelSidebar();
 
   main_calendar.setOption('selectable', false);
   main_calendar.unselect();
@@ -451,7 +473,10 @@ function setupInputPracticeTest() {
 
     addSelectOptions(document.getElementById('addPracticeTestStudent'), studentUIDs, studentNames);
   })
-  .catch((error) => {console.log(error)});
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
 
   showAddPracticeTestWrapper();
   openCalendarSidebar();
@@ -463,12 +488,6 @@ function setupInputConference() {
   calendar_mode = "addConference";
   main_calendar.setOption('selectable', true);
 
-  //remove all of the students from the list and add them back (in case of location change)
-  //FIXME: Terribly wasteful to get all these students everytime
-  let numOptions = document.getElementById('addConferenceStudent').options.length
-  for (let i = numOptions; i > 0; i--) {
-    document.getElementById('addConferenceStudent').options[i-1].remove();
-  }
   //add back the default option
   const defaultOption = document.createElement('option');
   defaultOption.value = "";
@@ -477,6 +496,7 @@ function setupInputConference() {
   defaultOption.setAttribute('disabled', true);
   document.getElementById('addConferenceStudent').appendChild(defaultOption);
 
+  //add in the student list. If no location is selected this will reject
   getStudentList(document.getElementById('calendarLocation').dataset.value)
   .then((students) => {
     let studentNames = [];
@@ -488,7 +508,10 @@ function setupInputConference() {
 
     addSelectOptions(document.getElementById('addConferenceStudent'), studentUIDs, studentNames);
   })
-  .catch((error) => {console.log(error)});
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
 
   showAddConferenceWrapper();
   openCalendarSidebar();
