@@ -1,5 +1,5 @@
 let currentLocations = [];
-let currentLocationNames = [];
+// let currentLocationNames = [];
 let currentUser = ""
 
 initialSetupData();
@@ -9,14 +9,22 @@ function initialSetupData() {
     currentUser = user;
     if (currentUser) {
       // User is signed in.
-      getAdminProfile(currentUser.uid)
-      .then((doc) => {
-        if (doc.exists) {
-          setAdminProfile(doc.data());
-          setStudentTable()
-          .then(() => setLocations())
-        }
-        else setAdminProfile();
+      getLocationList(currentUser)
+      .then((locations) => {
+        currentLocations = locations;
+        setLocations();
+
+        getAdminProfile(currentUser.uid)
+        .then((doc) => {
+          if (doc.exists) {
+            setAdminProfile(doc.data());
+            setStudentTable()
+          }
+          else setAdminProfile();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
       })
 
     } else {
@@ -31,9 +39,6 @@ function getAdminProfile(adminUID) {
 }
 
 function setAdminProfile(profileData = {}) {
-  currentLocations = profileData['locations'];
-  // console.log(currentLocations);
-
   if (profileData['adminFirstName'] && profileData['adminLastName']) {
     document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
   }
@@ -42,94 +47,126 @@ function setAdminProfile(profileData = {}) {
   }
 }
 
+function getLocationList(user) {
+  return firebase.firestore().collection("Admins").doc(user.uid).get()
+  .then((userDoc) => {
+    let userData = userDoc.data();
+    let locationUIDs = userData.locations;
+
+    let locationNameProms = [];
+
+    locationUIDs.forEach((locationUID) => {
+      locationNameProms.push(firebase.firestore().collection("Locations").doc(locationUID).get()
+      .then((locationDoc) => {
+        let locationData = locationDoc.data();
+        return {
+          id: locationUID,
+          name: locationData.locationName
+        }
+      }));
+    });
+    return Promise.all(locationNameProms)
+  });
+}
+
 function setStudentTable() {
   let tableData = [];
-  let promises = []
-  for (let i = 0; i < currentLocations.length; i++) {
-    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
-    let locationProm = locationDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        let locationName = doc.get("locationName");
-        currentLocationNames.push(locationName);
-        //document.getElementById("locationName").textContent = locationName;
-      }
+  let promises = [];
+
+  //get array of location ids
+  let locationUIDs = [];
+  currentLocations.forEach((location) => {
+    locationUIDs.push(location.id);
+  })
+
+  //query all students whose types are in the current locations array
+  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).get()
+  .then((studentQuerySnapshot) => {
+    studentQuerySnapshot.forEach((studentDoc) => {
+      const studentData = studentDoc.data();
+
+      //convert type string to array
+      let studentTypesTable = "";
+      studentData.studentTypes.forEach((type) => {
+        switch(type) {
+          case 'act':
+            studentTypesTable += 'ACT, ';
+            break;
+          case 'subjectTutoring':
+            studentTypesTable += 'Subject-Tutoring, ';
+            break;
+          case 'mathProgram':
+            studentTypesTable += 'Math-Program, ';
+            break;
+          case 'phonicsProgram':
+            studentTypesTable += 'Phonics-Program, ';
+            break;
+          default:
+            //nothing
+        }
+      })
+      studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+      //figure out the location name
+      let locationName = "";
+      currentLocations.forEach((location) => {
+        if (studentData.location == location.id) {
+          locationName = location.name;
+        }
+      })
+
+      promises.push(getParentData(studentData.parent)
+      .then((parentData) => {
+
+        const student = {
+          studentUID: studentDoc.id,
+          studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+          studentTypes: studentData.studentTypes,
+          studentTypesTable: studentTypesTable,
+          location: locationName,
+          parentUID: parentData.parentUID,
+          parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+        }
+
+        tableData.push(student);
+      }));
+    });
+
+    //all of the student objects have been created
+    Promise.all(promises)
+    .then(() => {
+      let studentTable = $('#student-table').DataTable( {
+        data: tableData,
+        columns: [
+          { data: 'studentName' },
+          { data: 'studentTypesTable'},
+          { data: 'location'},
+          { data: 'parentName'},
+        ],
+        "scrollY": "400px",
+        "scrollCollapse": true,
+        "paging": false
+      } );
+    
+      studentTable.on('click', (args) => {
+        //this should fix some "cannot read property of undefined" errors
+        if (args?.target?._DT_CellIndex) {
+          let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+          setupNavigationModal(studentUID);
+          document.getElementById("navigationSection").style.display = "flex";
+        }
+      })
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
-    });
+      console.log(error);
+    })
 
-    promises.push(locationProm);
-  }
-  
-  return Promise.all(promises)
-  .then(() => {
-    // console.log("tableData", tableData);
-    let studentTable = $('#student-table').DataTable( {
-      data: tableData,
-      columns: [
-        { data: 'studentName' },
-        { data: 'location'},
-        { data: 'status' },
-        { data: 'parentName'},
-      ],
-      "scrollY": "400px",
-      "scrollCollapse": true,
-      "paging": false
-    } );
-
-    studentTable.on('click', (args) => {
-      //this should fix some "cannot read property of undefined" errors
-      if (args?.target?._DT_CellIndex) {
-        let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-        setupNavigationModal(studentUID);
-        document.getElementById("navigationSection").style.display = "flex";
-
-
-
-
-        // let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
-        // let location = tableData[args.target._DT_CellIndex.row].locationUID;
-        // let status = tableData[args.target._DT_CellIndex.row].status;
-        // let type = tableData[args.target._DT_CellIndex.row].studentType;
-
-        // switch (status) {
-        //   case "pending":
-        //     if (type == 'ACT') {
-        //       pendingStudentSelected(studentUID, parentUID, location);
-        //     }
-        //     else {
-        //       alert("nothing to see here...yet")
-        //     }
-        //     break;
-        //   case "active":
-        //     if (type == 'ACT') {
-        //       actStudentSelected(studentUID);
-        //     }
-        //     else if (type == 'ST') {
-        //       subjectTutoringStudentSelected(studentUID);
-        //     }
-        //     //FIXME: these will need to be redirected to the proper page once we have them
-        //     else if (type == 'Math Program') {
-        //       mathProgramSelected(studentUID);
-        //     }
-        //     else if (type == 'Phonics Program') {
-        //       subjectTutoringStudentSelected(studentUID);
-        //     }
-        //     else {
-        //       alert("nothing to see here...yet")
-        //     }
-        //     break;
-        //   default:
-        //     console.log("ERROR: This student isn't active or pending!!!")
-        // }
-      }
-    });
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
+    console.log(error);
   });
-  
 }
 
 function setLocations () {
@@ -138,15 +175,29 @@ function setLocations () {
     let locationElem = locationElems[i];
     for (let j =  0; j < currentLocations.length; j++) {
       let option = document.createElement("option");
-      option.value = currentLocations[j];
-      option.innerText = currentLocationNames[j]
+      option.value = currentLocations[j].id;
+      option.innerText = currentLocations[j].name;
       locationElem.appendChild(option);
     }
   }
-  
 }
 
-
+function getParentData(parentUID) {
+  if (!parentUID) {
+    return Promise.resolve({
+      parentFirstName: 'PARENT',
+      parentLastName: 'NO',
+      parentUID: null,
+    })
+  }
+  return firebase.firestore().collection('Parents').doc(parentUID).get()
+  .then(parentDoc => {
+    return {
+      ...parentDoc.data(),
+      parentUID: parentDoc.id
+    }
+  });
+}
 
 function goToInquiry() {
   window.location.href = "../inquiry.html";

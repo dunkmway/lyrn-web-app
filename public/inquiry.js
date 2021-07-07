@@ -472,9 +472,6 @@ function createRegistration() {
   let studentInputValues = registrationObject["studentValues"];
   let actInputValues = registrationObject["actValues"];
   let adminInputValues = registrationObject["adminValues"];
-  
-  console.log(studentInputValues['studentTypes'])
-  return
 
   //validate and confirm submission
   if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
@@ -924,7 +921,7 @@ function validateFields(inputs) {
     }
 
     //check for required dropdown multiple selects
-    if(inputs[i].hasAttribute("required") && inputs[i].hasAttribute('multiple') && getDropdownValues(inputs[i].id).length > 0) {
+    if(inputs[i].hasAttribute("required") && inputs[i].hasAttribute('multiple') && getDropdownValues(inputs[i].id).length < 1) {
       inputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [inputs[i].id + "ErrorMessage"], "* Required *"));
       allClear = false;
     }
