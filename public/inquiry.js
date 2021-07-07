@@ -840,10 +840,11 @@ function updateParentDoc(parentUID, studentUID, parentValues) {
 
 function updateActDoc(studentUID, studentType, typeValues) {
   const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.update({
+  return typeDocRef.set({
     ...typeValues,
     lastModifiedDate: (new Date().getTime())
-  })
+  }, {merge: true})
+  //might not have act setup if they existed before change
 }
 
 function updateParentChildren(parentUID, studentUID) {
@@ -1230,7 +1231,7 @@ graduation.addEventListener('change', updateGrade);
 
 function updateGraduationYear() {
   console.log("Updating gradution year");
-  if (grade.value > -1) {
+  if (grade.value > -1 && grade.value != "") {
     graduation.disabled = false;
     let gradeVal = parseInt(grade.value);
 
@@ -1240,6 +1241,11 @@ function updateGraduationYear() {
     let graduationYear = currentYear + yearsUntilGraduation;
 
     graduation.value = graduationYear;
+  }
+  //no grade selected
+  else if (grade.value == "") {
+    graduation.value = ""
+    graduation.disabled = false;
   }
   //college
   else {
@@ -1264,6 +1270,9 @@ function updateGrade() {
     let gradeVal = currentMonth < 7 ? 12 - yearsUntilGraduation : 13 - yearsUntilGraduation;
 
     grade.value = gradeVal;
+  }
+  else {
+    grade.value = "";
   }
 }
 
