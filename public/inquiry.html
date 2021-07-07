@@ -36,7 +36,7 @@
             <div id="required" class="step current" onclick="changeRegistrationBlock(this)"> <span> Required</span> </div>
             <div id="parent" class="step" onclick="changeRegistrationBlock(this)"> <span>Parent</span> </div>
             <div id="student" class="step" onclick="changeRegistrationBlock(this)"> <span> Student</span> </div>
-            <div id="type" class="step hidden" onclick="changeRegistrationBlock(this)"> <span>ACT</span> </div>
+            <div id="act" class="step" onclick="changeRegistrationBlock(this)"> <span>ACT</span> </div>
             <div id="admin" class="step" onclick="changeRegistrationBlock(this)"> <span>Admin</span> </div>
           </div>
         </div>
@@ -60,14 +60,13 @@
             </div>
             <!-- Student Type -->
             <div class="input-block">
-              <label for="studentType" class="label">Student Type:</label>
-              <div class="more-info" data-more-info="The primary type of tutoring the student will receive.">?</div>
-              <select id="studentType" class="input student-data" required>
-                <option selected disabled value="">select a type</option>
+              <label for="studentTypes" class="label">Student Type:</label>
+              <div class="more-info" data-more-info="The type(s) of tutoring the student will receive.">?</div>
+              <select id="studentTypes" name="studentTypes" class="ui dropdown" multiple required>
                 <option value="act">ACT</option>
-                <option value="subject-tutoring">Subject Tutoring</option>
-                <option value="math-program">Math Program</option>
-                <option value="phonics-program">Phonics Program</option>
+                <option value="subjectTutoring">Subject Tutoring</option>
+                <option value="mathProgram">Math Program</option>
+                <option value="phonicsProgram">Phonics Program</option>
               </select>
             </div>
           </div>
