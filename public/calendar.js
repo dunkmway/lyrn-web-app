@@ -37,15 +37,6 @@ function initialSetup() {
       console.log(error);
       alert("We had an issue loading the calendar events. Try refreshing the page.")
     })
-
-    // getEventsUser(user)
-    // .then(events => {
-    //   initializeCalendar(events)
-    // })
-    // .catch((error) =>{
-    //   console.log(error);
-    //   alert("We had an issue loading the calendar events. Try refreshing the page.")
-    // })
   })
 }
 
@@ -77,7 +68,7 @@ function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
 
 function locationChange(location) {
   closeCalendarSidebar();
-  getEventsLocation(location)
+  getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime())
   .then(events => {
     //remove the old events
     main_calendar.getEvents().forEach(event => {
@@ -111,6 +102,16 @@ function initializeCalendar(events) {
     },
     themeSystem: 'standard',
 
+    // only show the day name (good for setting availability)
+    // dayHeaderFormat: { weekday: 'long' },
+
+    datesSet: function(dateInfo) {
+      const location = document.getElementById('calendarLocation').dataset.value;
+      if (location) {
+        getEventsLocation(location, dateInfo.start.getTime(), dateInfo.end.getTime())
+      }
+    },
+
     dateClick: function(info) {
       // //check the calendar mode
       // switch(calendar_mode) {
@@ -121,13 +122,7 @@ function initializeCalendar(events) {
       // }
     },
 
-    eventClick: function(info) {
-      console.log("Event clicked!")
-      getEvent(info.event.id)
-      .then((data) => {
-        setupEditSidebar(data, info.event.id)
-      })
-    },
+    eventClick: eventClickHandler,
 
     select: function(info) {
       selectCallBack(info);
@@ -171,6 +166,13 @@ function getEvent(eventID) {
   });
 }
 
+function eventClickHandler(info) {
+  getEvent(info.event.id)
+  .then((data) => {
+    setupEditSidebar(data, info.event.id)
+  })
+}
+
 function deleteEvent(eventID) {
   return firebase.firestore().collection('Events').doc(eventID).delete();
 }
@@ -211,6 +213,9 @@ function cancelSidebar() {
       allSidebarListNodes[i].removeChild(allSidebarListNodes[i].lastChild);
     }
   }
+
+  //add back the eventClickHandler
+  main_calendar.setOption('eventClick', eventClickHandler);
 }
 
 /**
@@ -259,9 +264,10 @@ function getEventsUser(user) {
   });
 }
 
-function getEventsLocation(location) {
-  return firebase.firestore().collection('Events').where("location", '==', location).get()
+function getEventsLocation(location, start, end) {
+  return firebase.firestore().collection('Events').where("location", '==', location).where('start', '>=', start).where('start', '<', end).get()
   .then((eventSnapshot) => {
+    console.log('number of events grabbed:', eventSnapshot.size)
     let events = [];
     eventSnapshot.forEach((eventDoc) => {
       const eventData = eventDoc.data();
@@ -355,7 +361,6 @@ function showEditConferenceWrapper() {
 }
 
 function setupEditSidebar(eventData, eventID) {
-  console.log(eventData.type);
   switch (eventData.type) {
     case 'teacherMeeting':
       setupEditTeacherMeeting(eventData, eventID);
@@ -371,6 +376,30 @@ function setupEditSidebar(eventData, eventID) {
       break
     default:
   }
+
+  //remove eventClickHandler
+  main_calendar.setOption('eventClick', () => {});
+}
+
+function setupAddSidebar(type) {
+  switch (type) {
+    case 'teacherMeeting':
+      setupAddTeacherMeeting();
+      break
+    case 'generalInfo':
+      setupAddGeneralInfo();
+      break
+    case 'practiceTest':
+      setupAddPracticeTest();
+      break
+    case 'conference':
+      setupAddConference();
+      break
+    default:
+  }
+
+  //remove eventClickHandler
+  main_calendar.setOption('eventClick', () => {});
 }
 
 /**
@@ -1070,3 +1099,11 @@ function getDropdownValues(dropdownId) {
   return values;
 }
 
+//just for testing purposes so I can call this function when I want
+document.addEventListener('keypress', (event) => {
+  if (event.key == '`') {
+    main_calendar.getEvents().forEach(event => {
+      console.log('start:', event.start, 'end:', event.end)
+    })
+  }
+})

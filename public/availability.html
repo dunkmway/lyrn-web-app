@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TESTING</title>
+  <!-- favicon stuff -->
+  <link rel="apple-touch-icon" sizes="180x180" href="Images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="Images/favicon/site.webmanifest">
+  <!------------------->
+
+  <link href="Site Templates/site-wide.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css" rel="stylesheet">
+  <link href="availability.css" rel="stylesheet">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- semantic UI -->
+  <link async rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.css"/>
+  <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.js"></script>
+
+  <!-- full calendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.min.js"></script>
+  <!-- tinycolor -->
+  <script src="https://cdn.jsdelivr.net/npm/tinycolor2@1.4.2/tinycolor.min.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+  <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
+  <script src="availability.js" defer></script>
+</head>
+
+<body onload="initialSetup()">
+  <div id='calendar'></div>
+  <button onclick="invertEvents()">Invert Events</button>
+</body>

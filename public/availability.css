@@ -1,0 +1,9 @@
+:root {
+  /* today background color */
+  --fc-today-bg-color: transparent !important
+}
+
+/* height of time slot */
+.fc .fc-timegrid-slot {
+  height: 4em !important;
+}
