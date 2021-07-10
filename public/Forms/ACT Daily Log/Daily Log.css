@@ -216,9 +216,38 @@ div p {
     position: relative;
     height: 81vh;
     width: 100vw;
-    background-color: #8986b2;
+    /*background: linear-gradient(60deg,
+    rgba(244, 246, 250, 0.7) 40%,
+    rgb(75, 143, 228, 0.8) 40% 100%);*/
+    background-color: rgb(75, 143, 228, 0.8);
+    /*background-color: #8986b2;*/
     /*background-color: #4d4d8c;*/
     z-index: 1;
+}
+
+.oval {
+    font-size: 1.25vh;
+    height: 1.75vh;
+    width: 1.75vh;
+    border-radius: 50%;
+    background-color: rgb(200, 200, 200, 0.5);
+    cursor: pointer;
+    margin-left: 2px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.oval:hover {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    border-style : solid;
+    border-width : 1.5px;
+    border-color : rgb(135, 168, 247);
+    background-color: rgb(135, 168, 247, 0.2);
+    color: black;
 }
 
 .englishColor {
@@ -243,6 +272,7 @@ div p {
 
 .green {
     background-color: green;
+    color: white;
 }
 
 .pink {
@@ -278,6 +308,10 @@ div p {
 .red {
     background-color: red;
     color: white;
+}
+
+.tab3 {
+    background-color: rgb(0, 0, 91, 0.6);
 }
 
 .Qred {
@@ -406,7 +440,7 @@ div p {
   padding: 8px 0px 8px 0px;
   position: absolute;
   z-index: 4;
-  bottom: calc(7% + 5px);
+  bottom: calc(8% + 5px);
   right: calc(50% - 85px - 45px - (.5 * ((100% - 200px) / 3)));
 }
 
@@ -550,7 +584,11 @@ div p {
     height: 10vh;
     width: 100%;
     align-items: center;
-    background-color: #8986b2;
+    /*background-color: #8986b2;*/
+    background-color: rgb(75, 143, 228, 0.8);
+    /*background: linear-gradient(60deg,
+    rgba(244, 246, 250, 0.7) 40%,
+    rgb(75, 143, 228, 0.8) 40% 100%);*/
     /*background-color: #4d4d8c;*/
 }
 
@@ -578,39 +616,36 @@ div p {
     border-radius: 14px;
 }
 
-#answerButton {
-  margin-left: 20px;
-}
-
-#guessButton {
-  margin-left: 20px;
-}
-
-#leftArrow {
+.leftArrow {
     font-size: 35px;
     flex-grow: 1;
     padding-bottom: 4px;
 }
 
-#passage {
+.passage {
     width: 70%;
     max-height: 100%;
     overflow-y: scroll;
 }
   
-#rightArrow {
+.rightArrow {
     font-size: 35px;
     flex-grow: 1;
     padding-bottom: 4px;
 }
 
-#popupButtons {
+.popupButtons {
     height: 7%;
 }
 
-#popupInfo {
+.popupInfo {
     padding: 0px;
-    height: 85%;
+    height: 84%;
+}
+
+.sectionPopupInfo {
+    padding: 0px;
+    height: 74%;
 }
 
 #statusBox {
@@ -673,14 +708,6 @@ div p {
   }
 }
 
-.selectedElement {
-    border-style : solid;
-    border-width : 1.5px;
-    border-color : rgb(135, 168, 247);
-    background-color: rgb(135, 168, 247, 0.2);
-    color: black;
-}
-
 .squareButton {
   width: 110px;
   height: 35px;
@@ -725,4 +752,60 @@ div p {
   color: red;
   content: '\0021';
   font-size: 35px;
+}
+
+.selectedElement {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    border-style : solid;
+    border-width : 1.5px;
+    border-color : rgb(135, 168, 247);
+    background-color: rgb(135, 168, 247, 0.2);
+    color: black;
+}
+
+
+.practiceTest {
+    font-size: 24px;
+    height: 60%;
+    margin-bottom: 3px;
+}
+
+.carousel {
+    height: 10.75%;
+    overflow-x:auto;
+}
+
+.carouselItem {
+    margin-left: 2vh;
+    width: 100%;
+}
+
+.carouselItem:first-child {
+    margin-left: 1vh;
+}
+
+.carouselItem:last-child {
+    margin-right: 1vh;
+}
+
+.selfLoadingRing {
+    position: relative;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.selfLoadingRing::after {
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 91, 0.2);
+  border-left-color: rgb(0, 0, 91);
+  background: transparent;
+  animation: rotate-s-loader 1s linear infinite;
+  position:absolute;
+  content: '';
+  margin-left: -2px;
 }

@@ -6,20 +6,19 @@ document.getElementById("mathStudentMessagesInput").addEventListener('keydown', 
 document.getElementById("readingStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading'));
 document.getElementById("scienceStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science'));
 
-// Listen for wrong answers
+// Listen for wrong answers (Homeworks)
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function (event) {
 
   if (event.target.id != 'passage') {
     // Needed info
-    const test = current_test
-    const section = current_section
-    const passageNumber = current_passage_number
+    const test = current_homework_test
+    const section = current_homework_section
+    const passageNumber = current_homework_passage_number
 
     // identify the question number
-    let question = undefined;
     let location = event.target.closest("div[id='passage'] > div")
-    question = location.getAttribute("data-question");
+    let question = location.getAttribute("data-question");
 
     // Check to see if we're marking a question as wrong / correct
     if (location.className.includes('input-row-center')) {
@@ -36,6 +35,44 @@ popupAnswers.addEventListener('click', function (event) {
     }
   }
 })
+
+let sectionPassages = document.getElementsByClassName("passage");
+for (let i = 0; i < sectionPassages.length; i++) {
+  if (sectionPassages[i].id != 'passage') {
+    sectionPassages[i].addEventListener('click', function (event) {
+
+      if (!event.target.id.includes('Passage')) {
+        console.log(event.target.id)
+        // Needed info
+        const test = current_practice_test
+        const section = current_practice_section
+        const passageNumber = current_practice_passage_number
+
+        // identify the question number
+        let location = event.target.closest("div[id$='Passage'] > div")
+        let question = location.getAttribute("data-question");
+
+        // Check to see if we're marking a question as wrong / correct
+        if (location.className.includes('input-row-center')) {
+
+          // Get the array location
+          let questionLocation = test_answers_grading[test][section][passageNumber]['questions'].filter(function(val) {return val.question == question})[0]
+          questionLocation = test_answers_grading[test][section][passageNumber]['questions'].indexOf(questionLocation)
+
+          // If marked correct (not found), mark it wrong
+          if (test_answers_grading[test][section][passageNumber]['questions'][questionLocation]['isWrong'] == false) {
+            test_answers_grading[test][section][passageNumber]['questions'][questionLocation]['isWrong'] = true
+          }
+          else {
+            test_answers_grading[test][section][passageNumber]['questions'][questionLocation]['isWrong'] = false
+          }
+
+          openPracticeTest(test, section, passageNumber)
+        }
+      }
+    })
+  }
+}
 
 const beforeUnloadListener = (event) => {
   event.preventDefault();

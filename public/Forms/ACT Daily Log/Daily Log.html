@@ -60,21 +60,12 @@
         </div>
     </div>
 
-    <!--<div id = 'statusBox'>
-        <p id = 'loading' class = 'hidden'></p>
-        <p id = 'redX' class = 'hidden'>&#10060</p>
-        <p id = 'blueCircle' class = 'hidden'>&#128309</p>
-        <p id = 'greenCircle' class = ''>&#128994</p>
-    </div>-->
-
-
     <div id = "lessonPopup" onmouseover = "openLessonPopup()" onmouseout = "closeLessonPopup()" class = 'input-column-center hidden'>
         <button class = "squareButton green white" onclick = "submitLesson('mastered')">Mastered</button>
         <button class = "squareButton yellow white" onclick = "submitLesson('proficient')">Proficient</button>
         <button class = "squareButton red white" onclick = "submitLesson('review')">Review</button>
         <button class = "squareButton" onclick = "submitLesson('remove')">Remove</button>
     </div>
-    
 
 
 
@@ -115,22 +106,22 @@
                     <div class='statusBar'></div>
                 </div>
     
-                <div id="popupInfo" class="input-row">
+                <div id="popupInfo" class="input-row popupInfo">
     
                     <div class="side">
                         <div class="circle cursor" onclick="previousPassage(this)">
-                            <div id="leftArrow">
+                            <div id="leftArrow" class = 'leftArrow'>
                                 &#8249;
                             </div>
                         </div>
                     </div>
     
-                    <div id="passage">
+                    <div id="passage" class = 'passage'>
                     </div>
     
                     <div class="side">
                         <div class="circle cursor" onclick="nextPassage(this)">
-                            <div id="rightArrow">
+                            <div id="rightArrow" class = 'rightArrow'>
                                 &#8250;
                             </div>
                         </div>
@@ -138,32 +129,13 @@
     
                 </div>
     
-                <div id="popupButtons" class="input-row-center spacedEvenly">
+                <div id="popupButtons" class="input-row-center spacedEvenly popupButtons">
                     <button id = 'resetHomework' class="smallButton button" onclick="resetAnswers()">
                         Reset
                     </button>
                     <button id = 'submitHomework' class="smallButton button" onclick="toggleHomeworkPopup()">
                         Submit
                     </button>
-    
-                    <div id="inCenterPopup" class="popup" data-test="">
-                        <button class="longButton button cursor green" onclick="submitAnswersPopup('grade')">
-                            Grade Passage
-                        </button>
-    
-                        <button class="longButton button cursor greenShade" onclick="submitAnswersPopup('together')">
-                            Worked Together
-                        </button>
-    
-                        <button class="longButton button cursor greenShade" onclick="submitAnswersPopup('popcorn')">
-                            Popcorned Problems
-                        </button>
-    
-                        <button class="longButton button cursor greenShade" onclick="submitAnswersPopup('prior')">
-                            Prior Completion
-                        </button>
-                    </div>
-    
     
                     <div id="submitHomeworkPopup" class="popup">
     
@@ -262,6 +234,10 @@
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'lessons')">
                         <h2>Lessons</h2>
                     </div>
+
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('english', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
     
                 <div class="lessonHeaders">
@@ -285,6 +261,7 @@
     
             </div>
     
+
             <div id='englishChat' class='metaForm'>
     
                 <div class='formTab'>
@@ -295,11 +272,89 @@
                     <div class="headingBlock noselect cursor" onclick="swap('english', 'lessons')">
                         <h2>Lessons</h2>
                     </div>
+
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('english', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
                 <div id="englishStudentMessages" class="studentMessages"></div>
                 <textarea id="englishStudentMessagesInput" class="studentMessagesInput"
                     placeholder="Any section specific notes?"></textarea>
             </div>
+
+
+            <div id="englishPractice" class="metaForm noselect hidden">
+    
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('english', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('english', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
+
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
+                </div>
+
+                <div id='englishCarousel' class='carousel input-row'>
+                </div>
+    
+                <div id="englishPopupInfo" class="input-row sectionPopupInfo">
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="previousPassage(this)">
+                            <div id="englishLeftArrow" class = 'leftArrow'>
+                                &#8249;
+                            </div>
+                        </div>-->
+                    </div>
+    
+                    <div id="englishPassage" class = 'passage'>
+                    </div>
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="nextPassage(this)">
+                            <div id="englishRightArrow" class = 'rightArrow'>
+                                &#8250;
+                            </div>
+                        </div>-->
+                    </div>
+    
+                </div>
+    
+                <div id="englishPopupButtons" class="input-row-center spacedEvenly popupButtons">
+                    <button id = 'englishResetPractice' class="smallButton button" onclick="resetPractice()">
+                        Reset
+                    </button>
+                    <button id = 'englishSubmitPractice' class="smallButton button" onclick="togglePracticePopup('english')">
+                        Submit
+                    </button>
+
+                    <div id="englishSubmitPracticePopup" class="popup" data-test="">
+                        <button class="testSubmitButton green" onclick="gradePractice('completed')">
+                            Grade Passage
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                            Worked Together
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
+                            Popcorned Problems
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
+                            Prior Completion
+                        </button>
+                    </div>
+
+                </div>
+    
+            </div>
+
         </div>
     
     </section>
@@ -308,7 +363,7 @@
     <section id = 'mathSection' class = 'mainBody hidden'>
 
         <div class='genearlInfo input-row-center'>
-    
+        
             <div class='graph'>
                 <div class="scores-chart">
                     <div class="flex-column justify-center ">
@@ -319,67 +374,149 @@
                     </div>
                     <canvas id="mathCanvas" style='flex: 1;'></canvas>
                 </div>
-    
+        
                 <div class='bigButtons'>
                     <button class='item itemB1 cursor'>
                         Practice
                     </button>
-                    <button id = 'assignMath' onclick = "assignHomework('math')" class='item itemB2 cursor'>
+                    <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor'>
                         Assign
                     </button>
-                    <button id = 'unassignMath' onclick = "unassignHomework('math')" class='item itemB2 cursor hidden'>
+                    <button id='unassignMath' onclick="unassignHomework('math')" class='item itemB2 cursor hidden'>
                         Unassign
                     </button>
                 </div>
             </div>
+        
+            <div id="mathLessonsForm" class="metaForm noselect hidden">
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('math', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('math', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-        <div id = "mathLessonsForm" class = "metaForm noselect hidden">
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor" onclick = "swap('math', 'chat')">
-                    <h2>Chat</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('math', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+        
+        
+                <div id="mathHeaders" class="lessonHeaders">
+        
+                    <div class="gridBox3">
+                        Lesson
+                    </div>
+        
+                    <div class="gridBox3">
+                        Rank
+                    </div>
+        
+                    <div class="gridBox3">
+                        Date
+                    </div>
+        
+                </div>
+        
+                <div id="mathLessons" class="lessonBody">
+                </div>
+        
+            </div>
+        
+            <div id='mathChat' class='metaForm'>
+        
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('math', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor" onclick="swap('math', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('math', 'lessons')">
-                    <h2>Lessons</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('math', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+                <div id="mathStudentMessages" class="studentMessages"></div>
+                <textarea id="mathStudentMessagesInput" class="studentMessagesInput"
+                    placeholder="Any section specific notes?"></textarea>
             </div>
 
 
-            <div id = "mathHeaders" class = "lessonHeaders">
+            <div id="mathPractice" class="metaForm noselect hidden">
+    
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('math', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('math', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-                <div class = "gridBox3">
-                    Lesson
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('math', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
 
-                <div class = "gridBox3">
-                    Rank
+                <div id='mathCarousel' class='carousel input-row'>
                 </div>
-
-                <div class = "gridBox3">
-                    Date
+    
+                <div id="mathPopupInfo" class="input-row sectionPopupInfo">
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="previousPassage(this)">
+                            <div id="englishLeftArrow" class = 'leftArrow'>
+                                &#8249;
+                            </div>
+                        </div>-->
+                    </div>
+    
+                    <div id="mathPassage" class = 'passage'>
+                    </div>
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="nextPassage(this)">
+                            <div id="englishRightArrow" class = 'rightArrow'>
+                                &#8250;
+                            </div>
+                        </div>-->
+                    </div>
+    
                 </div>
+    
+                <div id="mathPopupButtons" class="input-row-center spacedEvenly popupButtons">
+                    <button id = 'mathResetPractice' class="smallButton button" onclick="resetPractice()">
+                        Reset
+                    </button>
+                    <button id = 'mathSubmitPractice' class="smallButton button" onclick="togglePracticePopup('math')">
+                        Submit
+                    </button>
 
+                    <div id="mathSubmitPracticePopup" class="popup" data-test="">
+                        <button class="testSubmitButton green" onclick="gradePractice('completed')">
+                            Grade Passage
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                            Worked Together
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
+                            Popcorned Problems
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
+                            Prior Completion
+                        </button>
+                    </div>
+    
+                </div>
+    
             </div>
-
-            <div id = "mathLessons" class = "lessonBody">
-            </div>
-
-        </div>
-
-        <div id = 'mathChat' class = 'metaForm'>
-
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('math', 'chat')">
-                    <h2>Chat</h2>
-                </div>
-
-                <div class="headingBlock noselect cursor" onclick = "swap('math', 'lessons')">
-                    <h2>Lessons</h2>
-                </div>
-            </div>
-            <div id="mathStudentMessages" class="studentMessages"></div>
-            <textarea id="mathStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
-        </div>
         </div>
 
     </section>
@@ -388,7 +525,7 @@
     <section id = 'readingSection' class = 'mainBody hidden'>
 
         <div class='genearlInfo input-row-center'>
-    
+        
             <div class='graph'>
                 <div class="scores-chart">
                     <div class="flex-column justify-center ">
@@ -399,67 +536,149 @@
                     </div>
                     <canvas id="readingCanvas" style='flex: 1;'></canvas>
                 </div>
-    
+        
                 <div class='bigButtons'>
                     <button class='item itemB1 cursor'>
                         Practice
                     </button>
-                    <button id = 'assignReading' onclick = "assignHomework('reading')" class='item itemB2 cursor'>
+                    <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor'>
                         Assign
                     </button>
-                    <button id = 'unassignReading' onclick = "unassignHomework('reading')" class='item itemB2 cursor hidden'>
+                    <button id='unassignReading' onclick="unassignHomework('reading')" class='item itemB2 cursor hidden'>
                         Unassign
                     </button>
                 </div>
             </div>
+        
+            <div id="readingLessonsForm" class="metaForm noselect hidden">
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('reading', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('reading', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-        <div id = "readingLessonsForm" class = "metaForm noselect hidden">
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor" onclick = "swap('reading', 'chat')">
-                    <h2>Chat</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('reading', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+        
+        
+                <div class="lessonHeaders">
+        
+                    <div class="gridBox3">
+                        Lesson
+                    </div>
+        
+                    <div class="gridBox3">
+                        Rank
+                    </div>
+        
+                    <div class="gridBox3">
+                        Date
+                    </div>
+        
+                </div>
+        
+                <div id="readingLessons" class="lessonBody">
+                </div>
+        
+            </div>
+        
+            <div id='readingChat' class='metaForm'>
+        
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('reading', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor" onclick="swap('reading', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('reading', 'lessons')">
-                    <h2>Lessons</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('reading', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+                <div id="readingStudentMessages" class="studentMessages"></div>
+                <textarea id="readingStudentMessagesInput" class="studentMessagesInput"
+                    placeholder="Any section specific notes?"></textarea>
             </div>
 
+            <div id="readingPractice" class="metaForm noselect hidden">
+    
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('reading', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('reading', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-            <div class = "lessonHeaders">
-
-                <div class = "gridBox3">
-                    Lesson
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('reading', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
 
-                <div class = "gridBox3">
-                    Rank
+                <div id='readingCarousel' class='carousel input-row'>
                 </div>
-
-                <div class = "gridBox3">
-                    Date
+    
+                <div id="readingPopupInfo" class="input-row sectionPopupInfo">
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="previousPassage(this)">
+                            <div id="englishLeftArrow" class = 'leftArrow'>
+                                &#8249;
+                            </div>
+                        </div>-->
+                    </div>
+    
+                    <div id="readingPassage" class = 'passage'>
+                    </div>
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="nextPassage(this)">
+                            <div id="englishRightArrow" class = 'rightArrow'>
+                                &#8250;
+                            </div>
+                        </div>-->
+                    </div>
+    
                 </div>
+    
+                <div id="readingPopupButtons" class="input-row-center spacedEvenly popupButtons">
+                    <button id = 'readingResetPractice' class="smallButton button" onclick="resetPractice()">
+                        Reset
+                    </button>
+                    <button id = 'readingSubmitPractice' class="smallButton button" onclick="togglePracticePopup('reading')">
+                        Submit
+                    </button>
 
+                    <div id="readingSubmitPracticePopup" class="popup" data-test="">
+                        <button class="testSubmitButton green" onclick="gradePractice('completed')">
+                            Grade Passage
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                            Worked Together
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
+                            Popcorned Problems
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
+                            Prior Completion
+                        </button>
+                    </div>
+    
+                </div>
+    
             </div>
 
-            <div id = "readingLessons" class = "lessonBody">
-            </div>
-
-        </div>
-
-        <div id = 'readingChat' class = 'metaForm'>
-
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('reading', 'chat')">
-                    <h2>Chat</h2>
-                </div>
-
-                <div class="headingBlock noselect cursor" onclick = "swap('reading', 'lessons')">
-                    <h2>Lessons</h2>
-                </div>
-            </div>
-            <div id="readingStudentMessages" class="studentMessages"></div>
-            <textarea id="readingStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
-        </div>
         </div>
 
     </section>
@@ -468,7 +687,7 @@
     <section id = 'scienceSection' class = 'mainBody hidden'>
 
         <div class='genearlInfo input-row-center'>
-    
+        
             <div class='graph'>
                 <div class="scores-chart">
                     <div class="flex-column justify-center ">
@@ -479,67 +698,148 @@
                     </div>
                     <canvas id="scienceCanvas" style='flex: 1;'></canvas>
                 </div>
-    
+        
                 <div class='bigButtons'>
                     <button class='item itemB1 cursor'>
                         Practice
                     </button>
-                    <button id = 'assignScience' onclick = "assignHomework('science')" class='item itemB2 cursor'>
+                    <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor'>
                         Assign
                     </button>
-                    <button id = 'unassignScience' onclick = "unassignHomework('science')" class='item itemB2 cursor hidden'>
+                    <button id='unassignScience' onclick="unassignHomework('science')" class='item itemB2 cursor hidden'>
                         Unassign
                     </button>
                 </div>
             </div>
+        
+            <div id="scienceLessonsForm" class="metaForm noselect hidden">
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('science', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('science', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-        <div id = "scienceLessonsForm" class = "metaForm noselect hidden">
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor" onclick = "swap('science', 'chat')">
-                    <h2>Chat</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('science', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+        
+        
+                <div class="lessonHeaders">
+        
+                    <div class="gridBox3">
+                        Lesson
+                    </div>
+        
+                    <div class="gridBox3">
+                        Rank
+                    </div>
+        
+                    <div class="gridBox3">
+                        Date
+                    </div>
+        
+                </div>
+        
+                <div id="scienceLessons" class="lessonBody">
+                </div>
+        
+            </div>
+        
+            <div id='scienceChat' class='metaForm'>
+        
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('science', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+        
+                    <div class="headingBlock noselect cursor" onclick="swap('science', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('science', 'lessons')">
-                    <h2>Lessons</h2>
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('science', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
+                <div id="scienceStudentMessages" class="studentMessages"></div>
+                <textarea id="scienceStudentMessagesInput" class="studentMessagesInput"
+                    placeholder="Any section specific notes?"></textarea>
             </div>
 
+            <div id="sciencePractice" class="metaForm noselect hidden">
+    
+                <div class='formTab'>
+                    <div class="headingBlock noselect cursor" onclick="swap('science', 'chat')">
+                        <h2>Chat</h2>
+                    </div>
+    
+                    <div class="headingBlock noselect cursor tab3" onclick="swap('science', 'lessons')">
+                        <h2>Lessons</h2>
+                    </div>
 
-            <div class = "lessonHeaders">
-
-                <div class = "gridBox3">
-                    Lesson
+                    <div class="headingBlock noselect cursor activeTab" onclick="swap('science', 'practice')">
+                        <h2>Practice</h2>
+                    </div>
                 </div>
 
-                <div class = "gridBox3">
-                    Rank
+                    <div id='scienceCarousel' class='carousel input-row'>
+                    </div>
+    
+                <div id="sciencePopupInfo" class="input-row sectionPopupInfo">
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="previousPassage(this)">
+                            <div id="englishLeftArrow" class = 'leftArrow'>
+                                &#8249;
+                            </div>
+                        </div>-->
+                    </div>
+    
+                    <div id="sciencePassage" class = 'passage'>
+                    </div>
+    
+                    <div class="side">
+                        <!--<div class="circle cursor" onclick="nextPassage(this)">
+                            <div id="englishRightArrow" class = 'rightArrow'>
+                                &#8250;
+                            </div>
+                        </div>-->
+                    </div>
+    
                 </div>
+    
+                <div id="sciencePopupButtons" class="input-row-center spacedEvenly popupButtons">
+                    <button id = 'scienceResetPractice' class="smallButton button" onclick="resetPractice()">
+                        Reset
+                    </button>
+                    <button id = 'scienceSubmitPractice' class="smallButton button" onclick="togglePracticePopup('science')">
+                        Submit
+                    </button>
 
-                <div class = "gridBox3">
-                    Date
+                    <div id="scienceSubmitPracticePopup" class="popup" data-test="">
+                        <button class="testSubmitButton green" onclick="gradePractice('completed')">
+                            Grade Passage
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                            Worked Together
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
+                            Popcorned Problems
+                        </button>
+    
+                        <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
+                            Prior Completion
+                        </button>
+                    </div>
+    
                 </div>
-
+    
             </div>
-
-            <div id = "scienceLessons" class = "lessonBody">
-            </div>
-
-        </div>
-
-        <div id = 'scienceChat' class = 'metaForm'>
-
-            <div class = 'formTab'>
-                <div class="headingBlock noselect cursor activeTab" onclick = "swap('science', 'chat')">
-                    <h2>Chat</h2>
-                </div>
-
-                <div class="headingBlock noselect cursor" onclick = "swap('science', 'lessons')">
-                    <h2>Lessons</h2>
-                </div>
-            </div>
-            <div id="scienceStudentMessages" class="studentMessages"></div>
-            <textarea id="scienceStudentMessagesInput" class="studentMessagesInput" placeholder="Any section specific notes?"></textarea>
-        </div>
         </div>
 
     </section>
