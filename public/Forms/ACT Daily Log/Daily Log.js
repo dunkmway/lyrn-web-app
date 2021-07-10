@@ -1420,6 +1420,15 @@ function openCramSession(sessionCount) {
 
 }
 
+function openLastSession() {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
 function swap() {
   let nav = document.getElementById("sideNav");
   nav.classList.toggle("nav_disabled")
