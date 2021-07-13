@@ -52,7 +52,7 @@ function initialSetup() {
 function initializeCalendar(events) {
   var calendarEl = document.getElementById('calendar');
   main_calendar = new FullCalendar.Calendar(calendarEl, {
-     height: "531px",
+    height: "495px",
     initialView: 'timeGridWeek',
     hiddenDays: [0, 6],
     allDaySlot: false,
@@ -60,9 +60,9 @@ function initializeCalendar(events) {
     slotMaxTime: "17:00:00",
     slotDuration: "01:00:00",
     headerToolbar: {
-      start:   'today prev,next',
-      center: 'title',
-      end:  'dayGridMonth,timeGridWeek,timeGridDay'
+      start:   '',
+      center: '',
+      end:  ''
     },
     themeSystem: 'standard',
     selectConstraint: "businessHours",
