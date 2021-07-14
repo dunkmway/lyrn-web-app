@@ -368,7 +368,7 @@ document.getElementById("student-log-notes-input").addEventListener('keydown', (
     event.preventDefault();
     const currentUser = firebase.auth().currentUser.uid;
     const note = document.getElementById('student-log-notes-input').value;
-    const time = session_date.getTime();
+    const time = new Date().getTime();
     sendNotes('log', note, time, currentUser);
   }
 });
