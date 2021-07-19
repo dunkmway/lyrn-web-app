@@ -19,7 +19,7 @@ function initialSetup() {
   //set up the semantic ui dropdowns
   $('.ui.dropdown').dropdown();
   //get the blank calendar before filling in events
-  initializeCalendar([]);
+  initializeWeeklyScheduleCalendar([]);
 
   firebase.auth().onAuthStateChanged((user) => {
     current_user = user;
@@ -87,7 +87,7 @@ function locationChange(location) {
 
 
 
-function initializeCalendar(events) {
+function initializeWeeklyScheduleCalendar(events) {
   var calendarEl = document.getElementById('calendar');
   main_calendar = new FullCalendar.Calendar(calendarEl, {
     height: "100%",
@@ -109,6 +109,20 @@ function initializeCalendar(events) {
       const location = document.getElementById('calendarLocation').dataset.value;
       if (location) {
         getEventsLocation(location, dateInfo.start.getTime(), dateInfo.end.getTime())
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
       }
     },
 

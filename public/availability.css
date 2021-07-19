@@ -1,9 +1,72 @@
 :root {
   /* today background color */
-  --fc-today-bg-color: transparent !important
+  --fc-today-bg-color: transparent !important;
+  --primary-color: #110D65;
 }
 
 /* height of time slot */
 .fc .fc-timegrid-slot {
   height: 4em !important;
+}
+
+.dropbtn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px 8px 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.calendarNav .dropdown {
+  position: relative;
+  display: inline-block;
+  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+  /* border-radius: 10px; */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.dropdown-content div {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content div.selected {
+  display: none;
+}
+
+.dropdown-content div:hover {background-color: #ddd;}
+
+.calendarNav .dropdown:hover .dropdown-content {display: block;}
+
+.calendarNav .dropdown:hover .dropbtn {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+
+.calendarWrapper:hover .calendarInstructions {
+  display: block;
+}
+
+.calendarInstructions {
+  display: none;
+  margin-left: 20px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1000;
+  width:200px;
+}
+
+.calendarInstructions.visibleBackground {
+  background: #C8C8C8;
 }

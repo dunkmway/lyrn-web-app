@@ -40,6 +40,29 @@
 </head>
 
 <body onload="initialSetup()">
-  <div id='calendar'></div>
-  <button onclick="invertEvents()">Invert Events</button>
+  <h1>My availability</h1>
+  <div class="calendarNav">
+    <div class="dropdown">
+      <button class="dropbtn">add event</button>
+      <div class="dropdown-content">
+        <div onclick="setupSetAvailability()">Add new availability</div>
+      </div>
+    </div>
+  </div>
+
+  <div id='noAvailability' style="display: none;">
+    <p>Looks like you don't have any current availability!</p>
+    <p>Let's see if we can fix that.</p>
+    <button onclick="setupSetAvailability()">I want hours!!!</button>
+  </div>
+
+  <div class="calendarWrapper">
+    <div id='calendar'></div>
+    <div class="calendarInstructions">
+      <p id="setUntilInstructions" style="display: none;">Select the date range that you would like to add your new availability to by clicking on last date that you will add your schedule to.</p>
+      <p id="setWeeklySchedule" style="display: none;">Select the date range by clicking and dragging over the times you are available on that certain day of the week.</p>
+    </div>
+  </div>
+  <button onclick="submitAvailabilityUntil()">Submit Set Until</button>
+  <button onclick="submitWeeklySchedule()">Submit Weekly</button>
 </body>
