@@ -111,7 +111,8 @@ function initialSetup() {
       setTestCarousel();
       checkForAssignedHomeworks();
       insertPracticeTests();
-      console.log(test_answers_grading)
+      console.log("Please do not change anything about this information being displayed... only read from them")
+      console.log(student_tests)
       console.log('HW Tests(hwTests):', hwTests)
       console.log('Practice Tests(icTests):', icTests)
       //getElapsedTime();
@@ -1350,7 +1351,23 @@ function transferTests() {
                     }
                   }
 
-                  console.log(testType, test, sec, passageNumber, questions)
+                  if (testType == 'practice') {
+                    const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
+                    obj['date'] = time;
+                    obj['passageNumber'] = passageNumber;
+                    obj['questions'] = questions;
+                    obj['score'] = score;
+                    obj['section'] = sec.toLowerCase();
+                    obj['status'] = status.toLowerCase();
+                    obj['student'] = studentId;
+                    obj['test'] = test;
+                    obj['type'] = testType.toLowerCase();
+                    setRef.set(obj)
+                    .then(() => console.log('set'))
+                    .catch((error) => console.log(error))
+                  }
+
+                  //console.log(testType, test, sec, passageNumber, questions)
 
                   if (status == undefined) {
                     console.log(studentId, 'has a bad status:', test, sec, passageNumber)
@@ -1359,21 +1376,44 @@ function transferTests() {
                 }
               }
 
-              // SET NEW DOCUMENT
-              /*const setRef = firebase.firestore().collection('ACT-Student-Lessons').doc()
-              obj['date'] = time;
-              obj['section'] = sec;
-              obj['test'] = test;
-              obj['status'] = status;
-              obj['student'] = studentId;
-              setRef.set(obj)
-              .then(() => console.log('set'))
-              .catch((error) => console.log(error))*/
+              if (testType == 'homework') {
+                  const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
+                if (status != 'assigned' && status != 'reassigned') {
+                  obj['date'] = time;
+                  obj['questions'] = questions;
+                  obj['score'] = score;
+                  obj['scaledScore'] = scaledScore;
+                  obj['section'] = sec.toLowerCase();
+                  obj['status'] = status.toLowerCase();
+                  obj['student'] = studentId;
+                  obj['test'] = test;
+                  obj['type'] = testType.toLowerCase();
+                  setRef.set(obj)
+                  .then(() => console.log('set'))
+                  .catch((error) => console.log(error))
+                }
+                else {
+                  let studentQuestions = initializeEmptyAnswers(test, sec.toLowerCase());
+                  obj['date'] = time;
+                  obj['questions'] = studentQuestions;
+                  obj['score'] = -1;
+                  obj['scaledScore'] = -1;
+                  obj['section'] = sec.toLowerCase();
+                  obj['status'] = 'assigned';
+                  obj['student'] = studentId;
+                  obj['test'] = test;
+                  obj['type'] = testType.toLowerCase();
+                  setRef.set(obj)
+                  .then(() => console.log('set'))
+                  .catch((error) => console.log(error))
+                }
+              }
             }
           }
         }
       })
       .catch((error) => {
+        console.log(testType, test, sec, studentId, status, score, scaledScore, date, questions)
         console.log(error)
       })
       count += 1;
