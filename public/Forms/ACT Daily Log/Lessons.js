@@ -205,7 +205,6 @@ function submitLesson(status) {
         'status'  : status
       })
       .then(() => {
-        console.log("1")
         ids.push({'student' : CURRENT_STUDENT_UID, 'section' : section, 'lesson' : lesson, 'id' : ref.id})
         currentElement.classList.remove('loadingRing')
         setObjectValue([section, lesson.replaceAll(' ', '_')], {'status' : status, 'date' : date.getTime()}, lessonData);
@@ -238,7 +237,6 @@ function submitLesson(status) {
               'status'  : status
             })
             .then(() => {
-              console.log("2")
               ids.push({'student' : CURRENT_STUDENT_UID, 'section' : section, 'lesson' : lesson, 'id' : ref.id})
               currentElement.classList.remove('loadingRing')
               setObjectValue([section, lesson.replaceAll(' ', '_')], {'status' : status, 'date' : date.getTime()}, lessonData);

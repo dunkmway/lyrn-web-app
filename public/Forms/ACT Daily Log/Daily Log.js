@@ -29,6 +29,7 @@ let homework_count = 0;
 let practice_test_element = undefined;
 let start_time = 0;
 let session_timer = undefined;
+let wheel_timer = undefined;
 let timers = {
   'grading' : 0,
   'composite' : 0,
@@ -110,7 +111,10 @@ function initialSetup() {
       setTestCarousel();
       checkForAssignedHomeworks();
       insertPracticeTests();
-      getElapsedTime();
+      console.log(test_answers_grading)
+      console.log('HW Tests(hwTests):', hwTests)
+      console.log('Practice Tests(icTests):', icTests)
+      //getElapsedTime();
     })
     .catch(() => console.log("I hate assigned promises"))
   })
@@ -1159,3 +1163,224 @@ function setTestCarousel(type = 'practice') {
     }
   }
 }
+
+function squareUp(element, section) {
+  element.parentNode.style.borderRadius = "0px";
+  document.getElementById(section + 'Text').style.display = null;
+  //element.innerHTML = section.charAt(0).toUpperCase() + section.slice(1);
+}
+
+function squareDown(element, section) {
+  element.parentNode.style.borderRadius = null;
+  document.getElementById(section + 'Text').style.display = 'none';
+  //element.innerHTML = '';
+}
+
+function hideTitle() {
+  document.getElementById('sectionTitle').style.display = "none"
+}
+
+function showTitle() {
+  document.getElementById('sectionTitle').style.display = null;
+}
+
+
+/*function circularText(txt, offset) {
+
+  const h = Math.min(window.innerHeight * 0.33, window.innerWidth * 0.33)
+
+  let classIndex = document.getElementById(txt.toLowerCase() + "Text");
+  txt = txt.split("");
+
+  const deg = 90 / 12;
+  let origin = (12 - txt.length) * deg / 2;
+  origin += offset;
+
+  txt.forEach((ea) => {
+    rad = origin / 180 * Math.PI;
+    if (['Reading', 'Science'].includes(txt)) {
+      rad = Math.PI - rad;
+    }
+    const top = (h / 2) * ( 1 - Math.cos(rad))
+    const left = (h / 4) * ( 2 + (1.5 * Math.sin(rad)))
+
+    let item = createElement('p', [], [], [], ea);
+    item.style.position = 'absolute';
+    item.style.transformOrigin = '0 100%';
+    item.style.transform = 'rotate(' + origin.toString() + 'deg)';
+    item.style.left = left + 'px';
+    item.style.top = top + 'px';
+
+    classIndex.append(item)
+    origin += deg;
+  });
+
+}
+
+circularText("Math", 0);
+circularText("English", -86);
+circularText("Reading", 180);
+circularText("Science", 80);*/
+
+function transferLessons() {
+  const ref = firebase.firestore().collection('Students')
+  let id = undefined;
+  let count = 0;
+  ref.get()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      id = doc.id
+      const newRef = ref.doc(id).collection('ACT').doc('lessons')
+      newRef.get()
+      .then((d) => {
+        // Make sure the doc specified exists
+        if (d.exists) {
+          let obj = {}
+          const studentId = doc.ref.path.split('/')[1]
+          const data = d.data()
+          const sections = Object.keys(data)
+          for (let i = 0; i < sections.length; i++) {
+            const sec = sections[i]
+            const lessons = Object.keys(data[sections[i]])
+            for (let j = 0; j < lessons.length; j++) {
+              const les = lessons[j]
+              const time = data[sec][les]['date']
+              let status = data[sec][les]['status']
+              if (status == 'needs review') {
+                status = 'review'
+              }
+              // SET NEW DOCUMENT
+              const setRef = firebase.firestore().collection('ACT-Student-Lessons').doc()
+              obj['date'] = time;
+              obj['lesson'] = les;
+              obj['section'] = sec;
+              obj['status'] = status;
+              obj['student'] = studentId;
+              setRef.set(obj)
+              .then(() => console.log('set'))
+              .catch((error) => console.log(error))
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      count += 1;
+      //if (count == 10) {
+        //throw exception
+      //}
+    })
+  })
+}
+//transferLessons()
+
+function transferTests() {
+  const ref = firebase.firestore().collection('Students')
+  let id = undefined;
+  let count = 0;
+  ref.get()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      id = doc.id
+      // Make stuff below a function FIX ME
+      const newRef = ref.doc(id).collection('ACT').doc('hw')
+      newRef.get()
+      .then((d) => {
+        // Make sure the doc specified exists
+        if (d.exists) {
+          let obj = {}
+          const studentId = doc.ref.path.split('/')[1]
+          const data = d.data()
+          const tests = Object.keys(data)
+          for (let i = 0; i < tests.length; i++) {
+            const test = tests[i]
+            const sections = Object.keys(data[tests[i]])
+            for (let j = 0; j < sections.length; j++) {
+              const sec = sections[j]
+              const passageNumbers = Object.keys(data[test][sec])
+              let testType = data[test][sec]['TestType']
+              let status = undefined
+              let time = 0;
+              let score = -1;
+              let scaledScore = -1;
+              let questions = []
+
+              if (testType == 'homework') {
+                time = data[test][sec]['Date']
+                scaledScore = data[test][sec]['ScaledScore']
+                score = data[test][sec]['Score']
+                status = data[test][sec]['Status']
+              }
+              else if (testType != 'inCenter') {
+                console.log(studentId, testType)
+              }
+
+              for (let k = 0; k < passageNumbers.length; k++) {
+
+                const passageNumber = passageNumbers[k]
+
+                if (['1', '2', '3', '4', '5', '6', '7'].includes(passageNumber)) {
+                  if (testType == 'inCenter') {
+                    questions = []
+                  }
+                  const passages = test_answers_data[test][sec.toLowerCase() + 'Answers'].filter(function(val) { return val.passageNumber == parseInt(passageNumber)})
+                  const start = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[0]) + 1
+                  const end = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[passages.length - 1]) + 1
+
+                  if (testType == 'inCenter') {
+                    testType = 'practice'
+                    status = data[test][sec][passageNumber]['Status']
+                  }
+
+                  for (let a = start; a < end + 1; a++) {
+                    if (data[test][sec][passageNumber]['Answers'].includes(a)) {
+                      questions.push({
+                        'isWrong' : true,
+                        'question' : a
+                      })
+                    }
+                    else {
+                      questions.push({
+                        'isWrong' : false,
+                        'question' : a
+                      })
+                    }
+                  }
+
+                  console.log(testType, test, sec, passageNumber, questions)
+
+                  if (status == undefined) {
+                    console.log(studentId, 'has a bad status:', test, sec, passageNumber)
+                    throw exception;
+                  }
+                }
+              }
+
+              // SET NEW DOCUMENT
+              /*const setRef = firebase.firestore().collection('ACT-Student-Lessons').doc()
+              obj['date'] = time;
+              obj['section'] = sec;
+              obj['test'] = test;
+              obj['status'] = status;
+              obj['student'] = studentId;
+              setRef.set(obj)
+              .then(() => console.log('set'))
+              .catch((error) => console.log(error))*/
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      count += 1;
+      if (count == 10) {
+        throw exception
+      }
+    })
+  })
+}
+//transferTests()

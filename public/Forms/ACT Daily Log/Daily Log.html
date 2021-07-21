@@ -35,6 +35,9 @@
     <script src="Lessons.js" defer></script>
     <script src="../../student-info-test.js" defer></script>
     <script src="../../goals-modal.js" defer></script>
+
+    <!-- jQuery
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 </head>
 
 
@@ -50,13 +53,38 @@
 
     <div id='nameSection' class = 'input-row spaced'>
         <h2 id = 'studentName'></h2>
-        <h1 id = 'sectionTitle'>Composite</h1>
-        <div>
+        <!--<h1 id = 'sectionTitle'>Composite</h1>-->
+        <span id = 'sectionTitle'>Composite</span>
+        <div id = 'wheel' class="wrap" onmouseover = "hideTitle()" onmouseout = "showTitle()">
+            <a href="#"><div id = 'englishImage' onmouseover = "squareUp(this, 'english')" onmouseout = "squareDown(this, 'english')" onclick="changeSection('english')"></div></a>
+            <a href="#"><div id = 'mathImage' onmouseover = "squareUp(this, 'math')" onmouseout = "squareDown(this, 'math')" onclick="changeSection('math')"></div></a>
+            <a href="#"><div id = 'readingImage' onmouseover = "squareUp(this, 'reading')" onmouseout = "squareDown(this, 'reading')" onclick="changeSection('reading')"></div></a>
+            <a href="#"><div id = 'scienceImage' onmouseover = "squareUp(this, 'science')" onmouseout = "squareDown(this, 'science')" onclick="changeSection('science')"></div></a>
+            <a href="#"><div id = 'compositeImage' onclick="changeSection('composite')"></div></a>
+            <p id = 'englishText' style='display:none'></p>
+            <p id = 'mathText' style='display:none'></p>
+            <p id = 'readingText' style='display:none'></p>
+            <p id = 'scienceText' style='display:none'></p>
+            <!--<p id = 'englishText' style='display:none'>English</p>
+            <p id = 'mathText' style='display:none'>Math</p>
+            <p id = 'readingText' style='display:none'>Reading</p>
+            <p id = 'scienceText' style='display:none'>Science</p>-->
+            <!--circular text: https://www.developintelligence.com/blog/2016/09/how-to-make-circularcurved-text-with-javascript/-->
+            <!--<p id = 'englishText'>English</p>
+            <p id = 'mathText'>Math</p>
+            <p id = 'readingText'>Reading</p>
+            <p id = 'scienceText'>Science</p>-->
+        </div>
+
+        <!--<div>
             <button onclick="changeSection('composite')">Composite</button>
             <button onclick="changeSection('english')">English</button>
             <button onclick="changeSection('math')">Math</button>
             <button onclick="changeSection('reading')">Reading</button>
             <button onclick="changeSection('science')">Science</button>
+        </div>-->
+        <div>
+            Menu
         </div>
     </div>
 
