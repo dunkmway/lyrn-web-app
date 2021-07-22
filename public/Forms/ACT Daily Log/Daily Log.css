@@ -1014,3 +1014,7 @@ a:hover div{
   right: 0px;
   bottom: 0px;
 }
+
+.submitable {
+  background: repeating-linear-gradient(-45deg, rgb(126, 198, 4) 15%, white 16%);
+}

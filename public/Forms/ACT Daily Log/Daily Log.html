@@ -116,7 +116,7 @@
                     <button class='item itemB1 cursor'>
                         What If...?
                     </button>
-                    <button onclick = "submitSession()" class='item itemB2 cursor'>
+                    <button id = 'submitSession' onclick = "submitSession()" class='item itemB2 cursor'>
                         Submit Session
                     </button>
                 </div>
@@ -241,8 +241,8 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <button class='item itemB1 cursor'>
-                        Practice
+                    <button id = 'englishNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('english')">
+                        Not Assigning
                     </button>
                     <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor'>
                         Assign
@@ -404,8 +404,8 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button class='item itemB1 cursor'>
-                        Practice
+                    <button id = 'mathNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('math')">
+                        Not Assigning
                     </button>
                     <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor'>
                         Assign
@@ -566,8 +566,8 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button class='item itemB1 cursor'>
-                        Practice
+                    <button id = 'readingNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('reading')">
+                        Not Assigning
                     </button>
                     <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor'>
                         Assign
@@ -728,8 +728,8 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button class='item itemB1 cursor'>
-                        Practice
+                    <button id = 'scienceNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('science')">
+                        Not Assigning
                     </button>
                     <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor'>
                         Assign

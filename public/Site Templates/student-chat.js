@@ -9,7 +9,14 @@ function getStudentMessages(studentUID, studentType, conversationType) {
   })
   .then((res) => {
     const messages = res.data;
-    messages.forEach((message) => setStudentMessage(message, conversationType));
+    messages.forEach((message) => {
+      setStudentMessage(message, conversationType);
+
+      // Check for messages sent today (by the user)
+      if (message.timestamp >= convertFromDateInt(date.getTime())['startOfDayInt'] && message.currentUserIsAuthor) {
+        session_message_count += 1;
+      }
+    });
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
@@ -149,8 +156,13 @@ function deleteStudentMessage(event) {
     const messageDocRef = firebase.firestore().collection("Student-Chats").doc(id);
     messageDocRef.delete()
     .then(() => {
+      if (Date.parse(message.getElementsByClassName('time')[0].innerHTML) >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+        session_message_count -= 1;
+      }
       message.remove();
-      session_message_count -= 1;
+
+      // Check to see if the session is still submitable
+      submitSession()
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
@@ -195,6 +207,9 @@ function sendStudentMessage(studentUID, studentType, conversationType, message, 
     const mes = result.data;
     setStudentMessage(mes, conversationType);
     session_message_count += 1;
+    
+    // Check to see if the session can be submitted
+    submitSession()
   })
   .catch((error) => {
     console.log(error);

@@ -26,6 +26,8 @@ let storage = firebase.storage();
 let tests_to_grade = {};
 let session_message_count = 0;
 let homework_count = 0;
+let numAssignedTests = 0;
+let notAssigningFlag = false;
 let practice_test_element = undefined;
 let start_time = 0;
 let session_timer = undefined;
@@ -642,6 +644,9 @@ function gradeHomework(status) {
 
       // up the homework count
       homework_count += 1;
+
+      // Check to see if the session has been sufficiently finished
+      submitSession()
     })
     .catch((error) => {
       // Re-enable the buttons
@@ -963,6 +968,9 @@ function assignHomework(section) {
       'action' : 'assign',
       'id' : ref.id
     })
+
+    numAssignedTests += 1;
+    submitSession()
   })
   
   // Indicate that the test wasn't assigned successfully
@@ -1036,6 +1044,9 @@ function unassignHomework(section) {
     // Re-enable the buttons again
     assign.disabled = false;
     unassign.disabled = false;
+
+    numAssignedTests -= 1;
+    submitSession()
   })
   
   // Indicate that the test wasn't unassigned successfully
@@ -1084,18 +1095,49 @@ function checkTests() {
   return true;
 }
 
+function notAssigningHomework(section) {
+  if (notAssigningFlag == false) {
+    numAssignedTests += 1;
+    notAssigningFlag = true;
+
+    let buttons = document.querySelectorAll("button[id$='NotAssigning']")
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].classList.add('submitable')
+    }
+  }
+  else {
+    numAssignedTests -= 1;
+
+    let buttons = document.querySelectorAll("button[id$='NotAssigning']")
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].classList.remove('submitable')
+    }
+  }
+
+  submitSession()
+}
+
 function submitSession() {
   getElapsedTime();
 
   if (homework_count == 0) {
     if (session_message_count > 0) {
-      console.log(timers)
+      if (numAssignedTests > 0) {
+        document.getElementById('submitSession').classList.add('submitable')
+        console.log(timers)
+      }
+      else {
+        document.getElementById('submitSession').classList.remove('submitable')
+        console.log("Please assign homework")
+      }
     }
     else {
+      document.getElementById('submitSession').classList.remove('submitable')
       console.log("Please enter a new message")
     }
   }
   else {
+    document.getElementById('submitSession').classList.remove('submitable')
     console.log("Please grade all tests")
   }
 }
@@ -1310,13 +1352,13 @@ function transferTests() {
               let questions = []
 
               if (testType == 'homework') {
-                time = data[test][sec]['Date']
-                scaledScore = data[test][sec]['ScaledScore']
-                score = data[test][sec]['Score']
+                time = data[test][sec]['Date'] ?? 0
+                scaledScore = data[test][sec]['ScaledScore'] ?? -1
+                score = data[test][sec]['Score'] ?? -1
                 status = data[test][sec]['Status']
               }
               else if (testType != 'inCenter') {
-                console.log(studentId, testType)
+                console.log(studentId, testType, test, sec)
               }
 
               for (let k = 0; k < passageNumbers.length; k++) {
@@ -1324,20 +1366,20 @@ function transferTests() {
                 const passageNumber = passageNumbers[k]
 
                 if (['1', '2', '3', '4', '5', '6', '7'].includes(passageNumber)) {
-                  if (testType == 'inCenter') {
+                  if (testType == 'inCenter' || testType == 'practice') {
                     questions = []
                   }
                   const passages = test_answers_data[test][sec.toLowerCase() + 'Answers'].filter(function(val) { return val.passageNumber == parseInt(passageNumber)})
                   const start = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[0]) + 1
                   const end = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[passages.length - 1]) + 1
 
-                  if (testType == 'inCenter') {
+                  if (testType == 'inCenter' || testType == 'practice') {
                     testType = 'practice'
                     status = data[test][sec][passageNumber]['Status']
                   }
 
                   for (let a = start; a < end + 1; a++) {
-                    if (data[test][sec][passageNumber]['Answers'].includes(a)) {
+                    if (data[test][sec][passageNumber]['Answers'].includes(a.toString())) {
                       questions.push({
                         'isWrong' : true,
                         'question' : a
@@ -1363,7 +1405,7 @@ function transferTests() {
                     obj['test'] = test;
                     obj['type'] = testType.toLowerCase();
                     setRef.set(obj)
-                    .then(() => console.log('set'))
+                    .then(() => console.log('practice set'))
                     .catch((error) => console.log(error))
                   }
 
@@ -1377,7 +1419,7 @@ function transferTests() {
               }
 
               if (testType == 'homework') {
-                  const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
+                const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
                 if (status != 'assigned' && status != 'reassigned') {
                   obj['date'] = time;
                   obj['questions'] = questions;
@@ -1389,7 +1431,7 @@ function transferTests() {
                   obj['test'] = test;
                   obj['type'] = testType.toLowerCase();
                   setRef.set(obj)
-                  .then(() => console.log('set'))
+                  .then(() => console.log('homework set'))
                   .catch((error) => console.log(error))
                 }
                 else {
@@ -1404,7 +1446,7 @@ function transferTests() {
                   obj['test'] = test;
                   obj['type'] = testType.toLowerCase();
                   setRef.set(obj)
-                  .then(() => console.log('set'))
+                  .then(() => console.log('homework set'))
                   .catch((error) => console.log(error))
                 }
               }
@@ -1413,13 +1455,13 @@ function transferTests() {
         }
       })
       .catch((error) => {
-        console.log(testType, test, sec, studentId, status, score, scaledScore, date, questions)
         console.log(error)
+        console.log(testType, test, sec, studentId, status, score, scaledScore, date, questions)
       })
       count += 1;
-      if (count == 10) {
-        throw exception
-      }
+      //if (count == 10) {
+        //throw exception
+      //}
     })
   })
 }
