@@ -12,6 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 
+    <!-- flatpickr (date picker)-->
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -46,21 +51,40 @@
         <div class="loading-ring"></div>
     </section>
 
+    <section id="studentGeneralInfoSection" onclick="closeModal(event, 'studentGeneralInfoSection')">
+        <div id="studentGeneralInfoContainer">
+            <a id="registrationLink">
+                <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
+            </a>
+
+            <div class="gridContainer">
+                <div class="gridCornerItem"></div>
+                <div class="gridHeaderItem">Composite</div>
+                <div class="gridHeaderItem">English</div>
+                <div class="gridHeaderItem">Math</div>
+                <div class="gridHeaderItem">Reading</div>
+                <div class="gridHeaderItem">Science</div>
+            </div>
+            <div class="addRemove" onclick="addGeneralInfoGoalRow()">+</div>
+            <div class="addRemove" onclick="removeGeneralInfoGoalRow()">-</div>
+        </div>
+    </section>
+
     <section id = 'topNavigationBanner'>
-        <img id = 'logo' src='../../Images/Wasatch Logo.png'>
+        <img id = 'logo' src='../../Images/Wasatch Logo.png' onclick="goToDashboard()">
     </section>
 
 
     <div id='nameSection' class = 'input-row spaced'>
-        <h2 id = 'studentName'></h2>
+        <h2 id = 'studentName' onclick="document.getElementById('studentGeneralInfoSection').style.display = 'flex'"></h2>
         <!--<h1 id = 'sectionTitle'>Composite</h1>-->
         <span id = 'sectionTitle'>Composite</span>
         <div id = 'wheel' class="wrap" onmouseover = "hideTitle()" onmouseout = "showTitle()">
-            <a href="#"><div id = 'englishImage' onmouseover = "squareUp(this, 'english')" onmouseout = "squareDown(this, 'english')" onclick="changeSection('english')"></div></a>
-            <a href="#"><div id = 'mathImage' onmouseover = "squareUp(this, 'math')" onmouseout = "squareDown(this, 'math')" onclick="changeSection('math')"></div></a>
-            <a href="#"><div id = 'readingImage' onmouseover = "squareUp(this, 'reading')" onmouseout = "squareDown(this, 'reading')" onclick="changeSection('reading')"></div></a>
-            <a href="#"><div id = 'scienceImage' onmouseover = "squareUp(this, 'science')" onmouseout = "squareDown(this, 'science')" onclick="changeSection('science')"></div></a>
-            <a href="#"><div id = 'compositeImage' onclick="changeSection('composite')"></div></a>
+            <a class="a" href="#"><div id = 'englishImage' onmouseover = "squareUp(this, 'english')" onmouseout = "squareDown(this, 'english')" onclick="changeSection('english')"></div></a>
+            <a class="a" href="#"><div id = 'mathImage' onmouseover = "squareUp(this, 'math')" onmouseout = "squareDown(this, 'math')" onclick="changeSection('math')"></div></a>
+            <a class="a" href="#"><div id = 'readingImage' onmouseover = "squareUp(this, 'reading')" onmouseout = "squareDown(this, 'reading')" onclick="changeSection('reading')"></div></a>
+            <a class="a" href="#"><div id = 'scienceImage' onmouseover = "squareUp(this, 'science')" onmouseout = "squareDown(this, 'science')" onclick="changeSection('science')"></div></a>
+            <a class="a" href="#"><div id = 'compositeImage' onclick="changeSection('composite')"></div></a>
             <p id = 'englishText' style='display:none'></p>
             <p id = 'mathText' style='display:none'></p>
             <p id = 'readingText' style='display:none'></p>
