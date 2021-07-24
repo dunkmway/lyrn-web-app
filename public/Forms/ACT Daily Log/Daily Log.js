@@ -113,10 +113,6 @@ function initialSetup() {
       setTestCarousel();
       checkForAssignedHomeworks();
       insertPracticeTests();
-      console.log("Please do not change anything about this information being displayed... only read from them")
-      console.log(student_tests)
-      console.log('HW Tests(hwTests):', hwTests)
-      console.log('Practice Tests(icTests):', icTests)
       //getElapsedTime();
     })
     .catch(() => console.log("I hate assigned promises"))
@@ -1266,6 +1262,7 @@ circularText("Reading", 180);
 circularText("Science", 80);*/
 
 function transferLessons() {
+  console.log('Starting Lessons')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
   let count = 0;
@@ -1320,6 +1317,7 @@ function transferLessons() {
 //transferLessons()
 
 function transferTests() {
+  console.log('transfering tests')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
   let count = 0;
