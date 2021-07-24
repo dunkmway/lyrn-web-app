@@ -100,19 +100,6 @@ function getStudentTests(studentUID) {
 }
 
 function setGeneralInfo() {
-  //first set up the registration link
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          let queryStr = "?student=" + CURRENT_STUDENT_UID;
-          document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
-        }
-      })
-    }
-  });
 
   //set up the grid
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer')
@@ -130,10 +117,10 @@ function setGeneralInfo() {
 
     generalInfoGrid.appendChild(createElement('div', ['gridHeaderItem'], [], [], 'Initial'));
     generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeInitial'], compositeInitial?.toString() ?? ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['englishInitial', englishInitial?.toString() ?? "", 'studentInitialScoreChangeCallback(this)', 'generalInfoInputCallback(this)'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['mathInitial', mathInitial?.toString() ?? "", 'studentInitialScoreChangeCallback(this)', 'generalInfoInputCallback(this)'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['readingInitial', readingInitial?.toString() ?? "", 'studentInitialScoreChangeCallback(this)', 'generalInfoInputCallback(this)'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['scienceInitial', scienceInitial?.toString() ?? "", 'studentInitialScoreChangeCallback(this)', 'generalInfoInputCallback(this)'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['englishInitial', englishInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['mathInitial', mathInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['readingInitial', readingInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['scienceInitial', scienceInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
 
     return getLatestTests(CURRENT_STUDENT_UID)
   })
@@ -191,12 +178,43 @@ function setGeneralInfo() {
 
         generalInfoGrid.appendChild(goalDateElement);
         generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + index.toString()], compositeGoal?.toString() ?? ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
       })
     }
+
+    //set up the registration link and disable grid input if not allowed
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+            let queryStr = "?student=" + CURRENT_STUDENT_UID;
+            document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
+          }
+          else {
+            //disable all of the inputs
+            generalInfoGrid.querySelectorAll('*').forEach(child => {
+              child.setAttribute('disabled', 'true');
+            })
+
+            //remove the goal add and subject buttons
+            document.querySelectorAll('#studentGeneralInfoContainer .addRemove').forEach(element => {
+              element.style.display = 'none';
+            })
+          }
+        })
+      }
+    });
+
+    //run through all of the grid items and add in the numeric formating
+    document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+      element.addEventListener('keydown',enforceNumericFormat);
+      element.addEventListener('keyup',formatToInt);
+    })
   })
 }
 
@@ -230,10 +248,16 @@ function addGeneralInfoGoalRow() {
 
   generalInfoGrid.appendChild(goalDateElement);
   generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + numGoals.toString()], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreChangeCallback(this)", 'generalInfoInputCallback(this)'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+
+  //run through all of the grid items and add in the numeric formating
+  document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+    element.addEventListener('keydown',enforceNumericFormat);
+    element.addEventListener('keyup',formatToInt);
+  })
 
   //add new index to testGoals
   testGoals.push({});
@@ -261,25 +285,27 @@ function removeGeneralInfoGoalRow() {
   }
 }
 
-function studentInitialScoreChangeCallback(e) {
-  removeAllWorkingClasses(e)
+function studentInitialScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.target.classList.contains('changed')) {return}
+  removeAllWorkingClasses(element)
   //place the input into a pending state
-  e.classList.add('pending');
+  element.classList.add('pending');
 
   //update the initial score on firebase
   firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
-    [e.id]: parseInt(e.value)
+    [element.id]: element.value != "" ? parseInt(element.value) : element.value
   })
   .then(() => {
     //change the input into a successful state
-    removeAllWorkingClasses(e);
-    e.classList.add('success');
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
   })
   .catch((error) => {
     console.log(errors)
     //change the input into a failed state
-    removeAllWorkingClasses(e);
-    e.classList.add('fail');
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
   })
 
   updateCompositeInitial();
@@ -294,25 +320,28 @@ function updateCompositeInitial() {
   document.getElementById('compositeInitial').textContent = roundedAvg(initials).toString();
 }
 
-function studentGoalScoreChangeCallback(e) {
-  removeAllWorkingClasses(e)
+function studentGoalScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  console.log('change callback triggered')
+  removeAllWorkingClasses(element)
   //place the input into a pending state
-  e.classList.add('pending');
+  element.classList.add('pending');
 
   //update the testGoals object
-  testGoals[parseInt(e.id.split('-')[1])][e.id.split('-')[0]] = parseInt(e.value)
+  testGoals[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
   firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
     testGoals: testGoals
   })
   .then(() => {
-    removeAllWorkingClasses(e);
-    e.classList.add('success');
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
   })
   .catch((error) => {
     console.log(error)
-    removeAllWorkingClasses(e);
-    e.classList.add('fail');
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
   })
 
   updateCompositeGoal();
@@ -331,6 +360,7 @@ function updateCompositeGoal() {
 }
 
 function generalInfoInputCallback(e) {
+  console.log('input callback triggered')
   removeAllWorkingClasses(e)
   e.classList.add('changed')
 }
