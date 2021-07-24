@@ -1568,7 +1568,7 @@ circularText("English", -86);
 circularText("Reading", 180);
 circularText("Science", 80);*/
 
-function transferLessons() {
+/*function transferLessons() {
   console.log('Starting Lessons')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
@@ -1621,9 +1621,9 @@ function transferLessons() {
     })
   })
 }
-//transferLessons()
+//transferLessons()*/
 
-function transferTests() {
+/*function transferTests() {
   console.log('transfering tests')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
@@ -1770,7 +1770,7 @@ function transferTests() {
     })
   })
 }
-//transferTests()
+//transferTests()*/
 
 function roundedAvg(values) {
   let array = values.filter(element => element);
