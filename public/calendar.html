@@ -21,7 +21,7 @@
 
   <!-- semantic UI -->
   <link async rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.css"/>
-  <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.js"></script>
+  <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 
   <!-- full calendar -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.min.js"></script>
@@ -56,7 +56,7 @@
         <div>Math Program</div>
         <div>Phonics Program</div>
         <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
-        <div>Test Review</div>
+        <div onclick="setupAddSidebar('testReview')">Test Review</div>
         <div onclick="setupAddSidebar('conference')">Conference</div>
         <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
         <div onclick="setupAddSidebar('generalInfo')">General Info</div>
@@ -285,6 +285,69 @@
         <div class="bottom">
           <button onclick="cancelEditCallback()" class="button">cancel</button>
           <button onclick="updateEditConference()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add test review -->
+      <!---------------------->
+      <div id="addTestReviewWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a test review.">?</div>
+        <h3>Add Test Review</h3>
+        <div class="headerLine"></div>
+
+        <!-- student attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the test review">?</div>
+          <label for="addTestReviewStudent" class="label">Student</label>
+        </div>
+        <select id="addTestReviewStudent" name="addTestReviewStudent" class="select"></select>
+        <br>
+
+        <!-- tutor(s) attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
+          <label for="addTestReviewTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addTestReviewTutor" name="addTestReviewTutor" class="ui dropdown" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelSidebarCallback()" class="button">cancel</button>
+          <button onclick="submitAddTestReview()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- edit test review -->
+      <!---------------------->
+      <div id="editTestReviewWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Test Review</h3>
+        <div class="headerLine"></div>
+
+        <!-- student attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the test review">?</div>
+          <label for="editTestReviewStudent" class="label">Student</label>
+        </div>
+        <p id="editTestReviewStudent" name="editTestReviewStudent"></p>
+        <br>
+
+        <!-- tutor(s) attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
+          <label for="editTestReviewTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editTestReviewTutor" name="editTestReviewTutor" class="ui dropdown" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditCallback()" class="button">cancel</button>
+          <button onclick="updateEditTestReview()" class="button">update</button>
           <button onclick="deleteEventCallback()" class="button danger">delete</button>
         </div>
       </div>

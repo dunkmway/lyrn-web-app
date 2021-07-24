@@ -4,11 +4,10 @@ let pending_calendar_event_id = "";
 let old_calendar_event = {}
 let old_calendar_event_id = "";
 
-
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
 const GENRAL_INFO_COLOR = "#B3B3B3";
-const TEACHER_MEETING_COLOR = "#B3B3B3"
+const TEACHER_MEETING_COLOR = "#B3B3B3";
 
 let current_user;
 
@@ -376,6 +375,14 @@ function showEditConferenceWrapper() {
   document.getElementById('editConferenceWrapper').classList.remove("displayNone")
 }
 
+function showAddTestReviewWrapper() {
+  document.getElementById('addTestReviewWrapper').classList.remove("displayNone")
+}
+
+function showEditTestReviewWrapper() {
+  document.getElementById('editTestReviewWrapper').classList.remove("displayNone")
+}
+
 function setupEditSidebar(eventData, eventID) {
   switch (eventData.type) {
     case 'teacherMeeting':
@@ -390,6 +397,8 @@ function setupEditSidebar(eventData, eventID) {
     case 'conference':
       setupEditConference(eventData, eventID);
       break
+    case 'testReview':
+      setupEditTestReview(eventData, eventID);
     default:
   }
 
@@ -411,6 +420,8 @@ function setupAddSidebar(type) {
     case 'conference':
       setupAddConference();
       break
+    case 'testReview':
+      setupAddTestReview();
     default:
   }
 
@@ -602,6 +613,105 @@ function setupEditConference(data, id) {
   document.getElementById('editConferenceDescription').value = data.description;
 
   showEditConferenceWrapper();
+  openCalendarSidebar();
+}
+
+function setupAddTestReview() {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "addTestReview";
+  main_calendar.setOption('selectable', true);
+
+  //add back the default option
+  const defaultOptionStudent = document.createElement('option');
+  defaultOptionStudent.value = "";
+  defaultOptionStudent.setAttribute('selected', true);
+  defaultOptionStudent.setAttribute('disabled', true);
+  defaultOptionStudent.textContent = "select a student"
+  document.getElementById('addTestReviewStudent').appendChild(defaultOptionStudent);
+
+  // //add back the default option (tutor)
+  // const defaultOptionTutor = document.createElement('option');
+  // defaultOptionTutor.value = "";
+  // defaultOptionTutor.textContent = "select a tutor"
+  // defaultOptionTutor.setAttribute('selected', true);
+  // defaultOptionTutor.setAttribute('disabled', true);
+  // document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
+
+  //add in the student list. If no location is selected this will reject
+  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById('addTestReviewStudent'), studentUIDs, studentNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('addTestReviewTutor'), tutorUIDs, tutorNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+  
+
+  showAddTestReviewWrapper();
+  openCalendarSidebar();
+}
+
+function setupEditTestReview(data, id) {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "editTestReview";
+  main_calendar.getEventById(id).setProp('editable', true);
+
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
+
+  document.getElementById('editTestReviewStudent').textContent = data.studentName;
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('editTestReviewTutor'), tutorUIDs, tutorNames);
+
+    //select previously saved tutors
+    $("#editTestReviewTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  showEditTestReviewWrapper();
   openCalendarSidebar();
 }
 
@@ -809,6 +919,79 @@ function updateEditConference() {
   })
 }
 
+function submitAddTestReview() {
+  const start = pending_calendar_event.start;
+  const end = pending_calendar_event.end;
+  const allDay = pending_calendar_event.allDay;
+  const student = document.getElementById('addTestReviewStudent').value;
+  const staff = getDropdownValues('addTestReviewTutor');
+  const location = document.getElementById('calendarLocation').dataset.value;
+
+  if (!start || !student || !location || staff.length == 0) {
+    return alert("It looks like you're still missing some data for this test review");
+  }
+
+  if (confirm("Are you sure you want to submit this event?")) {
+
+    eventInfo = {
+      type: 'testReview',
+      start: start,
+      end: end,
+      allDay, allDay,
+      location: location,
+      student: student,
+      staff: staff
+    }
+
+    saveTestReview(eventInfo)
+    .then((event) => {
+      //FIXME: This should automatically update for the client and put it in a pending status
+      main_calendar.addEvent(event);
+      closeCalendarSidebar();
+    })
+    .catch((error) => {
+      console.log(error);
+      alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+    })
+  }
+}
+
+function updateEditTestReview() {
+  pending_calendar_event.staff = getDropdownValues('editTestReviewTutor');
+
+  //get the first tutor doc to grab their color
+  //don't waste time if it hasn't changed
+  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+    .then((tutorDoc) => {
+      pending_calendar_event.color = tutorDoc.data().color ?? null;
+      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    })
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
+  // same first tutor; proceed
+  else {
+    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
+}
+
 function saveTeacherMeeting(eventInfo) {
   //first get all of the staff that are invited to this meeting
   let promises = [];
@@ -901,7 +1084,6 @@ function saveGeneralInfo(eventInfo) {
     return {
       id: eventRef.id,
       title: eventData.title,
-      start: eventData.start,
       start: convertFromDateInt(eventData.start).fullCalendar,
       end: convertFromDateInt(eventData.end).fullCalendar,
       allDay: eventData.allDay,
@@ -944,7 +1126,6 @@ function savePracticeTest(eventInfo) {
       return {
         id: eventRef.id,
         title: eventData.title,
-        start: eventData.start,
         start: convertFromDateInt(eventData.start).fullCalendar,
         end: convertFromDateInt(eventData.end).fullCalendar,
         allDay: eventData.allDay,
@@ -969,7 +1150,6 @@ function saveConference(eventInfo) {
       type: eventInfo.type,
       title: studentName + " - Conference",
       description: eventInfo.description,
-      description: eventInfo.description,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
@@ -989,7 +1169,6 @@ function saveConference(eventInfo) {
       return {
         id: eventRef.id,
         title: eventData.title,
-        start: eventData.start,
         start: convertFromDateInt(eventData.start).fullCalendar,
         end: convertFromDateInt(eventData.end).fullCalendar,
         allDay: eventData.allDay,
@@ -998,6 +1177,60 @@ function saveConference(eventInfo) {
       }
     })
 
+  })
+}
+
+function saveTestReview(eventInfo) {
+  let studentData = {};
+  let tutorData = {};
+
+  //get the student doc for name and parent
+  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  .then((studentDoc) => {
+    studentData = studentDoc.data();
+    
+    //get first staff name for color
+    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+  })
+  .then((tutorDoc) => {
+    tutorData = tutorDoc.data();
+
+    const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
+    const studentParent = studentData.parent;
+    const tutorColor = tutorData.calendarColor;
+
+    const eventRef = firebase.firestore().collection("Events").doc()
+    let eventData = {
+      type: eventInfo.type,
+      title: studentName + " - Test Review",
+      start: parseInt(eventInfo.start),
+      end: parseInt(eventInfo.end),
+      allDay: eventInfo.allDay,
+      location: eventInfo.location,
+      color: tutorColor ?? null,
+      textColor: tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
+
+      student: eventInfo.student,
+      studentName: studentName,
+      
+      parent: studentParent,
+
+      staff: eventInfo.staff,
+
+      attendees: [eventInfo.student, studentParent, ...eventInfo.staff]
+    }
+    return eventRef.set(eventData)
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
   })
 }
 
@@ -1058,6 +1291,26 @@ function getStudentList(location) {
     })
 
     return students;
+  })
+}
+
+function getTutorList(location) {
+  if(!location) {
+    alert("Choose a location first!");
+    return Promise.reject('no location selected')
+  }
+  return firebase.firestore().collection("Tutors").where("location", "==", location).orderBy("tutorLastName").get()
+  .then((tutorSnapshot) => {
+    let tutors = [];
+    tutorSnapshot.forEach((tutorDoc) => {
+      const data = tutorDoc.data();
+      tutors.push({
+        name: data.tutorLastName + ", " + data.tutorFirstName,
+        id: tutorDoc.id
+      })
+    })
+
+    return tutors;
   })
 }
 
