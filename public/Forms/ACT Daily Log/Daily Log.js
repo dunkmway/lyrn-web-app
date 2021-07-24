@@ -287,7 +287,7 @@ function removeGeneralInfoGoalRow() {
 
 function studentInitialScoreFocusOutCallback(element) {
   //check if anything changed
-  if (!element.target.classList.contains('changed')) {return}
+  if (!element.classList.contains('changed')) {return}
   removeAllWorkingClasses(element)
   //place the input into a pending state
   element.classList.add('pending');
