@@ -14,39 +14,46 @@ function openUpdateGoals() {
 }
 
 function closeModal(e, modalID, submitted = false) {
-  //stops children from calling function
+  // //stops children from calling function
+  // if (e.target !== e.currentTarget) return;
+  // let allInputs = document.getElementById(modalID).querySelectorAll("input, select");
+
+  // if ((initialsChanged || goalsChanged) && !submitted) {
+  //   let confirmation = confirm("This data has not been saved.\nAre you sure you want to go back?");
+  //   if (confirmation) {
+  //     for(let i = 0; i < allInputs.length; i++) {
+  //       allInputs[i].value = "";
+  //     }
+  //     document.getElementById(modalID).style.display = "none";
+  //     let errorMessages = document.getElementById(modalID).querySelectorAll("p[id$='errMsg']");
+  //     removeAllTestDateGoals();
+  //     goalsChanged = false;
+
+  //     for (let err = errorMessages.length - 1; err >= 0; err--) {
+  //       errorMessages[err].remove()
+  //     }
+  //   }
+  // }
+  // else {
+  //   for(let i = 0; i < allInputs.length; i++) {
+  //     allInputs[i].value = "";
+  //   }
+  //   document.getElementById(modalID).style.display = "none";
+  //   let errorMessages = document.getElementById(modalID).querySelectorAll("p[id$='errMsg']");
+  //   removeAllTestDateGoals();
+  //   goalsChanged = false;
+
+  //   for (let err = errorMessages.length - 1; err >= 0; err--) {
+  //     errorMessages[err].remove()
+  //   }
+  // }
+
   if (e.target !== e.currentTarget) return;
-  let allInputs = document.getElementById(modalID).querySelectorAll("input, select");
+  document.getElementById(modalID).style.display = "none";
 
-  if ((initialsChanged || goalsChanged) && !submitted) {
-    let confirmation = confirm("This data has not been saved.\nAre you sure you want to go back?");
-    if (confirmation) {
-      for(let i = 0; i < allInputs.length; i++) {
-        allInputs[i].value = "";
-      }
-      document.getElementById(modalID).style.display = "none";
-      let errorMessages = document.getElementById(modalID).querySelectorAll("p[id$='errMsg']");
-      removeAllTestDateGoals();
-      goalsChanged = false;
-
-      for (let err = errorMessages.length - 1; err >= 0; err--) {
-        errorMessages[err].remove()
-      }
-    }
-  }
-  else {
-    for(let i = 0; i < allInputs.length; i++) {
-      allInputs[i].value = "";
-    }
-    document.getElementById(modalID).style.display = "none";
-    let errorMessages = document.getElementById(modalID).querySelectorAll("p[id$='errMsg']");
-    removeAllTestDateGoals();
-    goalsChanged = false;
-
-    for (let err = errorMessages.length - 1; err >= 0; err--) {
-      errorMessages[err].remove()
-    }
-  }
+  document.getElementById(modalID).querySelectorAll('*').forEach(child => {
+    removeAllWorkingClasses(child)
+  })
 }
 
 function updateGoalsModal() {
