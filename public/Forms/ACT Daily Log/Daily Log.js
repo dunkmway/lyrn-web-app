@@ -419,10 +419,6 @@ function initialSetup() {
       setTestCarousel();
       checkForAssignedHomeworks();
       insertPracticeTests();
-      console.log("Please do not change anything about this information being displayed... only read from them")
-      console.log(student_tests)
-      console.log('HW Tests(hwTests):', hwTests)
-      console.log('Practice Tests(icTests):', icTests)
       //getElapsedTime();
       setGeneralInfo();
     })
@@ -1572,7 +1568,8 @@ circularText("English", -86);
 circularText("Reading", 180);
 circularText("Science", 80);*/
 
-function transferLessons() {
+/*function transferLessons() {
+  console.log('Starting Lessons')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
   let count = 0;
@@ -1624,9 +1621,10 @@ function transferLessons() {
     })
   })
 }
-//transferLessons()
+//transferLessons()*/
 
-function transferTests() {
+/*function transferTests() {
+  console.log('transfering tests')
   const ref = firebase.firestore().collection('Students')
   let id = undefined;
   let count = 0;
@@ -1772,7 +1770,7 @@ function transferTests() {
     })
   })
 }
-//transferTests()
+//transferTests()*/
 
 function roundedAvg(values) {
   let array = values.filter(element => element);
