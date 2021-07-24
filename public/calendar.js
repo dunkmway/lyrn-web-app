@@ -93,6 +93,8 @@ function initializeWeeklyScheduleCalendar(events) {
     height: "100%",
     initialView: 'timeGridWeek',
     hiddenDays: [0],
+    slotMinTime: '07:00:00',
+    slotMaxTime: '23:00:00',
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
@@ -155,18 +157,18 @@ function initializeWeeklyScheduleCalendar(events) {
     selectable: false,
     unselectAuto: false,
 
-    businessHours: [
-      {
-        daysOfWeek: [1, 2, 3, 4],
-        startTime: '09:00',
-        endTime: '17:00'
-      },
-      {
-        daysOfWeek: [5],
-        startTime: '9:00',
-        endTime: '13:00'
-      }
-    ],
+    // businessHours: [
+    //   {
+    //     daysOfWeek: [1, 2, 3, 4],
+    //     startTime: '09:00',
+    //     endTime: '17:00'
+    //   },
+    //   {
+    //     daysOfWeek: [5],
+    //     startTime: '9:00',
+    //     endTime: '13:00'
+    //   }
+    // ],
 
     events: events
   });
@@ -542,32 +544,8 @@ function setupEditPracticeTest(data, id) {
   pending_calendar_event_id = id;
   pending_calendar_event = {...data};
 
-  //add back the default option
-  const defaultOption = document.createElement('option');
-  defaultOption.value = "";
-  defaultOption.textContent = "select a student"
-  defaultOption.setAttribute('selected', true);
-  defaultOption.setAttribute('disabled', true);
-  document.getElementById('editPracticeTestStudent').appendChild(defaultOption);
-
-  //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
-  .then((students) => {
-    let studentNames = [];
-    let studentUIDs = [];
-    students.forEach((student) => {
-      studentNames.push(student.name);
-      studentUIDs.push(student.id);
-    });
-
-    addSelectOptions(document.getElementById('editPracticeTestStudent'), studentUIDs, studentNames);
-    //select the saved student
-    document.getElementById('editPracticeTestStudent').value = data.student;
-  })
-  .catch((error) => {
-    console.log(error)
-    return closeCalendarSidebar();
-  });
+  document.getElementById('editPracticeTestStudent').textContent = data.studentName;
+  document.getElementById('editPracticeTestDescription').value = data.description;
 
   showEditPracticeTestWrapper();
   openCalendarSidebar();
@@ -620,32 +598,8 @@ function setupEditConference(data, id) {
   pending_calendar_event_id = id;
   pending_calendar_event = {...data};
 
-  //add back the default option
-  const defaultOption = document.createElement('option');
-  defaultOption.value = "";
-  defaultOption.textContent = "select a student"
-  defaultOption.setAttribute('selected', true);
-  defaultOption.setAttribute('disabled', true);
-  document.getElementById('addConferenceStudent').appendChild(defaultOption);
-
-  //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
-  .then((students) => {
-    let studentNames = [];
-    let studentUIDs = [];
-    students.forEach((student) => {
-      studentNames.push(student.name);
-      studentUIDs.push(student.id);
-    });
-
-    addSelectOptions(document.getElementById('editConferenceStudent'), studentUIDs, studentNames);
-    //select the saved student
-    document.getElementById('editConferenceStudent').value = data.student;
-  })
-  .catch((error) => {
-    console.log(error)
-    return closeCalendarSidebar();
-  });
+  document.getElementById('editConferenceStudent').textContent = data.studentName;
+  document.getElementById('editConferenceDescription').value = data.description;
 
   showEditConferenceWrapper();
   openCalendarSidebar();
@@ -756,6 +710,7 @@ function submitAddPracticeTest() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addPracticeTestStudent').value;
+  const description = document.getElementById('addPracticeTestDescription').value;
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location) {
@@ -771,6 +726,7 @@ function submitAddPracticeTest() {
       allDay, allDay,
       location: location,
       student: student,
+      description: description,
       color: PRACTICE_TEST_COLOR,
       textColor: tinycolor.mostReadable(PRACTICE_TEST_COLOR, ["#FFFFFF", "000000"]).toHexString()
     }
@@ -789,8 +745,7 @@ function submitAddPracticeTest() {
 }
 
 function updateEditPracticeTest() {
-  pending_calendar_event.student = document.getElementById('editPracticeTestStudent').value;
-  pending_calendar_event.title = document.getElementById('editPracticeTestStudent').options[document.getElementById('editPracticeTestStudent').selectedIndex].text + " - Practice Test";
+  pending_calendar_event.description = document.getElementById('editPracticeTestDescription').value;
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
   .then(() => {
     main_calendar.getEventById(pending_calendar_event_id).remove();
@@ -807,6 +762,7 @@ function submitAddConference() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addConferenceStudent').value;
+  const description = document.getElementById('addConferenceDescription').value;
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location) {
@@ -822,6 +778,7 @@ function submitAddConference() {
       allDay, allDay,
       location: location,
       student: student,
+      description: description,
       color: CONFERENCE_COLOR,
       textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
     }
@@ -840,8 +797,7 @@ function submitAddConference() {
 }
 
 function updateEditConference() {
-  pending_calendar_event.student = document.getElementById('editConferenceStudent').value;
-  pending_calendar_event.title = document.getElementById('editConferenceStudent').options[document.getElementById('editConferenceStudent').selectedIndex].text + " - Conference";
+  pending_calendar_event.description = document.getElementById('editConferenceDescription').value;
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
   .then(() => {
     main_calendar.getEventById(pending_calendar_event_id).remove();
@@ -968,6 +924,7 @@ function savePracticeTest(eventInfo) {
     let eventData = {
       type: eventInfo.type,
       title: studentName + " - Practice Test",
+      description: eventInfo.description,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
@@ -1011,6 +968,8 @@ function saveConference(eventInfo) {
     let eventData = {
       type: eventInfo.type,
       title: studentName + " - Conference",
+      description: eventInfo.description,
+      description: eventInfo.description,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,

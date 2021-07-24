@@ -249,6 +249,16 @@ select {
   border-style: solid;
 }
 
+#sidebar .textarea {
+  background-color: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  width: 100%;
+  border-color: #DEDEDF;
+  border-width: 1px;
+  border-style: solid;
+  height: 6.8em;
+}
+
 .ui.dropdown {
   display: block !important;
   margin-bottom: 5px !important;
