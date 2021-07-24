@@ -305,13 +305,12 @@ function generateRef(path) {
 
 //take all of the messages from the students and put them into the chat collection
 exports.transferChatMessages = functions.https.onRequest((request, response) => {
-    const queryRef = admin.firestore().collection("Students").limit(4);
+    const queryRef = admin.firestore().collection("Students");
     let allDone = queryRef.get()
     .then((querySnapshot) => {
         let studentPromises = []
         querySnapshot.forEach((doc) => {
             const studentUID = doc.id;
-            console.log("Got the profile doc for student", studentUID);
             //get the notes doc for this student
 
 
@@ -320,7 +319,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
             let actPromise = actNotesRef.get()
             .then((notesDoc) => {
                 if (notesDoc.exists) {
-                    console.log("Got the notes doc for student", studentUID);
                     const notesData = notesDoc.data();
                     const generalNotes = notesData.general;
                     const englishNotes = notesData.english;
@@ -373,7 +371,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
             let stPromise = stNotesRef.get()
             .then((notesDoc) => {
                 if (notesDoc.exists) {
-                    console.log("Got the notes doc for student", studentUID);
                     const notesData = notesDoc.data();
                     const notes = notesData.log;
 
@@ -401,7 +398,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
             let mpPromise = mpNotesRef.get()
             .then((notesDoc) => {
                 if (notesDoc.exists) {
-                    console.log("Got the notes doc for student", studentUID);
                     const notesData = notesDoc.data();
                     const notes = notesData.log;
 
@@ -429,7 +425,6 @@ exports.transferChatMessages = functions.https.onRequest((request, response) => 
             let ppPromise = ppNotesRef.get()
             .then((notesDoc) => {
                 if (notesDoc.exists) {
-                    console.log("Got the notes doc for student", studentUID);
                     const notesData = notesDoc.data();
                     const notes = notesData.log;
 
@@ -487,7 +482,6 @@ function createMessage_TEMP(studentUID, type, time, messages) {
         const chatRef =  admin.firestore().collection("Student-Chats").doc();
         return chatRef.set(message)
         .then(() => {
-            console.log("Successfully transferred " + type + " chat message for user", studentUID)
         })
         .catch((error) => {
             new functions.https.HttpsError(error.code, error.message, error.details)
