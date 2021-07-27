@@ -3,6 +3,9 @@ let pending_calendar_event = {}
 let pending_calendar_event_id = "";
 let old_calendar_event = {}
 let old_calendar_event_id = "";
+let pending_recurring_times = [];
+let pending_recurring_start;
+let pending_recurring_end;
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -18,7 +21,7 @@ function initialSetup() {
   //set up the semantic ui dropdowns
   $('.ui.dropdown').dropdown();
   //get the blank calendar before filling in events
-  initializeWeeklyScheduleCalendar([]);
+  initializeDefaultCalendar([]);
 
   firebase.auth().onAuthStateChanged((user) => {
     current_user = user;
@@ -86,8 +89,14 @@ function locationChange(location) {
 
 
 
-function initializeWeeklyScheduleCalendar(events) {
+function initializeDefaultCalendar(events) {
+  if (main_calendar) {
+    main_calendar.destroy();
+  }
+
   var calendarEl = document.getElementById('calendar');
+  calendarEl.classList.remove('noToday');
+
   main_calendar = new FullCalendar.Calendar(calendarEl, {
     height: "100%",
     initialView: 'timeGridWeek',
@@ -128,13 +137,6 @@ function initializeWeeklyScheduleCalendar(events) {
     },
 
     dateClick: function(info) {
-      // //check the calendar mode
-      // switch(calendar_mode) {
-      //   case "addPracticeTest":
-      //     addPracticeTestDateClickCallback(info);
-      //   default:
-      //     //nothing
-      // }
     },
 
     eventClick: eventClickHandler,
@@ -170,6 +172,94 @@ function initializeWeeklyScheduleCalendar(events) {
     // ],
 
     events: events
+  });
+  main_calendar.render();
+}
+
+function initializeWeeklyScheduleCalendar() {
+  if (main_calendar) {
+    main_calendar.destroy();
+  }
+
+  var calendarEl = document.getElementById('calendar');
+  calendarEl.classList.add('noToday');
+
+  main_calendar = new FullCalendar.Calendar(calendarEl, {
+    // height: "100%",
+    initialView: 'timeGridWeek',
+    hiddenDays: [0],
+    allDaySlot: false,
+    slotMinTime: "7:00:00",
+    slotMaxTime: "23:00:00",
+    headerToolbar: {
+      start:   '',
+      center: '',
+      end:  ''
+    },
+    themeSystem: 'standard',
+
+    // only show the day name (good for setting availability)
+    dayHeaderFormat: { weekday: 'long' },
+
+    selectable: true,
+
+    select: function(info) {
+      main_calendar.addEvent({
+        start: info.start,
+        end: info.end,
+      });
+      main_calendar.unselect();
+    },
+    selectOverlap: function(event) {
+        event.remove();
+        return true;
+    },
+
+    eventClick: function(info) {
+      info.event.remove();
+    },
+
+    unselectAuto: false,
+  });
+  main_calendar.render();
+}
+
+function initializepMonthScheduleCalendar() {
+  if (main_calendar) {
+    main_calendar.destroy();
+  }
+
+  var calendarEl = document.getElementById('calendar');
+  calendarEl.classList.add('noToday');
+  
+  main_calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    validRange: function(nowDate) {
+      return {
+        start: nowDate,
+      };
+    },
+    hiddenDays: [],
+    allDaySlot: false,
+    slotMinTime: "7:00:00",
+    slotMaxTime: "23:00:00",
+    slotDuration: "01:00:00",
+    headerToolbar: {
+      start:   'prev,next',
+      center: 'title',
+      end:  ''
+    },
+    themeSystem: 'standard',
+
+    selectable: true,
+
+    select: function(info) {
+      main_calendar.addEvent({
+        start: info.start,
+        end: info.end,
+      });
+      main_calendar.unselect();
+    },
   });
   main_calendar.render();
 }
@@ -383,6 +473,14 @@ function showEditTestReviewWrapper() {
   document.getElementById('editTestReviewWrapper').classList.remove("displayNone")
 }
 
+function showAddLessonWrapper() {
+  document.getElementById('addLessonWrapper').classList.remove("displayNone")
+}
+
+function showEditLessonWrapper() {
+  document.getElementById('editLessonWrapper').classList.remove("displayNone")
+}
+
 function setupEditSidebar(eventData, eventID) {
   switch (eventData.type) {
     case 'teacherMeeting':
@@ -422,6 +520,8 @@ function setupAddSidebar(type) {
       break
     case 'testReview':
       setupAddTestReview();
+    case 'lesson':
+      setupAddLesson();
     default:
   }
 
@@ -630,13 +730,11 @@ function setupAddTestReview() {
   defaultOptionStudent.textContent = "select a student"
   document.getElementById('addTestReviewStudent').appendChild(defaultOptionStudent);
 
-  // //add back the default option (tutor)
-  // const defaultOptionTutor = document.createElement('option');
-  // defaultOptionTutor.value = "";
-  // defaultOptionTutor.textContent = "select a tutor"
-  // defaultOptionTutor.setAttribute('selected', true);
-  // defaultOptionTutor.setAttribute('disabled', true);
-  // document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
+  //add back the default option (tutor)
+  const defaultOptionTutor = document.createElement('option');
+  defaultOptionTutor.value = "";
+  defaultOptionTutor.textContent = "NO TUTOR"
+  document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
 
   //add in the student list. If no location is selected this will reject
   getStudentList(document.getElementById('calendarLocation').dataset.value)
@@ -691,6 +789,12 @@ function setupEditTestReview(data, id) {
 
   document.getElementById('editTestReviewStudent').textContent = data.studentName;
 
+  //add back the default option (tutor)
+  const defaultOptionTutor = document.createElement('option');
+  defaultOptionTutor.value = "";
+  defaultOptionTutor.textContent = "NO TUTOR"
+  document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
+
   //add in the tutor list. If no location is selected this will reject
   getTutorList(document.getElementById('calendarLocation').dataset.value)
   .then((tutors) => {
@@ -712,6 +816,90 @@ function setupEditTestReview(data, id) {
   });
 
   showEditTestReviewWrapper();
+  openCalendarSidebar();
+}
+
+function setupAddLesson() {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "addLesson";
+  main_calendar.setOption('selectable', true);
+
+  //add back the default option (type)
+  const defaultOptionType = document.createElement('option');
+  defaultOptionType.value = "";
+  defaultOptionType.setAttribute('selected', true);
+  defaultOptionType.setAttribute('disabled', true);
+  defaultOptionType.textContent = "select a type";
+  document.getElementById('addLessonType').appendChild(defaultOptionType);
+
+  //add back the default option (student)
+  const defaultOptionStudent = document.createElement('option');
+  defaultOptionStudent.value = "";
+  defaultOptionStudent.setAttribute('selected', true);
+  defaultOptionStudent.setAttribute('disabled', true);
+  defaultOptionStudent.textContent = "select a student"
+  document.getElementById('addLessonStudent').appendChild(defaultOptionStudent);
+
+  //add the default option (tutor)
+  const defaultOptionTutor = document.createElement('option');
+  defaultOptionTutor.value = "noTutor";
+  defaultOptionTutor.textContent = "NO TUTOR"
+  document.getElementById('addLessonTutor').appendChild(defaultOptionTutor);
+
+  //add in the list of lesson types. If no location is selected this will reject
+  getLessonTypeList(document.getElementById('calendarLocation').dataset.value)
+  .then((lessonTypes) => {
+    let lessonNames = [];
+    let lessonValues = [];
+    lessonTypes.forEach((type) => {
+      lessonNames.push(type.name);
+      lessonValues.push(type.value);
+    });
+
+    addSelectOptions(document.getElementById('addLessonType'), lessonValues, lessonNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  //add in the student list. If no location is selected this will reject
+  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById('addLessonStudent'), studentUIDs, studentNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('addLessonTutor'), tutorUIDs, tutorNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+  
+
+  showAddLessonWrapper();
   openCalendarSidebar();
 }
 
@@ -1274,6 +1462,17 @@ function getLocationList(user) {
   });
 }
 
+function getLessonTypeList(location) {
+  if(!location) {
+    alert("Choose a location first!");
+    return Promise.reject('no location selected')
+  }
+  return firebase.firestore().collection("Locations").doc(location).get()
+  .then(locationDoc => {
+    return locationDoc.data().lessonTypes;
+  })
+}
+
 function getStudentList(location) {
   if(!location) {
     alert("Choose a location first!");
@@ -1325,11 +1524,56 @@ function getDropdownValues(dropdownId) {
   return values;
 }
 
-//just for testing purposes so I can call this function when I want
-document.addEventListener('keypress', (event) => {
-  if (event.key == '`') {
-    main_calendar.getEvents().forEach(event => {
-      console.log('start:', event.start, 'end:', event.end)
-    })
-  }
-})
+/**
+ * Remove the 'selected' class from all siblings and self
+ * @param {Node} child child node whose siblings (including self) will have the 'selected' class removed 
+ */
+function unselectSiblings(child) {
+  child.parentNode.querySelectorAll('*').forEach(sibling => {
+    sibling.classList.remove('selected');
+  })
+}
+
+function clearAddLessonRecurringSelected() {
+  //unselect the buttons for recurring
+  unselectSiblings(document.getElementById('addLessonRecurringWrapper').children.item(0))
+
+  //remove any recurring event data from pending
+}
+
+function claerAddLessonSingleSelected() {
+  //remove any single event data from pending
+}
+
+function addLessonSingleSelected(target) {
+  clearAddLessonRecurringSelected();
+
+  //set up the default behavior when adding single events
+  initializeDefaultCalendar([]);
+  main_calendar.setOption('selectable', true);
+}
+
+function addLessonRecurringSelected(target) {
+  claerAddLessonSingleSelected();
+}
+
+function recurringEventTimesClickCallback(target) {
+  unselectSiblings(target);
+  target.classList.add('selected');
+
+  initializeWeeklyScheduleCalendar();
+}
+
+function recurringEventStartClickCallback(target) {
+  unselectSiblings(target);
+  target.classList.add('selected');
+
+  initializepMonthScheduleCalendar();
+}
+
+function recurringEventEndClickCallback(target) {
+  unselectSiblings(target);
+  target.classList.add('selected');
+
+  initializepMonthScheduleCalendar();
+}

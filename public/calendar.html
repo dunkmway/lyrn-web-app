@@ -51,10 +51,7 @@
     <div class="dropdown">
       <button class="dropbtn">add event</button>
       <div class="dropdown-content">
-        <div>ACT</div>
-        <div>Subject Tutoring</div>
-        <div>Math Program</div>
-        <div>Phonics Program</div>
+        <div onclick="setupAddSidebar('lesson')">Lesson</div>
         <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
         <div onclick="setupAddSidebar('testReview')">Test Review</div>
         <div onclick="setupAddSidebar('conference')">Conference</div>
@@ -352,6 +349,58 @@
         </div>
       </div>
 
+      <!---------------------->
+      <!----- add lesson ----->
+      <!---------------------->
+      <div id="addLessonWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a lesson.">?</div>
+        <h3>Add Lesson</h3>
+        <div class="headerLine"></div>
+
+        <!-- type of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the type of lesson">?</div>
+          <label for="addLessonType" class="label">Type</label>
+        </div>
+        <select id="addLessonType" name="addLessonType" class="select"></select>
+        <br>
+
+        <!-- student attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
+          <label for="addLessonStudent" class="label">Student</label>
+        </div>
+        <select id="addLessonStudent" name="addLessonStudent" class="select"></select>
+        <br>
+
+        <!-- tutor(s) teaching the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) teaching the lesson">?</div>
+          <label for="addLessonTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addLessonTutor" name="addLessonTutor" class="ui dropdown" multiple></select>
+        <br>
+        <div class="headerLine"></div>
+
+        <!-- single vs recurring events -->
+        <input type="radio" id="addLessonSingleRadio" name="addLessonEventSchedule" value="single" checked onchange="addLessonSingleSelected(this)">
+        <label for="addLessonSingleRadio">single lesson</label><br>
+        <input type="radio" id="addLessonRecurringRadio" name="addLessonEventSchedule" value="recurring" onchange="addLessonRecurringSelected(this)">
+        <label for="addLessonRecurringRadio">recurring lessons</label>
+        <br><br>
+
+        <div id="addLessonRecurringWrapper">
+          <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
+          <button class="input"onclick="recurringEventStartClickCallback(this)">select when to start this recurring event</button>
+          <button class="input"onclick="recurringEventEndClickCallback(this)">select when to end this recurring event</button>
+        </div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelSidebarCallback()" class="button">cancel</button>
+          <button onclick="submitAddLesson()" class="button">submit</button>
+        </div>
+      </div>
 
 
     </div>

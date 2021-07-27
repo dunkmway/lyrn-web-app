@@ -11,6 +11,14 @@ body {
   height: 2em !important;
 }
 
+.todayNotHighlighted {
+  --fc-today-bg-color: transparent !important;
+}
+
+#calendar.noToday .fc-day-today {
+  background-color: transparent !important;
+}
+
 
 
 /* calendar highlight */
@@ -80,11 +88,17 @@ body {
   height: 100%;
   background-color: #f1f1f1;
   padding: 5px;
+  position: relative;
 }
 
 .sidebarContent {
   height: 100%;
-  position: relative;
+  padding: 0px 0px 25px 0px;
+  overflow-y: auto;
+}
+
+.sidebarContent input[type='radio'] {
+  margin: 0px 2px 0px 2px;
 }
 
 .sidebarList {
@@ -132,7 +146,10 @@ body {
 
 .bottom {
   position: absolute;
+  width: 100%;
   bottom: 0px;
+  padding: 5px 0px 5px 0px;
+  background-color: #f1f1f1;
 }
 
 .dropbtn {
@@ -204,7 +221,7 @@ body {
   cursor: pointer;
   outline: none;
   justify-self: flex-end;
-  }
+}
 
 .button:hover {
   background-color: #110D65;
@@ -243,10 +260,12 @@ select {
 #sidebar .input {
   background-color: #FFFFFF;
   padding: 5px 10px 5px 5px;
+  margin: 0px 0px 10px 0px;
   width: 100%;
   border-color: #DEDEDF;
   border-width: 1px;
   border-style: solid;
+  text-align: start;
 }
 
 #sidebar .textarea {
@@ -320,4 +339,22 @@ select {
 
 .more-info:hover::before {
   visibility: visible;
+}
+
+#addLessonRecurringWrapper {
+  display: none;
+}
+
+#addLessonRecurringWrapper button.input:hover:not(.selected) {
+  background-color: #DEDEDF;
+}
+
+#addLessonRecurringWrapper .selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#addLessonRecurringRadio:checked~#addLessonRecurringWrapper {
+  display: block;
 }
