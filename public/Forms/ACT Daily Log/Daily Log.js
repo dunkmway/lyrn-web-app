@@ -59,6 +59,7 @@ function getStudentTests(studentUID) {
     let finalObj = {}
     let assignedTests = []
     let practiceTests = []
+    let currentDayTests = []
     querySnapshot.forEach((doc) => {
       let data = doc.data();
       let obj = {}
@@ -70,6 +71,7 @@ function getStudentTests(studentUID) {
       }
       obj['status'] = data.status;
       obj['type'] = data.type;
+      obj['id'] = doc.id
 
       // Grab the tests that are in an assigned state that were assigned more than 14 hours before the session started
       if (data.status == 'assigned') {
@@ -79,6 +81,12 @@ function getStudentTests(studentUID) {
       }
       else if (data.type == 'practice') {
         practiceTests.push({ 'test' : data.test,
+                             'section' : data.section,
+                             'passageNumber' : data.passageNumber,
+                             'id' : doc.id})
+      }
+      else if (data.date > convertFromDateInt(date.getTime())['startOfDayInt']) {
+        currentDayTests.push({ 'test' : data.test,
                              'section' : data.section,
                              'passageNumber' : data.passageNumber,
                              'id' : doc.id})
@@ -95,6 +103,7 @@ function getStudentTests(studentUID) {
     // add the assigned tests
     setObjectValue(['assignedTests'], assignedTests, finalObj)
     setObjectValue(['practiceTests'], practiceTests, finalObj)
+    setObjectValue(['currentDayTests'], currentDayTests, finalObj)
     return finalObj;
   })
 }
@@ -419,6 +428,7 @@ function initialSetup() {
       setTestCarousel();
       checkForAssignedHomeworks();
       insertPracticeTests();
+      addCompletedHomeworks();
       //getElapsedTime();
       setGeneralInfo();
     })
@@ -611,10 +621,32 @@ function insertPracticeTests() {
   }
 }
 
+function addCompletedHomeworks() {
+  const testList = student_tests['currentDayTests'];
+
+  // For each test that needs to be graded
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+    const id = testList[i]['id']
+
+    setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
+
+    // Create the array for the test that needs graded this session
+    addAssignedTest(test, section, 'green');
+
+    // Store the id
+    /*ids.push({
+      'type' : 'homework',
+      'section' : section,
+      'test' : test,
+      'action' : 'assign',
+      'id' : id
+    })*/
+  }
+}
+
 function checkForAssignedHomeworks() {
-  let location = document.getElementById('generalHeader')
-  let location2 = document.getElementById('answersPopupHeader')
-  let statusBars = document.getElementsByClassName('meter')
   const testList = student_tests['assignedTests'];
 
   // For each test that needs to be graded
@@ -623,25 +655,11 @@ function checkForAssignedHomeworks() {
     const section = testList[i]['section']
     const id = testList[i]['id']
 
+    // Create the array for the test that needs graded this session
+    addAssignedTest(test, section);
+
     // Make sure that the test was assigned before the current day
     if (student_tests[section][test]['date'] < convertFromDateInt(date.getTime())['startOfDayInt']) {
-      // Create the array for the test that needs graded this session
-      setObjectValue([test, section, 'questions'], student_tests[section][test]['questions'], test_answers_grading)
-
-      // Create the tab for grading
-      let tab = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
-      let tab2 = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
-      tab.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
-      tab2.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
-      location.append(tab)
-      location2.append(tab2)
-
-      // Add blank status bars below each test
-      for (let i = 0; i < statusBars.length; i++) {
-        let ele = createElement('div', ['statusBar'], [], [], '')
-        statusBars[i].append(ele);
-      }
-
       // Lower the homework count for each test that needs graded
       homework_count -= 1;
     }
@@ -650,6 +668,7 @@ function checkForAssignedHomeworks() {
       ids.push({
         'type' : 'homework',
         'section' : section,
+        'test' : test,
         'action' : 'assign',
         'id' : id
       })
@@ -659,6 +678,92 @@ function checkForAssignedHomeworks() {
     }
   }
 
+}
+
+function removeAssignedTest(test, section) {
+  let locations = document.getElementById('generalHeader').querySelectorAll('div')
+  let locations2 = document.getElementById('answersPopupHeader').querySelectorAll('div')
+  let statusBars = document.getElementsByClassName('meter')
+
+  for (let i = 0; i < locations.length; i++) {
+    t = locations[i].querySelector('h2').innerHTML.split(' - ')[0]
+    s = locations[i].querySelector('h2').innerHTML.split(' - ')[1]
+    if (t == test && s == section.charAt(0).toUpperCase()) {
+      locations[i].remove()
+      locations2[i].remove()
+      for (let j = 0; j < statusBars.length; j++) {
+        statusBars[j].querySelectorAll('div')[i].remove()
+      }
+    }
+  }
+}
+
+function showTestPopup(test = undefined, section = undefined) {
+  clearTimeout(timeout)
+
+  let div = document.getElementById('testPopup')
+  div.style.display = 'block'
+
+  if (test != undefined) {
+    let children = div.querySelectorAll('div')
+    document.getElementById('testName').innerHTML = test + ' - ' + section.charAt(0).toUpperCase() + section.slice(1)
+    for (let i = 0; i < children.length; i++) {
+      let subChildren = children[i].querySelectorAll('p')
+      if (i == 0) {
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['scaledScore'] ?? (-1).toString())
+      }
+      else if (i == 1) {
+        const numQuestions = test_answers_data[test][section + 'Answers'].length
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['score'] ?? (-1).toString()) + ' / ' + numQuestions.toString()
+      }
+      else if (i == 2) {
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['status'] ?? 'assigned')
+      }
+    }
+  }
+}
+
+function hideTestPopup() {
+  timeout = setTimeout(function(){
+    let div = document.getElementById('testPopup')
+    div.style.display = 'none'
+  }, 50)
+}
+
+function addAssignedTest(test, section, colorClass = 'yellow') {
+  let location = document.getElementById('generalHeader')
+  let location2 = document.getElementById('answersPopupHeader')
+  let statusBars = document.getElementsByClassName('meter')
+
+  const questions = student_tests[section]?.[test]?.['questions'] ?? initializeEmptyAnswers(test, section)
+
+  setObjectValue([test, section, 'questions'], questions, test_answers_grading)
+
+  // Create the tab for grading
+  let tab = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+  let tab2 = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+  tab.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+  tab2.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+  tab.setAttribute('onmouseover', "showTestPopup('" + test + "', '" + section + "')")
+  tab2.setAttribute('onmouseover', "showTestPopup('" + test + "', '" + section + "')")
+  tab.setAttribute('onmouseout', "hideTestPopup()")
+  tab2.setAttribute('onmouseout', "hideTestPopup()")
+  location.append(tab)
+  location2.append(tab2)
+
+  // Add blank status bars below each test
+  for (let i = 0; i < statusBars.length; i++) {
+    let ele = createElement('div', ['statusBar'], [], [], '')
+
+    // Mark it the status yellow if assigned today
+    const time = student_tests[section]?.[test]?.['date'] ?? date.getTime()
+
+    if (time >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+      ele.classList.add(colorClass)
+    }
+
+    statusBars[i].append(ele);
+  }
 }
 
 function removeAnswersFromHTMLForm(type = 'homework', section = undefined) {
@@ -804,7 +909,7 @@ function resetAnswers() {
   // grab the test and section
   const test = current_homework_test;
   const section = current_homework_section;
-  const passageNumber = current_homework_passage_number;
+  const tempStatus = test_answers_grading[test]?.[section]?.['status']
 
   // Disable the button until everything is done
   document.getElementById('resetHomework').disabled = true;
@@ -820,17 +925,44 @@ function resetAnswers() {
   }
 
   // Reset the test if need be
-  const id = student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})[0]['id']
+  /*let idPath = student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})
+  if (idPath.length == 0) {
+    idPath = ids.filter(function(val) { return val.section == section && val.test == test})
+  }
+  const id = idPath[0]['id']*/
+  let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
+  }
   let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
   const studentQuestions = initializeEmptyAnswers(test, section);
 
-  ref.update({
-    ['questions'] : studentQuestions,
-    ['status'] : student_tests[section][test]['status'],
-    ['date'] : student_tests[section][test]['date'],
-    ['score'] : student_tests[section][test]['score'],
-    ['scaledScore'] : student_tests[section][test]['scaledScore']
-  })
+  // Reset values
+  setObjectValue([test, section, 'score'], -1, test_answers_grading)
+  setObjectValue([test, section, 'scaledScore'], -1, test_answers_grading)
+  setObjectValue([test, section, 'status'], 'assigned', test_answers_grading)
+
+  obj = {}
+  if (student_tests[section]?.[test]?.['date'] != undefined) {
+    obj['questions'] = studentQuestions,
+    obj['status'] = student_tests[section][test]['status'],
+    obj['date'] = student_tests[section][test]['date'],
+    obj['score'] = student_tests[section][test]['score'],
+    obj['scaledScore'] = student_tests[section][test]['scaledScore']
+
+    setObjectValue([test, section, 'score'], student_tests[section][test]['score'], test_answers_grading)
+    setObjectValue([test, section, 'scaledScore'], student_tests[section][test]['scaledScore'], test_answers_grading)
+    setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
+  }
+  else {
+    obj['questions'] = studentQuestions,
+    obj['status'] = 'assigned',
+    obj['date'] = date.getTime(),
+    obj['score'] = -1,
+    obj['scaledScore'] = -1
+  }
+
+  ref.update(obj)
 
   // Successfully reset the test
   .then(() => {
@@ -838,10 +970,49 @@ function resetAnswers() {
     document.getElementById('submitHomework').disabled = false;
 
     // Remove the green bar status if it's there
-    updateStatusBar(test, section, true)
+    const testDate = student_tests[section]?.[test]?.['date']
+    if (student_tests[section]?.[test]?.['status'] == 'assigned') {
+      if (testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+        updateStatusBar(test, section, true)
+      }
+      else if (testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+        updateStatusBar(test, section, true)
+        updateStatusBar(test, section, false, 'yellow')
+      }
+    }
+    else if (student_tests[section]?.[test]?.['status'] != undefined) {
+      updateStatusBar(test, section, true)
+      updateStatusBar(test, section, false, 'green')
+    }
+    else if (student_tests[section]?.[test]?.['status'] == undefined) {
+      updateStatusBar(test, section, true)
+      updateStatusBar(test, section, false, 'yellow')
+    }
     
     // Lower the homework count by 1
-    homework_count -= 1;
+    //if (student_tests[section]?.[test]?.['date'] != undefined) {
+    //if (test_answers_grading[test]?.[section]?.['status'] != 'assigned' && test_answers_grading[test]?.[section]?.['status'] != undefined) {
+    if ((tempStatus != 'assigned' && tempStatus != undefined) && testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+      homework_count -= 1;
+    }
+    else {
+      // Return the buttons to assigned
+      let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+      let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+      assign.classList.add('hidden')
+      unassign.classList.remove('hidden')
+
+      // update the ids for the graded assigned test
+      const temp = ids.filter(function(val) { return val.section == section && val.test == test})//[0]
+      if (temp.length > 0) {
+        ids = ids.filter(function(val) { return val.section != section || val.test != test})
+        temp[0]['action'] = 'assign'
+        ids.push(temp[0])
+      }
+
+      // increment the number of assigned tests
+      numAssignedTests += 1;
+    }
 
   })
 
@@ -853,7 +1024,8 @@ function resetAnswers() {
   })
 
   // Set up the student_testsPopup again
-  swapTestForm(test, section, passageNumber)
+  //swapTestForm(test, section, passageNumber)
+  swapTestForm(test, section, 1)
 }
 
 function toggleHomeworkPopup() {
@@ -866,11 +1038,10 @@ function toggleHomeworkPopup() {
 
 function gradeHomework(status) {
 
-
   // grab the test and section
   const test = current_homework_test;
   const section = current_homework_section;
-  const passageNumber = current_homework_passage_number;
+  const tempStatus = test_answers_grading[test]?.[section]?.['status']
 
   // Set the status bar as loading
   updateStatusBar(test, section, false, 'loading')
@@ -882,9 +1053,15 @@ function gradeHomework(status) {
   document.getElementById('resetHomework').disabled = true;
   document.getElementById('submitHomework').disabled = true;
 
+  // Record the status
+  if (status != 'did not do') {
+    setObjectValue([test, section, 'status'], status, test_answers_grading)
+  }
+
   // Calculate how many questions they missed and got correct
   let totalMissed = test_answers_grading[test][section]['questions'].filter(function(val) { return val.isWrong == true} ).length;
   let score = test_answers_grading[test][section]['questions'].length - totalMissed;
+  setObjectValue([test, section, 'score'], score, test_answers_grading)
 
   // Calculate the scaled score
   let scaledScore = -1;
@@ -892,22 +1069,35 @@ function gradeHomework(status) {
     for (const [key, value] of Object.entries(test_answers_data[test][section.toLowerCase() + "Scores"])) {
       if (score >= parseInt(value, 10)) {
         scaledScore = 36 - parseInt(key);
+        setObjectValue([test, section, 'scaledScore'], scaledScore, test_answers_grading)
         break;
       }
     }
   }
 
   // Change the score and questions back if they're not applicable
-  if (['forgot', 'previously completed'].includes(status)) {
+  if (['forgot', 'previously completed', 'did not do'].includes(status)) {
     score = -1;
+    scaledScore = -1;
     setObjectValue([test, section, 'questions'], initializeEmptyAnswers(test, section), test_answers_grading)
     if (status == 'forgot') {
       status = 'assigned'
     }
+    setObjectValue([test, section, 'score'], score, test_answers_grading)
+    setObjectValue([test, section, 'scaledScore'], scaledScore, test_answers_grading)
   }
 
   // Set the information
-  const id = student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})[0]['id']
+  //let idPath =  student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})
+  let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
+  }
+  //if (idPath.length == 0) {
+    //idPath = ids.filter(function(val) { return val.section == section && val.test == test})
+  //}
+  //const id = idPath[0]['id']
+  //const id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id'] ?? student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})[0]['id']
 
   // Get the ref
   let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
@@ -924,7 +1114,10 @@ function gradeHomework(status) {
       updateStatusBar(test, section)
 
       // up the homework count
-      homework_count += 1;
+      if (test_answers_grading[test]?.[section]?.['status'] == 'assigned') {
+        homework_count += 1;
+        setObjectValue([test, section, 'status'], status, test_answers_grading)
+      }
     })
     .catch((error) => {
       console.log(error)
@@ -933,6 +1126,7 @@ function gradeHomework(status) {
   else {
     ref.update({
       ['questions'] : test_answers_grading[test][section]['questions'],
+      ['date'] : date.getTime(),
       ['score'] : score,
       ['scaledScore'] : scaledScore,
       ['status'] : status
@@ -946,7 +1140,28 @@ function gradeHomework(status) {
       updateStatusBar(test, section)
 
       // up the homework count
-      homework_count += 1;
+      //if (student_tests[section]?.[test]?.['date'] != undefined) {
+      const testDate = student_tests[section]?.[test]?.['date']
+      if (['assigned', undefined].includes(tempStatus) && testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+        homework_count += 1;
+      }
+      //else if (['assigned', undefined].includes(test_answers_grading[test]?.[section]?.['status']) && testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+      else if (['assigned', undefined].includes(tempStatus) && testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+        // Swap which button is being showed
+        let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+        let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+        assign.classList.remove('hidden')
+        unassign.classList.add('hidden')
+
+        // update the ids for the graded assigned test
+        const temp = ids.filter(function(val) { return val.section == section && val.test == test})[0]
+        ids = ids.filter(function(val) { return val.section != section || val.test != test})
+        temp['action'] = 'graded'
+        ids.push(temp)
+
+        // Decrement the number of assigned tests
+        numAssignedTests -= 1;
+      }
 
       // Check to see if the session has been sufficiently finished
       submitSession()
@@ -1008,7 +1223,6 @@ function resetPractice() {
 
     id = ids.filter(function(val) { return val.section == section && val.test == test && val.passageNumber == passageNumber})[0]['id']
     const ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
-    console.log(id)
 
     ref.delete()
     .then(() => {
@@ -1084,7 +1298,6 @@ function gradePractice(status) {
 
   // Make sure that it isn't an old test
   if (id.length == 0) {
-    console.log("submitting")
 
     // Get the ref
     let refStart = firebase.firestore().collection('ACT-Student-Tests')
@@ -1094,7 +1307,6 @@ function gradePractice(status) {
 
     // It hasn't been submitted yet
     if (id.length == 0) {
-      console.log('New test')
       const ref = refStart.doc()
       ref.set({
         'test' : test,
@@ -1128,7 +1340,6 @@ function gradePractice(status) {
       })
     }
     else {
-      console.log('already set test')
       id = id[0]['id']
       refStart.doc(id).set({
         'test' : test,
@@ -1211,8 +1422,10 @@ function assignHomework(section) {
       if (hwTests[i] in student_tests[section]) {
       }
       else {
-        test = hwTests[i]
-        break;
+        if (ids.filter(function(val) {return val.test == hwTests[i] && val.section == section}).length == 0) {
+          test = hwTests[i]
+          break;
+        }
       }
     }
   }
@@ -1265,9 +1478,13 @@ function assignHomework(section) {
     assign.disabled = false;
     unassign.disabled = false;
 
+    // Add the test to the composite page
+    addAssignedTest(test, section)
+
     ids.push({
       'type' : 'homework',
       'section' : section,
+      'test' : test,
       'action' : 'assign',
       'id' : ref.id
     })
@@ -1328,8 +1545,26 @@ function unassignHomework(section) {
   assign.disabled = true;
   unassign.disabled = true;
 
+  /*const testList = student_tests['assignedTests'];
+  let test = undefined;
+  for (let i = 0; i < testList.length; i++) {
+    if (testList[i]['section'] == section) {
+      test = testList[i]['test']
+    }
+  }*/
+
   // Get the document id to remove
-  const id = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]['id']
+  /*let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
+
+    // Remove the id from the list of document ids
+    ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+
+  }*/
+  const tempIds = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]
+  const id = tempIds['id']
+  const test = tempIds['test']
 
   // Remove the id from the list of document ids
   ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
@@ -1347,6 +1582,9 @@ function unassignHomework(section) {
     // Re-enable the buttons again
     assign.disabled = false;
     unassign.disabled = false;
+
+    // Remove the assigned test from the composite page
+    removeAssignedTest(test, section)
 
     numAssignedTests -= 1;
     submitSession()

@@ -259,6 +259,11 @@ div p {
     color: white;
 }
 
+.yellow {
+    background-color: rgb(252, 241, 81);
+    color: black;
+}
+
 .green {
     background-color: green;
     color: white;
@@ -279,11 +284,6 @@ div p {
 
 .white {
     color: white;
-}
-
-.yellow {
-    background-color: rgb(252, 241, 81);
-    color: black;
 }
 
 .orange {
@@ -1067,4 +1067,31 @@ span:hover + .wrap a, .wrap:hover a{
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
+}
+
+#testPopup {
+  position: absolute;
+  background-color: rgb(200, 200, 200);
+  border-radius: 15px;
+  padding: 10px;
+  right: 0px;
+  z-index: 3;
+}
+
+#testPopup > p {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+#testPopup div p {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#testPopup div p:first-child {
+  width: 120px;
+}
+
+.bold {
+  font-weight: bold;
 }

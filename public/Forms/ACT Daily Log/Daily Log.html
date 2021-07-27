@@ -75,6 +75,21 @@
         <img id = 'logo' src='../../Images/Wasatch Logo.png' onclick="goToDashboard()">
     </section>
 
+    <div id = 'testPopup' style = 'display:none;' onmouseover = "showTestPopup()" onmouseout = "hideTestPopup()">
+        <p id = 'testName'></p>
+        <div class = 'input-row'>
+            <p class = 'bold'>Scaled Score: </p>
+            <p></p>
+        </div>
+        <div class = 'input-row'>
+            <p class = 'bold'>Score: </p>
+            <p></p>
+        </div>
+        <div class = 'input-row'>
+            <p class = 'bold'>Status: </p>
+            <p></p>
+        </div>
+    </div>
 
     <div id='nameSection' class = 'input-row spaced'>
         <h2 id = 'studentName' onclick="document.getElementById('studentGeneralInfoSection').style.display = 'flex'"></h2>
@@ -90,24 +105,8 @@
             <p id = 'mathText' style='display:none'></p>
             <p id = 'readingText' style='display:none'></p>
             <p id = 'scienceText' style='display:none'></p>
-            <!--<p id = 'englishText' style='display:none'>English</p>
-            <p id = 'mathText' style='display:none'>Math</p>
-            <p id = 'readingText' style='display:none'>Reading</p>
-            <p id = 'scienceText' style='display:none'>Science</p>-->
-            <!--circular text: https://www.developintelligence.com/blog/2016/09/how-to-make-circularcurved-text-with-javascript/-->
-            <!--<p id = 'englishText'>English</p>
-            <p id = 'mathText'>Math</p>
-            <p id = 'readingText'>Reading</p>
-            <p id = 'scienceText'>Science</p>-->
         </div>
 
-        <!--<div>
-            <button onclick="changeSection('composite')">Composite</button>
-            <button onclick="changeSection('english')">English</button>
-            <button onclick="changeSection('math')">Math</button>
-            <button onclick="changeSection('reading')">Reading</button>
-            <button onclick="changeSection('science')">Science</button>
-        </div>-->
         <div>
             Menu
         </div>
