@@ -20,12 +20,12 @@ const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
 // Other needed info
 const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
 const keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
-const date = new Date()
+// const date = new Date()
 let test_view_type = undefined;
 let new_status = undefined;
 let storage = firebase.storage();
 let tests_to_grade = {};
-let session_message_count = 0;
+// let session_message_count = 0;
 let homework_count = 0;
 let numAssignedTests = 0;
 let notAssigningFlag = false;

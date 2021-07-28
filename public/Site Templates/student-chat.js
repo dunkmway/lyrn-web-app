@@ -1,4 +1,6 @@
 let failedMessages = [];
+let session_message_count = 0;
+const date =  new Date();
 
 function getStudentMessages(studentUID, studentType, conversationType) {
   const getStudentMessages = firebase.functions().httpsCallable('getStudentMessages');
@@ -162,7 +164,9 @@ function deleteStudentMessage(event) {
       message.remove();
 
       // Check to see if the session is still submitable
-      submitSession()
+      if (studentType == 'act') {
+        submitSession()
+      }
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
@@ -209,7 +213,9 @@ function sendStudentMessage(studentUID, studentType, conversationType, message, 
     session_message_count += 1;
     
     // Check to see if the session can be submitted
-    submitSession()
+    if (studentType == 'act') {
+      submitSession()
+    }
   })
   .catch((error) => {
     console.log(error);
