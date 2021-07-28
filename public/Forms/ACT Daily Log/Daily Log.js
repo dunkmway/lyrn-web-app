@@ -147,13 +147,13 @@ function setGeneralInfo() {
       let section = testDoc?.data()?.section
 
       if (section) {
-        document.getElementById(section + 'Current').textContent = scaledScore == 0 ? "" : scaledScore.toString();
+        document.getElementById(section + 'Current').textContent = scaledScore == 0 ? "" : scaledScore?.toString();
       }
 
       currentScores.push(scaledScore)
     })
     let compositeCurrent = roundedAvg(currentScores);
-    document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent.toString();
+    document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent?.toString();
 
     //set up the test date goals
     testGoals = studentProfileDoc.data().testGoals;
