@@ -7,6 +7,7 @@
     <title>Subject Tutoring</title>
     <link href="subject-tutoring-dash.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
+    <link href="Site Templates/student-chat.css" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -16,6 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
     <script src="Site Templates/site-wide.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
+
+    <script src="Site Templates/student-chat.js" defer></script>
     <script src="subject-tutoring-dash.js" defer></script>
 </head>
 
@@ -29,11 +32,10 @@
     <textarea id="student-expectation" class="expectation-input" disabled></textarea>
 </div>
 
-  <div id="student-log-notes-div">
-    <h2 class="student-notes-label background-black">Notes</h2>
-    <div id="student-log-notes" class="student-notes">
-    </div>
-    <textarea id="student-log-notes-input" class="student-notes-input" placeholder="Any notes?"></textarea>
+  <div id="generalStudentMessageDiv">
+    <h2 class="studentMessageLabel backgroundBlack">Notes</h2>
+    <div id="generalStudentMessages" class="studentMessages"></div>
+    <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
   </div>
 
 

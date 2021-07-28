@@ -6,188 +6,267 @@ body {
     padding: 0;
 }
 
-#student-data-section {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
+div p {
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
-#student-general-info {
-    user-select: none;
-    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
-    -moz-user-select: none; /* mozilla browsers */
-    -khtml-user-select: none; /* webkit (konqueror) browsers */
-    -ms-user-select: none; /* IE10+ */
-  }
-
-#big-picture-info {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    z-index: 1;
+::-webkit-scrollbar {
+    width: 0%;
 }
 
-#scores-chart {
-    flex: 1;
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
 }
 
-#hw-canvas-div {
-    /* width: 100%;
-    height: 100%; */
-    margin: 0px 50px 0px 50px;
-}
-
-/* #student-general-notes-div {
-    margin: 50px 0px 50px 20px;
-    width: 400px;
-    border-color: black;
-    border-style: solid;
-    border-radius: 10px;
-    border-width: 1px;
-} */
-
-.section-notes-div {
-    margin: 10px;
-    flex: 1;
-    border-color: black;
-    border-style: solid;
-    border-radius: 10px;
-    border-width: 1px;
-    max-width: 40%;
-}
-
-#student-notes-section {
-    margin: 0 5% 0 5%;
-}
-
-.student-notes {
-    height: 400px;
-    overflow-y: auto;
+.metaForm {
     display: flex;
     flex-direction: column;
-    padding: 0 10px 0 10px
-}
-
-.student-notes-label {
-    padding: 10px;
-    color: white;
-    border-radius: 10px 10px 0px 0px;
-}
-
-.chat-area-hidden {
-    display: none;
-}
-
-.chat-area-visible {
-    display: block;
-}
-
-.chat-label-selected {
-    padding-top: 20px;
-}
-
-.student-notes :first-child {
-    margin-top: auto;
-}
-
-.student-notes .time {
-    font-weight: 200;
-    font-size: 12px;
-    color: #8A8B8A;
-}
-
-.student-note {
-    border-radius: 10px;
-    margin-bottom: 10px;
-    padding: 5px 25px 5px 10px;
+    background-color: rgb(255, 255, 255);
+    width: 24vw;
+    height: 75vh;
+    z-index: 3;
+    border-radius: 15px;
+    margin-right: 3%;
     position: relative;
-    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
-    white-space: pre-wrap;
 }
 
-.student-note .delete {
+.formTab {
+    display: flex;
+    flex-direction: row;
+    height: 7.25%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.statusBarDiv {
+    height: 0.75%;
+    display: flex;
+    flex-direction: row;
+}
+
+.statusBar {
+    background-color: white;
+    flex-grow: 1;
+}
+
+.headingBlock {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: white;
-    color: #C4CCE8;
-    font-family: 'Helvetica', 'Arial', sans-serif;
-    font-size: 10px;
-    font-weight: bold;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+    height: 100%;
+    width: 100%;
+    background-color: #110D65;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+}
+
+.headingBlock:first-child{
+    border-top-left-radius: 15px;
+}
+
+.headingBlock:last-child{
+    border-top-right-radius: 15px;
+}
+
+.inputRowCenter {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 8%;
+    padding-right: 8%;
+    align-items: center;
+}
+
+.button {
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.button:hover {
+  background-color: #110D65;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  color: #fff;
+  transform: translateY(-7px);
+}
+
+.testSubmitButton {
+  margin-bottom: 10px;
+  width: 140px;
+  height: 45px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 45px;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  color: white;
+}
+
+.lessonHeaders {
+    height: 4%;
+    display: grid;
+    grid-template-columns: 65% 15% 20%;
+    grid-template-rows: 100%;
+    text-align: center;
+    border-style: solid;
+    border-width: 0px 0px 2px 0px;
+}
+
+.lessonBody {
+    height: 89%;
+    display: grid;
+    grid-template-columns: 65% 15% 20%;
+    grid-auto-rows: auto;
+    text-align: center;
+    overflow-y: auto;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+.cursor {
     cursor: pointer;
 }
 
-.student-note .author {
+.gridBox3 {
+    border-style: solid;
+    border-color: black;
+    border-left-width: 0px;
+    border-bottom-width: 0px;
     position: relative;
-    text-align: right;
-    font-weight: 200;
-    font-size: 12px;
-    color: #8A8B8A;
-    right: -20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 35px;
 }
 
-.student-notes .right {
-    align-self: flex-end;
-    max-width: 80%;
+.gridBox3:nth-child(-n+3) {
+    border-top-width: 0px;
 }
 
-.student-notes .right .student-note{
-    background-color: #C4CCE8;
+.gridBox3:nth-child(3n) {
+    border-right-width: 0px;
+    position: relative;
 }
 
-.student-notes .left {
-    align-self: flex-start;
-    max-width: 80%;
-}
-
-.student-notes .left .student-note{
-    background-color: #CCE8C4;
-}
-
-.student-note.important {
-    border-color: #4177DA;
-    border-style: solid;
-}
-
-.student-note.session {
-    border-color: #DAA441;
-    border-style: solid;
-}
-
-.student-notes-input {
-    resize: none;
+.visibleBlock {
     display: block;
-    width: 100%;
-    box-sizing: border-box;
-    height: 50px;
-    font-size: 16px;
-    font-weight: 300;
-    border-radius: 10px; 
-    margin-top: 10px;
 }
 
-.flex-grow {
-    flex: 1;
+.flex-column {
+  display: flex;
+  flex-direction: row;
 }
 
-.fixed {
-    position: fixed;
+.justify-center {
+  justify-content: center;
 }
 
-.sticky {
-    position: sticky;
-    position: -webkit-sticky;
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+#topNavigationBanner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    height: 9vh;
+    width: 99vw;
+    background-color: rgb(210, 210, 210);
+    z-index: 1;
+    padding-left: 1vw;
+}
+
+.mainBody {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 81vh;
+    width: 100vw;
+    background-color: rgb(75, 143, 228, 0.8);
+    z-index: 1;
+}
+
+.oval {
+    font-size: 1.25vh;
+    height: 1.75vh;
+    width: 1.75vh;
+    border-radius: 50%;
+    background-color: rgb(200, 200, 200, 0.5);
+    cursor: pointer;
+    margin-left: 2px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.oval:hover {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    border-style : solid;
+    border-width : 1.5px;
+    border-color : rgb(135, 168, 247);
+    background-color: rgb(135, 168, 247, 0.2);
+    color: black;
+}
+
+.englishColor {
+    background-color: #5600F7;
+    color: white;
+}
+
+.mathColor {
+    background-color: #F70056;
+    color: white;
+}
+
+.readingColor {
+    background-color: #00E6BC;
+    color: white;
+}
+
+.scienceColor {
+    background-color: #C00BE0;
+    color: white;
+}
+
+.yellow {
+    background-color: rgb(252, 241, 81);
+    color: black;
 }
 
 .green {
     background-color: green;
+    color: white;
 }
 
 .pink {
@@ -207,20 +286,6 @@ body {
     color: white;
 }
 
-.homeworkBox {
-    color: rgb(250, 250, 250);
-    font-size: 2.5em;
-}
-
-.practiceBox {
-    color: rgb(250, 250, 250);
-    font-size: 2.5em;
-}
-
-.yellow {
-    background-color: rgb(252, 241, 81);
-}
-
 .orange {
     background-color: orange;
 }
@@ -231,440 +296,72 @@ body {
 
 .red {
     background-color: red;
+    color: white;
+}
+
+.tab3 {
+    background-color: rgb(0, 0, 91, 0.6);
 }
 
 .Qred {
-    position:relative;
-}
-
-.Qred:before {
-    position:absolute;
-    z-index:2;
-    top:0;
-    left:11.25%;
-    width: 22%;
-    height: 100%;
-    content:"";
     background-color:red;
-    border-radius: 22.5px;
 }
 
-.line {
-    height: 1px;
-    width: 80%;
-    border-bottom: black 1px solid;
-    margin-left: 10%;
-    margin-top: 30px;
+.redOnHover:hover {
+    background-color: rgb(255, 0, 0, 0.7);
 }
 
-#dailyLog {
-    display: none;
-    z-index: 2;
-    position: fixed;
-    top: 0px;
-    right: 0px;
-    width: 500px;
-    height: 100%;
-    background-color: rgb(255, 255, 255);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    overflow-y: auto;
-    border-left-style: solid;
-    border-left-width: 1px;
-}
-
-.tests {
-    height: 77.5%;
-    display: grid;
-    grid-template-columns: 20% 20% 20% 20% 20%;
-    grid-auto-rows: 8.5em;
-    text-align: center;
-    overflow-y: auto;
-    border-style: solid;
-    border-width: 0px 0px 1px 0px;
-}
-
-.testHeaders {
-    height: 2.5%;
-    display: grid;
-    grid-template-columns: 20% 20% 20% 20% 20%;
-    grid-template-rows: 100%;
-    text-align: center;
-    border-style: solid;
-    border-width: 1px 0px 2px 0px;
-}
-
-.scoresHeaders {
-    height: 2.5%;
-    display: grid;
-    grid-template-columns: 14% 18% 18% 18% 18% 14%;
-    grid-template-rows: 100%;
-    text-align: center;
-    border-style: solid;
-    border-width: 1px 0px 2px 0px;
-}
-
-#englishLessons {
-    height: 82%;
-    display: grid;
-    grid-template-columns: 70% 10% 20%;
-    grid-template-rows: 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09% 9.09%;
-    text-align: center;
-}
-
-#mathLessons {
-    height: 82%;
-    display: grid;
-    grid-template-columns: 70% 10% 20%;
-    grid-template-rows: 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33% 3.33%;
-    text-align: center;
-    overflow-y: auto;
-}
-
-::-webkit-scrollbar {
-    width: 0%;
-}
-
-#readingLessons {
-    height: 82%;
-    display: grid;
-    grid-template-columns: 70% 10% 20%;
-    grid-template-rows: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
-    text-align: center;
-}
-
-#scienceLessons {
-    height: 82%;
-    display: grid;
-    grid-template-columns: 70% 10% 20%;
-    grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%; 
-    text-align: center;
-}
-
-.lessonHeaders {
-    height: 3%;
-    display: grid;
-    grid-template-columns: 70% 10% 20%;
-    grid-template-rows: auto;
-    text-align: center;
-    border-style: solid;
-    border-width: 1px 0px 2px 0px;
-}
-
-.gridBox {
-    border-style: solid;
-    border-color: black;
-    border-left-width: 0px;
-    border-bottom-width: 0px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.gridBox:nth-child(-n+5) {
-    border-top-width: 0px;
-}
-
-.gridBox2 {
-    border-style: solid;
-    border-color: black;
-    border-left-width: 0px;
-    border-bottom-width: 0px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.gridBox2:nth-child(-n+3) {
-    border-top-width: 0px;
-}
-
-.gridBoxScores {
-    border-style: solid;
-    border-color: black;
-    border-left-width: 0px;
-    border-bottom-width: 0px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.gridBoxScores:nth-child(-n+6) {
-    border-top-width: 0px;
-}
-
-.gridBoxAnswers {
-    border-style: solid;
-    border-color: black;
-    border-width: 0px 0px 1px 1px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.gridBoxAnswers:nth-child(-n+11) {
-    border-top-width: 0px;
-}
-
-.border {
-    border-top-style: solid;
-    border-color: black;
-    border-width: 1px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-clip: content-box;
-    font-size: 1em;
-}
-
-.border:first-child {
-    border-top-style: none;
-}
-
-.background-green {
-    background-color: green;
-}
-
-.gridBox-p{
-    font-size: 32px;
-    position: absolute;
-    top: 1.625em;
-    padding-left: .1em;
-    margin: 0px;
-}
-
-.grid4 {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 25.75% 25.75% 25.75% 22.75%; 
-}
-
-.grid5 {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 20.5% 20.5% 20.5% 20.5% 18%; 
-}
-
-.grid6 {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 17% 17% 17% 17% 17% 15%; 
-}
-
-.grid7 {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 14.5% 14.5% 14.5% 14.5% 14.5% 14.5% 13%;
-}
-
-.metaForm {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    top: 0px;
-    right: 0px;
-    width: 500px;
-    height: 100%;
-    background-color: rgb(255, 255, 255);
-    z-index: 2;
-    border-left-style: solid;
-    border-left-width: 1.5px;
-    border-top-left-radius: 11px;
-    border-bottom-left-radius: 11px;
-}
-
-#homeworkTestsTabs {
-    padding: 0px;
-    align-items: flex-start;
-    height: 8%;
-}
-
-#inCenterTestsTabs {
-    padding: 0px;
-    align-items: flex-start;
-    height: 8%;
-}
-
-#otherTestsTabs {
-    padding: 0px;
-    align-items: flex-start;
-    height: 8%;
-}
-
-.testTab {
-    background-color: #110D65;
-    height: 75%;
-    width: 32.5%;
-    margin-left: 1.25%;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    text-align: center;
-    color: white;
-    font-size: 25px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-bottom: 10px;
-}
-
-#homeworkTestsForm {
-    display: none;
-}
-
-#inCenterTestsForm {
-    display:none;
-}
-
-#otherTestsForm {
-    display:none;
-}
-
-#englishLessonsForm {
-    display:none;
-}
-
-#mathLessonsForm {
-    display:none;
-}
-
-#readingLessonsForm {
-    display:none;
-}
-
-#scienceLessonsForm {
-    display:none;
-}
-
-::placeholder {
-    color: rgb(0, 0, 0, 0.3);
-  }
-
-#section {
-    /* display: flex; */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* min-height: 98vh; */
-    width: 98vw;
-}
-
-#parentForm {
-    display: flex;
-}
-
-#studentForm {
-    display: none;
-}
-
-.registration-block {
-    display: flex;
-    flex-direction: column;
-    justify-content: top;
-    align-items: stretch;
+.activeTab{
     background-color: white;
-    height: 90vh;
-    min-height: 400px;
-    border-radius: 10px;
-    box-shadow: 0px 8px 15px rgb(0, 0, 0, 0.1);
-    max-width: 650px;
+    color: black;
 }
 
-.heading-block {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 8%;
-    background-color: #110D65;
-    font-size: 24px;
-    color: white;
-    text-align: center;
-    padding: 1%;
-    border-top-left-radius: 10px;
-    align-self: stretch;
-}
-
-button {
-  margin-bottom: 10px;
+.buttonToggleOn {
+  margin-top: 20px;
   width: 140px;
   height: 45px;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  background-color: #fff;
   border: none;
   border-radius: 45px;
   box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   outline: none;
-  background-color: rgb(255, 0, 0);
-  text-align: center;
-  color: white;
+  background-color: #110D65;
+  color: #fff;
 }
 
-.smallButton {
-  margin-bottom: 10px;
-  width: 100px;
-  height: 33.3px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
+.buttonToggleOff {
+  color: #110D65;
   background-color: #fff;
-  border: none;
-  border-radius: 45px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease 0s;
-  cursor: pointer;
-  outline: none;
-  background-color: rgb(255, 0, 0);
-  text-align: center;
-  color: white;
-}
-
-.longButton {
-  margin-bottom: 10px;
-  width: 150px;
-  height: 42px;
+  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
+  transform: translateY(-7px);
+  margin-top: 20px;
+  width: 140px;
+  height: 45px;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 2.5px;
   text-transform: uppercase;
   border: none;
   border-radius: 45px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   outline: none;
-  text-align: center;
-  color: white;
 }
 
-#form-scroll-block {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding: 25px;
+.label {
+    text-align: left;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    color: black;
 }
 
 .input-row {
     display: flex;
     flex-direction: row;
     justify-content: left;
-    padding-left: 8%;
-    padding-right: 8%;
     align-items: center;
 }
 
@@ -672,68 +369,102 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    padding-left: 8%;
-    padding-right: 8%;
     align-items: center;
 }
 
-.input-row-checkbox {
-    align-items: center;
-}
-
-.input-row-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    width: max-content;
-    margin-left: 10px;
-}
-
-.button {
-    margin-left: 3px;
-    margin-right: 3px;
-    margin-top: 5px;
-    cursor: pointer;
-}
-
-.button2 {
-    cursor: pointer;
-}
-
-.firstButton {
-    margin-left: 10px;
-}
-
-.buttonsDiv {
-    /* width: 100%; */
-    justify-content: space-between;
-    padding-top: 3%;
-}
-
-.backButton {
-    background-color: rgb(255, 0, 0);
-    margin-left: 30px;
-    opacity: 0;
-}
-
-.nextButton {
-    margin-right: 30px;
-    opacity: 1;
-}
-
-.submitButton {
-  background-color: green;
-}
-
-.textarea {
-    margin-top: 15px;
-    width: 100%;
-}
-
-.input-block {
+.input-column {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: left;
+    align-items: center;
+}
+
+.input-column-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.side {
+    width: 15%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle {
+    display: flex;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: rgb(200, 200, 200);
+    align-items: center;
+    text-align: center;
+}
+
+.smallButton {
+  margin-bottom: 10px;
+  width: 100px;
+  height: 33.3px;
+  text-align: center;
+}
+
+.longButton {
+  margin-bottom: 10px;
+  width: 150px;
+  height: 42px;
+  text-align: center;
+}
+
+.popup {
+  visibility: hidden;
+  width: 170px;
+  background-color: rgb(150, 150, 150);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0px 8px 0px;
+  position: absolute;
+  z-index: 4;
+  bottom: calc(8% + 5px);
+  right: calc(50% - 85px - 45px - (.5 * ((100% - 200px) / 3)));
+}
+
+/* Popup arrow */
+.popup::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% + 5px);
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+}
+
+.popupValue {
+    z-index: 3;
+    height: 35px;
+    width: 35px;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    text-align: center;
+    border-radius: 20px;
+    margin-top: 3px;
+}
+/* MASTER
+  justify-content: flex-start;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
@@ -796,268 +527,28 @@ select {
 select {
     background: url("../../Images/select-dropdown.png") no-repeat 95%;
     -webkit-appearance: none;
-}
-
-.label {
-    text-align: left;
-    margin-bottom: 5px;
-    margin-top: 5px;
-    color: black;
-}
-
-
-#agreementDiv {
-    border-style: solid;
-    border-width: 2px;
-    margin: 10px;
-}
-
-
-p {
-    margin: 0px;
-    padding: 0px;
-    word-wrap: normal;
-    /* width: 90%; */
-}
-
-#statement {
-    margin-top: 4px;
-    margin-bottom: 10px;
-}
-
-.date {
-    max-width: 100px;
-}
-
-.initials {
-    width: 40px;
-    margin-left: 4px;
-}
-
-p.errorMessage {
-    margin-top: -1%;
-    color: red;
-}
-
-.first {
-    margin-left: 0px;
-    border-top-left-radius: 10px;
-}
-
-#homeworkStatusDiv {
-    height: 10%;
-}
-
-#inCenterStatusDiv {
-    height: 10%;
-}
-
-#otherStatusDiv {
-    height: 10%;
-}
-
-.selected {
-    height: 100%;
-    padding-top: 15px;
-    padding-bottom: 5px;
-}
-
-.formEnd {
-    height: 7%;
-    justify-content: space-between;
-}
-
-.formEnd-center {
-    height: 7%;
-    justify-content: center;
-}
-
-.loader {
-    display: none;
-    border: 20px solid white;
-    border-top: 20px solid #110D65;
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    animation: spin 2s linear infinite;
-    left: calc(50% - 70px);
-    top: calc(50% - 70px);
-    margin: auto;
-    position: fixed;
-}
-
-.testP {
-    font-size: 14px;
-    padding: 0px;
-    margin: 0px;
-    text-align: center;
-}
-
-#testAnswersPopup {
-    display: none;
-}
-
-#scaledScoresTests {
-    display: none;
-}
-
-#scaledScores {
-    display: none;
-}
-
-#answers {
-    display: none;
-}
-
-#homeworkPopup {
-    display: none;
-    width: 350px;
-    background-color: rgb(200, 200, 200);
-    border-radius: 10px;
-    margin: 0px;
-    position: absolute;
-    right: 550px;
-    top: 20%;
-    z-index: 3;
-}
-
-#leftArrow {
-    font-size: 35px;
-    flex-grow: 1;
-    padding-bottom: 4px;
-}
-
-#passage {
-    width: 70%;
-    max-height: 100%;
-    overflow-y: scroll;
-}
-  
-#rightArrow {
-    font-size: 35px;
-    flex-grow: 1;
-    padding-bottom: 4px;
-}
-
-.circle {
-    display: flex;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    background-color: rgb(200, 200, 200);
-    align-items: center;
-    text-align: center;
-}
-
-.side {
-    width: 15%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#answersPopupHeader {
-    font-size: 30px;
-    color: white;
-    height: 8%;
-    background-color: #110D65;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-#homeworkPopupHeader {
-    font-size: 30px;
-    color: white;
-    height: 60px;
-    background-color: #110D65;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.firstAnswer {
-    margin-top: 10px;
-}
-#popupInfo {
-    padding: 0px;
-    height: 70%;
-}
-
-#toggleDiv {
-    height: 10%;
-}
-
-#scoresAnswersToggle {
-    height: 7.5%;
-}
-
-#answersScoresToggle {
-    height: 7.5%;
-}
-
-#timingBlock {
-    height: 5%;
-}
-
-#popupButtons {
-    height: 7%;
-}
-
-.popupValue {
-    z-index: 3;
-    height: 40px;
-    width: 40px;
-    font-size: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    text-align: center;
-    border-radius: 50%;
-    /*padding: 2.5px;*/
-}
-
-.testRow {
-    height: 40px;
-    width: 70%;
-    font-size: 20px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.testRow:hover {
-    background-color: rgb(255, 0, 0, 0.7);
-}
+MASTER */
 
 .popupDash {
-    height: 40px;
-    width: 30%;
+    height: 35px;
+    width: 38%;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
-    padding-top: 2.5px;
-    padding-bottom: 2.5px;
-    padding-left: 30px;
-    padding-right: 30px;
+    margin-top: 3px;
 }
 
 .popupAnswer {
-    height: 40px;
-    width: 40px;
+    height: 35px;
+    width: 35px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     text-align: center;
-    padding: 2.5px;
+    margin-top: 3px;
 }
 
 .smallerText {
@@ -1065,316 +556,611 @@ p.errorMessage {
     font-size: 10px;
 }
 
-.highlight {
-    border-style: solid;
-    border-color: aqua;
-    border-width: 2px;
+.item {
+    background-color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 14px;
+    width: 15vw;
+    height: 12vh;
+    margin-top: 5vh;
+}
+
+.item:first-child {
+    margin-left: 0vw;
+}
+
+.itemB1 {
+    grid-area: b1;
+}
+
+.itemB2 {
+    grid-area: b2;
+}
+
+.itemB1 h2 {
+    margin: 0px;
+}
+
+.itemB2 h2 {
+    margin: 0px;
+}
+
+.nextButton {
+    margin-left: 10px;
+}
+
+.graph {
+    width: 67vw;
+    flex: 1;
+    margin-right: 3%;
+    margin-left: 3%;
+}
+
+.bigButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.spaced {
+    justify-content: space-between;
+}
+
+.spacedEvenly {
+    justify-content: space-evenly;
+}
+
+#sectionTitle {
+    font-size: 3em;
+}
+
+#studentName {
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+#logo {
+    height: calc(0.75 * 9vh);
+    width: calc(0.75 * 2.51 * 9vh);
+    cursor: pointer;
+}
+
+#nameSection {
+    height: 10vh;
+    width: 100%;
+    align-items: center;
+    background-color: rgb(75, 143, 228, 0.8);
+}
+
+.generalInfo {
+    height: 80vh;
+    width: 100%;
+}
+
+.scores-chart {
+    background-color: white;
+    max-width: 67vw;
+    max-height: 60vh;
+    border-radius: 14px;
+}
+
+.leftArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    padding-bottom: 4px;
+}
+
+.passage {
+    width: 70%;
+    max-height: 100%;
+    overflow-y: scroll;
 }
   
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.rightArrow {
+    font-size: 35px;
+    flex-grow: 1;
+    padding-bottom: 4px;
 }
 
-.noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none; /* Safari */
-       -khtml-user-select: none; /* Konqueror HTML */
-         -moz-user-select: none; /* Old versions of Firefox */
-          -ms-user-select: none; /* Internet Explorer/Edge */
-              user-select: none; /* Non-prefixed version, currently
-                                    supported by Chrome, Edge, Opera and Firefox */
+.popupButtons {
+    height: 7%;
 }
 
-.nav_enabled div {
-    position: fixed;
-    right: 365px;
-    transition: 0.2s;
-    padding: 20px 0px 20px 30px;
-    width: 170px;
-    font-size: 20px;
-    color: white;
-    border-radius: 5px 0px 0px 5px;
-    z-index: 1;
-    text-align: right;
+.popupInfo {
+    padding: 0px;
+    height: 84%;
 }
 
-/* .nav_enabled div:hover {
-    right: 470px;
-    text-align: left;
-    padding-left: 60px;
-} */
-
-.nav_disabled div {
-    position: fixed;
-    right: -135px;
-    transition: 0.2s;
-    padding: 20px 0px 20px 30px;
-    width: 170px;
-    font-size: 20px;
-    color: white;
-    border-radius: 10px 0px 0px 10px;
-    z-index: 1;
-    text-align: right;
+.sectionPopupInfo {
+    padding: 0px;
+    height: 74%;
 }
 
-/* .nav_disabled div:hover {
-    right: -30px;
-    text-align: left;
-    padding-left: 60px;
-} */
-
-#dailyLogNav {
-    top: 30px;
-    background-color: #4CAF50;
-}
-
-#testReviewNav {
-    top: 110px;
-    background-color:#fca146;
-}
-
-#scoresNav {
-    top: 190px;
-    background-color: #2196F3;
-}
-
-#previousLogsNav {
-    top: 270px;
-    background-color: #f44336;
-}
-
-/* The actual popup */
-.popup {
-  visibility: hidden;
-  width: 170px;
-  background-color: rgb(150, 150, 150);
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 8px 0px 8px 0px;
-  position: absolute;
-  z-index: 4;
-  bottom: 6.5%;
-  right: 2%
-}
-
-/* Popup arrow */
-.popup::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-.printPopup {
-  visibility: hidden;
-  width: 170px;
-  background-color: rgb(150, 150, 150);
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 8px 0px 8px 0px;
-  position: absolute;
-  z-index: 4;
-  height: max-content;
-  right: 515px;
-  top: 0px;
-}
-
-/* Popup arrow */
-.printPopup::after {
-  content: "";
-  position: absolute;
-  top: calc(50% - 10px);
-  left: 180px;
-  margin-left: -10px;
-  border-width: 10px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-  transform: rotate(-90deg);
-}
-
-/* Toggle this class - hide and show the popup */
-.show {
-  visibility: visible;
-  -webkit-animation: fadeIn 1s;
-  animation: fadeIn 1s;
-}
-
-.topBorder {
-  border-style: solid;
-  border-width: 1px 0px 0px 0px;
-}
-
-#inCenterBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#homeworkBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#otherBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#englishBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#mathBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#readingBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#scienceBackDiv {
-    margin-left: 0px;
-    margin-right: 0px;
-}
-
-#addPreviousACTButton {
-    margin-right: 20px;
-    margin-bottom: 10px
-}
-
-#removePreviousACTButton {
-    margin-bottom: 10px
-}
-
-#assignHomework {
-    margin-top: 0px;
-}
-
-.buttonToggleOn {
-  margin-top: 20px;
-  width: 140px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 45px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  outline: none;
-  background-color: #110D65;
-  color: #fff;
-}
-
-.buttonToggleOff {
-  color: #110D65;
-  background-color: #fff;
-  box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4);
-  transform: translateY(-7px);
-  margin-top: 20px;
-  width: 140px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 45px;
-  cursor: pointer;
-  outline: none;
-}
-
-#answerButton {
-  margin-left: 20px;
-}
-
-#guessButton {
-  margin-left: 20px;
-}
-
-#fullAnswersButton {
-  margin-left: 20px;
-  margin-bottom: 15px;
-}
-
-#fullAnswersButton2 {
-  margin-left: 20px;
-  margin-bottom: 15px;
-}
-
-#scoresButton {
-  margin-bottom: 15px;
-}
-
-.formBody {
-    height: 92%;
-    overflow-y: scroll;
-}
-
-.scoresBody {
-    height: 75%;
-    overflow-y: scroll;
-    display: grid;
-    grid-template-columns: 14% 18% 18% 18% 18% 14%;
-    grid-auto-rows: 1.3em;
-}
-
-#answersBody {
-    height: 75%;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-}
-
-.redOnHover:hover {
-    background-color: rgb(255, 0, 0, 0.7);
-}
-
-.sectionHeader {
+#statusBox {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position:fixed;
     text-align: center;
-    font-size: 24px;
-    height: 1.5em;
-    width: calc(99% - 1px);
-    border-style: solid;
-    border-width: 1px;
+    background-color: rgb(180, 180, 180);
+    bottom: 1vh;
+    right: 1vh;
+    height: 26px;
+    width: 26px;
+    vertical-align: middle;
+    z-index: 2;
 }
 
-.answers {
-    width: 99%;
-    display: grid;
-    border-right-width: 1px;
-    border-right-style: solid;
-    grid-template-columns: 10% 9% 9% 9% 9% 9% 9% 9% 9% 9% 9%;
-    grid-auto-rows: 1.3em;
+#statusBox p {
+    margin-bottom: 2px;
 }
 
-.space {
-    height: 20px;
-}
-
-#passage .input-row-center {
-    border-radius: 22.5px;
-}
-
-.icon {
+#lessonPopup{
     position: absolute;
-    left: 10px;
-    top: calc(50% - 20px)
+    right: 7.8vw;
+    z-index: 5;
+    padding-right: 5px;
+    box-shadow: -15px 8px 15px rgba(0, 0, 0, 0.1);
+    background-color: rgb(200, 200, 200, 0);
 }
 
+.meter {
+    box-sizing: content-box;
+    height: 6px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.loading {
+    background: linear-gradient(-45deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%, transparent);
+    background-size: 5.5px;
+    animation: move 0.5s linear infinite;
+    background-color: blue;
+    height: 100%;
+}
+
+@keyframes move {
+  100% {
+    background-position: 5.5px 5.5px;
+  }
+  0% {
+    background-position: 0 0;
+  }
+}
+
+.squareButton {
+  width: 110px;
+  height: 35px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s linear 0s;
+}
+  
+.squareButton:hover {
+    text-indent: 20px;
+    filter:brightness(110%)
+}
+
+.loadingRing::after {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 0, 91, 0.2);
+  border-left-color: rgb(0, 0, 91);
+  background: transparent;
+  animation: rotate-s-loader 1s linear infinite;
+  position:absolute;
+  content: '';
+}
+
+@keyframes rotate-s-loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.uhOh::after {
+  position:absolute;
+  color: red;
+  content: '\0021';
+  font-size: 35px;
+}
+
+.selectedElement {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    border-style : solid;
+    border-width : 1.5px;
+    border-color : rgb(135, 168, 247);
+    background-color: rgb(135, 168, 247, 0.2);
+    color: black;
+}
+
+
+.practiceTest {
+    font-size: 24px;
+    height: 60%;
+    margin-bottom: 3px;
+}
+
+.carousel {
+    height: 10.75%;
+    overflow-x:auto;
+}
+
+.carouselItem {
+    margin-left: 2vh;
+    width: 100%;
+}
+
+.carouselItem:first-child {
+    margin-left: 1vh;
+}
+
+.carouselItem:last-child {
+    margin-right: 1vh;
+}
+
+.selfLoadingRing {
+    position: relative;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.selfLoadingRing::after {
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 91, 0.2);
+  border-left-color: rgb(0, 0, 91);
+  background: transparent;
+  animation: rotate-s-loader 1s linear infinite;
+  position:absolute;
+  content: '';
+  margin-left: -2px;
+}
+
+.wrap{
+  position: absolute;
+  /*position:relative;*/
+  width:33vmin;
+  height:33vmin;
+  margin:0 auto;
+  background:transparent;
+  transform:scale(0.2) translatez(0px);
+  opacity:0;
+  transition:transform .5s, opacity .5s;
+  z-index: 2;
+  left: 45%;
+}
+.a{
+  position:absolute;
+  left:0; top:0;
+  width:47.5%; height:47.5%;
+  overflow:hidden;
+  transform:scale(.5) translateZ(0px);
+  background:#585247;
+  text-decoration: none;
+}
+.a div{
+  height:100%;
+  background-size:cover;
+  opacity:.5;
+  transition:opacity .5s;
+  border-radius:inherit;
+
+  color: white;
+  font-size: 32px;
+}
+.a:nth-child(1){
+  border-radius:100% 0 0 0;
+  transform-origin: 110% 110%;
+  transition:transform .4s .15s;
+}
+.a:nth-child(1) div{
+  background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQReh3HmCUJiQk5bczijoeAvoGkxTHvR9O9g&usqp=CAU');
+  /*background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR63qWozUk3mlvMeMk1BxbyAGyqCN9XgZvqMw&usqp=CAU');*/
+  /*background-image:url('https://farm3.staticflickr.com/2827/10384422264_d9c7299146.jpg');*/
+}
+.a:nth-child(2){
+  border-radius:0 100% 0 0;
+  left:52.5%;
+  transform-origin: -10% 110%;
+  transition:transform .4s .2s;
+}
+.a:nth-child(2) div{
+  background-image:url('https://static6.depositphotos.com/1004338/648/v/600/depositphotos_6489591-stock-illustration-mathematics-background.jpg');
+  /*background-image:url('https://farm7.staticflickr.com/6083/6055581292_d94c2d90e3.jpg');*/
+}
+.a:nth-child(3){
+  border-radius:0 0 0 100%;
+  top:52.5%;
+  transform-origin: 110% -10%;
+  transition:transform .4s .25s;
+}
+.a:nth-child(3) div{
+  background-image:url('data:image/jpeg;base64,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');
+  /*background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwiE8rKsS2cLMoCJwRUBogKl5NCl4RHLDeAQ&usqp=CAU');*/ /*stack of books*/
+  /*background-image:url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOAfM3FT4pi0ubEvz8wIAyfbXVdfISLu2K0g&usqp=CAU');*/ /*book with snow*/
+  /*background-image:url('https://farm7.staticflickr.com/6092/6227418584_d5883b0948.jpg');*/
+}
+.a:nth-child(4){
+  border-radius:0 0 100% 0;
+  top:52.5%; left:52.5%;
+  transform-origin: -10% -10%;
+  transition:transform .4s .3s;
+}
+.a:nth-child(4) div{
+  background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZFVhKLEhajfMe2-AZLLkToSfGGnu8wHhxTw&usqp=CAU');
+  /*background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTR6qrPUoXYj2RLmEU1C-XwQL_pgN6ZfXVsZA&usqp=CAU');*/ /* periodic table with erlynmyer flask*/
+  /*background-image: url('https://farm8.staticflickr.com/7187/6895047173_d4b1a0d798.jpg');*/
+}
+.a:nth-child(5){
+  width:45%;height:45%;
+  left:27.5%; top:27.5%;
+  border-radius:100%;
+  box-shadow:0 0 0 3vmin #E3DFD2;
+  transform:scale(1);
+}
+.a:nth-child(5) div{
+  background-image: url('https://farm4.staticflickr.com/3766/12953056854_b8cdf14f21.jpg');
+}
+span:hover + .wrap, .wrap:hover{
+  transform:scale(.8) translateZ(0px);
+  opacity:1;
+}
+span:hover + .wrap a, .wrap:hover a{
+  transform:scale(1) translatez(0px);
+}
+.a:hover div{
+  opacity:1;
+  transform:translatez(0px);
+}
+
+#englishText{
+  position:absolute;
+  margin:0;
+  font-size:32px;
+  color: white;
+
+  min-width:0.5em;
+  margin:0px;
+  left: 0px;
+  top: 0px;
+}
+
+#mathText{
+  position:absolute;
+  margin:0;
+  font-size:32px;
+  color: white;
+
+  min-width:0.5em;
+  margin:0px;
+  right: 0px;
+  top: 0px;
+}
+
+#readingText{
+  position:absolute;
+  margin:0 auto;
+  font-size:32px;
+  color: white;
+
+  min-width:0.5em;
+  margin:0px;
+  left: 0px;
+  bottom: 0px;
+}
+
+#scienceText{
+  position:absolute;
+  margin:0 auto;
+  font-size:32px;
+  color: white;
+
+  min-width:0.5em;
+  margin:0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.submitable {
+  background: repeating-linear-gradient(-45deg, rgb(126, 198, 4) 15%, white 16%);
+}
+#studentGeneralInfoSection {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+#studentGeneralInfoContainer {
+  background-color: #242947;
+  padding: 10px;
+  width: 70%;
+  height: 70%;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+#studentGeneralInfoContainer .addRemove{
+  font-size: 20px;
+  background-color: #A8A8A8;
+  border-radius: 6px;
+  margin-right: 2px;
+  margin-top: 2px;
+  display: inline-block;
+  text-align: center;
+  width: 24px;
+  height: 24px;
+}
+
+#studentGeneralInfoContainer .addRemove:hover{
+  background-color: #7F807F;
+}
+
+.gridContainer {
+  display: grid;
+  width: 100%;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer {
+  grid-template-columns: minmax(0, auto) auto auto auto auto auto;
+}
+
+#studentGeneralInfoContainer .gridContainer :disabled {
+  color: white;
+  opacity: 1;
+  -webkit-text-fill-color: white !important;
+  -webkit-opacity: 1 !important;
+}
+
+#studentGeneralInfoContainer .gridContainer :nth-child(2) {
+  border-top-left-radius: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer :nth-child(6) {
+  border-top-right-radius: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer :nth-child(7) {
+  border-top-left-radius: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer :nth-last-child(6) {
+  border-bottom-left-radius: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer :nth-last-child(1) {
+  border-bottom-right-radius: 5px;
+}
+
+#studentGeneralInfoContainer .gridContainer .gridCornerItem {
+  background-color: transparent;
+}
+
+#studentGeneralInfoContainer .gridContainer .gridHeaderItem {
+  background-color: #242424;
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid black;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+#studentGeneralInfoContainer .gridContainer .gridItem {
+  background-color: #3F4458;
+  color: white;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid black;
+  margin: 0;
+  font-weight: 400;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+#studentGeneralInfoContainer .gridContainer .highlight {
+  /* border-top: 3px solid #65CC9F;
+  border-bottom: 3px solid #65CC9F; */
+  border-top: 3px solid #80CBC4;
+  border-bottom: 3px solid #80CBC4;
+}
+
+#studentGeneralInfoContainer .gridContainer :focus {
+  background-color: #80CBC4;
+  border-top: 1px solid #80CBC4;
+  border-bottom: 1px solid #80CBC4;
+  color: black;
+}
+
+#studentGeneralInfoContainer .gridContainer .pending {
+  border-color: #2D5BFC;
+}
+
+#studentGeneralInfoContainer .gridContainer .changed {
+  border-color: white;
+}
+
+#studentGeneralInfoContainer .gridContainer .success {
+  border-color: #80CBC4;
+}
+
+#studentGeneralInfoContainer .gridContainer .failed {
+  border-color: #E94045;
+}
+
+#studentProfilePic {
+  height: 100px;
+}
+
+/* flatpickr */
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+#testPopup {
+  position: absolute;
+  background-color: rgb(200, 200, 200);
+  border-radius: 15px;
+  padding: 10px;
+  right: 0px;
+  z-index: 3;
+}
+
+#testPopup > p {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+#testPopup div p {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#testPopup div p:first-child {
+  width: 120px;
+}
+
+.bold {
+  font-weight: bold;
+}
+/* MASTER
 #testReviewIcon {
     position: absolute;
     left: 10px;
@@ -1417,6 +1203,7 @@ p.errorMessage {
     width: 60px;
     height: 30px;
 }
+MASTER */
 /*button {
   margin-bottom: 10px;
   width: 140px;

@@ -1,14 +1,13 @@
-/* Global Variables */
-
 // The actual tests with their answers and scaled scores
-let testData = {};
-//fetch("../Test Data/Tests.json").then(response => response.json()).then(data => testData = JSON.parse(data)).then(() => scaledScoresTestsSetup())// splitTests();} )//.then(() => console.log(testData));
+// https://codepen.io/mayuMPH/pen/ZjxGEY  - range slider
+let test_answers_data = {};
+let test_answers_grading = {};
+let ids = [];
 
 // Student test information
-let oldTestAnswers = {};
-let testAnswers = {};
+let student_tests = {};
 let tempAnswers = {};
-initialSetup();
+let testGoals = [];
 
 // Current tests in use
 const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
@@ -18,652 +17,870 @@ const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
                   '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
                   '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
-// For maintaining a 'memory' with tabs
-let tabEles = document.getElementById('sideNav').querySelectorAll('div');
-let lastTabViews = {};
-for (let i = 0; i < tabEles.length; i++) {
-  setObjectValue([tabEles[i].id], [undefined, undefined, undefined, undefined, undefined], lastTabViews)
-}
-let currentTab = undefined;
-
 // Other needed info
-let coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'forgot' : 'orange', 'assigned' : 'yellow', 'reassigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'did not do' : 'gray', 'white' : 'white', 'guess' : 'pink'};
+const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
+const keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time']
+const date = new Date()
 let test_view_type = undefined;
-let mark_type = 'answer';
-let lastView = 'none';
-let tab = false;
-let lastTab = 'none';
-let newStatus = undefined;
-let keys_to_skip = ['Status', 'TestType', 'ScaledScore', 'Score', 'Date', 'Time', 'GuessEndPoints']
-let date = new Date()
+let new_status = undefined;
 let storage = firebase.storage();
+let tests_to_grade = {};
+let session_message_count = 0;
+let homework_count = 0;
+let numAssignedTests = 0;
+let notAssigningFlag = false;
+let practice_test_element = undefined;
+let start_time = 0;
+let session_timer = undefined;
+let wheel_timer = undefined;
+let timers = {
+  'grading' : 0,
+  'composite' : 0,
+  'english' : 0,
+  'math' : 0,
+  'reading' : 0,
+  'science' : 0
+}
 
-let testsAreSetup = false;
+current_homework_test = undefined;
+current_homework_section = undefined;
+current_homework_passage_number = undefined;
+current_practice_test = undefined;
+current_practice_section = undefined;
+current_practice_passage_number = undefined;
 
-function initialSetup() {
-  // Grab the test data from Fb
-  grabTestData();
+const CURRENT_STUDENT_UID = queryStrings()['student'];
+const CURRENT_STUDENT_TYPE = "act";
 
-  //FIXME: This needs to set to the date of the session according to schedule and not just the time that the page was loaded
-  const studentUID = queryStrings()["student"];
+function getStudentTests(studentUID) {
+  const ref = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', studentUID)
+  return ref.get()
+  .then((querySnapshot) => {
+    let finalObj = {}
+    let assignedTests = []
+    let practiceTests = []
+    let currentDayTests = []
+    querySnapshot.forEach((doc) => {
+      let data = doc.data();
+      let obj = {}
+      obj['date'] = data.date;
+      obj['questions'] = data.questions;
+      obj['score'] = data.score;
+      if (data.type == 'homework') {
+        obj['scaledScore'] = data.scaledScore;
+      }
+      obj['status'] = data.status;
+      obj['type'] = data.type;
+      obj['id'] = doc.id
 
-  if (studentUID) {
-    //get the student's general data
-    // const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-    // studentDocRef.get()
-    // .then((doc) => {
-    //   if (doc.exists) {
-    //     let studentFirstName = doc.get("studentFirstName");
-    //     let studentLastName = doc.get("studentLastName");
+      // Grab the tests that are in an assigned state that were assigned more than 14 hours before the session started
+      if (data.status == 'assigned') {
+        assignedTests.push({ 'test' : data.test,
+                             'section' : data.section,
+                             'id' : doc.id })
+      }
+      else if (data.type == 'practice') {
+        practiceTests.push({ 'test' : data.test,
+                             'section' : data.section,
+                             'passageNumber' : data.passageNumber,
+                             'id' : doc.id})
+      }
+      else if (data.date > convertFromDateInt(date.getTime())['startOfDayInt']) {
+        currentDayTests.push({ 'test' : data.test,
+                             'section' : data.section,
+                             'passageNumber' : data.passageNumber,
+                             'id' : doc.id})
+      }
 
-    //     let studentNameElem = document.getElementById("studentName");
-    //     //studentNameElem.textContent = studentFirstName + " " + studentLastName;
-    //   }
-    // })
-    // .catch((error) => {
-    //   console.log(error);
-    //   console.log(error.code);
-    //   console.log(error.message);
-    //   console.log(error.details);
-    // });
-
-    //get the student's hw scores
-    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-    //need to somehow get this promise to return when complete....
-    return hwDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        oldTestAnswers = doc.data();
-        testAnswers = JSON.parse(JSON.stringify(oldTestAnswers));
-        // console.log(oldTestAnswers);
-        // console.log(testAnswers);
-
-        //updateTestTypes();
+      if (data.type == 'homework') {
+        setObjectValue([data.section, data.test], obj, finalObj)
+      }
+      else if (data.type == 'practice') {
+        setObjectValue([data.section, data.test, data.passageNumber], obj, finalObj)
       }
     })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
+
+    // add the assigned tests
+    setObjectValue(['assignedTests'], assignedTests, finalObj)
+    setObjectValue(['practiceTests'], practiceTests, finalObj)
+    setObjectValue(['currentDayTests'], currentDayTests, finalObj)
+    return finalObj;
+  })
+}
+
+function setGeneralInfo() {
+
+  //set up the grid
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer')
+  let studentProfileDoc;
+
+  getStudentProfileDoc(CURRENT_STUDENT_UID)
+  .then(profileDoc => {
+    studentProfileDoc = profileDoc;
+
+    let englishInitial = profileDoc.data().englishInitial;
+    let mathInitial = profileDoc.data().mathInitial;
+    let readingInitial = profileDoc.data().readingInitial;
+    let scienceInitial = profileDoc.data().scienceInitial;
+    let compositeInitial = roundedAvg([englishInitial, mathInitial, readingInitial, scienceInitial]);
+
+    generalInfoGrid.appendChild(createElement('div', ['gridHeaderItem'], [], [], 'Initial'));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeInitial'], compositeInitial?.toString() ?? ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['englishInitial', englishInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['mathInitial', mathInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['readingInitial', readingInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['scienceInitial', scienceInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+
+    return getLatestTests(CURRENT_STUDENT_UID)
+  })
+  .then(latestTestDocs => {
+    generalInfoGrid.appendChild(createElement('div', ['gridHeaderItem', 'highlight'], [], [], 'Current'));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['compositeCurrent'], ""));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['englishCurrent'], ""));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['mathCurrent'], ""));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['readingCurrent'], ""));
+    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['scienceCurrent'], ""));
+
+    let currentScores = []
+    latestTestDocs.forEach(testDoc => {
+      let scaledScore = testDoc?.data()?.scaledScore ?? 0;
+      let section = testDoc?.data()?.section
+
+      if (section) {
+        document.getElementById(section + 'Current').textContent = scaledScore == 0 ? "" : scaledScore.toString();
+      }
+
+      currentScores.push(scaledScore)
+    })
+    let compositeCurrent = roundedAvg(currentScores);
+    document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent.toString();
+
+    //set up the test date goals
+    testGoals = studentProfileDoc.data().testGoals;
+    if (testGoals) {
+      testGoals.forEach((goal, index) => {
+        let compositeGoal = roundedAvg([goal.englishGoal, goal.mathGoal, goal.readingGoal, goal.scienceGoal]);
+        let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['testDate-' + index.toString()], "")
+
+        flatpickr(goalDateElement, {
+          defaultDate: new Date(goal.testDate),
+          dateFormat: 'M d, Y',
+          onChange: ((selectedDates, dateStr, instance) => {
+            removeAllWorkingClasses(instance.element);
+            instance.element.classList.add('pending');
+            //change the test goals array and update on firebase
+            testGoals[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+              testGoals: testGoals
+            })
+            .then(() => {
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('success');
+            })
+            .catch((error) => {
+              console.log(error)
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('fail');
+            })
+          })
+        })
+
+        generalInfoGrid.appendChild(goalDateElement);
+        generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + index.toString()], compositeGoal?.toString() ?? ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+      })
+    }
+
+    //set up the registration link and disable grid input if not allowed
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+            let queryStr = "?student=" + CURRENT_STUDENT_UID;
+            document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
+          }
+          else {
+            //disable all of the inputs
+            generalInfoGrid.querySelectorAll('*').forEach(child => {
+              child.setAttribute('disabled', 'true');
+            })
+
+            //remove the goal add and subject buttons
+            document.querySelectorAll('#studentGeneralInfoContainer .addRemove').forEach(element => {
+              element.style.display = 'none';
+            })
+          }
+        })
+      }
     });
+
+    //run through all of the grid items and add in the numeric formating
+    document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+      element.addEventListener('keydown',enforceNumericFormat);
+      element.addEventListener('keyup',formatToInt);
+    })
+  })
+}
+
+function addGeneralInfoGoalRow() {
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const numGoals = generalInfoGrid.querySelectorAll('div[id*="Goal"]').length;
+
+  let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['testDate-' + numGoals.toString()], "")
+
+  flatpickr(goalDateElement, {
+    dateFormat: 'M d, Y',
+    onChange: ((selectedDates, dateStr, instance) => {
+      removeAllWorkingClasses(instance.element);
+      instance.element.classList.add('pending');
+      //change the test goals array and update on firebase
+      testGoals[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+        testGoals: testGoals
+      })
+      .then(() => {
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('success');
+      })
+      .catch((error) => {
+        console.log(error)
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('fail');
+      })
+    })
+  })
+
+  generalInfoGrid.appendChild(goalDateElement);
+  generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + numGoals.toString()], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+
+  //run through all of the grid items and add in the numeric formating
+  document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+    element.addEventListener('keydown',enforceNumericFormat);
+    element.addEventListener('keyup',formatToInt);
+  })
+
+  //add new index to testGoals
+  testGoals.push({});
+}
+
+function removeGeneralInfoGoalRow() {
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const numGoals = generalInfoGrid.querySelectorAll('div[id*="Goal"]').length;
+
+  if(numGoals > 0) {
+    for (let i = 0; i < 6; i++) {
+      generalInfoGrid.removeChild(generalInfoGrid.lastChild);
+    }
+
+    //pop the last index from testGoals
+    testGoals.pop()
+
+    //update firebase
+    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      testGoals: testGoals
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   }
 }
 
-/**
- * create html elements and return them in a parent div
- * @param {[String]} elementType tag names for the elements that will be created
- * @param {[[String]]} classes classes for each element
- * @param {[[String]]} attributes attributes for each element
- * @param {[[String]]} values values for each attribute for each element
- * @param {[String]} text innerhtml for each element
- * @param {[String]} divClasses calsses for the parent div for the elements
- * @returns {HTMLElement} html div whose children are the requested elements
- */
-function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
-  // Make sure there is something passed into the function
-  if (elementType.length >= 0) {
-    let elements = createElement("div", divClasses);
+function studentInitialScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  removeAllWorkingClasses(element)
+  //place the input into a pending state
+  element.classList.add('pending');
 
-    // Iterate through each of the elements that need created
-    if (attributes.length == values.length && attributes.length >= 0) {
-      for (let i = 0; i < elementType.length; i++) {
-        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
+  //update the initial score on firebase
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    [element.id]: element.value != "" ? parseInt(element.value) : element.value
+  })
+  .then(() => {
+    //change the input into a successful state
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
+  })
+  .catch((error) => {
+    console.log(errors)
+    //change the input into a failed state
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
+  })
+
+  updateCompositeInitial();
+}
+
+function updateCompositeInitial() {
+  let initials = []
+  document.getElementById('studentGeneralInfoSection').querySelectorAll('input[id$="Initial"]').forEach(sectionInitialElement => {
+    initials.push(parseInt(sectionInitialElement.value));
+  })
+
+  document.getElementById('compositeInitial').textContent = roundedAvg(initials).toString();
+}
+
+function studentGoalScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  console.log('change callback triggered')
+  removeAllWorkingClasses(element)
+  //place the input into a pending state
+  element.classList.add('pending');
+
+  //update the testGoals object
+  testGoals[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
+  //update firebase
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    testGoals: testGoals
+  })
+  .then(() => {
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
+  })
+  .catch((error) => {
+    console.log(error)
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
+  })
+
+  updateCompositeGoal();
+}
+
+function updateCompositeGoal() {
+  document.getElementById('studentGeneralInfoSection').querySelectorAll('div[id^="compositeGoal"]').forEach(compositeGoalElement => {
+    let index = parseInt(compositeGoalElement.id.split('-')[1]);
+    let goals = []
+    document.getElementById('studentGeneralInfoSection').querySelectorAll(`input[id$="Goal-${index}"]`).forEach(sectionGoalElement => {
+      goals.push(parseInt(sectionGoalElement.value));
+    })
+
+    compositeGoalElement.textContent = roundedAvg(goals).toString();
+  })
+}
+
+function generalInfoInputCallback(e) {
+  console.log('input callback triggered')
+  removeAllWorkingClasses(e)
+  e.classList.add('changed')
+}
+
+function removeAllWorkingClasses(e) {
+  e.classList.remove('changed');
+  e.classList.remove('pending');
+  e.classList.remove('success');
+  e.classList.remove('fail');
+}
+
+function getStudentProfileDoc(studentUID) {
+  return firebase.firestore().collection('Students').doc(studentUID).collection('ACT').doc('profile').get()
+}
+
+function getLatestTests(studentUID) {
+  const homeworkSections = ['english', 'math', 'reading', 'science'];
+  let testDocs = []
+
+  homeworkSections.forEach(section => {
+    const sectionQuery = firebase.firestore().collection('ACT-Student-Tests')
+    .where('student', '==', studentUID)
+    .where('type', '==', 'homework')
+    .where('section', '==', section)
+    .where('scaledScore', '!=', -1)
+    .orderBy('scaledScore')
+    .orderBy('date', 'desc')
+    .limit(1)
+
+    testDocs.push(sectionQuery.get()
+    .then((sectionSnapshot) => {
+      if (!sectionSnapshot.empty) {
+        return sectionSnapshot.docs[0];
       }
-    }
-
-    // Return the element
-    return elements;
-
-  }
-}
-
-/**
- * create html element
- * @param {String} elementType tag name for the element that will be created
- * @param {[String]} classes classes for the element
- * @param {[String]} attributes attributes for the element
- * @param {[String]} values values for each attribute for the element
- * @param {String} text innerhtml for the element
- * @returns {HTMLElement} html element of the given tag
- */
-function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
-  // Initialize the element
-  let element = document.createElement(elementType);
-
-  // Set each of the specified attributes for the element
-  if (attributes.length == values.length && attributes.length > 0) {
-    for (let i = 0; i < attributes.length; i++) {
-      element.setAttribute(attributes[i], values[i]);
-    }
-  }
-
-  // Add the classes to the element
-  for (let i = 0; i < classes.length; i++) {
-    element.classList.add(classes[i]);
-  }
-
-  // Set the inner html text
-  if (text != "") {
-    element.innerHTML = text;
-  }
-
-  // Return the element
-  return element;
-}
-
-/**
- * Combine an array of html elements into a div
- * @param {Array} objects array of html elements
- * @param {Array} class class for the parent div
- * @returns {HTMLElement} a single html div containing the array of elements
- */
-function combineElements(objects = [], flexType = [])
-{
-  // Create the parent Div
-  let item = createElement("div", flexType, [], [], "");
-
-  // Append each of the elements to the parent div
-  if (objects.length > 1)
-  {
-    for (let i = 0; i < objects.length; i++)
-    {
-      item.appendChild(objects[i]);
-    }
-  }
-
-  // Return the parent div
-  return item;
-
-}
-
-/**
- * Add a new session to the daily log
- * @param {self} this the element that called this function
- */
-function addSession(self) {
-  // Count how many sessions are currently in the log
-  session_count = document.querySelectorAll("div[id^=\"session\"]").length;
-
-  // If there are fewer than 4 sessions, create a new one
-  if (session_count < 4) {
-    // Clone the first session
-    ele = document.getElementById("session1").cloneNode(true);
-
-    // Reset various values for the new session
-    ele.id = "session" + (session_count + 1).toString();
-    ele.querySelector("label[for=\"time1\"]").htmlFor = "time" + (session_count + 1).toString();
-    ele.querySelector("#time1").id = "time" + (session_count + 1).toString();
-    ele.querySelector("label[for=\"section1\"]").htmlFor = "section" + (session_count + 1).toString();
-    ele.querySelector("#section1").id = "section" + (session_count + 1).toString();
-    ele.querySelector("#sectionNotes1").id = "sectionNotes" + (session_count + 1).toString();
-    ele.querySelector("textarea[id^='sectionNotes']").value = "";
-    ele.querySelector("button[onclick=\"openForm('1')\"]").setAttribute("onclick", "openForm('" + (session_count + 1).toString() + "')");
-
-    // Insert the new session
-    self.parentNode.parentNode.parentNode.insertBefore(ele, self.parentNode.parentNode)
-  }
-  
-}
-
-/**
- * Deletes the last session
- * @param {self} this the element that called this function
- */
-function removeSession(self) {
-  // Grab all of the sessions
-  sessions = document.querySelectorAll("div[id^=\"session\"]");
-
-  // Count the number of sessions
-  session_count = sessions.length;
-
-  // If there is more than 1 session, remove the last one
-  if (session_count > 1) {
-    sessions[session_count - 1].remove();
-  }
-}
-
-/**
- * Hide all forms except for the one passed in
- * @param {String} id the id of the form to display
- * @param {String} test_view_type the type of tests to display, if applicable
- */
-function openForm(id = undefined, view_type = undefined, element = undefined, pNumber = undefined, scaledScoresTest = undefined) {
-
-  // update the last view (remembering)
-  lastTabViews[currentTab] = [id, view_type, element, pNumber, scaledScoresTest]
-
-  // Setup the tests if need be
-  if (testsAreSetup == false && id == 'dailyLog') {
-    testSetup();
-    testsAreSetup = true;
-  }
-
-  // Change the test view type
-  if (view_type != undefined) {
-    test_view_type = view_type;
-  }
-
-  // An array of all the forms that could be displayed
-  let forms = ["inCenterTestsForm", "homeworkTestsForm", "otherTestsForm", "dailyLog", "englishLessonsForm", "mathLessonsForm", "readingLessonsForm", "scienceLessonsForm", "testAnswersPopup", "scaledScoresTests", "scaledScores", "answers"];
-
-  // If selecting a lessons form, adjust the id accordingly
-  if (id == '1' || id == '2' || id == '3' || id == '4') {
-    let section = document.getElementById("section" + id);
-    if (section.value != "") {
-      id = section.value.toLowerCase() + "LessonsForm";
-    }
-    else {
-      lastView = 'none'
-      id = "dailyLog";
-    }
-  }
-
-  // if opening a test form, reset it
-  if (id != undefined && id.includes('Tests')) {
-    // clear the test formatting
-    clearInCenterFormating();
-
-    // Reset the toggle buttons (between answer and guess)
-    toggleButtons('answer');
-
-    // Add final guess point for passages if needed
-    const info = getTestInfo();
-    if (info[2] != undefined) {
-      for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]; i++) {
-        checkPassageGuesses(i + 1);
+      else {
+        return null
       }
-    }
+    }));
+  })
 
-    // update test visuals
-    updateTestGraphics(test_view_type);
+  return Promise.all(testDocs)
+}
 
+
+initialSetup();
+
+function initialSetup() {
+  // Grab the test answers data from Fb
+  grabTestAnswersData()
+  .then(() => {
+    // Grab the student's tests
+    getStudentTests(CURRENT_STUDENT_UID)
+    .then((res) => {
+      // set the working tests object and the old tests object
+      student_tests = res;
+      setTestCarousel();
+      checkForAssignedHomeworks();
+      insertPracticeTests();
+      addCompletedHomeworks();
+      //getElapsedTime();
+      setGeneralInfo();
+    })
+    .catch((error) => console.log(error))
+  })
+  .catch((error) => {
+    console.log(error)
+  })
+
+  // Grab the Chat Messages
+  for (let i = 0; i < sections.length; i++) {
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, sections[i]);
   }
-  else if (id != undefined && id.includes('Popup')) {
-    // clear the popup
-    removeAnswers();
+  getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
 
-    // Get the test, section, and passageNumber
-    let test = undefined;
-    let section = undefined;
-    let passageNumber = undefined;
-    if (element != undefined) {
-      try {
-        test = element.getAttribute("data-test") ?? element.parentNode.getAttribute("data-test");
-        section = element.getAttribute("data-section") ?? element.parentNode.getAttribute("data-section");
-        passageNumber = element.getAttribute("data-passageNumber");
-      }
-      catch {
-        let headerText = document.getElementById("answersPopupHeader").innerHTML;
-        test = headerText.split(" - ")[0];
-        section = headerText.split(" - ")[1];
-        passageNumber = headerText.split(" - ")[2];
-      }
-    }
-    else {
-      let headerText = document.getElementById("answersPopupHeader").innerHTML;
-      test = headerText.split(" - ")[0];
-      section = headerText.split(" - ")[1];
-      passageNumber = headerText.split(" - ")[2];
-    }
+}
 
-    if (pNumber != undefined) {
-      passageNumber = pNumber;
-    }
+function grabTestAnswersData() {
+  // Fb reference
+  let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
 
-    // update popup visuals
-    updatePopupGraphics(id, test, section, (passageNumber ?? 1));
+  // Grab all tests from the Dynamic-Content collection and piece them together
+  return ref.get()
+  .then((snapshot) => {
+    snapshot.forEach((doc) => {
+      test_answers_data[doc.id] = doc.data()
+    })
+  })
+}
+
+function changeSection(section) {
+
+  // Hide the popups
+  hidePopups();
+
+  // Set the test_view_type
+  if (section == 'composite') {
+    test_view_type == 'homework'
   }
-  else if (id == 'scaledScores') {
-    openScores(scaledScoresTest);
-  }
-  else if (id == 'answers') {
-    openAnswers(scaledScoresTest);
+  else {
+    test_view_type == 'practice'
   }
 
-  // Hide all forms except for the one selected
+  // Setup the forms
+  let goodForms = [section + 'Section']
+  const allForms = ["compositeSection", "englishSection", "mathSection", "readingSection", "scienceSection"];
+
+  // Update the section Title
+  document.getElementById('sectionTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+
+  // Hide all forms except for the desired form(s)
   let form = undefined;
-  for (let i = 0; i < forms.length; i++) {
-  form = document.getElementById(forms[i]);
-    if (forms[i] != id) {
+  for (let i = 0; i < allForms.length; i++) {
+    form = document.getElementById(allForms[i]);
+    if (goodForms.includes(allForms[i])) {
+      form.style.display = "flex";
+    }
+    else {
       form.style.display = "none";
     }
-    else {
-      if (id == "dailyLog") {
-        lastView = id;
-        form.style.display = "block"
-      }
-      else {
-        if (!id.includes('Popup') && !id.includes('answers') && !id.includes('scaledScores')) {
-          lastView = id;
-        }
-        form.style.display = "flex";
-      }
-    }
   }
 
-  // Close the print popup if it is open
-  togglePrintPopup();
+  getElapsedTime();
+}
 
-  //console.log("temp", tempAnswers);
-  //console.log("test", testAnswers);
+/*
+Swap between the lessons and chat
+*/
+function swap(section, swapTo) {
+  let chat = document.getElementById(section + 'Chat')
+  let lessons = document.getElementById(section + 'LessonsForm')
+  let practice = document.getElementById(section + 'Practice')
 
-  // Open the last form / popup
-  if (id == undefined) {
-    openForm(lastView);
+  // Re-enable the back swipe to go back a page
+  document.querySelector('body').style.overscrollBehaviorX = null;
+
+
+  if (swapTo == 'chat') {
+    chat.classList.remove('hidden')
+    lessons.classList.add('hidden')
+    practice.classList.add('hidden')
+  }
+  else if (swapTo == 'lessons') {
+    chat.classList.add('hidden')
+    lessons.classList.remove('hidden')
+    practice.classList.add('hidden')
+  }
+  else if (swapTo == 'practice') {
+  // Disable the back swipe to go back a page
+    document.querySelector('body').style.overscrollBehaviorX = 'contain';
+
+    chat.classList.add('hidden')
+    lessons.classList.add('hidden')
+    practice.classList.remove('hidden')
   }
 }
 
-function openTab(toTab, ele) {
+function nextPassage() {
+  current_homework_passage_number += 1;
+  swapTestForm(current_homework_test, current_homework_section, current_homework_passage_number)
+}
 
-  // Toggle whether a form is open or not
-  if (tab == true && toTab == lastTab) {
-    tab = false;
-    swap();
+function previousPassage() {
+  current_homework_passage_number -= 1;
+  swapTestForm(current_homework_test, current_homework_section, current_homework_passage_number)
+}
+
+function swapTestForm(test, section = undefined, passageNumber = undefined) {
+  let testForm = document.getElementById('testAnswersPopup')
+  let chatForm = document.getElementById('generalChat')
+
+  // Change which tab is active
+  changeHeaders(test, section)
+
+  // Reset the HTML answers
+  removeAnswersFromHTMLForm()
+
+  // Hide the popups
+  hidePopups();
+
+  // Swap which popup is being displayed+
+  if (test == 'Chat') {
+    // swap which popup is being viewed
+    chatForm.style.display = 'flex'
+    testForm.style.display = 'none'
   }
   else {
-    if (tab == false) {
-      swap();
-    }
-    tab = true;
-    lastTab = toTab;
-  }
 
-  // Change the position of the tabs
-  //if (toTab != lastTab) {
-  //}
+    // Change the current test, section, and passage number variables
+    current_homework_test = test;
+    current_homework_section = section;
+    current_homework_passage_number = passageNumber ?? 1;
 
-  // Open the form
-  if (tab == true) {
-    currentTab = ele.id;
-    if (lastTabViews[ele.id][0] != undefined) {
-      openForm(lastTabViews[ele.id][0], lastTabViews[ele.id][1], lastTabViews[ele.id][2], lastTabViews[ele.id][3], lastTabViews[ele.id][4])
-    }
-    else {
-      openForm(toTab);
-    }
-  }
-  else {
-    currentTab = undefined;
-    openForm('none');
-  }
-}
+    // swap which popup is being viewed
+    chatForm.style.display = 'none'
+    testForm.style.display = 'flex'
 
-/**
- * Delete the children of every test box
- */
-function clearInCenterFormating() {
-  // Get a list of all test boxes
-  let test_boxes = document.querySelectorAll("div[data-section]")
-
-  // Iterate through each test and delete their children
-  for (let box = 0; box < test_boxes.length; box++) {
-    if (test_boxes[box].childElementCount > 1) {
-      let children = test_boxes[box].querySelectorAll("div");
-      for (let child = 0; child < children.length; child++) {
-        children[child].remove();
-      }
-    }
-
-    // Remove the class 'grid*' from the test box
-    let classes = ['grid1', 'grid2', 'grid3', 'grid4', 'grid5', 'grid6', 'grid7', 'grid8', 'grid9', 'grid10']
-    for (let c = 0; c < classes.length; c++) {
-      test_boxes[box].classList.remove(classes[c]);
-    }
-
-    // Remove the color classes
-    let colors = Object.values(coloring);
-    for (let c = 0; c < colors.length; c++) {
-      test_boxes[box].classList.remove(colors[c]);
-    }
-
-    // Remove the 'homeworkBox' class
-    test_boxes[box].classList.remove('homeworkBox');
-
-    // Remove the 'highlight' class
-    test_boxes[box].classList.remove('highlight');
-
-    // Clear the popup
-    let popup = document.getElementById("perfectScorePopup")
-    popup.classList.remove("show")
-
-    // Reset the innerHTML text
-    test_boxes[box].innerHTML = "";
-  }
-}
-
-function updateTestGraphics(test_view_type) {
-  // Get a list of all test boxes
-  let test_boxes = document.querySelectorAll("div[data-section]")
-
-  // For each box, if it is needed:
-  //   1) Add children
-  //   2) set the background color
-  //   3) Set the score, and text color
-  for (let box = 0; box < test_boxes.length; box++) {
-    let test = test_boxes[box].getAttribute("data-test")
-    let section = test_boxes[box].getAttribute("data-section")
-    let test_type = testAnswers[test]?.[section]?.["TestType"]
-    if ((test_type ?? test_view_type) == 'inCenter') {
-      updateInCenterTest(test_boxes[box], test, section)
-    }
-    //else if ((test_type ?? test_view_type) == 'homework') {
-    else {
-      updateHomeworkTest(test_boxes[box], test, section)
-    }
-  }
-}
-
-function updateInCenterTest(testBox, test, section) {
-  // Get the number of passages for the given test
-  const numAnswers = testData[test][section.toLowerCase() + "Answers"].length
-  const numberOfPassages = testData[test][section.toLowerCase() + "Answers"][numAnswers - 1]["passageNumber"]
-
-  // Create the passages within the test
-  for (let child = 0; child < numberOfPassages; child++) {
-    // Initial passage element
-    let ele = createElement("div", ["border"], ["data-passageNumber"], [(child + 1).toString()], (child + 1).toString(), "border");
-    
-    // if the passage exists within the testAnswers, color it and set its score
-    if (testAnswers[test]?.[section]?.[child + 1] != undefined && testAnswers[test]?.[section]?.[child + 1]?.['Status'] == 'Completed') {
-      ele.classList.add(coloring['in-time']) // color it green
-
-      // Get the total number of questions in the passage
-      let numberOfQuestions = 0;
-      for (let i = 0; i < testData[test][section.toLowerCase() + "Answers"].length; i++) {
-        if (testData[test][section.toLowerCase() + "Answers"][i]["passageNumber"] == (child + 1)) {
-          numberOfQuestions += 1;
-        }
-      }
-
-      // Set the score
-      ele.innerHTML = (numberOfQuestions - Object.keys(testAnswers[test][section][child + 1]["Answers"]).length).toString() + " / " + numberOfQuestions.toString()
-    }
-    else if (testAnswers[test]?.[section]?.[child + 1]?.['Status'] != undefined) {
-      ele.innerHTML = 'Completed';
-      ele.classList.add(coloring['previously completed']) // color it light green
-    }
-
-
-    // Add the child to the test
-    testBox.appendChild(ele)
-  }
-
-  // Set the correct grid number (determined by the number of passages)
-  testBox.className = testBox.className + " grid" + numberOfPassages.toString()
-}
-
-function updateHomeworkTest(testBox, test, section) {
-  // Get the status from the testAnswers, if it exists
-  let status = testAnswers[test]?.[section]?.["Status"];
-
-  // Get the total number of questions in the passage
-  let numberOfQuestions = testData[test][section.toLowerCase() + 'Answers'].length;
-
-  // If it does exist, change the background color and inner html
-  if (status != undefined) {
-    testBox.classList.add(coloring[testAnswers[test][section]["Status"]]);
-    //testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
-    testBox.innerHTML = testAnswers[test]?.[section]?.["ScaledScore"] ?? "";
-    if (testBox.innerHTML != "") {
-      testBox.classList.add("homeworkBox");
-    }
-    else {
-      if (testAnswers[test]?.[section]?.['Score'] != undefined) {
-        testBox.innerHTML = testAnswers[test]?.[section]?.['Score'].toString() + ' / ' + numberOfQuestions.toString()
-        testBox.classList.add("white");
-        testBox.style.fontSize = '1.5em';
-      }
-      // Adding 8 hours to show the number of days since it was assigned / not finished
-      else if (testAnswers[test]?.[section]?.['Status'] != 'previously completed') {
-        testBox.innerHTML = Math.floor((date.getTime() + 28800000 - testAnswers[test]?.[section]?.['Date']) / 86400000).toString() + " days ago" ?? "";
-      }
-      else {
-        testBox.innerHTML = "Previously Completed"
-        testBox.classList.add("white");
-      }
-    }
-  }
-}
-
-function setHomeworkStatus(status, gradeHomework = "False", element = undefined) {
-  // Get the test and section from the header
-  let headerText = document.getElementById("answersPopupHeader").innerHTML;
-  let test = headerText.split(" - ")[0];
-  let section = headerText.split(" - ")[1];
-
-  // Reset the test and section if working with an assigned test
-  if (element != undefined) {
-    test = element.getAttribute("data-test")
-    section = element.getAttribute("data-section")
-  }
-  const oldStatus = oldTestAnswers[test]?.[section]?.['Status']
-
-  // Set the status and testType in the testAnswers
-  let current_status = testAnswers[test]?.[section]?.['Status']
-
-  if ((current_status == undefined || current_status == 'forgot' || current_status == 'assigned' || current_status == 'did not do') &&
-      (status == 'forgot' || status == 'assigned' || status == 'did not do')) {
-    // Didn't mean to assign the homework, undo it
-    if (current_status == 'assigned' && status == 'assigned') {
-      delete testAnswers[test][section];
-      if (Object.keys(testAnswers[test]).length == 0) {
-        delete testAnswers[test]
-      }
-    }
-    // Set the homework to 'assigned'
-    else if (status == 'assigned' && current_status == undefined) {
-      if (oldStatus == 'assigned') {
-        setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
-      }
-      else {
-        setObjectValue([test, section, "Status"], status, testAnswers)
-        setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-        setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-      }
-    }
-    // homework is being reassigned
-    else if (status == 'assigned' && current_status == 'did not do') {
-      setObjectValue([test, section, "Status"], 'reassigned', testAnswers)
-      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-      setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-    }
-    // homework was either left at home ('forgot') or they didn't do it
-    else if (current_status != undefined && status != 'assigned') {
-      setObjectValue([test, section, "Status"], status, testAnswers)
-      setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-    }
-  }
-  // Previously completed
-  else if ((current_status == undefined || current_status == 'assigned' || current_status == 'reassigned') && status == 'previously completed') {
-    setObjectValue([test, section, "Status"], status, testAnswers)
-    setObjectValue([test, section, "TestType"], 'homework', testAnswers)
-    setObjectValue([test, section, 'Date'], date.getTime(), testAnswers);
-  }
-  // Partially completed
-  else if (current_status == 'assigned' || current_status == 'reassigned' || status == 'partial') {
-    newStatus = status;
-  }
-
-  // Open Test to print (if needed)
-  if (current_status == undefined && (status == 'assigned' || status == 'reassigned')) {
-    openTest(test, section);
-  }
-
-  // Exit the popup
-  let popup = document.getElementById("submitHomeworkPopup")
-  if (gradeHomework == 'True' && (   (current_status == 'assigned' || current_status == 'reassigned' || current_status == 'forgot')
-                                  || (oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot'))) {
-    newStatus = status;
-    submitAnswersPopup();
-  }
-  else if (status == 'previously completed' || status == 'assigned' || status == 'reassigned' || ((status == 'forgot' || status == 'did not do') && (current_status == 'assigned' || current_status == 'reassigned') ) ) {
-    popup.classList.remove("show");
-    openForm(lastView);
-  }
-  else if (gradeHomework == 'True' && (current_status != 'assigned' && current_status != 'reassigned' && current_status != 'forgot')) {
-    if ((oldStatus == 'assigned' || oldStatus == 'reassigned' || oldStatus == 'forgot' || oldStatus == undefined)) {
-      resetMessages();
-      let assignMessage = document.getElementById("assignFirst")
-      assignMessage.style.display = "inline";
-    }
-    else {
-      resetMessages();
-      let alreadyGradedTest = document.getElementById("alreadyGradedTest")
-      alreadyGradedTest.style.display = "inline";
-    }
+    // Display the test form
+    updateHomeworkGraphics(test, section, (passageNumber ?? 1));
   }
 
 }
 
-function updatePopupGraphics(id, test, section, passageNumber) {
-
-  // Change the header for both popups with the test, section, and passageNumber (if applicable)
-  let popups = document.querySelectorAll("div[id$=\"PopupHeader\"]");
+function hidePopups() {
+  let popups = document.getElementsByClassName('popup')
   for (let i = 0; i < popups.length; i++) {
-    if (passageNumber != undefined) {
-      popups[i].innerHTML = test + " - " + section + " - " + passageNumber
+    popups[i].classList.remove("show");
+  }
+}
+
+function changeHeaders(test, section = undefined) {
+  let chatHeaders = document.getElementById('generalHeader').querySelectorAll('h2')
+  let testHeaders = document.getElementById('answersPopupHeader').querySelectorAll('h2')
+  let text = 'Chat'
+
+  // Set the Search Text
+  if (test != 'Chat') {
+    text = test + " - " + section[0].toUpperCase()
+  }
+
+  // Change both the chat and test headers
+  for (let i = 0; i < chatHeaders.length; i++) {
+    if (chatHeaders[i].innerHTML != text) {
+      chatHeaders[i].parentNode.classList.remove('activeTab')
     }
     else {
-      if (popups[i].id.includes('answers')) {
-        popups[i].innerHTML = test + " - " + section + " - 1"
-      }
-      else {
-        popups[i].innerHTML = test + " - " + section
+      chatHeaders[i].parentNode.classList.add('activeTab')
+    }
+  }
+
+  for (let i = 0; i < testHeaders.length; i++) {
+    if (testHeaders[i].innerHTML != text) {
+      testHeaders[i].parentNode.classList.remove('activeTab')
+    }
+    else {
+      testHeaders[i].parentNode.classList.add('activeTab')
+    }
+  }
+
+}
+
+function insertPracticeTests() {
+  const testList = student_tests['practiceTests'];
+
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+    const passageNumber = testList[i]['passageNumber']
+    setObjectValue([test, section, passageNumber, 'questions'], student_tests[section][test][passageNumber]['questions'], test_answers_grading)
+  }
+}
+
+function addCompletedHomeworks() {
+  const testList = student_tests['currentDayTests'];
+
+  // For each test that needs to be graded
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+    const id = testList[i]['id']
+
+    setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
+
+    // Create the array for the test that needs graded this session
+    addAssignedTest(test, section, 'green');
+
+    // Store the id
+    /*ids.push({
+      'type' : 'homework',
+      'section' : section,
+      'test' : test,
+      'action' : 'assign',
+      'id' : id
+    })*/
+  }
+}
+
+function checkForAssignedHomeworks() {
+  const testList = student_tests['assignedTests'];
+
+  // For each test that needs to be graded
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+    const id = testList[i]['id']
+
+    // Create the array for the test that needs graded this session
+    addAssignedTest(test, section);
+
+    // Make sure that the test was assigned before the current day
+    if (student_tests[section][test]['date'] < convertFromDateInt(date.getTime())['startOfDayInt']) {
+      // Lower the homework count for each test that needs graded
+      homework_count -= 1;
+    }
+    else {
+
+      ids.push({
+        'type' : 'homework',
+        'section' : section,
+        'test' : test,
+        'action' : 'assign',
+        'id' : id
+      })
+
+      document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1)).classList.add('hidden')
+      document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('hidden')
+    }
+  }
+
+}
+
+function removeAssignedTest(test, section) {
+  let locations = document.getElementById('generalHeader').querySelectorAll('div')
+  let locations2 = document.getElementById('answersPopupHeader').querySelectorAll('div')
+  let statusBars = document.getElementsByClassName('meter')
+
+  for (let i = 0; i < locations.length; i++) {
+    t = locations[i].querySelector('h2').innerHTML.split(' - ')[0]
+    s = locations[i].querySelector('h2').innerHTML.split(' - ')[1]
+    if (t == test && s == section.charAt(0).toUpperCase()) {
+      locations[i].remove()
+      locations2[i].remove()
+      for (let j = 0; j < statusBars.length; j++) {
+        statusBars[j].querySelectorAll('div')[i].remove()
       }
     }
   }
+}
+
+function showTestPopup(test = undefined, section = undefined) {
+  clearTimeout(timeout)
+
+  let div = document.getElementById('testPopup')
+  div.style.display = 'block'
+
+  if (test != undefined) {
+    let children = div.querySelectorAll('div')
+    document.getElementById('testName').innerHTML = test + ' - ' + section.charAt(0).toUpperCase() + section.slice(1)
+    for (let i = 0; i < children.length; i++) {
+      let subChildren = children[i].querySelectorAll('p')
+      if (i == 0) {
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['scaledScore'] ?? (-1).toString())
+      }
+      else if (i == 1) {
+        const numQuestions = test_answers_data[test][section + 'Answers'].length
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['score'] ?? (-1).toString()) + ' / ' + numQuestions.toString()
+      }
+      else if (i == 2) {
+        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['status'] ?? 'assigned')
+      }
+    }
+  }
+}
+
+function hideTestPopup() {
+  timeout = setTimeout(function(){
+    let div = document.getElementById('testPopup')
+    div.style.display = 'none'
+  }, 50)
+}
+
+function addAssignedTest(test, section, colorClass = 'yellow') {
+  let location = document.getElementById('generalHeader')
+  let location2 = document.getElementById('answersPopupHeader')
+  let statusBars = document.getElementsByClassName('meter')
+
+  const questions = student_tests[section]?.[test]?.['questions'] ?? initializeEmptyAnswers(test, section)
+
+  setObjectValue([test, section, 'questions'], questions, test_answers_grading)
+
+  // Create the tab for grading
+  let tab = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+  let tab2 = createElements(['h2'], [[]], [[]], [[]], [test + ' - ' + section[0].toUpperCase()], ['headingBlock', 'noselect', 'cursor', section + 'Color'])
+  tab.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+  tab2.setAttribute('onclick', "swapTestForm('" + test + "', '" + section + "')")
+  tab.setAttribute('onmouseover', "showTestPopup('" + test + "', '" + section + "')")
+  tab2.setAttribute('onmouseover', "showTestPopup('" + test + "', '" + section + "')")
+  tab.setAttribute('onmouseout', "hideTestPopup()")
+  tab2.setAttribute('onmouseout', "hideTestPopup()")
+  location.append(tab)
+  location2.append(tab2)
+
+  // Add blank status bars below each test
+  for (let i = 0; i < statusBars.length; i++) {
+    let ele = createElement('div', ['statusBar'], [], [], '')
+
+    // Mark it the status yellow if assigned today
+    const time = student_tests[section]?.[test]?.['date'] ?? date.getTime()
+
+    if (time >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+      ele.classList.add(colorClass)
+    }
+
+    statusBars[i].append(ele);
+  }
+}
+
+function removeAnswersFromHTMLForm(type = 'homework', section = undefined) {
+  // Remove the answers (if they are there)
+  let answerArea = document.getElementById("passage")
+  if (type == 'practice') {
+    answerArea = document.getElementById(section + "Passage")
+  }
+
+  // Remove the answers
+  if (answerArea.childElementCount > 0) {
+    answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
+    num_children = answerAreaChildren.length;
+    for (let i = 0; i < num_children; i++) {
+      answerAreaChildren[num_children - i - 1].remove();
+    }
+  }
+
+  // Hide the arrows
+  if (type == 'homework') {
+    let leftArrow = document.getElementById("leftArrow")
+    let rightArrow = document.getElementById("rightArrow")
+    leftArrow.parentNode.style.visibility = "hidden"
+    rightArrow.parentNode.style.visibility = "hidden"
+  }
+}
+
+function openPracticeTest(test, section, passageNumber, element = undefined) {
+  // Remove the highlighting from the previous element
+  if (element != undefined) {
+    if (practice_test_element != undefined) {
+      practice_test_element.classList.remove('selectedElement')
+    }
+
+    // update the selected element
+    practice_test_element = element;
+
+    // Add the highlighting
+    element.classList.add('selectedElement')
+  }
+
+
+  // Update the current test / section / passage number
+  current_practice_test = test;
+  current_practice_section = section;
+  current_practice_passage_number = passageNumber;
+
+  // Add the test / section / passage if not already there
+  if (test in test_answers_grading) {
+    if (section in test_answers_grading[test]) {
+      if (!(passageNumber in test_answers_grading[test][section])) {
+        setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+      }
+    }
+    else {
+      setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+    }
+  }
+  else {
+    setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+  }
+
+  // Update the answers
+  removeAnswersFromHTMLForm('practice', section)
+  updatePracticeGraphics(test, section, passageNumber)
+}
+
+function updatePracticeGraphics(test, section, passageNumber) {
+
+  // Get a list of all the answers for the given section
+  let allAnswers = test_answers_data[test][section + "Answers"];
+  let passageAnswers = []
+  let passageNumbers = []
+
+  // Get the answers for the passage passed in
+  for (let answer = 0; answer < allAnswers.length; answer++) {
+    if (allAnswers[answer]["passageNumber"] == (passageNumber ?? '1')) {
+      passageAnswers.push(allAnswers[answer][answer + 1])
+      passageNumbers.push(answer + 1)
+    }
+  }
+
+  // Graph the DOM element
+  let passage = document.getElementById(section + "Passage")
+
+  // Display the answers, (color them too if needed)
+  for (let answer = 0; answer < passageAnswers.length; answer++) {
+    ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
+    passage.appendChild(ele);
+    ele.setAttribute("data-question", passageNumbers[answer]);
+    ele.setAttribute("data-answer", passageAnswers[answer]);
+    ele.classList.add('redOnHover')
+    if (test_answers_grading[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isWrong'] == true) {
+      ele.querySelectorAll('div')[0].classList.add('Qred')
+    }
+  }
+}
+
+function updateHomeworkGraphics(test, section, passageNumber = 1) {
 
   // Check to see if either left arrow or right arrows need to be hidden
-  let last_passage_number = testData[test][section.toLowerCase() + "Answers"][testData[test][section.toLowerCase() + "Answers"].length - 1]["passageNumber"]
+  let lastPassageNumber = test_answers_data[test][section + "Answers"][test_answers_data[test][section + "Answers"].length - 1]["passageNumber"]
   let leftArrow = document.getElementById("leftArrow")
   let rightArrow = document.getElementById("rightArrow")
 
-  if (passageNumber != 1 && passageNumber != undefined && test_view_type == 'homework') {
+  if (passageNumber != 1 && passageNumber != undefined) {
     leftArrow.parentNode.style.visibility = "visible"
   }
 
-  if (passageNumber != last_passage_number && test_view_type == 'homework') {
+  if (passageNumber != lastPassageNumber) {
     rightArrow.parentNode.style.visibility = "visible"
   }
 
   // Get a list of all the answers for the given section
-  let allAnswers = testData[test][section.toLowerCase() + "Answers"];
+  let allAnswers = test_answers_data[test][section + "Answers"];
   let passageAnswers = []
   let passageNumbers = []
-
-  // Set the temp Answers, if needed
-  if (!(test in tempAnswers) || !(section in tempAnswers[test])) {
-    tempAnswers = {}
-    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
-    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
-    if (testAnswers[test]?.[section] != undefined) {
-      tempAnswers[test][section] = JSON.parse(JSON.stringify(testAnswers[test][section]))
-    }
-  }
-
-  // Add the passageNumber if needed
-  if (!(passageNumber in tempAnswers[test][section])) {
-    setObjectValue([test, section, passageNumber, "Answers"], [], tempAnswers);
-    setObjectValue([test, section, passageNumber, "Time"], 0, tempAnswers);
-  }
 
   // Get the answers for the passage passed in
   for (let answer = 0; answer < allAnswers.length; answer++) {
@@ -676,741 +893,675 @@ function updatePopupGraphics(id, test, section, passageNumber) {
   // Display the answers, (color them too if needed)
   let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
-    if (answer == 0) {
-      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
-        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
-      } 
-      else {
-        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "firstAnswer", "button2"]);
-      }
-      passage.appendChild(ele);
-      ele.setAttribute("data-question", passageNumbers[answer])
-      ele.setAttribute("data-answer", passageAnswers[answer])
-      ele.classList.add('redOnHover')
-      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('Qred')
-      }
+    ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
+    passage.appendChild(ele);
+    ele.setAttribute("data-question", passageNumbers[answer]);
+    ele.setAttribute("data-answer", passageAnswers[answer]);
+    ele.classList.add('redOnHover')
+    if (test_answers_grading[test][section]['questions'][passageNumbers[answer] - 1]['isWrong'] == true) {
+      ele.querySelectorAll('div')[0].classList.add('Qred')
     }
-    else {
-      if (shouldMarkAsGuessed(test, section, passageNumbers[answer]) == false) {
-        ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
-      }
-      else {
-        ele = createElements(["div", "div", "div"], [["popupValue", coloring['guess']], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "button2"]);
-      }
-      passage.appendChild(ele);
-      ele.setAttribute("data-question", passageNumbers[answer]);
-      ele.setAttribute("data-answer", passageAnswers[answer]);
-      ele.classList.add('redOnHover')
-      if (tempAnswers[test][section][passageNumber]["Answers"].includes((passageNumbers[answer]).toString())) {
-        ele.classList.add('Qred')
-      }
-    }
-  }
-
-  // Set the time
-  if (test_view_type == 'inCenter') {
-    let timeMinutes = document.getElementById("time-minutes")
-    let timeSeconds = document.getElementById("time-seconds")
-    timeMinutes.value = Math.floor(tempAnswers[test][section][passageNumber]["Time"] / 60)
-    timeSeconds.value = tempAnswers[test][section][passageNumber]["Time"] % 60 
-    timeMinutes.parentNode.style.visibility = "visible";
-  }
-
-  // Reset the toggles back to marking answers
-  //toggleButtons('answer');
-
-}
-
-function shouldMarkAsGuessed(test, section, question) {
-  const guessEndPoints = tempAnswers[test]?.[section]?.['GuessEndPoints']
-  if (guessEndPoints == undefined) {
-    return false
-  }
-  else {
-    let pointIndex = 0;
-    for (let point = 0; point < guessEndPoints.length; point++) {
-      if (parseInt(guessEndPoints[point]) >= parseInt(question)) {
-        pointIndex = point;
-        break;
-      }
-    }
-    if (question == guessEndPoints[pointIndex]){
-      return true;
-    }
-    else if (guessEndPoints.length % 2 == 0) {
-      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
-        if (pointIndex % 2 == 1) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      }
-      else {
-        return false;
-      }
-    }
-    else {
-      if (parseInt(question) < parseInt(guessEndPoints[pointIndex])) {
-        if (pointIndex % 2 == 1) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      }
-      else {
-        return true;
-      }
-    }
-  }
-}
-
-function resetMessages() {
-  // Reset the messages
-  let guessMessage = document.getElementById("guessFirst");
-  let gradeMessage = document.getElementById("gradeFirst");
-  let assignMessage = document.getElementById("assignFirst")
-  let alreadyGradedTest = document.getElementById("alreadyGradedTest")
-  guessMessage.style.display = "none";
-  gradeMessage.style.display = "none";
-  assignMessage.style.display = "none";
-  alreadyGradedTest.style.display = "none";
-}
-
-function getPassageFirstQuestion(passageNumber) {
-  const info = getTestInfo();
-
-  for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"].length; i++) {
-    if (parseInt(testData[info[0]][info[1].toLowerCase() + "Answers"][i]['passageNumber']) == parseInt(passageNumber)) {
-      return i + 1;
-    }
-  }
-}
-
-function getPassageLastQuestion(passageNumber) {
-  const info = getTestInfo();
-
-  for (let i = 0; i < testData[info[0]][info[1].toLowerCase() + "Answers"].length; i++) {
-    if (parseInt(testData[info[0]][info[1].toLowerCase() + "Answers"][i]['passageNumber']) == (parseInt(passageNumber) + 1)) {
-      return i;
-    }
-  }
-
-  return testData[info[0]][info[1].toLowerCase() + "Answers"].length;
-}
-
-function checkPassageGuesses(passageNumber, submitting = 'False') {
-  const info = getTestInfo();
-
-  const start = getPassageFirstQuestion(passageNumber);
-  const end = getPassageLastQuestion(passageNumber);
-
-  let count = 0;
-  const guessEndPoints = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints'] ?? [];
-  for (let i = 0; i < guessEndPoints.length; i++) {
-    if (parseInt(guessEndPoints[i]) >= start && parseInt(guessEndPoints[i]) <= end) {
-      // Add the endpoint to the testAnswers if it's not there
-      if (submitting == 'True') {
-        if (testAnswers[info[0]]?.[info[1]]?.['GuessEndPoints'] == undefined) {
-          setObjectValue([info[0], info[1], 'GuessEndPoints'], [], testAnswers);
-        }
-        if (!testAnswers[info[0]][info[1]]['GuessEndPoints'].includes(guessEndPoints[i]) || (i > 0 && guessEndPoints[i] == guessEndPoints[i - 1])) {
-          testAnswers[info[0]][info[1]]['GuessEndPoints'].push(guessEndPoints[i])
-        }
-      }
-      count++;
-    }
-  }
-
-  // Add an end point if needed
-  if (count % 2 == 1) {
-    tempAnswers[info[0]][info[1]]['GuessEndPoints'].push(end.toString());
-    
-    // Add it to the testAnswers
-    if (submitting == 'True' && !testAnswers[info[0]][info[1]]['GuessEndPoints'].includes(end.toString())) {
-      testAnswers[info[0]][info[1]]['GuessEndPoints'].push(end.toString())
-    }
-    guess_start = 0;
-    guess_end = end.toString()
-  }
-}
-
-function submitAnswersPopup(passageGradeType = 'False', swap = 'False') {
-  // Grab the test info
-  let info = getTestInfo();
-  const status = testAnswers[info[0]]?.[info[1]]?.['Status']
-  const guesses = tempAnswers[info[0]]?.[info[1]]?.['GuessEndPoints']
-  let oldStatus = oldTestAnswers[info[0]]?.[info[1]]?.['Status']
-  let last_passage_number = testData[info[0]][info[1].toLowerCase() + "Answers"][testData[info[0]][info[1].toLowerCase() + "Answers"].length - 1]["passageNumber"]
-
-  // Check to see if the test can be submitted (all passages have been looked at)
-  let canSubmitTest = false;
-  if (test_view_type == 'homework') {
-    let pCount = 0;
-    for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
-      if (!keys_to_skip.includes(key)) {
-        pCount++;
-      }
-    }
-    if (pCount == last_passage_number) {
-      canSubmitTest = true;
-    }
-  }
-
-  // Toggle the submit button popups
-  let popup = document.getElementById("submitHomeworkPopup")
-  let popup2 = document.getElementById("perfectScorePopup")
-  if (swap == 'True') {
-    resetMessages();
-    if (test_view_type == 'homework') {
-      popup.classList.toggle("show");
-    }
-    else if (test_view_type == 'inCenter') {
-      popup2.classList.toggle("show")
-    }
-    return;
-  }
-
-  // Find and define the message elements
-  let guessMessage = document.getElementById("guessFirst");
-  let gradeMessage = document.getElementById("gradeFirst");
-
-  // Check to see if the test / passage can be graded
-  if (test_view_type == 'inCenter' && swap == 'False') {
-    if (oldTestAnswers[info[0]]?.[info[1]]?.[info[2]] == undefined) {
-      if (passageGradeType != 'grade') {
-        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-        setObjectValue([info[0], info[1], info[2], 'Status'], passageGradeType, testAnswers);
-        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
-      }
-      else {
-        setObjectValue([info[0], info[1], info[2]], tempAnswers[info[0]][info[1]][info[2]], testAnswers);
-        setObjectValue([info[0], info[1], info[2], 'Status'], 'Completed', testAnswers);
-        setObjectValue([info[0], info[1], 'TestType'], 'inCenter', testAnswers);
-      }
-      checkPassageGuesses(info[2], 'True');
-    }
-    else {
-      // reset the temp answers
-      setObjectValue([info[0], info[1], info[2]], testAnswers[info[0]][info[1]][info[2]], tempAnswers);
-    }
-  }
-  //else if (test_view_type == 'homework' && info[2] == last_passage_number && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
-  else if (test_view_type == 'homework' && canSubmitTest == true && (oldStatus != 'in-time' && oldStatus != 'in-center' && oldStatus != 'over-time' && oldStatus != 'not-timed' && oldStatus != 'partial')) {
-
-    if (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) {
-      // Calculate how many questions they got correct
-      let totalMissed = 0;
-      for (const [key, value] of Object.entries(tempAnswers[info[0]][info[1]])) {
-        if (!keys_to_skip.includes(key)) {
-          totalMissed += tempAnswers[info[0]][info[1]][key]['Answers'].length
-        }
-      }
-      let score = testData[info[0]][info[1].toLowerCase() + "Answers"].length - totalMissed;
-    
-      // Calculate the scaled score
-      let scaleScore = 0;
-      for (const [key, value] of Object.entries(testData[info[0]][info[1].toLowerCase() + "Scores"])) {
-        if (score >= parseInt(value, 10)) {
-          scaledScore = 36 - parseInt(key);
-          break;
-        }
-      }
-
-      // Set the information
-      if (canSubmitTest == true) {
-        //(ADD FUNCTION HERE)
-        setObjectValue([info[0], info[1]], tempAnswers[info[0]][info[1]], testAnswers);
-        setObjectValue([info[0], info[1], 'TestType'], 'homework', testAnswers);
-        setObjectValue([info[0], info[1], 'Date'], date.getTime(), testAnswers);
-        setObjectValue([info[0], info[1], 'Score'], score, testAnswers);
-        setObjectValue([info[0], info[1], 'Status'], (newStatus), testAnswers);
-        if (newStatus == 'in-time' || newStatus == 'in-center') {
-          setObjectValue([info[0], info[1], 'ScaledScore'], scaledScore, testAnswers);
-        }
-        else {
-          delete testAnswers[info[0]][info[1]]['ScaledScore']
-        }
-      }
-    }
-    else {
-      guessMessage.style.display = "inline";
-    }
-  }
-  else {
-    console.log(canSubmitTest)
-    gradeMessage.style.display = "inline";
-  }
-
-  // Go back to one of the test forms
-  if (!(canSubmitTest == false && test_view_type == 'homework') && (newStatus != 'partial' || (newStatus == 'partial' && guesses != undefined)) && swap == 'False') {
-    popup.classList.remove("show");
-    openForm(lastView);
   }
 }
 
 function resetAnswers() {
+
+  // grab the test and section
+  const test = current_homework_test;
+  const section = current_homework_section;
+  const tempStatus = test_answers_grading[test]?.[section]?.['status']
+
+  // Disable the button until everything is done
+  document.getElementById('resetHomework').disabled = true;
+  document.getElementById('submitHomework').disabled = true;
+
   // Remove the answers
-  removeAnswers();
+  removeAnswersFromHTMLForm();
   
-  // Grab the test info
-  let info = getTestInfo();
-
-  // Reset the tempAnswers array for the given passage
-  let status = tempAnswers[info[0]]?.[info[1]]?.['Status'];
-  if (status == undefined || status == 'assigned' || status == 'reassigned') {
-    tempAnswers[info[0]][info[1]][info[2]]['Answers'] = [];
-    tempAnswers[info[0]][info[1]][info[2]]['Time'] = 0;
+  // Reset the answers for the working test
+  let questions = test_answers_grading[test][section]['questions']
+  for (let i = 0; i < questions.length; i++) {
+    test_answers_grading[test][section]['questions'][i]['isWrong'] = false
   }
 
-  // Set up the testAnswersPopup again
-  openForm('testAnswersPopup');
-}
-
-function getTestInfo() {
-  let headerText = document.getElementById("answersPopupHeader").innerHTML;
-  let test = headerText.split(" - ")[0] ?? undefined;
-  let section = headerText.split(" - ")[1] ?? undefined;
-  let passageNumber = headerText.split(" - ")[2] ?? undefined;
-
-  return [test, section, passageNumber]
-}
-
-function removeAnswers() {
-  // Remove the answers (if they are there)
-  let answerArea = document.getElementById("passage")
-  if (answerArea.childElementCount > 0) {
-    answerAreaChildren = answerArea.getElementsByClassName("input-row-center")
-    num_children = answerAreaChildren.length;
-    for (let i = 0; i < num_children; i++) {
-      answerAreaChildren[num_children - i - 1].remove();
-    }
+  // Reset the test if need be
+  /*let idPath = student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})
+  if (idPath.length == 0) {
+    idPath = ids.filter(function(val) { return val.section == section && val.test == test})
   }
-
-  // Hide the arrows
-  let leftArrow = document.getElementById("leftArrow")
-  let rightArrow = document.getElementById("rightArrow")
-  leftArrow.parentNode.style.visibility = "hidden"
-  rightArrow.parentNode.style.visibility = "hidden"
-
-  // Reset the time
-  let timeMinutes = document.getElementById("time-minutes")
-  let timeSeconds = document.getElementById("time-seconds")
-  timeMinutes.parentNode.style.visibility = "hidden";
-
-  timeMinutes.value = "0"
-  timeSeconds.value = "0"
-
-  // Remove the 'highlight' class
-  let test_boxes = document.querySelectorAll("div[data-section]")
-  for (let box = 0; box < test_boxes.length; box++) {
-    test_boxes[box].classList.remove('highlight');
+  const id = idPath[0]['id']*/
+  let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
   }
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+  const studentQuestions = initializeEmptyAnswers(test, section);
 
-}
+  // Reset values
+  setObjectValue([test, section, 'score'], -1, test_answers_grading)
+  setObjectValue([test, section, 'scaledScore'], -1, test_answers_grading)
+  setObjectValue([test, section, 'status'], 'assigned', test_answers_grading)
 
-function removeTest() {
-  // Get the test and section from the header
-  let headerText = document.getElementById("answersPopupHeader").innerHTML;
-  let test = headerText.split(" - ")[0];
-  let section = headerText.split(" - ")[1];
-  let oldStatus = oldTestAnswers[test]?.[section]?.['Status']
+  obj = {}
+  if (student_tests[section]?.[test]?.['date'] != undefined) {
+    obj['questions'] = studentQuestions,
+    obj['status'] = student_tests[section][test]['status'],
+    obj['date'] = student_tests[section][test]['date'],
+    obj['score'] = student_tests[section][test]['score'],
+    obj['scaledScore'] = student_tests[section][test]['scaledScore']
 
-  // Make sure that the section exists
-  if (testAnswers[test]?.[section] != undefined && (oldStatus == undefined || oldStatus == 'assigned')) {
-    // Delete the section
-    delete testAnswers[test][section]
-
-    // Check to see if the test needs deleted
-    if (objectChildCount([test], testAnswers) == 0) {
-      delete testAnswers[test]
-    }
-
-    // If it was assigned before this session, mark it as assigned again
-    if (oldStatus == 'assigned') {
-      setObjectValue([test, section], oldTestAnswers[test][section], testAnswers);
-    }
-  }
-
-  // Return to the last view
-  openForm(lastView)
-
-}
-
-function removePassage() {
-
-  if (test_view_type == 'homework') {
-    removeTest();
-    return;
-  }
-
-  // Get the test and section from the header
-  let headerText = document.getElementById("answersPopupHeader").innerHTML;
-  let test = headerText.split(" - ")[0];
-  let section = headerText.split(" - ")[1];
-  let passageNumber = headerText.split(" - ")[2];
-
-  // Make sure that the section exists
-  if (testAnswers[test]?.[section]?.[passageNumber] != undefined && test_view_type == 'inCenter') {
-    // Delete the passage
-    delete testAnswers[test][section][passageNumber]
-    delete tempAnswers[test][section][passageNumber]
-
-    // Check to see if the section needs deleted
-    if (objectChildCount([test, section], testAnswers) == 0) {
-      delete testAnswers[test][section]
-    }
-
-    // Check to see if the test needs deleted
-    if (objectChildCount([test], testAnswers) == 0) {
-      delete testAnswers[test]
-    }
-  }
-
-  // Return to the last view
-  openForm(lastView)
-
-}
-
-function objectChildCount(path, object) {
-
-  // Initialize a variable
-  let location = object;
-
-  // Move to the location in the object
-  for (let i = 0; i < path.length; i++) {
-    location = location[path[i]]
-  }
-
-  count = 0;
-  object_keys = Object.keys(location);
-  for (let i = 0; i < object_keys.length; i++) {
-    if (!keys_to_skip.includes(object_keys[i])) {
-      count += 1
-    }
-  }
-
-  return count
-}
-
-function nextPassage(element) {
-
-  let info = getTestInfo();
-
-  openForm('testAnswersPopup', undefined, undefined, parseInt(info[2], 10) + 1)
-
-}
-
-function previousPassage(element) {
-
-  let info = getTestInfo();
-
-  openForm('testAnswersPopup', undefined, undefined, parseInt(info[2], 10) - 1)
-
-}
-
-function submitDailyLog() {
-  document.getElementById("errMsg").textContent = "";
-  if (validateSessionInfo() && validateHW()) {
-    let confirmation = confirm("Are you sure you are ready to submit this whole session?\nYou will not be able to go back and change your notes."); 
-    if (confirmation) {
-      document.getElementById("spinnyBoi").style.display = "block";
-      //let feedbackProm = submitFeedback();
-      let sessionProm = submitSessionInfo();
-      let hwProm = submitHW();
-      let lessonProm = setLessonData();
-
-      let promises = [sessionProm, hwProm, lessonProm];
-      Promise.all(promises)
-      .then((result) => {
-        // console.log("Everything submitted");
-        removeUnloadListener();
-        window.location.reload();
-        //window.history.back();
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, window.location.href);
-        document.getElementById("errMsg").textContent = error;
-        document.getElementById("spinnyBoi").style.display = "none";
-      });
-    }
+    setObjectValue([test, section, 'score'], student_tests[section][test]['score'], test_answers_grading)
+    setObjectValue([test, section, 'scaledScore'], student_tests[section][test]['scaledScore'], test_answers_grading)
+    setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
   }
   else {
-    //not validated
-    //error messages should be handled in each function
+    obj['questions'] = studentQuestions,
+    obj['status'] = 'assigned',
+    obj['date'] = date.getTime(),
+    obj['score'] = -1,
+    obj['scaledScore'] = -1
   }
+
+  ref.update(obj)
+
+  // Successfully reset the test
+  .then(() => {
+    document.getElementById('resetHomework').disabled = false;
+    document.getElementById('submitHomework').disabled = false;
+
+    // Remove the green bar status if it's there
+    const testDate = student_tests[section]?.[test]?.['date']
+    if (student_tests[section]?.[test]?.['status'] == 'assigned') {
+      if (testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+        updateStatusBar(test, section, true)
+      }
+      else if (testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+        updateStatusBar(test, section, true)
+        updateStatusBar(test, section, false, 'yellow')
+      }
+    }
+    else if (student_tests[section]?.[test]?.['status'] != undefined) {
+      updateStatusBar(test, section, true)
+      updateStatusBar(test, section, false, 'green')
+    }
+    else if (student_tests[section]?.[test]?.['status'] == undefined) {
+      updateStatusBar(test, section, true)
+      updateStatusBar(test, section, false, 'yellow')
+    }
+    
+    // Lower the homework count by 1
+    //if (student_tests[section]?.[test]?.['date'] != undefined) {
+    //if (test_answers_grading[test]?.[section]?.['status'] != 'assigned' && test_answers_grading[test]?.[section]?.['status'] != undefined) {
+    if ((tempStatus != 'assigned' && tempStatus != undefined) && testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+      homework_count -= 1;
+    }
+    else {
+      // Return the buttons to assigned
+      let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+      let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+      assign.classList.add('hidden')
+      unassign.classList.remove('hidden')
+
+      // update the ids for the graded assigned test
+      const temp = ids.filter(function(val) { return val.section == section && val.test == test})//[0]
+      if (temp.length > 0) {
+        ids = ids.filter(function(val) { return val.section != section || val.test != test})
+        temp[0]['action'] = 'assign'
+        ids.push(temp[0])
+      }
+
+      // increment the number of assigned tests
+      numAssignedTests += 1;
+    }
+
+  })
+
+  // Wasn't able to reset the test
+  .catch((error) => {
+    console.log(error)
+    document.getElementById('resetHomework').disabled = false;
+    document.getElementById('submitHomework').disabled = false;
+  })
+
+  // Set up the student_testsPopup again
+  //swapTestForm(test, section, passageNumber)
+  swapTestForm(test, section, 1)
 }
 
-function validateFeedback() {
-  return (document.getElementById("feedback").value != "");
+function toggleHomeworkPopup() {
+  // hide the error message
+  document.getElementById("gradeFirst").style.display = "none";
+
+  // Toggle the submit button popups
+  document.getElementById("submitHomeworkPopup").classList.toggle("show");
 }
 
-function submitFeedback() {
-  if (document.getElementById("feedback").value != "") {
-    return firebase.firestore().collection("feedback").doc().set({
-      feedback: document.getElementById("feedback").value,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+function gradeHomework(status) {
+
+  // grab the test and section
+  const test = current_homework_test;
+  const section = current_homework_section;
+  const tempStatus = test_answers_grading[test]?.[section]?.['status']
+
+  // Set the status bar as loading
+  updateStatusBar(test, section, false, 'loading')
+
+  // Close the popup
+  hidePopups()
+
+  // Disable the buttons until it this function has done its job
+  document.getElementById('resetHomework').disabled = true;
+  document.getElementById('submitHomework').disabled = true;
+
+  // Record the status
+  if (status != 'did not do') {
+    setObjectValue([test, section, 'status'], status, test_answers_grading)
+  }
+
+  // Calculate how many questions they missed and got correct
+  let totalMissed = test_answers_grading[test][section]['questions'].filter(function(val) { return val.isWrong == true} ).length;
+  let score = test_answers_grading[test][section]['questions'].length - totalMissed;
+  setObjectValue([test, section, 'score'], score, test_answers_grading)
+
+  // Calculate the scaled score
+  let scaledScore = -1;
+  if (['in-time', 'in-center'].includes(status)) {
+    for (const [key, value] of Object.entries(test_answers_data[test][section.toLowerCase() + "Scores"])) {
+      if (score >= parseInt(value, 10)) {
+        scaledScore = 36 - parseInt(key);
+        setObjectValue([test, section, 'scaledScore'], scaledScore, test_answers_grading)
+        break;
+      }
+    }
+  }
+
+  // Change the score and questions back if they're not applicable
+  if (['forgot', 'previously completed', 'did not do'].includes(status)) {
+    score = -1;
+    scaledScore = -1;
+    setObjectValue([test, section, 'questions'], initializeEmptyAnswers(test, section), test_answers_grading)
+    if (status == 'forgot') {
+      status = 'assigned'
+    }
+    setObjectValue([test, section, 'score'], score, test_answers_grading)
+    setObjectValue([test, section, 'scaledScore'], scaledScore, test_answers_grading)
+  }
+
+  // Set the information
+  //let idPath =  student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})
+  let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
+  }
+  //if (idPath.length == 0) {
+    //idPath = ids.filter(function(val) { return val.section == section && val.test == test})
+  //}
+  //const id = idPath[0]['id']
+  //const id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id'] ?? student_tests['assignedTests'].filter(function(val) { return val.section == section && val.test == test})[0]['id']
+
+  // Get the ref
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+
+  // Remove the test if they didn't do it, so it can be reassigned
+  if (status == 'did not do') {
+    ref.delete()
+    .then(() => {
+      // Re-enable the buttons
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
+
+      // Update the status bar to mark the test as completed
+      updateStatusBar(test, section)
+
+      // up the homework count
+      if (test_answers_grading[test]?.[section]?.['status'] == 'assigned') {
+        homework_count += 1;
+        setObjectValue([test, section, 'status'], status, test_answers_grading)
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  }
+  else {
+    ref.update({
+      ['questions'] : test_answers_grading[test][section]['questions'],
+      ['date'] : date.getTime(),
+      ['score'] : score,
+      ['scaledScore'] : scaledScore,
+      ['status'] : status
     })
     .then(() => {
-      // console.log("feedback saved");
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-    });
-  }
-  else {
-    return Promise.resolve("There is no feedback");
-  }
-}
+      // Re-enable the buttons
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
 
-function goToDashboard() {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
+      // Update the status bar to mark the test as completed
+      updateStatusBar(test, section)
 
-        switch (role) {
-          case "student":
-            window.location.replace(location.origin + "/Dashboard/Student");
-            break;
-          case "parent":
-            window.location.replace(location.origin + "/Dashboard/Parent");
-            break;
-          case "tutor":
-            window.location.replace(location.origin + "/Dashboard/Tutor");
-            break;
-          case "secretary":
-            window.location.replace(location.origin + "/Dashboard/Secretary");
-            break;
-          case "admin":
-            window.location.replace(location.origin + "/Dashboard/Admin");
-            break;
-          case "dev":
-            window.location.replace(location.origin + "/Dashboard/Admin");
-            break;
-          default:
-            
-        }
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, window.location.href);
-      });
-    }
-    else {
-      window.location.replace(location.origin + "/Sign-In/Sign-In");
-    }
-  });
-}
+      // up the homework count
+      //if (student_tests[section]?.[test]?.['date'] != undefined) {
+      const testDate = student_tests[section]?.[test]?.['date']
+      if (['assigned', undefined].includes(tempStatus) && testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
+        homework_count += 1;
+      }
+      //else if (['assigned', undefined].includes(test_answers_grading[test]?.[section]?.['status']) && testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+      else if (['assigned', undefined].includes(tempStatus) && testDate != undefined && testDate >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+        // Swap which button is being showed
+        let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+        let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+        assign.classList.remove('hidden')
+        unassign.classList.add('hidden')
 
-//TESTING
-function goToTesting() {
-  window.location.href = '../../student-info-test.html?student=' + queryStrings()["student"];
-}
+        // update the ids for the graded assigned test
+        const temp = ids.filter(function(val) { return val.section == section && val.test == test})[0]
+        ids = ids.filter(function(val) { return val.section != section || val.test != test})
+        temp['action'] = 'graded'
+        ids.push(temp)
 
-function validateSessionInfo() {
-  let dailyLogSessions = document.getElementById("dailyLog").querySelectorAll("div[id^='session']");
-  let numSessions = dailyLogSessions.length;
-
-  for (let i = 0; i < numSessions; i++) {
-    let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
-    let notes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
-    let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-    if (section.value == "" || notes.value == "" || time.value == "") {
-      document.getElementById("errMsg").textContent = "Please make sure that the log is completely filled out";
-      return false;
-    }
-  }
-  return true;
-}
-
-function submitSessionInfo() {
-  let sessionInfo = {};
-
-  let dailyLogSessions = document.getElementById("dailyLog").querySelectorAll("div[id^='session']");
-  let numSessions = dailyLogSessions.length;
-
-  let sectionInfo = {};
-  let sessionTimeNum = date.getTime();
-  const currentUser = firebase.auth().currentUser;
-  if (currentUser) {
-    let tutor = currentUser.uid;
-    const studentUID = queryStrings()["student"];
-    if (studentUID) {
-      //create the session info
-      let sessionNoteProms = [];
-
-      for (let i = 0; i < numSessions; i++) {
-        let section = dailyLogSessions[i].querySelector(`#section${i+1}`);
-        let time = dailyLogSessions[i].querySelector(`#time${i+1}`);
-        let sectionNotes = dailyLogSessions[i].querySelector(`#sectionNotes${i+1}`);
-    
-        sessionNoteProms.push(sendNotes(section.value.toLowerCase(), sectionNotes.value, sessionTimeNum, tutor, true));
-    
-        sectionInfo[section.value] = {
-          time: parseInt(time.value),
-          sectionNotes: sectionNotes.value
-        }
+        // Decrement the number of assigned tests
+        numAssignedTests -= 1;
       }
 
-      return Promise.all(sessionNoteProms)
-      .then(() => {
-        sessionInfo["incompleteHomework"] = numHomeworkNotComplete();
-        sessionInfo["sections"] = sectionInfo;
-        sessionInfo["tutor"] = tutor;
+      // Check to see if the session has been sufficiently finished
+      submitSession()
+    })
+    .catch((error) => {
+      // Re-enable the buttons
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
 
-        let sessionDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("sessions");
-        //need to somehow get this promise to return when complete....
-        return sessionDocRef.get()
-        .then((doc) => {
-          if (doc.exists) {
-            //doc exists - update the doc
-            return sessionDocRef.update({
-              [`${sessionTimeNum.toString()}`]: sessionInfo,
-              // englishTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.English?.time ?? 0),
-              // mathTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Math?.time ?? 0),
-              // readingTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Reading?.time ?? 0),
-              // scienceTotalTime: firebase.firestore.FieldValue.increment(sectionInfo.Science?.time ?? 0),
-              // [`tutors.${tutor}`]: firebase.firestore.FieldValue.increment(1)
-            })
-          }
-          else {
-            //doc does not exist - set the doc
-            return sessionDocRef.set({
-              [`${sessionTimeNum.toString()}`]: sessionInfo,
-              // englishTotalTime: sectionInfo.English?.time ?? 0,
-              // mathTotalTime: sectionInfo.Math?.time ?? 0,
-              // readingTotalTime: sectionInfo.Reading?.time ?? 0,
-              // scienceTotalTime: sectionInfo.Science?.time ?? 0,
-              // tutors: {[`${tutor}`]: 1}
-            })
-          }
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-          return Promise.reject(error);
-        });
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, window.location.href);
-        return Promise.reject(error);
-      });
-    }
-    else {
-      console.log("There is no student selected!!!");
-      return Promise.reject("There is no student selected!!!");
-    }
+      // Update the status bar to mark the test as completed
+      updateStatusBar(test, section, false, 'red')
+
+      console.log(error)
+    })
   }
-  else {
-    //there is no tutor logged in
-    console.log("There is no tutor logged in!!!")
-    return Promise.reject("There is no tutor logged in!!!")
+
+}
+
+function togglePracticePopup(section) {
+  // Toggle the submit button popups
+  document.getElementById(section + "SubmitPracticePopup").classList.toggle("show");
+}
+
+function toggleGradeButtons(disable = true) {
+  submitButtons = document.querySelectorAll("button[id$='SubmitPractice']")
+  resetButtons = document.querySelectorAll("button[id$='ResetPractice']")
+
+  for (let i = 0; i < submitButtons.length; i++) {
+    submitButtons[i].disabled = disable;
+    resetButtons[i].disabled = disable;
   }
 }
 
-function submitHW() {
-  const studentUID = queryStrings()["student"];
-  if (studentUID) {
-    let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-    //need to somehow get this promise to return when complete....
-    return hwDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        //doc exists - update the doc
-        return hwDocRef.update({
-          ...testAnswers
-        })
+function resetPractice() {
+
+  // Grab the current test / section / passage
+  const test = current_practice_test;
+  const section = current_practice_section;
+  const passageNumber = current_practice_passage_number;
+
+  // grab the current oval element
+  let element = practice_test_element;
+
+  // Reset the colors
+  removeColors(element)
+  element.classList.add('selfLoadingRing')
+
+  // Close the popup
+  hidePopups()
+
+  // Disable the buttons until it this function has done its job
+  toggleGradeButtons(true);
+
+  // Check to see if it's a previously completed practice passage
+  let id = student_tests['practiceTests'].filter(function(val) { return val.section == section && val.test == test && val.passageNumber == passageNumber})
+
+  // Make sure that it isn't an old test
+  if (id.length == 0) {
+
+    id = ids.filter(function(val) { return val.section == section && val.test == test && val.passageNumber == passageNumber})[0]['id']
+    const ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+
+    ref.delete()
+    .then(() => {
+      toggleGradeButtons(false);
+      element.classList.remove('selfLoadingRing')
+      setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+      openPracticeTest(test, section, passageNumber)
+    })
+    .catch((error) => {
+      toggleGradeButtons(false);
+      element.classList.remove('selfLoadingRing')
+      element.classList.add('red')
+      console.log(error)
+    })
+  }
+  else {
+    const testDate = student_tests[section]?.[test]?.[passageNumber]?.['date']
+    if (testDate != undefined && testDate > convertFromDateInt(date.getTime())['startOfDayInt']) {
+      const ref = firebase.firestore().collection('ACT-Student-Tests').doc(id[0]['id'])
+      ref.delete()
+      .then(() => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+        openPracticeTest(test, section, passageNumber)
+      })
+      .catch((error) => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('red')
+        console.log(error)
+      })
+    }
+    else {
+      console.log("Can't Remove")
+      toggleGradeButtons(false);
+      element.classList.remove('selfLoadingRing')
+    }
+  }
+}
+
+function gradePractice(status) {
+
+  // Grab the current test / section / passage
+  const test = current_practice_test;
+  const section = current_practice_section;
+  const passageNumber = current_practice_passage_number;
+
+  // grab the current oval element
+  let element = practice_test_element;
+
+  // Reset the colors and set the loading ring
+  removeColors(element)
+  element.classList.add('selfLoadingRing')
+
+  // Close the popup
+  hidePopups()
+
+  // Disable the buttons until it this function has done its job
+  toggleGradeButtons(true);
+
+  // Calculate how many questions they missed and got correct
+  let totalMissed = test_answers_grading[test][section][passageNumber]['questions'].filter(function(val) { return val.isWrong == true} ).length;
+  let score = test_answers_grading[test][section][passageNumber]['questions'].length - totalMissed;
+
+  // Change the score back if it's not applicable
+  if (['together', 'popcorn', 'prior'].includes(status)) {
+    score = -1;
+  }
+
+  // Check to see if it's a previously completed practice passage
+  let id = student_tests['practiceTests'].filter(function(val) { return val.section == section && val.test == test && val.passageNumber == passageNumber})
+
+  // Make sure that it isn't an old test
+  if (id.length == 0) {
+
+    // Get the ref
+    let refStart = firebase.firestore().collection('ACT-Student-Tests')
+
+    // Check to see if it has been submitted already
+    id = ids.filter(function(val) { return val.section == section && val.test == test && val.passageNumber == passageNumber})
+
+    // It hasn't been submitted yet
+    if (id.length == 0) {
+      const ref = refStart.doc()
+      ref.set({
+        'test' : test,
+        'section' : section,
+        'passageNumber' : passageNumber,
+        'student' : CURRENT_STUDENT_UID,
+        'questions' : test_answers_grading[test][section][passageNumber]['questions'],
+        'date' : date.getTime(),
+        'type' : 'practice',
+        'status' : status,
+        'score' : score
+      })
+      .then(() => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('green')
+      })
+      .catch((error) => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('red')
+        console.log(error)
+      })
+
+      // Save the id: might be updated / changed later on in the session
+      ids.push({
+        'test' : test,
+        'section' : section,
+        'passageNumber' : passageNumber,
+        'id' : ref.id
+      })
+    }
+    else {
+      id = id[0]['id']
+      refStart.doc(id).set({
+        'test' : test,
+        'section' : section,
+        'passageNumber' : passageNumber,
+        'student' : CURRENT_STUDENT_UID,
+        'questions' : test_answers_grading[test][section][passageNumber]['questions'],
+        'date' : date.getTime(),
+        'type' : 'practice',
+        'status' : status,
+        'score' : score
+      })
+      .then(() => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('green')
+      })
+      .catch((error) => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('red')
+        console.log(error)
+      })
+    }
+
+    openPracticeTest(test, section, passageNumber)
+
+  }
+  else {
+    const testDate = student_tests[section]?.[test]?.[passageNumber]?.['date']
+    if (testDate != undefined && testDate > convertFromDateInt(date.getTime())['startOfDayInt']) {
+      id = id[0]['id']
+      const ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+      ref.set({
+        'test' : test,
+        'section' : section,
+        'passageNumber' : passageNumber,
+        'student' : CURRENT_STUDENT_UID,
+        'questions' : test_answers_grading[test][section][passageNumber]['questions'],
+        'date' : date.getTime(),
+        'type' : 'practice',
+        'status' : status,
+        'score' : score
+      })
+      .then(() => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('green')
+      })
+      .catch((error) => {
+        toggleGradeButtons(false);
+        element.classList.remove('selfLoadingRing')
+        element.classList.add('red')
+        console.log(error)
+      })
+    }
+    else {
+      console.log("Can't set")
+      element.classList.remove('selfLoadingRing')
+      toggleGradeButtons(false);
+    }
+  }
+
+}
+
+function assignHomework(section) {
+  // Disable the buttons until homework has been assigned
+  let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+  let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+  assign.disabled = true;
+  unassign.disabled = true;
+
+  // Initialize the object to send to Fb
+  let obj = {}
+
+  // Find the next test
+  let test = undefined;
+  if (section in student_tests) {
+    for (let i = 0; i < hwTests.length; i++) {
+      if (hwTests[i] in student_tests[section]) {
       }
       else {
-        //doc does not exist - set the doc
-        return hwDocRef.set({
-          ...testAnswers
-        })
+        if (ids.filter(function(val) {return val.test == hwTests[i] && val.section == section}).length == 0) {
+          test = hwTests[i]
+          break;
+        }
       }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      return Promise.reject(error);
-    });
+    }
   }
   else {
-    console.log("There is no student selected!!!");
-    return Promise.reject("There is no student selected!!!");
+    test = hwTests[0]
   }
-}
 
-function validateHW() {
-  //FIXME: see if hw was assigned or alternative
-  //find all of the hw that was assigned last session and check if it's status has changed
-  for (const test in oldTestAnswers) {
-    for (const section in oldTestAnswers[test]) {
-      if (oldTestAnswers[test][section]["TestType"] == "homework") {
-        if (oldTestAnswers[test][section]["Status"] == "assigned") {
-          if (testAnswers?.[test]?.[section]?.["Status"] == "assigned") {
-            document.getElementById("errMsg").textContent = "Please report on test " + test + " " + section;
-            return false;
-          }
+  // They have completed all of the normal hw tests, so start going through the 'other' tests
+  if (test == undefined) {
+    if (section in student_tests) {
+      for (let i = 0; i < othTests.length; i++) {
+        if (othTests[i] in student_tests[section]) {
+        }
+        else {
+          test = othTests[i]
+          break;
         }
       }
     }
-  }
-  return true;
-}
-
-function numHomeworkNotComplete() {
-  let incomplete = 0;
-
-  //check for assigned hw on old data
-  for (const test in oldTestAnswers) {
-    for (const section in oldTestAnswers[test]) {
-      if (oldTestAnswers[test][section]["TestType"] == "homework") {
-        if (oldTestAnswers[test][section]["Status"] == "assigned") {
-          if (testAnswers?.[test]?.[section]?.["Status"] == "forgot" || testAnswers?.[test]?.[section]?.["Status"] == "did not do") {
-            incomplete++;
-          }
-        }
-      }
-    }
-  }
-  //return the result
-  return incomplete;
-}
-
-function queryStrings() {
-  var GET = {};
-  var queryString = window.location.search.replace(/^\?/, '');
-  queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-  });
-
-  return GET;
-}
-
-function getArrayIndex(value, arr) {
-  // Find and return the index for the value
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] == value) {
-      return i;
+    else {
+      test = othTests[0]
     }
   }
 
-  return -1;
-}
+  // Initialize the questions array
+  let studentQuestions = initializeEmptyAnswers(test, section);
 
-function openTest(test, section = undefined) {
+  // Initialize the object to send to FB
+  setObjectValue(['test'], test, obj);
+  setObjectValue(['section'], section, obj);
+  setObjectValue(['student'], CURRENT_STUDENT_UID, obj);
+  setObjectValue(['questions'], studentQuestions, obj);
+  setObjectValue(['date'], date.getTime(), obj);
+  setObjectValue(['type'], 'homework', obj);
+  setObjectValue(['status'], 'assigned', obj);
+  setObjectValue(['score'], -1, obj);
+  setObjectValue(['scaledScore'], -1, obj);
 
-  let path = test + (section != undefined ? (" - " + section) : "");
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
-  ref.getDownloadURL().then((url) => {
-      open(url);
+  // Send the object to Fb
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc()
+  ref.set(obj)
+
+  // Indicate that the test has been assigned
+  .then(() => {
+    // Swap buttons
+    assign.classList.add('hidden')
+    unassign.classList.remove('hidden')
+
+    // Re-enable the buttons again
+    assign.disabled = false;
+    unassign.disabled = false;
+
+    // Add the test to the composite page
+    addAssignedTest(test, section)
+
+    ids.push({
+      'type' : 'homework',
+      'section' : section,
+      'test' : test,
+      'action' : 'assign',
+      'id' : ref.id
     })
 
+    numAssignedTests += 1;
+    submitSession()
+  })
+  
+  // Indicate that the test wasn't assigned successfully
+  .catch((error) => {
+    console.log(error)
+    assign.disabled = false;
+    unassign.disabled = false;
+  })
+
+  // Open the test to print
+  openTest(test, section)
 }
 
+function initializeEmptyAnswers(test, section) {
+  const questions = test_answers_data[test][section + "Answers"]
+  let studentQuestions = [];
+  for (let i = 0; i < questions.length; i++) {
+    studentQuestions.push({
+      'isWrong' : false,
+      'passageNumber' : questions[i]['passageNumber']
+    })
+  }
+
+  return studentQuestions;
+}
+
+function initializeEmptyPassageAnswers(test, section, passageNumber) {
+  const questions = test_answers_data[test][section + "Answers"].filter(function(val) { return val.passageNumber == passageNumber})
+  let studentQuestions = [];
+  for (let i = 0; i < questions.length; i++) {
+    let questionNumber = undefined
+    const keys = Object.keys(questions[i])
+    for (let j = 0; j < keys.length; j++) {
+      if (parseInt(keys[j]) > 0 && parseInt(keys[j]) < 76) {
+        questionNumber = keys[j]
+        break;
+      }
+    }
+    studentQuestions.push({
+      'isWrong' : false,
+      'question' : questionNumber
+    })
+  }
+
+  return studentQuestions;
+}
+
+function unassignHomework(section) {
+  // Disable the buttons until homework has been assigned
+  let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
+  let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
+  assign.disabled = true;
+  unassign.disabled = true;
+
+  /*const testList = student_tests['assignedTests'];
+  let test = undefined;
+  for (let i = 0; i < testList.length; i++) {
+    if (testList[i]['section'] == section) {
+      test = testList[i]['test']
+    }
+  }*/
+
+  // Get the document id to remove
+  /*let id = student_tests[section]?.[test]?.['id']
+  if (id == undefined) {
+    id = ids.filter(function(val) { return val.section == section && val.test == test})[0]['id']
+
+    // Remove the id from the list of document ids
+    ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+    }*/
+/* MASTER
 function openCramSession(sessionCount) {
 
   let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
@@ -1434,421 +1585,465 @@ function swap() {
   nav.classList.toggle("nav_disabled")
   nav.classList.toggle("nav_enabled")
 }
+MASTER */
 
-function toggleButtons(active) {
-  // Find the buttons to toggle
-  let answerButton = document.getElementById("answerButton");
-  let guessButton = document.getElementById("guessButton");
+  const tempIds = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]
+  const id = tempIds['id']
+  const test = tempIds['test']
 
-  // Swap the buttons (if needed)
-  if (active == 'answer') {
-    mark_type = 'answer';
-    answerButton.classList.add("buttonToggleOn")
-    answerButton.classList.remove("buttonToggleOff")
-    guessButton.classList.add("buttonToggleOff")
-    guessButton.classList.remove("buttonToggleOn")
-  }
-  else if (active == 'guess') {
-    mark_type = 'guess';
-    answerButton.classList.remove("buttonToggleOn")
-    answerButton.classList.add("buttonToggleOff")
-    guessButton.classList.add("buttonToggleOn")
-    guessButton.classList.remove("buttonToggleOff")
+  // Remove the id from the list of document ids
+  ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+
+  // Send the request to Fb to remove the assigned test
+  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+  ref.delete()
+
+  // Indicate that the test has been unassigned
+  .then(() => {
+    // Swap which button is being showed
+    assign.classList.remove('hidden')
+    unassign.classList.add('hidden')
+
+    // Re-enable the buttons again
+    assign.disabled = false;
+    unassign.disabled = false;
+
+    // Remove the assigned test from the composite page
+    removeAssignedTest(test, section)
+
+    numAssignedTests -= 1;
+    submitSession()
+  })
+  
+  // Indicate that the test wasn't unassigned successfully
+  .catch((error) => {
+    console.log(error)
+  })
+}
+
+function updateStatusBar(test, section, remove = false, colorClass = 'green') {
+
+  const searchText = test + " - " + section[0].toUpperCase()
+
+  let headerTabs = document.getElementById('answersPopupHeader').querySelectorAll('h2')
+  let statusBars = document.getElementsByClassName('meter')
+
+  for (let loc = 0; loc < headerTabs.length; loc++) {
+    if (headerTabs[loc] != undefined && headerTabs[loc].innerHTML == searchText) {
+      for (let i = 0; i < statusBars.length; i++) {
+        let bars = statusBars[i].querySelectorAll('div')
+        bars[loc].classList.remove('loading')
+        if (remove == false) {
+          bars[loc].classList.add(colorClass)
+        }
+        else {
+          bars[loc].classList.remove(colorClass)
+        }
+      }
+    }
   }
 }
 
-function toggleScoresButtons(active = 'scores') {
-  // Find the buttons to toggle
-  let answerButton = document.getElementById("fullAnswersButton");
-  let scoresButton = document.getElementById("scoresButton");
+function checkTests() {
 
-  // Swap the buttons (if needed)
-  if (active == 'scores') {
-    answerButton.classList.remove("buttonToggleOn")
-    answerButton.classList.add("buttonToggleOff")
-    scoresButton.classList.add("buttonToggleOn")
-    scoresButton.classList.remove("buttonToggleOff")
+  // Check all of the tests that needed graded at the start of the session
+  const testList = student_tests['assignedTests'];
+  for (let i = 0; i < testList.length; i++) {
+    const test = testList[i]['test']
+    const section = testList[i]['section']
+
+    let status = student_tests[section][test]['status']
+    if (status == 'assigned') {
+      return false;
+    }
   }
-  else if (active == 'answers') {
-    answerButton.classList.add("buttonToggleOn")
-    answerButton.classList.remove("buttonToggleOff")
-    scoresButton.classList.add("buttonToggleOff")
-    scoresButton.classList.remove("buttonToggleOn")
-  }
+
+  return true;
 }
 
-function togglePrintPopup(test = undefined) {
+function notAssigningHomework(section) {
+  if (notAssigningFlag == false) {
+    numAssignedTests += 1;
+    notAssigningFlag = true;
 
-  // Grab the printPopup element
-  let popup = document.getElementById("printPopup");
-
-  // Either display or hide the popup
-  if (test == popup.getAttribute('data-test') || test == undefined) {
-    popup.classList.remove("show");
-    popup.setAttribute('data-test', 'None')
+    let buttons = document.querySelectorAll("button[id$='NotAssigning']")
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].classList.add('submitable')
+    }
   }
   else {
-    popup.classList.add("show");
-    popup.setAttribute("data-test", test);
+    numAssignedTests -= 1;
+
+    let buttons = document.querySelectorAll("button[id$='NotAssigning']")
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].classList.remove('submitable')
+    }
   }
 
+  submitSession()
 }
 
-function popupPrint(section = undefined) {
-  let popup = document.getElementById("printPopup");
-  openTest(popup.getAttribute("data-test"), section);
-}
+function submitSession() {
+  getElapsedTime();
 
-function adjustPrintPopup() {
-  
-  // No test selected, do nothing
-  if (scrollingTarget == undefined) {
-    return;
-  }
-
-  // Set needed variables
-  let popup = document.getElementById("printPopup");
-  const testLocation = scrollingTarget.getBoundingClientRect().top + (scrollingTarget.clientHeight * 0.5) + 5
-  const pageBottom = window.innerHeight;
-  const offset = popup.getBoundingClientRect().height * 0.5;
-
-  // Set the min height for scrolling
-  let minHeight = document.getElementById('homeworkTestHeaders').getBoundingClientRect().bottom;
-  if (minHeight == 0) {
-    minHeight = document.getElementById('inCenterTestHeaders').getBoundingClientRect().bottom;
-    if (minHeight == 0) {
-      minHeight = document.getElementById('otherTestHeaders').getBoundingClientRect().bottom;
-    }
-  }
-
-  // Set the max height for scrolling
-  let maxHeight = document.getElementById('homeworkSubmitDiv').getBoundingClientRect().top;
-  if (maxHeight == 0) {
-    maxHeight = document.getElementById('inCenterSubmitDiv').getBoundingClientRect().top;
-    if (maxHeight == 0) {
-      maxHeight = document.getElementById('otherSubmitDiv').getBoundingClientRect().top;
-    }
-  }
-
-  // Set the height for the printPopup
-  // Normal
-  if (testLocation < maxHeight && testLocation > minHeight) {
-    if (testLocation + offset >= pageBottom) {
-      popup.style.top = (window.innerHeight - popup.clientHeight).toString() + 'px';
-    }
-    else if (testLocation - offset <= 0) {
-      popup.style.top = '0px';
-    }
-    else {
-      popup.style.top = ( testLocation - offset).toString() + 'px';
-    }
-  }
-  // Off the bottom of the page
-  else if (testLocation + offset >= pageBottom) {
-    popup.style.top = (window.innerHeight - popup.clientHeight).toString() + 'px';
-  }
-  // Off the top of the page
-  else if (testLocation - offset <= 0 && testLocation > minHeight) {
-    popup.style.top = '0px';
-  }
-  // Before minHeight
-  else if (testLocation < minHeight) {
-    popup.style.top = (minHeight - offset).toString() + 'px';
-  }
-  // After maxHeight
-  else if (testLocation > maxHeight) {
-    popup.style.top = (maxHeight - offset).toString() + 'px';
-  }
-}
-
-function scaledScoresTestsSetup() {
-
-  let form = document.getElementById('scaledScoresTestsList')
-
-  let tests = Object.keys(testData)
-  tests.reverse();
-
-  for (let i = 0; i < tests.length; i++) {
-    if (i != 0) {
-      ele = createElements([['p']], [['testRow']], [['onclick']], [["openForm('scaledScores', undefined, undefined, undefined, '" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'button2'])
-    }
-    else {
-      ele = createElements([['p']], [['testRow']], [['onclick']], [["openForm('scaledScores', undefined, undefined, undefined, '" + tests[i] + "')"]], [tests[i]], ['input-row-center', 'firstAnswer', 'button2'])
-    }
-    form.appendChild(ele);
-  }
-}
-
-function openScores(test = undefined) {
-
-  // Change the header
-  let header = document.getElementById("scaledScoresHeader")
-  if (test == undefined) {
-    test = header.innerHTML.split(' - ')[1]
-  }
-  header.innerHTML = "Scaled Scores - " + test
-
-  // Get the start of the absolute score for each scaled score: if to get a 34 you needed a 71 - 73, you will get 71
-  //    Also, if you couldn't get a 33 ( '-' as the absolute score) then you would see 71 (same start as the 34)
-  let english = testData[test]?.['englishScores'];
-  let math = testData[test]?.['mathScores'];
-  let reading = testData[test]?.['readingScores'];
-  let science = testData[test]?.['scienceScores'];
-
-  // Conver the strings to integers
-  for (let i = 0; i < english.length; i++) {
-    english[i] = parseInt(english[i]);
-    math[i] = parseInt(math[i]);
-    reading[i] = parseInt(reading[i]);
-    science[i] = parseInt(science[i]);
-  }
-
-  // Make it dynamic
-  let values = [english, math, reading, science]
-  let maxScores = [75, 60, 40, 40]
-
-  // Get the location to add the scaled scores to
-  let body = document.getElementById("scaledScoresBody")
-
-  // Remove the old scaled scores
-  const childCount = body.childElementCount;
-  let children = body.querySelectorAll("div");
-  for (let i = 0; i < childCount; i++) {
-    children[i].remove();
-  }
-
-  // Populate the scaled scores
-  for (let i = 0; i < (english.length * 6); i++) {
-    let ele = undefined;
-    let row = Math.floor(i / 6)
-    let col = i % 6;
-    if (col == 0 || col == 5) {
-      ele = createElements([['p']], [[]], [[]], [[]], [(36 - row).toString()], ['gridBoxScores'])
-      ele.style.backgroundColor = "rgb(200, 200, 200)"
-    }
-    else {
-      if (row != 0) {
-        if (values[col - 1][row] == values[col - 1][row - 1]) {
-          ele = createElements([['p']], [[]], [[]], [[]], ['-'], ['gridBoxScores'])
-        }
-        else if (values[col - 1][row] == values[col - 1][row - 1] - 1) {
-          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString()], ['gridBoxScores'])
-        }
-        else {
-          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString() + ' - ' + (values[col - 1][row - 1] - 1).toString()], ['gridBoxScores'])
-        }
+  if (homework_count == 0) {
+    if (session_message_count > 0) {
+      if (numAssignedTests > 0) {
+        document.getElementById('submitSession').classList.add('submitable')
+        console.log(timers)
       }
       else {
-        if (values[col - 1][row] == maxScores[col - 1]) {
-          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString()], ['gridBoxScores'])
-        }
-        else {
-          ele = createElements([['p']], [[]], [[]], [[]], [values[col - 1][row].toString() + ' - ' + maxScores[col - 1].toString()], ['gridBoxScores'])
-        }
-      }
-
-      // Add a slight gray to the odd rows
-      if (row % 2 == 1) {
-        ele.style.backgroundColor = "rgb(230, 230, 230)"
+        document.getElementById('submitSession').classList.remove('submitable')
+        console.log("Please assign homework")
       }
     }
-    body.append(ele)
+    else {
+      document.getElementById('submitSession').classList.remove('submitable')
+      console.log("Please enter a new message")
+    }
+  }
+  else {
+    document.getElementById('submitSession').classList.remove('submitable')
+    console.log("Please grade all tests")
   }
 }
 
-function openAnswers(test = undefined) {
+function getElapsedTime() {
 
-  // Change the header
-  let header = document.getElementById("answersHeader")
-  if (test == undefined) {
-    let testHeader = document.getElementById("scaledScoresHeader")
-    test = testHeader.innerHTML.split(' - ')[1]
-  }
-  header.innerHTML = "Answers - " + test
-
-  // Get the start of the absolute score for each scaled score: if to get a 34 you needed a 71 - 73, you will get 71
-  //    Also, if you couldn't get a 33 ( '-' as the absolute score) then you would see 71 (same start as the 34)
-  let english = testData[test]?.['englishAnswers'];
-  let math = testData[test]?.['mathAnswers'];
-  let reading = testData[test]?.['readingAnswers'];
-  let science = testData[test]?.['scienceAnswers'];
-
-  // Make it dynamic
-  let values = [english, math, reading, science]
-  let maxScores = [75, 60, 40, 40]
-
-  // Get the location of the section blocks
-  let sectionLocations = [document.getElementById("englishAnswers"),
-                          document.getElementById("mathAnswers"),
-                          document.getElementById("readingAnswers"),
-                          document.getElementById("scienceAnswers")]
+  // Set the current time
+  const section = document.getElementById('sectionTitle').innerHTML.toLowerCase()
   
-  // Get the boxes within each section block: to delete
-  let answerBlocks = []
-  for (let i = 0; i < sectionLocations.length; i++) {
-    answerBlocks.push(sectionLocations[i].querySelectorAll("div"))
+  // Set the current time
+  let time = Date.now()
+
+  // Update the last time
+  if (session_timer == undefined) {
+    start_time = time;
+  }
+  else {
+    timers[session_timer] += time - start_time;
   }
 
-  // Remove the old answers
-  for (let section = 0; section < answerBlocks.length; section++) {
-    let childCount = answerBlocks[section].length;
-    for (let i = 0; i < childCount; i++) {
-      answerBlocks[section][i].remove();
-    }
-  }
-
-  // Populate the scaled scores
-  for (let section = 0; section < answerBlocks.length; section++) {
-    for (let i = 0; i < (11 * Math.floor((values[section].length + 5) / 10)) + 11; i++) {
-      let ele = undefined;
-      let qNumber = (i - 11) - (Math.floor((i - 11) / 11));
-      if (i < 11 && i > 0) {
-        ele = createElements([['p']], [[]], [[]], [[]], ['+' + i.toString()], ['gridBoxAnswers'])
-      }
-      else if (i % 11 == 0) {
-        if (i != 0) {
-          ele = createElements([['p']], [[]], [[]], [[]], [(Math.floor((i - 11) / 11) * 10).toString()], ['gridBoxAnswers'])
-        }
-        else {
-          ele = createElements([['p']], [[]], [[]], [[]], [], ['gridBoxAnswers'])
-        }
-      }
-      else if (qNumber > 0 && qNumber < (maxScores[section] + 1)) {
-        ele = createElements([['p']], [[]], [[]], [[]], [values[section][qNumber - 1][qNumber]], ['gridBoxAnswers'])
-      }
-      else {
-        ele = createElements([['p']], [[]], [[]], [[]], ['X'], ['gridBoxAnswers'])
-        ele.style.backgroundColor = "rgb(230, 230, 230)"
-      }
-        sectionLocations[section].append(ele);
-    }
-  }
+  // Update which section we are changing to
+  session_timer = section;
 }
 
-function testSetup() {
-  let inCenterDiv = document.getElementById('inCenterTests')
-  let homeworkDiv = document.getElementById('homeworkTests')
-  let otherDiv = document.getElementById('otherTests')
+function openTest(test, section = undefined) {
 
-  const sections = ['English', 'Math', 'Reading', 'Science']
-
-  // Setup the 'homework' tests
-  for (let i = 0; i < 5 * hwTests.length; i++) {
-    let ele = undefined;
-    let ele2 = undefined;
-    let test = hwTests[(Math.floor(i / 5))]
-    if (i % 5 != 0) {
-      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
-    }
-    else {
-      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
-      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
-      ele.append(ele2)
-    }
-    homeworkDiv.append(ele)
-  }
-
-// Setup the 'in Center' tests
-for (let i = 0; i < 5 * icTests.length; i++) {
-    let ele = undefined;
-    let ele2 = undefined;
-    let test = icTests[(Math.floor(i / 5))]
-    if (i % 5 != 0) {
-      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
-    }
-    else {
-      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
-      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
-      ele.append(ele2)
-    }
-    inCenterDiv.append(ele)
-  }
-
-// Setup the 'Other' tests
-for (let i = 0; i < 5 * othTests.length; i++) {
-    let ele = undefined;
-    let ele2 = undefined;
-    let test = othTests[(Math.floor(i / 5))]
-    if (i % 5 != 0) {
-      ele = createElement('div', ['gridBox', 'button2'], ['data-test', 'data-section'], [test, sections[(i % 5) - 1]])
-    }
-    else {
-      ele = createElement('div', ['gridBox'], ['data-test'], [test], [])
-      ele2 = createElement('p', ['gridBox-p'], [], [], [test])
-      ele.append(ele2)
-    }
-    otherDiv.append(ele)
-  }
-}
-
-/*testInformation = {};
-
-function forEachDocument() {
-  firebase.firestore().collection('Students')
-  .onSnapshot((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      setInfo(doc.id)
-      console.log(doc.data()); // For data inside doc
-      console.log(doc.id); // For doc name
+  let path = test + (section != undefined ? (" - " + section.charAt(0).toUpperCase() + section.slice(1)) : "");
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
     })
-  })
+
 }
 
-function resetTests(studentUID) {
-  let ref = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-  
-  const keys = Object.keys(testInformation)
-  for (let i = 0; i < keys.length; i++) {
-    let sections = Object.keys(testInformation[keys[i]])
-    for (let j = 0; j < sections.length; j++) {
-      let status = testInformation[keys[i]][sections[j]]['Status']
-      if (status == 'not in time' || status == 'partial' || status == 'poor conditions') {
-        delete testInformation[keys[i]][sections[j]]['ScaledScore']
+function setTestCarousel(type = 'practice') {
+  if (type == 'practice') {
+    for (let i = 0; i < sections.length; i++) {
+      let testCount = 0;
+      for (let j = 0; j < icTests.length; j++) {
+        const data = test_answers_data[icTests[j]][sections[i] + 'Answers'];
+
+        let item = createElement('div', ['input-column-center', 'carouselItem'], [], [], '')
+        let test = icTests[j]
+        let testItem = createElement('div', ['practiceTest'], [], [], test)
+        item.append(testItem)
+
+        let ovalDiv = createElement('div', ['input-row-center'], [], [], '')
+        for (let k = 0; k < data[data.length - 1]['passageNumber']; k++) {
+          let ovalItem = createElement('div', ['oval'], ['onclick'], ["openPracticeTest('" + test + "', '" + sections[i] + "', '" + (k + 1).toString() + "', this)"], (k + 1).toString())
+          if (sections[i] in student_tests) {
+            if (test in student_tests[sections[i]]) {
+              if ((k + 1) in student_tests[sections[i]][test]) {
+                ovalItem.classList.add("green")
+              }
+            }
+          }
+          ovalDiv.append(ovalItem)
+        }
+        item.append(ovalDiv)
+
+        let carousel = document.getElementById(sections[i] + 'Carousel')
+        carousel.append(item)
+        testCount += 1;
       }
+
     }
   }
+}
 
-  ref.set(testInformation)
+function squareUp(element, section) {
+  element.parentNode.style.borderRadius = "0px";
+  document.getElementById(section + 'Text').style.display = null;
+  //element.innerHTML = section.charAt(0).toUpperCase() + section.slice(1);
+}
+
+function squareDown(element, section) {
+  element.parentNode.style.borderRadius = null;
+  document.getElementById(section + 'Text').style.display = 'none';
+  //element.innerHTML = '';
+}
+
+function hideTitle() {
+  document.getElementById('sectionTitle').style.display = "none"
+}
+
+function showTitle() {
+  document.getElementById('sectionTitle').style.display = null;
+}
+
+
+/*function circularText(txt, offset) {
+
+  const h = Math.min(window.innerHeight * 0.33, window.innerWidth * 0.33)
+
+  let classIndex = document.getElementById(txt.toLowerCase() + "Text");
+  txt = txt.split("");
+
+  const deg = 90 / 12;
+  let origin = (12 - txt.length) * deg / 2;
+  origin += offset;
+
+  txt.forEach((ea) => {
+    rad = origin / 180 * Math.PI;
+    if (['Reading', 'Science'].includes(txt)) {
+      rad = Math.PI - rad;
+    }
+    const top = (h / 2) * ( 1 - Math.cos(rad))
+    const left = (h / 4) * ( 2 + (1.5 * Math.sin(rad)))
+
+    let item = createElement('p', [], [], [], ea);
+    item.style.position = 'absolute';
+    item.style.transformOrigin = '0 100%';
+    item.style.transform = 'rotate(' + origin.toString() + 'deg)';
+    item.style.left = left + 'px';
+    item.style.top = top + 'px';
+
+    classIndex.append(item)
+    origin += deg;
+  });
 
 }
 
-function setInfo(studentUID) {
-  let hwDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("hw");
-  return hwDocRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      testInformation = doc.data();
-      resetTests(studentUID)
-    }
-  })
-  .catch(-1);
-}
+circularText("Math", 0);
+circularText("English", -86);
+circularText("Reading", 180);
+circularText("Science", 80);*/
 
-forEachDocument()*/
-
-/*function splitTests() {
-  let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
-
-  // For each test
-  const tests = Object.keys(testData)
-  for (let i = 0; i < tests.length; i++) {
-    //ref.doc(tests[i]).set(testData[tests[i]])
-
-    console.log(tests[i]) // test name
-    console.log(testData[tests[i]]) // test data
-  }
-}*/
-
-function grabTestData() {
-  // Fb reference
-  let ref = firebase.firestore().collection('Dynamic-Content').doc('act-tests').collection('Test-Data')
-
-  // Grab all tests from the Dynamic-Content collection and piece them together
+/*function transferLessons() {
+  console.log('Starting Lessons')
+  const ref = firebase.firestore().collection('Students')
+  let id = undefined;
+  let count = 0;
   ref.get()
-  .then((snapshot) => {
-    snapshot.forEach((doc) => {
-      testData[doc.id] = doc.data()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      id = doc.id
+      const newRef = ref.doc(id).collection('ACT').doc('lessons')
+      newRef.get()
+      .then((d) => {
+        // Make sure the doc specified exists
+        if (d.exists) {
+          let obj = {}
+          const studentId = doc.ref.path.split('/')[1]
+          const data = d.data()
+          const sections = Object.keys(data)
+          for (let i = 0; i < sections.length; i++) {
+            const sec = sections[i]
+            const lessons = Object.keys(data[sections[i]])
+            for (let j = 0; j < lessons.length; j++) {
+              const les = lessons[j]
+              const time = data[sec][les]['date']
+              let status = data[sec][les]['status']
+              if (status == 'needs review') {
+                status = 'review'
+              }
+              // SET NEW DOCUMENT
+              const setRef = firebase.firestore().collection('ACT-Student-Lessons').doc()
+              obj['date'] = time;
+              obj['lesson'] = les;
+              obj['section'] = sec;
+              obj['status'] = status;
+              obj['student'] = studentId;
+              setRef.set(obj)
+              .then(() => console.log('set'))
+              .catch((error) => console.log(error))
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+      count += 1;
+      //if (count == 10) {
+        //throw exception
+      //}
     })
   })
-  .then(() => scaledScoresTestsSetup())
+}
+//transferLessons()*/
+
+/*function transferTests() {
+  console.log('transfering tests')
+  const ref = firebase.firestore().collection('Students')
+  let id = undefined;
+  let count = 0;
+  ref.get()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      id = doc.id
+      // Make stuff below a function FIX ME
+      const newRef = ref.doc(id).collection('ACT').doc('hw')
+      newRef.get()
+      .then((d) => {
+        // Make sure the doc specified exists
+        if (d.exists) {
+          let obj = {}
+          const studentId = doc.ref.path.split('/')[1]
+          const data = d.data()
+          const tests = Object.keys(data)
+          for (let i = 0; i < tests.length; i++) {
+            const test = tests[i]
+            const sections = Object.keys(data[tests[i]])
+            for (let j = 0; j < sections.length; j++) {
+              const sec = sections[j]
+              const passageNumbers = Object.keys(data[test][sec])
+              let testType = data[test][sec]['TestType']
+              let status = undefined
+              let time = 0;
+              let score = -1;
+              let scaledScore = -1;
+              let questions = []
+
+              if (testType == 'homework') {
+                time = data[test][sec]['Date'] ?? 0
+                scaledScore = data[test][sec]['ScaledScore'] ?? -1
+                score = data[test][sec]['Score'] ?? -1
+                status = data[test][sec]['Status']
+              }
+              else if (testType != 'inCenter') {
+                console.log(studentId, testType, test, sec)
+              }
+
+              for (let k = 0; k < passageNumbers.length; k++) {
+
+                const passageNumber = passageNumbers[k]
+
+                if (['1', '2', '3', '4', '5', '6', '7'].includes(passageNumber)) {
+                  if (testType == 'inCenter' || testType == 'practice') {
+                    questions = []
+                  }
+                  const passages = test_answers_data[test][sec.toLowerCase() + 'Answers'].filter(function(val) { return val.passageNumber == parseInt(passageNumber)})
+                  const start = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[0]) + 1
+                  const end = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[passages.length - 1]) + 1
+
+                  if (testType == 'inCenter' || testType == 'practice') {
+                    testType = 'practice'
+                    status = data[test][sec][passageNumber]['Status']
+                  }
+
+                  for (let a = start; a < end + 1; a++) {
+                    if (data[test][sec][passageNumber]['Answers'].includes(a.toString())) {
+                      questions.push({
+                        'isWrong' : true,
+                        'question' : a
+                      })
+                    }
+                    else {
+                      questions.push({
+                        'isWrong' : false,
+                        'question' : a
+                      })
+                    }
+                  }
+
+                  if (testType == 'practice') {
+                    const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
+                    obj['date'] = time;
+                    obj['passageNumber'] = passageNumber;
+                    obj['questions'] = questions;
+                    obj['score'] = score;
+                    obj['section'] = sec.toLowerCase();
+                    obj['status'] = status.toLowerCase();
+                    obj['student'] = studentId;
+                    obj['test'] = test;
+                    obj['type'] = testType.toLowerCase();
+                    setRef.set(obj)
+                    .then(() => console.log('practice set'))
+                    .catch((error) => console.log(error))
+                  }
+
+                  //console.log(testType, test, sec, passageNumber, questions)
+
+                  if (status == undefined) {
+                    console.log(studentId, 'has a bad status:', test, sec, passageNumber)
+                    throw exception;
+                  }
+                }
+              }
+
+              if (testType == 'homework') {
+                const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
+                if (status != 'assigned' && status != 'reassigned') {
+                  obj['date'] = time;
+                  obj['questions'] = questions;
+                  obj['score'] = score;
+                  obj['scaledScore'] = scaledScore;
+                  obj['section'] = sec.toLowerCase();
+                  obj['status'] = status.toLowerCase();
+                  obj['student'] = studentId;
+                  obj['test'] = test;
+                  obj['type'] = testType.toLowerCase();
+                  setRef.set(obj)
+                  .then(() => console.log('homework set'))
+                  .catch((error) => console.log(error))
+                }
+                else {
+                  let studentQuestions = initializeEmptyAnswers(test, sec.toLowerCase());
+                  obj['date'] = time;
+                  obj['questions'] = studentQuestions;
+                  obj['score'] = -1;
+                  obj['scaledScore'] = -1;
+                  obj['section'] = sec.toLowerCase();
+                  obj['status'] = 'assigned';
+                  obj['student'] = studentId;
+                  obj['test'] = test;
+                  obj['type'] = testType.toLowerCase();
+                  setRef.set(obj)
+                  .then(() => console.log('homework set'))
+                  .catch((error) => console.log(error))
+                }
+              }
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        console.log(testType, test, sec, studentId, status, score, scaledScore, date, questions)
+      })
+      count += 1;
+      //if (count == 10) {
+        //throw exception
+      //}
+    })
+  })
+}
+//transferTests()*/
+
+function roundedAvg(values) {
+  let array = values.filter(element => element);
+  if (array.length == 0) {
+    return null;
+  }
+
+  let total = 0;
+  for (let i = 0; i < array.length; i++) {
+    total += array[i];
+  }
+  return Math.round(total / array.length);
 }

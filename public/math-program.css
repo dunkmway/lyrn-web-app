@@ -25,13 +25,24 @@ body {
   display: block;
 }
 
-#student-log-notes-div {
-  margin: 50px 0px 0px 20px;
+#generalStudentMessageDiv {
+  margin: 50px 0px 50px 20px;
   width: 400px;
   border-color: black;
   border-style: solid;
   border-radius: 10px;
   border-width: 1px;
+}
+
+.studentMessageLabel {
+  padding: 10px;
+  color: white;
+  border-radius: 10px 10px 0px 0px;
+  margin: 0;
+}
+
+.backgroundBlack {
+  background-color: black;
 }
 
 .mathProgramHelp {
@@ -60,128 +71,6 @@ body {
   max-width: 70%;
   padding: 20px;
   border-radius: 20px;
-}
-
-/* .section-notes-div {
-  margin: 10px;
-  flex: 1;
-  border-color: black;
-  border-style: solid;
-  border-radius: 10px;
-  border-width: 1px;
-  max-width: 40%;
-} */
-
-.student-notes {
-  height: 400px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 0 10px 0 10px
-}
-
-.student-notes-label {
-  padding: 10px;
-  color: white;
-  border-radius: 10px 10px 0px 0px;
-  margin: 0;
-}
-
-.student-notes :first-child {
-  margin-top: auto;
-}
-
-.student-notes .time {
-  font-weight: 200;
-  font-size: 12px;
-  color: #8A8B8A;
-  margin-bottom: 0;
-}
-
-.student-note {
-  border-radius: 10px;
-  margin-bottom: 10px;
-  padding: 5px 25px 5px 10px;
-  position: relative;
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
-  white-space: pre-wrap;
-}
-
-.student-note .delete {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: white;
-  color: #C4CCE8;
-  font-family: 'Helvetica', 'Arial', sans-serif;
-  font-size: 10px;
-  font-weight: bold;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.student-note .author {
-  position: relative;
-  text-align: right;
-  font-weight: 200;
-  font-size: 12px;
-  color: #8A8B8A;
-  right: -20px;
-  margin-bottom: 0;
-}
-
-.student-notes .right {
-  align-self: flex-end;
-  max-width: 80%;
-}
-
-.student-notes .right .student-note{
-  background-color: #C4CCE8;
-}
-
-.student-notes .left {
-  align-self: flex-start;
-  max-width: 80%;
-}
-
-.student-notes .left .student-note{
-  background-color: #CCE8C4;
-}
-
-.student-note.important {
-  border-color: #4177DA;
-  border-style: solid;
-}
-
-.student-note.session {
-  border-color: #DAA441;
-  border-style: solid;
-}
-
-.student-notes-input {
-  resize: none;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  height: 50px;
-  font-size: 16px;
-  font-weight: 300;
-  border-radius: 10px; 
-  margin-top: 10px;
-}
-
-.background-black {
-  background-color: black;
-}
-
-.no-margins {
-  margin: 0;
 }
 
 .metaForm {

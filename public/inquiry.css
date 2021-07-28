@@ -284,6 +284,12 @@ select {
   content: url("Images/select-dropdown.png");
 }
 
+.ui.active.selection.dropdown {
+  outline: none !important;
+  border-style: solid !important;
+  border-width: 2px !important;
+  border-color: rgb(135, 168, 247) !important;
+  /*
 .ui.dropdown>.ui.label {
   font-family: Roboto, sans-serif !important;
   font-size: 16px !important;
@@ -295,6 +301,7 @@ select {
   font-family: Roboto, sans-serif !important;
   font-size: 16px !important;
   font-weight: 200 !important;
+  */
 }
 
 .input:disabled {
@@ -331,6 +338,7 @@ select {
 .label {
   display: inline-block;
   color: black;
+  margin-bottom: 5px;
 }
 
 .more-info {
@@ -346,8 +354,6 @@ select {
   border-radius: 50%;
   border-color: lightslategray;
   border-width: 1px;
-  margin-left: 5px;
-  margin-bottom: 5px;
   position: relative;
   box-sizing: content-box;
 }
@@ -394,6 +400,10 @@ select {
   border-style: solid;
   border-width: 2px;
   margin: 10px;
+}
+
+.addRemoveButton {
+  vertical-align: middle;
 }
 
 p {
