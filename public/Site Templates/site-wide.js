@@ -150,8 +150,8 @@ function clearLoadingScreen() {
 
 function sendErrorReport(msg, url, lineNo, columnNo, error) {
     console.log("An error occurred")
-    // FIX BEFORE PUSHING TO PRODUCTION: REMOVE CONSOLE ABOVE AND UNCOMMENT BELOW
-    /*let userMsg = prompt("OH NO!!! An error has occured.\nLet us know what happened and we'll get right on it!") ?? null;
+    // BELOW CODE IS FOR ERRORS
+    let userMsg = prompt("OH NO!!! An error has occured.\nLet us know what happened and we'll get right on it!") ?? null;
     var report = {
         UserMessage: userMsg,
         Message: msg,
@@ -170,7 +170,7 @@ function sendErrorReport(msg, url, lineNo, columnNo, error) {
         errorRef.set(report)
         .then().catch();
         return false;
-    });*/
+    });
 }
 
 function handleFirebaseErrors(err, file) {

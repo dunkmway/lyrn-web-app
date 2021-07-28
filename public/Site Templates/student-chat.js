@@ -164,9 +164,9 @@ function deleteStudentMessage(event) {
       message.remove();
 
       // Check to see if the session is still submitable
-      if (studentType == 'act') {
-        submitSession()
-      }
+      //if (studentType == 'act') {
+        //submitSession()
+      //}
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
