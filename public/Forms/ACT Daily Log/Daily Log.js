@@ -200,7 +200,7 @@ function setGeneralInfo() {
         user.getIdTokenResult()
         .then((idTokenResult) => {
           let role = idTokenResult.claims.role;
-          if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          if (role == 'dev' || role == 'firebase' || role == 'secretary' ) {
             let queryStr = "?student=" + CURRENT_STUDENT_UID;
             document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
           }
@@ -2047,3 +2047,203 @@ function roundedAvg(values) {
   }
   return Math.round(total / array.length);
 }
+
+/*let users = []
+function chatObject(location = 'Tutors', role = 'tutor') {
+  console.log('starting map')
+  const ref = firebase.firestore().collection(location)
+  let id = undefined;
+  let count = 0;
+  ref.get()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      users.push(
+        {
+          'id' : doc.id,
+          'role' : role,
+          'name' : doc.data()[role + 'FirstName'] + ' ' + doc.data()[role + 'LastName']
+        }
+      )
+    })
+  })
+  .then(() => {
+    console.log(users)
+  })
+}
+
+chatObject('Tutors', 'tutor')
+chatObject('Admins', 'firebase')
+
+function getUserDisplayNamePrivate(id) {
+  return users.filter(function(val) { return val.id == id})[0]['name']
+}
+
+function getUserRolePrivate(id) {
+  return users.filter(function(val) { return val.id == id})[0]['role']
+}
+
+function createMessage_TEMP(studentUID, type, time, messages) {
+    const message = {
+        conversation: studentUID + "-" + type,
+        timestamp: parseInt(time),
+        message: messages[time].note,
+        author: messages[time].user,
+        authorName: getUserDisplayNamePrivate(messages[time].user),
+        authorRole: getUserRolePrivate(messages[time].user)
+    }
+
+    const chatRef =  firebase.firestore().collection("Student-Chats").doc();
+    return chatRef.set(message)
+}
+
+function transferChatMessages() {
+    const queryRef = firebase.firestore().collection("Students");
+    let allDone = queryRef.get()
+    .then((querySnapshot) => {
+        let studentPromises = []
+        querySnapshot.forEach((doc) => {
+            const studentUID = doc.id;
+            //get the notes doc for this student
+            console.log('Got profile doc for:', doc.id)
+
+
+            //ACT
+            const actNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("notes");
+            let actPromise = actNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    const notesData = notesDoc.data();
+                    const generalNotes = notesData.general;
+                    const englishNotes = notesData.english;
+                    const mathNotes = notesData.math;
+                    const readingNotes = notesData.reading;
+                    const scienceNotes = notesData.science;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in generalNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-general", time, generalNotes));
+                    }
+
+                    //english notes
+                    for (const time in englishNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-english", time, englishNotes));
+                    }
+
+                    //math notes
+                    for (const time in mathNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-math", time, mathNotes));
+                    }
+
+                    //reading notes
+                    for (const time in readingNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-reading", time, readingNotes));
+                    }
+
+                    //science notes
+                    for (const time in scienceNotes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "act-science", time, scienceNotes));
+                    }
+
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+            studentPromises.push(actPromise);
+
+
+            //Subject-Tutoring
+            const stNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Subject-Tutoring").doc("notes");
+            let stPromise = stNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "subjectTutoring-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+            studentPromises.push(stPromise);
+
+
+            //Math-Program
+            const mpNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Math-Program").doc("notes");
+            let mpPromise = mpNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "mathProgram-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+            studentPromises.push(mpPromise);
+
+
+            //Phonics-Program
+            const ppNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Phonics-Program").doc("notes");
+            let ppPromise = ppNotesRef.get()
+            .then((notesDoc) => {
+                if (notesDoc.exists) {
+                    const notesData = notesDoc.data();
+                    const notes = notesData.log;
+
+                    let chatPromises = [];
+                    //general notes
+                    for (const time in notes) {
+                        chatPromises.push(createMessage_TEMP(studentUID, "phonicsProgram-general", time, notes));
+                    }
+                    return Promise.all(chatPromises)
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+            studentPromises.push(ppPromise);
+        });
+        return Promise.all(studentPromises)
+    })
+    .catch((error) => {
+        console.log(error)
+    });
+
+    allDone.then(() => {
+        console.log("Successfully transferred chat messages!");
+    }).catch((error) => {
+        console.log(error)
+    })
+}*/
+/*firebase.firestore().collection('Student-Chats').get().then((querySnapshot) => {
+  console.log(querySnapshot.size)
+})*/
