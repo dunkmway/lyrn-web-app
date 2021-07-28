@@ -1560,8 +1560,33 @@ function unassignHomework(section) {
 
     // Remove the id from the list of document ids
     ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+    }*/
+/* MASTER
+function openCramSession(sessionCount) {
 
-  }*/
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
+function openLastSession() {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
+function swap() {
+  let nav = document.getElementById("sideNav");
+  nav.classList.toggle("nav_disabled")
+  nav.classList.toggle("nav_enabled")
+}
+MASTER */
+
   const tempIds = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]
   const id = tempIds['id']
   const test = tempIds['test']

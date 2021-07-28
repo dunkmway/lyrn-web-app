@@ -1,20 +1,28 @@
+//FIXME: need to grab which location we are looking at
+//currently stuck on Sandy
 let currentLocation = "";
-let currentLocationName = "";
-let currentUser = ""
-
+let currentLocations = [
+  {
+    id: "mhOjmqiieW6zrHcvsElp",
+    name: "Lehi"
+  },
+  {
+    id: "tykwKFrvmQ8xg2kFfEeA",
+    name: "Sandy"
+  }
+]
 initialSetupData();
+
 
 function initialSetupData() {
   firebase.auth().onAuthStateChanged(function(user) {
-    currentUser = user;
-    if (currentUser) {
+    if (user) {
       // User is signed in.
-      getSecretaryProfile(currentUser.uid)
+      getSecretaryProfile(user.uid)
       .then((doc) => {
         if (doc.exists) {
           setSecretaryProfile(doc.data());
-          setStudentTable()
-          .then(() => setLocations())
+          setStudentTable();
         }
         else setSecretaryProfile();
       })
@@ -25,312 +33,112 @@ function initialSetupData() {
   });
 }
 
-function getSecretaryProfile(secretaryUID) {
-  const secretaryProfileRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
-  return secretaryProfileRef.get();
-}
-
-function setSecretaryProfile(profileData = {}) {
-  currentLocation = profileData['location'];
-
-  if (profileData['secretaryFirstName'] && profileData['secretaryLastName']) {
-    document.getElementById('secretary-name').textContent = "Welcome " + profileData['secretaryFirstName'] + " " + profileData['secretaryLastName'] + "!";
-  }
-  else {
-    document.getElementById('secretary-name').textContent = "Welcome Secretary!";
-  }
-}
-
 function setStudentTable() {
   let tableData = [];
-  let promises = []
-  for (let i = 0; i < currentLocations.length; i++) {
-    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
-    let locationProm = locationDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        let locationName = doc.get("locationName");
-        currentLocationNames.push(locationName);
-        //document.getElementById("locationName").textContent = locationName;
+  let promises = [];
 
-        let pendingStudents = doc.get("pendingStudents");
-        let activeStudents = doc.get("activeStudents");
+  //get array of location ids
+  let locationUIDs = [];
+  currentLocations.forEach((location) => {
+    locationUIDs.push(location.id);
+  })
 
-        // console.log(pendingStudents);
-        // console.log(activeStudents);
+  //query all students whose types are in the current locations array
+  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).get()
+  .then((studentQuerySnapshot) => {
+    studentQuerySnapshot.forEach((studentDoc) => {
+      const studentData = studentDoc.data();
 
-        //for the table
+      //convert type string to array
+      let studentTypesTable = "";
+      studentData.studentTypes.forEach((type) => {
+        switch(type) {
+          case 'act':
+            studentTypesTable += 'ACT, ';
+            break;
+          case 'subjectTutoring':
+            studentTypesTable += 'Subject-Tutoring, ';
+            break;
+          case 'mathProgram':
+            studentTypesTable += 'Math-Program, ';
+            break;
+          case 'phonicsProgram':
+            studentTypesTable += 'Phonics-Program, ';
+            break;
+          default:
+            //nothing
+        }
+      })
+      studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
 
-        if (pendingStudents) {
-          for (const studentUID in pendingStudents) {
-            const student = {
-              ...pendingStudents[studentUID],
-              studentUID: studentUID,
-              status: "pending",
-              location: locationName,
-              locationUID: currentLocations[i]
-            }
-            //adjust type to be readable
-            if (student.studentType == 'act') {
-              student.studentType = 'ACT'
-            }
-            else if (student.studentType == 'subject-tutoring') {
-              student.studentType = 'ST'
-            }
-            else if (student.studentType == 'math-program') {
-              student.studentType = 'Math Program'
-            }
-            else if (student.studentType == 'phonics-program') {
-              student.studentType = 'Phonics Program'
-            }
-            else {
-              student.studentType == "";
-            }
-            tableData.push(student);
-          }
+      //figure out the location name
+      let locationName = "";
+      currentLocations.forEach((location) => {
+        if (studentData.location == location.id) {
+          locationName = location.name;
+        }
+      })
+
+      promises.push(getParentData(studentData.parent)
+      .then((parentData) => {
+
+        const student = {
+          studentUID: studentDoc.id,
+          studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+          studentTypes: studentData.studentTypes,
+          studentTypesTable: studentTypesTable,
+          location: locationName,
+          parentUID: parentData.parentUID,
+          parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
         }
 
-        if (activeStudents) {
-          for (const studentUID in activeStudents) {
-            const student = {
-              ...activeStudents[studentUID],
-              studentUID: studentUID,
-              status: "active",
-              location: locationName,
-              locationUID: currentLocations[i]
-            }
-            //adjust type to be readable
-            if (student.studentType == 'act') {
-              student.studentType = 'ACT'
-            }
-            else if (student.studentType == 'subject-tutoring') {
-              student.studentType = 'ST'
-            }
-            else if (student.studentType == 'math-program') {
-              student.studentType = 'Math Program'
-            }
-            else if (student.studentType == 'phonics-program') {
-              student.studentType = 'Phonics Program'
-            }
-            else {
-              student.studentType == "";
-            }
-            tableData.push(student);
-          }
+        tableData.push(student);
+      }));
+    });
+
+    //all of the student objects have been created
+    Promise.all(promises)
+    .then(() => {
+      let studentTable = $('#student-table').DataTable( {
+        data: tableData,
+        columns: [
+          { data: 'studentName' },
+          { data: 'studentTypesTable'},
+          { data: 'location'},
+          { data: 'parentName'},
+        ],
+        "scrollY": "400px",
+        "scrollCollapse": true,
+        "paging": false
+      } );
+    
+      studentTable.on('click', (args) => {
+        //this should fix some "cannot read property of undefined" errors
+        if (args?.target?._DT_CellIndex) {
+          let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
+          setupNavigationModal(studentUID);
+          document.getElementById("navigationSection").style.display = "flex";
         }
-      }
+      })
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
-    });
+      console.log(error);
+    })
 
-    promises.push(locationProm);
-  }
-  
-  return Promise.all(promises)
-  .then(() => {
-    // console.log("tableData", tableData);
-    let studentTable = $('#student-table').DataTable( {
-      data: tableData,
-      columns: [
-        { data: 'studentFirstName' },
-        { data: 'studentLastName' },
-        { data: 'studentType'},
-        { data: 'location'},
-        { data: 'status' },
-        { data: 'parentFirstName' },
-        { data: 'parentLastName'},
-      ],
-      "scrollY": "400px",
-      "scrollCollapse": true,
-      "paging": false
-    } );
-
-    studentTable.on('click', (args) => {
-      let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-      let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
-      let location = tableData[args.target._DT_CellIndex.row].locationUID;
-      let status = tableData[args.target._DT_CellIndex.row].status;
-      let type = tableData[args.target._DT_CellIndex.row].studentType;
-
-      switch (status) {
-        case "pending":
-          if (type == 'ACT') {
-            pendingStudentSelected(studentUID, parentUID, location);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
-          break;
-        case "active":
-          if (type == 'ACT') {
-            actStudentSelected(studentUID);
-          }
-          else if (type == 'ST') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          //FIXME: these will need to be redirected to the proper page once we have them
-          else if (type == 'Math Program') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          else if (type == 'Phonics Program') {
-            subjectTutoringStudentSelected(studentUID);
-          }
-          else {
-            alert("nothing to see here...yet")
-          }
-          break;
-        default:
-          console.log("ERROR: This student isn't active or pending!!!")
-      }
-    });
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
+    console.log(error);
   });
-  
 }
 
-function goToInquiry() {
-  window.location.href = "../inquiry.html";
-}
-
-function validateFields(inputs) {
-  let allClear = true;
-  let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
-
-  for (let err = errorMessages.length - 1; err >= 0; err--) {
-    errorMessages[err].remove()
+function goToInquiry(studentUID = null) {
+  let queryStr = '';
+  if (studentUID) {
+    queryStr = "?student=" + studentUID;
   }
-
-  for(i = 0; i < inputs.length; i++) {
-    if(inputs[i].hasAttribute("required") && inputs[i].value == "") {
-      inputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [inputs[i].id + "ErrorMessage"], "* Required *"));
-      allClear = false;
-    }
-
-    // Validate Emails
-    if (inputs[i].id.includes("Email")) {
-      if (validateInputEmail(inputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    // Validate phoneNumbers
-    if (inputs[i].id.includes("PhoneNumber") && inputs[i].value != "") {
-      if (validateInputPhoneNumbers(inputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    if (inputs[i].id.includes("birthday") && inputs[i].value != "") {
-      if (validateInputBirthday(inputs[i]) == false) {
-        allClear = false;
-      }
-    }
-
-    if (inputs[i].id.includes("zipCode") && inputs[i].value != "") {
-      if (validateInputZipCode(inputs[i]) == false) {
-        allClear = false;
-      }
-    }
-  }
-  return allClear;
-}
-
-function validateInputEmail(input) {
-  if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim()))) {
-    let error = document.getElementById(input.id + "ErrorMessage")
-    if (error != null) {
-      error.innerHTML = "* Please enter a valid email address *"
-    }
-    else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid email address *"));
-    }
-    return false;
-  }
-  return true;
-}
-
-function validateInputPhoneNumbers(input) {
-  if (input.value.length != 14) {
-    let error = document.getElementById(input.id + "ErrorMessage")
-    if (error != null) {
-      error.innerHTML = "* Please enter a valid phone number *"
-    }
-    else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid phone number *"));
-    }
-    return false;
-  }
-  return true;
-}
-
-function validateInputZipCode(input) {
-  if (input.value.length != 5) {
-    let error = document.getElementById(input.id + "ErrorMessage")
-    if (error != null) {
-      error.innerHTML = "* Please enter a valid zip code *"
-    }
-    else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* Please enter a valid zip code *"));
-    }
-    return false;
-  }
-  return true;
-}
-
-function validateInputBirthday(input) {
-  if (input.value.length != 10) {
-    let error = document.getElementById(input.id + "ErrorMessage")
-    if (error != null) {
-      error.innerHTML = "* Please write all months, days, and years out *"
-    }
-    else {
-      input.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [input.id + "ErrorMessage"], "* please write all months, days, and years out *"));
-    }
-    return false;
-  }
-  return true;
-}
-
-function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
-  let question = document.createElement(elementType);
-
-  if (attributes.length == values.length && attributes.length > 0) {
-    for (let i = 0; i < attributes.length; i++) {
-      question.setAttribute(attributes[i], values[i]);
-    }
-  }
-
-  if (classes != "") {
-    question.className = classes;
-  }
-
-  if (text != "") {
-    question.innerHTML = text;
-  }
-  return question;
-}
-
-
-// function pendingStudentSelected(e) {
-//   let uids = e.value;
-//   let studentTempUID = uids.split(",")[0];
-//   let parentUID = uids.split(",")[1];
-//   let queryStr = "?student=" + studentTempUID + "&parent=" + parentUID + "&location=" + currentLocation;
-//   window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
-// }
-
-// function activeStudentSelected(e) {
-//   let studentUID = e.value;
-//   let queryStr = "?student=" + studentUID;
-//   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
-// }
-
-function pendingStudentSelected(studentUID, parentUID, location) {
-  let queryStr = "?student=" + studentUID + "&parent=" + parentUID + "&location=" + location;
-  window.location.href = "../Forms/New Student/New Student Form.html" + queryStr;
+  window.location.href = "../inquiry.html" + queryStr;
 }
 
 function actStudentSelected(studentUID) {
@@ -338,7 +146,83 @@ function actStudentSelected(studentUID) {
   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 }
 
-function subjectTutoringStudentSelected(studentUID) {
-  let queryStr = "?student=" + studentUID;
-  window.location.href = "../subject-tutoring-dash.html" + queryStr;
+function resetPassword() {
+  let confirmation = confirm("Are you sure you want to reset your password?");
+  if (confirmation) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var auth = firebase.auth();
+        var emailAddress = user.email;
+
+        auth.sendPasswordResetEmail(emailAddress)
+        .then(function() {
+          // Email sent.
+          alert("An email has been sent to your email to continue with your password reset.");
+        })
+        .catch(function(error) {
+          // An error happened.
+          alert("There was an issue with your password reset. \nPlease try again later.");
+          handleFirebaseErrors(error, window.location.href);
+        });
+      } else {
+        // No user is signed in.
+        alert("Oops! No one is signed in to change the password");
+      }
+    });
+  }
 }
+
+function getSecretaryProfile(secretaryUID) {
+  const secretaryProfileRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
+  return secretaryProfileRef.get();
+}
+
+function setSecretaryProfile(profileData = {}) {
+  if (profileData['secretaryFirstName'] && profileData['secretaryLastName']) {
+    document.getElementById('secretary-name').textContent = "Welcome " + profileData['secretaryFirstName'] + " " + profileData['secretaryLastName'] + "!";
+  }
+  else {
+    document.getElementById('secretary-name').textContent = "Welcome Secretary!";
+  }
+
+  if (profileData['location']) {
+    currentLocation = profileData['location'];
+  }
+}
+
+function submitFeedback() {
+  let submitBtn = document.getElementById("feedback_submit_btn");
+  let errorMsg = document.getElementById("feedback_error_msg");
+
+  submitBtn.disabled = true;
+  errorMsg.textContent = "";
+
+  let feedbackInput = document.getElementById("feedback_input");
+
+  //check for a valid input
+  if (feedbackInput.value.trim() != "") {
+    let valid = confirm("Are you sure you're ready to submit this feedback?");
+    if (valid) {
+      const feedbackRef = firebase.firestore().collection("Feedback").doc();
+      feedbackRef.set({
+        user: firebase.auth().currentUser.uid,
+        feedback: feedbackInput.value,
+        timestamp: (new Date().getTime())
+      })
+      .then(() => {
+        feedbackInput.value = "";
+        submitBtn.disabled = false;
+        errorMsg.textContent = "We got it! Thanks for the feedback";
+      })
+      .catch((error) => {
+        handleFirebaseErrors(error, window.location.href);
+        submitBtn.disabled = false;
+        errorMsg.textContent = "You're feedback was too honest for the computer to process. Please try again later.";
+      })
+    }
+  }
+  else {
+    document.getElementById("feedback_error_msg").textContent = "...you didn't even write anything."
+    submitBtn.disabled = false;
+  }
+} 

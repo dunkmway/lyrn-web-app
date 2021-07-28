@@ -571,3 +571,55 @@ function getUserRolePrivate(uid) {
         new functions.https.HttpsError(error.code, error.message, error.details);
     });
 }
+exports.updateAllStudentTypesToArray = functions.https.onRequest((request, response) => {
+    admin.firestore().collection('Students').get()
+    .then((studentQuerySnapshot) => {
+        let promises = [];
+        studentQuerySnapshot.forEach((studentProfileDoc) => {
+            let studentData = studentProfileDoc.data();
+            let studentType = studentData.studentType;
+
+            //make the types look beter
+            switch(studentType) {
+                case 'act':
+                    //it's good
+                    break
+                case 'subject-tutoring':
+                    studentType = 'subjectTutoring';
+                    break
+                case 'math-program':
+                    studentType = 'mathProgram';
+                    break
+                case 'phonics-program':
+                    studentType = 'phonicsProgram';
+                    break
+                default:
+                    studentType = null;
+                    break
+            }
+
+            //put it into an array
+            let newStudentTypes;
+            if (studentType) {
+                newStudentTypes = [studentType];
+            }
+            else {
+                newStudentTypes = [];
+            }
+
+            //update the doc
+            promises.push(admin.firestore().collection('Students').doc(studentProfileDoc.id).update({
+                studentTypes: newStudentTypes
+            }));
+        })
+
+        Promise.all(promises)
+        .then(() => {
+            response.send("all good");
+        })
+        .catch((errors) => {
+            console.log(errors);
+            response.send("not doing so well.")
+        })
+    })
+});

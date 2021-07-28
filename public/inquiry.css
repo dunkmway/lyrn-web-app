@@ -289,6 +289,19 @@ select {
   border-style: solid !important;
   border-width: 2px !important;
   border-color: rgb(135, 168, 247) !important;
+  /*
+.ui.dropdown>.ui.label {
+  font-family: Roboto, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 200 !important;
+  color: black !important;
+}
+
+.ui.dropdown>.menu>.item {
+  font-family: Roboto, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 200 !important;
+  */
 }
 
 .input:disabled {

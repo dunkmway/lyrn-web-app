@@ -138,8 +138,8 @@ function updateStudentExpectation(event) {
 document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) =>  {
   if (event.key == 'Enter') {
     note_flag = true;
+    submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
   }
-  submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
 });
 
 function removeLessons() {
@@ -249,11 +249,36 @@ function getLessons() {
           initializeEmptyLessonsMap();
         }
       }
+      checkForMissingLessons();
       populateLessons();
     })
     .then(() => resolve())
     .catch((error) => reject('Fb error:' + error))
   })
+}
+
+function checkForMissingLessons() {
+  console.log("checking")
+  const sections = Object.keys(lesson_data)
+  for (let i = 0; i < sections.length; i++) {
+    if (sections[i] != 'order') {
+      if (!(sections[i] in current_lesson_data)) {
+        let obj = {}
+        for (let j = 0; j < lesson_data[sections[i]].length; j++) {
+          obj[lesson_data[sections[i]]] = {'date' : 0, 'status' : 'not assigned'}
+        }
+        setObjectValue([sections[i]], obj, current_lesson_data)
+      }
+      else {
+        for (let j = 0; j < lesson_data[sections[i]].length; j++) {
+          const lesson = lesson_data[sections[i]][j]
+          if (!(lesson in current_lesson_data[sections[i]])) {
+            setObjectValue([sections[i], lesson], {'date' : 0, 'status' : 'not assigned'}, current_lesson_data)
+          }
+        }
+      }
+    }
+  }
 }
 
 function submitLessons() {
@@ -332,3 +357,19 @@ function getLessonNames() {
   })
   .catch((error) => handleFirebaseErrors(error, window.location.href));
 }
+
+document.getElementById("student-general-info").addEventListener("dblclick", () => {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          const studentUID = queryStrings()['student']
+          let queryStr = "?student=" + studentUID;
+          window.location.href = "inquiry.html" + queryStr;
+        }
+      })
+    }
+  });
+});
