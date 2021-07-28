@@ -1035,7 +1035,7 @@ span:hover + .wrap a, .wrap:hover a{
 }
 
 #studentGeneralInfoContainer .gridContainer {
-  grid-template-columns: minmax(0, auto) auto auto auto auto auto;
+  grid-template-columns: 20% 16% 16% 16% 16% 16%;
 }
 
 #studentGeneralInfoContainer .gridContainer :disabled {
