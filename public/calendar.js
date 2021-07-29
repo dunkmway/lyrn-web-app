@@ -4,8 +4,8 @@ let pending_calendar_event_id = "";
 let old_calendar_event = {}
 let old_calendar_event_id = "";
 let pending_recurring_times = [];
-let pending_recurring_start;
-let pending_recurring_end;
+let pending_recurring_start = {};
+let pending_recurring_end = {};
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -176,7 +176,7 @@ function initializeDefaultCalendar(events) {
   main_calendar.render();
 }
 
-function initializeWeeklyScheduleCalendar() {
+function initializeWeeklyScheduleCalendar(events) {
   if (main_calendar) {
     main_calendar.destroy();
   }
@@ -204,27 +204,39 @@ function initializeWeeklyScheduleCalendar() {
     selectable: true,
 
     select: function(info) {
-      main_calendar.addEvent({
+      pending_recurring_times.push(main_calendar.addEvent({
         start: info.start,
         end: info.end,
-      });
+      }));
+
       main_calendar.unselect();
     },
+
     selectOverlap: function(event) {
-        event.remove();
-        return true;
+      pending_recurring_times.forEach((eventObj, index) => {
+        if (eventObj.start.getTime() == event.start.getTime()) {
+          pending_recurring_times.splice(index, 1)
+        }
+      })
+      event.remove();
+      return true;
     },
 
     eventClick: function(info) {
+      pending_recurring_times.forEach((event, index) => {
+        if (event.start.getTime() == info.event.start.getTime()) {
+          pending_recurring_times.splice(index, 1)
+        }
+      })
       info.event.remove();
     },
 
-    unselectAuto: false,
+    events: events
   });
   main_calendar.render();
 }
 
-function initializepMonthScheduleCalendar() {
+function initializepMonthScheduleCalendar(events) {
   if (main_calendar) {
     main_calendar.destroy();
   }
@@ -235,9 +247,22 @@ function initializepMonthScheduleCalendar() {
   main_calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     validRange: function(nowDate) {
+      //select based on the events that are passed in
+      let start = nowDate;
+      let end = null;
+      events.forEach(event => {
+        if (event.id == 'start') {
+          start = event.start;
+        }
+        else if (event.id == 'end') {
+          end = event.end;
+        }
+      })
+
       return {
-        start: nowDate,
-      };
+        start: start,
+        end: end
+      }
     },
     hiddenDays: [],
     allDaySlot: false,
@@ -250,16 +275,68 @@ function initializepMonthScheduleCalendar() {
       end:  ''
     },
     themeSystem: 'standard',
+    //so that start goes before end
+    eventOrder: '-title',
 
     selectable: true,
 
     select: function(info) {
-      main_calendar.addEvent({
-        start: info.start,
-        end: info.end,
-      });
+      //if there are no events
+      if (main_calendar.getEvents().length == 0) {
+        pending_recurring_start = main_calendar.addEvent({
+          title: 'Start today',
+          start: info.start,
+          end: info.end,
+          allDay: true,
+          id: 'start'
+        });
+
+        //restrict valid range to after this date
+        main_calendar.setOption('validRange', function() {
+          return {
+            start: info.start,
+          };
+        })
+      }
+      //one event
+      else if (main_calendar.getEvents().length == 1) {
+        pending_recurring_end = main_calendar.addEvent({
+          title: 'End today',
+          start: info.start,
+          end: info.end,
+          allDay: true,
+          id: 'end'
+        });
+
+        //restrict valid range to before this date (visual help)
+        main_calendar.setOption('validRange', function() {
+          return {
+            start: main_calendar.getEventById('start').start,
+            end: info.end,
+          };
+        })
+      }
+      else {
+        //unrestrict valid time
+        main_calendar.setOption('validRange', function(nowDate) {
+          return {
+            start: nowDate,
+          };
+        })
+
+        //any more events reset the events
+        main_calendar.getEvents().forEach(event => {
+          event.remove()
+        })
+
+        pending_recurring_start = {};
+        pending_recurring_end = {};
+      }
+      
       main_calendar.unselect();
     },
+
+    events: events
   });
   main_calendar.render();
 }
@@ -1561,19 +1638,12 @@ function recurringEventTimesClickCallback(target) {
   unselectSiblings(target);
   target.classList.add('selected');
 
-  initializeWeeklyScheduleCalendar();
+  initializeWeeklyScheduleCalendar(pending_recurring_times);
 }
 
-function recurringEventStartClickCallback(target) {
+function recurringEventStartEndClickCallback(target) {
   unselectSiblings(target);
   target.classList.add('selected');
 
-  initializepMonthScheduleCalendar();
-}
-
-function recurringEventEndClickCallback(target) {
-  unselectSiblings(target);
-  target.classList.add('selected');
-
-  initializepMonthScheduleCalendar();
+  initializepMonthScheduleCalendar([pending_recurring_start, pending_recurring_end]);
 }
