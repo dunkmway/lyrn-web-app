@@ -394,15 +394,20 @@ function getLatestTests(studentUID) {
     .where('student', '==', studentUID)
     .where('type', '==', 'homework')
     .where('section', '==', section)
-    .where('scaledScore', '!=', -1)
-    .orderBy('scaledScore')
+    // .where('scaledScore', '!=', -1)
+    // .orderBy('scaledScore')
     .orderBy('date', 'desc')
-    .limit(1)
+    // .limit(1)
 
     testDocs.push(sectionQuery.get()
     .then((sectionSnapshot) => {
       if (!sectionSnapshot.empty) {
-        return sectionSnapshot.docs[0];
+        for (let i = 0; i < sectionSnapshot.size; i++) {
+          if (sectionSnapshot.docs[i].data().scaledScore != -1) {
+            return sectionSnapshot.docs[i]
+          }
+        }
+        return null
       }
       else {
         return null
