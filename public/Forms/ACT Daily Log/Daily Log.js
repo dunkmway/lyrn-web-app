@@ -147,13 +147,13 @@ function setGeneralInfo() {
       let section = testDoc?.data()?.section
 
       if (section) {
-        document.getElementById(section + 'Current').textContent = scaledScore == 0 ? "" : scaledScore.toString();
+        document.getElementById(section + 'Current').textContent = scaledScore == 0 ? "" : scaledScore?.toString();
       }
 
       currentScores.push(scaledScore)
     })
     let compositeCurrent = roundedAvg(currentScores);
-    document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent.toString();
+    document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent?.toString();
 
     //set up the test date goals
     testGoals = studentProfileDoc.data().testGoals;
@@ -200,7 +200,7 @@ function setGeneralInfo() {
         user.getIdTokenResult()
         .then((idTokenResult) => {
           let role = idTokenResult.claims.role;
-          if (role == 'dev' || role == 'firebase' || role == 'secretary' ) {
+          if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
             let queryStr = "?student=" + CURRENT_STUDENT_UID;
             document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
           }
@@ -394,15 +394,20 @@ function getLatestTests(studentUID) {
     .where('student', '==', studentUID)
     .where('type', '==', 'homework')
     .where('section', '==', section)
-    .where('scaledScore', '!=', -1)
-    .orderBy('scaledScore')
+    // .where('scaledScore', '!=', -1)
+    // .orderBy('scaledScore')
     .orderBy('date', 'desc')
-    .limit(1)
+    // .limit(1)
 
     testDocs.push(sectionQuery.get()
     .then((sectionSnapshot) => {
       if (!sectionSnapshot.empty) {
-        return sectionSnapshot.docs[0];
+        for (let i = 0; i < sectionSnapshot.size; i++) {
+          if (sectionSnapshot.docs[i].data().scaledScore != -1) {
+            return sectionSnapshot.docs[i]
+          }
+        }
+        return null
       }
       else {
         return null
