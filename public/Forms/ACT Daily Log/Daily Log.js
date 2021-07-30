@@ -200,7 +200,7 @@ function setGeneralInfo() {
         user.getIdTokenResult()
         .then((idTokenResult) => {
           let role = idTokenResult.claims.role;
-          if (role == 'dev' || role == 'firebase' || role == 'secretary' ) {
+          if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
             let queryStr = "?student=" + CURRENT_STUDENT_UID;
             document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
           }
