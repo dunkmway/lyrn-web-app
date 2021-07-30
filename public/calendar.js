@@ -379,6 +379,18 @@ function cancelSidebar() {
     allInputNodes[i].value = ""
   }
 
+  //unselect all buttons
+  const allButtonNodes = document.getElementById('sidebar').querySelectorAll('button');
+  for (let i = 0; i < allButtonNodes.length; i++) {
+    allButtonNodes[i].classList.remove('selected');
+  }
+
+  //bring radio buttons back to first option
+  const allRadioNodes = document.getElementById('sidebar').querySelectorAll('input[type="radio"]');
+  for (let i = allRadioNodes.length - 1; i > -1 ; i--) {
+    allRadioNodes[i].checked = 'true';
+  }
+
   //all selects should be dynamically created on setup so we can remove all elements here
   const allSelectNodes = document.getElementById('sidebar').querySelectorAll('select');
   for (let i = 0; i < allSelectNodes.length; i++) {
@@ -481,6 +493,8 @@ function openCalendarSidebar() {
  */
 function closeCalendarSidebar() {
 
+  initializeDefaultCalendar([]);
+
   //call the cancel function on the open sidebar
   cancelSidebar();
 
@@ -500,6 +514,12 @@ function closeCalendarSidebar() {
     delete old_calendar_event[key]
   }
   old_calendar_event_id = "";
+
+  while (pending_recurring_times.length > 0) {
+    pending_recurring_times.pop()
+  }
+  pending_recurring_start = {};
+  pending_recurring_end = {};
 
   document.getElementById('sidebar').classList.remove("open");
   document.getElementById('sidebar').classList.add("closed");
@@ -1618,7 +1638,7 @@ function clearAddLessonRecurringSelected() {
   //remove any recurring event data from pending
 }
 
-function claerAddLessonSingleSelected() {
+function clearAddLessonSingleSelected() {
   //remove any single event data from pending
 }
 
@@ -1631,7 +1651,9 @@ function addLessonSingleSelected(target) {
 }
 
 function addLessonRecurringSelected(target) {
-  claerAddLessonSingleSelected();
+  clearAddLessonSingleSelected();
+
+  recurringEventTimesClickCallback(document.getElementById('addLessonRecurringWrapper').children[0]);
 }
 
 function recurringEventTimesClickCallback(target) {
