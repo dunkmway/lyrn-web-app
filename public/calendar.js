@@ -376,7 +376,9 @@ function cancelSidebar() {
   //clear the input for every input
   const allInputNodes = document.getElementById('sidebar').querySelectorAll('input');
   for (let i = 0; i < allInputNodes.length; i++) {
-    allInputNodes[i].value = ""
+    if (allInputNodes[i].type != 'radio') {
+      allInputNodes[i].value = ""
+    }
   }
 
   //unselect all buttons
@@ -1277,6 +1279,55 @@ function updateEditTestReview() {
   }
 }
 
+function submitAddLesson() {
+  ///decide if it is a single event or a recurring event
+  let scheduleType = '';
+  const radios = document.getElementsByName('addLessonEventSchedule');
+  for (let i = 0; i < radios.length; i++) {
+    if (radios[i].checked) {
+      scheduleType = radios[i].value
+      break;
+    }
+  }
+  
+  //
+
+  // const start = pending_calendar_event.start;
+  // const end = pending_calendar_event.end;
+  // const allDay = pending_calendar_event.allDay;
+  // const student = document.getElementById('addTestReviewStudent').value;
+  // const staff = getDropdownValues('addTestReviewTutor');
+  // const location = document.getElementById('calendarLocation').dataset.value;
+
+  // if (!start || !student || !location || staff.length == 0) {
+  //   return alert("It looks like you're still missing some data for this test review");
+  // }
+
+  // if (confirm("Are you sure you want to submit this event?")) {
+
+  //   eventInfo = {
+  //     type: 'testReview',
+  //     start: start,
+  //     end: end,
+  //     allDay, allDay,
+  //     location: location,
+  //     student: student,
+  //     staff: staff
+  //   }
+
+  //   saveTestReview(eventInfo)
+  //   .then((event) => {
+  //     //FIXME: This should automatically update for the client and put it in a pending status
+  //     main_calendar.addEvent(event);
+  //     closeCalendarSidebar();
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //     alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+  //   })
+  // }
+}
+
 function saveTeacherMeeting(eventInfo) {
   //first get all of the staff that are invited to this meeting
   let promises = [];
@@ -1635,11 +1686,11 @@ function clearAddLessonRecurringSelected() {
   //unselect the buttons for recurring
   unselectSiblings(document.getElementById('addLessonRecurringWrapper').children.item(0))
 
-  //remove any recurring event data from pending
+  //remove any recurring event data from pending?
 }
 
 function clearAddLessonSingleSelected() {
-  //remove any single event data from pending
+  //remove any single event data from pending?
 }
 
 function addLessonSingleSelected(target) {
