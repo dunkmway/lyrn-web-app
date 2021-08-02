@@ -328,16 +328,16 @@ function studentInitialScoreFocusOutCallback(element) {
 function updateCompositeInitial() {
   let initials = []
   document.getElementById('studentGeneralInfoSection').querySelectorAll('input[id$="Initial"]').forEach(sectionInitialElement => {
-    initials.push(parseInt(sectionInitialElement.value));
+    initials.push(sectionInitialElement.value ? parseInt(sectionInitialElement.value) : null);
   })
 
+  console.log(initials)
   document.getElementById('compositeInitial').textContent = roundedAvg(initials).toString();
 }
 
 function studentGoalScoreFocusOutCallback(element) {
   //check if anything changed
   if (!element.classList.contains('changed')) {return}
-  console.log('change callback triggered')
   removeAllWorkingClasses(element)
   //place the input into a pending state
   element.classList.add('pending');
@@ -366,7 +366,7 @@ function updateCompositeGoal() {
     let index = parseInt(compositeGoalElement.id.split('-')[1]);
     let goals = []
     document.getElementById('studentGeneralInfoSection').querySelectorAll(`input[id$="Goal-${index}"]`).forEach(sectionGoalElement => {
-      goals.push(parseInt(sectionGoalElement.value));
+      goals.push(sectionGoalElement.value ? parseInt(sectionGoalElement.value) : null);
     })
 
     compositeGoalElement.textContent = roundedAvg(goals).toString();
@@ -374,7 +374,6 @@ function updateCompositeGoal() {
 }
 
 function generalInfoInputCallback(e) {
-  console.log('input callback triggered')
   removeAllWorkingClasses(e)
   e.classList.add('changed')
 }

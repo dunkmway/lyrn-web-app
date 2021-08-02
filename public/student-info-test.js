@@ -165,19 +165,19 @@ function chartsSetup() {
     //chartElements['composite'].style.maxHeight = "93%"
 }
 
-function roundedAvg(values) {
-  //let array = values.filter(element => element);
-  //if (array.length == 0) {
-    //return null;
-  //}
-  let array = values
+// function roundedAvg(values) {
+//   //let array = values.filter(element => element);
+//   //if (array.length == 0) {
+//     //return null;
+//   //}
+//   let array = values
 
-  let total = 0;
-  for (let i = 0; i < array.length; i++) {
-    total += array[i];
-  }
-  return Math.round(total / array.length);
-}
+//   let total = 0;
+//   for (let i = 0; i < array.length; i++) {
+//     total += array[i];
+//   }
+//   return Math.round(total / array.length);
+// }
 
 function getNextTestGoals() {
   if (actProfile["testGoals"]) {
