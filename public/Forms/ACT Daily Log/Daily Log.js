@@ -436,6 +436,7 @@ function initialSetup() {
       addCompletedHomeworks();
       //getElapsedTime();
       setGeneralInfo();
+      setChartData(CURRENT_STUDENT_UID)
     })
     .catch((error) => console.log(error))
   })
