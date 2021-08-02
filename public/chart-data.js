@@ -4,7 +4,7 @@ let currentTutor = "";
 let studentProfile = {};
 let hwData = {};
 let sessionData = {};
-let actProfile = {};
+//let actProfile = {};
 let studentNotes = {};
 
 let sessionDates = [];
@@ -89,13 +89,13 @@ let sectionGoals = {
   'science': undefined
 }
 
-let charts = {
-  'composite': undefined,
-  'english': undefined,
-  'math': undefined,
-  'reading': undefined,
-  'science': undefined
-}
+//let charts = {
+  //'composite': undefined,
+  //'english': undefined,
+  //'math': undefined,
+  //'reading': undefined,
+  //'science': undefined
+//}
 
 var goalsChanged = false;
 var initialsChanged = false;

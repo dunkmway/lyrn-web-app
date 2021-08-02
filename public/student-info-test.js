@@ -1,10 +1,134 @@
-main();
 
-function main() {
-  initialSetupData()
-  .then(() => {
-    chartsSetup();
+let combined_and_ordered_data = []
+let actProfile = {};
+let dates = []
+
+let charts = {
+  'composite': undefined,
+  'english': undefined,
+  'math': undefined,
+  'reading': undefined,
+  'science': undefined
+}
+
+let sectionData = {
+  'composite': [],
+  'english': [0],
+  'math': [0],
+  'reading': [0],
+  'science': [0]
+}
+
+function setChartData(studentUID) {
+  const sections = ['english', 'math', 'reading', 'science']
+  const availableSections = Object.keys(student_tests)
+
+  // Grab the student's profile and then continue
+  getActProfileData(studentUID)
+  .then((doc) => {
+    storeActProfileData(doc)
+
+    // Grab the data
+    for (let i = 0; i < sections.length; i++) {
+      if (availableSections.includes(sections[i])) {
+        const tests = Object.keys(student_tests[sections[i]])
+        for (let j = 0; j < tests.length; j++) {
+          if (student_tests[sections[i]][tests[j]]['scaledScore'] != -1  && student_tests[sections[i]][tests[j]]['type'] == 'homework') {
+            dates.push(student_tests[sections[i]][tests[j]]['date'])
+            combined_and_ordered_data.push({
+              'score' : student_tests[sections[i]][tests[j]]['score'],
+              'scaledScore' : student_tests[sections[i]][tests[j]]['scaledScore'],
+              'date' : student_tests[sections[i]][tests[j]]['date'],
+              'status' : student_tests[sections[i]][tests[j]]['status'],
+              'section' : sections[i]
+            })
+          }
+        }
+      }
+    }
+
+    // Sort the data
+    dates = dates.sort()
+    let tempData = []
+    for (let i = 0; i < dates.length; i++) {
+      const tmp = combined_and_ordered_data.filter(function(val) { return val.date == dates[i]})
+      for (let j = 0; j < tmp.length; j++) {
+        tempData.push(tmp[j])
+      }
+      if (tmp.length > 1) {
+        i += tmp.length - 1
+      }
+      //tempData.push(combined_and_ordered_data.filter(function(val) { return val.date == dates[i]})[0])
+    }
+    combined_and_ordered_data = tempData
+
+    // Get the initial scores
+    let initialScores = {}
+    for (let i = 0; i < sections.length; i++) {
+      initialScores[sections[i]] = actProfile[sections[i] + "Initial"];
+    }
+
+    // Convert absolute scaledScores to relative and add to their individual arrays
+    let lastDate = -1;
+    let datesRemoved = 0;
+    for (let i = 0; i < combined_and_ordered_data.length; i++) {
+      combined_and_ordered_data[i]['scaledScore'] = combined_and_ordered_data[i]['scaledScore'] - initialScores[combined_and_ordered_data[i]['section']]
+      const sec = combined_and_ordered_data[i]['section']
+      if (combined_and_ordered_data[i]['date'] != lastDate) {
+        for (let j = 0; j < sections.length; j++) {
+          if (!(sections[j] == sec)) {
+            sectionData[sections[j]].push(null)
+          }
+          else {
+            sectionData[sec].push(combined_and_ordered_data[i]['scaledScore'])
+          }
+        }
+        lastDate = combined_and_ordered_data[i]['date']
+      }
+      else {
+        sectionData[sec][sectionData[sec].length - 1] = combined_and_ordered_data[i]['scaledScore']
+        dates.splice(i - datesRemoved, 1)
+        datesRemoved += 1
+      }
+    }
+
+    // Update the Composite relative scaled scores
+    let currentScores = {
+      'english' : 0,
+      'math' : 0,
+      'reading' : 0,
+      'science' : 0
+    }
+
+    for (let i = 0; i < sectionData['english'].length; i++) {
+      for (let j = 0; j < sections.length; j++) {
+        if (sectionData[sections[j]][i] != undefined) {
+          currentScores[sections[j]] = sectionData[sections[j]][i]
+        }
+      }
+      sectionData['composite'].push(roundedAvg([currentScores['english'], currentScores['math'], currentScores['reading'], currentScores['science']]))
+    }
+
+    // Change Int dates to string dates (and add 'Initial')
+    let tmp = ['Initial']
+    for (let i = 0; i < dates.length; i++) {
+      tmp.push(convertFromDateInt(dates[i])['shortestDate'])
+    }
+    dates = tmp
+
+    // Generate the charts
+    chartsSetup()
   })
+
+}
+
+function getActProfileData(studentUID) {
+  const actProfileDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
+  return actProfileDocRef.get();
+}
+
+function storeActProfileData(doc) {
+  actProfile = doc.data() ?? {};
 }
 
 function chartsSetup() {
@@ -21,21 +145,231 @@ function chartsSetup() {
     }
     chartElements['composite'] = document.getElementById("compositeCanvas");
 
-    setHomeworkChartData();
+    // Setup the initial data
+    //setHomeworkChartData();
 
+    // Generate the charts
     for (let i = 0; i < sections.length; i++) {
       charts[sections[i]] = generateChart(chartElements[sections[i]], ['composite', sections[i]])
 
       // Adjust the chart to have the sizing play nicely
       chartElements[sections[i]].style.maxWidth = "100%"
-      chartElements[sections[i]].style.maxHeight = "93%"
+      chartElements[sections[i]].style.maxHeight = "100%"
+      //chartElements[sections[i]].style.maxHeight = "93%"
     }
     charts['composite'] = generateChart(chartElements['composite'], ['composite', 'english', 'math', 'reading', 'science'])
 
     // Adjust the chart to have the sizing play nicely
     chartElements['composite'].style.maxWidth = "100%"
-    chartElements['composite'].style.maxHeight = "93%"
+    chartElements['composite'].style.maxHeight = "100%"
+    //chartElements['composite'].style.maxHeight = "93%"
 }
+
+function roundedAvg(values) {
+  //let array = values.filter(element => element);
+  //if (array.length == 0) {
+    //return null;
+  //}
+  let array = values
+
+  let total = 0;
+  for (let i = 0; i < array.length; i++) {
+    total += array[i];
+  }
+  return Math.round(total / array.length);
+}
+
+function getNextTestGoals() {
+  if (actProfile["testGoals"]) {
+    for (let i = 0; i < actProfile["testGoals"].length; i++) {
+      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0) {
+        return actProfile["testGoals"][i];
+      }
+    }
+  } 
+  else {
+    return undefined;
+  }
+}
+
+function dateDayDifference(start, end) {
+  if (start && end) {
+    return Math.round((end - start) / (1000 * 60 * 60 * 24));
+  }
+  else return undefined;
+}
+
+function generateChart(element, sections = ['composite', 'english', 'math', 'reading', 'science']) {
+
+  // Dynamically generate the datasets
+  let datasets = []
+  for (let i = 0; i < sections.length; i++) {
+    let info = {
+      label: sections[i].charAt(0).toUpperCase() + sections[i].slice(1),
+      backgroundColor: sectionColors[sections[i]],
+      borderColor: sectionColors[sections[i]],
+      fill: false,
+      stepped: true,
+      data: sectionData[sections[i]]
+      //data: testArrays[sections[i]]
+    }
+
+    if (sections[i] == 'composite') {
+      info['order'] = 1
+      info['borderWidth'] = 7
+      info['pointRadius'] = 3
+      info['pointHoverRadius'] = 8
+    }
+    else {
+      info['pointRadius'] = 5
+      info['pointHoverRadius'] = 10
+    }
+
+    datasets.push(info)
+  }
+
+  // Dynamically find the suggested min and max values
+  let suggestedMax = -Infinity;
+  let suggestedMin = Infinity;
+  for (let i = 0; i < sections.length; i++) {
+    // Find the max
+    if (getNextTestGoals()?.[sections[i] + "Goal"] - actProfile[sections[i] + "Initial"] + 2 > suggestedMax) {
+      suggestedMax = getNextTestGoals()?.[sections[i] + "Goal"] - actProfile[sections[i] + "Initial"] + 2;
+    } 
+
+    // Find the min
+    if (actProfile[sections[i] + "Initial"] - 2 < suggestedMin) {
+      suggestedMin = actProfile[sections[i] + 'Initial']
+    } 
+  }
+
+  // Dynamically generate the annotations
+  let annotations =  {}
+  for (let i = 0; i < sections.length; i++) {
+    annotations[sections[i] + 'Goal'] = {
+      'type' : 'line',
+      'display' : () => {
+        if (sectionRelativeGoals[sections[i]] || sectionRelativeGoals[sections[i]] == 0) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      },
+      'yMin' : sectionRelativeGoals[sections[i]],
+      'yMax' : sectionRelativeGoals[sections[i]],
+      'borderColor' : sectionColors[sections[i]],
+      'borderWidth' : 2,
+      'borderDash' : borderDashGoals[i],
+      'borderDashOffset' : borderDashOffsetGoals[i],
+      'label' : {
+        'xAdjust' : borderDashOffsetGoals[i] - 6,
+        'backgroundColor' : sectionColors[sections[i]],
+        'color' : "white",
+        'enabled' : true,
+        'content' : sectionGoals[sections[i]],
+        'position' : "start"
+      }
+    }
+  }
+
+  return new Chart(element, {
+    // The type of chart we want to create
+    type: 'line',
+    // The data for our dataset
+    data: {
+      //labels: sessionDateStr, // x-labels
+      labels: dates, // x-labels
+      datasets: datasets
+    },
+
+    // Configuration options go here
+    options: {
+      responsive: true,
+      spanGaps: true,
+      scales: {
+        y: {
+          ticks: {
+            stepSize: 1,
+            callback: function(value, index, values) {
+              if (parseInt(value) > 0) {
+                return '+' + value;
+              }
+              else {
+                return value;
+              }
+            }
+          },
+          suggestedMin: suggestedMin,
+          suggestedMax: suggestedMax
+        },
+      },
+      tooltips: {
+        //intersect: false,
+      },
+      hover: {
+        mode: 'nearest',
+        //intersect: false
+      },
+      layout: {
+        padding: {
+            left: 50,
+            right: 50,
+            top: 50,
+            bottom: 50
+        }
+      },
+      plugins: {
+        //fixme: I want the tooltip to show the actual score
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label
+              let value = context.parsed.y
+
+              //check for the section and add the intial back
+              //piggy back off this callback to show the annotation of the sections goal
+              switch (label) {
+                case ("Composite"):
+                  return label + " " + (value + initialComposite).toString();
+                case ("English"):
+                  return label + " " + (value + actProfile['englishInitial']).toString();
+                case ("Math"):
+                  return label + " " + (value + actProfile['mathInitial']).toString();
+                case ("Reading"):
+                  return label + " " + (value + actProfile['readingInitial']).toString();
+                case ("Science"):
+                  return label + " " + (value + actProfile['scienceInitial']).toString();
+                default:
+                  return null
+
+              }
+            }
+          }
+        },
+        autocolors: false,
+        annotation: {
+          drawTime: 'beforeDatasetsDraw',
+          annotations: annotations
+        }
+      }
+    }
+  });
+}
+
+
+// --------------------------- OLD CODE ---------------------------------- //
+
+/*main();
+
+function main() {
+  initialSetupData()
+  .then(() => {
+    chartsSetup();
+  })
+}
+
+
 
 function initialSetupData() {
   currentStudent = queryStrings()["student"];
@@ -59,7 +393,7 @@ function initialSetupData() {
     let studentNotesProm = getStudentNotesData(currentStudent)
     .then((doc) => storeStudentNotesData(doc))
 
-    let promises = [profileProm, /*hwSetupProm,*/ sessionSetupProm, actProfileProm, studentNotesProm];
+    let promises = [profileProm, sessionSetupProm, actProfileProm, studentNotesProm];
     return Promise.all(promises);
   }
 
@@ -166,15 +500,6 @@ function storeSessionData(doc) {
   for (let i = 0; i < sessionDates.length; i++) {
     sectionHours['composite'][sessionDates[i]] = (sectionHours['english'][sessionDates[i]] ?? 0) + (sectionHours['math'][sessionDates[i]] ?? 0) + (sectionHours['reading'][sessionDates[i]] ?? 0) + (sectionHours['science'][sessionDates[i]] ?? 0);
   }
-}
-
-function getActProfileData(studentUID) {
-  const actProfileDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
-  return actProfileDocRef.get();
-}
-
-function storeActProfileData(doc) {
-  actProfile = doc.data() ?? {};
 }
 
 function getStudentNotesData(studentUID) {
@@ -436,39 +761,6 @@ function highestScore(scoreObject) {
   return greatest != -Infinity ? greatest : null;
 }
 
-function roundedAvg(values) {
-  let array = values.filter(element => element);
-  if (array.length == 0) {
-    return null;
-  }
-
-  let total = 0;
-  for (let i = 0; i < array.length; i++) {
-    total += array[i];
-  }
-  return Math.round(total / array.length);
-}
-
-function getNextTestGoals() {
-  if (actProfile["testGoals"]) {
-    for (let i = 0; i < actProfile["testGoals"].length; i++) {
-      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0) {
-        return actProfile["testGoals"][i];
-      }
-    }
-  } 
-  else {
-    return undefined;
-  }
-}
-
-function dateDayDifference(start, end) {
-  if (start && end) {
-    return Math.round((end - start) / (1000 * 60 * 60 * 24));
-  }
-  else return undefined;
-}
-
 function setSessionAxis(mainSection) {
   // Identify which sections are in the graph
   const currentDatasets = charts[mainSection]['config']['data']['datasets']
@@ -684,4 +976,4 @@ function generateChart(element, sections = ['composite', 'english', 'math', 'rea
       }
     }
   });
-}
+}*/
