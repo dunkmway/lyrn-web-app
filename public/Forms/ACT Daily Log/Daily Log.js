@@ -331,8 +331,7 @@ function updateCompositeInitial() {
     initials.push(sectionInitialElement.value ? parseInt(sectionInitialElement.value) : null);
   })
 
-  console.log(initials)
-  document.getElementById('compositeInitial').textContent = roundedAvg(initials).toString();
+  document.getElementById('compositeInitial').textContent = roundedAvg(initials)?.toString();
 }
 
 function studentGoalScoreFocusOutCallback(element) {
@@ -369,7 +368,7 @@ function updateCompositeGoal() {
       goals.push(sectionGoalElement.value ? parseInt(sectionGoalElement.value) : null);
     })
 
-    compositeGoalElement.textContent = roundedAvg(goals).toString();
+    compositeGoalElement.textContent = roundedAvg(goals)?.toString();
   })
 }
 
