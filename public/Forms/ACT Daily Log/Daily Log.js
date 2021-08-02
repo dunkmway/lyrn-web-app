@@ -110,13 +110,18 @@ function getStudentTests(studentUID) {
 
 function setGeneralInfo() {
 
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).get()
+  .then((studentProfileDoc) => {
+    document.getElementById('studentName').textContent = studentProfileDoc.data()["studentFirstName"] + " " + studentProfileDoc.data()["studentLastName"];
+  })
+
   //set up the grid
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer')
-  let studentProfileDoc;
+  let studentActProfileDoc;
 
   getStudentProfileDoc(CURRENT_STUDENT_UID)
   .then(profileDoc => {
-    studentProfileDoc = profileDoc;
+    studentActProfileDoc = profileDoc;
 
     let englishInitial = profileDoc.data().englishInitial;
     let mathInitial = profileDoc.data().mathInitial;
@@ -156,7 +161,7 @@ function setGeneralInfo() {
     document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent?.toString();
 
     //set up the test date goals
-    testGoals = studentProfileDoc.data().testGoals;
+    testGoals = studentActProfileDoc.data().testGoals ?? [];
     if (testGoals) {
       testGoals.forEach((goal, index) => {
         let compositeGoal = roundedAvg([goal.englishGoal, goal.mathGoal, goal.readingGoal, goal.scienceGoal]);
