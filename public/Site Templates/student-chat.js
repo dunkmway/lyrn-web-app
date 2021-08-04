@@ -19,6 +19,10 @@ function getStudentMessages(studentUID, studentType, conversationType) {
         session_message_count += 1;
       }
     });
+    // Check to see if the session is still submitable
+    if (typeof submitSession == 'function') {
+      submitSession()
+    }
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
@@ -164,9 +168,9 @@ function deleteStudentMessage(event) {
       message.remove();
 
       // Check to see if the session is still submitable
-      //if (studentType == 'act') {
-        //submitSession()
-      //}
+      if (typeof submitSession == 'function') {
+        submitSession()
+      }
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);

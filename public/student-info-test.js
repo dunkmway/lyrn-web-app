@@ -1,24 +1,3 @@
-
-let combined_and_ordered_data = []
-let actProfile = {};
-let dates = []
-
-let charts = {
-  'composite': undefined,
-  'english': undefined,
-  'math': undefined,
-  'reading': undefined,
-  'science': undefined
-}
-
-let sectionData = {
-  'composite': [],
-  'english': [0],
-  'math': [0],
-  'reading': [0],
-  'science': [0]
-}
-
 function setChartData(studentUID) {
   const sections = ['english', 'math', 'reading', 'science']
   const availableSections = Object.keys(student_tests)
@@ -106,7 +85,7 @@ function setChartData(studentUID) {
           currentScores[sections[j]] = sectionData[sections[j]][i]
         }
       }
-      sectionData['composite'].push(roundedAvg([currentScores['english'], currentScores['math'], currentScores['reading'], currentScores['science']]))
+      sectionData['composite'].push(roundedAvgUnfiltered([currentScores['english'], currentScores['math'], currentScores['reading'], currentScores['science']]))
     }
 
     // Change Int dates to string dates (and add 'Initial')
@@ -165,19 +144,13 @@ function chartsSetup() {
     //chartElements['composite'].style.maxHeight = "93%"
 }
 
-// function roundedAvg(values) {
-//   //let array = values.filter(element => element);
-//   //if (array.length == 0) {
-//     //return null;
-//   //}
-//   let array = values
-
-//   let total = 0;
-//   for (let i = 0; i < array.length; i++) {
-//     total += array[i];
-//   }
-//   return Math.round(total / array.length);
-// }
+ function roundedAvgUnfiltered(array) {
+   let total = 0;
+   for (let i = 0; i < array.length; i++) {
+     total += array[i] ?? 0;
+   }
+   return Math.round(total / array.length);
+ }
 
 function getNextTestGoals() {
   if (actProfile["testGoals"]) {
@@ -200,6 +173,59 @@ function dateDayDifference(start, end) {
 }
 
 function generateChart(element, sections = ['composite', 'english', 'math', 'reading', 'science']) {
+  //prep work for the goal lines
+  sectionGoals = {}
+  sectionRelativeGoals = {}
+
+  sectionGoals['composite'] = roundedAvg([
+    getNextTestGoals()?.["englishGoal"], 
+    getNextTestGoals()?.["mathGoal"], 
+    getNextTestGoals()?.["readingGoal"], 
+    getNextTestGoals()?.["scienceGoal"]
+  ]);
+  sectionGoals['english'] = getNextTestGoals()?.["englishGoal"];
+  sectionGoals['math'] = getNextTestGoals()?.["mathGoal"];
+  sectionGoals['reading'] = getNextTestGoals()?.["readingGoal"];
+  sectionGoals['science'] = getNextTestGoals()?.["scienceGoal"];
+
+  const initialComposite = roundedAvgUnfiltered([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
+  sectionRelativeGoals['composite'] = sectionGoals['composite'] - initialComposite ?? null;
+  sectionRelativeGoals['english'] = sectionGoals['english'] - actProfile["englishInitial"] ?? null;
+  sectionRelativeGoals['math'] = sectionGoals['math'] - actProfile["mathInitial"] ?? null;
+  sectionRelativeGoals['reading'] = sectionGoals['reading'] - actProfile["readingInitial"] ?? null;
+  sectionRelativeGoals['science'] = sectionGoals['science'] - actProfile["scienceInitial"] ?? null;
+
+  //see if any relative scores are the same
+  let borderDashGoals = [null, null, null, null, null];
+  let borderDashOffsetGoals = [null, null, null, null, null];
+
+  let relativeGoals = []
+  for (let i = 0; i < sections.length; i++) {
+    relativeGoals.push(sectionRelativeGoals[sections[i]])
+  }
+  const defaultBorderDash = [25, 10]
+  const defaultDashOffsetChange = defaultBorderDash[0] + defaultBorderDash[1];
+
+  for (let i = 0; i < relativeGoals.length; i++) {
+    //if the border dash has not been set yet
+    if (borderDashGoals[i] == null) {
+      let matchIndexes = [];
+      for (let j = 0; j < relativeGoals.length; j++) {
+        //if a goal matches another goal
+        if (i!=j && relativeGoals[i] == relativeGoals[j]) {
+          matchIndexes.push(j);
+        }
+      }
+
+      //adjust the border according to the matches
+      for (let j = 0; j < matchIndexes.length; j++) {
+        borderDashGoals[matchIndexes[j]] = [defaultBorderDash[0], defaultBorderDash[1] + defaultDashOffsetChange * (matchIndexes.length)];
+        borderDashOffsetGoals[matchIndexes[j]] = defaultDashOffsetChange * (j + 1);
+      }
+      borderDashGoals[i] = [defaultBorderDash[0], defaultBorderDash[1] + defaultDashOffsetChange * (matchIndexes.length)];
+      borderDashOffsetGoals[i] = 0;
+    }
+  }
 
   // Dynamically generate the datasets
   let datasets = []
