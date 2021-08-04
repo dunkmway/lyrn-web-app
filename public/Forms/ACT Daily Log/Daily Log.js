@@ -1702,7 +1702,7 @@ function submitSession() {
     if (session_message_count > 0) {
       if (numAssignedTests > 0) {
         document.getElementById('submitSession').classList.add('submitable')
-        console.log(timers)
+        //console.log(timers)
       }
       else {
         document.getElementById('submitSession').classList.remove('submitable')
@@ -2259,21 +2259,3 @@ function transferChatMessages() {
 /*firebase.firestore().collection('Student-Chats').get().then((querySnapshot) => {
   console.log(querySnapshot.size)
 })*/
-
-/*function fixChats() {
-  const ref = firebase.firestore().collection('Student-Chats').where('authorName', '==', 'undefined undefined')
-  ref.get()
-  .then((querySnapshot) => {
-    count = 0
-    querySnapshot.forEach((doc) => {
-      obj = doc.data()
-      obj['authorName'] = 'Karen Knowles'
-      newRef = firebase.firestore().collection('Student-Chats').doc(doc.id)
-      newRef.set(obj)
-      count += 1
-      console.log(count, ' / ', querySnapshot.size)
-    })
-  })
-}
-
-fixChats()*/

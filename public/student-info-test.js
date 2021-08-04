@@ -383,6 +383,146 @@ function generateChart(element, sections = ['composite', 'english', 'math', 'rea
   });
 }
 
+function updateChart(section, addPoint = true, value = undefined) {
+  
+  // Update the labels: Add the current date. Translate the scaled score into a relative score as well
+  let push = false
+  if (addPoint == true) {
+    // Translate the scaled score into a relative score
+    value = value - actProfile[section + "Initial"]
+
+    // Add the date if needed
+    const newDate = convertFromDateInt(date.getTime())['shortestDate']
+    if (dates[dates.length - 1] != newDate) {
+      dates.push(newDate)
+      push = true
+    }
+  }
+  //else {
+    //dates.splice(len(dates) - 1, 1)
+  //}
+
+  let lastValue = null;
+  let location = 0;
+
+  //  UPDATE THE SECTION CHART
+  let currentDatasets = charts[section]['config']['data']['datasets']
+
+  // Get the section index
+  for (let i = 0; i < currentDatasets.length; i++) {
+    if (currentDatasets[i]['label'].toLowerCase() == section) {
+      console.log(section, currentDatasets[i]['label'], i)
+      location = i
+    }
+  }
+
+  for (let i = 0; i < currentDatasets.length; i++) {
+    // Identify the current working dataset section
+    sec = currentDatasets[i]['label'].toLowerCase()
+
+    // Update the dataset: Add the value or null
+    if (sec == section) {
+      if (push == true) {
+        charts[sec]['data']['datasets'][i]['data'].push(value)
+      }
+      else {
+        charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - 1] = value
+      }
+    }
+    else if (sec != 'composite') {
+      if (push == true) {
+        charts[sec]['data']['datasets'][i]['data'].push(null)
+      }
+      //else {
+        //charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - 1] = null
+      //}
+    }
+    else {
+
+      // Get the latest section value for calculating the delta
+      let j = 1;
+      lastValue = null;
+      while (lastValue == null) {
+        lastValue = charts[sec]['data']['datasets'][location]['data'][charts[sec]['data']['datasets'][location]['data'].length - j]
+        j += 1
+      }
+
+      // Get the delta
+      const diff = (value - lastValue) / 4
+      console.log('calc diff:', value, lastValue, diff)
+
+      // Get the latest composite value for adding the delta to
+      j = 1;
+      lastValue = null;
+      while (lastValue == null) {
+        lastValue = charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - j]
+        j += 1
+      }
+      console.log(lastValue, diff)
+      if (push == true) {
+        charts[sec]['data']['datasets'][i]['data'].push(lastValue + diff)
+      }
+      else {
+        charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - 1] = (lastValue + diff)
+      }
+    }
+
+    // Update the x-axis
+    charts[section].data.labels = dates;
+  }
+
+  // UPDATE THE COMPOSITE CHART AS WELL
+  /*currentDatasets = charts['composite']['config']['data']['datasets']
+  for (let i = 0; i < currentDatasets.length; i++) {
+    // Identify the current working dataset section
+    sec = currentDatasets[i]['label'].toLowerCase()
+
+    // Update the dataset: Add the value or null
+    if (sec == section) {
+      j = 1;
+      lastValue = null;
+      while (lastValue == null) {
+        lastValue = charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - j]
+        j += 1
+      }
+      charts['composite']['data']['datasets'][i]['data'].push(value)
+    }
+    else if (sec != 'composite') {
+      charts['composite']['data']['datasets'][i]['data'].push(null)
+    }
+    else {
+
+      // Get the latest section value for calculating the delta
+      let j = 1;
+      lastValue = null;
+      while (lastValue == null) {
+        lastValue = charts[sec]['data']['datasets'][location]['data'][charts[sec]['data']['datasets'][location]['data'].length - j]
+        j += 1
+      }
+
+      // Get the delta
+      const diff = (value - lastValue) / 4
+
+      // Get the latest composite value for adding the delta to
+      j = 1;
+      lastValue = null;
+      while (lastValue == null) {
+        lastValue = charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - j]
+        j += 1
+      }
+      charts[sec]['data']['datasets'][i]['data'].push(lastValue + diff)
+    }
+
+    }
+
+    charts['composite'].data.labels = dates;
+  }*/
+
+  // Update the chart
+  charts[section].update("none");
+  charts['composite'].update("none");
+}
+
 
 // --------------------------- OLD CODE ---------------------------------- //
 
