@@ -439,6 +439,7 @@ function initialSetup() {
       addCompletedHomeworks();
       //getElapsedTime();
       setGeneralInfo();
+      submitSession()
       setChartData(CURRENT_STUDENT_UID)
     })
     .catch((error) => console.log(error))
@@ -674,6 +675,8 @@ function checkForAssignedHomeworks() {
     }
     else {
 
+      numAssignedTests += 1;
+
       ids.push({
         'type' : 'homework',
         'section' : section,
@@ -719,11 +722,11 @@ function showTestPopup(test = undefined, section = undefined) {
     for (let i = 0; i < children.length; i++) {
       let subChildren = children[i].querySelectorAll('p')
       if (i == 0) {
-        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['scaledScore'] ?? (-1).toString())
+        subChildren[1].innerHTML = ((test_answers_grading[test]?.[section]?.['scaledScore'] ?? student_tests[section]?.[test]?.['scaledScore']) ?? (-1).toString())
       }
       else if (i == 1) {
         const numQuestions = test_answers_data[test][section + 'Answers'].length
-        subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['score'] ?? (-1).toString()) + ' / ' + numQuestions.toString()
+        subChildren[1].innerHTML = ((test_answers_grading[test]?.[section]?.['score'] ?? student_tests[section]?.[test]?.['score'] ) ?? (-1)).toString() + ' / ' + numQuestions.toString()
       }
       else if (i == 2) {
         subChildren[1].innerHTML = (test_answers_grading[test]?.[section]?.['status'] ?? 'assigned')
@@ -952,7 +955,7 @@ function resetAnswers() {
   setObjectValue([test, section, 'status'], 'assigned', test_answers_grading)
 
   obj = {}
-  if (student_tests[section]?.[test]?.['date'] != undefined) {
+  /*if (student_tests[section]?.[test]?.['date'] != undefined) {
     obj['questions'] = studentQuestions,
     obj['status'] = student_tests[section][test]['status'],
     obj['date'] = student_tests[section][test]['date'],
@@ -963,13 +966,13 @@ function resetAnswers() {
     setObjectValue([test, section, 'scaledScore'], student_tests[section][test]['scaledScore'], test_answers_grading)
     setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
   }
-  else {
+  else {*/
     obj['questions'] = studentQuestions,
     obj['status'] = 'assigned',
     obj['date'] = date.getTime(),
     obj['score'] = -1,
     obj['scaledScore'] = -1
-  }
+  //}
 
   ref.update(obj)
 
@@ -991,7 +994,7 @@ function resetAnswers() {
     }
     else if (student_tests[section]?.[test]?.['status'] != undefined) {
       updateStatusBar(test, section, true)
-      updateStatusBar(test, section, false, 'green')
+      //updateStatusBar(test, section, false, 'green')
     }
     else if (student_tests[section]?.[test]?.['status'] == undefined) {
       updateStatusBar(test, section, true)
@@ -1150,7 +1153,7 @@ function gradeHomework(status) {
 
       // up the homework count
       //if (student_tests[section]?.[test]?.['date'] != undefined) {
-      const testDate = student_tests[section]?.[test]?.['date']
+      let testDate = student_tests[section]?.[test]?.['date'] ?? date.getTime()
       if (['assigned', undefined].includes(tempStatus) && testDate != undefined && testDate < convertFromDateInt(date.getTime())['startOfDayInt']) {
         homework_count += 1;
       }

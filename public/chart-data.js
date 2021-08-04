@@ -1,4 +1,35 @@
-let currentStudent = "";
+let combined_and_ordered_data = []
+let actProfile = {};
+let dates = []
+
+let charts = {
+  'composite': undefined,
+  'english': undefined,
+  'math': undefined,
+  'reading': undefined,
+  'science': undefined
+}
+
+let sectionData = {
+  'composite': [],
+  'english': [0],
+  'math': [0],
+  'reading': [0],
+  'science': [0]
+}
+
+const sectionColors = {
+  'composite': "#595959",
+  'english': "#5600F7",
+  'math': "#F70056",
+  'reading': "#00E6BC",
+  'science': "#C00BE0"
+}
+
+const sections = ['english', 'math', 'reading', 'science']
+const allSections = ['composite', 'english', 'math', 'reading', 'science']
+
+/*let currentStudent = "";
 let currentTutor = "";
 
 let studentProfile = {};
@@ -13,14 +44,6 @@ let sessionDateStr = [];
 
 const sections = ['english', 'math', 'reading', 'science']
 const allSections = ['composite', 'english', 'math', 'reading', 'science']
-
-const sectionColors = {
-  'composite': "#595959",
-  'english': "#5600F7",
-  'math': "#F70056",
-  'reading': "#00E6BC",
-  'science': "#C00BE0"
-}
 
 let sectionScores = {
   'composite': {},
@@ -201,4 +224,4 @@ function resetData() {
     canvasElements[i].remove();
     canvasParents[i].append(createElement('canvas', [], ['id', 'style'], [id, 'flex: 1'], ''))
   }
-}
+}*/
