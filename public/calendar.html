@@ -48,6 +48,7 @@
       <div class="dropdown-content">
       </div>
     </div>
+
     <div class="dropdown">
       <button class="dropbtn">add event</button>
       <div class="dropdown-content">
@@ -57,6 +58,31 @@
         <div onclick="setupAddSidebar('conference')">Conference</div>
         <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
         <div onclick="setupAddSidebar('generalInfo')">General Info</div>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button id="filterSelection" class="dropbtn">filter events</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Student</div>
+          <div class="dropdown-content">
+            <select id="studentFilterContent" class="ui dropdown search selection">
+              <option value="">select location first</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dropdown-right">
+          <div>Tutor</div>
+          <div class="dropdown-content">
+            <select id="tutorFilterContent" class="ui dropdown search selection">
+              <option value="">select location first</option>
+            </select>
+          </div>
+        </div>
+
+        <div onclick="clearFilter()">Clear filter</div>
       </div>
     </div>
   </div>
@@ -97,7 +123,7 @@
         <div class="inputRow">
           <label for="editTeacherMeetingLocation" class="label">Where?</label>
         </div>
-        <input id="editTeacherMeetingLocation" name="editTeacherMeetingLocation" class="input">
+        <input id="editTeacherMeetingLocation" name="editTeacherMeetingLocation" class="input nonEditable">
 
         <!-- staff in attendance -->
         <div class="inputRow">
@@ -149,7 +175,7 @@
           <div class="more-info " data-more-info="This info will be displayed as the title of the event">?</div>
           <label for="editGeneralInfoTitle" class="label">Info?</label>
         </div>
-        <input id="editGeneralInfoTitle" name="editGeneralInfoTitle" class="input">
+        <input id="editGeneralInfoTitle" name="editGeneralInfoTitle" class="input nonEditable">
         <br>
 
         <!-- buttons -->
@@ -173,7 +199,7 @@
           <div class="more-info " data-more-info="This is the student taking the test">?</div>
           <label for="addPracticeTestStudent" class="label">Student</label>
         </div>
-        <select id="addPracticeTestStudent" name="addPracticeTestStudent" class="select"></select>
+        <select id="addPracticeTestStudent" name="addPracticeTestStudent" class="ui dropdown search selection"></select>
         <br>
 
         <!-- description -->
@@ -204,7 +230,7 @@
           <div class="more-info " data-more-info="This is the student taking the test">?</div>
           <label for="editPracticeTestStudent" class="label">Student</label>
         </div>
-        <p id="editPracticeTestStudent" name="editPracticeTestStudent"></p>
+        <div id="editPracticeTestStudent" name="editPracticeTestStudent" class="input nonEditable"></div>
         <br>
 
         <!-- description -->
@@ -236,7 +262,7 @@
           <div class="more-info " data-more-info="This is the student attending the conference">?</div>
           <label for="addConferenceStudent" class="label">Student</label>
         </div>
-        <select id="addConferenceStudent" name="addConferenceStudent" class="select"></select>
+        <select id="addConferenceStudent" name="addConferenceStudent" class="ui dropdown search selection"></select>
         <br>
 
         <!-- description -->
@@ -267,7 +293,7 @@
           <div class="more-info " data-more-info="This is the student attending the conference">?</div>
           <label for="editConferenceStudent" class="label">Student</label>
         </div>
-        <p id="editConferenceStudent" name="editConferenceStudent"></p>
+        <div id="editConferenceStudent" name="editConferenceStudent" class="input nonEditable"></div>
         <br>
 
         <!-- description -->
@@ -299,7 +325,7 @@
           <div class="more-info " data-more-info="This is the student attending the test review">?</div>
           <label for="addTestReviewStudent" class="label">Student</label>
         </div>
-        <select id="addTestReviewStudent" name="addTestReviewStudent" class="select"></select>
+        <select id="addTestReviewStudent" name="addTestReviewStudent" class="ui dropdown search selection"></select>
         <br>
 
         <!-- tutor(s) attending the test review -->
@@ -307,7 +333,7 @@
           <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
           <label for="addTestReviewTutor" class="label">Tutor(s)</label>
         </div>
-        <select id="addTestReviewTutor" name="addTestReviewTutor" class="ui dropdown" multiple></select>
+        <select id="addTestReviewTutor" name="addTestReviewTutor" class="ui dropdown search selection" multiple></select>
         <br>
 
         <!-- buttons -->
@@ -330,7 +356,7 @@
           <div class="more-info " data-more-info="This is the student attending the test review">?</div>
           <label for="editTestReviewStudent" class="label">Student</label>
         </div>
-        <p id="editTestReviewStudent" name="editTestReviewStudent"></p>
+        <div id="editTestReviewStudent" name="editTestReviewStudent" class="input nonEditable"></div>
         <br>
 
         <!-- tutor(s) attending the test review -->
@@ -338,7 +364,7 @@
           <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
           <label for="editTestReviewTutor" class="label">Tutor(s)</label>
         </div>
-        <select id="editTestReviewTutor" name="editTestReviewTutor" class="ui dropdown" multiple></select>
+        <select id="editTestReviewTutor" name="editTestReviewTutor" class="ui dropdown search selection" multiple></select>
         <br>
 
         <!-- buttons -->
@@ -362,7 +388,7 @@
           <div class="more-info " data-more-info="This is the type of lesson">?</div>
           <label for="addLessonType" class="label">Type</label>
         </div>
-        <select id="addLessonType" name="addLessonType" class="select"></select>
+        <select id="addLessonType" name="addLessonType" class="ui dropdown"></select>
         <br>
 
         <!-- student attending the lesson -->
@@ -370,7 +396,7 @@
           <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
           <label for="addLessonStudent" class="label">Student</label>
         </div>
-        <select id="addLessonStudent" name="addLessonStudent" class="select"></select>
+        <select id="addLessonStudent" name="addLessonStudent" class="ui dropdown search selection"></select>
         <br>
 
         <!-- tutor(s) teaching the lesson -->
@@ -378,7 +404,7 @@
           <div class="more-info " data-more-info="This is/are the tutor(s) teaching the lesson">?</div>
           <label for="addLessonTutor" class="label">Tutor(s)</label>
         </div>
-        <select id="addLessonTutor" name="addLessonTutor" class="ui dropdown" multiple></select>
+        <select id="addLessonTutor" name="addLessonTutor" class="ui dropdown search selection" multiple></select>
         <br>
         <div class="headerLine"></div>
 
@@ -391,13 +417,60 @@
 
         <div id="addLessonRecurringWrapper">
           <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
-          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select when to start and end this recurring event</button>
+          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select the start and end dates</button>
         </div>
 
         <!-- buttons -->
         <div class="bottom">
           <button onclick="cancelSidebarCallback()" class="button">cancel</button>
           <button onclick="submitAddLesson()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!---- edit lesson ----->
+      <!---------------------->
+      <div id="editLessonWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Lesson</h3>
+        <div class="headerLine"></div>
+
+        <!-- type of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the type of lesson">?</div>
+          <label for="editLessonType" class="label">Type</label>
+        </div>
+        <div id="editLessonType" name="editLessonType" class="input nonEditable"></div>
+        <br>
+
+        <!-- student attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
+          <label for="editLessonStudent" class="label">Student</label>
+        </div>
+        <div id="editLessonStudent" name="editLessonStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- tutor(s) attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the lesson">?</div>
+          <label for="editLessonTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editLessonTutor" name="editLessonTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelEditCallback()" class="button">cancel</button>
+          <button onclick="updateEditLesson()" class="button">update</button>
+          <!-- <button onclick="deleteEventCallback()" class="button danger">delete</button> -->
+          <div class="dropdown">
+            <button class="button danger">delete</button>
+            <div class="dropdown-content">
+              <div class="danger" onclick="deleteRecurringEventCallback()">delete all recurring lessons of this type</div>
+              <div class="danger" onclick="deleteEventCallback()">delete this lesson</div>
+            </div>
+          </div>
         </div>
       </div>
 

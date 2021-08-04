@@ -1,4 +1,5 @@
 let calendar_mode = "default";
+let calendar_view = 'defualt';
 let pending_calendar_event = {}
 let pending_calendar_event_id = "";
 let old_calendar_event = {}
@@ -6,6 +7,8 @@ let old_calendar_event_id = "";
 let pending_recurring_times = [];
 let pending_recurring_start = {};
 let pending_recurring_end = {};
+
+let current_filter = {};
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -42,6 +45,142 @@ function initialSetup() {
   })
 }
 
+function setupFilterLists(locationUID) {
+  //remove the old lists and add in defualt option
+  for (let i = document.getElementById('studentFilterContent').options.length; i > 0; i--) {
+    document.getElementById('studentFilterContent').options[i-1].remove();
+  }
+  let studentDefaultOption = document.createElement('option');
+  studentDefaultOption.value = "";
+  studentDefaultOption.textContent = 'select a student'
+  document.getElementById('studentFilterContent').appendChild(studentDefaultOption);
+
+  for (let i = document.getElementById('tutorFilterContent').options.length; i > 0; i--) {
+    document.getElementById('tutorFilterContent').options[i-1].remove();
+  }
+  let tutorDefaultOption = document.createElement('option');
+  tutorDefaultOption.value = "";
+  tutorDefaultOption.textContent = 'select a tutor'
+  document.getElementById('tutorFilterContent').appendChild(tutorDefaultOption);
+
+  //add in the options for the given location
+  getStudentList(locationUID)
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById('studentFilterContent'), studentUIDs, studentNames);
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a student');
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+      (value, text) => {
+        console.log('change')
+        current_filter = {
+          type: 'student',
+          value: value
+        }
+        console.log(current_filter)
+        //change the filter label
+        document.getElementById('filterSelection').innerHTML = 'filter: student - ' + text;
+        
+        //place the filtered values into the calendar
+        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
+      })
+  })
+  .catch((error) => {
+    console.log(error)
+  });
+
+  getTutorList(locationUID)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('tutorFilterContent'), tutorUIDs, tutorNames);
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+      (value, text) => {
+        console.log('change')
+        current_filter = {
+          type: 'staff',
+          value: value
+        }
+        console.log(current_filter)
+        //change the filter label
+        document.getElementById('filterSelection').innerHTML = 'filter: tutor - ' + text;
+        
+        //place the filtered values into the calendar
+        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
+      })
+  })
+  .catch((error) => {
+    console.log(error)
+  });
+}
+
+function clearFilter() {
+  current_filter = {};
+  $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
+  $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
+
+  document.getElementById('filterSelection').innerHTML = 'filter events';
+  const location = document.getElementById('calendarLocation').dataset.value;
+  if (location) {
+    getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
+    .then(events => {
+      //remove the old events
+      main_calendar.getEvents().forEach(event => {
+        event.remove()
+      });
+      //add the new ones
+      events.forEach(event => {
+        main_calendar.addEvent(event);
+      })
+    })
+    .catch((error) =>{
+      console.log(error);
+      alert("We had an issue loading the calendar events. Try refreshing the page.")
+    })
+  }
+}
+
 function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
   let contentDiv = dropdownElement.querySelector('.dropdown-content');
   let dropdownBtn = dropdownElement.querySelector('.dropbtn');
@@ -70,7 +209,9 @@ function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
 
 function locationChange(location) {
   closeCalendarSidebar();
-  getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime())
+  clearFilter();
+  setupFilterLists(location);
+  getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
   .then(events => {
     //remove the old events
     main_calendar.getEvents().forEach(event => {
@@ -89,10 +230,12 @@ function locationChange(location) {
 
 
 
-function initializeDefaultCalendar(events) {
+function initializeDefaultCalendar(events, initialDate = new Date()) {
   if (main_calendar) {
     main_calendar.destroy();
   }
+
+  calendar_view = 'default';
 
   var calendarEl = document.getElementById('calendar');
   calendarEl.classList.remove('noToday');
@@ -100,6 +243,7 @@ function initializeDefaultCalendar(events) {
   main_calendar = new FullCalendar.Calendar(calendarEl, {
     height: "100%",
     initialView: 'timeGridWeek',
+    initialDate:  initialDate,
     hiddenDays: [0],
     slotMinTime: '07:00:00',
     slotMaxTime: '23:00:00',
@@ -118,7 +262,7 @@ function initializeDefaultCalendar(events) {
     datesSet: function(dateInfo) {
       const location = document.getElementById('calendarLocation').dataset.value;
       if (location) {
-        getEventsLocation(location, dateInfo.start.getTime(), dateInfo.end.getTime())
+        getEventsLocation(location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_filter)
         .then(events => {
           //remove the old events
           main_calendar.getEvents().forEach(event => {
@@ -158,19 +302,6 @@ function initializeDefaultCalendar(events) {
     selectable: false,
     unselectAuto: false,
 
-    // businessHours: [
-    //   {
-    //     daysOfWeek: [1, 2, 3, 4],
-    //     startTime: '09:00',
-    //     endTime: '17:00'
-    //   },
-    //   {
-    //     daysOfWeek: [5],
-    //     startTime: '9:00',
-    //     endTime: '13:00'
-    //   }
-    // ],
-
     events: events
   });
   main_calendar.render();
@@ -180,6 +311,8 @@ function initializeWeeklyScheduleCalendar(events) {
   if (main_calendar) {
     main_calendar.destroy();
   }
+
+  calendar_view = 'week';
 
   var calendarEl = document.getElementById('calendar');
   calendarEl.classList.add('noToday');
@@ -240,6 +373,8 @@ function initializepMonthScheduleCalendar(events) {
   if (main_calendar) {
     main_calendar.destroy();
   }
+
+  calendar_view = 'month';
 
   var calendarEl = document.getElementById('calendar');
   calendarEl.classList.add('noToday');
@@ -332,6 +467,9 @@ function initializepMonthScheduleCalendar(events) {
         pending_recurring_start = {};
         pending_recurring_end = {};
       }
+
+      console.log(pending_recurring_start)
+      console.log(pending_recurring_end)
       
       main_calendar.unselect();
     },
@@ -349,6 +487,8 @@ function getEvent(eventID) {
 }
 
 function eventClickHandler(info) {
+  //highlight the selected event
+  info.event.setProp('borderColor', 'black')
   getEvent(info.event.id)
   .then((data) => {
     setupEditSidebar(data, info.event.id)
@@ -371,6 +511,37 @@ function deleteEventCallback() {
   }
 }
 
+function deleteRecurringEventCallback() {
+  if (confirm("Are you sure you want to delete all events going forward? This action cannot be undone.")) {
+    const student = pending_calendar_event.student
+    const type = pending_calendar_event.type;
+    const start = pending_calendar_event.start;
+
+    //query all events for this student, of this type and starting at or after this start time
+
+    firebase.firestore().collection('Events')
+    .where('student', '==', student)
+    .where('type', '==', type)
+    .where('start', '>=', start)
+    .get()
+    .then(querySnapshot => {
+      let deletePromises = [];
+      querySnapshot.forEach(eventDoc => {
+        deletePromises.push(deleteEvent(eventDoc.id)
+        .then(() => {
+          main_calendar.getEventById(eventDoc.id)?.remove()
+        }))
+      })
+
+      Promise.all(deletePromises)
+      .then(() => {
+        closeCalendarSidebar();
+      })
+    })
+    .catch((error) => {console.log(error)});
+  }
+}
+
 
 function cancelSidebar() {
   //clear the input for every input
@@ -380,6 +551,9 @@ function cancelSidebar() {
       allInputNodes[i].value = ""
     }
   }
+
+  //clear semantic ui dropdown
+  $('#sidebar .ui.dropdown').dropdown('clear');
 
   //unselect all buttons
   const allButtonNodes = document.getElementById('sidebar').querySelectorAll('button');
@@ -434,7 +608,6 @@ function cancelEditCallback() {
       id: old_calendar_event_id,
       ...old_calendar_event
     })
-
     closeCalendarSidebar();
   }
 }
@@ -460,8 +633,19 @@ function getEventsUser(user) {
   });
 }
 
-function getEventsLocation(location, start, end) {
-  return firebase.firestore().collection('Events').where("location", '==', location).where('start', '>=', start).where('start', '<', end).get()
+function getEventsLocation(location, start, end, filter) {
+  let eventRef = firebase.firestore().collection('Events').where("location", '==', location).where('start', '>=', start).where('start', '<', end)
+  console.log(filter)
+  if (filter.type && filter.value) {
+    if (filter.type == 'staff') {
+      eventRef = eventRef.where(filter.type, 'array-contains', filter.value)
+    }
+    else if (filter.type == 'student') {
+      eventRef = eventRef.where(filter.type, '==', filter.value)
+    }
+    
+  }
+  return eventRef.get()
   .then((eventSnapshot) => {
     console.log('number of events grabbed:', eventSnapshot.size)
     let events = [];
@@ -494,8 +678,11 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar() {
-
-  initializeDefaultCalendar([]);
+  //if the main calendar isn't the default change it back to be
+  //specifically the mode is recurring
+  if (calendar_view != 'default') {
+    initializeDefaultCalendar([], pending_recurring_start.start);
+  }
 
   //call the cancel function on the open sidebar
   cancelSidebar();
@@ -596,6 +783,19 @@ function setupEditSidebar(eventData, eventID) {
       break
     case 'testReview':
       setupEditTestReview(eventData, eventID);
+      break
+    case 'act':
+      setupEditLesson(eventData, eventID);
+      break
+    case 'subjectTutoring':
+      setupEditLesson(eventData, eventID);
+      break
+    case 'mathProgram':
+      setupEditLesson(eventData, eventID);
+      break
+    case 'phonicsProgram':
+      setupEditLesson(eventData, eventID);
+      break
     default:
   }
 
@@ -619,8 +819,10 @@ function setupAddSidebar(type) {
       break
     case 'testReview':
       setupAddTestReview();
+      break
     case 'lesson':
       setupAddLesson();
+      break
     default:
   }
 
@@ -869,7 +1071,6 @@ function setupAddTestReview() {
     return closeCalendarSidebar();
   });
   
-
   showAddTestReviewWrapper();
   openCalendarSidebar();
 }
@@ -999,6 +1200,70 @@ function setupAddLesson() {
   
 
   showAddLessonWrapper();
+  openCalendarSidebar();
+}
+
+function setupEditLesson(data, id) {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "editLesson";
+  main_calendar.getEventById(id).setProp('editable', true);
+
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
+
+  let lessonTypeReadable = '';
+
+  switch(data.type) {
+    case 'act':
+      lessonTypeReadable = 'ACT';
+      break;
+    case 'subjectTutoring':
+      lessonTypeReadable = 'Subject Tutoring';
+      break;
+    case 'mathProgram':
+      lessonTypeReadable = 'Math Program';
+      break;
+    case 'phonicsProgram':
+      lessonTypeReadable = 'Phonics Program';
+      break;
+    default:
+      lessonTypeReadable = 'Lesson';
+  }
+
+  document.getElementById('editLessonType').textContent = lessonTypeReadable;
+  document.getElementById('editLessonStudent').textContent = data.studentName;
+
+  //add back the default option (tutor)
+  const defaultOptionTutor = document.createElement('option');
+  defaultOptionTutor.value = "noTutor";
+  defaultOptionTutor.textContent = "NO TUTOR"
+  document.getElementById('addLessonTutor').appendChild(defaultOptionTutor);
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('editLessonTutor'), tutorUIDs, tutorNames);
+
+    //select previously saved tutors
+    $("#editLessonTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
+  showEditLessonWrapper();
   openCalendarSidebar();
 }
 
@@ -1289,43 +1554,139 @@ function submitAddLesson() {
       break;
     }
   }
-  
-  //
 
-  // const start = pending_calendar_event.start;
-  // const end = pending_calendar_event.end;
-  // const allDay = pending_calendar_event.allDay;
-  // const student = document.getElementById('addTestReviewStudent').value;
-  // const staff = getDropdownValues('addTestReviewTutor');
-  // const location = document.getElementById('calendarLocation').dataset.value;
+  const type = document.getElementById('addLessonType').value;
+  const student = document.getElementById('addLessonStudent').value;
+  const staff = getDropdownValues('addLessonTutor');
+  const location = document.getElementById('calendarLocation').dataset.value;
 
-  // if (!start || !student || !location || staff.length == 0) {
-  //   return alert("It looks like you're still missing some data for this test review");
-  // }
+  if (scheduleType == 'single') {
+    const start = pending_calendar_event.start;
+    const end = pending_calendar_event.end;
+    const allDay = pending_calendar_event.allDay;
 
-  // if (confirm("Are you sure you want to submit this event?")) {
+    if (!start || !type || !student || !location || staff.length == 0) {
+      return alert("It looks like you're still missing some data for this test review");
+    }
 
-  //   eventInfo = {
-  //     type: 'testReview',
-  //     start: start,
-  //     end: end,
-  //     allDay, allDay,
-  //     location: location,
-  //     student: student,
-  //     staff: staff
-  //   }
+    if (confirm("Are you sure you want to submit this event?")) {
 
-  //   saveTestReview(eventInfo)
-  //   .then((event) => {
-  //     //FIXME: This should automatically update for the client and put it in a pending status
-  //     main_calendar.addEvent(event);
-  //     closeCalendarSidebar();
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //     alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
-  //   })
-  // }
+      eventInfo = {
+        type: type,
+        start: start,
+        end: end,
+        allDay, allDay,
+        location: location,
+        student: student,
+        staff: staff
+      }
+
+      saveLesson(eventInfo)
+      .then((event) => {
+        //FIXME: This should automatically update for the client and put it in a pending status
+        main_calendar.addEvent(event);
+        closeCalendarSidebar();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+      })
+    }
+  }
+
+  else if (scheduleType == 'recurring') {
+    let recurringEventsFulfilled = [];
+    // FIXME: VALIDATION
+    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
+      return alert("It looks like you're still missing some data for this lesson");
+    }
+
+
+    //figure out all of the events that must be added based on recurring start, end, and times.
+    const millisecondsWeek = 604800000;
+
+    pending_recurring_times.forEach(weekTime => {
+      let start = weekTime.start.getTime();
+      let end = weekTime.end.getTime();
+
+      //get the week time up to the start of the recurring schedule
+      while (start < pending_recurring_start.start.getTime()) {
+        start += millisecondsWeek;
+        end += millisecondsWeek;
+      }
+
+      //save an event for each time until the end of the recurring
+      while (end < pending_recurring_end.end.getTime()) {
+        let eventInfo = {
+          type: type,
+          start: start,
+          end: end,
+          allDay: weekTime.allDay,
+          location: location,
+          student: student,
+          staff: staff
+        }
+
+        recurringEventsFulfilled.push(saveLesson(eventInfo));
+
+        start += millisecondsWeek;
+        end += millisecondsWeek;
+      }
+
+    })
+
+    Promise.all(recurringEventsFulfilled)
+    .then(events => {
+      events.forEach(event => {
+        main_calendar.addEvent(event);
+      })
+      closeCalendarSidebar();
+    })
+    .catch((error) => {
+      console.log(error);
+      alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+    })
+  }
+
+  else {
+    console.warn("no schedule type: shouldn't be possible.")
+  }
+}
+
+function updateEditLesson() {
+  pending_calendar_event.staff = getDropdownValues('editLessonTutor');
+
+  //get the first tutor doc to grab their color
+  //don't waste time if it hasn't changed
+  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+    .then((tutorDoc) => {
+      pending_calendar_event.color = tutorDoc.data().color ?? null;
+      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    })
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
+  // same first tutor; proceed
+  else {
+    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
 }
 
 function saveTeacherMeeting(eventInfo) {
@@ -1539,6 +1900,78 @@ function saveTestReview(eventInfo) {
     let eventData = {
       type: eventInfo.type,
       title: studentName + " - Test Review",
+      start: parseInt(eventInfo.start),
+      end: parseInt(eventInfo.end),
+      allDay: eventInfo.allDay,
+      location: eventInfo.location,
+      color: tutorColor ?? null,
+      textColor: tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
+
+      student: eventInfo.student,
+      studentName: studentName,
+      
+      parent: studentParent,
+
+      staff: eventInfo.staff,
+
+      attendees: [eventInfo.student, studentParent, ...eventInfo.staff]
+    }
+    return eventRef.set(eventData)
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
+  })
+}
+
+function saveLesson(eventInfo) {
+  let studentData = {};
+  let tutorData = {};
+
+  //get the student doc for name and parent
+  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  .then((studentDoc) => {
+    studentData = studentDoc.data();
+    
+    //get first staff name for color
+    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+  })
+  .then((tutorDoc) => {
+    tutorData = tutorDoc.data();
+
+    const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
+    const studentParent = studentData.parent;
+    const tutorColor = tutorData?.calendarColor;
+    let lessonTypeReadable = ""
+
+    switch(eventInfo.type) {
+      case 'act':
+        lessonTypeReadable = 'ACT';
+        break;
+      case 'subjectTutoring':
+        lessonTypeReadable = 'Subject Tutoring';
+        break;
+      case 'mathProgram':
+        lessonTypeReadable = 'Math Program';
+        break;
+      case 'phonicsProgram':
+        lessonTypeReadable = 'Phonics Program';
+        break;
+      default:
+        lessonTypeReadable = 'Lesson';
+    }
+
+    const eventRef = firebase.firestore().collection("Events").doc()
+    let eventData = {
+      type: eventInfo.type,
+      title: studentName + " - " + lessonTypeReadable,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,

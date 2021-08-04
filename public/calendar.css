@@ -167,6 +167,11 @@ body {
   /* border-radius: 10px; */
 }
 
+.bottom .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
@@ -174,26 +179,67 @@ body {
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 100;
+  box-sizing: content-box;
 }
 
-.dropdown-content div {
+.dropdown-content>div {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
 
-.dropdown-content div.selected {
+.dropdown-content>div.danger {
+  background-color: white;
+  color: #E94D41;
+}
+
+.dropdown-content>div.danger:hover {
+  background-color: #E94D41;
+  color: white;
+}
+
+.dropdown-content>div.selected {
   display: none;
 }
 
-.dropdown-content div:hover {background-color: #ddd;}
+.dropdown-content>div:hover {background-color: #ddd;}
 
-.calendarNav .dropdown:hover .dropdown-content {display: block;}
+.calendarNav .dropdown:hover>.dropdown-content {display: block;}
 
 .calendarNav .dropdown:hover .dropbtn {
   background-color: white;
   color: var(--primary-color);
+}
+
+.bottom .dropdown:hover .dropdown-content {
+  display: block;
+  position: absolute;
+  margin-bottom: 10px;
+  bottom: 30px;
+  right: 0px;
+}
+
+.bottom .dropdown:hover .dropdown-content::after {
+  height: 10px;
+  width: 100%;
+  content: "";
+  position: absolute;
+  bottom: -10px;
+}
+
+
+
+.calendarNav .dropdown-right {
+  position: relative;
+}
+
+.calendarNav .dropdown-right:hover>.dropdown-content {
+  display: block;
+  top: 0px;
+  left: 100%;
+  /* max-height: 400px;
+  overflow-y: auto; */
 }
 
 .inputRow {
@@ -257,6 +303,10 @@ select {
   border-style: solid;
 }
 
+#sidebar .select:hover {
+  border-color: rgba(34,36,38,.35);
+}
+
 #sidebar .input {
   background-color: #FFFFFF;
   padding: 5px 10px 5px 5px;
@@ -266,6 +316,10 @@ select {
   border-width: 1px;
   border-style: solid;
   text-align: start;
+}
+
+#sidebar .input:not(.nonEditable):hover {
+  border-color: rgba(34,36,38,.35);
 }
 
 #sidebar .textarea {
@@ -278,9 +332,16 @@ select {
   height: 6.8em;
 }
 
+#sidebar .textarea:hover {
+  border-color: rgba(34,36,38,.35);
+}
+
 .ui.dropdown {
   display: block !important;
-  margin-bottom: 5px !important;
+}
+
+.dropdown-content .ui.dropdown {
+  min-height: 0 !important;
 }
 
 .ui.dropdown>.dropdown.icon:before {
@@ -304,19 +365,7 @@ select {
   box-sizing: content-box;
 }
 
-.more-info::before {
-  content: "";
-  position: absolute;
-  right: 100%;
-  top: -25%;
-  margin-right: 5px;
-  border-width: 10px;
-  border-style: solid;
-  border-color: transparent transparent transparent lightslategray;
-  visibility: hidden;
-}
-
-.more-info::after {
+.more-info:hover::after {
   font-size: 16px;
   color: white;
   background-color: lightslategray;
@@ -329,16 +378,18 @@ select {
   right: 100%;
   top: -100%;
   width: 200px;
-  visibility: hidden;
   z-index: 100;
 }
 
-.more-info:hover::after {
-  visibility: visible;
-}
-
 .more-info:hover::before {
-  visibility: visible;
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: -25%;
+  margin-right: 5px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent lightslategray;
 }
 
 #addLessonRecurringWrapper {
