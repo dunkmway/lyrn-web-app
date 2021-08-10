@@ -14,6 +14,7 @@ const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
 const GENRAL_INFO_COLOR = "#B3B3B3";
 const TEACHER_MEETING_COLOR = "#B3B3B3";
+const AVAILABILITY_COLOR = "#F09C99";
 
 let current_user;
 
@@ -153,12 +154,44 @@ function setupFilterLists(locationUID) {
   .catch((error) => {
     console.log(error)
   });
+
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a type');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+      (value, text) => {
+        console.log('change')
+        current_filter = {
+          type: 'type',
+          value: value
+        }
+        console.log(current_filter)
+        //change the filter label
+        document.getElementById('filterSelection').innerHTML = 'filter: type - ' + text;
+        
+        //place the filtered values into the calendar
+        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
+      })
 }
 
 function clearFilter() {
   current_filter = {};
   $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
   $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
 
   document.getElementById('filterSelection').innerHTML = 'filter events';
   const location = document.getElementById('calendarLocation').dataset.value;
@@ -468,8 +501,6 @@ function initializepMonthScheduleCalendar(events) {
         pending_recurring_end = {};
       }
 
-      console.log(pending_recurring_start)
-      console.log(pending_recurring_end)
       
       main_calendar.unselect();
     },
@@ -641,6 +672,9 @@ function getEventsLocation(location, start, end, filter) {
       eventRef = eventRef.where(filter.type, 'array-contains', filter.value)
     }
     else if (filter.type == 'student') {
+      eventRef = eventRef.where(filter.type, '==', filter.value)
+    }
+    else if (filter.type == 'type') {
       eventRef = eventRef.where(filter.type, '==', filter.value)
     }
     
@@ -1790,6 +1824,61 @@ function updateEditLesson() {
   }
 }
 
+function submitAddAvailability() {
+  const staff = document.getElementById('addAvailabilityTutor').value;
+  const location = document.getElementById('calendarLocation').dataset.value;
+
+  let recurringEventsFulfilled = [];
+
+  if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || staff.length == 0) {
+    return alert("It looks like you're still missing some data for this lesson");
+  }
+
+  //figure out all of the events that must be added based on recurring start, end, and times.
+  const millisecondsWeek = 604800000;
+
+  pending_recurring_times.forEach(weekTime => {
+    let start = weekTime.start.getTime();
+    let end = weekTime.end.getTime();
+
+    //get the week time up to the start of the recurring schedule
+    while (start < pending_recurring_start.start.getTime()) {
+      start += millisecondsWeek;
+      end += millisecondsWeek;
+    }
+
+    //save an event for each time until the end of the recurring
+    while (end < pending_recurring_end.end.getTime()) {
+      let eventInfo = {
+        type: 'availability',
+        start: start,
+        end: end,
+        allDay: weekTime.allDay,
+        location: location,
+        staff: staff
+      }
+
+      recurringEventsFulfilled.push(saveAvailability(eventInfo));
+
+      start += millisecondsWeek;
+      end += millisecondsWeek;
+    }
+
+  })
+
+  Promise.all(recurringEventsFulfilled)
+  .then(events => {
+    events.forEach(event => {
+      main_calendar.addEvent(event);
+    })
+    closeCalendarSidebar();
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+  })
+}
+
 function saveTeacherMeeting(eventInfo) {
   //first get all of the staff that are invited to this meeting
   let promises = [];
@@ -2123,6 +2212,44 @@ function saveLesson(eventInfo) {
       staff: eventInfo.staff,
 
       attendees: [eventInfo.student, studentParent, ...eventInfo.staff]
+    }
+    return eventRef.set(eventData)
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
+  })
+}
+
+function saveAvailability(eventInfo) {
+  let tutorData = {};
+
+  return firebase.firestore().collection("Tutors").doc(eventInfo.staff).get()
+  .then((tutorDoc) => {
+    tutorData = tutorDoc.data();
+
+    const tutorColor = tutorData?.color;
+    const tutorName = tutorData.tutorFirstName + " " + tutorData.tutorLastName;
+
+    const eventRef = firebase.firestore().collection("Events").doc()
+    let eventData = {
+      type: eventInfo.type,
+      title: tutorName + " - Availability",
+      start: parseInt(eventInfo.start),
+      end: parseInt(eventInfo.end),
+      allDay: eventInfo.allDay,
+      location: eventInfo.location,
+      color: tutorColor ?? AVAILABILITY_COLOR,
+      textColor: tutorColor ? tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(AVAILABILITY_COLOR, ["#FFFFFF", "000000"]).toHexString(),
+
+      staff: [eventInfo.staff],
     }
     return eventRef.set(eventData)
     .then(() => {
