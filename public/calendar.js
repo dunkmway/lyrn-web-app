@@ -767,6 +767,10 @@ function showEditLessonWrapper() {
   document.getElementById('editLessonWrapper').classList.remove("displayNone")
 }
 
+function showAddAvailabilityWrapper() {
+  document.getElementById('addAvailabilityWrapper').classList.remove("displayNone")
+}
+
 function setupEditSidebar(eventData, eventID) {
   switch (eventData.type) {
     case 'teacherMeeting':
@@ -822,6 +826,9 @@ function setupAddSidebar(type) {
       break
     case 'lesson':
       setupAddLesson();
+      break
+    case 'availability':
+      setupAddAvailability();
       break
     default:
   }
@@ -887,6 +894,23 @@ function setupAddGeneralInfo() {
   calendar_mode = "addGeneralInfo";
   main_calendar.setOption('selectable', true);
 
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('addGeneralInfoTutor'), tutorUIDs, tutorNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+
   showAddGeneralInfoWrapper();
   openCalendarSidebar();
 }
@@ -904,6 +928,32 @@ function setupEditGeneralInfo(data, id) {
 
   //fill in appropriate fields
   document.getElementById('editGeneralInfoTitle').value = data.title;
+
+  //add back the default option (tutor)
+  const defaultOptionTutor = document.createElement('option');
+  defaultOptionTutor.value = "";
+  defaultOptionTutor.textContent = "NO TUTOR"
+  document.getElementById('editGeneralInfoTutor').appendChild(defaultOptionTutor);
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('editGeneralInfoTutor'), tutorUIDs, tutorNames);
+
+    //select previously saved tutors
+    $("#editGeneralInfoTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
 
   showEditGeneralInfoWrapper();
   openCalendarSidebar();
@@ -1267,6 +1317,34 @@ function setupEditLesson(data, id) {
   openCalendarSidebar();
 }
 
+function setupAddAvailability() {
+  //close the sidebar just in case another tab is open.
+  closeCalendarSidebar();
+  calendar_mode = "addAvailability";
+  main_calendar.setOption('selectable', true);
+
+  //add in the tutor list. If no location is selected this will reject
+  getTutorList(document.getElementById('calendarLocation').dataset.value)
+  .then((tutors) => {
+    let tutorNames = [];
+    let tutorUIDs = [];
+    tutors.forEach((tutor) => {
+      tutorNames.push(tutor.name);
+      tutorUIDs.push(tutor.id);
+    });
+
+    addSelectOptions(document.getElementById('addAvailabilityTutor'), tutorUIDs, tutorNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar();
+  });
+  
+  recurringEventTimesClickCallback(document.getElementById('addAvailabilityRecurringWrapper').children[0]);
+  showAddAvailabilityWrapper();
+  openCalendarSidebar();
+}
+
 function submitAddTeacherMeeting() {
   const start = pending_calendar_event.start;
   const end = pending_calendar_event.end;
@@ -1322,6 +1400,7 @@ function submitAddGeneralInfo() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const title = document.getElementById('addGeneralInfoTitle').value
+  const staff = getDropdownValues('addGeneralInfoTutor');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !title || !location) {
@@ -1336,9 +1415,8 @@ function submitAddGeneralInfo() {
       end: end,
       allDay, allDay,
       title: title,
-      location: location,
-      color: GENRAL_INFO_COLOR,
-      textColor: tinycolor.mostReadable(GENRAL_INFO_COLOR, ["#FFFFFF", "000000"]).toHexString()
+      staff: staff,
+      location: location
     }
 
     saveGeneralInfo(eventInfo)
@@ -1356,15 +1434,39 @@ function submitAddGeneralInfo() {
 
 function updateEditGeneralInfo() {
   pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
-  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-  .then(() => {
-    main_calendar.getEventById(pending_calendar_event_id).remove();
-    main_calendar.addEvent({
-      id: pending_calendar_event_id,
-      ...pending_calendar_event
+  pending_calendar_event.staff = getDropdownValues('editGeneralInfoTutor');
+
+  //get the first tutor doc to grab their color
+  //don't waste time if it hasn't changed
+  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+    .then((tutorDoc) => {
+      pending_calendar_event.color = tutorDoc.data().color ?? null;
+      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
     })
-    closeCalendarSidebar();
-  })
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
+  // same first tutor; proceed
+  else {
+    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar();
+    })
+  }
 }
 
 function submitAddPracticeTest() {
@@ -1596,11 +1698,10 @@ function submitAddLesson() {
 
   else if (scheduleType == 'recurring') {
     let recurringEventsFulfilled = [];
-    // FIXME: VALIDATION
+
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
       return alert("It looks like you're still missing some data for this lesson");
     }
-
 
     //figure out all of the events that must be added based on recurring start, end, and times.
     const millisecondsWeek = 604800000;
@@ -1766,28 +1867,63 @@ function saveTeacherMeeting(eventInfo) {
 
 function saveGeneralInfo(eventInfo) {
   const eventRef = firebase.firestore().collection("Events").doc()
-  let eventData = {
-    type: eventInfo.type,
-    title: eventInfo.title,
-    start: parseInt(eventInfo.start),
-    end: parseInt(eventInfo.end),
-    allDay: eventInfo.allDay,
-    location: eventInfo.location,
-    color: eventInfo.color,
-    textColor: eventInfo.textColor,
+  if (eventInfo.staff[0]) {
+    let eventData = {};
+    //get first staff name for color
+    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+    .then((tutorDoc) => {
+      tutorData = tutorDoc.data();
+      const tutorColor = tutorData?.color;
+      eventData = {
+        type: eventInfo.type,
+        title: eventInfo.title,
+        staff: eventInfo.staff,
+        start: parseInt(eventInfo.start),
+        end: parseInt(eventInfo.end),
+        allDay: eventInfo.allDay,
+        location: eventInfo.location,
+        color: tutorColor ?? GENRAL_INFO_COLOR,
+        textColor: tutorColor ? tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(GENRAL_INFO_COLOR, ["#FFFFFF", "000000"]).toHexString()
+      }
+      return eventRef.set(eventData)
+    })
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
   }
-  return eventRef.set(eventData)
-  .then(() => {
-    return {
-      id: eventRef.id,
-      title: eventData.title,
-      start: convertFromDateInt(eventData.start).fullCalendar,
-      end: convertFromDateInt(eventData.end).fullCalendar,
-      allDay: eventData.allDay,
-      color: eventData.color,
-      textColor: eventData.textColor,
+  else {
+    let eventData = {
+      type: eventInfo.type,
+      title: eventInfo.title,
+      staff: eventInfo.staff,
+      start: parseInt(eventInfo.start),
+      end: parseInt(eventInfo.end),
+      allDay: eventInfo.allDay,
+      location: eventInfo.location,
+      color: GENRAL_INFO_COLOR,
+      textColor: tinycolor.mostReadable(GENRAL_INFO_COLOR, ["#FFFFFF", "000000"]).toHexString()
     }
-  })
+    return eventRef.set(eventData)
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
+  }
 }
 
 
@@ -1894,7 +2030,7 @@ function saveTestReview(eventInfo) {
 
     const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
     const studentParent = studentData.parent;
-    const tutorColor = tutorData.calendarColor;
+    const tutorColor = tutorData?.color;
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
@@ -1948,7 +2084,7 @@ function saveLesson(eventInfo) {
 
     const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
     const studentParent = studentData.parent;
-    const tutorColor = tutorData?.calendarColor;
+    const tutorColor = tutorData?.color;
     let lessonTypeReadable = ""
 
     switch(eventInfo.type) {
@@ -2152,4 +2288,13 @@ function recurringEventStartEndClickCallback(target) {
   target.classList.add('selected');
 
   initializepMonthScheduleCalendar([pending_recurring_start, pending_recurring_end]);
+}
+
+//FIXME: Implement!
+function checkStaffConflicts(staffUIDs, start, end) {
+  firebase.firestore().collection('Events').where('staff', 'array-contains-any', staffUIDs)
+}
+
+function checkStudentConflicts(studentUID, start, end) {
+
 }

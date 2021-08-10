@@ -58,6 +58,7 @@
         <div onclick="setupAddSidebar('conference')">Conference</div>
         <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
         <div onclick="setupAddSidebar('generalInfo')">General Info</div>
+        <div onclick="setupAddSidebar('availability')">Availability</div>
       </div>
     </div>
 
@@ -155,6 +156,14 @@
         <input id="addGeneralInfoTitle" name="addGeneralInfoTitle" class="input">
         <br>
 
+        <!-- tutor(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) getting paid during this event">?</div>
+          <label for="addGeneralInfoTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addGeneralInfoTutor" name="addGeneralInfoTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
         <!-- buttons -->
         <div class="bottom">
           <button onclick="cancelSidebarCallback()" class="button">cancel</button>
@@ -176,6 +185,14 @@
           <label for="editGeneralInfoTitle" class="label">Info?</label>
         </div>
         <input id="editGeneralInfoTitle" name="editGeneralInfoTitle" class="input nonEditable">
+        <br>
+
+        <!-- tutor(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) getting paid during this event">?</div>
+          <label for="editGeneralInfoTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editGeneralInfoTutor" name="editGeneralInfoTutor" class="ui dropdown search selection" multiple></select>
         <br>
 
         <!-- buttons -->
@@ -471,6 +488,35 @@
               <div class="danger" onclick="deleteEventCallback()">delete this lesson</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!---------------------------->
+      <!----- add availability ----->
+      <!---------------------------->
+      <div id="addAvailabilityWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the times you want to add availability.">?</div>
+        <h3>Add Availability</h3>
+        <div class="headerLine"></div>
+
+        <!-- tutor availability -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the tutor that you are adding availability for">?</div>
+          <label for="addAvailabilityTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addAvailabilityTutor" name="addAvailabilityTutor" class="ui dropdown search selection"></select>
+        <br>
+        <div class="headerLine"></div>
+
+        <div id="addAvailabilityRecurringWrapper">
+          <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
+          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select the start and end dates</button>
+        </div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="cancelSidebarCallback()" class="button">cancel</button>
+          <button onclick="submitAddAvailability()" class="button">submit</button>
         </div>
       </div>
 
