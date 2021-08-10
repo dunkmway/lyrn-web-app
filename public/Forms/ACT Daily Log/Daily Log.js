@@ -627,7 +627,7 @@ function insertPracticeTests() {
     const test = testList[i]['test']
     const section = testList[i]['section']
     const passageNumber = testList[i]['passageNumber']
-    setObjectValue([test, section, passageNumber, 'questions'], student_tests[section][test][passageNumber]['questions'], test_answers_grading)
+    setObjectValue([test, section, passageNumber, 'questions'], student_tests[section][test][passageNumber]?.['questions'], test_answers_grading)
   }
 }
 
