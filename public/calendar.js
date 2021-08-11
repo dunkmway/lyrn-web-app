@@ -500,7 +500,6 @@ function initializepMonthScheduleCalendar(events) {
         pending_recurring_start = {};
         pending_recurring_end = {};
       }
-
       
       main_calendar.unselect();
     },
@@ -665,7 +664,10 @@ function getEventsUser(user) {
 }
 
 function getEventsLocation(location, start, end, filter) {
-  let eventRef = firebase.firestore().collection('Events').where("location", '==', location).where('start', '>=', start).where('start', '<', end)
+  let eventRef = firebase.firestore().collection('Events')
+    .where("location", '==', location)
+    .where('start', '>=', start)
+    .where('start', '<', end)
   console.log(filter)
   if (filter.type && filter.value) {
     if (filter.type == 'staff') {
@@ -692,7 +694,12 @@ function getEventsLocation(location, start, end, filter) {
         end: convertFromDateInt(eventData.end).fullCalendar,
         allDay: eventData.allDay,
         color: eventData.color,
-        textColor: eventData.textColor
+        textColor: eventData.textColor,
+
+        //FIXME: quick fix for availability view
+        //ISSUE: can't query for not availability so we have to hide it after the query
+        //SOLUTION: this availability feature is temporary so we can probably just keep this for now
+        display: (eventData.type == 'availability' && filter.value != 'availability') ? 'none' : 'auto'
       });
     });
     return events;
