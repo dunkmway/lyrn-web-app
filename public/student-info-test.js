@@ -12,7 +12,8 @@ function setChartData(studentUID) {
       if (availableSections.includes(sections[i])) {
         const tests = Object.keys(student_tests[sections[i]])
         for (let j = 0; j < tests.length; j++) {
-          if (student_tests[sections[i]][tests[j]]['scaledScore'] != -1  && student_tests[sections[i]][tests[j]]['type'] == 'homework') {
+          //if (student_tests[sections[i]][tests[j]]['scaledScore'] != -1  && student_tests[sections[i]][tests[j]]['type'] == 'homework') {
+          if (student_tests[sections[i]][tests[j]]['type'] == 'homework') {
             dates.push(student_tests[sections[i]][tests[j]]['date'])
             combined_and_ordered_data.push({
               'score' : student_tests[sections[i]][tests[j]]['score'],
@@ -40,6 +41,7 @@ function setChartData(studentUID) {
       //tempData.push(combined_and_ordered_data.filter(function(val) { return val.date == dates[i]})[0])
     }
     combined_and_ordered_data = tempData
+    assignTeachingOrder(combined_and_ordered_data)
 
     // Get the initial scores
     let initialScores = {}
@@ -51,7 +53,12 @@ function setChartData(studentUID) {
     let lastDate = -1;
     let datesRemoved = 0;
     for (let i = 0; i < combined_and_ordered_data.length; i++) {
-      combined_and_ordered_data[i]['scaledScore'] = combined_and_ordered_data[i]['scaledScore'] - initialScores[combined_and_ordered_data[i]['section']]
+      if (combined_and_ordered_data[i]['scaledScore'] != -1) {
+        combined_and_ordered_data[i]['scaledScore'] = combined_and_ordered_data[i]['scaledScore'] - initialScores[combined_and_ordered_data[i]['section']]
+      }
+      else {
+        combined_and_ordered_data[i]['scaledScore'] = null;
+      }
       const sec = combined_and_ordered_data[i]['section']
       if (combined_and_ordered_data[i]['date'] != lastDate) {
         for (let j = 0; j < sections.length; j++) {
@@ -98,6 +105,55 @@ function setChartData(studentUID) {
     // Generate the charts
     chartsSetup()
   })
+
+}
+
+function assignTeachingOrder(data) {
+  // Identify the correct ordering of sections
+  let ordering = []
+  for (let i = data.length - 1; i > -1; i--) {
+    const letter = data[i]['section'].charAt(0).toUpperCase()
+    if (!ordering.includes(letter)) {
+      ordering.push(letter)
+    }
+    else if (ordering.length == 4) {
+      break
+    }
+  }
+
+  // Make sure that all 4 sections are included
+  if (ordering.length != 4) {
+    const sections = ['S', 'R', 'M', 'E']
+    for (let i = 0; i < sections.length; i++) {
+      if (!ordering.includes(sections[i])) {
+        ordering.push(sections[i])
+      }
+    }
+  }
+
+  // Update the section boxes
+  for (let i = ordering.length - 1; i > -1; i--) {
+    if (ordering[i] == 'E') {
+      const box = document.getElementById('box' + (ordering.length - i - 1).toString())
+      box.innerHTML = 'E'
+      box.classList.add('englishColor')
+    }
+    else if (ordering[i] == 'M') {
+      const box = document.getElementById('box' + (ordering.length - i - 1).toString())
+      box.innerHTML = 'M'
+      box.classList.add('mathColor')
+    }
+    else if (ordering[i] == 'R') {
+      const box = document.getElementById('box' + (ordering.length - i - 1).toString())
+      box.innerHTML = 'R'
+      box.classList.add('readingColor')
+    }
+    else if (ordering[i] == 'S') {
+      const box = document.getElementById('box' + (ordering.length - i - 1).toString())
+      box.innerHTML = 'S'
+      box.classList.add('scienceColor')
+    }
+  }
 
 }
 

@@ -564,6 +564,23 @@ MASTER */
     width: 15vw;
     height: 12vh;
     margin-top: 5vh;
+    padding: 1px;
+}
+
+.sectionBox {
+  width: 25%;
+  padding-top: calc(6vh - 0.5em - 4px);
+  padding-bottom: calc(6vh - 0.5em - 4px);
+}
+
+.sectionBox:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.sectionBox:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .item:first-child {
