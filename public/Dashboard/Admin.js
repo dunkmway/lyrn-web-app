@@ -2,6 +2,12 @@ let currentLocations = [];
 // let currentLocationNames = [];
 let currentUser = ""
 
+let studentTable
+
+let tableDataActive = [];
+let tableDataInactive = [];
+let tableDataAll = [];
+
 initialSetupData();
 
 function initialSetupData() {
@@ -18,7 +24,7 @@ function initialSetupData() {
         .then((doc) => {
           if (doc.exists) {
             setAdminProfile(doc.data());
-            setStudentTable()
+            setActiveStudentTable()
           }
           else setAdminProfile();
         })
@@ -69,104 +75,296 @@ function getLocationList(user) {
   });
 }
 
-function setStudentTable() {
-  let tableData = [];
-  let promises = [];
-
-  //get array of location ids
-  let locationUIDs = [];
-  currentLocations.forEach((location) => {
-    locationUIDs.push(location.id);
-  })
-
-  //query all students whose types are in the current locations array
-  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).get()
-  .then((studentQuerySnapshot) => {
-    studentQuerySnapshot.forEach((studentDoc) => {
-      const studentData = studentDoc.data();
-
-      //convert type string to array
-      let studentTypesTable = "";
-      studentData.studentTypes.forEach((type) => {
-        switch(type) {
-          case 'act':
-            studentTypesTable += 'ACT, ';
-            break;
-          case 'subjectTutoring':
-            studentTypesTable += 'Subject-Tutoring, ';
-            break;
-          case 'mathProgram':
-            studentTypesTable += 'Math-Program, ';
-            break;
-          case 'phonicsProgram':
-            studentTypesTable += 'Phonics-Program, ';
-            break;
-          default:
-            //nothing
-        }
-      })
-      studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
-
-      //figure out the location name
-      let locationName = "";
-      currentLocations.forEach((location) => {
-        if (studentData.location == location.id) {
-          locationName = location.name;
-        }
-      })
-
-      promises.push(getParentData(studentData.parent)
-      .then((parentData) => {
-
-        const student = {
-          studentUID: studentDoc.id,
-          studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
-          studentTypes: studentData.studentTypes,
-          studentTypesTable: studentTypesTable,
-          location: locationName,
-          parentUID: parentData.parentUID,
-          parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
-        }
-
-        tableData.push(student);
-      }));
-    });
-
-    //all of the student objects have been created
-    Promise.all(promises)
+function setActiveStudentTable() {
+  if (tableDataActive.length == 0) {
+    getActiveStudentData()
     .then(() => {
-      let studentTable = $('#student-table').DataTable( {
-        data: tableData,
-        columns: [
-          { data: 'studentName' },
-          { data: 'studentTypesTable'},
-          { data: 'location'},
-          { data: 'parentName'},
-        ],
-        "scrollY": "400px",
-        "scrollCollapse": true,
-        "paging": false
-      } );
-    
-      studentTable.on('click', (args) => {
-        //this should fix some "cannot read property of undefined" errors
-        if (args?.target?._DT_CellIndex) {
-          let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-          setupNavigationModal(studentUID);
-          document.getElementById("navigationSection").style.display = "flex";
-        }
-      })
+      reinitializeActiveTableData();
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
       console.log(error);
-    })
+    });
+  }
+  else {
+    reinitializeActiveTableData();
+  }
+}
 
+function setInactiveStudentTable() {
+  if (tableDataInactive.length == 0) {
+    getInactiveStudentData()
+    .then(() => {
+      reinitializeInactiveTableData();
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    });
+  }
+  else {
+    reinitializeInactiveTableData();
+  }
+}
+
+function setAllStudentTable() {
+  let dataPromises = [];
+
+  if (tableDataActive.length == 0) {
+    dataPromises.push(getActiveStudentData());
+  }
+  if (tableDataInactive.length == 0) {
+    dataPromises.push(getInactiveStudentData());
+  }
+
+  Promise.all(dataPromises)
+  .then(() => {
+    tableDataAll = [...tableDataActive, ...tableDataInactive]
+    reinitializeAllTableData();
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
     console.log(error);
   });
+}
+
+function getActiveStudentData() {
+  let promises = [];
+
+  //run through all locations
+  currentLocations.forEach((location) => {
+    //query all students whose types are active
+    promises.push(firebase.firestore().collection('Students')
+    .where('location', '==', location.id)
+    .where('status', '==', 'active')
+    .get()
+    .then((studentQuerySnapshot) => {
+      let studentPromises = [];
+
+      studentQuerySnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+
+        //convert type string to array
+        let studentTypesTable = "";
+        studentData.studentTypes.forEach((type) => {
+          switch(type) {
+            case 'act':
+              studentTypesTable += 'ACT, ';
+              break;
+            case 'subjectTutoring':
+              studentTypesTable += 'Subject-Tutoring, ';
+              break;
+            case 'mathProgram':
+              studentTypesTable += 'Math-Program, ';
+              break;
+            case 'phonicsProgram':
+              studentTypesTable += 'Phonics-Program, ';
+              break;
+            case 'inactive':
+              studentTypesTable += 'Inactive, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+        //figure out the location name
+        let locationName = "";
+        currentLocations.forEach((location) => {
+          if (studentData.location == location.id) {
+            locationName = location.name;
+          }
+        })
+
+        studentPromises.push(getParentData(studentData.parent)
+        .then((parentData) => {
+
+          const student = {
+            studentUID: studentDoc.id,
+            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+            studentTypes: studentData.studentTypes,
+            studentTypesTable: studentTypesTable,
+            location: locationName,
+            parentUID: parentData.parentUID,
+            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+          }
+          console.log('about to push student')
+          return tableDataActive.push(student);
+        }));
+      });
+      return Promise.all(studentPromises);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    }));
+  });
+
+  return Promise.all(promises);
+}
+
+function reinitializeActiveTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataActive,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataActive[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
+}
+
+function getInactiveStudentData() {
+  let promises = [];
+
+  //run through all locations
+  currentLocations.forEach((location) => {
+    //query all students whose types are active
+    promises.push(firebase.firestore().collection('Students')
+    .where('location', '==', location.id)
+    .where('status', '==', 'inactive')
+    .get()
+    .then((studentQuerySnapshot) => {
+      let studentPromises = [];
+
+      studentQuerySnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+
+        //convert type string to array
+        let studentTypesTable = "";
+        studentData.studentTypes.forEach((type) => {
+          switch(type) {
+            case 'act':
+              studentTypesTable += 'ACT, ';
+              break;
+            case 'subjectTutoring':
+              studentTypesTable += 'Subject-Tutoring, ';
+              break;
+            case 'mathProgram':
+              studentTypesTable += 'Math-Program, ';
+              break;
+            case 'phonicsProgram':
+              studentTypesTable += 'Phonics-Program, ';
+              break;
+            case 'inactive':
+              studentTypesTable += 'Inactive, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+        //figure out the location name
+        let locationName = "";
+        currentLocations.forEach((location) => {
+          if (studentData.location == location.id) {
+            locationName = location.name;
+          }
+        })
+
+        studentPromises.push(getParentData(studentData.parent)
+        .then((parentData) => {
+
+          const student = {
+            studentUID: studentDoc.id,
+            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+            studentTypes: studentData.studentTypes,
+            studentTypesTable: studentTypesTable,
+            location: locationName,
+            parentUID: parentData.parentUID,
+            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+          }
+          console.log('about to push student')
+          return tableDataInactive.push(student);
+        }));
+      });
+      return Promise.all(studentPromises);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    }));
+  });
+
+  return Promise.all(promises);
+}
+
+function reinitializeInactiveTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataInactive,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataInactive[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
+}
+
+function reinitializeAllTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataAll,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataAll[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
 }
 
 function setLocations () {
@@ -629,6 +827,10 @@ function setupNavigationModal(studentUID) {
   document.getElementById("phonicsProgramNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../phonics-program.html" + queryStr
+  };
+  document.getElementById("registrationNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../inquiry.html" + queryStr
   };
 }
 

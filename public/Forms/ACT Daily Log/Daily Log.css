@@ -1011,12 +1011,30 @@ span:hover + .wrap a, .wrap:hover a{
   overflow-y: auto;
 }
 
+#studentGeneralInfoContainer .topSection {
+  display: flex;
+  flex-direction: row;
+}
+
+#studentGeneralInfoSummary {
+  width: 100%;
+  height: 100px;
+  margin: 0px;
+  box-sizing: border-box;
+  background-color: #3F4458;
+  color: white;
+  border-color: black;
+  resize: none;
+  font-size: 16px;
+  padding: 5px;
+  overflow-y: scroll;
+}
+
 #studentGeneralInfoContainer .addRemove{
   font-size: 20px;
   background-color: #A8A8A8;
   border-radius: 6px;
-  margin-right: 2px;
-  margin-top: 2px;
+  padding: 0px;
   display: inline-block;
   text-align: center;
   width: 24px;
@@ -1024,6 +1042,52 @@ span:hover + .wrap a, .wrap:hover a{
 }
 
 #studentGeneralInfoContainer .addRemove:hover{
+  background-color: #7F807F;
+}
+
+.dropbtn {
+  border: none;
+}
+
+#studentGeneralInfoContainer .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  box-sizing: content-box;
+}
+
+.dropdown-content>div {
+  color: black;
+  padding: 5px 8px;
+  text-decoration: none;
+  display: block;
+  background-color: #A8A8A8;
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dropdown-content>div.buffer {
+  background-color: transparent;
+  display: block;
+  padding: 0px;
+  height: 5px;
+  width: 100%;
+}
+
+.dropdown-content>div:hover {background-color: #ddd;}
+
+.dropdown-content>div.buffer:hover {background-color: transparent;}
+
+#studentGeneralInfoContainer .dropdown:hover>.dropdown-content {display: block;}
+
+#studentGeneralInfoContainer .dropdown:hover .dropbtn {
   background-color: #7F807F;
 }
 
@@ -1038,7 +1102,7 @@ span:hover + .wrap a, .wrap:hover a{
   grid-template-columns: 20% 16% 16% 16% 16% 16%;
 }
 
-#studentGeneralInfoContainer .gridContainer :disabled {
+#studentGeneralInfoContainer :disabled {
   color: white;
   opacity: 1;
   -webkit-text-fill-color: white !important;
@@ -1067,6 +1131,19 @@ span:hover + .wrap a, .wrap:hover a{
 
 #studentGeneralInfoContainer .gridContainer .gridCornerItem {
   background-color: transparent;
+}
+
+#studentGeneralInfoContainer .gridContainer .gridDividerItem {
+  background-color: #4C5695;
+  color: black;
+  padding: 5px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid black;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  grid-column: 1 / 7;
 }
 
 #studentGeneralInfoContainer .gridContainer .gridHeaderItem {
@@ -1107,19 +1184,19 @@ span:hover + .wrap a, .wrap:hover a{
   color: black;
 }
 
-#studentGeneralInfoContainer .gridContainer .pending {
+#studentGeneralInfoContainer .pending {
   border-color: #2D5BFC;
 }
 
-#studentGeneralInfoContainer .gridContainer .changed {
+#studentGeneralInfoContainer .changed {
   border-color: white;
 }
 
-#studentGeneralInfoContainer .gridContainer .success {
+#studentGeneralInfoContainer .success {
   border-color: #80CBC4;
 }
 
-#studentGeneralInfoContainer .gridContainer .failed {
+#studentGeneralInfoContainer .failed {
   border-color: #E94045;
 }
 

@@ -27,15 +27,52 @@
     <div class="loading-ring"></div>
   </section>
 
+  <section id="helpModal" class="helpModal" onclick="closeHelp(event)">
+    <div class="helpContainer">
+      <h3 style="margin-top: 0px;">Template for recording grades</h3>
+      <p>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+      </p>
+      <br>
+      <p>
+        QUARTER FINAL GRADES<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+        class name: grade/100<br>
+      </p>
+    </div>
+  </section>
+
   <div id="student-general-info">
     <h1 id="student-name"></h1>
     <textarea id="student-expectation" class="expectation-input" disabled></textarea>
-</div>
+  </div>
 
-  <div id="generalStudentMessageDiv">
-    <h2 class="studentMessageLabel backgroundBlack">Notes</h2>
-    <div id="generalStudentMessages" class="studentMessages"></div>
-    <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
+  <div class="flexRow">
+    <div id="generalStudentMessageDiv">
+      <h2 class="studentMessageLabel backgroundBlack">Notes</h2>
+      <div id="generalStudentMessages" class="studentMessages"></div>
+      <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
+    </div>
+  
+    <div id="gradesStudentMessageDiv">
+      <h2 class="studentMessageLabel backgroundBlack">Grades</h2>
+      <p class="gradesHelp" onclick="openHelp()">?</p>
+      <div id="gradesStudentMessages" class="studentMessages"></div>
+      <textarea id="gradesStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
+    </div>
   </div>
 
 

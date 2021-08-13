@@ -7,7 +7,9 @@ let ids = [];
 // Student test information
 let student_tests = {};
 let tempAnswers = {};
+let preTestScores = [];
 let testGoals = [];
+let postTestScores = [];
 
 // Current tests in use
 const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
@@ -108,6 +110,28 @@ function getStudentTests(studentUID) {
   })
 }
 
+function updateGeneralInfoSummary(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  removeAllWorkingClasses(element)
+  //place the input into a pending state
+  element.classList.add('pending');
+
+  //update firebase
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    summary: element.value
+  })
+  .then(() => {
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
+  })
+  .catch((error) => {
+    console.log(error)
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
+  })
+}
+
 function setGeneralInfo() {
 
   firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).get()
@@ -116,35 +140,27 @@ function setGeneralInfo() {
   })
 
   //set up the grid
-  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer')
+  const generalInfoContainer = document.querySelector('#studentGeneralInfoContainer');
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const preTestDivider = document.querySelector('#preTestDivider');
+  const goalsDivider = document.querySelector('#goalDivider');
+  const postTestDivider = document.querySelector('#postTestDivider');
   let studentActProfileDoc;
 
-  getStudentProfileDoc(CURRENT_STUDENT_UID)
+  getStudentActProfileDoc(CURRENT_STUDENT_UID)
   .then(profileDoc => {
     studentActProfileDoc = profileDoc;
-
-    let englishInitial = profileDoc.data().englishInitial;
-    let mathInitial = profileDoc.data().mathInitial;
-    let readingInitial = profileDoc.data().readingInitial;
-    let scienceInitial = profileDoc.data().scienceInitial;
-    let compositeInitial = roundedAvg([englishInitial, mathInitial, readingInitial, scienceInitial]);
-
-    generalInfoGrid.appendChild(createElement('div', ['gridHeaderItem'], [], [], 'Initial'));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeInitial'], compositeInitial?.toString() ?? ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['englishInitial', englishInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['mathInitial', mathInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['readingInitial', readingInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
-    generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onchange', 'oninput', 'min', 'max'], ['scienceInitial', scienceInitial?.toString() ?? "", 'studentInitialScoreFocusOutCallback(this)', 'generalInfoInputCallback(this)', '0', '36'], ""));
+    document.getElementById('studentGeneralInfoSummary').value = studentActProfileDoc.data().summary ?? "";
 
     return getLatestTests(CURRENT_STUDENT_UID)
   })
   .then(latestTestDocs => {
-    generalInfoGrid.appendChild(createElement('div', ['gridHeaderItem', 'highlight'], [], [], 'Current'));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['compositeCurrent'], ""));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['englishCurrent'], ""));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['mathCurrent'], ""));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['readingCurrent'], ""));
-    generalInfoGrid.appendChild(createElement('div', ['gridItem', 'highlight'], ['id'], ['scienceCurrent'], ""));
+    postTestDivider.before(createElement('div', ['gridHeaderItem', 'highlight'], [], [], 'Current Score'));
+    postTestDivider.before(createElement('div', ['gridItem', 'highlight'], ['id'], ['compositeCurrent'], ""));
+    postTestDivider.before(createElement('div', ['gridItem', 'highlight'], ['id'], ['englishCurrent'], ""));
+    postTestDivider.before(createElement('div', ['gridItem', 'highlight'], ['id'], ['mathCurrent'], ""));
+    postTestDivider.before(createElement('div', ['gridItem', 'highlight'], ['id'], ['readingCurrent'], ""));
+    postTestDivider.before(createElement('div', ['gridItem', 'highlight'], ['id'], ['scienceCurrent'], ""));
 
     let currentScores = []
     latestTestDocs.forEach(testDoc => {
@@ -160,12 +176,52 @@ function setGeneralInfo() {
     let compositeCurrent = roundedAvg(currentScores);
     document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent?.toString();
 
+    //set up the pre test scores
+    preTestScores = studentActProfileDoc.data().preTestScores ?? [];
+    if (preTestScores) {
+      preTestScores.forEach((score, index) => {
+        let highlightedClass = score.isBaseScore ? 'highlight' : null;
+        let compositeScore = roundedAvg([score.englishPreTest, score.mathPreTest, score.readingPreTest, score.sciencePreTest]);
+        let testDateElement = createElement('input', ['gridHeaderItem', highlightedClass], ['id'], ['preTestDate-' + index.toString()], "")
+
+        flatpickr(testDateElement, {
+          defaultDate: new Date(score.testDate),
+          dateFormat: 'M d, Y',
+          onChange: ((selectedDates, dateStr, instance) => {
+            removeAllWorkingClasses(instance.element);
+            instance.element.classList.add('pending');
+            //change the test goals array and update on firebase
+            preTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+              preTestScores: preTestScores
+            })
+            .then(() => {
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('success');
+            })
+            .catch((error) => {
+              console.log(error)
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('fail');
+            })
+          })
+        })
+
+        goalsDivider.before(testDateElement);
+        goalsDivider.before(createElement('div', ['gridItem', highlightedClass], ['id', 'onclick'], ['compositePreTest-' + index.toString(), `togglePreTestBaseScore(${index})`], compositeScore?.toString() ?? ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPreTest-' + index.toString(), score.englishPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPreTest-' + index.toString(), score.mathPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPreTest-' + index.toString(), score.readingPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePreTest-' + index.toString(), score.sciencePreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+      })
+    }
+
     //set up the test date goals
     testGoals = studentActProfileDoc.data().testGoals ?? [];
     if (testGoals) {
       testGoals.forEach((goal, index) => {
         let compositeGoal = roundedAvg([goal.englishGoal, goal.mathGoal, goal.readingGoal, goal.scienceGoal]);
-        let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['testDate-' + index.toString()], "")
+        let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['goalTestDate-' + index.toString()], "")
 
         flatpickr(goalDateElement, {
           defaultDate: new Date(goal.testDate),
@@ -190,12 +246,51 @@ function setGeneralInfo() {
           })
         })
 
-        generalInfoGrid.appendChild(goalDateElement);
-        generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + index.toString()], compositeGoal?.toString() ?? ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        postTestDivider.before(goalDateElement);
+        postTestDivider.before(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + index.toString()], compositeGoal?.toString() ?? ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+      })
+    }
+
+    //set up the pre test scores
+    postTestScores = studentActProfileDoc.data().postTestScores ?? [];
+    if (postTestScores) {
+      postTestScores.forEach((score, index) => {
+        let compositeScore = roundedAvg([score.englishPostTest, score.mathPostTest, score.readingPostTest, score.sciencePostTest]);
+        let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['postTestDate-' + index.toString()], "")
+
+        flatpickr(testDateElement, {
+          defaultDate: new Date(score.testDate),
+          dateFormat: 'M d, Y',
+          onChange: ((selectedDates, dateStr, instance) => {
+            removeAllWorkingClasses(instance.element);
+            instance.element.classList.add('pending');
+            //change the test goals array and update on firebase
+            postTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+              postTestScores: postTestScores
+            })
+            .then(() => {
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('success');
+            })
+            .catch((error) => {
+              console.log(error)
+              removeAllWorkingClasses(instance.element);
+              instance.element.classList.add('fail');
+            })
+          })
+        })
+
+        generalInfoGrid.appendChild(testDateElement);
+        generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositePostTest-' + index.toString()], compositeScore?.toString() ?? ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPostTest-' + index.toString(), score.englishPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPostTest-' + index.toString(), score.mathPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPostTest-' + index.toString(), score.readingPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePostTest-' + index.toString(), score.sciencePostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
       })
     }
 
@@ -206,19 +301,20 @@ function setGeneralInfo() {
         .then((idTokenResult) => {
           let role = idTokenResult.claims.role;
           if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-            let queryStr = "?student=" + CURRENT_STUDENT_UID;
-            document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
+            // let queryStr = "?student=" + CURRENT_STUDENT_UID;
+            // document.getElementById('registrationLink').href = "../../inquiry.html" + queryStr;
           }
           else {
             //disable all of the inputs
-            generalInfoGrid.querySelectorAll('*').forEach(child => {
+            generalInfoContainer.querySelectorAll('input,textarea').forEach(child => {
               child.setAttribute('disabled', 'true');
             })
 
-            //remove the goal add and subject buttons
+            //remove the add/remove buttons
             document.querySelectorAll('#studentGeneralInfoContainer .addRemove').forEach(element => {
-              element.style.display = 'none';
+              element.remove();
             })
+
           }
         })
       }
@@ -232,11 +328,131 @@ function setGeneralInfo() {
   })
 }
 
+function addGeneralInfoPreTestRow() {
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const goalDivider = document.querySelector('#goalDivider');
+  const numPreTests = generalInfoGrid.querySelectorAll('div[id*="PreTest"]').length;
+
+  let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['preTestDate-' + numPreTests.toString()], "")
+
+  flatpickr(testDateElement, {
+    dateFormat: 'M d, Y',
+    onChange: ((selectedDates, dateStr, instance) => {
+      removeAllWorkingClasses(instance.element);
+      instance.element.classList.add('pending');
+      //change the test goals array and update on firebase
+      preTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+        preTestScores: preTestScores
+      })
+      .then(() => {
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('success');
+      })
+      .catch((error) => {
+        console.log(error)
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('fail');
+      })
+    })
+  })
+
+  goalDivider.before(testDateElement);
+  goalDivider.before(createElement('div', ['gridItem'], ['id', 'onclick'], ['compositePreTest-' + numPreTests.toString(), `togglePreTestBaseScore(${numPreTests})`], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+
+  //run through all of the grid items and add in the numeric formating
+  document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+    element.addEventListener('keydown',enforceNumericFormat);
+    element.addEventListener('keyup',formatToInt);
+  })
+
+  //add new index to testGoals
+  preTestScores.push({});
+}
+
+function removeGeneralInfoPreTestRow() {
+  //confirm removal
+  if (!confirm("Are you sure you want to remove the last Pre-Test?")) {return}
+
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const goalDivider = document.querySelector('#goalDivider');
+  const numPreTests = generalInfoGrid.querySelectorAll('div[id*="PreTest"]').length;
+
+  if(numPreTests > 0) {
+    for (let i = 0; i < 6; i++) {
+      generalInfoGrid.removeChild(goalDivider.previousElementSibling);
+    }
+
+    //pop the last index from testGoals
+    preTestScores.pop()
+
+    //update firebase
+    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      preTestScores: preTestScores
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
+}
+
+function togglePreTestBaseScore(preTestIndex) {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+          //remove the old base score and add the new one in the preTestScores array
+          preTestScores.forEach((preTest, index) => {
+            if (preTest.isBaseScore) {
+              preTestScores[index].isBaseScore = false;
+            }
+            if (index == preTestIndex) {
+              preTestScores[index].isBaseScore = true;
+            }
+          })
+
+          firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+            preTestScores: preTestScores
+          })
+          .then(() => {
+            //remove all highlighted pre tests
+            const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+            generalInfoGrid.querySelectorAll(`[id*="PreTest"]`).forEach(element => {
+              element.classList.remove('highlight');
+            })
+            generalInfoGrid.querySelectorAll(`[id*="preTest"]`).forEach(element => {
+              element.classList.remove('highlight');
+            })
+
+            //add the highlighting to the preTestIndex
+            generalInfoGrid.querySelectorAll(`[id$="PreTest-${preTestIndex}"]`).forEach(element => {
+              element.classList.add('highlight');
+            })
+
+            document.getElementById(`preTestDate-${preTestIndex}`).classList.add('highlight')
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+        }
+      })
+    }
+  });
+  
+}
+
 function addGeneralInfoGoalRow() {
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const postTestDivider = document.querySelector('#postTestDivider');
   const numGoals = generalInfoGrid.querySelectorAll('div[id*="Goal"]').length;
 
-  let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['testDate-' + numGoals.toString()], "")
+  let goalDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['goalTestDate-' + numGoals.toString()], "")
 
   flatpickr(goalDateElement, {
     dateFormat: 'M d, Y',
@@ -260,12 +476,12 @@ function addGeneralInfoGoalRow() {
     })
   })
 
-  generalInfoGrid.appendChild(goalDateElement);
-  generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + numGoals.toString()], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  postTestDivider.before(goalDateElement);
+  postTestDivider.before(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + numGoals.toString()], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
 
   //run through all of the grid items and add in the numeric formating
   document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
@@ -278,12 +494,16 @@ function addGeneralInfoGoalRow() {
 }
 
 function removeGeneralInfoGoalRow() {
+  //confirm removal
+  if (!confirm("Are you sure you want to remove the last Goal?")) {return}
+
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const postTestDivider = document.querySelector('#postTestDivider');
   const numGoals = generalInfoGrid.querySelectorAll('div[id*="Goal"]').length;
 
   if(numGoals > 0) {
     for (let i = 0; i < 6; i++) {
-      generalInfoGrid.removeChild(generalInfoGrid.lastChild);
+      generalInfoGrid.removeChild(postTestDivider.previousElementSibling);
     }
 
     //pop the last index from testGoals
@@ -299,39 +519,74 @@ function removeGeneralInfoGoalRow() {
   }
 }
 
-function studentInitialScoreFocusOutCallback(element) {
-  //check if anything changed
-  if (!element.classList.contains('changed')) {return}
-  removeAllWorkingClasses(element)
-  //place the input into a pending state
-  element.classList.add('pending');
+function addGeneralInfoPostTestRow() {
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const numPostTests = generalInfoGrid.querySelectorAll('div[id*="PostTest"]').length;
 
-  //update the initial score on firebase
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
-    [element.id]: element.value != "" ? parseInt(element.value) : element.value
-  })
-  .then(() => {
-    //change the input into a successful state
-    removeAllWorkingClasses(element);
-    element.classList.add('success');
-  })
-  .catch((error) => {
-    console.log(errors)
-    //change the input into a failed state
-    removeAllWorkingClasses(element);
-    element.classList.add('fail');
+  let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['postTestDate-' + numPostTests.toString()], "")
+
+  flatpickr(testDateElement, {
+    dateFormat: 'M d, Y',
+    onChange: ((selectedDates, dateStr, instance) => {
+      removeAllWorkingClasses(instance.element);
+      instance.element.classList.add('pending');
+      //change the test goals array and update on firebase
+      postTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
+      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+        postTestScores: postTestScores
+      })
+      .then(() => {
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('success');
+      })
+      .catch((error) => {
+        console.log(error)
+        removeAllWorkingClasses(instance.element);
+        instance.element.classList.add('fail');
+      })
+    })
   })
 
-  updateCompositeInitial();
+  generalInfoGrid.appendChild(testDateElement);
+  generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositePostTest-' + numPostTests.toString()], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+
+  //run through all of the grid items and add in the numeric formating
+  document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
+    element.addEventListener('keydown',enforceNumericFormat);
+    element.addEventListener('keyup',formatToInt);
+  })
+
+  //add new index to testGoals
+  postTestScores.push({});
 }
 
-function updateCompositeInitial() {
-  let initials = []
-  document.getElementById('studentGeneralInfoSection').querySelectorAll('input[id$="Initial"]').forEach(sectionInitialElement => {
-    initials.push(sectionInitialElement.value ? parseInt(sectionInitialElement.value) : null);
-  })
+function removeGeneralInfoPostTestRow() {
+  //confirm removal
+  if (!confirm("Are you sure you want to remove the last Post-Test?")) {return}
 
-  document.getElementById('compositeInitial').textContent = roundedAvg(initials)?.toString();
+  const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
+  const numPostTests = generalInfoGrid.querySelectorAll('div[id*="PostTest"]').length;
+
+  if(numPostTests > 0) {
+    for (let i = 0; i < 6; i++) {
+      generalInfoGrid.removeChild(generalInfoGrid.lastChild);
+    }
+
+    //pop the last index from testGoals
+    postTestScores.pop()
+
+    //update firebase
+    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      postTestScores: postTestScores
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
 }
 
 function studentGoalScoreFocusOutCallback(element) {
@@ -372,6 +627,82 @@ function updateCompositeGoal() {
   })
 }
 
+function studentPreTestScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  removeAllWorkingClasses(element)
+  //place the input into a pending state
+  element.classList.add('pending');
+
+  //update the preTest object
+  preTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
+  //update firebase
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    preTestScores: preTestScores
+  })
+  .then(() => {
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
+  })
+  .catch((error) => {
+    console.log(error)
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
+  })
+
+  updateCompositePreTestScores();
+}
+
+function updateCompositePreTestScores() {
+  document.getElementById('studentGeneralInfoSection').querySelectorAll('div[id^="compositePreTest"]').forEach(compositePreTestElement => {
+    let index = parseInt(compositePreTestElement.id.split('-')[1]);
+    let scores = []
+    document.getElementById('studentGeneralInfoSection').querySelectorAll(`input[id$="PreTest-${index}"]`).forEach(sectionPreTestElement => {
+      scores.push(sectionPreTestElement.value ? parseInt(sectionPreTestElement.value) : null);
+    })
+
+    compositePreTestElement.textContent = roundedAvg(scores)?.toString();
+  })
+}
+
+function studentPostTestScoreFocusOutCallback(element) {
+  //check if anything changed
+  if (!element.classList.contains('changed')) {return}
+  removeAllWorkingClasses(element)
+  //place the input into a pending state
+  element.classList.add('pending');
+
+  //update the preTest object
+  postTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
+  //update firebase
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    postTestScores: postTestScores
+  })
+  .then(() => {
+    removeAllWorkingClasses(element);
+    element.classList.add('success');
+  })
+  .catch((error) => {
+    console.log(error)
+    removeAllWorkingClasses(element);
+    element.classList.add('fail');
+  })
+
+  updateCompositePostTestScores();
+}
+
+function updateCompositePostTestScores() {
+  document.getElementById('studentGeneralInfoSection').querySelectorAll('div[id^="compositePostTest"]').forEach(compositePostTestElement => {
+    let index = parseInt(compositePostTestElement.id.split('-')[1]);
+    let scores = []
+    document.getElementById('studentGeneralInfoSection').querySelectorAll(`input[id$="PostTest-${index}"]`).forEach(sectionPostTestElement => {
+      scores.push(sectionPostTestElement.value ? parseInt(sectionPostTestElement.value) : null);
+    })
+
+    compositePostTestElement.textContent = roundedAvg(scores)?.toString();
+  })
+}
+
 function generalInfoInputCallback(e) {
   removeAllWorkingClasses(e)
   e.classList.add('changed')
@@ -384,7 +715,7 @@ function removeAllWorkingClasses(e) {
   e.classList.remove('fail');
 }
 
-function getStudentProfileDoc(studentUID) {
+function getStudentActProfileDoc(studentUID) {
   return firebase.firestore().collection('Students').doc(studentUID).collection('ACT').doc('profile').get()
 }
 

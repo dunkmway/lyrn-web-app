@@ -44,7 +44,7 @@ function setStudentTable() {
   })
 
   //query all students whose types are in the current locations array
-  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).get()
+  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).where('status', '==', 'active').get()
   .then((studentQuerySnapshot) => {
     studentQuerySnapshot.forEach((studentDoc) => {
       const studentData = studentDoc.data();

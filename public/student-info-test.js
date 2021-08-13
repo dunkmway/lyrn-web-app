@@ -26,6 +26,9 @@ function setChartData(studentUID) {
       }
     }
 
+    //calculate hours based on the dates and throw it in.
+    document.getElementById('studentSessionHours').textContent = dates.length * 2;
+    
     // Sort the data
     dates = dates.sort()
     let tempData = []
