@@ -54,20 +54,41 @@
 
     <section id="studentGeneralInfoSection" onclick="closeModal(event, 'studentGeneralInfoSection')">
         <div id="studentGeneralInfoContainer">
-            <a id="registrationLink">
-                <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
-            </a>
+            <div class="topSection">
+                <div>
+                    <!-- don't need anymore -->
+                    <!-- <a id="registrationLink">
+                        <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
+                    </a> -->
+                    <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
+                    <h3 style="color: white; display: inline;">Hours: </h3><h3 id="studentSessionHours" style="color: white; display: inline;"></h3>
+                </div>
+                <textarea id="studentGeneralInfoSummary" onfocusout="updateGeneralInfoSummary(this)" onchange="generalInfoInputCallback(this)"></textarea>
+            </div>
 
-            <div class="gridContainer">
+            <div id="current" class="gridContainer">
                 <div class="gridCornerItem"></div>
                 <div class="gridHeaderItem">Composite</div>
                 <div class="gridHeaderItem">English</div>
                 <div class="gridHeaderItem">Math</div>
                 <div class="gridHeaderItem">Reading</div>
                 <div class="gridHeaderItem">Science</div>
+                <div id="preTestDivider" class="gridDividerItem">
+                    <div class="addRemove" onclick="addGeneralInfoPreTestRow()">+</div>
+                    Pre-Tests
+                    <div class="addRemove" onclick="removeGeneralInfoPreTestRow()">-</div>
+                </div>
+                <div id="goalDivider" class="gridDividerItem">
+                    <div class="addRemove" onclick="addGeneralInfoGoalRow()">+</div>
+                    Goals
+                    <div class="addRemove" onclick="removeGeneralInfoGoalRow()">-</div>
+                </div>
+                <div id="postTestDivider" class="gridDividerItem">
+                    <div class="addRemove" onclick="addGeneralInfoPostTestRow()">+</div>
+                    Post-Tests
+                    <div class="addRemove" onclick="removeGeneralInfoPostTestRow()">-</div>
+                </div>
             </div>
-            <div class="addRemove" onclick="addGeneralInfoGoalRow()">+</div>
-            <div class="addRemove" onclick="removeGeneralInfoGoalRow()">-</div>
         </div>
     </section>
 

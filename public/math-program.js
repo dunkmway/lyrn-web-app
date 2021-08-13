@@ -537,21 +537,21 @@ function submitLessons() {
   })
 }
 
-document.getElementById("student-general-info").addEventListener("dblclick", () => {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          const studentUID = queryStrings()['student']
-          let queryStr = "?student=" + studentUID;
-          window.location.href = "inquiry.html" + queryStr;
-        }
-      })
-    }
-  });
-});
+// document.getElementById("student-general-info").addEventListener("dblclick", () => {
+//   firebase.auth().onAuthStateChanged((user) => {
+//     if (user) {
+//       user.getIdTokenResult()
+//       .then((idTokenResult) => {
+//         let role = idTokenResult.claims.role;
+//         if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+//           const studentUID = queryStrings()['student']
+//           let queryStr = "?student=" + studentUID;
+//           window.location.href = "inquiry.html" + queryStr;
+//         }
+//       })
+//     }
+//   });
+// });
 
 function openHelp() {
   document.getElementById("helpModal").style.display = "flex";

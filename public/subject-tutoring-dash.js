@@ -11,6 +11,7 @@ function main() {
     setStudentProfile();
     setStudentSTProfile();
     getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades');
     allowExpectationChange();
   })
 }
@@ -104,20 +105,30 @@ function updateStudentExpectation(event) {
 }
 
 document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general'));
+document.getElementById("gradesStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades'));
 
-document.getElementById("student-general-info").addEventListener("dblclick", () => {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        const role = idTokenResult.claims.role;
-        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          let queryStr = "?student=" + CURRENT_STUDENT_UID;
-          window.location.href = "inquiry.html" + queryStr;
-        }
-      })
-    }
-  });
-});
+// document.getElementById("student-general-info").addEventListener("dblclick", () => {
+//   firebase.auth().onAuthStateChanged((user) => {
+//     if (user) {
+//       user.getIdTokenResult()
+//       .then((idTokenResult) => {
+//         const role = idTokenResult.claims.role;
+//         if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+//           let queryStr = "?student=" + CURRENT_STUDENT_UID;
+//           window.location.href = "inquiry.html" + queryStr;
+//         }
+//       })
+//     }
+//   });
+// });
+
+function openHelp() {
+  document.getElementById("helpModal").style.display = "flex";
+}
+
+function closeHelp(e) {
+  if (e.target !== e.currentTarget) return;
+  document.getElementById("helpModal").style.display = "none";
+}
 
 main();

@@ -5,6 +5,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-y: hidden;
   height: 100vh;
   width: 100vw;
 }
@@ -15,6 +16,12 @@ body {
   -moz-user-select: none; /* mozilla browsers */
   -khtml-user-select: none; /* webkit (konqueror) browsers */
   -ms-user-select: none; /* IE10+ */
+  height: 20vh;
+}
+
+.flexRow {
+  display: flex;
+  flex-direction: row;
 }
 
 .expectation-input {
@@ -26,13 +33,52 @@ body {
 }
 
 #generalStudentMessageDiv {
-  margin: 50px 0px 50px 20px;
-  width: 400px;
-  height: 60vh;
+  width: 100%;
+  height: 80vh;
   border-color: black;
   border-style: solid;
   border-radius: 10px;
   border-width: 1px;
+}
+
+#gradesStudentMessageDiv {
+  width: 100%;
+  height: 80vh;
+  border-color: black;
+  border-style: solid;
+  border-radius: 10px;
+  border-width: 1px;
+  position: relative;
+}
+
+.gradesHelp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 5px 5px;
+  cursor: pointer;
+  color: white;
+  font-size: 20px;
+}
+
+.helpModal {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.helpContainer {
+  background-color: white;
+  max-width: 70%;
+  padding: 20px;
+  border-radius: 20px;
 }
 
 .studentMessageLabel {

@@ -384,6 +384,12 @@ function objectifyRegistration() {
   //handle the extracurriculars dropdown and type dropdown
   studentInputValues["studentExtracurriculars"] = getDropdownValues("studentExtracurriculars")
   studentInputValues["studentTypes"] = getDropdownValues("studentTypes")
+  if (getDropdownValues("studentTypes").includes('inactive')) {
+    studentInputValues['status'] = "inactive";
+  }
+  else {
+    studentInputValues['status'] = "active";
+  }
 
 
   if (actInputs) {
