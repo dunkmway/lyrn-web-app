@@ -2190,26 +2190,51 @@ function setProfilePic() {
   .catch((error) => {
     console.log("No image found")
   })
+
+  // Done allow a tutor to change the picture
+  firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'tutor') {
+          document.getElementById('fileLabel').style.display = 'none'
+        }
+      })
+    }
+  })
 }
 
-function updateProfilePic() {
-  const data = document.getElementById('fileInput')
-  //document.getElementById('studentProfilePic').style.src = data.files[0]
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
-  let thisref = ref.put(data.files[0])
-  thisref.on('state_changed',function(snapshot) {
- 
- 
-  }, function(error) {
-    console.log(error)
- }, function() {
-      // Uploaded completed successfully, now we can get the download URL
-      thisref.snapshot.ref.getDownloadURL().then(function(downloadURL) {
 
-      // Setting image
-      document.getElementById('studentProfilePic').src=downloadURL;
-   });
-  });
+
+function updateProfilePic() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (role == 'admin' || role == 'dev' || role == 'secretary') {
+            const data = document.getElementById('fileInput')
+            //document.getElementById('studentProfilePic').style.src = data.files[0]
+            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let thisref = ref.put(data.files[0])
+            thisref.on('state_changed', function (snapshot) {
+
+
+            }, function (error) {
+              console.log(error)
+            }, function () {
+              // Uploaded completed successfully, now we can get the download URL
+              thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+
+                // Setting image
+                document.getElementById('studentProfilePic').src = downloadURL;
+              });
+            });
+          }
+        })
+    }
+  })
 }
 
 
