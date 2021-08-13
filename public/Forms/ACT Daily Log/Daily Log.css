@@ -1252,6 +1252,7 @@ span:hover + .wrap a, .wrap:hover a{
 
 #studentProfilePic {
   height: 100px;
+  width: 100px;
 }
 
 /* flatpickr */
@@ -1287,4 +1288,10 @@ span:hover + .wrap a, .wrap:hover a{
 
 .bold {
   font-weight: bold;
+}
+
+#fileLabel {
+  position: absolute;
+  top: 80px;
+  left: 80px;
 }

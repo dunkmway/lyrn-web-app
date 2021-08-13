@@ -55,12 +55,14 @@
     <section id="studentGeneralInfoSection" onclick="closeModal(event, 'studentGeneralInfoSection')">
         <div id="studentGeneralInfoContainer">
             <div class="topSection">
-                <div>
+                <div style = 'position: relative;'>
                     <!-- don't need anymore -->
                     <!-- <a id="registrationLink">
                         <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
                     </a> -->
-                    <img src="../../Images/blank-profile-picture.png" id="studentProfilePic">
+                    <img src="../../Images/blank-profile-picture.png" id="studentProfilePic" style = 'object-fit: cover;'>
+                    <label id = 'fileLabel' for="fileInput"><img src = 'https://www.vhv.rs/dpng/d/439-4390267_edit-modify-ico-edit-pencil-icon-png-transparent.png' height = '20px'></label>
+                    <input type = 'file' id ='fileInput' style = 'display: none;'>
                     <h3 style="color: white; display: inline;">Hours: </h3><h3 id="studentSessionHours" style="color: white; display: inline;"></h3>
                 </div>
                 <textarea id="studentGeneralInfoSummary" onfocusout="updateGeneralInfoSummary(this)" onchange="generalInfoInputCallback(this)"></textarea>

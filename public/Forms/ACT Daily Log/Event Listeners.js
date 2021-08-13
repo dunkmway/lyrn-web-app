@@ -74,6 +74,13 @@ for (let i = 0; i < sectionPassages.length; i++) {
   }
 }
 
+
+let profileImage = document.getElementById('fileInput')
+profileImage.addEventListener('change', function () {
+  console.log("Changing Picture")
+  updateProfilePic()
+})
+
 const beforeUnloadListener = (event) => {
   event.preventDefault();
   return event.returnValue = "You may lose data!";

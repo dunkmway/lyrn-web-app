@@ -770,8 +770,9 @@ function initialSetup() {
       addCompletedHomeworks();
       //getElapsedTime();
       setGeneralInfo();
-      submitSession()
-      setChartData(CURRENT_STUDENT_UID)
+      submitSession();
+      setProfilePic();
+      setChartData(CURRENT_STUDENT_UID);
     })
     .catch((error) => console.log(error))
   })
@@ -2178,6 +2179,37 @@ function hideTitle() {
 
 function showTitle() {
   document.getElementById('sectionTitle').style.display = null;
+}
+
+function setProfilePic() {
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  ref.getDownloadURL()
+  .then((url) => {
+    document.getElementById('studentProfilePic').src=url;
+  })
+  .catch((error) => {
+    console.log("No image found")
+  })
+}
+
+function updateProfilePic() {
+  const data = document.getElementById('fileInput')
+  //document.getElementById('studentProfilePic').style.src = data.files[0]
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  let thisref = ref.put(data.files[0])
+  thisref.on('state_changed',function(snapshot) {
+ 
+ 
+  }, function(error) {
+    console.log(error)
+ }, function() {
+      // Uploaded completed successfully, now we can get the download URL
+      thisref.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+
+      // Setting image
+      document.getElementById('studentProfilePic').src=downloadURL;
+   });
+  });
 }
 
 
