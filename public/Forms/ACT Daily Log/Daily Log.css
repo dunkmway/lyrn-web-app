@@ -6,6 +6,39 @@ body {
     padding: 0;
 }
 
+.testList {
+  background-color: rgb(200, 200, 200);
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  padding: 5px;
+  left: calc(3% + 54.666vw + 5px);
+  bottom: 10px;
+}
+
+.testButton {
+  margin-bottom: 8px;
+  width: 90px;
+  height: 30px;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
 div p {
     margin-top: 0px;
     margin-bottom: 0px;
@@ -1178,65 +1211,3 @@ span:hover + .wrap a, .wrap:hover a{
 .bold {
   font-weight: bold;
 }
-/* MASTER
-#testReviewIcon {
-    position: absolute;
-    left: 10px;
-    top: calc(50% - 25px)
-}
-
-@media screen and (max-width: 1000px) {
-    .input-row-buttons {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: stretch;
-        padding-left: 8%;
-        padding-right: 8%;
-    }
-}
-
-@media (any-hover: hover) {
-
-    .testRow:hover {
-        background-color: rgb(255, 0, 0, 0.7);
-    }
-
-    .nav_enabled div:hover {
-        right: 470px;
-        text-align: left;
-        padding-left: 60px;
-    }
-
-    .nav_disabled div:hover {
-        right: -30px;
-        text-align: left;
-        padding-left: 60px;
-    }
-}
-
-.tinyButton {
-    cursor: pointer;
-    font-size: 12px;
-    width: 60px;
-    height: 30px;
-}
-MASTER */
-/*button {
-  margin-bottom: 10px;
-  width: 140px;
-  height: 45px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  background-color: #fff;
-  border: none;
-  border-radius: 45px;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  outline: none;
-  background-color: rgb(255, 0, 0);
-  text-align: center;
-  color: white;
-}*/

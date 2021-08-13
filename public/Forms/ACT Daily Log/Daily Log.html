@@ -119,6 +119,51 @@
         <button class = "squareButton" onclick = "submitLesson('remove')">Remove</button>
     </div>
 
+    <!--REMOVE-->
+    <div id = 'englishTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
+        <button class = 'testButton' onclick = "assignHomework('english', 'C02')">C02</button>
+        <button class = 'testButton' onclick = "assignHomework('english', 'A11')">A11</button>
+        <button class = 'testButton' onclick = "assignHomework('english', '71E')">71E</button>
+        <button class = 'testButton' onclick = "assignHomework('english', 'A10')">A10</button>
+        <button class = 'testButton' onclick = "assignHomework('english', 'MC2')">MC2</button>
+        <button class = 'testButton' onclick = "assignHomework('english', 'B05')">B05</button>
+        <button class = 'testButton' onclick = "assignHomework('english', 'D03')">D03</button>
+        <button class = 'testButton' onclick = "assignHomework('english', '74C')">74C</button>
+    </div>
+
+    <div id = 'mathTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
+        <button class = 'testButton' onclick = "assignHomework('math', 'C02')">C02</button>
+        <button class = 'testButton' onclick = "assignHomework('math', 'A11')">A11</button>
+        <button class = 'testButton' onclick = "assignHomework('math', '71E')">71E</button>
+        <button class = 'testButton' onclick = "assignHomework('math', 'A10')">A10</button>
+        <button class = 'testButton' onclick = "assignHomework('math', 'MC2')">MC2</button>
+        <button class = 'testButton' onclick = "assignHomework('math', 'B05')">B05</button>
+        <button class = 'testButton' onclick = "assignHomework('math', 'D03')">D03</button>
+        <button class = 'testButton' onclick = "assignHomework('math', '74C')">74C</button>
+    </div>
+
+    <div id = 'readingTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
+        <button class = 'testButton' onclick = "assignHomework('reading', 'C02')">C02</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', 'A11')">A11</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', '71E')">71E</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', 'A10')">A10</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', 'MC2')">MC2</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', 'B05')">B05</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', 'D03')">D03</button>
+        <button class = 'testButton' onclick = "assignHomework('reading', '74C')">74C</button>
+    </div>
+
+    <div id = 'scienceTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
+        <button class = 'testButton' onclick = "assignHomework('science', 'C02')">C02</button>
+        <button class = 'testButton' onclick = "assignHomework('science', 'A11')">A11</button>
+        <button class = 'testButton' onclick = "assignHomework('science', '71E')">71E</button>
+        <button class = 'testButton' onclick = "assignHomework('science', 'A10')">A10</button>
+        <button class = 'testButton' onclick = "assignHomework('science', 'MC2')">MC2</button>
+        <button class = 'testButton' onclick = "assignHomework('science', 'B05')">B05</button>
+        <button class = 'testButton' onclick = "assignHomework('science', 'D03')">D03</button>
+        <button class = 'testButton' onclick = "assignHomework('science', '74C')">74C</button>
+    </div>
+
 
 
     <section id='compositeSection' class='mainBody'>
@@ -333,10 +378,10 @@
                     <button id = 'englishNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('english')">
                         Not Assigning
                     </button>
-                    <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor'>
+                    <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
                         Assign
                     </button>
-                    <button id = 'unassignEnglish' onclick = "unassignHomework('english')" class = 'item itemB2 cursor hidden'>
+                    <button id = 'unassignEnglish' onclick = "unassignHomework('english')" class = 'item itemB2 cursor hidden' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
                         Unassign
                     </button>
                 </div>
@@ -496,10 +541,10 @@
                     <button id = 'mathNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('math')">
                         Not Assigning
                     </button>
-                    <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor'>
+                    <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
                         Assign
                     </button>
-                    <button id='unassignMath' onclick="unassignHomework('math')" class='item itemB2 cursor hidden'>
+                    <button id='unassignMath' onclick="unassignHomework('math')" class='item itemB2 cursor hidden' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
                         Unassign
                     </button>
                 </div>
@@ -658,10 +703,10 @@
                     <button id = 'readingNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('reading')">
                         Not Assigning
                     </button>
-                    <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor'>
+                    <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
                         Assign
                     </button>
-                    <button id='unassignReading' onclick="unassignHomework('reading')" class='item itemB2 cursor hidden'>
+                    <button id='unassignReading' onclick="unassignHomework('reading')" class='item itemB2 cursor hidden' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
                         Unassign
                     </button>
                 </div>
@@ -820,10 +865,10 @@
                     <button id = 'scienceNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('science')">
                         Not Assigning
                     </button>
-                    <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor'>
+                    <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
                         Assign
                     </button>
-                    <button id='unassignScience' onclick="unassignHomework('science')" class='item itemB2 cursor hidden'>
+                    <button id='unassignScience' onclick="unassignHomework('science')" class='item itemB2 cursor hidden' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
                         Unassign
                     </button>
                 </div>
