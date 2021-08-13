@@ -672,10 +672,12 @@ function checkForAssignedHomeworks() {
     if (student_tests[section][test]['date'] < convertFromDateInt(date.getTime())['startOfDayInt']) {
       // Lower the homework count for each test that needs graded
       homework_count -= 1;
+      colorTestBox(section, test, 'yellow'); // REMOVE
     }
     else {
 
       numAssignedTests += 1;
+      colorTestBox(section, test, 'yellow'); // REMOVE
 
       ids.push({
         'type' : 'homework',
@@ -1000,6 +1002,9 @@ function resetAnswers() {
       updateStatusBar(test, section, true)
       updateStatusBar(test, section, false, 'yellow')
     }
+
+    colorTestBox(section, test, 'green', false); // REMOVE
+    colorTestBox(section, test, 'yellow'); // REMOVE
     
     // Lower the homework count by 1
     //if (student_tests[section]?.[test]?.['date'] != undefined) {
@@ -1150,6 +1155,9 @@ function gradeHomework(status) {
 
       // Update the status bar to mark the test as completed
       updateStatusBar(test, section)
+
+      colorTestBox(section, test, 'yellow', false); // REMOVE
+      colorTestBox(section, test, 'green'); // REMOVE
 
       // up the homework count
       //if (student_tests[section]?.[test]?.['date'] != undefined) {
@@ -1417,7 +1425,8 @@ function gradePractice(status) {
 
 }
 
-function assignHomework(section) {
+function assignHomework(section, assigningTest = undefined) {
+
   // Disable the buttons until homework has been assigned
   let assign = document.getElementById('assign' + section.charAt(0).toUpperCase() + section.slice(1))
   let unassign = document.getElementById('unassign' + section.charAt(0).toUpperCase() + section.slice(1))
@@ -1429,6 +1438,7 @@ function assignHomework(section) {
 
   // Find the next test
   let test = undefined;
+  if (assigningTest == undefined) { // REMOVE
   if (section in student_tests) {
     for (let i = 0; i < hwTests.length; i++) {
       if (hwTests[i] in student_tests[section]) {
@@ -1460,6 +1470,10 @@ function assignHomework(section) {
     else {
       test = othTests[0]
     }
+  }
+  }
+  else { // REMOVE
+    test = assigningTest
   }
 
   // Initialize the questions array
@@ -1501,6 +1515,8 @@ function assignHomework(section) {
       'id' : ref.id
     })
 
+    colorTestBox(section, test, 'yellow'); // REMOVE
+
     numAssignedTests += 1;
     submitSession()
   })
@@ -1514,6 +1530,32 @@ function assignHomework(section) {
 
   // Open the test to print
   openTest(test, section)
+}
+
+// REMOVE
+function colorTestBox(section, test, color = 'green', add = true) {
+  const testList = document.getElementById(section + 'TestList').querySelectorAll('button')
+  for (let i = 0; i < testList.length; i++) {
+    if (testList[i].innerHTML == test) {
+      if (add == true) {
+        testList[i].classList.add(color)
+      }
+      else {
+        testList[i].classList.remove(color)
+      }
+    }
+  }
+}
+
+function openTestList(section) {
+  clearTimeout(timeout)
+  document.getElementById(section + 'TestList').style.display = 'flex'
+}
+
+function closeTestList(section) {
+  timeout = setTimeout(function(){
+    document.getElementById(section + 'TestList').style.display = 'none'
+  }, 50)
 }
 
 function initializeEmptyAnswers(test, section) {
@@ -1622,6 +1664,8 @@ MASTER */
 
     // Remove the assigned test from the composite page
     removeAssignedTest(test, section)
+
+    colorTestBox(section, test, 'yellow', false); // REMOVE
 
     numAssignedTests -= 1;
     submitSession()

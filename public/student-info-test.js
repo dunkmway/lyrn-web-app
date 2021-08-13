@@ -22,6 +22,11 @@ function setChartData(studentUID) {
               'status' : student_tests[sections[i]][tests[j]]['status'],
               'section' : sections[i]
             })
+
+            if (student_tests[sections[i]][tests[j]]['status'] != 'assigned') {
+              colorTestBox(sections[i], tests[j], 'green'); // REMOVE
+            }
+
           }
         }
       }
