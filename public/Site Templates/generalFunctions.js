@@ -135,7 +135,7 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
   }
 }
 
-function customConfirm(message = "", option1, option2, option1Callback, option2Callback) {
+function customConfirm(message = "", option1 = "", option2 = "", option1Callback, option2Callback) {
 
   //setup the HTML for the confimation
   let confirmationSection = document.createElement('section');
