@@ -51,3 +51,45 @@
 .noMargins {
   margin: 0;
 }
+
+/***************************** custom confirmation ******************************/
+#customConfirmationSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 999;
+  top: 0px;
+}
+
+#customConfirmationSection .confirmationContainer {
+  background-color: #FFFFFF;
+  min-width: 400px;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+#customConfirmationSection #customConfirmationMessage {
+  color: #5B5B5B;
+  padding: 20px;
+  text-align: left;
+  border-bottom: #D5D5D5 solid 1px;
+  font-size: 14px;
+}
+
+
+#customConfirmationSection .optionsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+#customConfirmationSection .optionsContainer>div {
+  color: #057AFB;
+  padding: 10px;
+}
+/********************************************************************************/

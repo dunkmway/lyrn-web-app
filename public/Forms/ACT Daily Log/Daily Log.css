@@ -1040,6 +1040,7 @@ span:hover + .wrap a, .wrap:hover a{
 .submitable {
   background: repeating-linear-gradient(-45deg, rgb(126, 198, 4) 15%, white 16%);
 }
+
 #studentGeneralInfoSection {
   display: none;
   flex-direction: column;
@@ -1206,6 +1207,10 @@ span:hover + .wrap a, .wrap:hover a{
   margin: 0;
   font-family: inherit;
   font-size: inherit;
+}
+
+#studentGeneralInfoContainer .gridContainer .practiceTest {
+  background-color: #3D3D3D;
 }
 
 #studentGeneralInfoContainer .gridContainer .gridItem {

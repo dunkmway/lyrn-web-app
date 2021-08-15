@@ -135,3 +135,51 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
   }
 }
 
+function customConfirm(message = "", option1, option2, option1Callback, option2Callback) {
+
+  //setup the HTML for the confimation
+  let confirmationSection = document.createElement('section');
+  confirmationSection.id = "customConfirmationSection";
+
+  confirmationSection.innerHTML = (`
+    <div class="confirmationContainer">
+      <div id="customConfirmationMessage">${message}</div>
+      <div class="optionsContainer">
+        <div id="customConfirmationOptionOne">${option1}</div>
+        <div id="customConfirmationOptionTwo">${option2}</div>
+      </div>
+    </div>
+  `);
+
+  //append the confirmation to the DOM
+  document.body.appendChild(confirmationSection);
+
+  //this will remove the modal if the user clicks off of the container
+  confirmationSection.addEventListener('click', (e) => {
+    if (e.target !== e.currentTarget) return;
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove();
+  });
+
+  //setup the event listeners
+  document.getElementById('customConfirmationOptionOne').addEventListener('click', option1Callback);
+  document.getElementById('customConfirmationOptionTwo').addEventListener('click', option2Callback);
+
+  document.getElementById('customConfirmationOptionOne').addEventListener('click', () => {
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove()
+  });
+  document.getElementById('customConfirmationOptionTwo').addEventListener('click', () => {
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove()
+  });
+}

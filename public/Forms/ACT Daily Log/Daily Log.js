@@ -182,7 +182,7 @@ function setGeneralInfo() {
       preTestScores.forEach((score, index) => {
         let highlightedClass = score.isBaseScore ? 'highlight' : null;
         let compositeScore = roundedAvg([score.englishPreTest, score.mathPreTest, score.readingPreTest, score.sciencePreTest]);
-        let testDateElement = createElement('input', ['gridHeaderItem', highlightedClass], ['id'], ['preTestDate-' + index.toString()], "")
+        let testDateElement = createElement('input', ['gridHeaderItem', highlightedClass, score.isPracticeTest ? 'practiceTest' : null], ['id'], ['preTestDate-' + index.toString()], "")
 
         flatpickr(testDateElement, {
           defaultDate: new Date(score.testDate),
@@ -260,7 +260,7 @@ function setGeneralInfo() {
     if (postTestScores) {
       postTestScores.forEach((score, index) => {
         let compositeScore = roundedAvg([score.englishPostTest, score.mathPostTest, score.readingPostTest, score.sciencePostTest]);
-        let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['postTestDate-' + index.toString()], "")
+        let testDateElement = createElement('input', ['gridHeaderItem', score.isPracticeTest ? 'practiceTest' : null], ['id'], ['postTestDate-' + index.toString()], "")
 
         flatpickr(testDateElement, {
           defaultDate: new Date(score.testDate),
@@ -329,11 +329,15 @@ function setGeneralInfo() {
 }
 
 function addGeneralInfoPreTestRow() {
+  customConfirm('What type of test do you want to add?', 'ACT', 'P/T', () => {placePreTestRow(false)}, () => {placePreTestRow(true)});
+}
+
+function placePreTestRow(isPracticeTest) {
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
   const goalDivider = document.querySelector('#goalDivider');
   const numPreTests = generalInfoGrid.querySelectorAll('div[id*="PreTest"]').length;
 
-  let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['preTestDate-' + numPreTests.toString()], "")
+  let testDateElement = createElement('input', ['gridHeaderItem', isPracticeTest ? 'practiceTest' : null], ['id'], ['preTestDate-' + numPreTests.toString()], "")
 
   flatpickr(testDateElement, {
     dateFormat: 'M d, Y',
@@ -520,10 +524,14 @@ function removeGeneralInfoGoalRow() {
 }
 
 function addGeneralInfoPostTestRow() {
+  customConfirm('What type of test do you want to add?', 'ACT', 'P/T', () => {placePostTestRow(false)}, () => {placePostTestRow(true)});
+}
+
+function placePostTestRow(isPracticeTest) {
   const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
   const numPostTests = generalInfoGrid.querySelectorAll('div[id*="PostTest"]').length;
 
-  let testDateElement = createElement('input', ['gridHeaderItem'], ['id'], ['postTestDate-' + numPostTests.toString()], "")
+  let testDateElement = createElement('input', ['gridHeaderItem', isPracticeTest ? 'practiceTest' : null], ['id'], ['postTestDate-' + numPostTests.toString()], "")
 
   flatpickr(testDateElement, {
     dateFormat: 'M d, Y',
@@ -635,6 +643,7 @@ function studentPreTestScoreFocusOutCallback(element) {
   element.classList.add('pending');
 
   //update the preTest object
+  preTestScores[parseInt(element.id.split('-')[1])].isPracticeTest = document.getElementById(`preTestDate-${element.id.split('-')[1]}`).classList.contains('practiceTest');
   preTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
   firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
@@ -673,6 +682,7 @@ function studentPostTestScoreFocusOutCallback(element) {
   element.classList.add('pending');
 
   //update the preTest object
+  postTestScores[parseInt(element.id.split('-')[1])].isPracticeTest = document.getElementById(`postTestDate-${element.id.split('-')[1]}`).classList.contains('practiceTest');
   postTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
   firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
