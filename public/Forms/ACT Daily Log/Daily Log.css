@@ -243,7 +243,7 @@ div p {
     position: relative;
     height: 81vh;
     width: 100vw;
-    background-color: rgb(75, 143, 228, 0.8);
+    background-color: #242947;
     z-index: 1;
 }
 
@@ -665,11 +665,14 @@ MASTER */
 
 #sectionTitle {
     font-size: 3em;
+    font-weight: bold;
+    color: white;
 }
 
 #studentName {
     font-size: 2em;
     cursor: pointer;
+    color: white;
 }
 
 .hidden {
@@ -686,7 +689,7 @@ MASTER */
     height: 10vh;
     width: 100%;
     align-items: center;
-    background-color: rgb(75, 143, 228, 0.8);
+    background-color: #242947;
 }
 
 .generalInfo {

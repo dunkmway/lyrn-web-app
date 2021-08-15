@@ -61,7 +61,7 @@
   text-align: right;
   font-weight: 200;
   font-size: 12px;
-  color: #8A8B8A;
+  color: black;
   right: -20px;
   margin: 0;
 }
@@ -72,7 +72,7 @@
 }
 
 .studentMessages .right .studentMessage{
-  background-color: #C4CCE8;
+  background-color: #80CBC4;
 }
 
 .studentMessages .left {
@@ -81,11 +81,11 @@
 }
 
 .studentMessages .left .studentMessage{
-  background-color: #CCE8C4;
+  background-color: #979CB5;
 }
 
 .studentMessage.important {
-  border-color: #4177DA;
+  border-color: #80CBC4;
   border-style: solid;
 }
 
