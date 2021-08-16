@@ -1,36 +1,48 @@
 //FIXME: need to grab which location we are looking at
 //currently stuck on Sandy
 let currentLocation = "";
-let currentLocations = [
-  {
-    id: "mhOjmqiieW6zrHcvsElp",
-    name: "Lehi"
-  },
-  {
-    id: "tykwKFrvmQ8xg2kFfEeA",
-    name: "Sandy"
-  }
-]
+let currentLocations = [];
 initialSetupData();
 
 
 function initialSetupData() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      // User is signed in.
-      getTutorProfile(user.uid)
-      .then((doc) => {
-        if (doc.exists) {
-          setTutorProfile(doc.data());
-          setStudentTable();
-        }
-        else setTutorProfile();
+      getAllLocations()
+      .then(locations => {
+        currentLocations = locations;
+
+        // User is signed in.
+        getTutorProfile(user.uid)
+        .then((doc) => {
+          if (doc.exists) {
+            setTutorProfile(doc.data());
+            setStudentTable();
+          }
+          else setTutorProfile();
+        })
       })
 
     } else {
       // No user is signed in.
     }
   });
+}
+
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
+
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
+
+    return locationData;
+  })
 }
 
 function setStudentTable() {

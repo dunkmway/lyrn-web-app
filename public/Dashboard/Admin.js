@@ -3,10 +3,13 @@ let currentLocations = [];
 let currentUser = ""
 
 let studentTable
+let staffTable
 
 let tableDataActive = [];
 let tableDataInactive = [];
 let tableDataAll = [];
+
+let tableDataStaff = [];
 
 initialSetupData();
 
@@ -15,7 +18,8 @@ function initialSetupData() {
     currentUser = user;
     if (currentUser) {
       // User is signed in.
-      getLocationList(currentUser)
+      // getLocationList(currentUser)
+      getAllLocations()
       .then((locations) => {
         currentLocations = locations;
         setLocations();
@@ -24,7 +28,11 @@ function initialSetupData() {
         .then((doc) => {
           if (doc.exists) {
             setAdminProfile(doc.data());
-            setActiveStudentTable()
+            setActiveStudentTable();
+            getStaffData()
+            .then(() => {
+              reinitializeStaffTableData();
+            })
           }
           else setAdminProfile();
         })
@@ -73,6 +81,22 @@ function getLocationList(user) {
     });
     return Promise.all(locationNameProms)
   });
+}
+
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
+
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
+
+    return locationData;
+  })
 }
 
 function setActiveStudentTable() {
@@ -189,7 +213,6 @@ function getActiveStudentData() {
             parentUID: parentData.parentUID,
             parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
           }
-          console.log('about to push student')
           return tableDataActive.push(student);
         }));
       });
@@ -294,7 +317,6 @@ function getInactiveStudentData() {
             parentUID: parentData.parentUID,
             parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
           }
-          console.log('about to push student')
           return tableDataInactive.push(student);
         }));
       });
@@ -365,6 +387,121 @@ function reinitializeAllTableData() {
       document.getElementById("navigationSection").style.display = "flex";
     }
   })
+}
+
+function getStaffData() {
+  let promises = [];
+
+  //query all tutors
+  promises.push(firebase.firestore().collection('Tutors')
+  .get()
+  .then((tutorQuerySnapshot) => {
+    let tutorPromises = [];
+
+    tutorQuerySnapshot.forEach((tutorDoc) => {
+      const tutorData = tutorDoc.data();
+
+      //figure out the location name
+      let locationName = "";
+      currentLocations.forEach((location) => {
+        if (tutorData.location == location.id) {
+          locationName = location.name;
+        }
+      })
+
+      const tutor = {
+        staffUID: tutorDoc.id,
+        staffName: tutorData.tutorLastName + ", " + tutorData.tutorFirstName,
+        staffType: 'Tutor',
+        location: locationName,
+      }
+      return tableDataStaff.push(tutor);
+    });
+    return Promise.all(tutorPromises);
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  }));
+
+  //query all admins
+  promises.push(firebase.firestore().collection('Admins')
+  .get()
+  .then((adminQuerySnapshot) => {
+    let adminPromises = [];
+
+    adminQuerySnapshot.forEach((adminDoc) => {
+      const adminData = adminDoc.data();
+
+      const admin = {
+        staffUID: adminDoc.id,
+        staffName: adminData.adminLastName + ", " + adminData.adminFirstName,
+        staffType: 'Admin',
+        location: 'All',
+      }
+      return tableDataStaff.push(admin);
+    });
+    return Promise.all(adminPromises);
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  }));
+
+  return Promise.all(promises);
+}
+
+function reinitializeStaffTableData() {
+  if (staffTable) {
+    staffTable.off('click');
+    staffTable.destroy();
+  }
+
+  staffTable = $('#staff-table').DataTable( {
+    data: tableDataStaff,
+    columns: [
+      { data: 'staffName' },
+      { data: 'staffType'},
+      { data: 'location'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  staffTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let staffUID = tableDataStaff[args.target._DT_CellIndex.row].staffUID;
+      let staffName = tableDataStaff[args.target._DT_CellIndex.row].staffName;
+      let staffType = tableDataStaff[args.target._DT_CellIndex.row].staffType;
+      deleteStaff(staffUID, staffName, staffType)
+      .then(() => {
+        location.reload();
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    }
+  })
+}
+
+function deleteStaff(staffUID, staffName, staffType) {
+  const confirmationName = prompt(`You are about to delete this staff member! This action cannot be undone. Type the staff member's name as it is shown below to continue.\n
+  ${staffName}`);
+
+  if (confirmationName === staffName) {
+    const deleteUser = firebase.functions().httpsCallable('deleteUser');
+    return deleteUser({
+      uid: staffUID
+    })
+    .then(firebase.firestore().collection(staffType + 's').doc(staffUID).delete())
+
+  }
+  else {
+    alert('The staff name did not match so we will NOT be removing this tutor. Make sure to match the name (commas included) if you really want to delete the staff member.')
+    return Promise.reject('staff deletion validation failed');
+  }
 }
 
 function setLocations () {
@@ -579,7 +716,7 @@ function createSecretary() {
         });
       }
       else {
-        document.getElementById("secretaryErrMsg").textContent = "This tutor already exists!";
+        document.getElementById("secretaryErrMsg").textContent = "This secretary already exists!";
         document.getElementById("spinnyBoiSecretary").style.display = "none";
       }
     })
@@ -592,6 +729,82 @@ function createSecretary() {
   else {
     // console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
+  }
+}
+
+function createAdmin() {
+  document.getElementById("spinnyBoiAdmin").style.display = "block";
+  document.getElementById("adminErrMsg").textContent = null;
+  let allInputs = document.getElementById("add-admin-section").querySelectorAll("input");
+  if (validateFields(allInputs) && validateFields([document.getElementById("adminLocation")])) {
+    // console.log("all clear");
+    let allInputValues = {};
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputValues[allInputs[i].id] = allInputs[i].value;
+    }
+
+    // console.log(allInputValues);
+
+    //create the tutor account
+    const addUser = firebase.functions().httpsCallable('addUser');
+    addUser({
+      email: allInputValues['adminEmail'],
+      password: "abc123",
+      role: "admin"
+    })
+    .then((result) => {
+
+      let adminUID = result.data.user.uid;
+      let newUser = result.data.newUser;
+      // console.log(secretaryUID);
+      // console.log(newUser);
+
+      let currentLocation = document.getElementById("adminLocation").value;
+
+      if (newUser) {
+        //set up the tutor doc
+        const adminDocRef = firebase.firestore().collection("Admins").doc(adminUID);
+        let adminDocData = {
+          ...allInputValues,
+          location: currentLocation
+        }
+        adminDocRef.set(adminDocData)
+        .then((result) => {
+          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+          updateUserDisplayName({
+            uid: adminUID,
+            displayName: allInputValues["adminFirstName"] + " " + allInputValues["adminLastName"]
+          })
+          .then(() => {
+            document.getElementById("spinnyBoiAdmin").style.display = "none";
+            closeModal("admin", true);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error, window.location.href);
+            document.getElementById("adminErrMsg").textContent = error.message;
+            document.getElementById("spinnyBoiAdmin").style.display = "none";
+          });
+        })
+        .catch((error) => {
+          handleFirebaseErrors(error, window.location.href);
+          document.getElementById("adminErrMsg").textContent = error.message;
+          document.getElementById("spinnyBoiAdmin").style.display = "none";
+        });
+      }
+      else {
+        document.getElementById("adminErrMsg").textContent = "This admin already exists!";
+        document.getElementById("spinnyBoiAdmin").style.display = "none";
+      }
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("adminErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiAdmin").style.display = "none";
+    })
+  }
+  else {
+    // console.log("not done yet!!!");
+    document.getElementById("spinnyBoiAdmin").style.display = "none";
   }
 }
 
@@ -645,6 +858,31 @@ function createExtracurricular() {
   }
   else {
     document.getElementById("spinnyBoiExtracurricular").style.display = "none";
+  }
+}
+
+function createLocation() {
+  document.getElementById("spinnyBoiLocation").style.display = "block";
+  document.getElementById("locationErrMsg").textContent = null;
+  let location = document.getElementById("location")
+
+  if (validateFields([location])) {
+    let locationRef = firebase.firestore().collection("Locations").doc();
+    locationRef.update({
+      locationName: location.value.trim()
+    })
+    .then(() => {
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+      closeModal("location", true);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("locationErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+    })
+  }
+  else {
+    document.getElementById("spinnyBoiLocation").style.display = "none";
   }
 }
 
