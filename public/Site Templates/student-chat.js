@@ -82,6 +82,8 @@ function setStudentMessage(mes, type) {
     }
     if (mes.id == 'pending') {
       setPendingIndicator(message);
+      //remove the message from the input since this is the first state after pressing enter
+      document.getElementById(type + 'StudentMessagesInput').value = null;
     }
     if (mes.id == "error") {
       setReloadButton(message);
@@ -89,7 +91,6 @@ function setStudentMessage(mes, type) {
     
     messageDiv.appendChild(message);
     messageBlock.appendChild(messageDiv);
-    document.getElementById(type + 'StudentMessagesInput').value = null;
     
     messageDiv.scrollIntoView();
   })
