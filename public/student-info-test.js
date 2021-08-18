@@ -58,12 +58,14 @@ function setChartData(studentUID) {
     // }
 
 
-    for (let i = 0; i < actProfile.preTestScores.length; i++) {
-      if (actProfile.preTestScores[i]?.isBaseScore) {
-        for (let j = 0; j < sections.length; j++) {
-          initialScores[sections[j]] = actProfile.preTestScores[i][sections[j] + "PreTest"];
+    if (actProfile.preTestScores) {
+      for (let i = 0; i < actProfile.preTestScores.length; i++) {
+        if (actProfile.preTestScores[i]?.isBaseScore) {
+          for (let j = 0; j < sections.length; j++) {
+            initialScores[sections[j]] = actProfile.preTestScores[i][sections[j] + "PreTest"];
+          }
+          break;
         }
-        break;
       }
     }
 
