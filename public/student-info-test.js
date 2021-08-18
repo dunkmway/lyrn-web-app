@@ -233,9 +233,10 @@ function chartsSetup() {
 function getLatestTestGoals() {
   if (actProfile["testGoals"]) {
     let goals = {};
-    let lowestScore = Infinity
+    let smallestDateTimeDiff = Infinity
     for (let i = 0; i < actProfile["testGoals"].length; i++) {
-      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0 && dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) < lowestScore) {
+      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0 && dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) < smallestDateTimeDiff) {
+        smallestDateTimeDiff = dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]);
         goals = actProfile["testGoals"][i];
       }
     }
