@@ -53,7 +53,7 @@ function setupFilterLists(locationUID) {
   }
   let studentDefaultOption = document.createElement('option');
   studentDefaultOption.value = "";
-  studentDefaultOption.textContent = 'select a student'
+  studentDefaultOption.textContent = 'select a student';
   document.getElementById('studentFilterContent').appendChild(studentDefaultOption);
 
   for (let i = document.getElementById('tutorFilterContent').options.length; i > 0; i--) {
@@ -61,8 +61,13 @@ function setupFilterLists(locationUID) {
   }
   let tutorDefaultOption = document.createElement('option');
   tutorDefaultOption.value = "";
-  tutorDefaultOption.textContent = 'select a tutor'
+  tutorDefaultOption.textContent = 'select a tutor';
   document.getElementById('tutorFilterContent').appendChild(tutorDefaultOption);
+
+  let typeDefaultOption = document.createElement('option');
+  typeDefaultOption.value = "";
+  typeDefaultOption.textContent = 'select a type';
+  document.getElementById('typeFilterContent').options[0] = typeDefaultOption;
 
   //add in the options for the given location
   getStudentList(locationUID)
@@ -80,13 +85,10 @@ function setupFilterLists(locationUID) {
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         console.log('change')
-        current_filter = {
-          type: 'student',
-          value: value
-        }
+        current_filter.student = value;
         console.log(current_filter)
         //change the filter label
-        document.getElementById('filterSelection').innerHTML = 'filter: student - ' + text;
+        document.getElementById('filterSelection').innerHTML = 'filter active';
         
         //place the filtered values into the calendar
         getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
@@ -125,13 +127,10 @@ function setupFilterLists(locationUID) {
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         console.log('change')
-        current_filter = {
-          type: 'staff',
-          value: value
-        }
+        current_filter.staff = value;
         console.log(current_filter)
         //change the filter label
-        document.getElementById('filterSelection').innerHTML = 'filter: tutor - ' + text;
+        document.getElementById('filterSelection').innerHTML = 'filter active';
         
         //place the filtered values into the calendar
         getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
@@ -160,13 +159,10 @@ function setupFilterLists(locationUID) {
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         console.log('change')
-        current_filter = {
-          type: 'type',
-          value: value
-        }
+        current_filter.type = value;
         console.log(current_filter)
         //change the filter label
-        document.getElementById('filterSelection').innerHTML = 'filter: type - ' + text;
+        document.getElementById('filterSelection').innerHTML = 'filter active';
         
         //place the filtered values into the calendar
         getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
@@ -188,7 +184,9 @@ function setupFilterLists(locationUID) {
 }
 
 function clearFilter() {
-  current_filter = {};
+  for (key in current_filter) {
+    delete key;
+  }
   $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
   $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
@@ -518,7 +516,8 @@ function getEvent(eventID) {
 
 function eventClickHandler(info) {
   //highlight the selected event
-  info.event.setProp('borderColor', 'black')
+  info.event.setProp('borderColor', '#064AF4')
+  console.log(info.event.id)
   getEvent(info.event.id)
   .then((data) => {
     setupEditSidebar(data, info.event.id)
@@ -621,10 +620,15 @@ function cancelSidebar() {
 /**
  * call this function from the button press that cancels the sidebar
  */
-function cancelSidebarCallback() {
+function cancelAddCallback() {
   //FIXME: Check if anything was changed then ask. I'm thinking about putting a change listener that detects changes and sets a flag
   if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
-    closeCalendarSidebar();
+    cancelSidebar();
+    // closeCalendarSidebar();
+    return true
+  }
+  else {
+    return false
   }
 }
 
@@ -638,7 +642,12 @@ function cancelEditCallback() {
       id: old_calendar_event_id,
       ...old_calendar_event
     })
-    closeCalendarSidebar();
+    cancelSidebar();
+    // closeCalendarSidebar();
+    return true
+  }
+  else {
+    return false
   }
 }
 
@@ -669,18 +678,19 @@ function getEventsLocation(location, start, end, filter) {
     .where('start', '>=', start)
     .where('start', '<', end)
   console.log(filter)
-  if (filter.type && filter.value) {
-    if (filter.type == 'staff') {
-      eventRef = eventRef.where(filter.type, 'array-contains', filter.value)
-    }
-    else if (filter.type == 'student') {
-      eventRef = eventRef.where(filter.type, '==', filter.value)
-    }
-    else if (filter.type == 'type') {
-      eventRef = eventRef.where(filter.type, '==', filter.value)
-    }
-    
+  if (filter.staff) {
+    console.log(filter.staff)
+    eventRef = eventRef.where('staff', 'array-contains', filter.staff)
   }
+  if (filter.student) {
+    console.log(filter.student)
+    eventRef = eventRef.where('student', '==', filter.student)
+  }
+  if (filter.type) {
+    console.log(filter.type)
+    eventRef = eventRef.where('type', '==', filter.type)
+  }
+
   return eventRef.get()
   .then((eventSnapshot) => {
     console.log('number of events grabbed:', eventSnapshot.size)
@@ -699,7 +709,7 @@ function getEventsLocation(location, start, end, filter) {
         //FIXME: quick fix for availability view
         //ISSUE: can't query for not availability so we have to hide it after the query
         //SOLUTION: this availability feature is temporary so we can probably just keep this for now
-        display: (eventData.type == 'availability' && filter.value != 'availability') ? 'none' : 'auto'
+        display: (eventData.type == 'availability' && filter.type != 'availability') ? 'none' : 'auto'
       });
     });
     return events;
@@ -710,6 +720,8 @@ function getEventsLocation(location, start, end, filter) {
  * open the calendar sidebar
  */
 function openCalendarSidebar() {
+  //disble filter being dropped down while sidebar open
+  document.getElementById('filterSelection').parentNode.querySelector('.dropdown-content').style.display = 'none';
   document.getElementById('sidebar').classList.remove("closed");
   document.getElementById('sidebar').classList.add('open');
   main_calendar.updateSize();
@@ -719,14 +731,29 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar() {
+  //call the cancel function on the open sidebar
+  if (calendar_mode.includes('add')) {
+    if (!cancelAddCallback()) {
+      return false
+    }
+    else {
+      calendar_mode = "default";
+    }
+  }
+  else if (calendar_mode.includes('edit')) {
+    if (!cancelEditCallback()) {
+      return false
+    }
+    else {
+      calendar_mode = "default";
+    }
+  }
+
   //if the main calendar isn't the default change it back to be
   //specifically the mode is recurring
   if (calendar_view != 'default') {
     initializeDefaultCalendar([], pending_recurring_start.start);
   }
-
-  //call the cancel function on the open sidebar
-  cancelSidebar();
 
   main_calendar.setOption('selectable', false);
   main_calendar.unselect();
@@ -758,6 +785,10 @@ function closeCalendarSidebar() {
     child.classList.add("displayNone");
   });
   main_calendar.updateSize();
+
+  //allow for filter again
+  document.getElementById('filterSelection').parentNode.querySelector('.dropdown-content').style.display = null;
+  return true
 }
 
 function showAddTeacherMeetingWrapper() {
@@ -883,7 +914,9 @@ function setupAddSidebar(type) {
  */
 function setupAddTeacherMeeting() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addTeacherMeeting";
   main_calendar.setOption('selectable', true);
 
@@ -892,7 +925,9 @@ function setupAddTeacherMeeting() {
 }
 
 function setupEditTeacherMeeting(data, id) {
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = 'editTeacherMeeting';
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -931,7 +966,9 @@ function setupEditTeacherMeeting(data, id) {
 
 function setupAddGeneralInfo() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addGeneralInfo";
   main_calendar.setOption('selectable', true);
 
@@ -957,7 +994,9 @@ function setupAddGeneralInfo() {
 }
 
 function setupEditGeneralInfo(data, id) {
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = 'editGeneralInfo';
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -1002,7 +1041,9 @@ function setupEditGeneralInfo(data, id) {
 
 function setupAddPracticeTest() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addPracticeTest";
   main_calendar.setOption('selectable', true);
 
@@ -1037,7 +1078,9 @@ function setupAddPracticeTest() {
 
 function setupEditPracticeTest(data, id) {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "editPracticeTest";
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -1056,7 +1099,9 @@ function setupEditPracticeTest(data, id) {
 
 function setupAddConference() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addConference";
   main_calendar.setOption('selectable', true);
 
@@ -1091,7 +1136,9 @@ function setupAddConference() {
 
 function setupEditConference(data, id) {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "editConference";
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -1110,7 +1157,9 @@ function setupEditConference(data, id) {
 
 function setupAddTestReview() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addTestReview";
   main_calendar.setOption('selectable', true);
 
@@ -1168,7 +1217,9 @@ function setupAddTestReview() {
 
 function setupEditTestReview(data, id) {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "editTestReview";
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -1212,7 +1263,9 @@ function setupEditTestReview(data, id) {
 
 function setupAddLesson() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addLesson";
   main_calendar.setOption('selectable', true);
 
@@ -1296,7 +1349,9 @@ function setupAddLesson() {
 
 function setupEditLesson(data, id) {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "editLesson";
   main_calendar.getEventById(id).setProp('editable', true);
 
@@ -1360,7 +1415,9 @@ function setupEditLesson(data, id) {
 
 function setupAddAvailability() {
   //close the sidebar just in case another tab is open.
-  closeCalendarSidebar();
+  if (!closeCalendarSidebar()) {
+    return
+  }
   calendar_mode = "addAvailability";
   main_calendar.setOption('selectable', true);
 
