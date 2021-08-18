@@ -505,7 +505,7 @@ function deleteStaff(staffUID, staffName, staffType) {
 
   }
   else {
-    alert('The staff name did not match so we will NOT be removing this tutor. Make sure to match the name (commas included) if you really want to delete the staff member.')
+    alert('The staff name did not match so we will NOT be removing this staff. Make sure to match the name (commas included) if you really want to delete the staff member.')
     return Promise.reject('staff deletion validation failed');
   }
 }
