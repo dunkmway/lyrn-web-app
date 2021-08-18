@@ -183,13 +183,21 @@ exports.addUser = functions.https.onCall((data, context) => {
 });
 
 exports.deleteUser = functions.https.onCall((data, context) => {
-    return admin.auth().deleteUser(data.uid)
-    .then(() => {
-        console.log('Successfully deleted user');
-    })
-    .catch((error) => {
-        console.log('Error deleting user:', error);
-    });
+    if (!context.auth.token.role == 'admin') {
+        throw new functions.https.HttpsError('permission-denied', "You aren't allowed to do that!!!");
+    }
+    else if (data.uid == 'EubwH1RTPuOJt0mF2HAzhwzqNm32') {
+        throw new functions.https.HttpsError('permission-denied', "Did you just try to delete Karen...yeah that's a no no.");
+    }
+    else {
+        return admin.auth().deleteUser(data.uid)
+        .then(() => {
+            console.log('Successfully deleted user');
+        })
+        .catch((error) => {
+            console.log('Error deleting user:', error);
+        });
+    }
 });
 
 

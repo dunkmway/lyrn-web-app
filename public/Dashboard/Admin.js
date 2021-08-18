@@ -495,7 +495,13 @@ function deleteStaff(staffUID, staffName, staffType) {
     return deleteUser({
       uid: staffUID
     })
-    .then(firebase.firestore().collection(staffType + 's').doc(staffUID).delete())
+    .then(() => {
+      firebase.firestore().collection(staffType + 's').doc(staffUID).delete()
+    })
+    .catch((error) => {
+      alert(error);
+      console.log(error.message);
+    })
 
   }
   else {
@@ -736,7 +742,7 @@ function createAdmin() {
   document.getElementById("spinnyBoiAdmin").style.display = "block";
   document.getElementById("adminErrMsg").textContent = null;
   let allInputs = document.getElementById("add-admin-section").querySelectorAll("input");
-  if (validateFields(allInputs) && validateFields([document.getElementById("adminLocation")])) {
+  if (validateFields(allInputs)) {
     // console.log("all clear");
     let allInputValues = {};
     for(let i = 0; i < allInputs.length; i++) {
@@ -759,14 +765,11 @@ function createAdmin() {
       // console.log(secretaryUID);
       // console.log(newUser);
 
-      let currentLocation = document.getElementById("adminLocation").value;
-
       if (newUser) {
         //set up the tutor doc
         const adminDocRef = firebase.firestore().collection("Admins").doc(adminUID);
         let adminDocData = {
-          ...allInputValues,
-          location: currentLocation
+          ...allInputValues
         }
         adminDocRef.set(adminDocData)
         .then((result) => {
