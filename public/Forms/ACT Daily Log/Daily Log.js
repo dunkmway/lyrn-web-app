@@ -10,6 +10,7 @@ let tempAnswers = {};
 let preTestScores = [];
 let testGoals = [];
 let postTestScores = [];
+let initialScores = {};
 
 // Current tests in use
 const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
@@ -2145,7 +2146,7 @@ function setTestCarousel(type = 'practice') {
 
         let item = createElement('div', ['input-column-center', 'carouselItem'], [], [], '')
         let test = icTests[j]
-        let testItem = createElement('div', ['practiceTest'], [], [], test)
+        let testItem = createElement('div', ['practiceTest'], ['onclick'], [`openTest('${test}', '${sections[i]}')`], test)
         item.append(testItem)
 
         let ovalDiv = createElement('div', ['input-row-center'], [], [], '')

@@ -2,6 +2,10 @@ let student_profile_data = {};
 let student_notes_data = {};
 let student_st_profile_data = {};
 
+let currentClasses = [];
+let currentGrades = [];
+let isGradeUpdated = false;
+
 const CURRENT_STUDENT_UID = queryStrings()['student'];
 const CURRENT_STUDENT_TYPE = "subjectTutoring";
 
@@ -11,7 +15,8 @@ function main() {
     setStudentProfile();
     setStudentSTProfile();
     getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
-    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades');
+    //getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades');
+    setupStudentGrades(CURRENT_STUDENT_UID);
     allowExpectationChange();
   })
 }
@@ -50,6 +55,124 @@ function setStudentProfile() {
 
 function setStudentSTProfile() {
   document.getElementById('student-expectation').value = student_st_profile_data['expectation'] || "No expectation set."
+}
+
+function setupStudentGrades(studentUID) {
+  //place today's date into the first row
+  document.getElementById('gradeToday').textContent = convertFromDateInt(new Date().getTime())['mm/dd/yyyy'];
+
+  //fill in the classes
+  const classes = student_st_profile_data.classes ?? [];
+
+  for (let i = 0; i < 8; i++) {
+    let newRow = document.createElement('th');
+    newRow.innerHTML = `<div><span contentEditable onfocusout="updateCurrentClasses()">${classes[i] ?? 'no class'}</span></div>`;
+    newRow.classList.add('rotate-45');
+    document.getElementById('gradeTableHeaders').appendChild(newRow)
+  }
+  //add in the blank space
+  let newRow = document.createElement('th');
+  newRow.innerHTML = `<div><span</span></div>`;
+  newRow.classList.add('rotate-45');
+  document.getElementById('gradeTableHeaders').appendChild(newRow)
+
+  //fill in the grades
+  const grades = student_st_profile_data.grades ?? [];
+  console.log(grades)
+  currentGrades = grades;
+
+  grades.forEach(row => {
+    const dateStr = row.date;
+    const gradeList = row.grades;
+
+    //check if grades have already been updated for today and instead place them in the first row
+    if (dateStr == convertFromDateInt(new Date().getTime())['mm/dd/yyyy']) {
+      isGradeUpdated = true;
+      document.querySelectorAll('td[contentEditable="true"').forEach((element, index) => {
+        element.textContent = gradeList[index];
+      });
+    }
+    else {
+      let newRow = document.createElement('tr');
+      newRow.innerHTML = (`
+        <th class="row-header">${dateStr}</th>
+        <td>${gradeList[0] ?? ''}</td>
+        <td>${gradeList[1] ?? ''}</td>
+        <td>${gradeList[2] ?? ''}</td>
+        <td>${gradeList[3] ?? ''}</td>
+        <td>${gradeList[4] ?? ''}</td>
+        <td>${gradeList[5] ?? ''}</td>
+        <td>${gradeList[6] ?? ''}</td>
+        <td>${gradeList[7] ?? ''}</td>
+      `)
+      document.getElementById('gradeTableBody').appendChild(newRow);
+    }
+  })
+}
+
+function updateCurrentClasses() {
+  let classes = [];
+
+  document.getElementById('gradeTableHeaders').querySelectorAll('span[contentEditable="true"]').forEach(classElement => {
+    classes.push(classElement.textContent);
+  })
+
+  currentClasses = classes;
+  console.log(currentClasses);
+
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+    classes: currentClasses
+  }, {merge : true})
+  .then(() => {
+    console.log('succesfully updates classes');
+  })
+  .catch((error) => {
+    console.log(error);
+  })
+}
+
+function updateGradeList() {
+  let rowToday = {};
+  let gradesToday = [];
+
+  rowToday.date = document.getElementById('gradeToday').textContent;
+
+  document.querySelectorAll('td[contentEditable="true"').forEach(element => {
+    gradesToday.push(element.textContent);
+  })
+
+  rowToday.grades = gradesToday;
+  //check if grades have already been updated for today
+  if (!isGradeUpdated) {currentGrades.splice(0,0,rowToday);}
+  else {currentGrades.splice(0,1,rowToday);}
+  isGradeUpdated = true;
+
+  console.log(currentGrades);
+
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+    grades: currentGrades
+  }, {merge : true})
+  .then(() => {
+    console.log('succesfully updates grades');
+  })
+  .catch((error) => {
+    console.log(error);
+  })
+}
+
+function resetGrades() {
+  if (!confirm('Are you sure you want to reset this students classes and grades? This action cannot be undone and will remove all data in THIS TABLE!')) {return}
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').update({
+    grades: firebase.firestore.FieldValue.delete(),
+    classes: firebase.firestore.FieldValue.delete()
+  })
+  .then(() => {
+    console.log('succesfully reset table');
+    location.reload();
+  })
+  .catch((error) => {
+    console.log(error);
+  })
 }
 
 function allowExpectationChange() {
@@ -105,7 +228,7 @@ function updateStudentExpectation(event) {
 }
 
 document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general'));
-document.getElementById("gradesStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades'));
+//document.getElementById("gradesStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades'));
 
 // document.getElementById("student-general-info").addEventListener("dblclick", () => {
 //   firebase.auth().onAuthStateChanged((user) => {

@@ -52,10 +52,22 @@ function setChartData(studentUID) {
     assignTeachingOrder(combined_and_ordered_data)
 
     // Get the initial scores
-    let initialScores = {}
-    for (let i = 0; i < sections.length; i++) {
-      initialScores[sections[i]] = actProfile[sections[i] + "Initial"];
+    initialScores = {}
+    // for (let i = 0; i < sections.length; i++) {
+    //   initialScores[sections[i]] = actProfile[sections[i] + "Initial"];
+    // }
+
+
+    for (let i = 0; i < actProfile.preTestScores.length; i++) {
+      if (actProfile.preTestScores[i]?.isBaseScore) {
+        for (let j = 0; j < sections.length; j++) {
+          initialScores[sections[j]] = actProfile.preTestScores[i][sections[j] + "PreTest"];
+        }
+        break;
+      }
     }
+
+
 
     // Convert absolute scaledScores to relative and add to their individual arrays
     let lastDate = -1;
@@ -216,13 +228,16 @@ function chartsSetup() {
    return Math.round(total / array.length);
  }
 
-function getNextTestGoals() {
+function getLatestTestGoals() {
   if (actProfile["testGoals"]) {
+    let goals = {};
+    let lowestScore = Infinity
     for (let i = 0; i < actProfile["testGoals"].length; i++) {
-      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0) {
-        return actProfile["testGoals"][i];
+      if (dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) > 0 && dateDayDifference(new Date().getTime(), actProfile["testGoals"][i]["testDate"]) < lowestScore) {
+        goals = actProfile["testGoals"][i];
       }
     }
+    return goals;
   } 
   else {
     return undefined;
@@ -242,22 +257,22 @@ function generateChart(element, sections = ['composite', 'english', 'math', 'rea
   sectionRelativeGoals = {}
 
   sectionGoals['composite'] = roundedAvg([
-    getNextTestGoals()?.["englishGoal"], 
-    getNextTestGoals()?.["mathGoal"], 
-    getNextTestGoals()?.["readingGoal"], 
-    getNextTestGoals()?.["scienceGoal"]
+    getLatestTestGoals()?.["englishGoal"], 
+    getLatestTestGoals()?.["mathGoal"], 
+    getLatestTestGoals()?.["readingGoal"], 
+    getLatestTestGoals()?.["scienceGoal"]
   ]);
-  sectionGoals['english'] = getNextTestGoals()?.["englishGoal"];
-  sectionGoals['math'] = getNextTestGoals()?.["mathGoal"];
-  sectionGoals['reading'] = getNextTestGoals()?.["readingGoal"];
-  sectionGoals['science'] = getNextTestGoals()?.["scienceGoal"];
+  sectionGoals['english'] = getLatestTestGoals()?.["englishGoal"];
+  sectionGoals['math'] = getLatestTestGoals()?.["mathGoal"];
+  sectionGoals['reading'] = getLatestTestGoals()?.["readingGoal"];
+  sectionGoals['science'] = getLatestTestGoals()?.["scienceGoal"];
 
-  const initialComposite = roundedAvgUnfiltered([actProfile['englishInitial'], actProfile['mathInitial'], actProfile['readingInitial'], actProfile['scienceInitial']]);
+  const initialComposite = roundedAvgUnfiltered([initialScores['english'], initialScores['math'], initialScores['reading'], initialScores['science']]);
   sectionRelativeGoals['composite'] = sectionGoals['composite'] - initialComposite ?? null;
-  sectionRelativeGoals['english'] = sectionGoals['english'] - actProfile["englishInitial"] ?? null;
-  sectionRelativeGoals['math'] = sectionGoals['math'] - actProfile["mathInitial"] ?? null;
-  sectionRelativeGoals['reading'] = sectionGoals['reading'] - actProfile["readingInitial"] ?? null;
-  sectionRelativeGoals['science'] = sectionGoals['science'] - actProfile["scienceInitial"] ?? null;
+  sectionRelativeGoals['english'] = sectionGoals['english'] - initialScores['english'] ?? null;
+  sectionRelativeGoals['math'] = sectionGoals['math'] - initialScores['math'] ?? null;
+  sectionRelativeGoals['reading'] = sectionGoals['reading'] - initialScores['reading'] ?? null;
+  sectionRelativeGoals['science'] = sectionGoals['science'] - initialScores['science'] ?? null;
 
   //see if any relative scores are the same
   let borderDashGoals = [null, null, null, null, null];
@@ -323,13 +338,13 @@ function generateChart(element, sections = ['composite', 'english', 'math', 'rea
   let suggestedMin = Infinity;
   for (let i = 0; i < sections.length; i++) {
     // Find the max
-    if (getNextTestGoals()?.[sections[i] + "Goal"] - actProfile[sections[i] + "Initial"] + 2 > suggestedMax) {
-      suggestedMax = getNextTestGoals()?.[sections[i] + "Goal"] - actProfile[sections[i] + "Initial"] + 2;
+    if (getLatestTestGoals()?.[sections[i] + "Goal"] - initialScores[sections[i]] + 2 > suggestedMax) {
+      suggestedMax = getLatestTestGoals()?.[sections[i] + "Goal"] - initialScores[sections[i]] + 2;
     } 
 
     // Find the min
-    if (actProfile[sections[i] + "Initial"] - 2 < suggestedMin) {
-      suggestedMin = actProfile[sections[i] + 'Initial']
+    if (initialScores[sections[i]] - 2 < suggestedMin) {
+      suggestedMin = initialScores[sections[i]]
     } 
   }
 
@@ -423,13 +438,13 @@ function generateChart(element, sections = ['composite', 'english', 'math', 'rea
                 case ("Composite"):
                   return label + " " + (value + initialComposite).toString();
                 case ("English"):
-                  return label + " " + (value + actProfile['englishInitial']).toString();
+                  return label + " " + (value + initialScores['english']).toString();
                 case ("Math"):
-                  return label + " " + (value + actProfile['mathInitial']).toString();
+                  return label + " " + (value + initialScores['math']).toString();
                 case ("Reading"):
-                  return label + " " + (value + actProfile['readingInitial']).toString();
+                  return label + " " + (value + initialScores['reading']).toString();
                 case ("Science"):
-                  return label + " " + (value + actProfile['scienceInitial']).toString();
+                  return label + " " + (value + initialScores['science']).toString();
                 default:
                   return null
 
@@ -453,7 +468,7 @@ function updateChart(section, addPoint = true, value = undefined) {
   let push = false
   if (addPoint == true) {
     // Translate the scaled score into a relative score
-    value = value - actProfile[section + "Initial"]
+    value = value - initialScores[section]
 
     // Add the date if needed
     const newDate = convertFromDateInt(date.getTime())['shortestDate']

@@ -27,34 +27,6 @@
     <div class="loading-ring"></div>
   </section>
 
-  <section id="helpModal" class="helpModal" onclick="closeHelp(event)">
-    <div class="helpContainer">
-      <h3 style="margin-top: 0px;">Template for recording grades</h3>
-      <p>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-      </p>
-      <br>
-      <p>
-        QUARTER FINAL GRADES<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-        class name: grade/100<br>
-      </p>
-    </div>
-  </section>
-
   <div id="student-general-info">
     <h1 id="student-name"></h1>
     <textarea id="student-expectation" class="expectation-input" disabled></textarea>
@@ -67,11 +39,33 @@
       <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
     </div>
   
-    <div id="gradesStudentMessageDiv">
-      <h2 class="studentMessageLabel backgroundBlack">Grades</h2>
-      <p class="gradesHelp" onclick="openHelp()">?</p>
-      <div id="gradesStudentMessages" class="studentMessages"></div>
-      <textarea id="gradesStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
+    <div id="gradesContainer">
+      <h2 class="studentMessageLabel backgroundBlack">Grades and Missing Assignments</h2>
+      <div class="scrollable-table">
+        <table class="table table-striped table-header-rotated">
+          <thead>
+            <tr id="gradeTableHeaders">
+              <!-- First column header is not rotated -->
+              <th>
+                <div onclick="resetGrades()" class="danger">reset</div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="gradeTableBody">
+            <tr>
+              <th class="row-header" id="gradeToday"></th>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+              <td contenteditable="true" onfocusout="updateGradeList()">G : A</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
