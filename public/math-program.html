@@ -45,40 +45,44 @@
   </section>
 
   <div id="student-general-info">
-    <h1 id="student-name"></h1>
+    <div style="padding: 5px;">
+      <h1 id="student-name" style="margin: 0px;"></h1>
+      <label>Program Grade</label>
+      <select id="student-grade">
+        <option value="0">K</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+      <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+    </div>
+    <div style="position: relative; height: 100px;">
+      <img src="../../Images/blank-profile-picture.png" id="studentProfilePic" style = 'object-fit: cover;'>
+      <label id = 'fileLabel' for="fileInput"><img src = 'https://www.vhv.rs/dpng/d/439-4390267_edit-modify-ico-edit-pencil-icon-png-transparent.png' height = '20px'></label>
+      <input type = 'file' id ='fileInput' style = 'display: none;'>
+    </div>
   </div>
 
-  <label>Program Grade</label>
-  <select id="student-grade">
-    <option value="0">K</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-  </select>
-  <textarea id="student-expectation" class="expectation-input" disabled></textarea>
-
-  <p>This button will submit your lesson (note submitted and at least one lesson taught)</p>
-  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
-  <p id = 'errorMessage' style = "color:red"></p>
-
   <div id="generalStudentMessageDiv">
-    <h2 class="studentMessageLabel backgroundBlack">Notes</h2>
+    <h2 class="studentMessageLabel">Notes</h2>
     <div id="generalStudentMessages" class="studentMessages"></div>
     <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
   </div>
 
   <div id = "lessonsForm" class = "metaForm noselect">
     <div class="heading-block">
-        <h2><a id = "programLink" target="_blank">Math Program</a></h2>
+        <h2 style="margin: 5px 0px"><a id = "programLink" target="_blank">Math Program</a></h2>
+        <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
+        <p id = 'errorMessage' style = "color:red; display: none; margin: 0px;" ></p>
         <p class="mathProgramHelp" onclick="openHelp()">?</p>
     </div>
 

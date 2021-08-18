@@ -5,7 +5,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto;
   height: 100vh;
   width: 100vw;
 }
@@ -16,12 +16,19 @@ body {
   -moz-user-select: none; /* mozilla browsers */
   -khtml-user-select: none; /* webkit (konqueror) browsers */
   -ms-user-select: none; /* IE10+ */
-  height: 20vh;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .flexRow {
   display: flex;
   flex-direction: row;
+}
+
+.justifyStart {
+  justify-content: start;
 }
 
 .expectation-input {
@@ -86,6 +93,7 @@ body {
   color: white;
   border-radius: 10px 10px 0px 0px;
   margin: 0;
+  background-color: #110D65;
 }
 
 .backgroundBlack {
@@ -268,4 +276,15 @@ body {
   color: white;
   border-radius: 5px;
   cursor: pointer;
+}
+
+#studentProfilePic {
+  height: 100px;
+  width: 100px;
+}
+
+#fileLabel {
+  position: absolute;
+  bottom: -4px;
+  right: 0px;
 }
