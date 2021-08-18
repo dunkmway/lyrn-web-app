@@ -493,3 +493,9 @@ function updateProfilePic() {
     }
   })
 }
+
+let profileImage = document.getElementById('fileInput')
+profileImage.addEventListener('change', function () {
+  console.log("Changing Picture")
+  updateProfilePic()
+})
