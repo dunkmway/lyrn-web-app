@@ -980,7 +980,7 @@ function setupAddGeneralInfo() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showAddGeneralInfoWrapper();
@@ -1026,7 +1026,7 @@ function setupEditGeneralInfo(data, id) {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showEditGeneralInfoWrapper();
@@ -1063,7 +1063,7 @@ function setupAddPracticeTest() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showAddPracticeTestWrapper();
@@ -1121,7 +1121,7 @@ function setupAddConference() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showAddConferenceWrapper();
@@ -1185,7 +1185,7 @@ function setupAddTestReview() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   //add in the tutor list. If no location is selected this will reject
@@ -1202,7 +1202,7 @@ function setupAddTestReview() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
   
   showAddTestReviewWrapper();
@@ -1248,7 +1248,7 @@ function setupEditTestReview(data, id) {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showEditTestReviewWrapper();
@@ -1299,7 +1299,7 @@ function setupAddLesson() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   //add in the student list. If no location is selected this will reject
@@ -1316,7 +1316,7 @@ function setupAddLesson() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   //add in the tutor list. If no location is selected this will reject
@@ -1333,7 +1333,7 @@ function setupAddLesson() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
   
 
@@ -1400,7 +1400,7 @@ function setupEditLesson(data, id) {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
 
   showEditLessonWrapper();
@@ -1429,7 +1429,7 @@ function setupAddAvailability() {
   })
   .catch((error) => {
     console.log(error)
-    return closeCalendarSidebar();
+    return closeCalendarSidebar(true);
   });
   
   recurringEventTimesClickCallback(document.getElementById('addAvailabilityRecurringWrapper').children[0]);
@@ -1515,21 +1515,35 @@ function submitAddGeneralInfo() {
           return alert('There is a conflict with this staff: eventID = ' + conflict.id)
         }
 
-        eventInfo = {
-          type: 'generalInfo',
-          start: start,
-          end: end,
-          allDay, allDay,
-          title: title,
-          staff: staff,
-          location: location
+        let availablePromises = [];
+        for (let i = 0; i < staff.length; i++) {
+          availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
         }
 
-        saveGeneralInfo(eventInfo)
-        .then((event) => {
-          //FIXME: This should automatically update for the client and put it in a pending status
-          main_calendar.addEvent(event);
-          closeCalendarSidebar(true);
+        Promise.all(availablePromises)
+        .then((areAvailable) => {
+          for (let i = 0; i < areAvailable.length; i++) {
+            if (!areAvailable[i].isAvailable) {
+              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            }
+          }
+
+          eventInfo = {
+            type: 'generalInfo',
+            start: start,
+            end: end,
+            allDay, allDay,
+            title: title,
+            staff: staff,
+            location: location
+          }
+
+          saveGeneralInfo(eventInfo)
+          .then((event) => {
+            //FIXME: This should automatically update for the client and put it in a pending status
+            main_calendar.addEvent(event);
+            closeCalendarSidebar(true);
+          })
         })
       })
       .catch((error) => {
@@ -1577,37 +1591,51 @@ function updateEditGeneralInfo() {
         return alert('There is a conflict with this staff: eventID = ' + conflict.id)
       }
 
-      //get the first tutor doc to grab their color
-      //don't waste time if it hasn't changed
-      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-        .then((tutorDoc) => {
-          pending_calendar_event.color = tutorDoc.data().color ?? null;
-          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+      let availablePromises = [];
+      for (let i = 0; i < pending_calendar_event.staff.length; i++) {
+        availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
+      }
 
-          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        })
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+      Promise.all(availablePromises)
+      .then((areAvailable) => {
+        for (let i = 0; i < areAvailable.length; i++) {
+          if (!areAvailable[i].isAvailable) {
+            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+          }
+        }
+
+        //get the first tutor doc to grab their color
+        //don't waste time if it hasn't changed
+        if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          .then((tutorDoc) => {
+            pending_calendar_event.color = tutorDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+            return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
-          closeCalendarSidebar(true);
-        })
-      }
-      // same first tutor; proceed
-      else {
-        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
           })
-          closeCalendarSidebar(true);
-        })
-      }
+        }
+        // same first tutor; proceed
+        else {
+          firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
+          })
+        }
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -1827,21 +1855,35 @@ function submitAddTestReview() {
           return alert('There is a conflict with this staff: eventID = ' + conflict.id)
         }
 
-        eventInfo = {
-          type: 'testReview',
-          start: start,
-          end: end,
-          allDay, allDay,
-          location: location,
-          student: student,
-          staff: staff
+        let availablePromises = [];
+        for (let i = 0; i < staff.length; i++) {
+          availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
         }
-    
-        saveTestReview(eventInfo)
-        .then((event) => {
-          //FIXME: This should automatically update for the client and put it in a pending status
-          main_calendar.addEvent(event);
-          closeCalendarSidebar(true);
+
+        Promise.all(availablePromises)
+        .then((areAvailable) => {
+          for (let i = 0; i < areAvailable.length; i++) {
+            if (!areAvailable[i].isAvailable) {
+              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            }
+          }
+
+          eventInfo = {
+            type: 'testReview',
+            start: start,
+            end: end,
+            allDay, allDay,
+            location: location,
+            student: student,
+            staff: staff
+          }
+      
+          saveTestReview(eventInfo)
+          .then((event) => {
+            //FIXME: This should automatically update for the client and put it in a pending status
+            main_calendar.addEvent(event);
+            closeCalendarSidebar(true);
+          })
         })
       })
     })
@@ -1871,37 +1913,51 @@ function updateEditTestReview() {
         return alert('There is a conflict with this staff: eventID = ' + conflict.id)
       }
 
-      //get the first tutor doc to grab their color
-      //don't waste time if it hasn't changed
-      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-        .then((tutorDoc) => {
-          pending_calendar_event.color = tutorDoc.data().color ?? null;
-          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+      let availablePromises = [];
+      for (let i = 0; i < pending_calendar_event.staff.length; i++) {
+        availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
+      }
 
-          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        })
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+      Promise.all(availablePromises)
+      .then((areAvailable) => {
+        for (let i = 0; i < areAvailable.length; i++) {
+          if (!areAvailable[i].isAvailable) {
+            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+          }
+        }
+
+        //get the first tutor doc to grab their color
+        //don't waste time if it hasn't changed
+        if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          .then((tutorDoc) => {
+            pending_calendar_event.color = tutorDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+            return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
-          closeCalendarSidebar(true);
-        })
-      }
-      // same first tutor; proceed
-      else {
-        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
           })
-          closeCalendarSidebar(true);
-        })
-      }
+        }
+        // same first tutor; proceed
+        else {
+          firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
+          })
+        }
+      })
     })
   })
   .catch((error) => {
@@ -1949,21 +2005,35 @@ function submitAddLesson() {
             return alert('There is a conflict with this staff: eventID = ' + conflict.id)
           }
 
-          eventInfo = {
-            type: type,
-            start: start,
-            end: end,
-            allDay, allDay,
-            location: location,
-            student: student,
-            staff: staff
+          let availablePromises = [];
+          for (let i = 0; i < staff.length; i++) {
+            availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
           }
-    
-          saveLesson(eventInfo)
-          .then((event) => {
-            //FIXME: This should automatically update for the client and put it in a pending status
-            main_calendar.addEvent(event);
-            closeCalendarSidebar(true);
+
+          Promise.all(availablePromises)
+          .then((areAvailable) => {
+            for (let i = 0; i < areAvailable.length; i++) {
+              if (!areAvailable[i].isAvailable) {
+                return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+              }
+            }
+
+            eventInfo = {
+              type: type,
+              start: start,
+              end: end,
+              allDay, allDay,
+              location: location,
+              student: student,
+              staff: staff
+            }
+      
+            saveLesson(eventInfo)
+            .then((event) => {
+              //FIXME: This should automatically update for the client and put it in a pending status
+              main_calendar.addEvent(event);
+              closeCalendarSidebar(true);
+            })
           })
         })
       })
@@ -2018,16 +2088,31 @@ function submitAddLesson() {
                     alert('There is a conflict with this staff: eventID = ' + staffConflict.id)
                   }
 
-                  let eventInfo = {
-                    type: type,
-                    start: start,
-                    end: end,
-                    allDay: weekTime.allDay,
-                    location: location,
-                    student: student,
-                    staff: staff
+                  let availablePromises = [];
+                  for (let i = 0; i < staff.length; i++) {
+                    availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
                   }
-                  pendingEvents.push(eventInfo);
+
+                  return Promise.all(availablePromises)
+                  .then((areAvailable) => {
+                    for (let i = 0; i < areAvailable.length; i++) {
+                      if (!areAvailable[i].isAvailable) {
+                        staffUnavailable.push(areAvailable[i])
+                        alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+                      }
+                    }
+
+                    let eventInfo = {
+                      type: type,
+                      start: start,
+                      end: end,
+                      allDay: weekTime.allDay,
+                      location: location,
+                      student: student,
+                      staff: staff
+                    }
+                    pendingEvents.push(eventInfo);
+                  })
                 })
               })
             );
@@ -2040,7 +2125,7 @@ function submitAddLesson() {
 
       Promise.all(recurringPendingEventsFulfilled)
       .then(() => {
-        if (studentConflicts.length == 0 && staffConflicts.length == 0) {
+        if (studentConflicts.length == 0 && staffConflicts.length == 0 && staffUnavailable.length == 0) {
           console.log(pendingEvents);
           pendingEvents.forEach(event => {
             recurringEventsFulfilled.push(saveLesson(event));
@@ -2061,6 +2146,7 @@ function submitAddLesson() {
         else {
           console.log(studentConflicts);
           console.log(staffConflicts);
+          console.log(staffUnavailable);
           console.log(pendingEvents);
         }
       })
@@ -2073,7 +2159,7 @@ function submitAddLesson() {
 }
 
 function updateEditLesson() {
-  if (!confirm('Are you sure you want to update this availability?')) {
+  if (!confirm('Are you sure you want to update this lesson?')) {
     return
   }
   pending_calendar_event.staff = getDropdownValues('editLessonTutor');
@@ -2091,37 +2177,51 @@ function updateEditLesson() {
         return alert('There is a conflict with this staff: eventID = ' + conflict.id)
       }
 
-      //get the first tutor doc to grab their color
-      //don't waste time if it hasn't changed
-      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-        .then((tutorDoc) => {
-          pending_calendar_event.color = tutorDoc.data().color ?? null;
-          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+      let availablePromises = [];
+      for (let i = 0; i < pending_calendar_event.staff.length; i++) {
+        availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
+      }
 
-          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        })
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+      Promise.all(availablePromises)
+      .then((areAvailable) => {
+        for (let i = 0; i < areAvailable.length; i++) {
+          if (!areAvailable[i].isAvailable) {
+            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+          }
+        }
+
+        //get the first tutor doc to grab their color
+        //don't waste time if it hasn't changed
+        if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          .then((tutorDoc) => {
+            pending_calendar_event.color = tutorDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+            return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
-          closeCalendarSidebar(true);
-        })
-      }
-      // same first tutor; proceed
-      else {
-        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-        .then(() => {
-          main_calendar.getEventById(pending_calendar_event_id).remove();
-          main_calendar.addEvent({
-            id: pending_calendar_event_id,
-            ...pending_calendar_event
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
           })
-          closeCalendarSidebar(true);
-        })
-      }
+        }
+        // same first tutor; proceed
+        else {
+          firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
+          })
+        }
+      })
     })
   })
   .catch((error) => {
@@ -2150,6 +2250,23 @@ function submitAddAvailability() {
       return
     }
   }
+
+  //get the events in pending_recurring_times to combine if they are touching (start == end)
+  //order the times by their start date
+  pending_recurring_times.sort((a,b) => {return a.start.getTime() - b.start.getTime()});
+
+  //combine if the end of the current event is the start of the next event
+  for (let i = 0; i< pending_recurring_times.length - 1; i++) {
+    if (pending_recurring_times[i].end.getTime() == pending_recurring_times[i+1].start.getTime()) {
+      //extend the event to the next end
+      pending_recurring_times[i].setEnd(pending_recurring_times[i+1].end);
+      //remove the next event
+      pending_recurring_times.splice(i+1, 1)
+      //recheck this event for another touch
+      i--
+    }
+  }
+
 
   //remove all availability for the staff member starting with the recurring start date going forward
   firebase.firestore().collection('Events')
@@ -2867,4 +2984,39 @@ function validConflictQuerySnapshot(querySnapshot, ignoredEventID) {
   })
 
   return isValid;
+}
+
+
+function checkStaffAvailability(staffUID, start, end) {
+  return firebase.firestore().collection('Events')
+  .where('staff', 'array-contains', staffUID)
+  .where('type', '==', 'availability')
+  .where('end', '>=', end)
+  .limit(1)
+  .get()
+  .then((availabilitySnapshot) => {
+    //if there are no events in the snapshot then the staff is not available
+    if (availabilitySnapshot.empty) {
+      return {
+        isAvailable: false,
+        staff: staffUID
+      }
+    }
+    else {
+      //if the availability events starts before or at the same start as the event to check the staff is available
+      if (availabilitySnapshot.docs[0].data().start <= start) {
+        return {
+          isAvailable: true,
+          staff: staffUID
+        }
+      }
+      //else they are not
+      else {
+        return {
+          isAvailable: false,
+          staff: staffUID
+        }
+      }
+    }
+  })
 }
