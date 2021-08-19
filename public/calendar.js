@@ -84,9 +84,7 @@ function setupFilterLists(locationUID) {
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a student');
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
-        console.log('change')
         current_filter.student = value;
-        console.log(current_filter)
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
@@ -126,9 +124,7 @@ function setupFilterLists(locationUID) {
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
-        console.log('change')
         current_filter.staff = value;
-        console.log(current_filter)
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
@@ -158,9 +154,7 @@ function setupFilterLists(locationUID) {
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a type');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
-        console.log('change')
         current_filter.type = value;
-        console.log(current_filter)
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
@@ -517,7 +511,6 @@ function getEvent(eventID) {
 function eventClickHandler(info) {
   //highlight the selected event
   info.event.setProp('borderColor', '#064AF4')
-  console.log(info.event.id)
   getEvent(info.event.id)
   .then((data) => {
     setupEditSidebar(data, info.event.id)
@@ -534,7 +527,7 @@ function deleteEventCallback() {
     deleteEvent(eventID)
     .then(() => {
       main_calendar.getEventById(eventID).remove()
-      closeCalendarSidebar();
+      closeCalendarSidebar(true);
     })
     .catch((error) => {console.log(error)});
   }
@@ -564,7 +557,7 @@ function deleteRecurringEventCallback() {
 
       Promise.all(deletePromises)
       .then(() => {
-        closeCalendarSidebar();
+        closeCalendarSidebar(true);
       })
     })
     .catch((error) => {console.log(error)});
@@ -637,7 +630,7 @@ function cancelEditCallback() {
   //FIXME: Check if anything was changed then ask. I'm thinking about putting a change listener that detects changes and sets a flag
   if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
     //set the event back to it's original position (edit)
-    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.getEventById(pending_calendar_event_id)?.remove();
     main_calendar.addEvent({
       id: old_calendar_event_id,
       ...old_calendar_event
@@ -652,7 +645,6 @@ function cancelEditCallback() {
 }
 
 function getEventsUser(user) {
-  console.log("user UID", user.uid)
   return firebase.firestore().collection('Events').where("staff", 'array-contains', user.uid).get()
   .then((eventSnapshot) => {
     let events = [];
@@ -674,20 +666,16 @@ function getEventsUser(user) {
 
 function getEventsLocation(location, start, end, filter) {
   let eventRef = firebase.firestore().collection('Events')
-    .where("location", '==', location)
-    .where('start', '>=', start)
-    .where('start', '<', end)
-  console.log(filter)
+  .where("location", '==', location)
+  .where('start', '>=', start)
+  .where('start', '<', end)
   if (filter.staff) {
-    console.log(filter.staff)
     eventRef = eventRef.where('staff', 'array-contains', filter.staff)
   }
   if (filter.student) {
-    console.log(filter.student)
     eventRef = eventRef.where('student', '==', filter.student)
   }
   if (filter.type) {
-    console.log(filter.type)
     eventRef = eventRef.where('type', '==', filter.type)
   }
 
@@ -730,23 +718,29 @@ function openCalendarSidebar() {
 /**
  * close the calendar sidebar
  */
-function closeCalendarSidebar() {
+function closeCalendarSidebar(force = false) {
   //call the cancel function on the open sidebar
-  if (calendar_mode.includes('add')) {
-    if (!cancelAddCallback()) {
-      return false
+  if (!force) {
+    if (calendar_mode.includes('add')) {
+      if (!cancelAddCallback()) {
+        return false
+      }
+      else {
+        calendar_mode = "default";
+      }
     }
-    else {
-      calendar_mode = "default";
+    else if (calendar_mode.includes('edit')) {
+      if (!cancelEditCallback()) {
+        return false
+      }
+      else {
+        calendar_mode = "default";
+      }
     }
   }
-  else if (calendar_mode.includes('edit')) {
-    if (!cancelEditCallback()) {
-      return false
-    }
-    else {
-      calendar_mode = "default";
-    }
+  else {
+    cancelSidebar();
+    calendar_mode = "default";
   }
 
   //if the main calendar isn't the default change it back to be
@@ -1471,7 +1465,7 @@ function submitAddTeacherMeeting() {
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
       main_calendar.addEvent(event);
-      closeCalendarSidebar();
+      closeCalendarSidebar(true);
     })
     .catch((error) => {
       console.log(error);
@@ -1481,6 +1475,9 @@ function submitAddTeacherMeeting() {
 }
 
 function updateEditTeacherMeeting() {
+  if (!confirm('Are you sure you want to update this teacher meeting?')) {
+    return
+  }
   pending_calendar_event.meetingLocation = document.getElementById('editTeacherMeetingLocation').value;
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
   .then(() => {
@@ -1489,7 +1486,11 @@ function updateEditTeacherMeeting() {
       id: pending_calendar_event_id,
       ...pending_calendar_event
     })
-    closeCalendarSidebar();
+    closeCalendarSidebar(true);
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this teacher meeting :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
@@ -1506,64 +1507,149 @@ function submitAddGeneralInfo() {
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
+    if (staff.length > 0) {
+      //check for conflicts
+      checkStaffConflicts(staff, start, end)
+      .then((conflict) => {
+        if (conflict) {
+          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+        }
 
-    eventInfo = {
-      type: 'generalInfo',
-      start: start,
-      end: end,
-      allDay, allDay,
-      title: title,
-      staff: staff,
-      location: location
+        eventInfo = {
+          type: 'generalInfo',
+          start: start,
+          end: end,
+          allDay, allDay,
+          title: title,
+          staff: staff,
+          location: location
+        }
+
+        saveGeneralInfo(eventInfo)
+        .then((event) => {
+          //FIXME: This should automatically update for the client and put it in a pending status
+          main_calendar.addEvent(event);
+          closeCalendarSidebar(true);
+        })
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+      })
     }
+    else {
+      eventInfo = {
+        type: 'generalInfo',
+        start: start,
+        end: end,
+        allDay, allDay,
+        title: title,
+        staff: staff,
+        location: location
+      }
 
-    saveGeneralInfo(eventInfo)
-    .then((event) => {
-      //FIXME: This should automatically update for the client and put it in a pending status
-      main_calendar.addEvent(event);
-      closeCalendarSidebar();
+      saveGeneralInfo(eventInfo)
+      .then((event) => {
+        //FIXME: This should automatically update for the client and put it in a pending status
+        main_calendar.addEvent(event);
+        closeCalendarSidebar(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+      })
+    }
+  }
+}
+
+function updateEditGeneralInfo() {
+  if (!confirm('Are you sure you want to update this general info?')) {
+    return
+  }
+  pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
+  pending_calendar_event.staff = getDropdownValues('editGeneralInfoTutor');
+
+  if (pending_calendar_event.staff.length > 0) {
+    //check for conflicts
+    checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+      }
+
+      //get the first tutor doc to grab their color
+      //don't waste time if it hasn't changed
+      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+        .then((tutorDoc) => {
+          pending_calendar_event.color = tutorDoc.data().color ?? null;
+          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        })
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
+      // same first tutor; proceed
+      else {
+        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
     })
     .catch((error) => {
       console.log(error);
       alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
-}
-
-function updateEditGeneralInfo() {
-  pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
-  pending_calendar_event.staff = getDropdownValues('editGeneralInfoTutor');
-
-  //get the first tutor doc to grab their color
-  //don't waste time if it hasn't changed
-  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-    .then((tutorDoc) => {
-      pending_calendar_event.color = tutorDoc.data().color ?? null;
-      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
-
-      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-    })
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
-      })
-      closeCalendarSidebar();
-    })
-  }
-  // same first tutor; proceed
   else {
-    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
+    //get the first tutor doc to grab their color
+    //don't waste time if it hasn't changed
+    if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+      firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+      .then((tutorDoc) => {
+        pending_calendar_event.color = tutorDoc.data().color ?? null;
+        pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+        return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
       })
-      closeCalendarSidebar();
-    })
+      .then(() => {
+        main_calendar.getEventById(pending_calendar_event_id).remove();
+        main_calendar.addEvent({
+          id: pending_calendar_event_id,
+          ...pending_calendar_event
+        })
+        closeCalendarSidebar(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+      })
+    }
+    // same first tutor; proceed
+    else {
+      firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+      .then(() => {
+        main_calendar.getEventById(pending_calendar_event_id).remove();
+        main_calendar.addEvent({
+          id: pending_calendar_event_id,
+          ...pending_calendar_event
+        })
+        closeCalendarSidebar(true);
+      })
+    }
   }
 }
 
@@ -1580,24 +1666,31 @@ function submitAddPracticeTest() {
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
+    //check for conflicts
+    checkStudentConflicts(student, start, end)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+      }
 
-    eventInfo = {
-      type: 'practiceTest',
-      start: start,
-      end: end,
-      allDay, allDay,
-      location: location,
-      student: student,
-      description: description,
-      color: PRACTICE_TEST_COLOR,
-      textColor: tinycolor.mostReadable(PRACTICE_TEST_COLOR, ["#FFFFFF", "000000"]).toHexString()
-    }
+      eventInfo = {
+        type: 'practiceTest',
+        start: start,
+        end: end,
+        allDay, allDay,
+        location: location,
+        student: student,
+        description: description,
+        color: PRACTICE_TEST_COLOR,
+        textColor: tinycolor.mostReadable(PRACTICE_TEST_COLOR, ["#FFFFFF", "000000"]).toHexString()
+      }
 
-    savePracticeTest(eventInfo)
-    .then((event) => {
-      //FIXME: This should automatically update for the client and put it in a pending status
-      main_calendar.addEvent(event);
-      closeCalendarSidebar();
+      savePracticeTest(eventInfo)
+      .then((event) => {
+        //FIXME: This should automatically update for the client and put it in a pending status
+        main_calendar.addEvent(event);
+        closeCalendarSidebar(true);
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -1607,15 +1700,30 @@ function submitAddPracticeTest() {
 }
 
 function updateEditPracticeTest() {
+  if (!confirm('Are you sure you want to update this practice test?')) {
+    return
+  }
   pending_calendar_event.description = document.getElementById('editPracticeTestDescription').value;
-  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-  .then(() => {
-    main_calendar.getEventById(pending_calendar_event_id).remove();
-    main_calendar.addEvent({
-      id: pending_calendar_event_id,
-      ...pending_calendar_event
+  //check for conflicts
+  checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  .then((conflict) => {
+    if (conflict) {
+      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    }
+
+    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar(true);
     })
-    closeCalendarSidebar();
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this practice test :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
@@ -1632,24 +1740,31 @@ function submitAddConference() {
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
+    //check for conflicts
+    checkStudentConflicts(student, start, end)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+      }
 
-    eventInfo = {
-      type: 'conference',
-      start: start,
-      end: end,
-      allDay, allDay,
-      location: location,
-      student: student,
-      description: description,
-      color: CONFERENCE_COLOR,
-      textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
-    }
+      eventInfo = {
+        type: 'conference',
+        start: start,
+        end: end,
+        allDay, allDay,
+        location: location,
+        student: student,
+        description: description,
+        color: CONFERENCE_COLOR,
+        textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
+      }
 
-    saveConference(eventInfo)
-    .then((event) => {
-      //FIXME: This should automatically update for the client and put it in a pending status
-      main_calendar.addEvent(event);
-      closeCalendarSidebar();
+      saveConference(eventInfo)
+      .then((event) => {
+        //FIXME: This should automatically update for the client and put it in a pending status
+        main_calendar.addEvent(event);
+        closeCalendarSidebar(true);
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -1659,15 +1774,30 @@ function submitAddConference() {
 }
 
 function updateEditConference() {
+  if (!confirm('Are you sure you want to update this conference?')) {
+    return
+  }
   pending_calendar_event.description = document.getElementById('editConferenceDescription').value;
-  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-  .then(() => {
-    main_calendar.getEventById(pending_calendar_event_id).remove();
-    main_calendar.addEvent({
-      id: pending_calendar_event_id,
-      ...pending_calendar_event
+  //check for conflicts
+  checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  .then((conflict) => {
+    if (conflict) {
+      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    }
+
+    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    .then(() => {
+      main_calendar.getEventById(pending_calendar_event_id).remove();
+      main_calendar.addEvent({
+        id: pending_calendar_event_id,
+        ...pending_calendar_event
+      })
+      closeCalendarSidebar(true);
     })
-    closeCalendarSidebar();
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this conference :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
@@ -1684,22 +1814,36 @@ function submitAddTestReview() {
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
+    //check for conflicts
+    checkStudentConflicts(student, start, end)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+      }
 
-    eventInfo = {
-      type: 'testReview',
-      start: start,
-      end: end,
-      allDay, allDay,
-      location: location,
-      student: student,
-      staff: staff
-    }
+      checkStaffConflicts(staff, start, end)
+      .then((conflict) => {
+        if (conflict) {
+          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+        }
 
-    saveTestReview(eventInfo)
-    .then((event) => {
-      //FIXME: This should automatically update for the client and put it in a pending status
-      main_calendar.addEvent(event);
-      closeCalendarSidebar();
+        eventInfo = {
+          type: 'testReview',
+          start: start,
+          end: end,
+          allDay, allDay,
+          location: location,
+          student: student,
+          staff: staff
+        }
+    
+        saveTestReview(eventInfo)
+        .then((event) => {
+          //FIXME: This should automatically update for the client and put it in a pending status
+          main_calendar.addEvent(event);
+          closeCalendarSidebar(true);
+        })
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -1709,39 +1853,61 @@ function submitAddTestReview() {
 }
 
 function updateEditTestReview() {
+  if (!confirm('Are you sure you want to update this test review?')) {
+    return
+  }
   pending_calendar_event.staff = getDropdownValues('editTestReviewTutor');
 
-  //get the first tutor doc to grab their color
-  //don't waste time if it hasn't changed
-  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-    .then((tutorDoc) => {
-      pending_calendar_event.color = tutorDoc.data().color ?? null;
-      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+  //check for conflicts
+  checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  .then((conflict) => {
+    if (conflict) {
+      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    }
 
-      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+      }
+
+      //get the first tutor doc to grab their color
+      //don't waste time if it hasn't changed
+      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+        .then((tutorDoc) => {
+          pending_calendar_event.color = tutorDoc.data().color ?? null;
+          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        })
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
+      // same first tutor; proceed
+      else {
+        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
     })
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
-      })
-      closeCalendarSidebar();
-    })
-  }
-  // same first tutor; proceed
-  else {
-    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
-      })
-      closeCalendarSidebar();
-    })
-  }
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+  })
 }
 
 function submitAddLesson() {
@@ -1770,81 +1936,135 @@ function submitAddLesson() {
     }
 
     if (confirm("Are you sure you want to submit this event?")) {
+      //check for conflicts
+      checkStudentConflicts(student, start, end)
+      .then((conflict) => {
+        if (conflict) {
+          return alert('There is a conflict with this student: eventID = ' + conflict.id)
+        }
 
-      eventInfo = {
-        type: type,
-        start: start,
-        end: end,
-        allDay, allDay,
-        location: location,
-        student: student,
-        staff: staff
-      }
+        checkStaffConflicts(staff, start, end)
+        .then((conflict) => {
+          if (conflict) {
+            return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+          }
 
-      saveLesson(eventInfo)
-      .then((event) => {
-        //FIXME: This should automatically update for the client and put it in a pending status
-        main_calendar.addEvent(event);
-        closeCalendarSidebar();
+          eventInfo = {
+            type: type,
+            start: start,
+            end: end,
+            allDay, allDay,
+            location: location,
+            student: student,
+            staff: staff
+          }
+    
+          saveLesson(eventInfo)
+          .then((event) => {
+            //FIXME: This should automatically update for the client and put it in a pending status
+            main_calendar.addEvent(event);
+            closeCalendarSidebar(true);
+          })
+        })
       })
       .catch((error) => {
         console.log(error);
-        alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+        alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
       })
     }
   }
 
   else if (scheduleType == 'recurring') {
+    let recurringPendingEventsFulfilled = [];
     let recurringEventsFulfilled = [];
+
+    let studentConflicts = [];
+    let staffConflicts = [];
+    let pendingEvents = [];
 
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
       return alert("It looks like you're still missing some data for this lesson");
     }
+    if (confirm("Are you sure you want to submit these events?")) {
+      //figure out all of the events that must be added based on recurring start, end, and times.
+      const millisecondsWeek = 604800000;
 
-    //figure out all of the events that must be added based on recurring start, end, and times.
-    const millisecondsWeek = 604800000;
+      pending_recurring_times.forEach(weekTime => {
+        let start = weekTime.start.getTime();
+        let end = weekTime.end.getTime();
 
-    pending_recurring_times.forEach(weekTime => {
-      let start = weekTime.start.getTime();
-      let end = weekTime.end.getTime();
-
-      //get the week time up to the start of the recurring schedule
-      while (start < pending_recurring_start.start.getTime()) {
-        start += millisecondsWeek;
-        end += millisecondsWeek;
-      }
-
-      //save an event for each time until the end of the recurring
-      while (end < pending_recurring_end.end.getTime()) {
-        let eventInfo = {
-          type: type,
-          start: start,
-          end: end,
-          allDay: weekTime.allDay,
-          location: location,
-          student: student,
-          staff: staff
+        //get the week time up to the start of the recurring schedule
+        while (start < pending_recurring_start.start.getTime()) {
+          start += millisecondsWeek;
+          end += millisecondsWeek;
         }
 
-        recurringEventsFulfilled.push(saveLesson(eventInfo));
+        //save an event for each time until the end of the recurring
+        while (end < pending_recurring_end.end.getTime()) {
+          let passThruTimes = (start, end) => {
+            //check for conflicts
+            recurringPendingEventsFulfilled.push(
+              checkStudentConflicts(student, start, end)
+              .then((studentConflict) => {
+                if (studentConflict) {
+                  studentConflicts.push(studentConflict);
+                  alert('There is a conflict with this student: eventID = ' + studentConflict.id)
+                }
 
-        start += millisecondsWeek;
-        end += millisecondsWeek;
-      }
+                return checkStaffConflicts(staff, start, end)
+                .then((staffConflict) => {
+                  if (staffConflict) {
+                    staffConflicts.push(staffConflict)
+                    alert('There is a conflict with this staff: eventID = ' + staffConflict.id)
+                  }
 
-    })
-
-    Promise.all(recurringEventsFulfilled)
-    .then(events => {
-      events.forEach(event => {
-        main_calendar.addEvent(event);
+                  let eventInfo = {
+                    type: type,
+                    start: start,
+                    end: end,
+                    allDay: weekTime.allDay,
+                    location: location,
+                    student: student,
+                    staff: staff
+                  }
+                  pendingEvents.push(eventInfo);
+                })
+              })
+            );
+          }
+          passThruTimes(start, end);
+          start += millisecondsWeek;
+          end += millisecondsWeek;
+        }
       })
-      closeCalendarSidebar();
-    })
-    .catch((error) => {
-      console.log(error);
-      alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
-    })
+
+      Promise.all(recurringPendingEventsFulfilled)
+      .then(() => {
+        if (studentConflicts.length == 0 && staffConflicts.length == 0) {
+          console.log(pendingEvents);
+          pendingEvents.forEach(event => {
+            recurringEventsFulfilled.push(saveLesson(event));
+          })
+
+          Promise.all(recurringEventsFulfilled)
+          .then(events => {
+            events.forEach(event => {
+              main_calendar.addEvent(event);
+            })
+            closeCalendarSidebar(true);
+          })
+          .catch((error) => {
+            console.log(error);
+            alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+          })
+        }
+        else {
+          console.log(studentConflicts);
+          console.log(staffConflicts);
+          console.log(pendingEvents);
+        }
+      })
+    }
   }
 
   else {
@@ -1853,39 +2073,61 @@ function submitAddLesson() {
 }
 
 function updateEditLesson() {
+  if (!confirm('Are you sure you want to update this availability?')) {
+    return
+  }
   pending_calendar_event.staff = getDropdownValues('editLessonTutor');
 
-  //get the first tutor doc to grab their color
-  //don't waste time if it hasn't changed
-  if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-    firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
-    .then((tutorDoc) => {
-      pending_calendar_event.color = tutorDoc.data().color ?? null;
-      pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+  //check for conflicts
+  checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  .then((conflict) => {
+    if (conflict) {
+      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    }
 
-      return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+    checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+      }
+
+      //get the first tutor doc to grab their color
+      //don't waste time if it hasn't changed
+      if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+        firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+        .then((tutorDoc) => {
+          pending_calendar_event.color = tutorDoc.data().color ?? null;
+          pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+          return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        })
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
+      // same first tutor; proceed
+      else {
+        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEvent({
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          })
+          closeCalendarSidebar(true);
+        })
+      }
     })
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
-      })
-      closeCalendarSidebar();
-    })
-  }
-  // same first tutor; proceed
-  else {
-    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
-      })
-      closeCalendarSidebar();
-    })
-  }
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+  })
 }
 
 function submitAddAvailability() {
@@ -1894,52 +2136,82 @@ function submitAddAvailability() {
 
   let recurringEventsFulfilled = [];
 
-  if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || staff.length == 0) {
+  if (!pending_recurring_start.start || !pending_recurring_end.end || !staff || !location) {
     return alert("It looks like you're still missing some data for this lesson");
   }
 
-  //figure out all of the events that must be added based on recurring start, end, and times.
-  const millisecondsWeek = 604800000;
-
-  pending_recurring_times.forEach(weekTime => {
-    let start = weekTime.start.getTime();
-    let end = weekTime.end.getTime();
-
-    //get the week time up to the start of the recurring schedule
-    while (start < pending_recurring_start.start.getTime()) {
-      start += millisecondsWeek;
-      end += millisecondsWeek;
+  if (pending_recurring_times.length == 0) {
+    if (!confirm('You are about to remove all availability for this staff member starting from the start date. Are you sure you want to proceed?')) {
+      return
     }
-
-    //save an event for each time until the end of the recurring
-    while (end < pending_recurring_end.end.getTime()) {
-      let eventInfo = {
-        type: 'availability',
-        start: start,
-        end: end,
-        allDay: weekTime.allDay,
-        location: location,
-        staff: staff
-      }
-
-      recurringEventsFulfilled.push(saveAvailability(eventInfo));
-
-      start += millisecondsWeek;
-      end += millisecondsWeek;
+  }
+  else {
+    if (!confirm('Are you sure you want to submit this availability? This action will remove all availability for this staff member from the start date and replace it with what was entered.')) {
+      return
     }
+  }
 
-  })
-
-  Promise.all(recurringEventsFulfilled)
-  .then(events => {
-    events.forEach(event => {
-      main_calendar.addEvent(event);
+  //remove all availability for the staff member starting with the recurring start date going forward
+  firebase.firestore().collection('Events')
+  .where('staff', 'array-contains', staff)
+  .where('type', '==', 'availability')
+  .where('start', '>=', pending_recurring_start.start.getTime())
+  .get()
+  .then(querySnapshot => {
+    let deletePromises = [];
+    querySnapshot.forEach(eventDoc => {
+      deletePromises.push(deleteEvent(eventDoc.id)
+      .then(() => {
+        main_calendar.getEventById(eventDoc.id)?.remove()
+      }))
     })
-    closeCalendarSidebar();
+
+    Promise.all(deletePromises)
+    .then(() => {
+      //figure out all of the events that must be added based on recurring start, end, and times.
+      const millisecondsWeek = 604800000;
+
+      pending_recurring_times.forEach(weekTime => {
+        let start = weekTime.start.getTime();
+        let end = weekTime.end.getTime();
+
+        //get the week time up to the start of the recurring schedule
+        while (start < pending_recurring_start.start.getTime()) {
+          start += millisecondsWeek;
+          end += millisecondsWeek;
+        }
+
+        //save an event for each time until the end of the recurring
+        while (end < pending_recurring_end.end.getTime()) {
+          let eventInfo = {
+            type: 'availability',
+            start: start,
+            end: end,
+            allDay: weekTime.allDay,
+            location: location,
+            staff: staff
+          }
+
+          recurringEventsFulfilled.push(saveAvailability(eventInfo));
+
+          start += millisecondsWeek;
+          end += millisecondsWeek;
+        }
+
+      })
+
+      Promise.all(recurringEventsFulfilled)
+      .then(events => {
+        events.forEach(event => {
+          main_calendar.addEvent(event);
+        })
+        closeCalendarSidebar(true);
+      })
+    })
   })
   .catch((error) => {
     console.log(error);
-    alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+    alert("We are having issues saving this availability :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
@@ -2481,11 +2753,118 @@ function recurringEventStartEndClickCallback(target) {
   initializepMonthScheduleCalendar([pending_recurring_start, pending_recurring_end]);
 }
 
-//FIXME: Implement!
-function checkStaffConflicts(staffUIDs, start, end) {
-  firebase.firestore().collection('Events').where('staff', 'array-contains-any', staffUIDs)
+//FIXME: are the assumptions good?
+function checkStaffConflicts(staffUIDs, start, end, ignoredEventID = "") {
+  //query for an event that starts within the start and end of the event to check
+  return firebase.firestore().collection('Events')
+  .where('staff', 'array-contains-any', staffUIDs)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  .get()
+  .then((startSnapshot) => {
+    if (startSnapshot.empty || validConflictQuerySnapshot(startSnapshot, ignoredEventID)) {
+      //if query size is 0
+      //query for an event that ends within the start and end of the event to check
+      return firebase.firestore().collection('Events')
+      .where('staff', 'array-contains-any', staffUIDs)
+      .where('end', '>', start)
+      .where('end', '<=', end)
+      .get()
+      .then((endSnapshot) => {
+        if (endSnapshot.empty || validConflictQuerySnapshot(endSnapshot, ignoredEventID)) {
+          //if query size is 0
+    
+          //ASSUMPTION
+          //this case will only work if we garuntee conflicts will never happen so we garuntee the the next event to end will not also be contained with a conflict
+          //we can fix this by querying for all future events which might be a lot but less than query for all past events
+    
+          //query for the first event that ends after the end of the event to check
+          //then see if that events start before the end or start of the event to check
+          return firebase.firestore().collection('Events')
+          .where('staff', 'array-contains-any', staffUIDs)
+          .where('end', '>', end)
+          .orderBy('end')
+          .limit(10)
+          .get()
+          .then((outerSnapshot) => {
+            for (let i = 0; i < outerSnapshot.size; i++) {
+              if (outerSnapshot.docs[i].id != ignoredEventID && outerSnapshot.docs[i].data().type != 'availability' && outerSnapshot.docs[i].data().start < end) {
+                return outerSnapshot.docs[i]
+              }
+            }
+            return null
+          })
+        }
+        else {
+          return endSnapshot.docs[0];
+        }
+      })
+    }
+    else {
+      return startSnapshot.docs[0];
+    }
+  })
 }
 
-function checkStudentConflicts(studentUID, start, end) {
+function checkStudentConflicts(studentUID, start, end, ignoredEventID = "") {
+  //query for an event that starts within the start and end of the event to check
+  return firebase.firestore().collection('Events')
+  .where('student', '==', studentUID)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  .get()
+  .then((startSnapshot) => {
+    if (startSnapshot.empty || validConflictQuerySnapshot(startSnapshot, ignoredEventID)) {
+      //if query size is 0
+      //query for an event that ends within the start and end of the event to check
+      return firebase.firestore().collection('Events')
+      .where('student', '==', studentUID)
+      .where('end', '>', start)
+      .where('end', '<=', end)
+      .get()
+      .then((endSnapshot) => {
+        if (endSnapshot.empty || validConflictQuerySnapshot(endSnapshot, ignoredEventID)) {
+          //if query size is 0
+    
+          //ASSUMPTION
+          //this case will only work if we garuntee conflicts will never happen so we garuntee the the next event to end will not also be contained with a conflict
+          //we can fix this by querying for all future events which might be a lot but less than query for all past events
+    
+          //query for the first event that ends after the end of the event to check
+          //then see if that events start before the end or start of the event to check
+          return firebase.firestore().collection('Events')
+          .where('student', '==', studentUID)
+          .where('end', '>', end)
+          .orderBy('end')
+          .limit(10)
+          .get()
+          .then((outerSnapshot) => {
+            for (let i = 0; i < outerSnapshot.size; i++) {
+              if (outerSnapshot.docs[i].id != ignoredEventID && outerSnapshot.docs[i].data().type != 'availability' && outerSnapshot.docs[i].data().start < end) {
+                return outerSnapshot.docs[i]
+              }
+            }
+            return null
+          })
+        }
+        else {
+          return endSnapshot.docs[0];
+        }
+      })
+    }
+    else {
+      return startSnapshot.docs[0];
+    }
+  })
+}
 
+function validConflictQuerySnapshot(querySnapshot, ignoredEventID) {
+  let isValid = true;
+  querySnapshot.forEach(doc => {
+    if (doc.id != ignoredEventID && doc.data().type != 'availability') {
+      isValid = false;
+    }
+  })
+
+  return isValid;
 }
