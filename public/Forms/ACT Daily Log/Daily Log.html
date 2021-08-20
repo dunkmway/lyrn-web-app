@@ -140,9 +140,19 @@
             <p id = 'scienceText' style='display:none'></p>
         </div>
 
-        <div>
-            Menu
+        <div class="dropdown">
+            <button class="dropbtn">Print Outs</button>
+            <div class="dropdown-content">
+                <div onclick="setupAddSidebar('availability')">Availability</div>
+                <div onclick="setupAddSidebar('conference')">Conference</div>
+                <div onclick="setupAddSidebar('generalInfo')">General Info</div>
+                <div onclick="setupAddSidebar('lesson')">Lesson</div>
+                <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
+                <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
+                <div onclick="setupAddSidebar('testReview')">Test Review</div>
+            </div>
         </div>
+
     </div>
 
     <div id = "lessonPopup" onmouseover = "openLessonPopup()" onmouseout = "closeLessonPopup()" class = 'input-column-center hidden'>
