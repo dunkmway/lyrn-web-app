@@ -8,7 +8,10 @@ let pending_recurring_times = [];
 let pending_recurring_start = {};
 let pending_recurring_end = {};
 
+let current_type = null;
+let current_location = null;
 let current_filter = {};
+let current_availability_filter = {};
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -37,7 +40,8 @@ function initialSetup() {
         locationNames.push(location.name);
         locationIDs.push(location.id);
       });
-      addDropdownOptions(document.getElementById('calendarLocation'), locationIDs, locationNames);
+      addDropdownOptions(document.getElementById('calendarLocation'), locationIDs, locationNames, locationChange);
+      addDropdownOptions(document.getElementById('calendarType'), ['event', 'availability'], ['Event', 'Availability'], typeChange);
     })
     .catch((error) =>{
       console.log(error);
@@ -46,8 +50,9 @@ function initialSetup() {
   })
 }
 
-function setupFilterLists(locationUID) {
+function setupNavLists(locationUID) {
   //remove the old lists and add in defualt option
+  //student list
   for (let i = document.getElementById('studentFilterContent').options.length; i > 0; i--) {
     document.getElementById('studentFilterContent').options[i-1].remove();
   }
@@ -56,6 +61,7 @@ function setupFilterLists(locationUID) {
   studentDefaultOption.textContent = 'select a student';
   document.getElementById('studentFilterContent').appendChild(studentDefaultOption);
 
+  //tutor list
   for (let i = document.getElementById('tutorFilterContent').options.length; i > 0; i--) {
     document.getElementById('tutorFilterContent').options[i-1].remove();
   }
@@ -64,10 +70,20 @@ function setupFilterLists(locationUID) {
   tutorDefaultOption.textContent = 'select a tutor';
   document.getElementById('tutorFilterContent').appendChild(tutorDefaultOption);
 
+  //type list
   let typeDefaultOption = document.createElement('option');
   typeDefaultOption.value = "";
   typeDefaultOption.textContent = 'select a type';
   document.getElementById('typeFilterContent').options[0] = typeDefaultOption;
+
+  //filter availability list
+  for (let i = document.getElementById('tutorAvailabilityContent').options.length; i > 0; i--) {
+    document.getElementById('tutorAvailabilityContent').options[i-1].remove();
+  }
+  let tutorAvailabilityDefaultOption = document.createElement('option');
+  tutorAvailabilityDefaultOption.value = "";
+  tutorAvailabilityDefaultOption.textContent = 'select a tutor';
+  document.getElementById('tutorAvailabilityContent').appendChild(tutorAvailabilityDefaultOption);
 
   //add in the options for the given location
   getStudentList(locationUID)
@@ -81,6 +97,9 @@ function setupFilterLists(locationUID) {
 
     addSelectOptions(document.getElementById('studentFilterContent'), studentUIDs, studentNames);
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a student');
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
@@ -88,22 +107,7 @@ function setupFilterLists(locationUID) {
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
-        //place the filtered values into the calendar
-        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
-        .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
-          })
-        })
-        .catch((error) =>{
-          console.log(error);
-          alert("We had an issue loading the calendar events. Try refreshing the page.")
-        })
+        getCurrentCalendarTypeEvents();
       })
   })
   .catch((error) => {
@@ -121,6 +125,9 @@ function setupFilterLists(locationUID) {
 
     addSelectOptions(document.getElementById('tutorFilterContent'), tutorUIDs, tutorNames);
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
@@ -128,22 +135,30 @@ function setupFilterLists(locationUID) {
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
-        //place the filtered values into the calendar
-        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
-        .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
-          })
-        })
-        .catch((error) =>{
-          console.log(error);
-          alert("We had an issue loading the calendar events. Try refreshing the page.")
-        })
+        getCurrentCalendarTypeEvents()
+      })
+
+    addSelectOptions(document.getElementById('tutorAvailabilityContent'), tutorUIDs, tutorNames);
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
+    //firebase will only allow 10 OR queries on a given field
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'maxSelections', 10);
+    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+      (value, text) => {
+        current_availability_filter = value;
+        
+        //change the filter label
+        if (current_availability_filter.length == 0) {
+          document.getElementById('availabilitySelection').innerHTML = 'filter availability';
+        }
+        else {
+          document.getElementById('availabilitySelection').innerHTML = 'filter active';
+        }
+        
+        getCurrentCalendarTypeEvents()
       })
   })
   .catch((error) => {
@@ -151,6 +166,9 @@ function setupFilterLists(locationUID) {
   });
 
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a type');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
@@ -158,26 +176,11 @@ function setupFilterLists(locationUID) {
         //change the filter label
         document.getElementById('filterSelection').innerHTML = 'filter active';
         
-        //place the filtered values into the calendar
-        getEventsLocation(locationUID, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
-        .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
-          })
-        })
-        .catch((error) =>{
-          console.log(error);
-          alert("We had an issue loading the calendar events. Try refreshing the page.")
-        })
+        getCurrentCalendarTypeEvents()
       })
 }
 
-function clearFilter() {
+function clearFilter(resetCalendar = false) {
   for (key in current_filter) {
     delete key;
   }
@@ -185,28 +188,27 @@ function clearFilter() {
   $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
 
-  document.getElementById('filterSelection').innerHTML = 'filter events';
-  const location = document.getElementById('calendarLocation').dataset.value;
-  if (location) {
-    getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
-    .then(events => {
-      //remove the old events
-      main_calendar.getEvents().forEach(event => {
-        event.remove()
-      });
-      //add the new ones
-      events.forEach(event => {
-        main_calendar.addEvent(event);
-      })
-    })
-    .catch((error) =>{
-      console.log(error);
-      alert("We had an issue loading the calendar events. Try refreshing the page.")
-    })
+  if (resetCalendar) {
+    getCurrentCalendarTypeEvents()
   }
+
+  document.getElementById('filterSelection').innerHTML = 'filter events';
 }
 
-function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
+function clearAvailabilityFilter(resetCalendar = false) {
+  while (current_availability_filter.length > 0) {
+    current_availability_filter.pop();
+  }
+  $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
+
+  if (resetCalendar) {
+    getCurrentCalendarTypeEvents()
+  }
+
+  document.getElementById('availabilitySelection').innerHTML = 'filter availability';
+}
+
+function addDropdownOptions(dropdownElement, optionValues, optionTexts, clickCallback) {
   let contentDiv = dropdownElement.querySelector('.dropdown-content');
   let dropdownBtn = dropdownElement.querySelector('.dropbtn');
 
@@ -218,7 +220,7 @@ function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
     option.setAttribute('data-value', optionValue);
     option.textContent = optionTexts[valueIndex];
     option.addEventListener('click', () => {
-      locationChange(optionValue);
+      clickCallback(optionValue);
       dropdownElement.setAttribute('data-value', optionValue);
       dropdownBtn.textContent = optionTexts[valueIndex];
 
@@ -233,24 +235,105 @@ function addDropdownOptions(dropdownElement, optionValues, optionTexts, ) {
 }
 
 function locationChange(location) {
+  current_location = location;
   closeCalendarSidebar();
   clearFilter();
-  setupFilterLists(location);
-  getEventsLocation(location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
-  .then(events => {
-    //remove the old events
-    main_calendar.getEvents().forEach(event => {
-      event.remove()
-    });
-    //add the new ones
-    events.forEach(event => {
-      main_calendar.addEvent(event);
+  clearAvailabilityFilter();
+  setupNavLists(location);
+
+  //change the calendar
+  getCurrentCalendarTypeEvents();
+}
+
+function typeChange(type) {
+  current_type = type;
+  closeCalendarSidebar();
+  clearFilter();
+  clearAvailabilityFilter();
+
+  if (type == 'event') {
+    //change the nav
+    document.querySelectorAll('.type-availability').forEach(element => {
+      element.style.display = 'none';
     })
-  })
-  .catch((error) =>{
-    console.log(error);
-    alert("We had an issue loading the calendar events. Try refreshing the page.")
-  })
+    document.querySelectorAll('.type-event').forEach(element => {
+      element.style.display = 'block';
+    })
+  }
+  else if (type == 'availability') {
+    //change the nav
+    document.querySelectorAll('.type-event').forEach(element => {
+      element.style.display = 'none';
+    })
+    document.querySelectorAll('.type-availability').forEach(element => {
+      element.style.display = 'block';
+    })
+  }
+
+  //change the calendar
+  getCurrentCalendarTypeEvents()
+}
+
+function getCurrentCalendarTypeEvents() {
+  console.log('getting current events');
+  if (current_type == 'event') {
+    if (current_location) {
+      //initialize the new calendar if needed
+      //initializing will grab events so we don't need to here
+      if (calendar_view != 'event') {
+        initializeDefaultCalendar([], main_calendar.view.activeStart)
+      }
+      else {
+        getEventsLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
+      }
+    }
+    else {
+      initializeDefaultCalendar([], main_calendar.view.activeStart)
+    }
+  }
+  else if (current_type == 'availability') {
+    if (current_location) {
+      //initialize the new calendar if needed
+      //initializing will grab events so we don't need to here
+      if (calendar_view != 'availability') {
+        initializeAvailabilityCalendar([], main_calendar.view.activeStart)
+      }
+      else {
+        getAvailabilityLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_availability_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar events. Try refreshing the page.")
+        })
+      }
+    }
+    else {
+      initializeAvailabilityCalendar([], main_calendar.view.activeStart)
+    }
+  }
 }
 
 
@@ -260,7 +343,7 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
     main_calendar.destroy();
   }
 
-  calendar_view = 'default';
+  calendar_view = 'event';
 
   var calendarEl = document.getElementById('calendar');
   calendarEl.classList.remove('noToday');
@@ -285,9 +368,8 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
     // dayHeaderFormat: { weekday: 'long' },
 
     datesSet: function(dateInfo) {
-      const location = document.getElementById('calendarLocation').dataset.value;
-      if (location) {
-        getEventsLocation(location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_filter)
+      if (current_location) {
+        getEventsLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_filter)
         .then(events => {
           //remove the old events
           main_calendar.getEvents().forEach(event => {
@@ -303,9 +385,6 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
           alert("We had an issue loading the calendar events. Try refreshing the page.")
         })
       }
-    },
-
-    dateClick: function(info) {
     },
 
     eventClick: eventClickHandler,
@@ -326,6 +405,60 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
 
     selectable: false,
     unselectAuto: false,
+
+    events: events
+  });
+  main_calendar.render();
+}
+
+function initializeAvailabilityCalendar(events, initialDate = new Date()) {
+  if (main_calendar) {
+    main_calendar.destroy();
+  }
+
+  calendar_view = 'availability';
+
+  var calendarEl = document.getElementById('calendar');
+  calendarEl.classList.remove('noToday');
+
+  main_calendar = new FullCalendar.Calendar(calendarEl, {
+    height: "100%",
+    initialView: 'timeGridWeek',
+    initialDate:  initialDate,
+    hiddenDays: [0],
+    slotMinTime: '07:00:00',
+    slotMaxTime: '23:00:00',
+    scrollTime: '09:00:00',
+    nowIndicator: true,
+    headerToolbar: {
+      start:   'today prev,next',
+      center: 'title',
+      end:  'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    themeSystem: 'standard',
+
+    // only show the day name (good for setting availability)
+    // dayHeaderFormat: { weekday: 'long' },
+
+    datesSet: function(dateInfo) {
+      if (current_location) {
+        getAvailabilityLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_availability_filter)
+        .then(events => {
+          //remove the old events
+          main_calendar.getEvents().forEach(event => {
+            event.remove()
+          });
+          //add the new ones
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+        })
+        .catch((error) =>{
+          console.log(error);
+          alert("We had an issue loading the calendar availabilities. Try refreshing the page.")
+        })
+      }
+    },
 
     events: events
   });
@@ -508,6 +641,13 @@ function getEvent(eventID) {
   });
 }
 
+function getAvailability(eventID) {
+  return firebase.firestore().collection('Availabilities').doc(eventID).get()
+  .then(doc => {
+    return doc.data();
+  });
+}
+
 function eventClickHandler(info) {
   //highlight the selected event
   info.event.setProp('borderColor', '#064AF4')
@@ -519,6 +659,10 @@ function eventClickHandler(info) {
 
 function deleteEvent(eventID) {
   return firebase.firestore().collection('Events').doc(eventID).delete();
+}
+
+function deleteAvailability(eventID) {
+  return firebase.firestore().collection('Availabilities').doc(eventID).delete();
 }
 
 function deleteEventCallback() {
@@ -697,7 +841,41 @@ function getEventsLocation(location, start, end, filter) {
         //FIXME: quick fix for availability view
         //ISSUE: can't query for not availability so we have to hide it after the query
         //SOLUTION: this availability feature is temporary so we can probably just keep this for now
-        display: (eventData.type == 'availability' && filter.type != 'availability') ? 'none' : 'auto'
+        //display: (eventData.type == 'availability' && filter.type != 'availability') ? 'none' : 'auto'
+      });
+    });
+    return events;
+  });
+}
+
+function getAvailabilityLocation(location, start, end, staff = []) {
+  let eventRef = firebase.firestore().collection('Availabilities')
+  .where("location", '==', location)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  if (staff.length > 0) {
+    eventRef = eventRef.where('staff', 'in', staff)
+  }
+
+  return eventRef.get()
+  .then((eventSnapshot) => {
+    console.log('number of availabilities grabbed:', eventSnapshot.size)
+    let events = [];
+    eventSnapshot.forEach((eventDoc) => {
+      const eventData = eventDoc.data();
+      events.push({
+        id: eventDoc.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+
+        //FIXME: quick fix for availability view
+        //ISSUE: can't query for not availability so we have to hide it after the query
+        //SOLUTION: this availability feature is temporary so we can probably just keep this for now
+        //display: (eventData.type == 'availability' && filter.type != 'availability') ? 'none' : 'auto'
       });
     });
     return events;
@@ -719,6 +897,8 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar(force = false) {
+  const calendarType = document.getElementById('calendarType').dataset.value;
+  
   //call the cancel function on the open sidebar
   if (!force) {
     if (calendar_mode.includes('add')) {
@@ -743,9 +923,11 @@ function closeCalendarSidebar(force = false) {
     calendar_mode = "default";
   }
 
-  //if the main calendar isn't the default change it back to be
-  //specifically the mode is recurring
-  if (calendar_view != 'default') {
+  //check for the calendar type and see if the calendar view matches if not change the view
+  if (calendarType == 'availability' && calendar_view != 'availability') {
+    initializeAvailabilityCalendar([], pending_recurring_start.start);
+  }
+  else if (calendarType == 'event' && calendar_view != 'event') {
     initializeDefaultCalendar([], pending_recurring_start.start);
   }
 
@@ -2241,12 +2423,12 @@ function submitAddAvailability() {
   }
 
   if (pending_recurring_times.length == 0) {
-    if (!confirm('You are about to remove all availability for this staff member starting from the start date. Are you sure you want to proceed?')) {
+    if (!confirm('You are about to remove all availability for this staff member starting from the start date until the end date. Are you sure you want to proceed?')) {
       return
     }
   }
   else {
-    if (!confirm('Are you sure you want to submit this availability? This action will remove all availability for this staff member from the start date and replace it with what was entered.')) {
+    if (!confirm('Are you sure you want to submit this availability? This action will remove all availability for this staff member from the start date until the end date and replace it with what was entered.')) {
       return
     }
   }
@@ -2268,16 +2450,16 @@ function submitAddAvailability() {
   }
 
 
-  //remove all availability for the staff member starting with the recurring start date going forward
-  firebase.firestore().collection('Events')
-  .where('staff', 'array-contains', staff)
-  .where('type', '==', 'availability')
+  //remove all availability for the staff member starting with the recurring start date until the end date
+  firebase.firestore().collection('Availabilities')
+  .where('staff', '==', staff)
   .where('start', '>=', pending_recurring_start.start.getTime())
+  .where('start', '<', pending_recurring_end.end.getTime())
   .get()
   .then(querySnapshot => {
     let deletePromises = [];
     querySnapshot.forEach(eventDoc => {
-      deletePromises.push(deleteEvent(eventDoc.id)
+      deletePromises.push(deleteAvailability(eventDoc.id)
       .then(() => {
         main_calendar.getEventById(eventDoc.id)?.remove()
       }))
@@ -2691,7 +2873,7 @@ function saveAvailability(eventInfo) {
     const tutorColor = tutorData?.color;
     const tutorName = tutorData.tutorFirstName + " " + tutorData.tutorLastName;
 
-    const eventRef = firebase.firestore().collection("Events").doc()
+    const eventRef = firebase.firestore().collection("Availabilities").doc()
     let eventData = {
       type: eventInfo.type,
       title: tutorName + " - Availability",
@@ -2702,7 +2884,7 @@ function saveAvailability(eventInfo) {
       color: tutorColor ?? AVAILABILITY_COLOR,
       textColor: tutorColor ? tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(AVAILABILITY_COLOR, ["#FFFFFF", "000000"]).toHexString(),
 
-      staff: [eventInfo.staff],
+      staff: eventInfo.staff,
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -2978,7 +3160,7 @@ function checkStudentConflicts(studentUID, start, end, ignoredEventID = "") {
 function validConflictQuerySnapshot(querySnapshot, ignoredEventID) {
   let isValid = true;
   querySnapshot.forEach(doc => {
-    if (doc.id != ignoredEventID && doc.data().type != 'availability') {
+    if (doc.id != ignoredEventID) {
       isValid = false;
     }
   })
@@ -2988,10 +3170,10 @@ function validConflictQuerySnapshot(querySnapshot, ignoredEventID) {
 
 
 function checkStaffAvailability(staffUID, start, end) {
-  return firebase.firestore().collection('Events')
-  .where('staff', 'array-contains', staffUID)
-  .where('type', '==', 'availability')
+  return firebase.firestore().collection('Availabilities')
+  .where('staff', '==', staffUID)
   .where('end', '>=', end)
+  .orderBy('end')
   .limit(1)
   .get()
   .then((availabilitySnapshot) => {

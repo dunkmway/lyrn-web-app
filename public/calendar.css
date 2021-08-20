@@ -340,6 +340,11 @@ select {
   display: block !important;
 }
 
+/* it is showing double letters when searching in the dropdown and this is a workaround */
+.ui.dropdown .sizer {
+  visibility: hidden !important;
+}
+
 .dropdown-content .ui.dropdown {
   min-height: 0 !important;
 }
