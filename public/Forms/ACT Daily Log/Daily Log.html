@@ -143,13 +143,11 @@
         <div class="dropdown">
             <button class="dropbtn">Print Outs</button>
             <div class="dropdown-content">
-                <div onclick="setupAddSidebar('availability')">Availability</div>
-                <div onclick="setupAddSidebar('conference')">Conference</div>
-                <div onclick="setupAddSidebar('generalInfo')">General Info</div>
-                <div onclick="setupAddSidebar('lesson')">Lesson</div>
-                <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
-                <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
-                <div onclick="setupAddSidebar('testReview')">Test Review</div>
+                <div onclick = "openCramSession('1')" style = 'z-index: 3;'>1-Session Cram</div>
+                <div onclick = "openCramSession('2')" style = 'z-index: 3;'>2-Session Cram</div>
+                <div onclick = "openCramSession('3')" style = 'z-index: 3;'>3-Session Cram</div>
+                <div onclick = "openCramSession('4')" style = 'z-index: 3;'>4-Session Cram</div>
+                <div onclick = "openLastSession()" style = 'z-index: 3;'>Last Session</div>
             </div>
         </div>
 
@@ -163,48 +161,140 @@
     </div>
 
     <!--REMOVE-->
-    <div id = 'englishTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
-        <button class = 'testButton' onclick = "assignHomework('english', 'C02')">C02</button>
-        <button class = 'testButton' onclick = "assignHomework('english', 'A11')">A11</button>
-        <button class = 'testButton' onclick = "assignHomework('english', '71E')">71E</button>
-        <button class = 'testButton' onclick = "assignHomework('english', 'A10')">A10</button>
-        <button class = 'testButton' onclick = "assignHomework('english', 'MC2')">MC2</button>
-        <button class = 'testButton' onclick = "assignHomework('english', 'B05')">B05</button>
-        <button class = 'testButton' onclick = "assignHomework('english', 'D03')">D03</button>
-        <button class = 'testButton' onclick = "assignHomework('english', '74C')">74C</button>
+    <div id='englishTestList' class='testList' style='display: none;' onmouseover="openTestList('english')"
+        onmouseout="closeTestList('english')">
+        <div class='input-row-center'>
+            <div class='input-column-center'>
+                <button class='testButton' onclick="assignHomework('english', 'C02')">C02</button>
+                <button class='testButton' onclick="assignHomework('english', 'A11')">A11</button>
+                <button class='testButton' onclick="assignHomework('english', '71E')">71E</button>
+                <button class='testButton' onclick="assignHomework('english', 'A10')">A10</button>
+                <button class='testButton' onclick="assignHomework('english', 'MC2')">MC2</button>
+                <button class='testButton' onclick="assignHomework('english', 'B05')">B05</button>
+                <button class='testButton' onclick="assignHomework('english', 'D03')">D03</button>
+                <button class='testButton' onclick="assignHomework('english', '74C')">74C</button>
+                <button class='testButton' onclick="assignHomework('english', '67C')">67C</button>
+                <button class='testButton' onclick="assignHomework('english', 'ST1')">ST1</button>
+                <button class='testButton' onclick="assignHomework('english', '64E')">64E</button>
+                <button class='testButton' onclick="assignHomework('english', '61C')">61C</button>
+            </div>
+            <div class='input-column-center' style='margin-left: 5px;'>
+                <button class='testButton' onclick="assignHomework('english', '59F')">59F</button>
+                <button class='testButton' onclick="assignHomework('english', '69A')">69A</button>
+                <button class='testButton' onclick="assignHomework('english', 'ST2')">ST2</button>
+                <button class='testButton' onclick="assignHomework('english', '66F')">66F</button>
+                <button class='testButton' onclick="assignHomework('english', '61F')">61F</button>
+                <button class='testButton' onclick="assignHomework('english', '55C')">55C</button>
+                <button class='testButton' onclick="assignHomework('english', '58E')">58E</button>
+                <button class='testButton' onclick="assignHomework('english', '71C')">71C</button>
+                <button class='testButton' onclick="assignHomework('english', '71G')">71G</button>
+                <button class='testButton' onclick="assignHomework('english', '68G')">68G</button>
+                <button class='testButton' onclick="assignHomework('english', '68A')">68A</button>
+                <button class='testButton' onclick="assignHomework('english', '72F')">72F</button>
+            </div>
+        </div>
     </div>
-
-    <div id = 'mathTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
-        <button class = 'testButton' onclick = "assignHomework('math', 'C02')">C02</button>
-        <button class = 'testButton' onclick = "assignHomework('math', 'A11')">A11</button>
-        <button class = 'testButton' onclick = "assignHomework('math', '71E')">71E</button>
-        <button class = 'testButton' onclick = "assignHomework('math', 'A10')">A10</button>
-        <button class = 'testButton' onclick = "assignHomework('math', 'MC2')">MC2</button>
-        <button class = 'testButton' onclick = "assignHomework('math', 'B05')">B05</button>
-        <button class = 'testButton' onclick = "assignHomework('math', 'D03')">D03</button>
-        <button class = 'testButton' onclick = "assignHomework('math', '74C')">74C</button>
+    
+    <div id='mathTestList' class='testList' style='display: none;' onmouseover="openTestList('math')"
+        onmouseout="closeTestList('math')">
+        <div class='input-row-center'>
+            <div class='input-column-center'>
+                <button class='testButton' onclick="assignHomework('math', 'C02')">C02</button>
+                <button class='testButton' onclick="assignHomework('math', 'A11')">A11</button>
+                <button class='testButton' onclick="assignHomework('math', '71E')">71E</button>
+                <button class='testButton' onclick="assignHomework('math', 'A10')">A10</button>
+                <button class='testButton' onclick="assignHomework('math', 'MC2')">MC2</button>
+                <button class='testButton' onclick="assignHomework('math', 'B05')">B05</button>
+                <button class='testButton' onclick="assignHomework('math', 'D03')">D03</button>
+                <button class='testButton' onclick="assignHomework('math', '74C')">74C</button>
+                <button class='testButton' onclick="assignHomework('math', '67C')">67C</button>
+                <button class='testButton' onclick="assignHomework('math', 'ST1')">ST1</button>
+                <button class='testButton' onclick="assignHomework('math', '64E')">64E</button>
+                <button class='testButton' onclick="assignHomework('math', '61C')">61C</button>
+            </div>
+            <div class='input-column-center' style='margin-left: 5px;'>
+                <button class='testButton' onclick="assignHomework('math', '59F')">59F</button>
+                <button class='testButton' onclick="assignHomework('math', '69A')">69A</button>
+                <button class='testButton' onclick="assignHomework('math', 'ST2')">ST2</button>
+                <button class='testButton' onclick="assignHomework('math', '66F')">66F</button>
+                <button class='testButton' onclick="assignHomework('math', '61F')">61F</button>
+                <button class='testButton' onclick="assignHomework('math', '55C')">55C</button>
+                <button class='testButton' onclick="assignHomework('math', '58E')">58E</button>
+                <button class='testButton' onclick="assignHomework('math', '71C')">71C</button>
+                <button class='testButton' onclick="assignHomework('math', '71G')">71G</button>
+                <button class='testButton' onclick="assignHomework('math', '68G')">68G</button>
+                <button class='testButton' onclick="assignHomework('math', '68A')">68A</button>
+                <button class='testButton' onclick="assignHomework('math', '72F')">72F</button>
+            </div>
+        </div>
     </div>
-
-    <div id = 'readingTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
-        <button class = 'testButton' onclick = "assignHomework('reading', 'C02')">C02</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', 'A11')">A11</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', '71E')">71E</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', 'A10')">A10</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', 'MC2')">MC2</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', 'B05')">B05</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', 'D03')">D03</button>
-        <button class = 'testButton' onclick = "assignHomework('reading', '74C')">74C</button>
+    
+    <div id='readingTestList' class='testList' style='display: none;' onmouseover="openTestList('reading')"
+        onmouseout="closeTestList('reading')">
+        <div class='input-row-center'>
+            <div class='input-column-center'>
+                <button class='testButton' onclick="assignHomework('reading', 'C02')">C02</button>
+                <button class='testButton' onclick="assignHomework('reading', 'A11')">A11</button>
+                <button class='testButton' onclick="assignHomework('reading', '71E')">71E</button>
+                <button class='testButton' onclick="assignHomework('reading', 'A10')">A10</button>
+                <button class='testButton' onclick="assignHomework('reading', 'MC2')">MC2</button>
+                <button class='testButton' onclick="assignHomework('reading', 'B05')">B05</button>
+                <button class='testButton' onclick="assignHomework('reading', 'D03')">D03</button>
+                <button class='testButton' onclick="assignHomework('reading', '74C')">74C</button>
+                <button class='testButton' onclick="assignHomework('reading', '67C')">67C</button>
+                <button class='testButton' onclick="assignHomework('reading', 'ST1')">ST1</button>
+                <button class='testButton' onclick="assignHomework('reading', '64E')">64E</button>
+                <button class='testButton' onclick="assignHomework('reading', '61C')">61C</button>
+            </div>
+            <div class='input-column-center' style='margin-left: 5px;'>
+                <button class='testButton' onclick="assignHomework('reading', '59F')">59F</button>
+                <button class='testButton' onclick="assignHomework('reading', '69A')">69A</button>
+                <button class='testButton' onclick="assignHomework('reading', 'ST2')">ST2</button>
+                <button class='testButton' onclick="assignHomework('reading', '66F')">66F</button>
+                <button class='testButton' onclick="assignHomework('reading', '61F')">61F</button>
+                <button class='testButton' onclick="assignHomework('reading', '55C')">55C</button>
+                <button class='testButton' onclick="assignHomework('reading', '58E')">58E</button>
+                <button class='testButton' onclick="assignHomework('reading', '71C')">71C</button>
+                <button class='testButton' onclick="assignHomework('reading', '71G')">71G</button>
+                <button class='testButton' onclick="assignHomework('reading', '68G')">68G</button>
+                <button class='testButton' onclick="assignHomework('reading', '68A')">68A</button>
+                <button class='testButton' onclick="assignHomework('reading', '72F')">72F</button>
+            </div>
+        </div>
     </div>
-
-    <div id = 'scienceTestList' class = 'testList' style = 'display: none;' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
-        <button class = 'testButton' onclick = "assignHomework('science', 'C02')">C02</button>
-        <button class = 'testButton' onclick = "assignHomework('science', 'A11')">A11</button>
-        <button class = 'testButton' onclick = "assignHomework('science', '71E')">71E</button>
-        <button class = 'testButton' onclick = "assignHomework('science', 'A10')">A10</button>
-        <button class = 'testButton' onclick = "assignHomework('science', 'MC2')">MC2</button>
-        <button class = 'testButton' onclick = "assignHomework('science', 'B05')">B05</button>
-        <button class = 'testButton' onclick = "assignHomework('science', 'D03')">D03</button>
-        <button class = 'testButton' onclick = "assignHomework('science', '74C')">74C</button>
+    
+    <div id='scienceTestList' class='testList' style='display: none;' onmouseover="openTestList('science')"
+        onmouseout="closeTestList('science')">
+        <div class='input-row-center'>
+            <div class='input-column-center'>
+                <button class='testButton' onclick="assignHomework('science', 'C02')">C02</button>
+                <button class='testButton' onclick="assignHomework('science', 'A11')">A11</button>
+                <button class='testButton' onclick="assignHomework('science', '71E')">71E</button>
+                <button class='testButton' onclick="assignHomework('science', 'A10')">A10</button>
+                <button class='testButton' onclick="assignHomework('science', 'MC2')">MC2</button>
+                <button class='testButton' onclick="assignHomework('science', 'B05')">B05</button>
+                <button class='testButton' onclick="assignHomework('science', 'D03')">D03</button>
+                <button class='testButton' onclick="assignHomework('science', '74C')">74C</button>
+                <button class='testButton' onclick="assignHomework('science', '67C')">67C</button>
+                <button class='testButton' onclick="assignHomework('science', 'ST1')">ST1</button>
+                <button class='testButton' onclick="assignHomework('science', '64E')">64E</button>
+                <button class='testButton' onclick="assignHomework('science', '61C')">61C</button>
+            </div>
+            <div class='input-column-center' style='margin-left: 5px;'>
+                <button class='testButton' onclick="assignHomework('science', '59F')">59F</button>
+                <button class='testButton' onclick="assignHomework('science', '69A')">69A</button>
+                <button class='testButton' onclick="assignHomework('science', 'ST2')">ST2</button>
+                <button class='testButton' onclick="assignHomework('science', '66F')">66F</button>
+                <button class='testButton' onclick="assignHomework('science', '61F')">61F</button>
+                <button class='testButton' onclick="assignHomework('science', '55C')">55C</button>
+                <button class='testButton' onclick="assignHomework('science', '58E')">58E</button>
+                <button class='testButton' onclick="assignHomework('science', '71C')">71C</button>
+                <button class='testButton' onclick="assignHomework('science', '71G')">71G</button>
+                <button class='testButton' onclick="assignHomework('science', '68G')">68G</button>
+                <button class='testButton' onclick="assignHomework('science', '68A')">68A</button>
+                <button class='testButton' onclick="assignHomework('science', '72F')">72F</button>
+            </div>
+        </div>
     </div>
 
 
@@ -225,7 +315,7 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <button class='item itemB1 input-row'>
+                    <button class='item itemB1 input-row' style = 'background-color: transparent; border-color: transparent;'>
                         <div id = 'box0' class = 'sectionBox'></div>
                         <div id = 'box1' class = 'sectionBox'></div>
                         <div id = 'box2' class = 'sectionBox'></div>
