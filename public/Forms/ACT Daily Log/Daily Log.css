@@ -1322,6 +1322,10 @@ span:hover + .wrap a, .wrap:hover a{
   display: inline-block;
 }*/
 
+:root {
+  --primary-color: #110D65
+} 
+
 .dropdown-content {
   display: none;
   position: absolute;
