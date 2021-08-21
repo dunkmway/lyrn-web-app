@@ -13,12 +13,15 @@ let postTestScores = [];
 let initialScores = {};
 
 // Current tests in use
-const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
-const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
-const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
-                  '61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F',
-                  '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
-                  '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
+//const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C']
+//const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C']
+//const othTests = ['67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F',
+                  //'61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F',
+                  //'71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
+                  //'66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
+// REMOVE - revert to test lists above
+const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
+const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // Other needed info
 const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
@@ -1819,6 +1822,14 @@ function assignHomework(section, assigningTest = undefined) {
     test = assigningTest
   }
 
+  const refCheck = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', CURRENT_STUDENT_UID).where('test', '==', test).where('section', '==', section) // REMOVE
+  refCheck.get() // REMOVE
+  .then((querySnapshot) => { // REMOVE
+    if (querySnapshot.size > 0) { // REMOVE
+      return // REMOVE
+    } // REMOVE
+    else { // REMOVE
+
   // Initialize the questions array
   let studentQuestions = initializeEmptyAnswers(test, section);
 
@@ -1870,6 +1881,8 @@ function assignHomework(section, assigningTest = undefined) {
     assign.disabled = false;
     unassign.disabled = false;
   })
+  } // REMOVE
+  }) // REMOVE
 
   // Open the test to print
   openTest(test, section)
@@ -1959,24 +1972,6 @@ function unassignHomework(section) {
     ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
     }*/
 /* MASTER
-function openCramSession(sessionCount) {
-
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
-  ref.getDownloadURL().then((url) => {
-      open(url);
-    })
-
-}
-
-function openLastSession() {
-
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
-  ref.getDownloadURL().then((url) => {
-      open(url);
-    })
-
-}
-
 function swap() {
   let nav = document.getElementById("sideNav");
   nav.classList.toggle("nav_disabled")
@@ -1984,18 +1979,40 @@ function swap() {
 }
 MASTER */
 
-  const tempIds = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]
-  const id = tempIds['id']
-  const test = tempIds['test']
+  //const tempIds = ids.filter(function(val) { return val.type == 'homework' && val.section == section && val.action == 'assign'})[0]
+  //const id = tempIds['id']
+  //const test = tempIds['test']
 
   // Remove the id from the list of document ids
-  ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
+  //ids = ids.filter(function(val) { return val.type != 'homework' || val.section != section || val.action != 'assign'})
 
-  // Send the request to Fb to remove the assigned test
-  let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
-  ref.delete()
+  const lookupRef = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', CURRENT_STUDENT_UID).where('section', '==', section).where('status', '==', 'assigned')
+  lookupRef.get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const id = doc.id
+      const test = doc.data()['test']
+      // Send the request to Fb to remove the assigned test
+      let ref = firebase.firestore().collection('ACT-Student-Tests').doc(id)
+      ref.delete()
 
-  // Indicate that the test has been unassigned
+      // Indicate that the test has been unassigned
+      .then(() => {
+        // Remove the assigned test from the composite page
+        removeAssignedTest(test, section)
+
+        colorTestBox(section, test, 'yellow', false); // REMOVE
+
+        numAssignedTests -= 1;
+        submitSession()
+      })
+  
+      // Indicate that the test wasn't unassigned successfully
+      .catch((error) => {
+        console.log(error)
+      })
+    })
+  })
   .then(() => {
     // Swap which button is being showed
     assign.classList.remove('hidden')
@@ -2004,20 +2021,8 @@ MASTER */
     // Re-enable the buttons again
     assign.disabled = false;
     unassign.disabled = false;
-
-    // Remove the assigned test from the composite page
-    removeAssignedTest(test, section)
-
-    colorTestBox(section, test, 'yellow', false); // REMOVE
-
-    numAssignedTests -= 1;
-    submitSession()
   })
-  
-  // Indicate that the test wasn't unassigned successfully
-  .catch((error) => {
-    console.log(error)
-  })
+
 }
 
 function updateStatusBar(test, section, remove = false, colorClass = 'green') {
@@ -2136,6 +2141,25 @@ function openTest(test, section = undefined) {
     })
 
 }
+
+function openCramSession(sessionCount) {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
+function openLastSession() {
+
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
+  ref.getDownloadURL().then((url) => {
+      open(url);
+    })
+
+}
+
 
 function setTestCarousel(type = 'practice') {
   if (type == 'practice') {
@@ -2340,6 +2364,67 @@ circularText("Science", 80);*/
   })
 }
 //transferLessons()*/
+
+/*function testFix() {
+
+  const ref = firebase.firestore().collection('Students')
+  let id = undefined;
+  let count = 0;
+  ref.get()
+  .then((querySnapshot) => {
+    // For each student
+    querySnapshot.forEach((doc) => {
+      id = doc.id
+      let ref = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', id).where('type', '==', 'homework')
+      ref.get()
+      .then((snapshot) => {
+        if (snapshot.size > 0) {
+          let testList = []
+          let dupes = []
+          let tmpId = undefined
+          snapshot.forEach((d) => {
+            if (d.exists) {
+              tmpId = d.data()['student']
+              if (testList.includes(d.data()['test'])) {
+                if (!dupes.includes(d.data()['test'])) {
+                  dupes.push(d.data()['test'])
+                }
+              }
+              else {
+                testList.push(d.data()['test'])
+              }
+            }
+          })
+          if (dupes.length > 0) {
+            //console.log(tmpId, dupes)
+            for (let i = 0; i < dupes.length; i++) {
+              const sections = ['english', 'math', 'reading', 'science']
+              for (let sec = 0; sec < sections.length; sec++) {
+                let refFix = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', tmpId).where('test', '==', dupes[i]).where('type', '==', 'homework').where('section', '==', sections[sec])//.where('status', '==', 'assigned')
+                refFix.get()
+                .then((query) => {
+                  if (query.size > 1) {
+                    let counting = 0;
+                    query.forEach((newD) => {
+                      //if (counting == 0 && newD.data()['status'] == 'assigned') {
+                        // delete
+                        console.log('studentId:', tmpId, 'testId:', newD.id, 'test:', dupes[i], 'section:', sections[sec], 'status', newD.data()['status'])
+                        counting += 1
+                      //}
+                    })
+                  }
+                })
+              }
+            }
+          }
+        }
+      })
+      return
+    })
+    return
+  })
+  return
+}*/
 
 /*function transferTests() {
   console.log('transfering tests')
