@@ -906,7 +906,7 @@ MASTER */
   opacity:0;
   transition:transform .5s, opacity .5s;
   z-index: 2;
-  left: 45%;
+  left: calc(45% - 50px);
 }
 .a{
   position:absolute;
@@ -1305,7 +1305,8 @@ span:hover + .wrap a, .wrap:hover a{
 }
 
 .dropbtn {
-  background-color: var(--primary-color);
+  /*background-color: var(--primary-color);*/
+  background-color: #242947;
   color: white;
   padding: 8px 16px 8px 16px;
   font-size: 16px;
@@ -1322,13 +1323,20 @@ span:hover + .wrap a, .wrap:hover a{
   display: inline-block;
 }*/
 
+:root {
+  --primary-color: #110D65
+} 
+
+.dropdown {
+  margin-right: 50px;
+}
+
 .dropdown-content {
   display: none;
   position: absolute;
   background-color: #f1f1f1;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 100;
   box-sizing: content-box;
 }
 
@@ -1355,14 +1363,14 @@ span:hover + .wrap a, .wrap:hover a{
 
 .dropdown-content>div:hover {background-color: #ddd;}
 
-/*.calendarNav .dropdown:hover>.dropdown-content {display: block;}
+.dropdown:hover>.dropdown-content {display: block;}
 
-.calendarNav .dropdown:hover .dropbtn {
+.dropdown:hover .dropbtn {
   background-color: white;
   color: var(--primary-color);
 }
 
-.bottom .dropdown:hover .dropdown-content {
+/*.bottom .dropdown:hover .dropdown-content {
   display: block;
   position: absolute;
   margin-bottom: 10px;
