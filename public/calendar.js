@@ -650,7 +650,8 @@ function getAvailability(eventID) {
 
 function eventClickHandler(info) {
   //highlight the selected event
-  info.event.setProp('borderColor', '#064AF4')
+  info.event.setProp('backgroundColor', '#62DAFB')
+  info.event.setProp('textColor', 'black')
   getEvent(info.event.id)
   .then((data) => {
     setupEditSidebar(data, info.event.id)
