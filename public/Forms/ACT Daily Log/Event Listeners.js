@@ -60,7 +60,7 @@ for (let i = 0; i < sectionPassages.length; i++) {
           questionLocation = test_answers_grading[test][section][passageNumber]['questions'].indexOf(questionLocation)
 
           // If marked correct (not found), mark it wrong
-          if (test_answers_grading[test][section][passageNumber]['questions'][questionLocation]['isWrong'] == false) {
+          if (test_answers_grading[test][section][passageNumber]['questions'][questionLocation]?.['isWrong'] == false) {
             test_answers_grading[test][section][passageNumber]['questions'][questionLocation]['isWrong'] = true
           }
           else {
