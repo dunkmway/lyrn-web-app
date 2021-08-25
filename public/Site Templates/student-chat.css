@@ -1,9 +1,10 @@
 .studentMessages {
-  height: calc(92% - 70px);
+  /* height: calc(92% - 70px); */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 0 10px 0 10px
+  padding: 0 10px 0 10px;
+  flex: 1;
 }
 
 .studentMessages :first-child {
@@ -99,7 +100,8 @@
   display: block;
   width: 100%;
   box-sizing: border-box;
-  height: 70px;
+  min-height: 70px;
+  max-height: 50%;
   font-size: 16px;
   font-weight: 300;
   border-radius: 10px; 

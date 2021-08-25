@@ -37,6 +37,8 @@ body {
   border-style: solid;
   border-radius: 10px;
   border-width: 1px;
+  display: flex;
+  flex-direction: column;
 }
 
 .studentMessageLabel {

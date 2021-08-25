@@ -63,7 +63,10 @@
                     <img src="../../Images/blank-profile-picture.png" id="studentProfilePic" style = 'object-fit: cover;'>
                     <label id = 'fileLabel' for="fileInput"><img src = 'https://www.vhv.rs/dpng/d/439-4390267_edit-modify-ico-edit-pencil-icon-png-transparent.png' height = '20px'></label>
                     <input type = 'file' id ='fileInput' style = 'display: none;'>
-                    <h3 style="color: white; display: inline;">Hours: </h3><h3 id="studentSessionHours" style="color: white; display: inline;"></h3>
+                    <div>
+                        <h3 style="color: white; display: inline;">Hours: </h3>
+                        <h3 id="studentSessionHours" style="color: white; display: inline;"></h3>
+                    </div>
                 </div>
                 <textarea id="studentGeneralInfoSummary" onfocusout="updateGeneralInfoSummary(this)" onchange="generalInfoInputCallback(this)"></textarea>
             </div>
