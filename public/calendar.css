@@ -1,0 +1,426 @@
+:root {
+  --primary-color: #110D65
+} 
+
+body {
+  overflow-y: hidden;
+}
+
+/* height of time slot */
+.fc .fc-timegrid-slot {
+  height: 2em !important;
+}
+
+.todayNotHighlighted {
+  --fc-today-bg-color: transparent !important;
+}
+
+#calendar.noToday .fc-day-today {
+  background-color: transparent !important;
+}
+
+
+
+/* calendar highlight */
+.fc-highlight {
+  border: 1px solid transparent !important;
+  background: linear-gradient(rgba(225, 236, 244, 0.7), rgba(225, 236, 244, 0.7)) padding-box, repeating-linear-gradient(-45deg, black 0, black 25%, transparent 0, transparent 50%) 0 / .6em .6em !important;
+	animation: ants 12s linear infinite !important;
+}
+
+.fc-highlight::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  content: "";
+  background-color: rgba(225, 236, 244) !important;
+}
+
+@keyframes ants { to { background-position: 100% 100% } }
+
+.displayNone {
+  display: none;
+}
+
+.visibilityHidden {
+  visibility: hidden;
+}
+
+.calendarNav {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  margin: 20px 0px 20px 0px;
+  padding: 0px 10px 0px 10px;
+  background-color: var(--primary-color);
+}
+
+.calendarNav .select {
+  background-image: none;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px 8px 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.calendarNav .select:hover {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+#mainCalendarContent {
+  height: 85vh;
+  display: flex;
+  flex-direction: row;
+}
+
+#calendar {
+  float: left;
+  flex: 1;
+}
+
+#sidebar {
+  float: left;
+  max-width: 400px;
+  height: 100%;
+  background-color: #f1f1f1;
+  padding: 5px;
+  position: relative;
+}
+
+.sidebarContent {
+  height: 100%;
+  padding: 0px 0px 25px 0px;
+  overflow-y: auto;
+}
+
+.sidebarContent input[type='radio'] {
+  margin: 0px 2px 0px 2px;
+}
+
+.sidebarList {
+  background-color: white;
+  max-height: 50%;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.sidebarList p {
+  margin: 0;
+  padding: 5px;
+}
+
+.sidebarList p.removed {
+  text-decoration: line-through;
+}
+
+.sidebarList p:hover {
+  background-color: #DDDDDD;
+}
+
+#sidebar h3 {
+  display: inline;
+}
+
+#sidebar .headerLine {
+  height: 2px;
+  width: 80%;
+  background-color: #ddd;
+  position: relative;
+  left: 10%;
+  border-radius: 1px;
+  margin-bottom: 30px;
+  margin-top: 10px;
+}
+
+#sidebar.open {
+  width: 20%;
+}
+
+#sidebar.closed {
+  width: 0%;
+}
+
+.bottom {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  padding: 5px 0px 5px 0px;
+  background-color: #f1f1f1;
+}
+
+.dropbtn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 16px 8px 16px;
+  font-size: 16px;
+  border: none;
+}
+
+.calendarNav .dropdown {
+  position: relative;
+  display: inline-block;
+  /* box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); */
+  /* border-radius: 10px; */
+}
+
+.bottom .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
+  box-sizing: content-box;
+}
+
+.dropdown-content>div {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content>div.danger {
+  background-color: white;
+  color: #E94D41;
+}
+
+.dropdown-content>div.danger:hover {
+  background-color: #E94D41;
+  color: white;
+}
+
+.dropdown-content>div.selected {
+  display: none;
+}
+
+.dropdown-content>div:hover {background-color: #ddd;}
+
+.calendarNav .dropdown:hover>.dropdown-content {display: block;}
+
+.calendarNav .dropdown:hover .dropbtn {
+  background-color: white;
+  color: var(--primary-color);
+}
+
+.bottom .dropdown:hover .dropdown-content {
+  display: block;
+  position: absolute;
+  margin-bottom: 10px;
+  bottom: 30px;
+  right: 0px;
+}
+
+.bottom .dropdown:hover .dropdown-content::after {
+  height: 10px;
+  width: 100%;
+  content: "";
+  position: absolute;
+  bottom: -10px;
+}
+
+
+
+.calendarNav .dropdown-right {
+  position: relative;
+}
+
+.calendarNav .dropdown-right:hover>.dropdown-content {
+  display: block;
+  top: 0px;
+  left: 100%;
+  /* max-height: 400px;
+  overflow-y: auto; */
+}
+
+.inputRow {
+  display: flex;
+  flex-direction: row;
+  margin: 5px 0px 5px 0px;
+}
+
+.inputRow p {
+  margin-right: 5px;
+  margin-bottom: 0px;
+}
+
+.button {
+  min-width: 75px;
+  height: 30px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #110D65;
+  background-color: #fff;
+  border: none;
+  border-radius: 15px;
+  /* box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); */
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  justify-self: flex-end;
+}
+
+.button:hover {
+  background-color: #110D65;
+  /* box-shadow: 0px 15px 20px rgba( 17, 12, 100, 0.4); */
+  color: #fff;
+  transform: translateY(-5px);
+}
+
+.button.danger {
+  background-color: #E94D41;
+  color: white;
+}
+
+.button.danger:hover {
+  background-color: white;
+  color: #E94D41;
+}
+
+select {
+  background: url("Images/select-dropdown.png") no-repeat;
+  background-position: center right;
+  background-origin: content-box;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+#sidebar .select {
+  background-color: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  width: 100%;
+  border-color: #DEDEDF;
+  border-width: 1px;
+  border-style: solid;
+}
+
+#sidebar .select:hover {
+  border-color: rgba(34,36,38,.35);
+}
+
+#sidebar .input {
+  background-color: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  margin: 0px 0px 10px 0px;
+  width: 100%;
+  border-color: #DEDEDF;
+  border-width: 1px;
+  border-style: solid;
+  text-align: start;
+}
+
+#sidebar .input:not(.nonEditable):hover {
+  border-color: rgba(34,36,38,.35);
+}
+
+#sidebar .textarea {
+  background-color: #FFFFFF;
+  padding: 5px 10px 5px 5px;
+  width: 100%;
+  border-color: #DEDEDF;
+  border-width: 1px;
+  border-style: solid;
+  height: 6.8em;
+}
+
+#sidebar .textarea:hover {
+  border-color: rgba(34,36,38,.35);
+}
+
+.ui.dropdown {
+  display: block !important;
+}
+
+/* it is showing double letters when searching in the dropdown and this is a workaround */
+.ui.dropdown .sizer {
+  visibility: hidden !important;
+}
+
+.dropdown-content .ui.dropdown {
+  min-height: 0 !important;
+}
+
+.ui.dropdown>.dropdown.icon:before {
+  content: url("Images/select-dropdown.png") !important;
+}
+
+.more-info {
+  display: inline-block;
+  font-size: 12px;
+  color: white;
+  background-color: lightslategray;
+  text-align: center;
+  width: 18px;
+  height: 18px;
+  border: solid;
+  border-radius: 50%;
+  border-color: lightslategray;
+  border-width: 1px;
+  margin-right: 5px;
+  position: relative;
+  box-sizing: content-box;
+}
+
+.more-info:hover::after {
+  font-size: 16px;
+  color: white;
+  background-color: lightslategray;
+  border-radius: 5px;
+  text-align: center;
+  content: attr(data-more-info);
+  margin-right: 25px;
+  padding: 10px;
+  position: absolute;
+  right: 100%;
+  top: -100%;
+  width: 200px;
+  z-index: 100;
+}
+
+.more-info:hover::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: -25%;
+  margin-right: 5px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent lightslategray;
+}
+
+#addLessonRecurringWrapper {
+  display: none;
+}
+
+#addLessonRecurringWrapper button.input:hover:not(.selected) {
+  background-color: #DEDEDF;
+}
+
+#addLessonRecurringWrapper .selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#addAvailabilityRecurringWrapper button.input:hover:not(.selected) {
+  background-color: #DEDEDF;
+}
+
+#addAvailabilityRecurringWrapper .selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#addLessonRecurringRadio:checked~#addLessonRecurringWrapper {
+  display: block;
+}

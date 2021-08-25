@@ -39,9 +39,11 @@ function convertFromDateInt(date) {
         'milliseconds' : current_date.getMilliseconds(),
         'integerValue' : date,
         'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
-        'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
-        'longDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString().padStart(2,'0') + ":" + current_date.getMinutes().toString().padStart(2,'0'),
+        'longDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + (hours > 12 ? (hours - 12).toString() : hours.toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0'),
+        'longDateMilitary' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString() + ":" + current_date.getMinutes().toString().padStart(2,'0'),
         'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0'),
+        'fullCalendar' : year.toString().padStart(4,'0') + "-" + month.toString().padStart(2, '0') + "-" + dayOfMonth.toString().padStart(2, '0') + "T" + hours.toString().padStart(2, '0') + ":" + current_date.getMinutes().toString().padStart(2, "0")
+        'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
         'startOfDayInt' : new Date(year, month - 1, dayOfMonth, 0, 0, 0, 0).getTime()
     };
 }
@@ -71,6 +73,24 @@ function setObjectValue(propertyPath, value, obj) {
     }
     return true // this is the end
   }
+}
+
+/**
+ * 
+ * @param {HTMLElement} selectElement the select element that should be populated with options
+ * @param {Array} optionValues the options' values
+ * @param {Array} optionTexts the options' text contents
+ */
+function addSelectOptions(selectElement, optionValues, optionTexts) {
+  //check that the values and texts match in length
+  if (optionValues.length != optionTexts.length) {throw "option values and options texts must have the same number of elements"}
+  
+  optionValues.forEach((optionValue, index) => {
+    let option = document.createElement('option');
+    option.value = optionValue;
+    option.textContent = optionTexts[index];
+    selectElement.appendChild(option);
+  });
 }
 
 /**

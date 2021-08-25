@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar</title>
+  <!-- favicon stuff -->
+  <link rel="apple-touch-icon" sizes="180x180" href="Images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="Images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="Images/favicon/site.webmanifest">
+  <!------------------->
+
+  <link href="Site Templates/site-wide.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css" rel="stylesheet">
+  <link href="calendar.css" rel="stylesheet">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- semantic UI -->
+  <link async rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.0.3/dist/semantic.min.css"/>
+  <script async src="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+  <!-- full calendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.min.js"></script>
+  <!-- tinycolor -->
+  <script src="https://cdn.jsdelivr.net/npm/tinycolor2@1.4.2/tinycolor.min.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+  <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
+  <script src="calendar.js" defer></script>
+</head>
+
+<body onload="initialSetup()">
+
+  <!-- Calendar Nav -->
+  <div class="calendarNav">
+    <div class="dropdown" id="calendarType">
+      <button class="dropbtn">select calendar type</button>
+      <div class="dropdown-content">
+      </div>
+    </div>
+
+    <div class="dropdown" id="calendarLocation">
+      <button class="dropbtn">select location</button>
+      <div class="dropdown-content">
+      </div>
+    </div>
+
+    <div class="dropdown type-event" style="display: none;">
+      <button class="dropbtn">add event</button>
+      <div class="dropdown-content">
+        <div onclick="setupAddSidebar('conference')">Conference</div>
+        <div onclick="setupAddSidebar('generalInfo')">General Info</div>
+        <div onclick="setupAddSidebar('lesson')">Lesson</div>
+        <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
+        <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
+        <div onclick="setupAddSidebar('testReview')">Test Review</div>
+      </div>
+    </div>
+
+    <div class="dropdown type-event" style="display: none;">
+      <button id="filterSelection" class="dropbtn">filter events</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Student</div>
+          <div class="dropdown-content">
+            <select id="studentFilterContent" class="ui dropdown search selection">
+              <option value="">select location first</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dropdown-right">
+          <div>Tutor</div>
+          <div class="dropdown-content">
+            <select id="tutorFilterContent" class="ui dropdown search selection">
+              <option value="">select location first</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dropdown-right">
+          <div>Type</div>
+          <div class="dropdown-content">
+            <select id="typeFilterContent" class="ui dropdown search selection">
+              <option value="">select a location first</option>
+              <option value="act">ACT</option>
+              <option value="conference">Conference</option>
+              <option value="generalInfo">General Info</option>
+              <option value="mathProgram">Math Program</option>
+              <option value="practiceTest">Practice Test</option>
+              <option value="subjectTutoring">Subject Tutoring</option>
+              <option value="teacherMeeting">Teacher Meeting</option>
+              <option value="testReview">Test Review</option>
+            </select>
+          </div>
+        </div>
+
+        <div onclick="clearFilter(true)">Clear filter</div>
+      </div>
+    </div>
+
+    <div class="dropdown type-availability" style="display: none;">
+      <button class="dropbtn">add availability</button>
+      <div class="dropdown-content">
+        <div onclick="setupAddSidebar('availability')">Availability</div>
+      </div>
+    </div>
+
+    <div class="dropdown type-availability" style="display: none;">
+      <button id="availabilitySelection" class="dropbtn">filter availability</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Tutor</div>
+          <div class="dropdown-content">
+            <select id="tutorAvailabilityContent" class="ui dropdown search selection" multiple>
+              <option value="">select location first</option>
+            </select>
+          </div>
+        </div>
+        
+        <div onclick="clearAvailabilityFilter(true)">Clear filter</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainCalendarContent">
+    <div id='calendar'></div>
+    <div id="sidebar" class="closed">
+      <!------------------------->
+      <!-- add teacher meeting -->
+      <!------------------------->
+      <div id="addTeacherMeetingWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to have the teacher meeting.">?</div>
+        <h3>Add Teacher Meeting</h3>
+        <div class="headerLine"></div>
+
+        <!-- where is it being held -->
+        <div class="inputRow">
+          <label for="addTeacherMeetingLocation" class="label">Where will this meeting be held?</label>
+        </div>
+        <input id="addTeacherMeetingLocation" name="addTeacherMeetingLocation" class="input">
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddTeacherMeeting()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!-------------------------->
+      <!-- edit teacher meeting -->
+      <!-------------------------->
+      <div id="editTeacherMeetingWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Teacher Meeting</h3>
+        <div class="headerLine"></div>
+
+        <!-- where is it being held -->
+        <div class="inputRow">
+          <label for="editTeacherMeetingLocation" class="label">Where?</label>
+        </div>
+        <input id="editTeacherMeetingLocation" name="editTeacherMeetingLocation" class="input nonEditable">
+
+        <!-- staff in attendance -->
+        <div class="inputRow">
+          <label for="editTeacherMeetingStaff" class="label">Staff</label>
+        </div>
+        <div id="editTeacherMeetingStaff" class="sidebarList"></div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditTeacherMeeting()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add general info -->
+      <!---------------------->
+      <div id="addGeneralInfoWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add some info.">?</div>
+        <h3>Add General Info</h3>
+        <div class="headerLine"></div>
+
+        <!-- genral info title -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This info will be displayed as the title of the event">?</div>
+          <label for="addGeneralInfoTitle" class="label">Info?</label>
+        </div>
+        <input id="addGeneralInfoTitle" name="addGeneralInfoTitle" class="input">
+        <br>
+
+        <!-- tutor(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) getting paid during this event">?</div>
+          <label for="addGeneralInfoTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addGeneralInfoTutor" name="addGeneralInfoTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddGeneralInfo()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!----------------------->
+      <!-- edit general info -->
+      <!----------------------->
+      <div id="editGeneralInfoWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit General Info</h3>
+        <div class="headerLine"></div>
+
+        <!-- genral info title -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This info will be displayed as the title of the event">?</div>
+          <label for="editGeneralInfoTitle" class="label">Info?</label>
+        </div>
+        <input id="editGeneralInfoTitle" name="editGeneralInfoTitle" class="input nonEditable">
+        <br>
+
+        <!-- tutor(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) getting paid during this event">?</div>
+          <label for="editGeneralInfoTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editGeneralInfoTutor" name="editGeneralInfoTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditGeneralInfo()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add practice test -->
+      <!---------------------->
+      <div id="addPracticeTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a practice test.">?</div>
+        <h3>Add Practice Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student taking the test">?</div>
+          <label for="addPracticeTestStudent" class="label">Student</label>
+        </div>
+        <select id="addPracticeTestStudent" name="addPracticeTestStudent" class="ui dropdown search selection"></select>
+        <br>
+
+        <!-- description -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="Any additional info.">?</div>
+          <label for="addPracticeTestDescription" class="label">Description</label>
+        </div>
+        <textarea id="addPracticeTestDescription" name="addPracticeTestDescription" class="textarea"></textarea>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddPracticeTest()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- edit practice test -->
+      <!---------------------->
+      <div id="editPracticeTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Practice Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student taking the test">?</div>
+          <label for="editPracticeTestStudent" class="label">Student</label>
+        </div>
+        <div id="editPracticeTestStudent" name="editPracticeTestStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- description -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="Any additional info.">?</div>
+          <label for="editPracticeTestDescription" class="label">Description</label>
+        </div>
+        <textarea id="editPracticeTestDescription" name="editPracticeTestDescription" class="textarea"></textarea>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditPracticeTest()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add conference -->
+      <!---------------------->
+      <div id="addConferenceWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a conference.">?</div>
+        <h3>Add Conference</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the conference">?</div>
+          <label for="addConferenceStudent" class="label">Student</label>
+        </div>
+        <select id="addConferenceStudent" name="addConferenceStudent" class="ui dropdown search selection"></select>
+        <br>
+
+        <!-- description -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="Any additional info.">?</div>
+          <label for="addConferenceDescription" class="label">Description</label>
+        </div>
+        <textarea id="addConferenceDescription" name="addConferenceDescription" class="textarea"></textarea>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddConference()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- edit conference -->
+      <!---------------------->
+      <div id="editConferenceWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Conference</h3>
+        <div class="headerLine"></div>
+
+        <!-- student taking the test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the conference">?</div>
+          <label for="editConferenceStudent" class="label">Student</label>
+        </div>
+        <div id="editConferenceStudent" name="editConferenceStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- description -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="Any additional info.">?</div>
+          <label for="editConferenceDescription" class="label">Description</label>
+        </div>
+        <textarea id="editConferenceDescription" name="editConferenceDescription" class="textarea"></textarea>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditConference()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- add test review -->
+      <!---------------------->
+      <div id="addTestReviewWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a test review.">?</div>
+        <h3>Add Test Review</h3>
+        <div class="headerLine"></div>
+
+        <!-- student attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the test review">?</div>
+          <label for="addTestReviewStudent" class="label">Student</label>
+        </div>
+        <select id="addTestReviewStudent" name="addTestReviewStudent" class="ui dropdown search selection"></select>
+        <br>
+
+        <!-- tutor(s) attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
+          <label for="addTestReviewTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addTestReviewTutor" name="addTestReviewTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddTestReview()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!-- edit test review -->
+      <!---------------------->
+      <div id="editTestReviewWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Test Review</h3>
+        <div class="headerLine"></div>
+
+        <!-- student attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the test review">?</div>
+          <label for="editTestReviewStudent" class="label">Student</label>
+        </div>
+        <div id="editTestReviewStudent" name="editTestReviewStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- tutor(s) attending the test review -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the test review">?</div>
+          <label for="editTestReviewTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editTestReviewTutor" name="editTestReviewTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditTestReview()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!----- add lesson ----->
+      <!---------------------->
+      <div id="addLessonWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the time you want to add a lesson.">?</div>
+        <h3>Add Lesson</h3>
+        <div class="headerLine"></div>
+
+        <!-- type of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the type of lesson">?</div>
+          <label for="addLessonType" class="label">Type</label>
+        </div>
+        <select id="addLessonType" name="addLessonType" class="ui dropdown"></select>
+        <br>
+
+        <!-- student attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
+          <label for="addLessonStudent" class="label">Student</label>
+        </div>
+        <select id="addLessonStudent" name="addLessonStudent" class="ui dropdown search selection"></select>
+        <br>
+
+        <!-- tutor(s) teaching the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) teaching the lesson">?</div>
+          <label for="addLessonTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addLessonTutor" name="addLessonTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+        <div class="headerLine"></div>
+
+        <!-- single vs recurring events -->
+        <input type="radio" id="addLessonSingleRadio" name="addLessonEventSchedule" value="single" checked onchange="addLessonSingleSelected(this)">
+        <label for="addLessonSingleRadio">single lesson</label><br>
+        <input type="radio" id="addLessonRecurringRadio" name="addLessonEventSchedule" value="recurring" onchange="addLessonRecurringSelected(this)">
+        <label for="addLessonRecurringRadio">recurring lessons</label>
+        <br><br>
+
+        <div id="addLessonRecurringWrapper">
+          <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
+          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select the start and end dates</button>
+        </div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddLesson()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!---------------------->
+      <!---- edit lesson ----->
+      <!---------------------->
+      <div id="editLessonWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Lesson</h3>
+        <div class="headerLine"></div>
+
+        <!-- type of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the type of lesson">?</div>
+          <label for="editLessonType" class="label">Type</label>
+        </div>
+        <div id="editLessonType" name="editLessonType" class="input nonEditable"></div>
+        <br>
+
+        <!-- student attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
+          <label for="editLessonStudent" class="label">Student</label>
+        </div>
+        <div id="editLessonStudent" name="editLessonStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- tutor(s) attending the lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the tutor(s) performing the lesson">?</div>
+          <label for="editLessonTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="editLessonTutor" name="editLessonTutor" class="ui dropdown search selection" multiple></select>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditLesson()" class="button">update</button>
+          <!-- <button onclick="deleteEventCallback()" class="button danger">delete</button> -->
+          <div class="dropdown">
+            <button class="button danger">delete</button>
+            <div class="dropdown-content">
+              <div class="danger" onclick="deleteRecurringEventCallback()">delete all recurring lessons of this type</div>
+              <div class="danger" onclick="deleteEventCallback()">delete this lesson</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!---------------------------->
+      <!----- add availability ----->
+      <!---------------------------->
+      <div id="addAvailabilityWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the times you want to add availability.">?</div>
+        <h3>Add Availability</h3>
+        <div class="headerLine"></div>
+
+        <!-- tutor availability -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the tutor that you are adding availability for">?</div>
+          <label for="addAvailabilityTutor" class="label">Tutor(s)</label>
+        </div>
+        <select id="addAvailabilityTutor" name="addAvailabilityTutor" class="ui dropdown search selection"></select>
+        <br>
+        <div class="headerLine"></div>
+
+        <div id="addAvailabilityRecurringWrapper">
+          <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
+          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select the start and end dates</button>
+        </div>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddAvailability()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!----------------------------->
+      <!----- edit availability ----->
+      <!----------------------------->
+      <div id="editAvailabilityWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Availability</h3>
+        <div class="headerLine"></div>
+
+        <!-- tutor availability -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the tutor with this availability">?</div>
+          <label for="editAvailabilityTutor" class="label">Tutor</label>
+        </div>
+        <div id="editAvailabilityTutor" name="editAvailabilityTutor" class="input nonEditable"></div>
+        <br>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <!-- <button onclick="updateEditAvailability()" class="button">update</button> -->
+          <!-- <button onclick="deleteEventCallback()" class="button danger">delete</button> -->
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+</body>
