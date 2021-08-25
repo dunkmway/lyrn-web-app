@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Log</title>
+    <!--<link href="Daily Log.css" rel="stylesheet">-->
+    <link href="Daily Log old.css" rel="stylesheet">
+    <link href="../../student-info-test.css" rel="stylesheet">
+    <link href="../../Site Templates/site-wide.css" rel="stylesheet">
+
+    <!-- Charts.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
+
+    <!-- Our code -->
+    <script src="../../Site Templates/site-wide.js" defer></script>
+    <script src="../../Site Templates/generalFunctions.js" defer></script>
+    <!--<script src="Daily Log.js" defer></script>-->
+    <script src="Daily Log old.js" defer></script>
+    <script src="Event Listeners.js" defer></script>
+    <script src="Lessons.js" defer></script>
+    <script src="../../student-info-test.js" defer></script>
+</head>
+
+
+<body>
+    <section id="loading-screen">
+        <div class="loading-ring"></div>
+    </section>
+
+    <section id = 'topNavigationBanner'>
+        <img id = 'logo' src='../../Images/Wasatch Logo.png'>
+    </section>
+
+    <section id = 'mainBody'>
+        <div id = "scaledScoresTests" class = "metaForm noselect">
+
+            <div id = "scaledScoresTestsHeader" class="heading-block">
+                Test List
+            </div>
+
+            <div id = 'scaledScoresTestsList' class = "formBody">
+            </div>
+
+        </div>
+    </section>
+
+    <section id="update-goals-section" class="modal" onclick="closeModal(event, 'update-goals-section')">
+    <div id="update-goals-div" class="registration-block">
+        <div class="heading-block">
+        <h1>Update Goals</h1>
+        </div>
+        <div id="form-scroll-block">
+            <div id="spinnyBoiGoals" class="loader"></div>
+            <form onsubmit="return false">
+                <div class="input-row">
+                    <div class="input-block">
+                        <h4>Initial Composite:</h4>
+                        <h2 id="updated-composite-initial"></h2>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-english-initial" class="label">Initial English:</label>
+                        <input id="updated-english-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                    
+                    <div class="input-block">
+                        <label for="updated-math-initial" class="label">Initial Math:</label>
+                        <input id="updated-math-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-reading-initial" class="label">Initial Reading:</label>
+                        <input id="updated-reading-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+
+                    <div class="input-block">
+                        <label for="updated-science-initial" class="label">Initial Science:</label>
+                        <input id="updated-science-initial" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeInitials(); initialsUpdated()">
+                    </div>
+                </div><br>
+
+                <!-- <div class="input-row">
+                    <div class="input-block">
+                        <h4>Composite Goal:</h4>
+                        <h2 id="updated-composite-goal"></h2>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-english-goal" class="label">English Goal:</label>
+                        <input id="updated-english-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                    
+                    <div class="input-block">
+                        <label for="updated-math-goal" class="label">Math Goal:</label>
+                        <input id="updated-math-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="updated-reading-goal" class="label">Reading Goal:</label>
+                        <input id="updated-reading-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+
+                    <div class="input-block">
+                        <label for="updated-science-goal" class="label">Science Goal:</label>
+                        <input id="updated-science-goal" min="0" max="36" placeholder="24" class="input score" onchange="updateModalCompositeGoals(); goalsUpdated()">
+                    </div>
+                </div><br> -->
+
+                <div>
+                    <div class = "input-row">
+                        <label for = "test-dates" class="label">Test Date Goals:</label>
+                        <img src="../../Images/Add Button.png" alt="add test date goal" height=25px class = "firstButton" id="addTestDateGoalButton" onclick="addTestDateGoal(this)">
+                        <img src="../../Images/Remove Button.png" alt="remove test goal" height=25px class = "" id="removeTestDateGoalButton" onclick="removeTestDateGoal(this)">
+                    </div>
+                </div><br>
+
+                <div class="input-row">
+                    <p id="errMsgGoals" class="errMsg"></p>
+                </div>
+
+                <div class="input-row">
+                    <button type = button id="update-goals-closeBtn" class="button" onclick="closeModal(event, 'update-goals-section')">back</button> 
+                    <button type = button id="update-goals-submitBtn" class="button" onclick="submitUpdatedInfo()">submit</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    </section>
+
+    <section id="student-data-section">
+        <div id="big-picture-info" class="flex-row align-center">
+            <div id="student-general-info">
+                <h1 id="student-name"></h1>
+                <div class="flex-row">
+                    <p>Next Test:</p>
+                    <p id="next-test-date"></p>
+                </div>
+                <div class="flex-row">
+                    <p id="test-days-left"></p>
+                    <p>Days Left</p>
+                </div>
+            </div>
+            <div class="flex-row" ondblclick="openUpdateGoals()">
+                <div class="score-box composite noselect">
+                <p id="composite-score"></p>
+                <div class="tooltip">
+                    <div class="flex-row justify-space-between">
+                        <p>Initial Score:</p>
+                        <p id="composite-initial-score">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Goal:</p>
+                        <p id="composite-goal">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Total Hours:</p>
+                        <p id="composite-total-hours">00</p>
+                    </div>
+                    <!-- <div class="flex-row justify-space-between">
+                        <p>Highest Score:</p>
+                        <p id="composite-highest-score">00</p>
+                    </div> -->
+                    <div class="flex-row justify-space-between">
+                        <p>Total Point Change:</p>
+                        <p id="composite-point-change">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Hours per Point:</p>
+                        <p id="composite-hours/point">00</p>
+                    </div>
+                </div>
+                </div>
+                <div class="score-box english noselect">
+                <p id="english-score"></p>
+                <div class="tooltip">
+                    <div class="flex-row justify-space-between">
+                        <p>Initial Score:</p>
+                        <p id="english-initial-score">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Goal:</p>
+                        <p id="english-goal">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Total Hours:</p>
+                        <p id="english-total-hours">00</p>
+                    </div>
+                    <!-- <div class="flex-row justify-space-between">
+                        <p>Highest Score:</p>
+                        <p id="english-highest-score">00</p>
+                    </div> -->
+                    <div class="flex-row justify-space-between">
+                        <p>Total Point Change:</p>
+                        <p id="english-point-change">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Hours per Point:</p>
+                        <p id="english-hours/point">00</p>
+                    </div>
+                </div>
+                </div>
+                <div class="score-box math noselect">
+                <p id="math-score"></p>
+                <div class="tooltip">
+                    <div class="flex-row justify-space-between">
+                        <p>Initial Score:</p>
+                        <p id="math-initial-score">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Goal:</p>
+                        <p id="math-goal">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Total Hours:</p>
+                        <p id="math-total-hours">00</p>
+                    </div>
+                    <!-- <div class="flex-row justify-space-between">
+                        <p>Highest Score:</p>
+                        <p id="math-highest-score">00</p>
+                    </div> -->
+                    <div class="flex-row justify-space-between">
+                        <p>Total Point Change:</p>
+                        <p id="math-point-change">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Hours per Point:</p>
+                        <p id="math-hours/point">00</p>
+                    </div>
+                </div>
+                </div>
+                <div class="score-box reading noselect">
+                <p id="reading-score"></p>
+                <div class="tooltip">
+                    <div class="flex-row justify-space-between">
+                        <p>Initial Score:</p>
+                        <p id="reading-initial-score">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Goal:</p>
+                        <p id="reading-goal">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Total Hours:</p>
+                        <p id="reading-total-hours">00</p>
+                    </div>
+                    <!-- <div class="flex-row justify-space-between">
+                        <p>Highest Score:</p>
+                        <p id="reading-highest-score">00</p>
+                    </div> -->
+                    <div class="flex-row justify-space-between">
+                        <p>Total Point Change:</p>
+                        <p id="reading-point-change">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Hours per Point:</p>
+                        <p id="reading-hours/point">00</p>
+                    </div>
+                </div>
+                </div>
+                <div class="score-box science noselect">
+                <p id="science-score"></p>
+                <div class="tooltip">
+                    <div class="flex-row justify-space-between">
+                        <p>Initial Score:</p>
+                        <p id="science-initial-score">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Goal:</p>
+                        <p id="science-goal">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Total Hours:</p>
+                        <p id="science-total-hours">00</p>
+                    </div>
+                    <!-- <div class="flex-row justify-space-between">
+                        <p>Highest Score:</p>
+                        <p id="science-highest-score">00</p>
+                    </div> -->
+                    <div class="flex-row justify-space-between">
+                        <p>Total Point Change:</p>
+                        <p id="science-point-change">00</p>
+                    </div>
+                    <div class="flex-row justify-space-between">
+                        <p>Hours per Point:</p>
+                        <p id="science-hours/point">00</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!------------------->
+        <!-- Section Notes -->
+        <!------------------->
+
+        <div id="student-notes-section">
+            <!-- label to remind about ordering -->
+            <div class="flex-row justify-space-between">
+                <h4>Oldest section taught</h4>
+                <div></div>
+                <h4>Latest section taught</h4>
+            </div> 
+            <div id="student-notes-labels" class="flex-row justify-space-evenly align-flex-end">
+                <h2 id="general-chat-label" class="student-notes-label composite flex-grow chat-label-selected">General Notes</h2>
+                <h2 id="english-chat-label" class="student-notes-label english flex-grow">English</h2>
+                <h2 id="math-chat-label" class="student-notes-label math flex-grow">Math</h2>
+                <h2 id="reading-chat-label" class="student-notes-label reading flex-grow">Reading</h2>
+                <h2 id="science-chat-label" class="student-notes-label science flex-grow">Science</h2>
+            </div>
+            <div id="general-chat-area" class="chat-area-visible">
+                <div id="student-general-notes" class="student-notes">
+                </div>
+                <textarea id="student-general-notes-input" class="student-notes-input" placeholder="Any general notes?"></textarea>
+            </div>
+            <div id="english-chat-area" class="chat-area-hidden">
+                <div id="student-english-notes" class="student-notes">
+                </div>
+                <textarea id="student-english-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="math-chat-area" class="chat-area-hidden">
+                <div id="student-math-notes" class="student-notes">
+                </div>
+                <textarea id="student-math-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="reading-chat-area" class="chat-area-hidden">
+                <div id="student-reading-notes" class="student-notes">
+                </div>
+                <textarea id="student-reading-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+            <div id="science-chat-area" class="chat-area-hidden">
+                <div id="student-science-notes" class="student-notes">
+                </div>
+                <textarea id="student-science-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+        </div>
+
+        <!-------------->
+        <!-- HW Chart -->
+        <!-------------->
+
+        <div id="scores-chart">
+            <div class="flex-column justify-center ">
+                <div class="flex-row">
+                    <button class="button" onclick="setSessionAxis()">Sessions</button>
+                    <button class="button" onclick="setHourAxis()">Hours</button>
+                </div>
+            </div>
+            <div id="hw-canvas-div">
+                <canvas id="hw-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- <div id="student-general-notes-div">
+            <h2 class="student-notes-label composite">General Notes</h2>
+            <div id="student-general-notes" class="student-notes">
+            </div>
+            <textarea id="student-general-notes-input" class="student-notes-input" placeholder="Any general notes?"></textarea>
+        </div> -->
+
+        <!-- <div id="student-section-notes" class="flex-row justify-space-evenly">
+            <div id="student-english-notes-div" class="section-notes-div">
+                <h2 class="student-notes-label english">English</h2>
+                <div id="student-english-notes" class="student-notes">
+                </div>
+                <textarea id="student-english-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+
+            <div id="student-math-notes-div" class="section-notes-div">
+                <h2 class="student-notes-label math">Math</h2>
+                <div id="student-math-notes" class="student-notes">
+                </div>
+                <textarea id="student-math-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+        </div>
+
+        <div id="student-section-notes" class="flex-row justify-space-evenly">
+            <div id="student-reading-notes-div" class="section-notes-div">
+                <h2 class="student-notes-label reading">Reading</h2>
+                <div id="student-reading-notes" class="student-notes">
+                </div>
+                <textarea id="student-reading-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+
+            <div id="student-science-notes-div" class="section-notes-div">
+                <h2 class="student-notes-label science">Science</h2>
+                <div id="student-science-notes" class="student-notes">
+                </div>
+                <textarea id="student-science-notes-input" class="student-notes-input" placeholder="Any section specific notes?"></textarea>
+            </div>
+        </div> -->
+    </section>
+
+    <section id="section">
+
+        <div id = "sideNav" class = "nav_disabled">
+            <div id = "dailyLogNav" class = "button2" onclick = "openTab('dailyLog', this);addUnloadListener()">
+                <img src="../../Images/Daily Log.png" alt="Daily Log Icon Image" height=40px width=40px class = 'icon'>
+                Daily Log
+            </div>
+            <div id = "testReviewNav" class = "button2">
+                <img id = 'testReviewIcon' src="../../Images/Test Review Icon.png" alt="Test Review Icon Image" height=50px width=50px class = 'icon'>
+                Test Review
+            </div>
+            <div id = "scoresNav" class = "button2" onclick = "openTab('scaledScoresTests', this)">
+                <img src="../../Images/Scaled Scores.png" alt="Scaled Scores Icon Image" height=40px width=40px class = 'icon'>
+                Test Scores
+            </div>
+        </div>
+
+        <div id = "printPopup" class = "printPopup" data-test = "">
+
+            <button class = "button2" onclick="popupPrint()">
+                Full Test
+            </button>
+
+            <button class = "button2" onclick="popupPrint('English')">
+                English
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Math')">
+                Math
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Reading')">
+                Reading
+            </button>
+
+            <button class = "button2" onclick="popupPrint('Science')">
+                Science
+            </button>
+
+        </div>
+
+        <div id = "scaledScores" class = "metaForm noselect">
+
+            <div id = "scaledScoresHeader" class="heading-block">
+            </div>
+
+            <div id = "scoresAnswersToggle" class = "input-row-center">
+
+                <button id = "scoresButton" class = "smallButton buttonToggleOn" onclick="openForm('scaledScores')">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton" class = "smallButton buttonToggleOff" onclick="openForm('answers')">
+                    Answers
+                </button>
+
+            </div>
+
+
+            <div id = "scaledScoresHeaders" class = "scoresHeaders">
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+                <div class = "gridBoxScores">
+                    English
+                </div>
+
+                <div class = "gridBoxScores">
+                    Math
+                </div>
+
+                <div class = "gridBoxScores">
+                    Reading
+                </div>
+
+                <div class = "gridBoxScores">
+                    Science
+                </div>
+
+                <div class = "gridBoxScores">
+                    Score
+                </div>
+
+            </div>
+
+            <div id = 'scaledScoresBody' class = "scoresBody">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button class = "button" onclick = "openForm('scaledScoresTests')">
+                    Back
+                </button>
+
+            </div>
+        </div>
+
+        <div id = "answers" class = "metaForm noselect">
+
+            <div id = "answersHeader" class="heading-block">
+            </div>
+
+            <div id = "answersScoresToggle" class = "input-row-center">
+
+                <button id = "scoresButton2" class = "smallButton buttonToggleOff" onclick="openForm('scaledScores')">
+                    Scores
+                </button>
+
+                <button id = "fullAnswersButton2" class = "smallButton buttonToggleOn" onclick="openForm('answers')">
+                    Answers
+                </button>
+
+            </div>
+
+            <div id = "answersBody" class = "input-block">
+                <div class = "sectionHeader">
+                    English
+                </div>
+                <div id = "englishAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Math
+                </div>
+                <div id = "mathAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Reading
+                </div>
+                <div id = "readingAnswers" class = "answers">
+                </div>
+
+                <div class = "space">
+                </div>
+
+                <div class = "sectionHeader">
+                    Science
+                </div>
+                <div id = "scienceAnswers" class = "answers">
+                </div>
+
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button class = "button" onclick = "openForm('scaledScoresTests')">
+                    Back
+                </button>
+
+            </div>
+        </div>
+
+        
+
+        <div id = "testAnswersPopup" class = "metaForm noselect">
+
+            <div id = "answersPopupHeader" class="heading-block">
+                <!--<div id = "headerText">
+                </div>-->
+            </div>
+
+            <div id = "toggleDiv" class = "input-row-center">
+
+                <button id = "answerButton" class = "smallButton buttonToggleOn" onclick="toggleButtons('answer')">
+                    Answers
+                </button>
+
+                <button id = "guessButton" class = "smallButton buttonToggleOff" onclick="toggleButtons('guess')">
+                    Guesses
+                </button>
+
+            </div>
+
+            <div id = "popupInfo" class = "input-row">
+
+                <div class = "side">
+                    <div class = "circle button2" onclick="previousPassage(this)">
+                        <div id = "leftArrow">
+                            &#8249;
+                        </div>
+                    </div>
+                </div>
+
+                <div id = "passage">
+                </div>
+
+                <div class = "side">
+                    <div class = "circle button2" onclick="nextPassage(this)">
+                        <div id = "rightArrow">
+                            &#8250;
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id = "timingBlock" class="input-row-center">
+                <label for="time" class="label">Time:</label>
+                <select id = "time-minutes">
+                    <option value = "0">Minutes</option>
+                    <option value = "1">1</option>
+                    <option value = "2">2</option>
+                    <option value = "3">3</option>
+                    <option value = "4">4</option>
+                    <option value = "5">5</option>
+                    <option value = "6">6</option>
+                    <option value = "7">7</option>
+                    <option value = "8">8</option>
+                    <option value = "9">9</option>
+                    <option value = "10">10</option>
+                    <option value = "11">11</option>
+                    <option value = "12">12</option>
+                    <option value = "13">13</option>
+                    <option value = "14">14</option>
+                    <option value = "15">15</option>
+                    <option value = "16">16</option>
+                    <option value = "17">17</option>
+                    <option value = "18">18</option>
+                    <option value = "19">19</option>
+                    <option value = "20">20</option>
+                </select>
+
+                <select id = "time-seconds">
+                    <option value = "0">Seconds</option>
+                    <option value = "1">1</option>
+                    <option value = "2">2</option>
+                    <option value = "3">3</option>
+                    <option value = "4">4</option>
+                    <option value = "5">5</option>
+                    <option value = "6">6</option>
+                    <option value = "7">7</option>
+                    <option value = "8">8</option>
+                    <option value = "9">9</option>
+                    <option value = "10">10</option>
+                    <option value = "11">11</option>
+                    <option value = "12">12</option>
+                    <option value = "13">13</option>
+                    <option value = "14">14</option>
+                    <option value = "15">15</option>
+                    <option value = "16">16</option>
+                    <option value = "17">17</option>
+                    <option value = "18">18</option>
+                    <option value = "19">19</option>
+                    <option value = "20">20</option>
+                    <option value = "21">21</option>
+                    <option value = "22">22</option>
+                    <option value = "23">23</option>
+                    <option value = "24">24</option>
+                    <option value = "25">25</option>
+                    <option value = "26">26</option>
+                    <option value = "27">27</option>
+                    <option value = "28">28</option>
+                    <option value = "29">29</option>
+                    <option value = "30">30</option>
+                    <option value = "31">31</option>
+                    <option value = "32">32</option>
+                    <option value = "33">33</option>
+                    <option value = "34">34</option>
+                    <option value = "35">35</option>
+                    <option value = "36">36</option>
+                    <option value = "37">37</option>
+                    <option value = "38">38</option>
+                    <option value = "39">39</option>
+                    <option value = "40">40</option>
+                    <option value = "41">41</option>
+                    <option value = "42">42</option>
+                    <option value = "43">43</option>
+                    <option value = "44">44</option>
+                    <option value = "45">45</option>
+                    <option value = "46">46</option>
+                    <option value = "47">47</option>
+                    <option value = "48">48</option>
+                    <option value = "49">49</option>
+                    <option value = "50">50</option>
+                    <option value = "51">51</option>
+                    <option value = "52">52</option>
+                    <option value = "53">53</option>
+                    <option value = "54">54</option>
+                    <option value = "55">55</option>
+                    <option value = "56">56</option>
+                    <option value = "57">57</option>
+                    <option value = "58">58</option>
+                    <option value = "59">59</option>
+                    <option value = "60">60</option>
+                </select>
+            </div>
+
+
+            <div id = "popupButtons" class = "input-row-center">
+                <button class = "smallButton button" onclick="openForm()">
+                    Back
+                </button>
+                <button class = "smallButton button" onclick="resetAnswers()">
+                    Reset
+                </button>
+                <button class = "smallButton button" onclick="removePassage()">
+                    Remove
+                </button>
+                <button class = "smallButton button" onclick="submitAnswersPopup('False', 'True')">
+                    Submit
+                </button>
+                
+                <div id = "perfectScorePopup" class = "popup" data-test = "">
+                    <button class = "longButton button2 green" onclick="submitAnswersPopup('grade')">
+                        Grade Passage
+                    </button>
+
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('together')">
+                        Worked Together
+                    </button>
+
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('popcorn')">
+                        Popcorned Problems
+                    </button>
+
+                    <button class = "longButton button2 greenShade" onclick="submitAnswersPopup('prior')">
+                        Prior Completion
+                    </button>
+                </div>
+
+                
+                <div id = "submitHomeworkPopup" class = "popup">
+
+                    <p id = 'assignFirst' style="color: white; display:none;">Test must be assigned first</p>
+                    <p id = 'alreadyGradedTest' style="color: white; display:none;">This test can't be changed</p>
+                    <p id = 'gradeFirst' style="color: white; display:none;">Entire test must be graded first</p>
+                    <p id = 'guessFirst' style="color: white; display:none;">Test must contain at least 1 guess</p>
+                    
+                    <button class = "green button2" onclick="setHomeworkStatus('in-time', 'True')">
+                        Completed <span class = "smallerText"><br>(in-time)</span>
+                    </button>
+
+                    <button class = "orange button2" onclick="setHomeworkStatus('forgot')">
+                        Completed <span class = "smallerText"><br>(forgotten)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('not in time', 'True')">
+                        Completed <span class = "smallerText"><br>(not in time)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('partial', 'True')">
+                        Partial <span class = "smallerText"><br>(time remaining)</span>
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('poor conditions', 'True')">
+                        Poor Conditions
+                    </button>
+
+                    <button class = "greenShade button2" onclick="setHomeworkStatus('previously completed')">
+                        Mark as Completed
+                    </button>
+
+                    <button class = "red button2" onclick="setHomeworkStatus('in-center', 'True')">
+                        Completed <span class = "smallerText"><br>(in-center)</span>
+                    </button>
+
+                    <button class = "gray button2" onclick="setHomeworkStatus('did not do')">
+                        Didn't do
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id = "inCenterTestsForm" class = "metaForm noselect">
+            <div id = "inCenterTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2 selected" onclick="openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "inCenterStatusDiv" class = "input-row-center">
+            </div>
+
+            <div id = "inCenterTestHeaders" class = "testHeaders">
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+            </div>
+
+            <div id = "inCenterTests" class = "tests">
+            </div>
+
+            <div id = 'inCenterSubmitDiv' class = "input-row-center formEnd-center">
+
+                <button id = "inCenterBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+                
+        </div>
+
+        <div id = "homeworkTestsForm" class = "metaForm noselect">
+            <div id = "homeworkTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2" onclick = "openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "selected testTab button2" onclick = "openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2" onclick = "openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "homeworkStatusDiv" class = "input-row-center">
+
+            </div>
+
+            <div id = "homeworkTestHeaders" class = "testHeaders">
+
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+            </div>
+
+            <div id = "homeworkTests" class = "tests">
+            </div>
+
+            <div id = "homeworkSubmitDiv" class = "input-row-center formEnd-center">
+
+                <button id = "homeworkBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id = "otherTestsForm" class = "metaForm noselect">
+            <div id = "otherTestsTabs" class = "input-row">
+
+                <div class = "first testTab button2" onclick="openForm('inCenterTestsForm')">
+                    In-Center
+                </div>
+
+                <div class = "testTab button2" onclick="openForm('homeworkTestsForm')">
+                    Homework
+                </div>
+
+                <div class = "testTab button2 selected" onclick="openForm('otherTestsForm')">
+                    Other
+                </div>
+
+            </div>
+
+            <div id = "otherStatusDiv" class = "input-row-center">
+
+            </div>
+
+            <div id = "otherTestHeaders" class = "testHeaders">
+
+                <div class = "gridBox">
+                    Tests
+                </div>
+
+                <div class = "gridBox">
+                    English
+                </div>
+
+                <div class = "gridBox">
+                    Math
+                </div>
+
+                <div class = "gridBox">
+                    Reading
+                </div>
+
+                <div class = "gridBox">
+                    Science
+                </div>
+            </div>
+
+            <div id = "otherTests" class = "tests">
+            </div>
+
+            <div id = "otherSubmitDiv" class = "input-row-center formEnd-center">
+
+                <button id = "otherBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+
+        </div>
+
+        <div id = "englishLessonsForm" class = "metaForm noselect">
+            <div class="heading-block">
+                <h2>English</h2>
+            </div>
+
+            <div class = "lessonHeaders" class = "tests">
+
+                <div class = "gridBox2">
+                    Lesson
+                </div>
+
+                <div class = "gridBox2">
+                    Rank
+                </div>
+
+                <div class = "gridBox2">
+                    Date
+                </div>
+
+            </div>
+
+            <div id = "englishLessons" class = "tests">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button id = "englishBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+
+        </div>
+
+        <div id = "mathLessonsForm" class = "metaForm noselect">
+            <div class="heading-block">
+                <h2>Math</h2>
+            </div>
+
+            <div id = "mathHeaders" class = "lessonHeaders tests">
+
+                <div class = "gridBox2">
+                    Lesson
+                </div>
+
+                <div class = "gridBox2">
+                    Rank
+                </div>
+
+                <div class = "gridBox2">
+                    Date
+                </div>
+
+            </div>
+
+            <div id = "mathLessons" class = "tests">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button id = "mathBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+
+        </div>
+
+        <div id = "readingLessonsForm" class = "metaForm noselect">
+            <div class="heading-block">
+                <h2>Reading</h2>
+            </div>
+
+            <div class = "lessonHeaders" class = "tests">
+
+                <div class = "gridBox2">
+                    Lesson
+                </div>
+
+                <div class = "gridBox2">
+                    Rank
+                </div>
+
+                <div class = "gridBox2">
+                    Date
+                </div>
+
+            </div>
+
+            <div id = "readingLessons" class = "tests">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button id = "readingBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+
+        </div>
+
+        <div id = "scienceLessonsForm" class = "metaForm noselect">
+            <div class="heading-block">
+                <h2>Science</h2>
+            </div>
+
+            <div class = "lessonHeaders" class = "tests">
+
+                <div class = "gridBox2">
+                    Lesson
+                </div>
+
+                <div class = "gridBox2">
+                    Rank
+                </div>
+
+                <div class = "gridBox2">
+                    Date
+                </div>
+
+            </div>
+
+            <div id = "scienceLessons" class = "tests">
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <button id = "scienceBackDiv" class = "button" onclick = "openForm('dailyLog')">
+                    Back
+                </button>
+
+            </div>
+
+        </div>
+
+        <form id = "dailyLog" onsubmit="return false">
+            <div id="spinnyBoi" class="loader"></div>
+            <div class="heading-block">
+                <h2>Daily Log</h2>
+            </div>
+
+
+            <div class = "input-block">
+                <div class = "input-row">
+                    <h2>Completed Homework</h2>
+                </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="homeworkStatus" class="label">Grade Homework:</label>
+                        <button type = "button" onclick = "openForm('homeworkTestsForm', 'homework')">Homework Status</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div id = "homeworkBreak" class = "line">
+            </div>
+
+
+
+            <div id = "session1" class="input-block">
+                <div class = "input-row">
+                    <h2>Session Details</h2>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label for="section1" class="label">Section Taught:</label>
+                        <select id="section1" class="input">
+                            <option value="">Section</option>
+                            <option value="English">English</option>
+                            <option value="Math">Math</option>
+                            <option value="Reading">Reading</option>
+                            <option value="Science">Science</option>
+                        </select>
+                    </div>
+
+                    <div class="input-block">
+                        <label for="lesson1" class="label">Lesson(s)</label>
+                        <button type = "button" onclick = "openForm('1')">Lesson(s)</button>
+                    </div>
+
+                    <div class="input-block">
+                        <label for="time1" class="label">Time:</label>
+                        <select id="time1" class="input">
+                            <option value="">Time</option>
+                            <option value="15">15 mins</option>
+                            <option value="30">30 mins</option>
+                            <option value="45">45 mins</option>
+                            <option value="60">60 mins</option>
+                            <option value="75">1h 15 mins</option>
+                            <option value="90">1h 30 mins</option>
+                            <option value="105">1h 45 mins</option>
+                            <option value="120">2h</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class = "input-row">
+                    <textarea class="textarea" placeholder="Session Notes" id = "sectionNotes1" rows = "10" cols="80"></textarea>
+                </div>
+
+                <div class = "input-row">
+                    <div class = "input-block">
+                        <label class="label">Practice Tests</label>
+                        <button type = "button" onclick = "openForm('inCenterTestsForm', 'inCenter')">In-Center Tests</button>
+                    </div>
+                </div>
+
+                <div class = "input-row">
+                </div>
+
+                <div id = "homeworkBreak" class = "line">
+                </div>
+
+            </div>
+
+
+                <div class="input-row-center">
+                    <div>
+                        <img src="../../Images/Add Button.png" alt="add previous ACT test" height=30px width=30px
+                            id="addPreviousACTButton" onclick="addSession(this)">
+                    </div>
+
+                    <div>
+                        <img src="../../Images/Remove Button.png" alt="remove previous ACT test" height=30px width=30px
+                            id="removePreviousACTButton" onclick="removeSession(this)">
+                    </div>
+                </div>
+
+            <div class = "input-block formEnd">
+            <div class = "input-row">
+
+                  <div class = "input-block">
+                      <label for="assignHomework" class="label">Assign Homework:</label>
+                      <button id = "assignHomework" class = "button2" onclick="openForm('homeworkTestsForm', 'assign')">Assign Homework</button>
+                  </div>
+
+            </div>
+            </div>
+
+            <div id = "homeworkBreak" class = "line">
+            </div>
+
+            <div class="input-row">
+                <p id="errMsg" style="color: red;"></p>
+            </div>
+
+            <div class = "input-row-center formEnd-center">
+
+                <!--<button class = "button" onclick = "goToDashboard()">
+                    Back
+                </button>-->
+
+                <button class = "button" onclick="submitDailyLog()">
+                    Submit
+                </button>
+
+            </div>
+
+
+        </form>
+    </section>
+
+</body>
+
+</html>

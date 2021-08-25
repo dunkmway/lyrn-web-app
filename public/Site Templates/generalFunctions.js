@@ -43,6 +43,8 @@ function convertFromDateInt(date) {
         'longDateMilitary' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString() + ":" + current_date.getMinutes().toString().padStart(2,'0'),
         'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0'),
         'fullCalendar' : year.toString().padStart(4,'0') + "-" + month.toString().padStart(2, '0') + "-" + dayOfMonth.toString().padStart(2, '0') + "T" + hours.toString().padStart(2, '0') + ":" + current_date.getMinutes().toString().padStart(2, "0")
+        'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
+        'startOfDayInt' : new Date(year, month - 1, dayOfMonth, 0, 0, 0, 0).getTime()
     };
 }
 
@@ -63,7 +65,12 @@ function setObjectValue(propertyPath, value, obj) {
   } 
   else {
     // We set the value to the last property
-    obj[properties[0]] = value
+    if (typeof value == 'object') {
+      obj[properties[0]] = JSON.parse(JSON.stringify(value))
+    }
+    else {
+      obj[properties[0]] = value
+    }
     return true // this is the end
   }
 }
@@ -83,5 +90,116 @@ function addSelectOptions(selectElement, optionValues, optionTexts) {
     option.value = optionValue;
     option.textContent = optionTexts[index];
     selectElement.appendChild(option);
+  });
+}
+
+/**
+ * create html element
+ * @param {String} elementType tag name for the element that will be created
+ * @param {[String]} classes classes for the element
+ * @param {[String]} attributes attributes for the element
+ * @param {[String]} values values for each attribute for the element
+ * @param {String} text innerhtml for the element
+ * @returns {HTMLElement} html element of the given tag
+ */
+function createElement(elementType, classes = [], attributes = [], values = [], text = "") {
+  // Initialize the element
+  let element = document.createElement(elementType);
+
+  // Set each of the specified attributes for the element
+  if (attributes.length == values.length && attributes.length > 0) {
+    for (let i = 0; i < attributes.length; i++) {
+      element.setAttribute(attributes[i], values[i]);
+    }
+  }
+
+  // Add the classes to the element
+  for (let i = 0; i < classes.length; i++) {
+    element.classList.add(classes[i]);
+  }
+
+  // Set the inner html text
+  if (text != "") {
+    element.innerHTML = text;
+  }
+
+  // Return the element
+  return element;
+}
+
+/**
+ * create html elements and return them in a parent div
+ * @param {[String]} elementType tag names for the elements that will be created
+ * @param {[[String]]} classes classes for each element
+ * @param {[[String]]} attributes attributes for each element
+ * @param {[[String]]} values values for each attribute for each element
+ * @param {[String]} text innerhtml for each element
+ * @param {[String]} divClasses calsses for the parent div for the elements
+ * @returns {HTMLElement} html div whose children are the requested elements
+ */
+ function createElements(elementType = [], classes = [[]], attributes = [[]], values = [[]], text = [], divClasses = []) {
+  // Make sure there is something passed into the function
+  if (elementType.length >= 0) {
+    let elements = createElement("div", divClasses);
+
+    // Iterate through each of the elements that need created
+    if (attributes.length == values.length && attributes.length >= 0) {
+      for (let i = 0; i < elementType.length; i++) {
+        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
+      }
+    }
+
+    // Return the element
+    return elements;
+
+  }
+}
+
+function customConfirm(message = "", option1 = "", option2 = "", option1Callback, option2Callback) {
+
+  //setup the HTML for the confimation
+  let confirmationSection = document.createElement('section');
+  confirmationSection.id = "customConfirmationSection";
+
+  confirmationSection.innerHTML = (`
+    <div class="confirmationContainer">
+      <div id="customConfirmationMessage">${message}</div>
+      <div class="optionsContainer">
+        <div id="customConfirmationOptionOne">${option1}</div>
+        <div id="customConfirmationOptionTwo">${option2}</div>
+      </div>
+    </div>
+  `);
+
+  //append the confirmation to the DOM
+  document.body.appendChild(confirmationSection);
+
+  //this will remove the modal if the user clicks off of the container
+  confirmationSection.addEventListener('click', (e) => {
+    if (e.target !== e.currentTarget) return;
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove();
+  });
+
+  //setup the event listeners
+  document.getElementById('customConfirmationOptionOne').addEventListener('click', option1Callback);
+  document.getElementById('customConfirmationOptionTwo').addEventListener('click', option2Callback);
+
+  document.getElementById('customConfirmationOptionOne').addEventListener('click', () => {
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove()
+  });
+  document.getElementById('customConfirmationOptionTwo').addEventListener('click', () => {
+    document.getElementById('customConfirmationOptionOne').removeEventListener('click', option1Callback);
+    document.getElementById('customConfirmationOptionTwo').removeEventListener('click', option2Callback);
+
+    confirmationSection.innerHTML = "";
+    confirmationSection.remove()
   });
 }

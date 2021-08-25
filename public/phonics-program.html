@@ -7,6 +7,7 @@
     <title>Phonics Program</title>
     <link href="phonics-program.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
+    <link href="Site Templates/student-chat.css" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -16,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
     <script src="Site Templates/site-wide.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="Site Templates/student-chat.js" defer></script>
     <script src="phonics-program.js" defer></script>
 </head>
 
@@ -24,26 +26,29 @@
     <div class="loading-ring"></div>
   </section>
 
-  <div id="student-general-info" ondblclick="updateStudentExpectation()">
-    <h1 id="student-name"></h1>
+  <div id="student-general-info">
+    <div style="padding: 5px;">
+      <h1 id="student-name" style="margin: 0px;"></h1>
+      <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+    </div>
+    <div style="position: relative; height: 100px;">
+      <img src="../../Images/blank-profile-picture.png" id="studentProfilePic" style = 'object-fit: cover;'>
+      <label id = 'fileLabel' for="fileInput"><img src = 'https://www.vhv.rs/dpng/d/439-4390267_edit-modify-ico-edit-pencil-icon-png-transparent.png' height = '20px'></label>
+      <input type = 'file' id ='fileInput' style = 'display: none;'>
+    </div>
   </div>
 
-  <textarea id="student-expectation" class="expectation-input" disabled></textarea>
-
-  <p>This button will submit your lesson (note submitted and at least one lesson taught)</p>
-  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
-  <p id = 'errorMessage' style = "color:red"></p>
-
-  <div id="student-log-notes-div">
-    <h2 class="student-notes-label background-black">Notes</h2>
-    <div id="student-log-notes" class="student-notes">
-    </div>
-    <textarea id="student-log-notes-input" class="student-notes-input" placeholder="Any notes?"></textarea>
+  <div id="generalStudentMessageDiv">
+    <h2 class="studentMessageLabel">Notes</h2>
+    <div id="generalStudentMessages" class="studentMessages"></div>
+    <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
   </div>
 
   <div id = "lessonsForm" class = "metaForm noselect">
     <div class="heading-block">
-        <h2>Phonics Program</h2>
+        <h2 style="margin: 5px 0px">Phonics Program</h2>
+        <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
+        <p id = 'errorMessage' style = "color:red; display: none; margin: 0px;" ></p>
     </div>
 
     <div class = "lessonHeaders">

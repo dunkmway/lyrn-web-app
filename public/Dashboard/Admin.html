@@ -122,6 +122,80 @@
       </div>
     </section>
 
+    <section id="add-admin-section" class="add-user-section">
+      <div id="add-admin-div" class="registration-block">
+        <div class="heading-block">
+          <h2>Add Admin</h2>
+        </div>
+        <div id="form-scroll-block">
+          <div id="spinnyBoiAdmin" class="loader"></div>
+          <form onsubmit="return false">
+            <!-- <div class="input-block">
+              <label for="adminLocation" class="label">Wasatch Location:</label>
+              <select id="adminLocation" class="select" required>
+                <option selected disabled value="">select a location</option>
+              </select>
+            </div> -->
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="adminFirstName" class="label">Admin First Name:</label>
+                  <input id="adminFirstName" placeholder="John" class="input" required>
+              </div>
+
+              <div class="input-block">
+                <label for="adminLastName" class="label">Admin Last Name:</label>
+                <input id="adminLastName" placeholder="Doe" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="adminEmail" class="label">Admin Email:</label>
+                  <input id="adminEmail" placeholder="person@gmail.com" class="input" required>
+              </div>
+            </div><br>
+
+            <div class="input-row">
+              <button type = button class="button" onclick="closeModal('admin')">back</button> 
+              <button type = button class="button" onclick="createAdmin()">submit</button>
+            </div>
+
+            <div class="input-row">
+              <p id="adminErrMsg"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="add-location-section" class="add-user-section">
+      <div id="add-location-div" class="registration-block">
+        <div class="heading-block">
+          <h2>Add Location</h2>
+        </div>
+        <div id="form-scroll-block">
+          <div id="spinnyBoiLocation" class="loader"></div>
+          <form onsubmit="return false">
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="location" class="label">Location</label>
+                  <input id="location" class="input" required>
+              </div>
+            </div>
+
+            <div class="input-row">
+              <button type = button class="button" onclick="closeModal('location')">back</button> 
+              <button type = button class="button" onclick="createLoction()">submit</button>
+            </div>
+
+            <div class="input-row">
+              <p id="locationErrMsg"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <section id="add-school-section" class="add-user-section">
       <div id="add-school-div" class="registration-block">
         <div class="heading-block">
@@ -253,6 +327,7 @@
         <button id="subjectTutoringNav" class="button">Subject Tutoring</button>
         <button id="mathProgramNav" class="button">Math Program</button>
         <button id="phonicsProgramNav" class="button">Phonics Program</button>
+        <button id="registrationNav" class="button">Registration</button>
     </section>
 
     <section>
@@ -265,20 +340,40 @@
       <div class="flex-row align-center">
         <button class="button" onclick="goToInquiry()">Inquiry</button>
         <button class="button" onclick="openModal('tutor')">Add Tutor</button>
-        <button class="button" onclick="openModal('secretary')">Add Secretary</button>
-        <button class="button" onclick="openModal('school')">Add School</button>
-        <button class="button" onclick="openModal('extracurricular')">Add Extracurricular</button>
+        <button class="button" onclick="openModal('admin')">Add Admin</button>
+        <button class="button" onclick="openModal('location')">Add Location</button>
+        <!-- <button class="button" onclick="openModal('secretary')">Add Secretary</button> -->
+        <!-- <button class="button" onclick="openModal('school')">Add School</button>
+        <button class="button" onclick="openModal('extracurricular')">Add Extracurricular</button> -->
         <button class="button" onclick="resetPassword()">reset password</button>
       </div>
 
+      <h2 style="margin-bottom: 0px;">Students</h2>
       <div>
+        <div id="tableSelectorWrapper">
+          <input type="radio" onchange="setActiveStudentTable()" value="active" name="tableType" checked>Active</input>
+          <input type="radio" onchange="setInactiveStudentTable()" value="inactive" name="tableType">Inactive</input>
+          <input type="radio" onchange="setAllStudentTable()" value="all" name="tableType">All</input>
+        </div>
+
         <table id="student-table" class="display" width="100%">
           <thead>
             <tr>
               <th>Student</th>
+              <th>Type(s)</th>
               <th>Location</th>
-              <th>Status</th>
               <th>Parent</th>
+            </tr>
+          </thead>
+        </table>
+
+        <h2 style="margin-bottom: 0px;">Staff</h2>
+        <table id="staff-table" class="display" width="100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Location</th>
             </tr>
           </thead>
         </table>
@@ -286,12 +381,12 @@
       
 
       <!-- feedback area -->
-      <div style="margin: 25px;">
+      <!-- <div style="margin: 25px;">
         <h3>Feedback</h3>
         <textarea id="feedback_input" class="feedback_input" placeholder="any feedback?"></textarea>
         <p id="feedback_error_msg"></p>
         <button id="feedback_submit_btn" class="button" onclick="submitFeedback()">Submit</button>
-      </div>
+      </div> -->
 
     </section>
   </body>

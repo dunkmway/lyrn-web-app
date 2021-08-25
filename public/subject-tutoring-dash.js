@@ -1,26 +1,34 @@
-let studentProfileData = {};
-let studentNotesData = {};
-let studentSTProfileData = {};
+let student_profile_data = {};
+let student_notes_data = {};
+let student_st_profile_data = {};
 
-main();
+let currentClasses = [];
+let currentGrades = [];
+let isGradeUpdated = false;
+
+const CURRENT_STUDENT_UID = queryStrings()['student'];
+const CURRENT_STUDENT_TYPE = "subjectTutoring";
+
+let storage = firebase.storage();
+
 function main() {
   retrieveInitialData()
   .then(() => {
     setStudentProfile();
     setStudentSTProfile();
-    getNotes('log');
+    setProfilePic();
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
+    //getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'grades');
+    setupStudentGrades(CURRENT_STUDENT_UID);
     allowExpectationChange();
   })
 }
 
 function retrieveInitialData() {
-  let student = queryStrings()['student'];
+  let profileProm = getStudentProfile(CURRENT_STUDENT_UID);
+  let stProfileProm = getStudentSTProfile(CURRENT_STUDENT_UID); 
 
-  let profileProm = getStudentProfile(student);
-  let notesProm = getStudentNotes(student);
-  let stProfileProm = getStudentSTProfile(student); 
-
-  let promises = [profileProm, notesProm, stProfileProm];
+  let promises = [profileProm, stProfileProm];
   return Promise.all(promises);
 }
 
@@ -29,17 +37,7 @@ function getStudentProfile(studentUID) {
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentProfileData = doc.data();
-    }
-  })
-}
-
-function getStudentNotes(studentUID) {
-  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('notes');
-  return studentNotesRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      studentNotesData = doc.data();
+      student_profile_data = doc.data();
     }
   })
 }
@@ -49,29 +47,132 @@ function getStudentSTProfile(studentUID) {
   return studentSTProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
-      studentSTProfileData = doc.data();
+      student_st_profile_data = doc.data();
     }
   })
 }
 
-function queryStrings() {
-  var GET = {};
-  var queryString = window.location.search.replace(/^\?/, '');
-  queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-  });
-
-  return GET;
-}
-
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = studentProfileData['studentFirstName'] + " " + studentProfileData['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
 }
 
 function setStudentSTProfile() {
-  document.getElementById('student-expectation').value = studentSTProfileData['expectation'] || "No expectation set."
+  document.getElementById('student-expectation').value = student_st_profile_data['expectation'] || "No expectation set."
+}
+
+function setupStudentGrades(studentUID) {
+  //place today's date into the first row
+  document.getElementById('gradeToday').textContent = convertFromDateInt(new Date().getTime())['mm/dd/yyyy'];
+
+  //fill in the classes
+  const classes = student_st_profile_data.classes ?? [];
+
+  for (let i = 0; i < 8; i++) {
+    let newRow = document.createElement('th');
+    newRow.innerHTML = `<div><span contentEditable onfocusout="updateCurrentClasses()">${classes[i] ?? 'no class'}</span></div>`;
+    newRow.classList.add('rotate-45');
+    document.getElementById('gradeTableHeaders').appendChild(newRow)
+  }
+  //add in the blank space
+  let newRow = document.createElement('th');
+  newRow.innerHTML = `<div><span</span></div>`;
+  newRow.classList.add('rotate-45');
+  document.getElementById('gradeTableHeaders').appendChild(newRow)
+
+  //fill in the grades
+  const grades = student_st_profile_data.grades ?? [];
+  currentGrades = grades;
+
+  grades.forEach(row => {
+    const dateStr = row.date;
+    const gradeList = row.grades;
+
+    //check if grades have already been updated for today and instead place them in the first row
+    if (dateStr == convertFromDateInt(new Date().getTime())['mm/dd/yyyy']) {
+      isGradeUpdated = true;
+      document.querySelectorAll('td[contentEditable="true"').forEach((element, index) => {
+        element.textContent = gradeList[index];
+      });
+    }
+    else {
+      let newRow = document.createElement('tr');
+      newRow.innerHTML = (`
+        <th class="row-header">${dateStr}</th>
+        <td>${gradeList[0] ?? ''}</td>
+        <td>${gradeList[1] ?? ''}</td>
+        <td>${gradeList[2] ?? ''}</td>
+        <td>${gradeList[3] ?? ''}</td>
+        <td>${gradeList[4] ?? ''}</td>
+        <td>${gradeList[5] ?? ''}</td>
+        <td>${gradeList[6] ?? ''}</td>
+        <td>${gradeList[7] ?? ''}</td>
+      `)
+      document.getElementById('gradeTableBody').appendChild(newRow);
+    }
+  })
+}
+
+function updateCurrentClasses() {
+  let classes = [];
+
+  document.getElementById('gradeTableHeaders').querySelectorAll('span[contentEditable="true"]').forEach(classElement => {
+    classes.push(classElement.textContent);
+  })
+
+  currentClasses = classes;
+  console.log(currentClasses);
+
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+    classes: currentClasses
+  }, {merge : true})
+  .then(() => {
+    console.log('succesfully updates classes');
+  })
+  .catch((error) => {
+    console.log(error);
+  })
+}
+
+function updateGradeList() {
+  let rowToday = {};
+  let gradesToday = [];
+
+  rowToday.date = document.getElementById('gradeToday').textContent;
+
+  document.querySelectorAll('td[contentEditable="true"').forEach(element => {
+    gradesToday.push(element.textContent);
+  })
+
+  rowToday.grades = gradesToday;
+  //check if grades have already been updated for today
+  if (!isGradeUpdated) {currentGrades.splice(0,0,rowToday);}
+  else {currentGrades.splice(0,1,rowToday);}
+  isGradeUpdated = true;
+
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+    grades: currentGrades
+  }, {merge : true})
+  .then(() => {
+  })
+  .catch((error) => {
+    console.log(error);
+    alert('We are having issues right now updating this grade. Try again later.')
+  })
+}
+
+function resetGrades() {
+  if (!confirm('Are you sure you want to reset this students classes and grades? This action cannot be undone and will remove all data in THIS TABLE!')) {return}
+  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').update({
+    grades: firebase.firestore.FieldValue.delete(),
+    classes: firebase.firestore.FieldValue.delete()
+  })
+  .then(() => {
+    console.log('succesfully reset table');
+    location.reload();
+  })
+  .catch((error) => {
+    console.log(error);
+  })
 }
 
 function allowExpectationChange() {
@@ -126,211 +227,76 @@ function updateStudentExpectation(event) {
   }
 }
 
-//all of the notes stuff
-function getNotes(type) {
-  const notes = studentNotesData[type];
-  let noteTimes = [];
-  for (const time in notes) {
-    noteTimes.push(parseInt(time));
-  }
+document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general'));
 
-  noteTimes.sort((a,b) => {return a-b});
-  for (let i = 0; i < noteTimes.length; i++) {
-    setNotes(type, notes[noteTimes[i]]["note"], noteTimes[i], notes[noteTimes[i]]["user"], notes[noteTimes[i]]["isSessionNote"]);
-  }
+function openHelp() {
+  document.getElementById("helpModal").style.display = "flex";
 }
 
-function setNotes(type, note, time, author, isSessionNote) {
+function closeHelp(e) {
+  if (e.target !== e.currentTarget) return;
+  document.getElementById("helpModal").style.display = "none";
+}
+
+function setProfilePic() {
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  ref.getDownloadURL()
+  .then((url) => {
+    document.getElementById('studentProfilePic').src=url;
+  })
+  .catch((error) => {
+    console.log("No image found")
+  })
+
+  // Done allow a tutor to change the picture
   firebase.auth().onAuthStateChanged((user) => {
-    const currentUser = user?.uid ?? null;
-    if (user) {
-      user.getIdTokenResult()
+  if (user) {
+    user.getIdTokenResult()
       .then((idTokenResult) => {
         let role = idTokenResult.claims.role;
-        if (note) {
-          //all the messages
-          let messageBlock = document.getElementById('student-' + type + '-notes');
-          //the div that contains the time and message
-          let messageDiv = document.createElement('div');
-          //the message itself
-          let message = document.createElement('div');
-          //time for the message
-          let timeElem = document.createElement('p');
-
-          //display the time above the mesasge
-          timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
-          timeElem.classList.add('time');
-          messageDiv.appendChild(timeElem);
-
-          //set up the message
-          message.innerHTML = note;
-          //author's name element
-          let authorElem = document.createElement('p');
-          authorElem.classList.add("author");
-          message.appendChild(authorElem);
-
-          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
-          getUserDisplayName({
-            uid : author
-          })
-          .then((result) => {
-            const authorName = result.data ?? "anonymous";
-            authorElem.innerHTML = authorName;
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          messageDiv.setAttribute('data-time', time);
-          message.classList.add("student-note");
-          if (currentUser == author) {
-            messageDiv.classList.add("right");
-          }
-          else {
-            messageDiv.classList.add("left");
-          }
-
-          const getUserRole = firebase.functions().httpsCallable('getUserRole');
-          getUserRole({
-            uid : author
-          })
-          .then((result) => {
-            const authorRole = result.data ?? null;
-            if (authorRole == "admin") {
-              message.classList.add("important");
-            }
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          if (isSessionNote) {
-            message.classList.add('session');
-          }
-          
-
-          //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
-          if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
-            let deleteMessage = document.createElement('div');
-            deleteMessage.classList.add("delete");
-            let theX = document.createElement('p');
-            theX.innerHTML = "X";
-            theX.classList.add('no-margins');
-            deleteMessage.appendChild(theX);
-            deleteMessage.addEventListener('click', (event) => deleteNote(type, event));
-            message.appendChild(deleteMessage);
-          }
-          
-          messageDiv.appendChild(message);
-          messageBlock.appendChild(messageDiv);
-          document.getElementById('student-' + type + '-notes-input').value = null;
-          scrollBottomNotes(type);
-        }
-      })
-      .catch((error) =>  {
-        handleFirebaseErrors(error, window.location.href);
-        console.log(error);
-      });
-    }
-  });
-}
-
-function deleteNote(type, event) {
-  let message = event.target.closest(".student-note").parentNode;
-  let confirmation = confirm("Are you sure you want to delete this message?");
-  if (confirmation) {
-    const currentStudent = queryStrings()['student'];
-    const time = message.dataset.time;
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
-    studentNotesDocRef.update({
-      [`${type}.${time}`] : firebase.firestore.FieldValue.delete()
-    })
-    .then(() => {
-      message.remove();
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-    })
-  }
-}
-
-function scrollBottomNotes(type) {
-  let notes = document.getElementById("student-" + type + "-notes");
-  notes.scrollTop = notes.scrollHeight;
-}
-
-function sendNotes(type, note, time, author, isSessionNote = false) {
-  const data = {
-    user : author,
-    note : note,
-    isSessionNote : isSessionNote
-  } 
-
-  const currentStudent = queryStrings()['student'];
-
-  if (note) {
-    //upload the note to firebase
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Subject-Tutoring").doc("notes");
-    studentNotesDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        return studentNotesDocRef.update({
-          [`${type}.${time}`] : data
-        })
-        .then(() => {
-          //send the note into the message div
-          setNotes(type, note, time, author, isSessionNote);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-        });
-      }
-      else {
-        return studentNotesDocRef.set({
-          [`${type}`] : {
-            [`${time}`] : data
-          }
-        })
-        .then(() => {
-          //send the note into the message div
-          setNotes(type, note, time, author, isSessionNote);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-        });
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      console.log(error);
-    });
-  }
-  else {
-    return Promise.resolve("No note.")
-  }
-}
-
-document.getElementById("student-log-notes-input").addEventListener('keydown', (event) =>  {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-log-notes-input').value;
-    const time = new Date().getTime();
-    sendNotes('log', note, time, currentUser);
-  }
-});
-
-document.getElementById("student-general-info").addEventListener("dblclick", () => {
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
-          const studentUID = queryStrings()['student']
-          let queryStr = "?student=" + studentUID;
-          window.location.href = "inquiry.html" + queryStr;
+        if (role == 'tutor') {
+          document.getElementById('fileLabel').style.display = 'none'
         }
       })
     }
-  });
-});
+  })
+}
+
+
+function updateProfilePic() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (role == 'admin' || role == 'dev' || role == 'secretary') {
+            const data = document.getElementById('fileInput')
+            //document.getElementById('studentProfilePic').style.src = data.files[0]
+            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let thisref = ref.put(data.files[0])
+            thisref.on('state_changed', function (snapshot) {
+
+
+            }, function (error) {
+              console.log(error)
+            }, function () {
+              // Uploaded completed successfully, now we can get the download URL
+              thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+
+                // Setting image
+                document.getElementById('studentProfilePic').src = downloadURL;
+              });
+            });
+          }
+        })
+    }
+  })
+}
+
+let profileImage = document.getElementById('fileInput')
+profileImage.addEventListener('change', function () {
+  console.log("Changing Picture")
+  updateProfilePic()
+})
+
+main();

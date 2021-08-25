@@ -1,0 +1,109 @@
+.studentMessages {
+  /* height: calc(92% - 70px); */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 0 10px;
+  flex: 1;
+}
+
+.studentMessages :first-child {
+  margin-top: auto;
+}
+
+.studentMessages .time {
+  font-weight: 200;
+  font-size: 12px;
+  color: #8A8B8A;
+}
+
+.studentMessage {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 5px 25px 5px 10px;
+  position: relative;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap;
+}
+
+.studentMessage .delete {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: white;
+  color: #C4CCE8;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.studentMessage .pending {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  animation: spin 2s linear infinite;
+  border: 2px solid white;
+  border-top: 2px solid #110D65;
+  border-radius: 50%;
+}
+
+.studentMessage .author {
+  position: relative;
+  text-align: right;
+  font-weight: 200;
+  font-size: 12px;
+  color: black;
+  right: -20px;
+  margin: 0;
+}
+
+.studentMessages .right {
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+.studentMessages .right .studentMessage{
+  background-color: #80CBC4;
+}
+
+.studentMessages .left {
+  align-self: flex-start;
+  max-width: 80%;
+}
+
+.studentMessages .left .studentMessage{
+  background-color: #979CB5;
+}
+
+.studentMessage.important {
+  border-color: #80CBC4;
+  border-style: solid;
+}
+
+.studentMessage.error {
+  border-color: red;
+  border-style: solid;
+}
+
+.studentMessagesInput {
+  resize: none;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 70px;
+  max-height: 50%;
+  font-size: 16px;
+  font-weight: 300;
+  border-radius: 10px; 
+  margin-top: 10px;
+}

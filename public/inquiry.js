@@ -227,19 +227,19 @@ function setLocations () {
       }
 
       //check for act type info just in case
-      const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
-      typeDocRef.get()
-      .then((typeDoc) => {
-        if(typeDoc.exists) {
-          //pull up the act tab
-          document.getElementById("type").classList.remove("hidden");
-          setAllData(typeDoc.data());
-          typeData = typeDoc.data();
-        }
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, window.location.href);
-      });
+      // const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
+      // typeDocRef.get()
+      // .then((typeDoc) => {
+      //   if(typeDoc.exists) {
+      //     //pull up the act tab
+      //     document.getElementById("type").classList.remove("hidden");
+      //     setAllData(typeDoc.data());
+      //     typeData = typeDoc.data();
+      //   }
+      // })
+      // .catch((error) => {
+      //   handleFirebaseErrors(error, window.location.href);
+      // });
 
       //grab the parents second because they will have more data (parent already exists from previous student)
       const parentDocRef = firebase.firestore().collection("Parents").doc(studentDoc.data()["parent"]);
@@ -312,6 +312,12 @@ function setAllData(data) {
     $("#studentExtracurriculars").closest(".ui.dropdown").dropdown("set selected", studentExtracurriculars);
   }
 
+  //types
+  let studentTypes = data["studentTypes"]
+  if (studentTypes) {
+    $("#studentTypes").closest(".ui.dropdown").dropdown("set selected", studentTypes);
+  }
+
 }
 
 function submitRegistration() {
@@ -330,13 +336,13 @@ function objectifyRegistration() {
   let allInputs = getAllInputs();
   let parentInputs = getParentInputs();
   let studentInputs = getStudentInputs();
-  let typeInputs = getTypeInputs();
+  let actInputs = getActInputs();
   let adminInputs = getAdminInputs();
 
   let allInputValues = {}
   let parentInputValues = {};
   let studentInputValues = {};
-  let typeInputValues = {};
+  let actInputValues = {};
   let adminInputValues ={};
 
   //convert input arrays into objects
@@ -374,32 +380,38 @@ function objectifyRegistration() {
   }
   //add in location and type to the student
   studentInputValues["location"] = allInputValues["location"];
-  studentInputValues["studentType"] = allInputValues["studentType"];
 
-  //handle the extracurriculars dropdown
+  //handle the extracurriculars dropdown and type dropdown
   studentInputValues["studentExtracurriculars"] = getDropdownValues("studentExtracurriculars")
+  studentInputValues["studentTypes"] = getDropdownValues("studentTypes")
+  if (getDropdownValues("studentTypes").includes('inactive')) {
+    studentInputValues['status'] = "inactive";
+  }
+  else {
+    studentInputValues['status'] = "active";
+  }
 
 
-  if (typeInputs) {
-    for (let i = 0; i < typeInputs.length; i++) {
-      if (typeInputs[i].id.includes("Array")) {
-        if (typeInputs[i].parentNode.querySelector('label').getAttribute('for') in typeInputValues) {
-          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')].push(typeInputs[i].value)
+  if (actInputs) {
+    for (let i = 0; i < actInputs.length; i++) {
+      if (actInputs[i].id.includes("Array")) {
+        if (actInputs[i].parentNode.querySelector('label').getAttribute('for') in actInputValues) {
+          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')].push(actInputs[i].value)
         }
         else {
-          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-          typeInputValues[typeInputs[i].parentNode.querySelector('label').getAttribute('for')].push(typeInputs[i].value)
+          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
+          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')].push(actInputs[i].value)
         }
       }
       else {
         //check for duplicate id's
-        let id = typeInputs[i].id;
+        let id = actInputs[i].id;
         if (id.includes('_duplicate')) {
           id = id.split('_')[0];
         }
         //check for the act test
-        if (!id.includes("actTest") && typeInputs[i].dataset.save != 'false') {
-          typeInputValues[id] = typeInputs[i].value;
+        if (!id.includes("actTest") && actInputs[i].dataset.save != 'false') {
+          actInputValues[id] = actInputs[i].value;
         }
       }
     }
@@ -416,7 +428,7 @@ function objectifyRegistration() {
       actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
       actTestArray.push(actTest);
     }
-    typeInputValues["studentActTests"] = actTestArray;
+    actInputValues["studentActTests"] = actTestArray;
   }
 
   for (let i = 0; i < adminInputs.length; i++) {
@@ -434,7 +446,7 @@ function objectifyRegistration() {
     allValues: allInputValues,
     parentValues: parentInputValues,
     studentValues: studentInputValues,
-    typeValues: typeInputValues,
+    actValues: actInputValues,
     adminValues: adminInputValues 
   }
 }
@@ -464,7 +476,7 @@ function createRegistration() {
   let allInputValues = registrationObject["allValues"];
   let parentInputValues = registrationObject["parentValues"];
   let studentInputValues = registrationObject["studentValues"];
-  let typeInputValues = registrationObject["typeValues"];
+  let actInputValues = registrationObject["actValues"];
   let adminInputValues = registrationObject["adminValues"];
 
   //validate and confirm submission
@@ -500,12 +512,7 @@ function createRegistration() {
           if (newParent) {
             let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
             let parentProm = setParentDoc(parentUID, studentUID, parentInputValues);
-
-            let studentType = allInputValues['studentType'];
-            let typeProm;
-            if (studentType == "act") {
-              typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
-            }
+            let typeProm = setActDoc(studentUID, "ACT", actInputValues);
 
             let locationUID = allInputValues["location"];
             let studentFirstName = allInputValues["studentFirstName"];
@@ -578,12 +585,7 @@ function createRegistration() {
             if (confirmation) {
               let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
               let parentProm = updateParentChildren(parentUID, studentUID);
-
-              let studentType = allInputValues['studentType'];
-              let typeProm;
-              if (studentType == "act") {
-                typeProm = setTypeDoc(studentUID, "ACT", typeInputValues);
-              }
+              let typeProm = setActDoc(studentUID, "ACT", actInputValues);
 
               let locationUID = allInputValues["location"];
               let studentFirstName = allInputValues["studentFirstName"];
@@ -707,7 +709,7 @@ function updateRegistration() {
   let allInputValues = registrationObject["allValues"];
   let parentInputValues = registrationObject["parentValues"];
   let studentInputValues = registrationObject["studentValues"];
-  let typeInputValues = registrationObject["typeValues"];
+  let actInputValues = registrationObject["actValues"];
   let adminInputValues = registrationObject["adminValues"];
 
   //validate and confirm submission
@@ -720,12 +722,7 @@ function updateRegistration() {
 
     let studentProm = updateStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
     let parentProm = updateParentDoc(parentUID, studentUID, parentInputValues);
-
-    let studentType = allInputValues['studentType'];
-    let typeProm;
-    if (studentType == "act") {
-      typeProm = updateTypeDoc(studentUID, "ACT", typeInputValues);
-    }
+    let typeProm = updateActDoc(studentUID, "ACT", actInputValues);
 
     let locationUID = allInputValues["location"];
     let studentFirstName = allInputValues["studentFirstName"];
@@ -818,7 +815,7 @@ function setParentDoc(parentUID, studentUID, parentValues) {
   return parentDocRef.set(parentDocData)
 }
 
-function setTypeDoc(studentUID, studentType, typeValues) {
+function setActDoc(studentUID, studentType, typeValues) {
   const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
   return typeDocRef.set({
     ...typeValues,
@@ -847,12 +844,13 @@ function updateParentDoc(parentUID, studentUID, parentValues) {
   return parentDocRef.update(parentDocData)
 }
 
-function updateTypeDoc(studentUID, studentType, typeValues) {
+function updateActDoc(studentUID, studentType, typeValues) {
   const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.update({
+  return typeDocRef.set({
     ...typeValues,
     lastModifiedDate: (new Date().getTime())
-  })
+  }, {merge: true})
+  //might not have act setup if they existed before change
 }
 
 function updateParentChildren(parentUID, studentUID) {
@@ -864,17 +862,22 @@ function updateParentChildren(parentUID, studentUID) {
 }
 
 function updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
-  const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
-  let activeStudent = {
-    studentFirstName : studentFirstName,
-    studentLastName : studentLastName,
-    parentUID: parentUID,
-    parentFirstName: parentFirstName,
-    parentLastName: parentLastName
-  }
-  return locationDocRef.update({
-    [`activeStudents.${studentUID}`]: activeStudent
-  })
+
+  //don't need to do this since we're pulling students for the list from their profile and not the location
+
+  // const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
+  // let activeStudent = {
+  //   studentFirstName : studentFirstName,
+  //   studentLastName : studentLastName,
+  //   parentUID: parentUID,
+  //   parentFirstName: parentFirstName,
+  //   parentLastName: parentLastName
+  // }
+  // return locationDocRef.update({
+  //   [`activeStudents.${studentUID}`]: activeStudent
+  // })
+
+  return Promise.resolve();
 }
 
 function getAllInputs() {
@@ -893,11 +896,8 @@ function getStudentInputs() {
   return document.getElementById("student_info").querySelectorAll("input, select, textarea");
 }
 
-function getTypeInputs() {
-  let studentType = document.getElementById("studentType").value;
-  if (studentType) {
-    return document.getElementById(studentType + "_info").querySelectorAll("input, select, textarea");
-  }
+function getActInputs() {
+  return document.getElementById("act_info").querySelectorAll("input, select, textarea");
 }
 
 function getAdminInputs() {
@@ -925,8 +925,15 @@ function validateFields(inputs) {
     errorMessages[err].remove()
   }
 
+  //check for required
   for(i = 0; i < inputs.length; i++) {
-    if(inputs[i].hasAttribute("required") && inputs[i].value == "") {
+    if(inputs[i].hasAttribute("required") && !inputs[i].hasAttribute('multiple') && inputs[i].value == "") {
+      inputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [inputs[i].id + "ErrorMessage"], "* Required *"));
+      allClear = false;
+    }
+
+    //check for required dropdown multiple selects
+    if(inputs[i].hasAttribute("required") && inputs[i].hasAttribute('multiple') && getDropdownValues(inputs[i].id).length < 1) {
       inputs[i].parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], [inputs[i].id + "ErrorMessage"], "* Required *"));
       allClear = false;
     }
@@ -970,12 +977,7 @@ function validateFields(inputs) {
 
 function changeRegistrationBlock(elem) {
   let registrationID = "";
-  if (elem.id === "type") {
-    registrationID = document.getElementById("studentType").value || null;
-  }
-  else {
-    registrationID = elem.id;
-  }
+  registrationID = elem.id;
 
   if (registrationID) {
     registrationID += "_info"
@@ -1235,7 +1237,7 @@ graduation.addEventListener('change', updateGrade);
 
 function updateGraduationYear() {
   console.log("Updating gradution year");
-  if (grade.value > -1) {
+  if (grade.value > -1 && grade.value != "") {
     graduation.disabled = false;
     let gradeVal = parseInt(grade.value);
 
@@ -1245,6 +1247,11 @@ function updateGraduationYear() {
     let graduationYear = currentYear + yearsUntilGraduation;
 
     graduation.value = graduationYear;
+  }
+  //no grade selected
+  else if (grade.value == "") {
+    graduation.value = ""
+    graduation.disabled = false;
   }
   //college
   else {
@@ -1269,6 +1276,9 @@ function updateGrade() {
     let gradeVal = currentMonth < 7 ? 12 - yearsUntilGraduation : 13 - yearsUntilGraduation;
 
     grade.value = gradeVal;
+  }
+  else {
+    grade.value = "";
   }
 }
 
@@ -1300,18 +1310,18 @@ function capitalizeFirstLettersInString(string) {
   return words.join(" ");
 }
 
-const studentType = document.getElementById('studentType');
-studentType.addEventListener('change', () => {
-  let type = studentType.options[studentType.selectedIndex].textContent;
-  //show the act tab
-  if (type == "ACT") {
-    document.getElementById("type").classList.remove("hidden");
-  }
-  //hide the tab
-  else {
-    document.getElementById("type").classList.add("hidden");
-  }
-});
+// const studentType = document.getElementById('studentType');
+// studentType.addEventListener('change', () => {
+//   let type = studentType.options[studentType.selectedIndex].textContent;
+//   //show the act tab
+//   if (type == "ACT") {
+//     document.getElementById("type").classList.remove("hidden");
+//   }
+//   //hide the tab
+//   else {
+//     document.getElementById("type").classList.add("hidden");
+//   }
+// });
 
 const wasatchLocation = document.getElementById('location');
 wasatchLocation.addEventListener('change', () => {
@@ -1433,3 +1443,55 @@ function goBack() {
     history.back()
   }
 }
+
+function marketingCheck(type) {
+  let moreWrapper = document.getElementById(type + "MarketingMoreWrapper");
+  let moreLabel = document.getElementById(type + "MarketingMoreLabel");
+  let marketingValue = document.getElementById(type + "Marketing").value;
+
+  switch (marketingValue) {
+    case 'family':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Who in your family referred you?";
+      break
+    case 'friend':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Which one of your friends referred you?";
+      break;
+    case 'social media':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'online':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'drive by':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'flyer':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'ad':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'school':
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+    case 'other':
+      moreWrapper.style.visibility = 'visible';
+      moreLabel.innerHTML = "Please specify";
+      break;
+    default:
+      moreWrapper.style.visibility = 'hidden';
+      moreLabel.innerHTML = "";
+      break;
+  }
+}
+
+document.getElementById("parentMarketing").addEventListener('change', () => marketingCheck('parent'));
+document.getElementById("studentMarketing").addEventListener('change', () => marketingCheck('student'));

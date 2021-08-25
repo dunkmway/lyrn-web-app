@@ -30,17 +30,17 @@
     </section>
     <section id="registration_section">
 
-      <div id="header" class="heading-block">
+      <!-- <div id="header" class="heading-block">
         <div class="wrapper">	
           <div class="arrow-steps">
             <div id="required" class="step current" onclick="changeRegistrationBlock(this)"> <span> Required</span> </div>
             <div id="parent" class="step" onclick="changeRegistrationBlock(this)"> <span>Parent</span> </div>
             <div id="student" class="step" onclick="changeRegistrationBlock(this)"> <span> Student</span> </div>
-            <div id="type" class="step hidden" onclick="changeRegistrationBlock(this)"> <span>ACT</span> </div>
+            <div id="act" class="step" onclick="changeRegistrationBlock(this)"> <span>ACT</span> </div>
             <div id="admin" class="step" onclick="changeRegistrationBlock(this)"> <span>Admin</span> </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
 
       <!-------------------------->
@@ -52,7 +52,7 @@
           <div class="input-row">
             <!-- Wasatch Location -->
             <div class="input-block">
-                <label for="location" class="label">Wasatch Location:</label>
+                <label for="location" class="label">Wasatch Location</label>
                 <div class="more-info" data-more-info="The primary wasatch location this student will be attending.">?</div>
                 <select id="location" class="input location-data" required>
                   <option selected disabled value="">select a location</option>
@@ -60,14 +60,14 @@
             </div>
             <!-- Student Type -->
             <div class="input-block">
-              <label for="studentType" class="label">Student Type:</label>
-              <div class="more-info" data-more-info="The primary type of tutoring the student will receive.">?</div>
-              <select id="studentType" class="input student-data" required>
-                <option selected disabled value="">select a type</option>
+              <label for="studentTypes" class="label">Student Type:</label>
+              <div class="more-info" data-more-info="The type(s) of tutoring the student will receive.">?</div>
+              <select id="studentTypes" name="studentTypes" class="ui dropdown" multiple required>
                 <option value="act">ACT</option>
-                <option value="subject-tutoring">Subject Tutoring</option>
-                <option value="math-program">Math Program</option>
-                <option value="phonics-program">Phonics Program</option>
+                <option value="subjectTutoring">Subject Tutoring</option>
+                <option value="mathProgram">Math Program</option>
+                <option value="phonicsProgram">Phonics Program</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
@@ -75,12 +75,12 @@
           <div class="input-row">
             <!-- Parent First Name -->
             <div class="input-block">
-                <label for="parentFirstName" class="label">Parent First Name:</label>
+                <label for="parentFirstName" class="label">Parent First Name</label>
                 <input id="parentFirstName" placeholder="John" class="input parent-data" required>
             </div>
             <!-- Parent Last Name -->
             <div class="input-block">
-                <label for="parentLastName" class="label">Parent Last Name: </label>
+                <label for="parentLastName" class="label">Parent Last Name </label>
                 <input id="parentLastName" placeholder="Doe" class="input parent-data" required>
             </div>
           </div>
@@ -88,12 +88,12 @@
           <div class="input-row">
             <!-- Student First Name -->
             <div class="input-block">
-                <label for="studentFirstName" class="label">Student First Name:</label>
+                <label for="studentFirstName" class="label">Student First Name</label>
                 <input id="studentFirstName" placeholder="John" class="input student-data" required>
             </div>
             <!-- Student Last Name -->
             <div class="input-block">
-                <label for="studentLastName" class="label">Student Last Name:</label>
+                <label for="studentLastName" class="label">Student Last Name</label>
                 <input id="studentLastName" placeholder="Doe" class="input student-data" required>
             </div>
           </div>
@@ -101,7 +101,7 @@
           <div class="input-row">
             <!-- Parent Email -->
             <div class="input-block">
-              <label for="parentEmail" class="label">Parent Email Address:</label>
+              <label for="parentEmail" class="label">Parent Email Address</label>
               <input id="parentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input parent-data" required>
             </div>
           </div>
@@ -119,12 +119,12 @@
           <div class="input-row">
             <!-- Parent First Name (duplicate) -->
             <div class="input-block">
-                <label for="parentFirstName_duplicate" class="label">Parent First Name:</label>
+                <label for="parentFirstName_duplicate" class="label">Parent First Name</label>
                 <input id="parentFirstName_duplicate" placeholder="John" class="input" required>
             </div>
             <!-- Parent Last Name (duplicate) -->
             <div class="input-block">
-                <label for="parentLastName_duplicate" class="label">Parent Last Name: </label>
+                <label for="parentLastName_duplicate" class="label">Parent Last Name </label>
                 <input id="parentLastName_duplicate" placeholder="Doe" class="input" required>
             </div>
           </div>
@@ -132,7 +132,7 @@
           <div class="input-row">
             <!-- Street Address -->
             <div class="input-block">
-              <label for="streetAddress" class="label">Street Address:</label>
+              <label for="streetAddress" class="label">Street Address</label>
               <input type="text" placeholder = "1524 N 345 E" id="streetAddress" class="input">
             </div>
           </div>
@@ -140,12 +140,12 @@
           <div class="input-row">
             <!-- City -->
             <div class="input-block">
-              <label for="city" class="label">City:</label>
+              <label for="city" class="label">City</label>
               <input type="text" placeholder = "Sandy" id="city" class="input">
             </div>
             <!-- State -->
             <div class="input-block">
-              <label for="state" class="label">State:</label>
+              <label for="state" class="label">State</label>
               <select id="state" class="input">
                 <option value="">Select a State</option>
                 <option value="UT">UT</option>
@@ -207,12 +207,12 @@
           <div class="input-row">
             <!-- Zip Code -->
             <div class="input-block">
-              <label for="zipCode" class="label">Zip Code:</label>
+              <label for="zipCode" class="label">Zip Code</label>
               <input type="text" placeholder = "84047" id="zipCode" class="input" maxlength="5">
             </div>
             <!-- Country -->
             <div class="input-block">
-              <label for="country" class="label">Country:</label>
+              <label for="country" class="label">Country</label>
               <select id="country" class="input">
                 <option value="">Select a country</option>
                 <option value="United States">United States</option>
@@ -461,12 +461,12 @@
           <div class="input-row">
             <!-- Parent Phone Number -->
             <div class="input-block">
-              <label for="parentPhoneNumber" class="label">Phone Number:</label>
+              <label for="parentPhoneNumber" class="label">Phone Number</label>
               <input id="parentPhoneNumber" placeholder="(123) 123-1234" class="input">
             </div>
             <!-- Parent Email Duplicate -->
             <div class="input-block">
-              <label for="parentEmail_duplicate" class="label">Email Address:</label>
+              <label for="parentEmail_duplicate" class="label">Email Address</label>
               <input id="parentEmail_duplicate" placeholder="JohnDoe@WasatchTutors.com" class="input" required>
             </div>
           </div>
@@ -474,7 +474,7 @@
           <div class="input-row">
             <!-- Parent Employment -->
             <div class="input-block">
-                <label for="parentEmployment" class="label">Place of Employment:</label>
+                <label for="parentEmployment" class="label">Place of Employment</label>
                 <input id="parentEmployment" placeholder="Place of Employment" class="input">
             </div>
             <!-- Parent Work Phone Number -->
@@ -487,10 +487,29 @@
           <div class="input-row">
             <!-- Parenting Marketing -->
             <div class="input-block">
-              <label for="parentMarketing" class="label finalInput">How did you hear about us:</label>
-              <input id="parentMarketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+              <label for="parentMarketing" class="label">How did you hear about us?</label>
+              <select id="parentMarketing" class="input">
+                <option value=""></option>
+                <option value="family">Family</option>
+                <option value="friend">Friend</option>
+                <option value="social media">Social Media</option>
+                <option value="online">Online</option>
+                <option value="drive by">Drive by</option>
+                <option value="flyer">Flyer</option>
+                <option value="ad">Ad</option>
+                <option value="flags">Flags</option>
+                <option value="school">School Administration</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <!-- Possible Parent Marketing More Info -->
+            <div class="input-block" id="parentMarketingMoreWrapper" style="visibility: hidden;">
+              <label id="parentMarketingMoreLabel" for="parentMarketingMore" class="label"></label>
+              <input id="parentMarketingMore" class="input">
             </div>
           </div>
+
 
         </div>
       </div>
@@ -505,12 +524,12 @@
           <div class="input-row">
             <!-- Student First Name Duplicate -->
             <div class="input-block">
-              <label for="studentFirstName_duplicate" class="label">First Name:</label>
+              <label for="studentFirstName_duplicate" class="label">First Name</label>
               <input id="studentFirstName_duplicate" placeholder="Jane" class="input" required>
             </div>
             <!-- Student Last Name Duplicate -->
             <div class="input-block">
-              <label for="studentLastName_duplicate" class="label">Last Name: </label>
+              <label for="studentLastName_duplicate" class="label">Last Name </label>
               <input id="studentLastName_duplicate" placeholder="Doe" class="input" required>
             </div>
           </div>
@@ -518,12 +537,12 @@
           <div class="input-row">
             <!-- Student Phone Number -->
             <div class="input-block">
-              <label for="studentPhoneNumber" class="label">Phone Number:</label>
+              <label for="studentPhoneNumber" class="label">Phone Number</label>
               <input id="studentPhoneNumber" placeholder="(321) 321-4321" class="input">
             </div>
             <!-- Student Email -->
             <div class="input-block">
-              <label for="studentEmail" class="label">Email Address:</label>
+              <label for="studentEmail" class="label">Email Address</label>
               <div class="more-info" data-more-info="If no email is given a random email will be assigned to the student. This new email will be used to log into their dashboard.">?</div>
               <input id="studentEmail" placeholder="studentfirstlast@wasatchtutors.com" class="input">
             </div>
@@ -532,12 +551,12 @@
           <div class="input-row">
             <!-- Student Birthday -->
             <div class="input-block">
-              <label for="studentBirthday" class="label">Birthday:</label>
+              <label for="studentBirthday" class="label">Birthday</label>
               <input type="text" placeholder = "1/31/2005" id="studentBirthday" class="input" maxlength="10">
             </div>
             <!-- Student Gender -->
             <div class="input-block">
-              <label for="studentGender" class="label">Gender:</label>
+              <label for="studentGender" class="label">Gender</label>
               <select id="studentGender" class="input">
                 <option value="">Select a Gender</option>
                 <option value="Female">Female</option>
@@ -549,14 +568,14 @@
           <div class="input-row">
             <!-- Student School -->
             <div class="input-block">
-              <label for="studentSchool" class="label">School:</label>
+              <label for="studentSchool" class="label">School</label>
               <select id="studentSchool" class="input">
                 <option disabled value="">Select a Wasatch Location first</option>
               <select>
             </div>
             <!-- Student Grade -->
             <div class="input-block">
-              <label for="studentGrade" class="label">Grade:</label>
+              <label for="studentGrade" class="label">Grade</label>
               <select id="studentGrade" class="input" data-save='false'>
                 <option value="">Select a grade</option>
                 <option value="0">K</option>
@@ -580,7 +599,7 @@
           <div class="input-row">
             <!-- Student Graduation Year -->
             <div class="input-block">
-              <label for="studentGraduation" class="label">Estimated Graduation Year:</label>
+              <label for="studentGraduation" class="label">Estimated Graduation Year</label>
               <input type="text" placeholder = "2020" id="studentGraduation" class="input" min="0" max="9999">
             </div>
 
@@ -595,7 +614,7 @@
           <div class="input-row">
             <!-- Student Tutored Before -->
             <div class="input-block">
-              <label for="studentTutoredBefore" class="label">Have you had tutoring before:</label>
+              <label for="studentTutoredBefore" class="label">Have you had tutoring before?</label>
               <select id=studentTutoredBefore class="input">
                 <option value="">Select an option</option>
                 <option value="Yes">Yes</option>
@@ -607,15 +626,33 @@
           <div class="input-row">
             <!-- Student Marketing -->
             <div class="input-block">
-              <label for="studentMarketing" class="label finalInput">How did you hear about us:</label>
-              <input id="studentMarketing" placeholder="Referral? Instagram? Web Search?" class="input finalInput">
+              <label for="studentMarketing" class="label">How did you hear about us?</label>
+              <select id="studentMarketing" class="input">
+                <option value=""></option>
+                <option value="family">Family</option>
+                <option value="friend">Friend</option>
+                <option value="social media">Social Media</option>
+                <option value="online">Online</option>
+                <option value="drive by">Drive by</option>
+                <option value="flyer">Flyer</option>
+                <option value="ad">Ad</option>
+                <option value="flags">Flags</option>
+                <option value="school">School Administration</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <!-- Possible Student Marketing More Info -->
+            <div class="input-block" id="studentMarketingMoreWrapper" style="visibility: hidden;">
+              <label id="studentMarketingMoreLabel" for="studentMarketingMore" class="label"></label>
+              <input id="studentMarketingMore" class="input">
             </div>
           </div>
   
           <div class="input-row">
             <!-- Student Medical -->
             <div class="input-block">
-                <label for="studentMedical" class="label">Any allergies or medical conditions:</label>
+                <label for="studentMedical" class="label">Any allergies or medical conditions?</label>
                 <input id="studentMedical" placeholder="None" class="input">
             </div>
           </div>
@@ -633,12 +670,12 @@
           <div class="input-row">
             <!-- Student GPA -->
             <div class="input-block">
-              <label for="studentGpa" class="label">Current GPA:</label>
+              <label for="studentGpa" class="label">Current GPA</label>
               <input placeholder = "3.45" type="text" id="studentGpa" class="input" maxlength="4" min="0", max="5">
             </div>
             <!-- Student Math Class -->
             <div class="input-block">
-              <label for="studentMathClass" class="label">Current Math Class:</label>
+              <label for="studentMathClass" class="label">Current Math Class</label>
               <input placeholder = "Tertiary Math 3" type="text" id="studentMathClass" class="input">
             </div>
           </div>
@@ -646,7 +683,7 @@
           <div class="input-row">
             <!-- Student Taking AP -->
             <div class="input-block">
-              <label for="studentTakingAP" class="label">Taking AP Class(es):</label>
+              <label for="studentTakingAP" class="label">Taking AP Class(es)</label>
               <select id=studentTakingAP class="input">
                 <option value="">Select an option</option>
                 <option value="Yes">Yes</option>
@@ -655,7 +692,7 @@
             </div>
             <!-- Student Taking Honors -->
             <div class="input-block">
-              <label for="studentTakingHonors" class="label">Taking Honors Class(es):</label>
+              <label for="studentTakingHonors" class="label">Taking Honors Class(es)</label>
               <select id="studentTakingHonors" class="input">
                 <option value="">Select an option</option>
                 <option value="Yes">Yes</option>
@@ -667,27 +704,27 @@
           <!-- ACT Test Info -->
           <div class = "input-row">
             <div class = "input-block">
-              <label for = "studentACTTestsArray" class="label">ACT Test(s):</label>
+              <label for = "studentACTTestsArray" class="label">ACT Test(s)</label>
               <div class="more-info" data-more-info="Any ACT test that have been taken is the past. Dates can be approximate.">?</div>
-              <img src="Images/Add Button.png" alt="add previous ACT test" height=25px id="addPreviousACTButton" onclick="addActTest()">
-              <img src="Images/Remove Button.png" alt="remove previous ACT test" height=25px id="removePreviousACTButton" onclick="removeActTest()">
+              <img src="Images/Add Button.png" alt="add previous ACT test" height=25px id="addPreviousACTButton" class="addRemoveButton" onclick="addActTest()">
+              <img src="Images/Remove Button.png" alt="remove previous ACT test" height=25px id="removePreviousACTButton" class="addRemoveButton" onclick="removeActTest()">
             </div>
           </div>
 
           <div class="input-row">
             <!-- Student Desired ACT Date  -->
             <!-- <div class="input-block">
-              <label for="studentDesiredACTDate" class="label">Desired ACT Date:</label>
+              <label for="studentDesiredACTDate" class="label">Desired ACT Date</label>
               <input placeholder = "10/23/2021" type="text" id="studentDesiredACTDate" class="input">
             </div> -->
             <!-- Student Desired ACT Score -->
             <div class="input-block">
-              <label for="studentDesiredACTScore" class="label">Desired ACT Score:</label>
+              <label for="studentDesiredACTScore" class="label">Desired ACT Score</label>
               <input placeholder = "30" type="text" id="studentDesiredACTScore" class="input" maxlength="2", min="0", max="36">
             </div>
             <!-- Student Why -->
             <div class="input-block">
-              <label for="studentWhy" class="label">Why:</label>
+              <label for="studentWhy" class="label">Why?</label>
               <input placeholder = "Make it to BYU" type="text" id="studentWhy" class="input">
             </div>
           </div>
@@ -699,25 +736,25 @@
           <div class="input-row">
             <!-- Student Scholarships -->
             <div class="input-block">
-              <label for="studentScholarshipArray" class="label">Scholarship goal(s):</label>
-              <img src="Images/Add Button.png" alt="add scholarship goal" height=25px id="addScholarshipGoalButton" onclick="addElement('studentScholarshipArray')">
-              <img src="Images/Remove Button.png" alt="remove scholarship goal" height=25px id="removeScholarshipGoalButton" onclick="removeElement('studentScholarshipArray')">
+              <label for="studentScholarshipArray" class="label">Scholarship goal(s)</label>
+              <img src="Images/Add Button.png" alt="add scholarship goal" height=25px id="addScholarshipGoalButton" class="addRemoveButton" onclick="addElement('studentScholarshipArray')">
+              <img src="Images/Remove Button.png" alt="remove scholarship goal" height=25px id="removeScholarshipGoalButton" class="addRemoveButton" onclick="removeElement('studentScholarshipArray')">
             </div>
           </div>
 
           <div class="input-row">
             <!-- Student Colleges -->
             <div class="input-block">
-              <label for="studentCollegeArray" class="label">Top College(s):</label>
-              <img src="Images/Add Button.png" alt="add college" height=25px id="addCollegeButton" onclick="addElement('studentCollegeArray')">
-              <img src="Images/Remove Button.png" alt="remove college" height=25px id="removeCollegeButton" onclick="removeElement('studentCollegeArray')">
+              <label for="studentCollegeArray" class="label">Top College(s)</label>
+              <img src="Images/Add Button.png" alt="add college" height=25px id="addCollegeButton" class="addRemoveButton" onclick="addElement('studentCollegeArray')">
+              <img src="Images/Remove Button.png" alt="remove college" height=25px id="removeCollegeButton" class="addRemoveButton" onclick="removeElement('studentCollegeArray')">
             </div>
           </div>
 
           <!-- <div class="input-row"> -->
             <!-- Student Extracurriculars -->
             <!-- <div class="input-block">
-              <label for="studentExtracurricularArray" class="label">Extracurricular(s):</label>
+              <label for="studentExtracurricularArray" class="label">Extracurricular(s)</label>
               <img src="Images/Add Button.png" alt="add extracurricular" height=25px id="addExtracurricularButton" onclick="addElement('studentExtracurricularArray')">
               <img src="Images/Remove Button.png" alt="remove extracurricular" height=25px id="removeExtracurricularButton" onclick="removeElement('studentExtracurricularArray')">
             </div>
@@ -726,7 +763,7 @@
           <div class="input-row">
             <!-- Student Accomodations -->
             <div class="input-block">
-              <label for="studentAccommodations" class="label">Accommodations used:</label>
+              <label for="studentAccommodations" class="label">Accommodations used</label>
               <input id="studentAccommodations" placeholder="None" class="input">
             </div>
           </div>

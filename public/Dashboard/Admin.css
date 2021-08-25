@@ -4,6 +4,38 @@ body {
   margin: 0;
 }
 
+#tableSelectorWrapper {
+  margin: 10px 0px 0px 10px;
+}
+
+input[type='radio']:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  top: -5px;
+  left: -4px;
+  position: relative;
+  background-color: #d1d3d1;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  border: 2px solid white;
+}
+
+input[type='radio']:checked:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  top: -5px;
+  left: -4px;
+  position: relative;
+  background-color: #110D65;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  border: 2px solid white;
+}
+
 .flex-row {
   display: flex;
   flex-direction: row;

@@ -1,10 +1,13 @@
 // Set the Fb objects
 let current_lesson_data = undefined;
 let student_phonics_program_profile_data = {};
-let student_notes_data = {};
 let student_profile_data = {};
 let storage = firebase.storage();
 let lesson_data = undefined;
+
+// student info
+const CURRENT_STUDENT_UID = queryStrings()['student'];
+const CURRENT_STUDENT_TYPE = "phonicsProgram";
 
 // Flags
 let note_flag = false;
@@ -20,7 +23,8 @@ function main() {
   .then(() => {
     setStudentProfile();
     setStudentSTProfile();
-    getNotes('log');
+    setProfilePic();
+    getStudentMessages(CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
     allowExpectationChange();
     getLessonNames();
   })
@@ -63,10 +67,9 @@ function retrieveInitialData() {
   let student = queryStrings()['student'];
 
   let profileProm = getStudentProfile(student);
-  let notesProm = getStudentNotes(student);
   let phonicsProgramProfileProm = getStudentPhonicsProgramProfile(student); 
 
-  let promises = [profileProm, notesProm, phonicsProgramProfileProm];
+  let promises = [profileProm, phonicsProgramProfileProm];
   return Promise.all(promises);
 }
 
@@ -80,16 +83,6 @@ function getStudentProfile(studentUId) {
   })
 }
 
-function getStudentNotes(studentUId) {
-  const studentNotesRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('notes');
-  return studentNotesRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      student_notes_data = doc.data();
-    }
-  })
-}
-
 function getStudentPhonicsProgramProfile(studentUId) {
   const studentPhonicsProgramRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('profile');
   return studentPhonicsProgramRef.get()
@@ -98,18 +91,6 @@ function getStudentPhonicsProgramProfile(studentUId) {
       student_phonics_program_profile_data = doc.data();
     }
   })
-}
-
-function queryStrings() {
-  var GET = {};
-  var queryString = window.location.search.replace(/^\?/, '');
-  queryString.split(/\&/).forEach(function(keyValuePair) {
-      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-      GET[paramName] = paramValue;
-  });
-
-  return GET;
 }
 
 function setStudentProfile() {
@@ -155,197 +136,10 @@ function updateStudentExpectation(event) {
   }
 }
 
-//all of the notes stuff
-function getNotes(type) {
-  const notes = student_notes_data[type];
-  let noteTimes = [];
-  for (const time in notes) {
-    noteTimes.push(parseInt(time));
-  }
-
-  noteTimes.sort((a,b) => {return a-b});
-  for (let i = 0; i < noteTimes.length; i++) {
-    setNotes(type, notes[noteTimes[i]]["note"], noteTimes[i], notes[noteTimes[i]]["user"], notes[noteTimes[i]]["isSessionNote"]);
-  }
-}
-
-function setNotes(type, note, time, author, isSessionNote) {
-  firebase.auth().onAuthStateChanged((user) => {
-    const currentUser = user?.uid ?? null;
-    if (user) {
-      user.getIdTokenResult()
-      .then((idTokenResult) => {
-        let role = idTokenResult.claims.role;
-        if (note) {
-          //all the messages
-          let messageBlock = document.getElementById('student-' + type + '-notes');
-          //the div that contains the time and message
-          let messageDiv = document.createElement('div');
-          //the message itself
-          let message = document.createElement('div');
-          //time for the message
-          let timeElem = document.createElement('p');
-
-          //display the time above the mesasge
-          timeElem.innerHTML = convertFromDateInt(time)['shortDate'];
-          timeElem.classList.add('time');
-          messageDiv.appendChild(timeElem);
-
-          //set up the message
-          message.innerHTML = note;
-          //author's name element
-          let authorElem = document.createElement('p');
-          authorElem.classList.add("author");
-          message.appendChild(authorElem);
-
-          const getUserDisplayName = firebase.functions().httpsCallable('getUserDisplayName');
-          getUserDisplayName({
-            uid : author
-          })
-          .then((result) => {
-            const authorName = result.data ?? "anonymous";
-            authorElem.innerHTML = authorName;
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          messageDiv.setAttribute('data-time', time);
-          message.classList.add("student-note");
-          if (currentUser == author) {
-            messageDiv.classList.add("right");
-          }
-          else {
-            messageDiv.classList.add("left");
-          }
-
-          const getUserRole = firebase.functions().httpsCallable('getUserRole');
-          getUserRole({
-            uid : author
-          })
-          .then((result) => {
-            const authorRole = result.data ?? null;
-            if (authorRole == "admin") {
-              message.classList.add("important");
-            }
-            scrollBottomNotes(type);
-          })
-          .catch((error) => handleFirebaseErrors(error, window.location.href));
-
-          if (isSessionNote) {
-            message.classList.add('session');
-          }
-          
-
-          //only give the option to delete if the currentUser is the author, admin, or dev. Don't allow to delete if session notes
-          if ((author == currentUser || role == "admin" || role == "dev") && !isSessionNote) {
-            let deleteMessage = document.createElement('div');
-            deleteMessage.classList.add("delete");
-            let theX = document.createElement('p');
-            theX.innerHTML = "X";
-            theX.classList.add('no-margins');
-            deleteMessage.appendChild(theX);
-            deleteMessage.addEventListener('click', (event) => deleteNote(type, event));
-            message.appendChild(deleteMessage);
-          }
-          
-          messageDiv.appendChild(message);
-          messageBlock.appendChild(messageDiv);
-          document.getElementById('student-' + type + '-notes-input').value = null;
-          scrollBottomNotes(type);
-        }
-      })
-      .catch((error) =>  {
-        handleFirebaseErrors(error, window.location.href);
-        console.log(error);
-      });
-    }
-  });
-}
-
-function deleteNote(type, event) {
-  let message = event.target.closest(".student-note").parentNode;
-  let confirmation = confirm("Are you sure you want to delete this message?");
-  if (confirmation) {
-    const currentStudent = queryStrings()['student'];
-    const time = message.dataset.time;
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Phonics-Program").doc("notes");
-    studentNotesDocRef.update({
-      [`${type}.${time}`] : firebase.firestore.FieldValue.delete()
-    })
-    .then(() => {
-      message.remove();
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-    })
-  }
-}
-
-function scrollBottomNotes(type) {
-  let notes = document.getElementById("student-" + type + "-notes");
-  notes.scrollTop = notes.scrollHeight;
-}
-
-function sendNotes(type, note, time, author, isSessionNote = false) {
-  const data = {
-    user : author,
-    note : note,
-    isSessionNote : isSessionNote
-  } 
-
-  const currentStudent = queryStrings()['student'];
-
-  if (note) {
-    //upload the note to firebase
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(currentStudent).collection("Phonics-Program").doc("notes");
-    studentNotesDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        return studentNotesDocRef.update({
-          [`${type}.${time}`] : data
-        })
-        .then(() => {
-          //send the note into the message div
-          note_flag = true;
-          setNotes(type, note, time, author, isSessionNote);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-        });
-      }
-      else {
-        return studentNotesDocRef.set({
-          [`${type}`] : {
-            [`${time}`] : data
-          }
-        })
-        .then(() => {
-          //send the note into the message div
-          note_flag = true;
-          setNotes(type, note, time, author, isSessionNote);
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-        });
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      console.log(error);
-    });
-  }
-  else {
-    return Promise.resolve("No note.")
-  }
-}
-
-document.getElementById("student-log-notes-input").addEventListener('keydown', (event) =>  {
-  if (!event.ctrlKey && event.key == "Enter") {
-    event.preventDefault();
-    const currentUser = firebase.auth().currentUser.uid;
-    const note = document.getElementById('student-log-notes-input').value;
-    const time = session_date.getTime();
-    sendNotes('log', note, time, currentUser);
+document.getElementById("generalStudentMessagesInput").addEventListener('keydown', (event) =>  {
+  if (event.key == 'Enter') {
+    note_flag = true;
+    submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'general');
   }
 });
 
@@ -456,11 +250,36 @@ function getLessons() {
           initializeEmptyLessonsMap();
         }
       }
+      checkForMissingLessons();
       populateLessons();
     })
     .then(() => resolve())
     .catch((error) => reject('Fb error:' + error))
   })
+}
+
+function checkForMissingLessons() {
+  console.log("checking")
+  const sections = Object.keys(lesson_data)
+  for (let i = 0; i < sections.length; i++) {
+    if (sections[i] != 'order') {
+      if (!(sections[i] in current_lesson_data)) {
+        let obj = {}
+        for (let j = 0; j < lesson_data[sections[i]].length; j++) {
+          obj[lesson_data[sections[i]]] = {'date' : 0, 'status' : 'not assigned'}
+        }
+        setObjectValue([sections[i]], obj, current_lesson_data)
+      }
+      else {
+        for (let j = 0; j < lesson_data[sections[i]].length; j++) {
+          const lesson = lesson_data[sections[i]][j]
+          if (!(lesson in current_lesson_data[sections[i]])) {
+            setObjectValue([sections[i], lesson], {'date' : 0, 'status' : 'not assigned'}, current_lesson_data)
+          }
+        }
+      }
+    }
+  }
 }
 
 function submitLessons() {
@@ -539,3 +358,80 @@ function getLessonNames() {
   })
   .catch((error) => handleFirebaseErrors(error, window.location.href));
 }
+
+// document.getElementById("student-general-info").addEventListener("dblclick", () => {
+//   firebase.auth().onAuthStateChanged((user) => {
+//     if (user) {
+//       user.getIdTokenResult()
+//       .then((idTokenResult) => {
+//         let role = idTokenResult.claims.role;
+//         if (role == 'dev' || role == 'admin' || role == 'secretary' ) {
+//           const studentUID = queryStrings()['student']
+//           let queryStr = "?student=" + studentUID;
+//           window.location.href = "inquiry.html" + queryStr;
+//         }
+//       })
+//     }
+//   });
+// });
+
+function setProfilePic() {
+  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  ref.getDownloadURL()
+  .then((url) => {
+    document.getElementById('studentProfilePic').src=url;
+  })
+  .catch((error) => {
+    console.log("No image found")
+  })
+
+  // Done allow a tutor to change the picture
+  firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    user.getIdTokenResult()
+      .then((idTokenResult) => {
+        let role = idTokenResult.claims.role;
+        if (role == 'tutor') {
+          document.getElementById('fileLabel').style.display = 'none'
+        }
+      })
+    }
+  })
+}
+
+
+function updateProfilePic() {
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      user.getIdTokenResult()
+        .then((idTokenResult) => {
+          let role = idTokenResult.claims.role;
+          if (role == 'admin' || role == 'dev' || role == 'secretary') {
+            const data = document.getElementById('fileInput')
+            //document.getElementById('studentProfilePic').style.src = data.files[0]
+            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let thisref = ref.put(data.files[0])
+            thisref.on('state_changed', function (snapshot) {
+
+
+            }, function (error) {
+              console.log(error)
+            }, function () {
+              // Uploaded completed successfully, now we can get the download URL
+              thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+
+                // Setting image
+                document.getElementById('studentProfilePic').src = downloadURL;
+              });
+            });
+          }
+        })
+    }
+  })
+}
+
+let profileImage = document.getElementById('fileInput')
+profileImage.addEventListener('change', function () {
+  console.log("Changing Picture")
+  updateProfilePic()
+})

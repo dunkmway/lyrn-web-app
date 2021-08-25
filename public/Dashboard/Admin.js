@@ -1,6 +1,15 @@
 let currentLocations = [];
-let currentLocationNames = [];
+// let currentLocationNames = [];
 let currentUser = ""
+
+let studentTable
+let staffTable
+
+let tableDataActive = [];
+let tableDataInactive = [];
+let tableDataAll = [];
+
+let tableDataStaff = [];
 
 initialSetupData();
 
@@ -9,14 +18,27 @@ function initialSetupData() {
     currentUser = user;
     if (currentUser) {
       // User is signed in.
-      getAdminProfile(currentUser.uid)
-      .then((doc) => {
-        if (doc.exists) {
-          setAdminProfile(doc.data());
-          setStudentTable()
-          .then(() => setLocations())
-        }
-        else setAdminProfile();
+      // getLocationList(currentUser)
+      getAllLocations()
+      .then((locations) => {
+        currentLocations = locations;
+        setLocations();
+
+        getAdminProfile(currentUser.uid)
+        .then((doc) => {
+          if (doc.exists) {
+            setAdminProfile(doc.data());
+            setActiveStudentTable();
+            getStaffData()
+            .then(() => {
+              reinitializeStaffTableData();
+            })
+          }
+          else setAdminProfile();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
       })
 
     } else {
@@ -31,9 +53,6 @@ function getAdminProfile(adminUID) {
 }
 
 function setAdminProfile(profileData = {}) {
-  currentLocations = profileData['locations'];
-  // console.log(currentLocations);
-
   if (profileData['adminFirstName'] && profileData['adminLastName']) {
     document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
   }
@@ -42,170 +61,453 @@ function setAdminProfile(profileData = {}) {
   }
 }
 
-function setStudentTable() {
-  let tableData = [];
-  let promises = []
-  for (let i = 0; i < currentLocations.length; i++) {
-    const locationDocRef = firebase.firestore().collection("Locations").doc(currentLocations[i])
-    let locationProm = locationDocRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        let locationName = doc.get("locationName");
-        currentLocationNames.push(locationName);
-        //document.getElementById("locationName").textContent = locationName;
+function getLocationList(user) {
+  return firebase.firestore().collection("Admins").doc(user.uid).get()
+  .then((userDoc) => {
+    let userData = userDoc.data();
+    let locationUIDs = userData.locations;
 
-        let pendingStudents = doc.get("pendingStudents");
-        let activeStudents = doc.get("activeStudents");
+    let locationNameProms = [];
 
-        // console.log(pendingStudents);
-        // console.log(activeStudents);
-
-        //for the table
-
-        if (pendingStudents) {
-          for (const studentUID in pendingStudents) {
-            const student = {
-              ...pendingStudents[studentUID],
-              studentUID: studentUID,
-              status: "pending",
-              location: locationName,
-              locationUID: currentLocations[i]
-            }
-            // //adjust type to be readable
-            // if (student.studentType == 'act') {
-            //   student.studentType = 'ACT'
-            // }
-            // else if (student.studentType == 'subject-tutoring') {
-            //   student.studentType = 'ST'
-            // }
-            // else if (student.studentType == 'math-program') {
-            //   student.studentType = 'Math Program'
-            // }
-            // else if (student.studentType == 'phonics-program') {
-            //   student.studentType = 'Phonics Program'
-            // }
-            // else {
-            //   student.studentType == "";
-            // }
-
-            //adjust name to be last, first
-            student.studentName = student.studentLastName + ", " + student.studentFirstName
-            student.parentName = student.parentLastName + ", " + student.parentFirstName
-
-            tableData.push(student);
-          }
+    locationUIDs.forEach((locationUID) => {
+      locationNameProms.push(firebase.firestore().collection("Locations").doc(locationUID).get()
+      .then((locationDoc) => {
+        let locationData = locationDoc.data();
+        return {
+          id: locationUID,
+          name: locationData.locationName
         }
+      }));
+    });
+    return Promise.all(locationNameProms)
+  });
+}
 
-        if (activeStudents) {
-          for (const studentUID in activeStudents) {
-            const student = {
-              ...activeStudents[studentUID],
-              studentUID: studentUID,
-              status: "active",
-              location: locationName,
-              locationUID: currentLocations[i]
-            }
-            // //adjust type to be readable
-            // if (student.studentType == 'act') {
-            //   student.studentType = 'ACT'
-            // }
-            // else if (student.studentType == 'subject-tutoring') {
-            //   student.studentType = 'ST'
-            // }
-            // else if (student.studentType == 'math-program') {
-            //   student.studentType = 'Math Program'
-            // }
-            // else if (student.studentType == 'phonics-program') {
-            //   student.studentType = 'Phonics Program'
-            // }
-            // else {
-            //   student.studentType == "";
-            // }
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
 
-            //adjust name to be last, first
-            student.studentName = student.studentLastName + ", " + student.studentFirstName
-            student.parentName = student.parentLastName + ", " + student.parentFirstName
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
 
-            tableData.push(student);
-          }
-        }
-      }
+    return locationData;
+  })
+}
+
+function setActiveStudentTable() {
+  if (tableDataActive.length == 0) {
+    getActiveStudentData()
+    .then(() => {
+      reinitializeActiveTableData();
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
+      console.log(error);
     });
-
-    promises.push(locationProm);
   }
-  
-  return Promise.all(promises)
-  .then(() => {
-    // console.log("tableData", tableData);
-    let studentTable = $('#student-table').DataTable( {
-      data: tableData,
-      columns: [
-        { data: 'studentName' },
-        { data: 'location'},
-        { data: 'status' },
-        { data: 'parentName'},
-      ],
-      "scrollY": "400px",
-      "scrollCollapse": true,
-      "paging": false
-    } );
+  else {
+    reinitializeActiveTableData();
+  }
+}
 
-    studentTable.on('click', (args) => {
-      //this should fix some "cannot read property of undefined" errors
-      if (args?.target?._DT_CellIndex) {
-        let studentUID = tableData[args.target._DT_CellIndex.row].studentUID;
-        setupNavigationModal(studentUID);
-        document.getElementById("navigationSection").style.display = "flex";
-
-
-
-
-        // let parentUID = tableData[args.target._DT_CellIndex.row].parentUID;
-        // let location = tableData[args.target._DT_CellIndex.row].locationUID;
-        // let status = tableData[args.target._DT_CellIndex.row].status;
-        // let type = tableData[args.target._DT_CellIndex.row].studentType;
-
-        // switch (status) {
-        //   case "pending":
-        //     if (type == 'ACT') {
-        //       pendingStudentSelected(studentUID, parentUID, location);
-        //     }
-        //     else {
-        //       alert("nothing to see here...yet")
-        //     }
-        //     break;
-        //   case "active":
-        //     if (type == 'ACT') {
-        //       actStudentSelected(studentUID);
-        //     }
-        //     else if (type == 'ST') {
-        //       subjectTutoringStudentSelected(studentUID);
-        //     }
-        //     //FIXME: these will need to be redirected to the proper page once we have them
-        //     else if (type == 'Math Program') {
-        //       mathProgramSelected(studentUID);
-        //     }
-        //     else if (type == 'Phonics Program') {
-        //       subjectTutoringStudentSelected(studentUID);
-        //     }
-        //     else {
-        //       alert("nothing to see here...yet")
-        //     }
-        //     break;
-        //   default:
-        //     console.log("ERROR: This student isn't active or pending!!!")
-        // }
-      }
+function setInactiveStudentTable() {
+  if (tableDataInactive.length == 0) {
+    getInactiveStudentData()
+    .then(() => {
+      reinitializeInactiveTableData();
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
     });
+  }
+  else {
+    reinitializeInactiveTableData();
+  }
+}
+
+function setAllStudentTable() {
+  let dataPromises = [];
+
+  if (tableDataActive.length == 0) {
+    dataPromises.push(getActiveStudentData());
+  }
+  if (tableDataInactive.length == 0) {
+    dataPromises.push(getInactiveStudentData());
+  }
+
+  Promise.all(dataPromises)
+  .then(() => {
+    tableDataAll = [...tableDataActive, ...tableDataInactive]
+    reinitializeAllTableData();
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
+    console.log(error);
   });
-  
+}
+
+function getActiveStudentData() {
+  let promises = [];
+
+  //run through all locations
+  currentLocations.forEach((location) => {
+    //query all students whose types are active
+    promises.push(firebase.firestore().collection('Students')
+    .where('location', '==', location.id)
+    .where('status', '==', 'active')
+    .get()
+    .then((studentQuerySnapshot) => {
+      let studentPromises = [];
+
+      studentQuerySnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+
+        //convert type string to array
+        let studentTypesTable = "";
+        studentData.studentTypes.forEach((type) => {
+          switch(type) {
+            case 'act':
+              studentTypesTable += 'ACT, ';
+              break;
+            case 'subjectTutoring':
+              studentTypesTable += 'Subject-Tutoring, ';
+              break;
+            case 'mathProgram':
+              studentTypesTable += 'Math-Program, ';
+              break;
+            case 'phonicsProgram':
+              studentTypesTable += 'Phonics-Program, ';
+              break;
+            case 'inactive':
+              studentTypesTable += 'Inactive, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+        //figure out the location name
+        let locationName = "";
+        currentLocations.forEach((location) => {
+          if (studentData.location == location.id) {
+            locationName = location.name;
+          }
+        })
+
+        studentPromises.push(getParentData(studentData.parent)
+        .then((parentData) => {
+
+          const student = {
+            studentUID: studentDoc.id,
+            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+            studentTypes: studentData.studentTypes,
+            studentTypesTable: studentTypesTable,
+            location: locationName,
+            parentUID: parentData.parentUID,
+            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+          }
+          return tableDataActive.push(student);
+        }));
+      });
+      return Promise.all(studentPromises);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    }));
+  });
+
+  return Promise.all(promises);
+}
+
+function reinitializeActiveTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataActive,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataActive[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
+}
+
+function getInactiveStudentData() {
+  let promises = [];
+
+  //run through all locations
+  currentLocations.forEach((location) => {
+    //query all students whose types are active
+    promises.push(firebase.firestore().collection('Students')
+    .where('location', '==', location.id)
+    .where('status', '==', 'inactive')
+    .get()
+    .then((studentQuerySnapshot) => {
+      let studentPromises = [];
+
+      studentQuerySnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+
+        //convert type string to array
+        let studentTypesTable = "";
+        studentData.studentTypes.forEach((type) => {
+          switch(type) {
+            case 'act':
+              studentTypesTable += 'ACT, ';
+              break;
+            case 'subjectTutoring':
+              studentTypesTable += 'Subject-Tutoring, ';
+              break;
+            case 'mathProgram':
+              studentTypesTable += 'Math-Program, ';
+              break;
+            case 'phonicsProgram':
+              studentTypesTable += 'Phonics-Program, ';
+              break;
+            case 'inactive':
+              studentTypesTable += 'Inactive, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+        //figure out the location name
+        let locationName = "";
+        currentLocations.forEach((location) => {
+          if (studentData.location == location.id) {
+            locationName = location.name;
+          }
+        })
+
+        studentPromises.push(getParentData(studentData.parent)
+        .then((parentData) => {
+
+          const student = {
+            studentUID: studentDoc.id,
+            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
+            studentTypes: studentData.studentTypes,
+            studentTypesTable: studentTypesTable,
+            location: locationName,
+            parentUID: parentData.parentUID,
+            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+          }
+          return tableDataInactive.push(student);
+        }));
+      });
+      return Promise.all(studentPromises);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      console.log(error);
+    }));
+  });
+
+  return Promise.all(promises);
+}
+
+function reinitializeInactiveTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataInactive,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataInactive[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
+}
+
+function reinitializeAllTableData() {
+  if (studentTable) {
+    studentTable.off('click');
+    studentTable.destroy();
+  }
+
+  studentTable = $('#student-table').DataTable( {
+    data: tableDataAll,
+    columns: [
+      { data: 'studentName' },
+      { data: 'studentTypesTable'},
+      { data: 'location'},
+      { data: 'parentName'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  studentTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let studentUID = tableDataAll[args.target._DT_CellIndex.row].studentUID;
+      setupNavigationModal(studentUID);
+      document.getElementById("navigationSection").style.display = "flex";
+    }
+  })
+}
+
+function getStaffData() {
+  let promises = [];
+
+  //query all tutors
+  promises.push(firebase.firestore().collection('Tutors')
+  .get()
+  .then((tutorQuerySnapshot) => {
+    let tutorPromises = [];
+
+    tutorQuerySnapshot.forEach((tutorDoc) => {
+      const tutorData = tutorDoc.data();
+
+      //figure out the location name
+      let locationName = "";
+      currentLocations.forEach((location) => {
+        if (tutorData.location == location.id) {
+          locationName = location.name;
+        }
+      })
+
+      const tutor = {
+        staffUID: tutorDoc.id,
+        staffName: tutorData.tutorLastName + ", " + tutorData.tutorFirstName,
+        staffType: 'Tutor',
+        location: locationName,
+      }
+      return tableDataStaff.push(tutor);
+    });
+    return Promise.all(tutorPromises);
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  }));
+
+  //query all admins
+  promises.push(firebase.firestore().collection('Admins')
+  .get()
+  .then((adminQuerySnapshot) => {
+    let adminPromises = [];
+
+    adminQuerySnapshot.forEach((adminDoc) => {
+      const adminData = adminDoc.data();
+
+      const admin = {
+        staffUID: adminDoc.id,
+        staffName: adminData.adminLastName + ", " + adminData.adminFirstName,
+        staffType: 'Admin',
+        location: 'All',
+      }
+      return tableDataStaff.push(admin);
+    });
+    return Promise.all(adminPromises);
+  })
+  .catch((error) => {
+    handleFirebaseErrors(error, window.location.href);
+    console.log(error);
+  }));
+
+  return Promise.all(promises);
+}
+
+function reinitializeStaffTableData() {
+  if (staffTable) {
+    staffTable.off('click');
+    staffTable.destroy();
+  }
+
+  staffTable = $('#staff-table').DataTable( {
+    data: tableDataStaff,
+    columns: [
+      { data: 'staffName' },
+      { data: 'staffType'},
+      { data: 'location'},
+    ],
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  } );
+
+  staffTable.on('click', (args) => {
+    //this should fix some "cannot read property of undefined" errors
+    if (args?.target?._DT_CellIndex) {
+      let staffUID = tableDataStaff[args.target._DT_CellIndex.row].staffUID;
+      let staffName = tableDataStaff[args.target._DT_CellIndex.row].staffName;
+      let staffType = tableDataStaff[args.target._DT_CellIndex.row].staffType;
+      deleteStaff(staffUID, staffName, staffType)
+      .then(() => {
+        location.reload();
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    }
+  })
+}
+
+function deleteStaff(staffUID, staffName, staffType) {
+  const confirmationName = prompt(`You are about to delete this staff member! This action cannot be undone. Type the staff member's name as it is shown below to continue.\n
+  ${staffName}`);
+
+  if (confirmationName === staffName) {
+    const deleteUser = firebase.functions().httpsCallable('deleteUser');
+    return deleteUser({
+      uid: staffUID
+    })
+    .then(() => {
+      firebase.firestore().collection(staffType + 's').doc(staffUID).delete()
+    })
+    .catch((error) => {
+      alert(error);
+      console.log(error.message);
+    })
+
+  }
+  else {
+    alert('The staff name did not match so we will NOT be removing this staff. Make sure to match the name (commas included) if you really want to delete the staff member.')
+    return Promise.reject('staff deletion validation failed');
+  }
 }
 
 function setLocations () {
@@ -214,15 +516,29 @@ function setLocations () {
     let locationElem = locationElems[i];
     for (let j =  0; j < currentLocations.length; j++) {
       let option = document.createElement("option");
-      option.value = currentLocations[j];
-      option.innerText = currentLocationNames[j]
+      option.value = currentLocations[j].id;
+      option.innerText = currentLocations[j].name;
       locationElem.appendChild(option);
     }
   }
-  
 }
 
-
+function getParentData(parentUID) {
+  if (!parentUID) {
+    return Promise.resolve({
+      parentFirstName: 'PARENT',
+      parentLastName: 'NO',
+      parentUID: null,
+    })
+  }
+  return firebase.firestore().collection('Parents').doc(parentUID).get()
+  .then(parentDoc => {
+    return {
+      ...parentDoc.data(),
+      parentUID: parentDoc.id
+    }
+  });
+}
 
 function goToInquiry() {
   window.location.href = "../inquiry.html";
@@ -406,7 +722,7 @@ function createSecretary() {
         });
       }
       else {
-        document.getElementById("secretaryErrMsg").textContent = "This tutor already exists!";
+        document.getElementById("secretaryErrMsg").textContent = "This secretary already exists!";
         document.getElementById("spinnyBoiSecretary").style.display = "none";
       }
     })
@@ -419,6 +735,79 @@ function createSecretary() {
   else {
     // console.log("not done yet!!!");
     document.getElementById("spinnyBoiSecretary").style.display = "none";
+  }
+}
+
+function createAdmin() {
+  document.getElementById("spinnyBoiAdmin").style.display = "block";
+  document.getElementById("adminErrMsg").textContent = null;
+  let allInputs = document.getElementById("add-admin-section").querySelectorAll("input");
+  if (validateFields(allInputs)) {
+    // console.log("all clear");
+    let allInputValues = {};
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputValues[allInputs[i].id] = allInputs[i].value;
+    }
+
+    // console.log(allInputValues);
+
+    //create the tutor account
+    const addUser = firebase.functions().httpsCallable('addUser');
+    addUser({
+      email: allInputValues['adminEmail'],
+      password: "abc123",
+      role: "admin"
+    })
+    .then((result) => {
+
+      let adminUID = result.data.user.uid;
+      let newUser = result.data.newUser;
+      // console.log(secretaryUID);
+      // console.log(newUser);
+
+      if (newUser) {
+        //set up the tutor doc
+        const adminDocRef = firebase.firestore().collection("Admins").doc(adminUID);
+        let adminDocData = {
+          ...allInputValues
+        }
+        adminDocRef.set(adminDocData)
+        .then((result) => {
+          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+          updateUserDisplayName({
+            uid: adminUID,
+            displayName: allInputValues["adminFirstName"] + " " + allInputValues["adminLastName"]
+          })
+          .then(() => {
+            document.getElementById("spinnyBoiAdmin").style.display = "none";
+            closeModal("admin", true);
+          })
+          .catch((error) => {
+            handleFirebaseErrors(error, window.location.href);
+            document.getElementById("adminErrMsg").textContent = error.message;
+            document.getElementById("spinnyBoiAdmin").style.display = "none";
+          });
+        })
+        .catch((error) => {
+          handleFirebaseErrors(error, window.location.href);
+          document.getElementById("adminErrMsg").textContent = error.message;
+          document.getElementById("spinnyBoiAdmin").style.display = "none";
+        });
+      }
+      else {
+        document.getElementById("adminErrMsg").textContent = "This admin already exists!";
+        document.getElementById("spinnyBoiAdmin").style.display = "none";
+      }
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("adminErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiAdmin").style.display = "none";
+    })
+  }
+  else {
+    // console.log("not done yet!!!");
+    document.getElementById("spinnyBoiAdmin").style.display = "none";
   }
 }
 
@@ -472,6 +861,31 @@ function createExtracurricular() {
   }
   else {
     document.getElementById("spinnyBoiExtracurricular").style.display = "none";
+  }
+}
+
+function createLocation() {
+  document.getElementById("spinnyBoiLocation").style.display = "block";
+  document.getElementById("locationErrMsg").textContent = null;
+  let location = document.getElementById("location")
+
+  if (validateFields([location])) {
+    let locationRef = firebase.firestore().collection("Locations").doc();
+    locationRef.update({
+      locationName: location.value.trim()
+    })
+    .then(() => {
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+      closeModal("location", true);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("locationErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+    })
+  }
+  else {
+    document.getElementById("spinnyBoiLocation").style.display = "none";
   }
 }
 
@@ -654,6 +1068,10 @@ function setupNavigationModal(studentUID) {
   document.getElementById("phonicsProgramNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../phonics-program.html" + queryStr
+  };
+  document.getElementById("registrationNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../inquiry.html" + queryStr
   };
 }
 

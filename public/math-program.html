@@ -7,6 +7,7 @@
     <title>Math Program</title>
     <link href="math-program.css" rel="stylesheet">
     <link href="Site Templates/site-wide.css" rel="stylesheet">
+    <link href="Site Templates/student-chat.css" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -16,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
     <script src="Site Templates/site-wide.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="Site Templates/student-chat.js" defer></script>
     <script src="math-program.js" defer></script>
 </head>
 
@@ -36,48 +38,51 @@
           <li>Yellow : Proficient</li>
           <li>Green : Mastered</li>
         </ul>
-        <li>Quick hint! If you click on "Math Program" over there to the left, it will send you to Khan academy for the selected program grade. Pretty sweet huh?</li>
+        <li>Quick hint! If you click on "Math Program" over there to the right, it will send you to Khan academy for the selected program grade. Pretty sweet huh?</li>
         <li>We have forms to send home after every lesson with the student to tell the parent what we worked on in center. That way if the student wants to practice at home they know what lessons to go over.</li>
       </ol>
     </div>
   </section>
 
   <div id="student-general-info">
-    <h1 id="student-name"></h1>
+    <div style="padding: 5px;">
+      <h1 id="student-name" style="margin: 0px;"></h1>
+      <label>Program Grade</label>
+      <select id="student-grade">
+        <option value="0">K</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+      <textarea id="student-expectation" class="expectation-input" disabled></textarea>
+    </div>
+    <div style="position: relative; height: 100px;">
+      <img src="../../Images/blank-profile-picture.png" id="studentProfilePic" style = 'object-fit: cover;'>
+      <label id = 'fileLabel' for="fileInput"><img src = 'https://www.vhv.rs/dpng/d/439-4390267_edit-modify-ico-edit-pencil-icon-png-transparent.png' height = '20px'></label>
+      <input type = 'file' id ='fileInput' style = 'display: none;'>
+    </div>
   </div>
 
-  <label>Program Grade</label>
-  <select id="student-grade">
-    <option value="0">K</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-  </select>
-  <textarea id="student-expectation" class="expectation-input" disabled></textarea>
-
-  <p>This button will submit your lesson (note submitted and at least one lesson taught)</p>
-  <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
-  <p id = 'errorMessage' style = "color:red"></p>
-
-  <div id="student-log-notes-div">
-    <h2 class="student-notes-label background-black">Notes</h2>
-    <div id="student-log-notes" class="student-notes">
-    </div>
-    <textarea id="student-log-notes-input" class="student-notes-input" placeholder="Any notes?"></textarea>
+  <div id="generalStudentMessageDiv">
+    <h2 class="studentMessageLabel">Notes</h2>
+    <div id="generalStudentMessages" class="studentMessages"></div>
+    <textarea id="generalStudentMessagesInput" class="studentMessagesInput" placeholder="Any notes?"></textarea>
   </div>
 
   <div id = "lessonsForm" class = "metaForm noselect">
     <div class="heading-block">
-        <h2><a id = "programLink" target="_blank">Math Program</a></h2>
+        <h2 style="margin: 5px 0px"><a id = "programLink" target="_blank">Math Program</a></h2>
+        <button type = button id="submitLesson" class="button" onclick="submitLessons()">submit</button>
+        <p id = 'errorMessage' style = "color:red; display: none; margin: 0px;" ></p>
         <p class="mathProgramHelp" onclick="openHelp()">?</p>
     </div>
 
