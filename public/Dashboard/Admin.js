@@ -544,6 +544,10 @@ function goToInquiry() {
   window.location.href = "../inquiry.html";
 }
 
+function goToStaffRegistration() {
+  window.location.href = "../staff-registration.html";
+}
+
 function openModal(type) {
   document.getElementById("add-" + type + "-section").style.display = "flex";
 }
