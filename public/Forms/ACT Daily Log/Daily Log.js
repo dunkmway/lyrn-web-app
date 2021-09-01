@@ -122,9 +122,9 @@ function updateGeneralInfoSummary(element) {
   element.classList.add('pending');
 
   //update firebase
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
     summary: element.value
-  })
+  }, {merge: true})
   .then(() => {
     removeAllWorkingClasses(element);
     element.classList.add('success');
@@ -138,9 +138,9 @@ function updateGeneralInfoSummary(element) {
 
 function setGeneralInfo() {
 
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).get()
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).get()
   .then((studentProfileDoc) => {
-    document.getElementById('studentName').textContent = studentProfileDoc.data()["studentFirstName"] + " " + studentProfileDoc.data()["studentLastName"];
+    document.getElementById('studentName').textContent = studentProfileDoc.data()["firstName"] + " " + studentProfileDoc.data()["lastName"];
   })
 
   //set up the grid
@@ -154,7 +154,7 @@ function setGeneralInfo() {
   getStudentActProfileDoc(CURRENT_STUDENT_UID)
   .then(profileDoc => {
     studentActProfileDoc = profileDoc;
-    document.getElementById('studentGeneralInfoSummary').value = studentActProfileDoc.data().summary ?? "";
+    document.getElementById('studentGeneralInfoSummary').value = studentActProfileDoc?.data()?.summary ?? "";
 
     return getLatestTests(CURRENT_STUDENT_UID)
   })
@@ -181,7 +181,7 @@ function setGeneralInfo() {
     document.getElementById('compositeCurrent').textContent = compositeCurrent == 0 ? "" : compositeCurrent?.toString();
 
     //set up the pre test scores
-    preTestScores = studentActProfileDoc.data().preTestScores ?? [];
+    preTestScores = studentActProfileDoc?.data()?.preTestScores ?? [];
     if (preTestScores) {
       preTestScores.forEach((score, index) => {
         let highlightedClass = score.isBaseScore ? 'highlight' : null;
@@ -196,9 +196,9 @@ function setGeneralInfo() {
             instance.element.classList.add('pending');
             //change the test goals array and update on firebase
             preTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+            firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
               preTestScores: preTestScores
-            })
+            }, {merge: true})
             .then(() => {
               removeAllWorkingClasses(instance.element);
               instance.element.classList.add('success');
@@ -221,7 +221,7 @@ function setGeneralInfo() {
     }
 
     //set up the test date goals
-    testGoals = studentActProfileDoc.data().testGoals ?? [];
+    testGoals = studentActProfileDoc?.data()?.testGoals ?? [];
     if (testGoals) {
       testGoals.forEach((goal, index) => {
         let compositeGoal = roundedAvg([goal.englishGoal, goal.mathGoal, goal.readingGoal, goal.scienceGoal]);
@@ -235,9 +235,9 @@ function setGeneralInfo() {
             instance.element.classList.add('pending');
             //change the test goals array and update on firebase
             testGoals[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+            firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
               testGoals: testGoals
-            })
+            }, {merge: true})
             .then(() => {
               removeAllWorkingClasses(instance.element);
               instance.element.classList.add('success');
@@ -260,7 +260,7 @@ function setGeneralInfo() {
     }
 
     //set up the pre test scores
-    postTestScores = studentActProfileDoc.data().postTestScores ?? [];
+    postTestScores = studentActProfileDoc?.data()?.postTestScores ?? [];
     if (postTestScores) {
       postTestScores.forEach((score, index) => {
         let compositeScore = roundedAvg([score.englishPostTest, score.mathPostTest, score.readingPostTest, score.sciencePostTest]);
@@ -274,9 +274,9 @@ function setGeneralInfo() {
             instance.element.classList.add('pending');
             //change the test goals array and update on firebase
             postTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-            firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+            firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
               postTestScores: postTestScores
-            })
+            }, {merge: true})
             .then(() => {
               removeAllWorkingClasses(instance.element);
               instance.element.classList.add('success');
@@ -350,9 +350,9 @@ function placePreTestRow(isPracticeTest) {
       instance.element.classList.add('pending');
       //change the test goals array and update on firebase
       preTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
         preTestScores: preTestScores
-      })
+      }, {merge: true})
       .then(() => {
         removeAllWorkingClasses(instance.element);
         instance.element.classList.add('success');
@@ -399,9 +399,9 @@ function removeGeneralInfoPreTestRow() {
     preTestScores.pop()
 
     //update firebase
-    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
       preTestScores: preTestScores
-    })
+    }, {merge: true})
     .catch((error) => {
       console.log(error);
     })
@@ -425,9 +425,9 @@ function togglePreTestBaseScore(preTestIndex) {
             }
           })
 
-          firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+          firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
             preTestScores: preTestScores
-          })
+          }, {merge: true})
           .then(() => {
             //remove all highlighted pre tests
             const generalInfoGrid = document.querySelector('#studentGeneralInfoContainer .gridContainer');
@@ -469,9 +469,9 @@ function addGeneralInfoGoalRow() {
       instance.element.classList.add('pending');
       //change the test goals array and update on firebase
       testGoals[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
         testGoals: testGoals
-      })
+      }, {merge: true})
       .then(() => {
         removeAllWorkingClasses(instance.element);
         instance.element.classList.add('success');
@@ -518,9 +518,9 @@ function removeGeneralInfoGoalRow() {
     testGoals.pop()
 
     //update firebase
-    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
       testGoals: testGoals
-    })
+    }, {merge: true})
     .catch((error) => {
       console.log(error);
     })
@@ -544,9 +544,9 @@ function placePostTestRow(isPracticeTest) {
       instance.element.classList.add('pending');
       //change the test goals array and update on firebase
       postTestScores[parseInt(instance.element.id.split('-')[1])].testDate = selectedDates[0].getTime();
-      firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+      firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
         postTestScores: postTestScores
-      })
+      }, {merge: true})
       .then(() => {
         removeAllWorkingClasses(instance.element);
         instance.element.classList.add('success');
@@ -592,9 +592,9 @@ function removeGeneralInfoPostTestRow() {
     postTestScores.pop()
 
     //update firebase
-    firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+    firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
       postTestScores: postTestScores
-    })
+    }, {merge: true})
     .catch((error) => {
       console.log(error);
     })
@@ -611,9 +611,9 @@ function studentGoalScoreFocusOutCallback(element) {
   //update the testGoals object
   testGoals[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
     testGoals: testGoals
-  })
+  }, {merge: true})
   .then(() => {
     removeAllWorkingClasses(element);
     element.classList.add('success');
@@ -650,9 +650,9 @@ function studentPreTestScoreFocusOutCallback(element) {
   preTestScores[parseInt(element.id.split('-')[1])].isPracticeTest = document.getElementById(`preTestDate-${element.id.split('-')[1]}`).classList.contains('practiceTest');
   preTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
     preTestScores: preTestScores
-  })
+  }, {merge: true})
   .then(() => {
     removeAllWorkingClasses(element);
     element.classList.add('success');
@@ -689,9 +689,9 @@ function studentPostTestScoreFocusOutCallback(element) {
   postTestScores[parseInt(element.id.split('-')[1])].isPracticeTest = document.getElementById(`postTestDate-${element.id.split('-')[1]}`).classList.contains('practiceTest');
   postTestScores[parseInt(element.id.split('-')[1])][element.id.split('-')[0]] = element.value != "" ? parseInt(element.value) : element.value
   //update firebase
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').update({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('ACT').doc('profile').set({
     postTestScores: postTestScores
-  })
+  }, {merge: true})
   .then(() => {
     removeAllWorkingClasses(element);
     element.classList.add('success');
@@ -730,7 +730,7 @@ function removeAllWorkingClasses(e) {
 }
 
 function getStudentActProfileDoc(studentUID) {
-  return firebase.firestore().collection('Students').doc(studentUID).collection('ACT').doc('profile').get()
+  return firebase.firestore().collection('Users').doc(studentUID).collection('ACT').doc('profile').get()
 }
 
 function getLatestTests(studentUID) {
@@ -2135,7 +2135,7 @@ function getElapsedTime() {
 function openTest(test, section = undefined) {
 
   let path = test + (section != undefined ? (" - " + section.charAt(0).toUpperCase() + section.slice(1)) : "");
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Tests/' + path + '.pdf');
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Tests/' + path + '.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
@@ -2144,7 +2144,7 @@ function openTest(test, section = undefined) {
 
 function openCramSession(sessionCount) {
 
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Cram Sessions/' + sessionCount + ' Session Cram.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
@@ -2153,7 +2153,7 @@ function openCramSession(sessionCount) {
 
 function openLastSession() {
 
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Last Session/Last ACT Session.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
@@ -2217,7 +2217,7 @@ function showTitle() {
 }
 
 function setProfilePic() {
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
   ref.getDownloadURL()
   .then((url) => {
     document.getElementById('studentProfilePic').src=url;
@@ -2251,7 +2251,7 @@ function updateProfilePic() {
           if (role == 'admin' || role == 'dev' || role == 'secretary') {
             const data = document.getElementById('fileInput')
             //document.getElementById('studentProfilePic').style.src = data.files[0]
-            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
             let thisref = ref.put(data.files[0])
             thisref.on('state_changed', function (snapshot) {
 
@@ -2272,309 +2272,6 @@ function updateProfilePic() {
   })
 }
 
-
-/*function circularText(txt, offset) {
-
-  const h = Math.min(window.innerHeight * 0.33, window.innerWidth * 0.33)
-
-  let classIndex = document.getElementById(txt.toLowerCase() + "Text");
-  txt = txt.split("");
-
-  const deg = 90 / 12;
-  let origin = (12 - txt.length) * deg / 2;
-  origin += offset;
-
-  txt.forEach((ea) => {
-    rad = origin / 180 * Math.PI;
-    if (['Reading', 'Science'].includes(txt)) {
-      rad = Math.PI - rad;
-    }
-    const top = (h / 2) * ( 1 - Math.cos(rad))
-    const left = (h / 4) * ( 2 + (1.5 * Math.sin(rad)))
-
-    let item = createElement('p', [], [], [], ea);
-    item.style.position = 'absolute';
-    item.style.transformOrigin = '0 100%';
-    item.style.transform = 'rotate(' + origin.toString() + 'deg)';
-    item.style.left = left + 'px';
-    item.style.top = top + 'px';
-
-    classIndex.append(item)
-    origin += deg;
-  });
-
-}
-
-circularText("Math", 0);
-circularText("English", -86);
-circularText("Reading", 180);
-circularText("Science", 80);*/
-
-/*function transferLessons() {
-  console.log('Starting Lessons')
-  const ref = firebase.firestore().collection('Students')
-  let id = undefined;
-  let count = 0;
-  ref.get()
-  .then((querySnapshot) => {
-    // For each student
-    querySnapshot.forEach((doc) => {
-      id = doc.id
-      const newRef = ref.doc(id).collection('ACT').doc('lessons')
-      newRef.get()
-      .then((d) => {
-        // Make sure the doc specified exists
-        if (d.exists) {
-          let obj = {}
-          const studentId = doc.ref.path.split('/')[1]
-          const data = d.data()
-          const sections = Object.keys(data)
-          for (let i = 0; i < sections.length; i++) {
-            const sec = sections[i]
-            const lessons = Object.keys(data[sections[i]])
-            for (let j = 0; j < lessons.length; j++) {
-              const les = lessons[j]
-              const time = data[sec][les]['date']
-              let status = data[sec][les]['status']
-              if (status == 'needs review') {
-                status = 'review'
-              }
-              // SET NEW DOCUMENT
-              const setRef = firebase.firestore().collection('ACT-Student-Lessons').doc()
-              obj['date'] = time;
-              obj['lesson'] = les;
-              obj['section'] = sec;
-              obj['status'] = status;
-              obj['student'] = studentId;
-              setRef.set(obj)
-              .then(() => console.log('set'))
-              .catch((error) => console.log(error))
-            }
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-      count += 1;
-      //if (count == 10) {
-        //throw exception
-      //}
-    })
-  })
-}
-//transferLessons()*/
-
-/*function testFix() {
-
-  const ref = firebase.firestore().collection('Students')
-  let id = undefined;
-  let count = 0;
-  ref.get()
-  .then((querySnapshot) => {
-    // For each student
-    querySnapshot.forEach((doc) => {
-      id = doc.id
-      let ref = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', id).where('type', '==', 'homework')
-      ref.get()
-      .then((snapshot) => {
-        if (snapshot.size > 0) {
-          let testList = []
-          let dupes = []
-          let tmpId = undefined
-          snapshot.forEach((d) => {
-            if (d.exists) {
-              tmpId = d.data()['student']
-              if (testList.includes(d.data()['test'])) {
-                if (!dupes.includes(d.data()['test'])) {
-                  dupes.push(d.data()['test'])
-                }
-              }
-              else {
-                testList.push(d.data()['test'])
-              }
-            }
-          })
-          if (dupes.length > 0) {
-            //console.log(tmpId, dupes)
-            for (let i = 0; i < dupes.length; i++) {
-              const sections = ['english', 'math', 'reading', 'science']
-              for (let sec = 0; sec < sections.length; sec++) {
-                let refFix = firebase.firestore().collection('ACT-Student-Tests').where('student', '==', tmpId).where('test', '==', dupes[i]).where('type', '==', 'homework').where('section', '==', sections[sec])//.where('status', '==', 'assigned')
-                refFix.get()
-                .then((query) => {
-                  if (query.size > 1) {
-                    let counting = 0;
-                    query.forEach((newD) => {
-                      //if (counting == 0 && newD.data()['status'] == 'assigned') {
-                        // delete
-                        console.log('studentId:', tmpId, 'testId:', newD.id, 'test:', dupes[i], 'section:', sections[sec], 'status', newD.data()['status'])
-                        counting += 1
-                      //}
-                    })
-                  }
-                })
-              }
-            }
-          }
-        }
-      })
-      return
-    })
-    return
-  })
-  return
-}*/
-
-/*function transferTests() {
-  console.log('transfering tests')
-  const ref = firebase.firestore().collection('Students')
-  let id = undefined;
-  let count = 0;
-  ref.get()
-  .then((querySnapshot) => {
-    // For each student
-    querySnapshot.forEach((doc) => {
-      id = doc.id
-      // Make stuff below a function FIX ME
-      const newRef = ref.doc(id).collection('ACT').doc('hw')
-      newRef.get()
-      .then((d) => {
-        // Make sure the doc specified exists
-        if (d.exists) {
-          let obj = {}
-          const studentId = doc.ref.path.split('/')[1]
-          const data = d.data()
-          const tests = Object.keys(data)
-          for (let i = 0; i < tests.length; i++) {
-            const test = tests[i]
-            const sections = Object.keys(data[tests[i]])
-            for (let j = 0; j < sections.length; j++) {
-              const sec = sections[j]
-              const passageNumbers = Object.keys(data[test][sec])
-              let testType = data[test][sec]['TestType']
-              let status = undefined
-              let time = 0;
-              let score = -1;
-              let scaledScore = -1;
-              let questions = []
-
-              if (testType == 'homework') {
-                time = data[test][sec]['Date'] ?? 0
-                scaledScore = data[test][sec]['ScaledScore'] ?? -1
-                score = data[test][sec]['Score'] ?? -1
-                status = data[test][sec]['Status']
-              }
-              else if (testType != 'inCenter') {
-                console.log(studentId, testType, test, sec)
-              }
-
-              for (let k = 0; k < passageNumbers.length; k++) {
-
-                const passageNumber = passageNumbers[k]
-
-                if (['1', '2', '3', '4', '5', '6', '7'].includes(passageNumber)) {
-                  if (testType == 'inCenter' || testType == 'practice') {
-                    questions = []
-                  }
-                  const passages = test_answers_data[test][sec.toLowerCase() + 'Answers'].filter(function(val) { return val.passageNumber == parseInt(passageNumber)})
-                  const start = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[0]) + 1
-                  const end = test_answers_data[test][sec.toLowerCase() + 'Answers'].indexOf(passages[passages.length - 1]) + 1
-
-                  if (testType == 'inCenter' || testType == 'practice') {
-                    testType = 'practice'
-                    status = data[test][sec][passageNumber]['Status']
-                  }
-
-                  for (let a = start; a < end + 1; a++) {
-                    if (data[test][sec][passageNumber]['Answers'].includes(a.toString())) {
-                      questions.push({
-                        'isWrong' : true,
-                        'question' : a
-                      })
-                    }
-                    else {
-                      questions.push({
-                        'isWrong' : false,
-                        'question' : a
-                      })
-                    }
-                  }
-
-                  if (testType == 'practice') {
-                    const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
-                    obj['date'] = time;
-                    obj['passageNumber'] = passageNumber;
-                    obj['questions'] = questions;
-                    obj['score'] = score;
-                    obj['section'] = sec.toLowerCase();
-                    obj['status'] = status.toLowerCase();
-                    obj['student'] = studentId;
-                    obj['test'] = test;
-                    obj['type'] = testType.toLowerCase();
-                    setRef.set(obj)
-                    .then(() => console.log('practice set'))
-                    .catch((error) => console.log(error))
-                  }
-
-                  //console.log(testType, test, sec, passageNumber, questions)
-
-                  if (status == undefined) {
-                    console.log(studentId, 'has a bad status:', test, sec, passageNumber)
-                    throw exception;
-                  }
-                }
-              }
-
-              if (testType == 'homework') {
-                const setRef = firebase.firestore().collection('ACT-Student-Tests').doc()
-                if (status != 'assigned' && status != 'reassigned') {
-                  obj['date'] = time;
-                  obj['questions'] = questions;
-                  obj['score'] = score;
-                  obj['scaledScore'] = scaledScore;
-                  obj['section'] = sec.toLowerCase();
-                  obj['status'] = status.toLowerCase();
-                  obj['student'] = studentId;
-                  obj['test'] = test;
-                  obj['type'] = testType.toLowerCase();
-                  setRef.set(obj)
-                  .then(() => console.log('homework set'))
-                  .catch((error) => console.log(error))
-                }
-                else {
-                  let studentQuestions = initializeEmptyAnswers(test, sec.toLowerCase());
-                  obj['date'] = time;
-                  obj['questions'] = studentQuestions;
-                  obj['score'] = -1;
-                  obj['scaledScore'] = -1;
-                  obj['section'] = sec.toLowerCase();
-                  obj['status'] = 'assigned';
-                  obj['student'] = studentId;
-                  obj['test'] = test;
-                  obj['type'] = testType.toLowerCase();
-                  setRef.set(obj)
-                  .then(() => console.log('homework set'))
-                  .catch((error) => console.log(error))
-                }
-              }
-            }
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-        console.log(testType, test, sec, studentId, status, score, scaledScore, date, questions)
-      })
-      count += 1;
-      //if (count == 10) {
-        //throw exception
-      //}
-    })
-  })
-}
-//transferTests()*/
-
 function roundedAvg(values) {
   let array = values.filter(element => element);
   if (array.length == 0) {
@@ -2587,203 +2284,3 @@ function roundedAvg(values) {
   }
   return Math.round(total / array.length);
 }
-
-/*let users = []
-function chatObject(location = 'Tutors', role = 'tutor') {
-  console.log('starting map')
-  const ref = firebase.firestore().collection(location)
-  let id = undefined;
-  let count = 0;
-  ref.get()
-  .then((querySnapshot) => {
-    // For each student
-    querySnapshot.forEach((doc) => {
-      users.push(
-        {
-          'id' : doc.id,
-          'role' : role,
-          'name' : doc.data()[role + 'FirstName'] + ' ' + doc.data()[role + 'LastName']
-        }
-      )
-    })
-  })
-  .then(() => {
-    console.log(users)
-  })
-}
-
-chatObject('Tutors', 'tutor')
-chatObject('Admins', 'firebase')
-
-function getUserDisplayNamePrivate(id) {
-  return users.filter(function(val) { return val.id == id})[0]['name']
-}
-
-function getUserRolePrivate(id) {
-  return users.filter(function(val) { return val.id == id})[0]['role']
-}
-
-function createMessage_TEMP(studentUID, type, time, messages) {
-    const message = {
-        conversation: studentUID + "-" + type,
-        timestamp: parseInt(time),
-        message: messages[time].note,
-        author: messages[time].user,
-        authorName: getUserDisplayNamePrivate(messages[time].user),
-        authorRole: getUserRolePrivate(messages[time].user)
-    }
-
-    const chatRef =  firebase.firestore().collection("Student-Chats").doc();
-    return chatRef.set(message)
-}
-
-function transferChatMessages() {
-    const queryRef = firebase.firestore().collection("Students");
-    let allDone = queryRef.get()
-    .then((querySnapshot) => {
-        let studentPromises = []
-        querySnapshot.forEach((doc) => {
-            const studentUID = doc.id;
-            //get the notes doc for this student
-            console.log('Got profile doc for:', doc.id)
-
-
-            //ACT
-            const actNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("notes");
-            let actPromise = actNotesRef.get()
-            .then((notesDoc) => {
-                if (notesDoc.exists) {
-                    const notesData = notesDoc.data();
-                    const generalNotes = notesData.general;
-                    const englishNotes = notesData.english;
-                    const mathNotes = notesData.math;
-                    const readingNotes = notesData.reading;
-                    const scienceNotes = notesData.science;
-
-                    let chatPromises = [];
-                    //general notes
-                    for (const time in generalNotes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "act-general", time, generalNotes));
-                    }
-
-                    //english notes
-                    for (const time in englishNotes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "act-english", time, englishNotes));
-                    }
-
-                    //math notes
-                    for (const time in mathNotes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "act-math", time, mathNotes));
-                    }
-
-                    //reading notes
-                    for (const time in readingNotes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "act-reading", time, readingNotes));
-                    }
-
-                    //science notes
-                    for (const time in scienceNotes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "act-science", time, scienceNotes));
-                    }
-
-                    return Promise.all(chatPromises)
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-            studentPromises.push(actPromise);
-
-
-            //Subject-Tutoring
-            const stNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Subject-Tutoring").doc("notes");
-            let stPromise = stNotesRef.get()
-            .then((notesDoc) => {
-                if (notesDoc.exists) {
-                    const notesData = notesDoc.data();
-                    const notes = notesData.log;
-
-                    let chatPromises = [];
-                    //general notes
-                    for (const time in notes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "subjectTutoring-general", time, notes));
-                    }
-                    return Promise.all(chatPromises)
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-            studentPromises.push(stPromise);
-
-
-            //Math-Program
-            const mpNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Math-Program").doc("notes");
-            let mpPromise = mpNotesRef.get()
-            .then((notesDoc) => {
-                if (notesDoc.exists) {
-                    const notesData = notesDoc.data();
-                    const notes = notesData.log;
-
-                    let chatPromises = [];
-                    //general notes
-                    for (const time in notes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "mathProgram-general", time, notes));
-                    }
-                    return Promise.all(chatPromises)
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-            studentPromises.push(mpPromise);
-
-
-            //Phonics-Program
-            const ppNotesRef = firebase.firestore().collection("Students").doc(studentUID).collection("Phonics-Program").doc("notes");
-            let ppPromise = ppNotesRef.get()
-            .then((notesDoc) => {
-                if (notesDoc.exists) {
-                    const notesData = notesDoc.data();
-                    const notes = notesData.log;
-
-                    let chatPromises = [];
-                    //general notes
-                    for (const time in notes) {
-                        chatPromises.push(createMessage_TEMP(studentUID, "phonicsProgram-general", time, notes));
-                    }
-                    return Promise.all(chatPromises)
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-            studentPromises.push(ppPromise);
-        });
-        return Promise.all(studentPromises)
-    })
-    .catch((error) => {
-        console.log(error)
-    });
-
-    allDone.then(() => {
-        console.log("Successfully transferred chat messages!");
-    }).catch((error) => {
-        console.log(error)
-    })
-}*/
-/*firebase.firestore().collection('Student-Chats').get().then((querySnapshot) => {
-  console.log(querySnapshot.size)
-})*/

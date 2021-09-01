@@ -1790,7 +1790,7 @@ function updateEditGeneralInfo() {
         //get the first tutor doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
           .then((tutorDoc) => {
             pending_calendar_event.color = tutorDoc.data().color ?? null;
             pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
@@ -1829,7 +1829,7 @@ function updateEditGeneralInfo() {
     //get the first tutor doc to grab their color
     //don't waste time if it hasn't changed
     if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-      firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+      firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
       .then((tutorDoc) => {
         pending_calendar_event.color = tutorDoc.data().color ?? null;
         pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
@@ -2112,7 +2112,7 @@ function updateEditTestReview() {
         //get the first tutor doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
           .then((tutorDoc) => {
             pending_calendar_event.color = tutorDoc.data().color ?? null;
             pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
@@ -2376,7 +2376,7 @@ function updateEditLesson() {
         //get the first tutor doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-          firebase.firestore().collection('Tutors').doc(pending_calendar_event.staff[0]).get()
+          firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
           .then((tutorDoc) => {
             pending_calendar_event.color = tutorDoc.data().color ?? null;
             pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
@@ -2522,35 +2522,18 @@ function saveTeacherMeeting(eventInfo) {
   let staffNames = [];
   let wages = [];
   
-  promises.push(firebase.firestore().collection('Tutors').where("location", "==", eventInfo.invitedLocation).get()
-  .then((tutorSnapshot) => {
-    tutorSnapshot.forEach((tutorDoc) => {
-      const tutorData = tutorDoc.data();
-      staff.push(tutorDoc.id);
-      staffNames.push(tutorData.tutorFirstName + " " + tutorData.tutorLastName);
-      wages.push(tutorData.wage ?? 0);
+  promises.push(firebase.firestore().collection('Users')
+  .where("location", "==", eventInfo.invitedLocation)
+  .where('roles', 'array-contains-any', ['tutor', 'secretary', 'admin'])
+  .get()
+  .then((staffSnapshot) => {
+    staffSnapshot.forEach((staffDoc) => {
+      const staffData = staffDoc.data();
+      staff.push(staffDoc.id);
+      staffNames.push(staffData.firstName + " " + staffData.lastName);
+      wages.push(staffData.wage ?? 0);
     })
   }));
-
-  promises.push(firebase.firestore().collection('Secretaries').where("location", "==", eventInfo.invitedLocation).get()
-  .then((secretarySnapshot) => {
-    secretarySnapshot.forEach((secretaryDoc) => {
-      const secretaryData = secretaryDoc.data();
-      staff.push(secretaryDoc.id);
-      staffNames.push(secretaryData.secretaryFirstName + " " + secretaryData.secretaryLastName);
-      wages.push(secretaryData.wage ?? 0);
-    })
-  }))
-
-  promises.push(firebase.firestore().collection('Admins').where("locations", "array-contains", eventInfo.invitedLocation).get()
-  .then((adminSnapshot) => {
-    adminSnapshot.forEach((adminDoc) => {
-      const adminData = adminDoc.data();
-      staff.push(adminDoc.id);
-      staffNames.push(adminData.adminFirstName + " " + adminData.adminLastName);
-      wages.push(adminData.wage ?? 0);
-    })
-  }))
 
   return Promise.all(promises)
   .then(() => {
@@ -2595,7 +2578,7 @@ function saveGeneralInfo(eventInfo) {
   if (eventInfo.staff[0]) {
     let eventData = {};
     //get first staff name for color
-    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+    return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
     .then((tutorDoc) => {
       tutorData = tutorDoc.data();
       const tutorColor = tutorData?.color;
@@ -2654,10 +2637,10 @@ function saveGeneralInfo(eventInfo) {
 
 function savePracticeTest(eventInfo) {
   //get the student doc for name and parent
-  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  return firebase.firestore().collection("Users").doc(eventInfo.student).get()
   .then((studentDoc) => {
     const data = studentDoc.data();
-    const studentName = data.studentLastName + ", " + data.studentFirstName;
+    const studentName = data.lastName + ", " + data.firstName;
     const studentParent = data.parent;
 
     const eventRef = firebase.firestore().collection("Events").doc()
@@ -2697,10 +2680,10 @@ function savePracticeTest(eventInfo) {
 
 function saveConference(eventInfo) {
   //get the student doc for name and parent
-  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  return firebase.firestore().collection("Users").doc(eventInfo.student).get()
   .then((studentDoc) => {
     const data = studentDoc.data();
-    const studentName = data.studentLastName + ", " + data.studentFirstName;
+    const studentName = data.lastName + ", " + data.firstName;
     const studentParent = data.parent;
 
     const eventRef = firebase.firestore().collection("Events").doc()
@@ -2743,17 +2726,17 @@ function saveTestReview(eventInfo) {
   let tutorData = {};
 
   //get the student doc for name and parent
-  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  return firebase.firestore().collection("Users").doc(eventInfo.student).get()
   .then((studentDoc) => {
     studentData = studentDoc.data();
     
     //get first staff name for color
-    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+    return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
   })
   .then((tutorDoc) => {
     tutorData = tutorDoc.data();
 
-    const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
+    const studentName = studentData.lastName + ", " + studentData.firstName;
     const studentParent = studentData.parent;
     const tutorColor = tutorData?.color;
 
@@ -2797,17 +2780,17 @@ function saveLesson(eventInfo) {
   let tutorData = {};
 
   //get the student doc for name and parent
-  return firebase.firestore().collection("Students").doc(eventInfo.student).get()
+  return firebase.firestore().collection("Users").doc(eventInfo.student).get()
   .then((studentDoc) => {
     studentData = studentDoc.data();
     
     //get first staff name for color
-    return firebase.firestore().collection("Tutors").doc(eventInfo.staff[0]).get()
+    return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
   })
   .then((tutorDoc) => {
     tutorData = tutorDoc.data();
 
-    const studentName = studentData.studentLastName + ", " + studentData.studentFirstName;
+    const studentName = studentData.lastName + ", " + studentData.firstName;
     const studentParent = studentData.parent;
     const tutorColor = tutorData?.color;
     let lessonTypeReadable = ""
@@ -2867,12 +2850,12 @@ function saveLesson(eventInfo) {
 function saveAvailability(eventInfo) {
   let tutorData = {};
 
-  return firebase.firestore().collection("Tutors").doc(eventInfo.staff).get()
+  return firebase.firestore().collection("Users").doc(eventInfo.staff).get()
   .then((tutorDoc) => {
     tutorData = tutorDoc.data();
 
     const tutorColor = tutorData?.color;
-    const tutorName = tutorData.tutorFirstName + " " + tutorData.tutorLastName;
+    const tutorName = tutorData.firstName + " " + tutorData.lastName;
 
     const eventRef = firebase.firestore().collection("Availabilities").doc()
     let eventData = {
@@ -2921,25 +2904,20 @@ function unselectCallback() {
 }
 
 function getLocationList(user) {
-  return firebase.firestore().collection("Admins").doc(user.uid).get()
+  return firebase.firestore().collection("Users").doc(user.uid).get()
   .then((userDoc) => {
     let userData = userDoc.data();
-    let locationUIDs = userData.locations;
+    let locationUID = userData.location;
 
-    let locationNameProms = [];
-
-    locationUIDs.forEach((locationUID) => {
-      locationNameProms.push(firebase.firestore().collection("Locations").doc(locationUID).get()
-      .then((locationDoc) => {
-        let locationData = locationDoc.data();
-        return {
-          id: locationUID,
-          name: locationData.locationName
-        }
-      }));
-    });
-    return Promise.all(locationNameProms)
-  });
+    return firebase.firestore().collection("Locations").doc(locationUID).get()
+    .then((locationDoc) => {
+      let locationData = locationDoc.data();
+      return [{
+        id: locationUID,
+        name: locationData.locationName
+      }]
+    })
+  })
 }
 
 function getLessonTypeList(location) {
@@ -2958,13 +2936,16 @@ function getStudentList(location) {
     alert("Choose a location first!");
     return Promise.reject('no location selected')
   }
-  return firebase.firestore().collection("Students").where("location", "==", location).orderBy("studentLastName").get()
+  return firebase.firestore().collection("Users")
+  .where("location", "==", location)
+  .where("roles", 'array-contains', 'student')
+  .orderBy("lastName").get()
   .then((studentSnapshot) => {
     let students = [];
     studentSnapshot.forEach((studentDoc) => {
       const data = studentDoc.data();
       students.push({
-        name: data.studentLastName + ", " + data.studentFirstName,
+        name: data.lastName + ", " + data.firstName,
         id: studentDoc.id
       })
     })
@@ -2978,13 +2959,16 @@ function getTutorList(location) {
     alert("Choose a location first!");
     return Promise.reject('no location selected')
   }
-  return firebase.firestore().collection("Tutors").where("location", "==", location).orderBy("tutorLastName").get()
+  return firebase.firestore().collection("Users")
+  .where("location", "==", location)
+  .where("roles", 'array-contains', 'tutor')
+  .orderBy("lastName").get()
   .then((tutorSnapshot) => {
     let tutors = [];
     tutorSnapshot.forEach((tutorDoc) => {
       const data = tutorDoc.data();
       tutors.push({
-        name: data.tutorLastName + ", " + data.tutorFirstName,
+        name: data.lastName + ", " + data.firstName,
         id: tutorDoc.id
       })
     })

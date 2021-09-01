@@ -88,7 +88,7 @@ function retrieveInitialData() {
 }
 
 function getStudentProfile(studentUID) {
-  const studentProfileRef = firebase.firestore().collection('Students').doc(studentUID);
+  const studentProfileRef = firebase.firestore().collection('Users').doc(studentUID);
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -98,7 +98,7 @@ function getStudentProfile(studentUID) {
 }
 
 function getStudentMathProgramProfile(studentUID) {
-  const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Math-Program').doc('profile');
+  const studentMathProgramProfileRef = firebase.firestore().collection('Users').doc(studentUID).collection('Math-Program').doc('profile');
   return studentMathProgramProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -108,7 +108,7 @@ function getStudentMathProgramProfile(studentUID) {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['firstName'] + " " + student_profile_data['lastName'];
 }
 
 function setStudentSTProfile() {
@@ -141,7 +141,7 @@ function updateStudentExpectation(event) {
 
     studentExpectationElem.style.borderColor = null;
 
-    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Math-Program').doc('profile');
+    const studentMathProgramProfileRef = firebase.firestore().collection('Users').doc(queryStrings()['student']).collection('Math-Program').doc('profile');
     studentMathProgramProfileRef.get()
     .then((doc) => {
       if(doc.exists) {
@@ -281,7 +281,7 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
 function getLessons() {
   return new Promise((resolve, reject) => {
     let student = queryStrings()['student'];
-    lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
+    lessonsRef = firebase.firestore().collection('Users').doc(student).collection('Math-Program').doc('lessons')
 
     lessonsRef.get()
     .then((doc) => {
@@ -322,7 +322,7 @@ function submitLessons() {
               }
               if (confirmation == true) {
                 let student = queryStrings()['student'];
-                lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Math-Program').doc('lessons')
+                lessonsRef = firebase.firestore().collection('Users').doc(student).collection('Math-Program').doc('lessons')
 
                 lessonsRef.set(current_lesson_data).then(() => goToDashboard())
                 .catch((error) => reject('Fb error:' + error))
@@ -395,7 +395,7 @@ function getLinks() {
 function openTest(type) {
 
   if (type == 'Pre' || type == 'Post') {
-    let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Math Program/' + type + ' Test - ' + student_grade.toString() + '.pdf');
+    let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/Math Program/' + type + ' Test - ' + student_grade.toString() + '.pdf');
     ref.getDownloadURL().then((url) => {
       open(url);
     })
@@ -405,7 +405,7 @@ function openTest(type) {
 
 function openMultiplicationTable(number) {
 
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Math Program/Multiplication Tables/' + number + '.pdf');
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/Math Program/Multiplication Tables/' + number + '.pdf');
   ref.getDownloadURL().then((url) => {
     open(url);
   })
@@ -440,7 +440,7 @@ function updateStudentLessonInfo() {
 }
 
 function setProfilePic() {
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
   ref.getDownloadURL()
   .then((url) => {
     document.getElementById('studentProfilePic').src=url;
@@ -473,7 +473,7 @@ function updateProfilePic() {
           if (role == 'admin' || role == 'dev' || role == 'secretary') {
             const data = document.getElementById('fileInput')
             //document.getElementById('studentProfilePic').style.src = data.files[0]
-            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
             let thisref = ref.put(data.files[0])
             thisref.on('state_changed', function (snapshot) {
 

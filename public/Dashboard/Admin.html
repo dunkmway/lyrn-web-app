@@ -178,14 +178,14 @@
           <form onsubmit="return false">
             <div class="input-row">
               <div class="input-block">
-                  <label for="location" class="label">Location</label>
-                  <input id="location" class="input" required>
+                  <label for="locationName" class="label">Location</label>
+                  <input id="locationName" class="input" required>
               </div>
             </div>
 
             <div class="input-row">
               <button type = button class="button" onclick="closeModal('location')">back</button> 
-              <button type = button class="button" onclick="createLoction()">submit</button>
+              <button type = button class="button" onclick="createLocation()">submit</button>
             </div>
 
             <div class="input-row">
@@ -340,12 +340,11 @@
       <div class="flex-row align-center">
         <button class="button" onclick="goToInquiry()">Inquiry</button>
         <!-- <button class="button" onclick="openModal('tutor')">Add Tutor</button> -->
-        <button class="button" onclick="goToStaffRegistration()">Add Tutor</button>
-        <button class="button" onclick="openModal('admin')">Add Admin</button>
-        <button class="button" onclick="openModal('location')">Add Location</button>
+        <button class="button" onclick="goToStaffRegistration()">Add Staff</button>
+        <!-- <button class="button" onclick="openModal('admin')">Add Admin</button> -->
         <!-- <button class="button" onclick="openModal('secretary')">Add Secretary</button> -->
-        <!-- <button class="button" onclick="openModal('school')">Add School</button>
-        <button class="button" onclick="openModal('extracurricular')">Add Extracurricular</button> -->
+        <button class="button" onclick="openModal('school')">Add School</button>
+        <button class="button" onclick="openModal('extracurricular')">Add Extracurricular</button>
         <button class="button" onclick="resetPassword()">reset password</button>
       </div>
 
@@ -373,7 +372,7 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Type</th>
+              <th>Roles</th>
               <th>Location</th>
             </tr>
           </thead>
@@ -382,12 +381,12 @@
       
 
       <!-- feedback area -->
-      <!-- <div style="margin: 25px;">
+      <div style="margin: 25px;">
         <h3>Feedback</h3>
         <textarea id="feedback_input" class="feedback_input" placeholder="any feedback?"></textarea>
         <p id="feedback_error_msg"></p>
         <button id="feedback_submit_btn" class="button" onclick="submitFeedback()">Submit</button>
-      </div> -->
+      </div>
 
     </section>
   </body>

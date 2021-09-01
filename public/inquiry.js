@@ -7,10 +7,42 @@ function initialSetup() {
   //set up the semantic ui dropdowns
   $('.ui.dropdown').dropdown();
 
-  setLocations();
-  setExtracurriculars();
-  setupDuplicates();
-  fillInData();
+  // setLocations();
+  getAllLocations()
+  .then((locations) => {
+    let locationNames = []
+    let locationUIDs = []
+
+    locations.forEach(location => {
+      locationNames.push(location.name);
+      locationUIDs.push(location.id);
+    })
+    addSelectOptions(document.getElementById("location"), locationUIDs, locationNames);
+
+    setExtracurriculars();
+    setupDuplicates();
+    fillInData();
+  })
+  .catch((error) => {
+    alert('We are having issues setting up this registration page. If the issue continues please contact the devs.')
+    console.log(error)
+  })
+}
+
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
+
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
+
+    return locationData;
+  })
 }
 
 /*****************************************************************************
@@ -164,48 +196,6 @@ function combineElements(objects = [], flexType = "input-row")
 
 }
 
-
-/**
- * Set the wasatch location options
- */
-function setLocations () {
-  const wasatchRef = firebase.firestore().collection("Wasatch").doc("general");
-  wasatchRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      const locationElem = document.getElementById("location");
-      let locations = doc.get("locations");
-      let locationArray = []
-      for (let locationUID in locations) {
-        locationArray.push({
-          locationUID : locationUID,
-          locationName: locations[locationUID]["name"]
-        })
-      }
-
-      //alphabetize the list
-      locationArray.sort((a,b) => {
-        let locationNameA = a.locationName;
-        let locationNameB = b.locationName;
-  
-        if (locationNameA < locationNameB) {return -1}
-        else if (locationNameA > locationNameB) {return 1}
-        else {return 0}
-      });
-  
-      locationArray.forEach((location) => {
-        let option = document.createElement("option");
-        option.value = location.locationUID;
-        option.innerText = location.locationName;
-        locationElem.appendChild(option);
-      })
-    }
-  })
-  .catch((error) => {
-    handleFirebaseErrors(error, window.location.href);
-  });
-}
-
 /**
  * Description:
  * grabs the query string for this url which should include a uid and location
@@ -218,36 +208,21 @@ function setLocations () {
 
   if (studentUID) {
     //grab the student data
-    const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+    const studentDocRef = firebase.firestore().collection("Users").doc(studentUID);
     studentDocRef.get()
     .then((studentDoc) => {
       if(studentDoc.exists) {
-        setAllData(studentDoc.data());
         studentData = studentDoc.data();
+        setAllData(studentDoc.data(), 'student');
       }
 
-      //check for act type info just in case
-      // const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
-      // typeDocRef.get()
-      // .then((typeDoc) => {
-      //   if(typeDoc.exists) {
-      //     //pull up the act tab
-      //     document.getElementById("type").classList.remove("hidden");
-      //     setAllData(typeDoc.data());
-      //     typeData = typeDoc.data();
-      //   }
-      // })
-      // .catch((error) => {
-      //   handleFirebaseErrors(error, window.location.href);
-      // });
-
       //grab the parents second because they will have more data (parent already exists from previous student)
-      const parentDocRef = firebase.firestore().collection("Parents").doc(studentDoc.data()["parent"]);
+      const parentDocRef = firebase.firestore().collection("Users").doc(studentDoc.data()["parents"][0]);
       parentDocRef.get()
       .then((parentDoc) => {
         if(parentDoc.exists) {
-          setAllData(parentDoc.data());
           parentData = parentDoc.data();
+          setAllData(parentDoc.data(), 'parent');
         }
       })
       .catch((error) => {
@@ -261,29 +236,34 @@ function setLocations () {
   }
 }
 
-function setAllData(data) {
+function setAllData(data, prefixString) {
   for(const key in data) {
-    let element = document.getElementById(key);
-    if (element) {
-      element.value = data[key];
-      element.dispatchEvent(new Event('change'));
+    //check for user specific data (prefix needed) then general values (prefix not needed)
+    let userElement = document.getElementById(prefixString + key.charAt(0).toUpperCase() + key.slice(1));
+    let generalElement = document.getElementById(key);
+    if (userElement) {
+      userElement.value = data[key];
+      userElement.dispatchEvent(new Event('change'));
+    }
+    else if (generalElement) {
+      generalElement.value = data[key];
+      generalElement.dispatchEvent(new Event('change'));
     }
   }
 
   //special case
 
   //act tests
-  let studentActTests = data["studentActTests"];
+  let studentActTests = data["actTests"];
   if (studentActTests) {
     for (let i = 0; i < studentActTests.length; i++) {
-      // console.log(studentActTests[i]["date"]);
       let test = studentActTests[i];
       addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
     }
   }
   
   //scholarship goals
-  let studentScholarshipArray = data["studentScholarshipArray"];
+  let studentScholarshipArray = data["scholarshipArray"];
   if (studentScholarshipArray) {
     for (let i = 0; i < studentScholarshipArray.length; i++) {
       addElement("studentScholarshipArray",studentScholarshipArray[i]);
@@ -291,29 +271,21 @@ function setAllData(data) {
   }
 
   //top colleges
-  let studentCollegeArray = data["studentCollegeArray"];
+  let studentCollegeArray = data["collegeArray"];
   if (studentCollegeArray) {
     for (let i = 0; i < studentCollegeArray.length; i++) {
       addElement("studentCollegeArray",studentCollegeArray[i]);
     }
   }
 
-  // //extracurriculars
-  // let studentExtracurricularArray = data["studentExtracurricularArray"];
-  // if (studentExtracurricularArray) {
-  //   for (let i = 0; i < studentExtracurricularArray.length; i++) {
-  //     addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
-  //   }
-  // }
-
   //extracurriculars
-  let studentExtracurriculars = data["studentExtracurriculars"]
+  let studentExtracurriculars = data["extracurriculars"]
   if (studentExtracurriculars) {
     $("#studentExtracurriculars").closest(".ui.dropdown").dropdown("set selected", studentExtracurriculars);
   }
 
   //types
-  let studentTypes = data["studentTypes"]
+  let studentTypes = data["types"]
   if (studentTypes) {
     $("#studentTypes").closest(".ui.dropdown").dropdown("set selected", studentTypes);
   }
@@ -359,7 +331,7 @@ function objectifyRegistration() {
 
   for (let i = 0; i < parentInputs.length; i++) {
     //check for duplicate id's
-    let id = parentInputs[i].id;
+    let id = removeIdPrefix(parentInputs[i].id);
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
@@ -367,10 +339,12 @@ function objectifyRegistration() {
       parentInputValues[id] = parentInputs[i].value;
     }
   }
+  //add in location and type to the parent
+  parentInputValues["location"] = allInputValues["location"];
 
   for (let i = 0; i < studentInputs.length; i++) {
     //check for duplicate id's
-    let id = studentInputs[i].id;
+    let id = removeIdPrefix(studentInputs[i].id);
     if (id.includes('_duplicate')) {
       id = id.split('_')[0];
     }
@@ -382,8 +356,8 @@ function objectifyRegistration() {
   studentInputValues["location"] = allInputValues["location"];
 
   //handle the extracurriculars dropdown and type dropdown
-  studentInputValues["studentExtracurriculars"] = getDropdownValues("studentExtracurriculars")
-  studentInputValues["studentTypes"] = getDropdownValues("studentTypes")
+  studentInputValues["extracurriculars"] = getDropdownValues("studentExtracurriculars")
+  studentInputValues["types"] = getDropdownValues("studentTypes")
   if (getDropdownValues("studentTypes").includes('inactive')) {
     studentInputValues['status'] = "inactive";
   }
@@ -405,7 +379,7 @@ function objectifyRegistration() {
       }
       else {
         //check for duplicate id's
-        let id = actInputs[i].id;
+        let id = removeIdPrefix(actInputs[i].id);
         if (id.includes('_duplicate')) {
           id = id.split('_')[0];
         }
@@ -428,7 +402,7 @@ function objectifyRegistration() {
       actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
       actTestArray.push(actTest);
     }
-    actInputValues["studentActTests"] = actTestArray;
+    actInputValues["actTests"] = actTestArray;
   }
 
   for (let i = 0; i < adminInputs.length; i++) {
@@ -449,6 +423,14 @@ function objectifyRegistration() {
     actValues: actInputValues,
     adminValues: adminInputValues 
   }
+}
+
+function removeIdPrefix(oldID) {
+  //remove the prefix parent or student
+  let newID = oldID.replace('student', '').replace('parent', '');
+  //camelCase the string
+  newID = newID.charAt(0).toLowerCase() + newID.slice(1)
+  return newID;
 }
 
 /**
@@ -472,6 +454,7 @@ function createRegistration() {
   isWorking(true);
 
   const registrationObject = objectifyRegistration();
+  console.log(registrationObject.studentValues)
 
   let allInputValues = registrationObject["allValues"];
   let parentInputValues = registrationObject["parentValues"];
@@ -483,12 +466,12 @@ function createRegistration() {
   if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
     //if no student email was created, generate one
     let randomNumber = Math.round(Math.random() * 10000).toString().padStart(4, '0');
-    studentInputValues['studentEmail'] = studentInputValues['studentEmail'].replace(/\s+/g, '') || studentInputValues['studentFirstName'].replace(/\s+/g, '') + studentInputValues['studentLastName'].replace(/\s+/g, '') + randomNumber + '@wasatchtutors.com';
+    studentInputValues['email'] = studentInputValues['email'].replace(/\s+/g, '') || studentInputValues['firstName'].replace(/\s+/g, '').toLowerCase() + studentInputValues['lastName'].replace(/\s+/g, '').toLowerCase() + randomNumber + '@lyrnwithus.com';
 
     //create the student account
     const addUser = firebase.functions().httpsCallable('addUser');
     addUser({
-      email: studentInputValues['studentEmail'].replace(/\s+/g, ''),
+      email: studentInputValues['email'],
       password: "abc123",
       role: "student"
     })
@@ -500,7 +483,7 @@ function createRegistration() {
         //create the parent account
         const addUser = firebase.functions().httpsCallable('addUser');
         addUser({
-          email: parentInputValues['parentEmail'].replace(/\s+/g, ''),
+          email: parentInputValues['email'].replace(/\s+/g, ''),
           password: "abc123",
           role: "parent"
         })
@@ -510,17 +493,13 @@ function createRegistration() {
 
           //new parent
           if (newParent) {
-            let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
-            let parentProm = setParentDoc(parentUID, studentUID, parentInputValues);
-            let typeProm = setActDoc(studentUID, "ACT", actInputValues);
+            let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...actInputValues, ...adminInputValues});
+            let parentProm = setParentDoc(parentUID, studentUID, {...parentInputValues});
 
-            let locationUID = allInputValues["location"];
             let studentFirstName = allInputValues["studentFirstName"];
             let studentLastName = allInputValues["studentLastName"];
             let parentFirstName = allInputValues["parentFirstName"];
             let parentLastName = allInputValues["parentLastName"];
-
-            let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
             let studentDisplayNameProm;
             if (studentFirstName) {
@@ -539,7 +518,7 @@ function createRegistration() {
               })
             }
 
-            let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
+            let promises = [studentProm, parentProm, studentDisplayNameProm, parentDisplayNameProm];
             Promise.all(promises)
             .then(() => {
               //go back
@@ -583,28 +562,22 @@ function createRegistration() {
             //the parent already exists. add the student to this parent after confirmation
             let confirmation = confirm('This parent already exists. Would you like to add this student to this parent?')
             if (confirmation) {
-              let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
+              let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...actInputValues, ...adminInputValues});
               let parentProm = updateParentChildren(parentUID, studentUID);
-              let typeProm = setActDoc(studentUID, "ACT", actInputValues);
 
-              let locationUID = allInputValues["location"];
               let studentFirstName = allInputValues["studentFirstName"];
               let studentLastName = allInputValues["studentLastName"];
-              let parentFirstName = allInputValues["parentFirstName"];
-              let parentLastName = allInputValues["parentLastName"];
-
-              let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
 
               let studentDisplayNameProm;
               if (studentFirstName) {
                 const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
                 studentDisplayNameProm = updateUserDisplayName({
                   uid: studentUID,
-                  displayName: studentFirstName + " " + studentLastName 
+                  displayName: studentFirstName + " " + studentLastName
                 })
               }
 
-              let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm];
+              let promises = [studentProm, parentProm, studentDisplayNameProm];
               Promise.all(promises)
               .then(() => {
                 //go back
@@ -718,22 +691,18 @@ function updateRegistration() {
     confirm("Are you sure you are ready to update this registration form?")
     ) {
     const studentUID = queryStrings()["student"];
-    const parentUID = studentData["parent"];
+    const parentUID = studentData["parents"][0];
 
-    let studentProm = updateStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
-    let parentProm = updateParentDoc(parentUID, studentUID, parentInputValues);
-    let typeProm = updateActDoc(studentUID, "ACT", actInputValues);
+    let studentProm = updateStudentDoc(studentUID, parentUID, {...studentInputValues, ...actInputValues, ...adminInputValues});
+    let parentProm = updateParentDoc(parentUID, studentUID, {...parentInputValues});
 
-    let locationUID = allInputValues["location"];
     let studentFirstName = allInputValues["studentFirstName"];
     let studentLastName = allInputValues["studentLastName"];
     let parentFirstName = allInputValues["parentFirstName"];
     let parentLastName = allInputValues["parentLastName"];
 
-    let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-
     //update student email
-    let studentEmail = studentInputValues['studentEmail'];
+    let studentEmail = studentInputValues['email'];
     let studentEmailProm;
     if (studentEmail) {
       const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
@@ -744,7 +713,7 @@ function updateRegistration() {
     }
 
     //update parent email
-    let parentEmail = parentInputValues['parentEmail'];
+    let parentEmail = parentInputValues['email'];
     let parentEmailProm;
     if (parentEmail) {
       const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
@@ -774,7 +743,7 @@ function updateRegistration() {
       })
     }
 
-    let promises = [studentProm, parentProm, typeProm, locationProm, studentEmailProm, parentEmailProm, studentDisplayNameProm, parentDisplayNameProm];
+    let promises = [studentProm, parentProm, studentEmailProm, parentEmailProm, studentDisplayNameProm, parentDisplayNameProm];
     Promise.all(promises)
     .then(() => {
       //go back
@@ -794,10 +763,11 @@ function updateRegistration() {
 }
 
 function setStudentDoc(studentUID, parentUID, studentValues) {
-  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  const studentDocRef = firebase.firestore().collection("Users").doc(studentUID);
   let studentDocData = {
     ...studentValues,
-    parent: parentUID,
+    roles: ['student'], 
+    parents: [parentUID],
     createdDate: (new Date().getTime()),
     lastModifiedDate: (new Date().getTime())
   }
@@ -805,9 +775,10 @@ function setStudentDoc(studentUID, parentUID, studentValues) {
 }
 
 function setParentDoc(parentUID, studentUID, parentValues) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+  const parentDocRef = firebase.firestore().collection("Users").doc(parentUID);
   let parentDocData = {
     ...parentValues,
+    roles: ['parent'],
     students : [studentUID],
     createdDate: (new Date().getTime()),
     lastModifiedDate: (new Date().getTime())
@@ -815,69 +786,32 @@ function setParentDoc(parentUID, studentUID, parentValues) {
   return parentDocRef.set(parentDocData)
 }
 
-function setActDoc(studentUID, studentType, typeValues) {
-  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.set({
-    ...typeValues,
-    createdDate: (new Date().getTime()),
-    lastModifiedDate: (new Date().getTime())
-  })
-}
-
 function updateStudentDoc(studentUID, parentUID, studentValues) {
-  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
+  const studentDocRef = firebase.firestore().collection("Users").doc(studentUID);
   let studentDocData = {
     ...studentValues,
-    parent: parentUID,
+    parents: firebase.firestore.FieldValue.arrayUnion(parentUID),
     lastModifiedDate: (new Date().getTime())
   }
   return studentDocRef.update(studentDocData);
 }
 
 function updateParentDoc(parentUID, studentUID, parentValues) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+  const parentDocRef = firebase.firestore().collection("Users").doc(parentUID);
   let parentDocData = {
     ...parentValues,
-    students : [studentUID],
+    students : firebase.firestore.FieldValue.arrayUnion(studentUID),
     lastModifiedDate: (new Date().getTime())
   }
   return parentDocRef.update(parentDocData)
 }
 
-function updateActDoc(studentUID, studentType, typeValues) {
-  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.set({
-    ...typeValues,
-    lastModifiedDate: (new Date().getTime())
-  }, {merge: true})
-  //might not have act setup if they existed before change
-}
-
 function updateParentChildren(parentUID, studentUID) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
+  const parentDocRef = firebase.firestore().collection("Users").doc(parentUID);
   return parentDocRef.update({
     students : firebase.firestore.FieldValue.arrayUnion(studentUID),
     lastModifiedDate: (new Date().getTime())
   })
-}
-
-function updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
-
-  //don't need to do this since we're pulling students for the list from their profile and not the location
-
-  // const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
-  // let activeStudent = {
-  //   studentFirstName : studentFirstName,
-  //   studentLastName : studentLastName,
-  //   parentUID: parentUID,
-  //   parentFirstName: parentFirstName,
-  //   parentLastName: parentLastName
-  // }
-  // return locationDocRef.update({
-  //   [`activeStudents.${studentUID}`]: activeStudent
-  // })
-
-  return Promise.resolve();
 }
 
 function getAllInputs() {
@@ -1323,11 +1257,11 @@ function capitalizeFirstLettersInString(string) {
 //   }
 // });
 
-const wasatchLocation = document.getElementById('location');
-wasatchLocation.addEventListener('change', () => {
+const locationElement = document.getElementById('location');
+locationElement.addEventListener('change', () => {
   clearSchoolOptions();
 
-  let location = wasatchLocation.value;
+  let location = locationElement.value;
   let schools = [];
   const schoolRef = firebase.firestore().collection("Schools");
   schoolRef.where("schoolLocation", "==", location).get()

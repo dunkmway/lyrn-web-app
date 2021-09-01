@@ -1,17 +1,22 @@
 //This file must be included on any page that uses firebase
 //or that we want restrict access to
 
+// Import the functions you need from the SDKs you need
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
+
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-var firebaseConfig = {
-apiKey: "AIzaSyDWYoQicpF7ROpQJR-FT56Sb0aaou4v-sk",
-authDomain: "wasatch-tutors-web-app.firebaseapp.com",
-projectId: "wasatch-tutors-web-app",
-storageBucket: "wasatch-tutors-web-app.appspot.com",
-messagingSenderId: "726239338475",
-appId: "1:726239338475:web:da31cd3223e7c3159543ae",
-measurementId: "G-EJTMKB10B7"
+const firebaseConfig = {
+    apiKey: "AIzaSyD8GSMZzjbubQ7AGcQKIV-enpDYpz_07mo",
+    authDomain: "lyrn-web-app.firebaseapp.com",
+    projectId: "lyrn-web-app",
+    storageBucket: "lyrn-web-app.appspot.com",
+    messagingSenderId: "80732012862",
+    appId: "1:80732012862:web:22ffb978c80a1d2a0f2c6f",
+    measurementId: "G-F2QZT3W2CX"
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
@@ -60,6 +65,7 @@ function checkPermissions() {
         ...parentPages,
         ...studentPages,
         "/Dashboard/Admin",
+        "/staff-registration"
     ]
     
     
@@ -107,8 +113,8 @@ function checkPermissions() {
                         //UNLIMITED POWER!!!
                         break;
                     default:
-                        // console.log("default");
-                        window.location.replace(location.origin + "/Sign-In/Sign-In");
+                        alert("no role for this user. contact the devs to fix this issue. will sign out user now. goodbye!");
+                        signOut();
                 }
                 clearLoadingScreen();
             })
@@ -149,28 +155,28 @@ function clearLoadingScreen() {
 }
 
 function sendErrorReport(msg, url, lineNo, columnNo, error) {
-    console.log("An error occurred")
+    console.log(error)
     // BELOW CODE IS FOR ERRORS
     //let userMsg = prompt("OH NO!!! An error has occured.\nLet us know what happened and we'll get right on it!") ?? null;
-    var report = {
-        UserMessage: null,
-        Message: msg,
-        URL: url,
-        Line: lineNo,
-        Column: columnNo,
-        Error: JSON.stringify(error),
-        Timestamp: (new Date().getTime())
-    }
+    // var report = {
+    //     UserMessage: null,
+    //     Message: msg,
+    //     URL: url,
+    //     Line: lineNo,
+    //     Column: columnNo,
+    //     Error: JSON.stringify(error),
+    //     Timestamp: (new Date().getTime())
+    // }
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            report.User = user.uid;
-        }
-        const errorRef = firebase.firestore().collection("Error-Reports").doc();
-        errorRef.set(report)
-        .then().catch();
-        return false;
-    });
+    // firebase.auth().onAuthStateChanged((user) => {
+    //     if (user) {
+    //         report.User = user.uid;
+    //     }
+    //     const errorRef = firebase.firestore().collection("Error-Reports").doc();
+    //     errorRef.set(report)
+    //     .then().catch();
+    //     return false;
+    // });
 }
 
 function handleFirebaseErrors(err, file) {

@@ -19,8 +19,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-    <script src="Site Templates/site-wide.js"></script>
-    <script src="staff-registration.js"></script>
+    <script src="Site Templates/site-wide.js" defer></script>
+    <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="staff-registration.js" defer></script>
   </head>
 
 
@@ -481,6 +482,14 @@
                 <option disabled value="">Select a Lyrn Location first</option>
               <select>
             </div>
+
+            <!-- Staff Extracurriculars -->
+            <div class="input-block">
+              <label for="extracurriculars" class="label">Extracurriculars</label>
+              <div class="more-info" data-more-info="Choose activities you are interested. We're trying to get an idea of interest to match you up with studetns with similiar interests">?</div>
+              <select id="extracurriculars" name="extracurriculars" class="ui dropdown" multiple>
+              </select>
+            </div>
           </div>
 
         </div>
@@ -498,7 +507,14 @@
             <div class="input-block">
               <label for="color" class="label">Color</label>
               <div class="more-info" data-more-info="This color will be used in association with this staff member">?</div>
-              <input type="color" id="color" class="input">
+              <input type="color" id="color" class="input" value="#DDEAFE">
+            </div>
+
+            <!-- Staff Wage --> 
+            <div class="input-block">
+              <label for="wage" class="label">Wage</label>
+              <div class="more-info" data-more-info="This is the hourly wage that this staff member will receive for any event they are added to on the calendar.">?</div>
+              <input id="wage" class="input" min="0" max="20">
             </div>
           </div>
 
@@ -551,7 +567,7 @@
 
         <div class="input-row">
           <button id="backBtn" class="button" onclick="goBack()">back</button>
-          <!-- <button id="submitBtn" class="button" onclick="submitRegistration()">submit</button> -->
+          <button id="submitBtn" class="button" onclick="submitRegistration()">submit</button>
         </div>
       </div>
 

@@ -1,209 +1,42 @@
-let studentData = {};
-let parentData = {};
-let typeData = {};
+let staffData = {};
 
 
 function initialSetup() {
   //set up the semantic ui dropdowns
   $('.ui.dropdown').dropdown();
 
-  setLocations();
-  setExtracurriculars();
-  setupDuplicates();
-  fillInData();
-}
+  getAllLocations()
+  .then((locations) => {
+    let locationNames = []
+    let locationUIDs = []
 
-/*****************************************************************************
- * Description:
- *   This will add a generic input to the end of the input-block
-*****************************************************************************/
-function addElement(id, value = "") {
+    locations.forEach(location => {
+      locationNames.push(location.name);
+      locationUIDs.push(location.id);
+    })
+    addSelectOptions(document.getElementById("location"), locationUIDs, locationNames);
 
-  let placeholders = {}
-  placeholders['studentScholarshipArray'] = ['Presidential', 'Exemplary', 'Outstanding', 'Distinguished']
-  placeholders['studentCollegeArray'] = ['Massachusetts Institute of Technology (MIT)', 'Brigham Young University (BYU)', 'University of Utah (UoU)', 'Utah State University (USU)', 'Utah Valley University (UVU)'];
-  placeholders['studentExtracurricularArray'] = ['Leadership', 'Internship', 'Atheletic', 'Work', 'Academic Teams and Clubs', 'Creative Pursuits', 'Technological Skills', 'Political Activism', 'Travel']
-
-  let phrase = "label[for=\"" + id + "\"]";
-  let parentElement = document.querySelector(phrase).parentNode;
-
-  let newElement = document.createElement("input");
-  newElement.setAttribute("type", "text");
-  newElement.setAttribute("id", id + (parentElement.childElementCount - 2).toString());
-  newElement.setAttribute("value", value);
-
-  if (parentElement.childElementCount - 3 < placeholders[id].length) {
-    newElement.setAttribute("placeholder", placeholders[id][parentElement.childElementCount - 3]);
-  }
-  else {
-    newElement.setAttribute("placeholder", "Other");
-  }
-
-  newElement.className = "input";
-  parentElement.appendChild(newElement);
-}
-
-/*****************************************************************************
- * Description:
- *   This will remove the given element plus its grandparents and down
-*****************************************************************************/
-function removeElement(id) {
-  let phrase = "label[for=\"" + id + "\"]";
-  let parentElement = document.querySelector(phrase).parentNode;
-
-  if (parentElement.childElementCount > 3) {
-    parentElement.lastChild.remove();
-  }
-}
-
-function addActTest(date = "", english = "", math = "", reading = "", science = "") {
-  placeholders = ['7/17/2021', '9/11/2021', '10/23/2021', '12/11/2021', '2/5/2022', '4/9/2022', '6/11/2022', '7/16/2022']
-  let id = "studentACTDateArray"
-
-  let phrase = "label[for^=\"studentACTTest\"]";
-  let parentElement = document.querySelector(phrase).parentNode;
-
-  let numChildren = (parentElement.childElementCount - 4);
-
-  let scores = []
-  let dateElem = createElement("div", "input-row")
-  let element;
-  if (numChildren + 1 < placeholders.length) {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "value"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), placeholders[(numChildren)], date]], ["ACT Date " + (numChildren + 1).toString(), ""], "input-block")
-    element.addEventListener('keydown',enforceNumericFormat);
-    element.addEventListener('keyup',formatToDate);
-  }
-  else {
-    element = createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder"]], [["actTestDate" + (numChildren + 1).toString()],["actTestDate" + (numChildren + 1).toString(), "MM/DD/YYYY"]], ["ACT Date " + (numChildren + 1).toString(), ""], "input-block")
-  }
-
-  dateElem.appendChild(element)
-
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestEnglish" + (numChildren + 1).toString()],["actTestEnglish" + (numChildren + 1).toString(), "25", "2", "0", "36", english]], ["English:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestMath" + (numChildren + 1).toString()],["actTestMath" + (numChildren + 1).toString(), "25", "2", "0", "36", math]], ["Math:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestReading" + (numChildren + 1).toString()],["actTestReading" + (numChildren + 1).toString(), "25", "2", "0", "36", reading]], ["Reading:", ""], "input-block"))
-  scores.push(createElements(["label", "input"], ["label", "input"], [["for"],["id", "placeholder", "maxlength", "min", "max", "value"]], [["actTestScience" + (numChildren + 1).toString()],["actTestScience" + (numChildren + 1).toString(), "25", "2", "0", "36", science]], ["Science:", ""], "input-block"))
-
-  for (let ele = 0; ele < scores.length; ele++) {
-    scores[ele].addEventListener('keydown',enforceNumericFormat);
-    scores[ele].addEventListener('keyup',formatToNumber);
-  }
-
-  let score = combineElements(scores, "input-row")
-  let actTestDiv = document.createElement("div");
-  actTestDiv.id = "actTest" + (numChildren + 1).toString();
-  parentElement.appendChild(actTestDiv);
-  actTestDiv.appendChild(dateElem);
-  actTestDiv.appendChild(score);
-}
-
-function removeActTest() {
-  let phrase = "label[for^=\"studentACTTestsArray\"]";
-  let parentElement = document.querySelector(phrase).parentNode;
-  let children = parentElement.querySelectorAll("div[id^='actTest']")
-
-  let numChildren = (parentElement.childElementCount - 4);
-
-  if (numChildren >= 1) {
-    children[children.length - 1].remove()
-    // children[children.length - 2].remove()
-  }
-
-}
-
-
-
-function createElements(elementType = [], classes = [], attributes = [], values = [], text = [], flexType = "input-row") {
-  if (elementType.length >= 0) {
-    let elements = createElement("div", flexType);
-
-    if (attributes.length == values.length && attributes.length >= 0) {
-      for (let i = 0; i < elementType.length; i++) {
-        elements.appendChild(createElement(elementType[i], classes[i], attributes[i], values[i], text[i]));
-      }
-    }
-
-    return elements;
-
-  }
-}
-
-function createElement(elementType, classes = "", attributes = [], values = [], text = "") {
-  let question = document.createElement(elementType);
-
-  if (attributes.length == values.length && attributes.length > 0) {
-    for (let i = 0; i < attributes.length; i++) {
-      question.setAttribute(attributes[i], values[i]);
-    }
-  }
-
-  if (classes != "") {
-    question.className = classes;
-  }
-
-  if (text != "") {
-    question.innerHTML = text;
-  }
-  return question;
-
-}
-
-function combineElements(objects = [], flexType = "input-row")
-{
-  let item = createElement("div", flexType, [], [], "");
-
-  if (objects.length > 1)
-  {
-    for (let i = 0; i < objects.length; i++)
-    {
-      item.appendChild(objects[i]);
-    }
-  }
-
-  return item;
-
-}
-
-
-/**
- * Set the wasatch location options
- */
-function setLocations () {
-  const wasatchRef = firebase.firestore().collection("Wasatch").doc("general");
-  wasatchRef.get()
-  .then((doc) => {
-    if (doc.exists) {
-      const locationElem = document.getElementById("location");
-      let locations = doc.get("locations");
-      let locationArray = []
-      for (let locationUID in locations) {
-        locationArray.push({
-          locationUID : locationUID,
-          locationName: locations[locationUID]["name"]
-        })
-      }
-
-      //alphabetize the list
-      locationArray.sort((a,b) => {
-        let locationNameA = a.locationName;
-        let locationNameB = b.locationName;
-  
-        if (locationNameA < locationNameB) {return -1}
-        else if (locationNameA > locationNameB) {return 1}
-        else {return 0}
-      });
-  
-      locationArray.forEach((location) => {
-        let option = document.createElement("option");
-        option.value = location.locationUID;
-        option.innerText = location.locationName;
-        locationElem.appendChild(option);
-      })
-    }
+    setExtracurriculars();
+    setupDuplicates();
+    fillInData();
   })
-  .catch((error) => {
-    handleFirebaseErrors(error, window.location.href);
-  });
+}
+
+
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
+
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
+
+    return locationData;
+  })
 }
 
 /**
@@ -214,49 +47,20 @@ function setLocations () {
  */
  function fillInData() {
 
-  const studentUID = queryStrings()["student"];
+  const staffUID = queryStrings()["staff"];
 
-  if (studentUID) {
+  if (staffUID) {
     //grab the student data
-    const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-    studentDocRef.get()
-    .then((studentDoc) => {
-      if(studentDoc.exists) {
-        setAllData(studentDoc.data());
-        studentData = studentDoc.data();
+    const staffDocRef = firebase.firestore().collection("Users").doc(staffUID);
+    staffDocRef.get()
+    .then((staffDoc) => {
+      if(staffDoc.exists) {
+        setAllData(staffDoc.data());
+        staffData = staffDoc.data();
       }
-
-      //check for act type info just in case
-      // const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
-      // typeDocRef.get()
-      // .then((typeDoc) => {
-      //   if(typeDoc.exists) {
-      //     //pull up the act tab
-      //     document.getElementById("type").classList.remove("hidden");
-      //     setAllData(typeDoc.data());
-      //     typeData = typeDoc.data();
-      //   }
-      // })
-      // .catch((error) => {
-      //   handleFirebaseErrors(error, window.location.href);
-      // });
-
-      //grab the parents second because they will have more data (parent already exists from previous student)
-      const parentDocRef = firebase.firestore().collection("Parents").doc(studentDoc.data()["parent"]);
-      parentDocRef.get()
-      .then((parentDoc) => {
-        if(parentDoc.exists) {
-          setAllData(parentDoc.data());
-          parentData = parentDoc.data();
-        }
-      })
-      .catch((error) => {
-        handleFirebaseErrors(error, window.location.href);
-      });
     })
     .catch((error) => {
       handleFirebaseErrors(error, window.location.href);
-      
     });
   }
 }
@@ -272,58 +76,30 @@ function setAllData(data) {
 
   //special case
 
-  //act tests
-  let studentActTests = data["studentActTests"];
-  if (studentActTests) {
-    for (let i = 0; i < studentActTests.length; i++) {
-      // console.log(studentActTests[i]["date"]);
-      let test = studentActTests[i];
-      addActTest(test["date"], test["english"], test["math"], test["reading"], test["science"]);
-    }
+  //types
+  let staffRoles = data["roles"]
+  if (staffRoles) {
+    $("#roles").closest(".ui.dropdown").dropdown("set selected", staffRoles);
   }
-  
-  //scholarship goals
-  let studentScholarshipArray = data["studentScholarshipArray"];
-  if (studentScholarshipArray) {
-    for (let i = 0; i < studentScholarshipArray.length; i++) {
-      addElement("studentScholarshipArray",studentScholarshipArray[i]);
-    }
-  }
-
-  //top colleges
-  let studentCollegeArray = data["studentCollegeArray"];
-  if (studentCollegeArray) {
-    for (let i = 0; i < studentCollegeArray.length; i++) {
-      addElement("studentCollegeArray",studentCollegeArray[i]);
-    }
-  }
-
-  // //extracurriculars
-  // let studentExtracurricularArray = data["studentExtracurricularArray"];
-  // if (studentExtracurricularArray) {
-  //   for (let i = 0; i < studentExtracurricularArray.length; i++) {
-  //     addElement("studentExtracurricularArray",studentExtracurricularArray[i]);
-  //   }
-  // }
 
   //extracurriculars
-  let studentExtracurriculars = data["studentExtracurriculars"]
-  if (studentExtracurriculars) {
-    $("#studentExtracurriculars").closest(".ui.dropdown").dropdown("set selected", studentExtracurriculars);
+  let staffExtracurriculars = data["extracurriculars"]
+  if (staffExtracurriculars) {
+    $("#extracurriculars").closest(".ui.dropdown").dropdown("set selected", staffExtracurriculars);
   }
 
-  //types
-  let studentTypes = data["studentTypes"]
-  if (studentTypes) {
-    $("#studentTypes").closest(".ui.dropdown").dropdown("set selected", studentTypes);
+  //qualified lessons
+  let staffQualifiedLessons = data["qualifiedLessons"]
+  if (staffQualifiedLessons) {
+    $("#qualifiedLessons").closest(".ui.dropdown").dropdown("set selected", staffQualifiedLessons);
   }
 
 }
 
 function submitRegistration() {
-  const studentUID = queryStrings()["student"];
+  const staffUID = queryStrings()["staff"];
   //if a student UID is a query string then the submit should be an update
-  if (studentUID) {
+  if (staffUID) {
     updateRegistration();
   }
   //else the submit should be a set
@@ -334,16 +110,8 @@ function submitRegistration() {
 
 function objectifyRegistration() {
   let allInputs = getAllInputs();
-  let parentInputs = getParentInputs();
-  let studentInputs = getStudentInputs();
-  let actInputs = getActInputs();
-  let adminInputs = getAdminInputs();
 
   let allInputValues = {}
-  let parentInputValues = {};
-  let studentInputValues = {};
-  let actInputValues = {};
-  let adminInputValues ={};
 
   //convert input arrays into objects
   for (let i = 0; i < allInputs.length; i++) {
@@ -357,97 +125,24 @@ function objectifyRegistration() {
     }
   }
 
-  for (let i = 0; i < parentInputs.length; i++) {
-    //check for duplicate id's
-    let id = parentInputs[i].id;
-    if (id.includes('_duplicate')) {
-      id = id.split('_')[0];
-    }
-    if (parentInputs[i].dataset.save != 'false') {
-      parentInputValues[id] = parentInputs[i].value;
-    }
-  }
+  //handle the dropdowns
+  allInputValues["roles"] = getDropdownValues("roles");
+  allInputValues['qualifiedLessons'] = getDropdownValues('qualifiedLessons');
+  allInputValues['extracurriculars'] = getDropdownValues('extracurriculars');
 
-  for (let i = 0; i < studentInputs.length; i++) {
-    //check for duplicate id's
-    let id = studentInputs[i].id;
-    if (id.includes('_duplicate')) {
-      id = id.split('_')[0];
-    }
-    if (studentInputs[i].dataset.save != 'false') {
-      studentInputValues[id] = studentInputs[i].value;
-    } 
-  }
-  //add in location and type to the student
-  studentInputValues["location"] = allInputValues["location"];
+  //number values
+  allInputValues['wage'] = allInputValues['wage'] ? parseInt(allInputValues['wage']) : 0;
 
-  //handle the extracurriculars dropdown and type dropdown
-  studentInputValues["studentExtracurriculars"] = getDropdownValues("studentExtracurriculars")
-  studentInputValues["studentTypes"] = getDropdownValues("studentTypes")
-  if (getDropdownValues("studentTypes").includes('inactive')) {
-    studentInputValues['status'] = "inactive";
+
+  if (getDropdownValues("roles").includes('inactive')) {
+    allInputValues['status'] = "inactive";
   }
   else {
-    studentInputValues['status'] = "active";
-  }
-
-
-  if (actInputs) {
-    for (let i = 0; i < actInputs.length; i++) {
-      if (actInputs[i].id.includes("Array")) {
-        if (actInputs[i].parentNode.querySelector('label').getAttribute('for') in actInputValues) {
-          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')].push(actInputs[i].value)
-        }
-        else {
-          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')] = []
-          actInputValues[actInputs[i].parentNode.querySelector('label').getAttribute('for')].push(actInputs[i].value)
-        }
-      }
-      else {
-        //check for duplicate id's
-        let id = actInputs[i].id;
-        if (id.includes('_duplicate')) {
-          id = id.split('_')[0];
-        }
-        //check for the act test
-        if (!id.includes("actTest") && actInputs[i].dataset.save != 'false') {
-          actInputValues[id] = actInputs[i].value;
-        }
-      }
-    }
-
-    //special case for actTest
-    let actTestArray = [];
-    let actTestDivs = document.querySelectorAll("div[id^='actTest']");
-    for (let i = 0; i < actTestDivs.length; i++) {
-      let actTest = {}
-      actTest["date"] = actTestDivs[i].querySelector("input[id*='Date']").value;
-      actTest["english"] = actTestDivs[i].querySelector("input[id*='English']").value;
-      actTest["math"] = actTestDivs[i].querySelector("input[id*='Math']").value;
-      actTest["reading"] = actTestDivs[i].querySelector("input[id*='Reading']").value;
-      actTest["science"] = actTestDivs[i].querySelector("input[id*='Science']").value;
-      actTestArray.push(actTest);
-    }
-    actInputValues["studentActTests"] = actTestArray;
-  }
-
-  for (let i = 0; i < adminInputs.length; i++) {
-    //check for duplicate id's
-    let id = adminInputs[i].id;
-    if (id.includes('_duplicate')) {
-      id = id.split('_')[0];
-    }
-    if (adminInputs[i].dataset.save != false) {
-      adminInputValues[id] = adminInputs[i].value;
-    }
+    allInputValues['status'] = "active";
   }
 
   return {
     allValues: allInputValues,
-    parentValues: parentInputValues,
-    studentValues: studentInputValues,
-    actValues: actInputValues,
-    adminValues: adminInputValues 
   }
 }
 
@@ -474,211 +169,68 @@ function createRegistration() {
   const registrationObject = objectifyRegistration();
 
   let allInputValues = registrationObject["allValues"];
-  let parentInputValues = registrationObject["parentValues"];
-  let studentInputValues = registrationObject["studentValues"];
-  let actInputValues = registrationObject["actValues"];
-  let adminInputValues = registrationObject["adminValues"];
 
   //validate and confirm submission
   if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
-    //if no student email was created, generate one
-    let randomNumber = Math.round(Math.random() * 10000).toString().padStart(4, '0');
-    studentInputValues['studentEmail'] = studentInputValues['studentEmail'].replace(/\s+/g, '') || studentInputValues['studentFirstName'].replace(/\s+/g, '') + studentInputValues['studentLastName'].replace(/\s+/g, '') + randomNumber + '@wasatchtutors.com';
-
-    //create the student account
+    //create the staff account
     const addUser = firebase.functions().httpsCallable('addUser');
     addUser({
-      email: studentInputValues['studentEmail'].replace(/\s+/g, ''),
+      email: allInputValues['email'].replace(/\s+/g, ''),
       password: "abc123",
-      role: "student"
+      role: getHighestRole(getDropdownValues('roles'))
     })
     .then((result) => {
-      let studentUID = result.data.user.uid;
-      let newStudent = result.data.newUser;
-      if (newStudent) {
+      let staffUID = result.data.user.uid;
+      let newStaff = result.data.newUser;
+      if (newStaff) {
 
-        //create the parent account
-        const addUser = firebase.functions().httpsCallable('addUser');
-        addUser({
-          email: parentInputValues['parentEmail'].replace(/\s+/g, ''),
-          password: "abc123",
-          role: "parent"
-        })
-        .then((result) => {
-          let parentUID = result.data.user.uid;
-          let newParent = result.data.newUser;
+        let staffProm = setStaffDoc(staffUID, allInputValues);
+        const staffFirstName = allInputValues['firstName'];
+        const staffLastName = allInputValues['lastName'];
 
-          //new parent
-          if (newParent) {
-            let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
-            let parentProm = setParentDoc(parentUID, studentUID, parentInputValues);
-            let typeProm = setActDoc(studentUID, "ACT", actInputValues);
+        let staffDisplayNameProm;
+        if (staffFirstName) {
+          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+          staffDisplayNameProm = updateUserDisplayName({
+            uid: staffUID,
+            displayName: staffFirstName + " " + staffLastName 
+          })
 
-            let locationUID = allInputValues["location"];
-            let studentFirstName = allInputValues["studentFirstName"];
-            let studentLastName = allInputValues["studentLastName"];
-            let parentFirstName = allInputValues["parentFirstName"];
-            let parentLastName = allInputValues["parentLastName"];
-
-            let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-
-            let studentDisplayNameProm;
-            if (studentFirstName) {
-              const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-              studentDisplayNameProm = updateUserDisplayName({
-                uid: studentUID,
-                displayName: studentFirstName + " " + studentLastName 
-              })
-            }
-            let parentDisplayNameProm;
-            if (parentFirstName) {
-              const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-              parentDisplayNameProm = updateUserDisplayName({
-                uid: parentUID,
-                displayName: parentFirstName + " " + parentLastName 
-              })
-            }
-
-            let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm, parentDisplayNameProm];
-            Promise.all(promises)
+          let promises = [staffProm, staffDisplayNameProm];
+          Promise.all(promises)
+          .then(() => {
+            //go back
+            goToDashboard();
+            isWorking(false);
+          })
+          .catch((error) => {
+            //remove the student since the inquiry failed
+            const deleteUser = firebase.functions().httpsCallable('deleteUser');
+            deleteUser({
+              uid: staffUID,
+            })
             .then(() => {
-              //go back
-              goToDashboard();
               isWorking(false);
             })
             .catch((error) => {
-              //remove the student since the inquiry failed
-              const deleteUser = firebase.functions().httpsCallable('deleteUser');
-              deleteUser({
-                uid: studentUID,
-              })
-              .then(() => {
-                isWorking(false);
-              })
-              .catch((error) => {
-                handleFirebaseErrors(error, window.location.href);
-                document.getElementById("errMsg").textContent = error.message;
-                isWorking(false);
-              });
-
-              //remove the parent since the inquiry failed
-              deleteUser({
-                uid: parentUID,
-              })
-              .then(() => {
-                isWorking(false);
-              })
-              .catch((error) => {
-                handleFirebaseErrors(error, window.location.href);
-                document.getElementById("errMsg").textContent = error.message;
-                isWorking(false);
-              });
-
               handleFirebaseErrors(error, window.location.href);
               document.getElementById("errMsg").textContent = error.message;
               isWorking(false);
             });
-          }
-          else {
-            //the parent already exists. add the student to this parent after confirmation
-            let confirmation = confirm('This parent already exists. Would you like to add this student to this parent?')
-            if (confirmation) {
-              let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
-              let parentProm = updateParentChildren(parentUID, studentUID);
-              let typeProm = setActDoc(studentUID, "ACT", actInputValues);
-
-              let locationUID = allInputValues["location"];
-              let studentFirstName = allInputValues["studentFirstName"];
-              let studentLastName = allInputValues["studentLastName"];
-              let parentFirstName = allInputValues["parentFirstName"];
-              let parentLastName = allInputValues["parentLastName"];
-
-              let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-
-              let studentDisplayNameProm;
-              if (studentFirstName) {
-                const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-                studentDisplayNameProm = updateUserDisplayName({
-                  uid: studentUID,
-                  displayName: studentFirstName + " " + studentLastName 
-                })
-              }
-
-              let promises = [studentProm, parentProm, typeProm, locationProm, studentDisplayNameProm];
-              Promise.all(promises)
-              .then(() => {
-                //go back
-                goToDashboard();
-                isWorking(false);
-              })
-              .catch((error) => {
-                //remove the student since the inquiry failed
-                const deleteUser = firebase.functions().httpsCallable('deleteUser');
-                deleteUser({
-                  uid: studentUID,
-                })
-                .then(() => {
-                  isWorking(false);
-                })
-                .catch((error) => {
-                  handleFirebaseErrors(error, window.location.href);
-                  document.getElementById("errMsg").textContent = error.message;
-                  isWorking(false);
-                });
-
-                handleFirebaseErrors(error, window.location.href);
-                document.getElementById("errMsg").textContent = error.message;
-                isWorking(false);
-              });
-            }
-            else {
-              //remove the student since the inquiry was cancelled
-              const deleteUser = firebase.functions().httpsCallable('deleteUser');
-              deleteUser({
-                uid: studentUID,
-              })
-              .then(() => {
-                isWorking(false);
-              })
-              .catch((error) => {
-                handleFirebaseErrors(error, window.location.href);
-                document.getElementById("errMsg").textContent = error.message;
-                isWorking(false);
-              });
-            }
-          }
-        })
-        .catch((error) => {
-          //remove the student since the inquiry failed
-          const deleteUser = firebase.functions().httpsCallable('deleteUser');
-          deleteUser({
-            uid: studentUID,
-          })
-          .then(() => {
-            isWorking(false);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, window.location.href);
-            document.getElementById("errMsg").textContent = error.message;
-            isWorking(false);
           });
-
-          handleFirebaseErrors(error, window.location.href);
-          document.getElementById("errMsg").textContent = error.message;
-          isWorking(false);
-        });
+        }
       }
-      //this student already exists. prompt to try again if not a mistake
+      //this staff already exists. prompt to try again if not a mistake
       else {
-        alert("It looks like this student already exists. If you think this is a mistake please try submitting the registration again.");
+        alert("It looks like this staff already exists. If you think this is a mistake please try submitting the registration again.");
         isWorking(false);
       }
     })
     .catch((error) => {
-      //remove the student since the inquiry failed (this one is just in case the student was created but another part of add student failed)
+      //remove the student since the inquiry failed (this one is just in case the stuaff was created but another part of add staff failed)
       const deleteUser = firebase.functions().httpsCallable('deleteUser');
       deleteUser({
-        uid: studentUID,
+        uid: staffUID,
       })
       .then(() => {
         isWorking(false);
@@ -707,74 +259,40 @@ function updateRegistration() {
   const registrationObject = objectifyRegistration();
 
   let allInputValues = registrationObject["allValues"];
-  let parentInputValues = registrationObject["parentValues"];
-  let studentInputValues = registrationObject["studentValues"];
-  let actInputValues = registrationObject["actValues"];
-  let adminInputValues = registrationObject["adminValues"];
 
   //validate and confirm submission
   if (validateFields(getAllInputs()) && 
-    haveStudentEmail() && 
     confirm("Are you sure you are ready to update this registration form?")
     ) {
-    const studentUID = queryStrings()["student"];
-    const parentUID = studentData["parent"];
+    const staffUID = queryStrings()["staff"];
 
-    let studentProm = updateStudentDoc(studentUID, parentUID, {...studentInputValues, ...adminInputValues});
-    let parentProm = updateParentDoc(parentUID, studentUID, parentInputValues);
-    let typeProm = updateActDoc(studentUID, "ACT", actInputValues);
+    let staffProm = updateStaffDoc(staffUID, allInputValues);
 
-    let locationUID = allInputValues["location"];
-    let studentFirstName = allInputValues["studentFirstName"];
-    let studentLastName = allInputValues["studentLastName"];
-    let parentFirstName = allInputValues["parentFirstName"];
-    let parentLastName = allInputValues["parentLastName"];
+    let staffFirstName = allInputValues["firstName"];
+    let staffLastName = allInputValues["lastName"];
 
-    let locationProm = updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName);
-
-    //update student email
-    let studentEmail = studentInputValues['studentEmail'];
-    let studentEmailProm;
-    if (studentEmail) {
+    //update staff email
+    let staffEmail = allInputValues['email'];
+    let staffEmailProm;
+    if (staffEmail) {
       const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
       emailProm = updateUserEmail({
-        uid: studentUID,
-        email : studentEmail,
+        uid: staffUID,
+        email : staffEmail,
       })
     }
 
-    //update parent email
-    let parentEmail = parentInputValues['parentEmail'];
-    let parentEmailProm;
-    if (parentEmail) {
-      const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
-      emailProm = updateUserEmail({
-        uid: studentUID,
-        email : parentEmail,
-      })
-    }
-
-    //update student display name
-    let studentDisplayNameProm;
-    if (studentFirstName) {
+    //update staff display name
+    let staffDisplayNameProm;
+    if (staffFirstName) {
       const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-      studentDisplayNameProm = updateUserDisplayName({
-        uid: studentUID,
-        displayName: studentFirstName + " " + studentLastName 
+      staffDisplayNameProm = updateUserDisplayName({
+        uid: staffUID,
+        displayName: staffFirstName + " " + staffLastName 
       })
     }
 
-    //update parent display name
-    let parentDisplayNameProm;
-    if (parentFirstName) {
-      const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-      parentDisplayNameProm = updateUserDisplayName({
-        uid: parentUID,
-        displayName: parentFirstName + " " + parentLastName 
-      })
-    }
-
-    let promises = [studentProm, parentProm, typeProm, locationProm, studentEmailProm, parentEmailProm, studentDisplayNameProm, parentDisplayNameProm];
+    let promises = [staffProm, staffEmailProm, staffDisplayNameProm];
     Promise.all(promises)
     .then(() => {
       //go back
@@ -793,128 +311,27 @@ function updateRegistration() {
   }
 }
 
-function setStudentDoc(studentUID, parentUID, studentValues) {
-  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-  let studentDocData = {
-    ...studentValues,
-    parent: parentUID,
+function setStaffDoc(staffUID, staffValues) {
+  const staffDocRef = firebase.firestore().collection("Users").doc(staffUID);
+  let staffDocData = {
+    ...staffValues,
     createdDate: (new Date().getTime()),
     lastModifiedDate: (new Date().getTime())
   }
-  return studentDocRef.set(studentDocData);
+  return staffDocRef.set(staffDocData);
 }
 
-function setParentDoc(parentUID, studentUID, parentValues) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-  let parentDocData = {
-    ...parentValues,
-    students : [studentUID],
-    createdDate: (new Date().getTime()),
+function updateStaffDoc(staffUID, staffValues) {
+  const staffDocRef = firebase.firestore().collection("Users").doc(staffUID);
+  let staffDocData = {
+    ...staffValues,
     lastModifiedDate: (new Date().getTime())
   }
-  return parentDocRef.set(parentDocData)
-}
-
-function setActDoc(studentUID, studentType, typeValues) {
-  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.set({
-    ...typeValues,
-    createdDate: (new Date().getTime()),
-    lastModifiedDate: (new Date().getTime())
-  })
-}
-
-function updateStudentDoc(studentUID, parentUID, studentValues) {
-  const studentDocRef = firebase.firestore().collection("Students").doc(studentUID);
-  let studentDocData = {
-    ...studentValues,
-    parent: parentUID,
-    lastModifiedDate: (new Date().getTime())
-  }
-  return studentDocRef.update(studentDocData);
-}
-
-function updateParentDoc(parentUID, studentUID, parentValues) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-  let parentDocData = {
-    ...parentValues,
-    students : [studentUID],
-    lastModifiedDate: (new Date().getTime())
-  }
-  return parentDocRef.update(parentDocData)
-}
-
-function updateActDoc(studentUID, studentType, typeValues) {
-  const typeDocRef = firebase.firestore().collection("Students").doc(studentUID).collection(studentType).doc("profile");
-  return typeDocRef.set({
-    ...typeValues,
-    lastModifiedDate: (new Date().getTime())
-  }, {merge: true})
-  //might not have act setup if they existed before change
-}
-
-function updateParentChildren(parentUID, studentUID) {
-  const parentDocRef = firebase.firestore().collection("Parents").doc(parentUID);
-  return parentDocRef.update({
-    students : firebase.firestore.FieldValue.arrayUnion(studentUID),
-    lastModifiedDate: (new Date().getTime())
-  })
-}
-
-function updateLocationActive(locationUID, studentUID, studentFirstName, studentLastName, parentUID, parentFirstName, parentLastName) {
-
-  //don't need to do this since we're pulling students for the list from their profile and not the location
-
-  // const locationDocRef = firebase.firestore().collection("Locations").doc(locationUID);
-  // let activeStudent = {
-  //   studentFirstName : studentFirstName,
-  //   studentLastName : studentLastName,
-  //   parentUID: parentUID,
-  //   parentFirstName: parentFirstName,
-  //   parentLastName: parentLastName
-  // }
-  // return locationDocRef.update({
-  //   [`activeStudents.${studentUID}`]: activeStudent
-  // })
-
-  return Promise.resolve();
+  return staffDocRef.update(staffDocData);
 }
 
 function getAllInputs() {
   return document.querySelectorAll("input, select, textarea");
-}
-
-function getRequiredInputs() {
-  return document.getElementById("required_info").querySelectorAll("input, select, textarea");
-}
-
-function getParentInputs() {
-  return document.getElementById("parent_info").querySelectorAll("input, select, textarea");
-}
-
-function getStudentInputs() {
-  return document.getElementById("student_info").querySelectorAll("input, select, textarea");
-}
-
-function getActInputs() {
-  return document.getElementById("act_info").querySelectorAll("input, select, textarea");
-}
-
-function getAdminInputs() {
-  return document.getElementById("admin_info").querySelectorAll("input, select, textarea");
-}
-
-function haveStudentEmail() {
-  let studentEmail = document.getElementById("studentEmail");
-
-  //if we don't have the email return false
-  if (!studentEmail.value.trim()) {
-    studentEmail.parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["studentEmail" + "ErrorMessage"], "* Required *"));
-    return false;
-  }
-  else {
-    return true;
-  }
 }
 
 function validateFields(inputs) {
@@ -963,13 +380,6 @@ function validateFields(inputs) {
         allClear = false;
       }
     }
-  }
-
-  //parent and student must have different emails
-  if (document.getElementById("parentEmail").value.trim() == document.getElementById("studentEmail").value.trim()) {
-    document.getElementById("parentEmail").parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["parentEmail" + "ErrorMessage"], "The student and parent cannot have the same email!"));
-    document.getElementById("studentEmail").parentNode.appendChild(ele = createElement("p", "errorMessage", ["id"], ["parentEmail" + "ErrorMessage"], "The student and parent cannot have the same email!"));
-    allClear = false;
   }
 
   return allClear;
@@ -1194,46 +604,22 @@ function validateInputBirthday(input) {
   return true;
 }
 
-const parentPhone = document.getElementById('parentPhoneNumber');
-parentPhone.addEventListener('keydown',enforceNumericFormat);
-parentPhone.addEventListener('keyup',formatToPhone);
-
-const workPhone = document.getElementById('parentWorkPhoneNumber');
-workPhone.addEventListener('keydown',enforceNumericFormat);
-workPhone.addEventListener('keyup',formatToPhone);
-
-const studentPhone = document.getElementById('studentPhoneNumber');
-studentPhone.addEventListener('keydown',enforceNumericFormat);
-studentPhone.addEventListener('keyup',formatToPhone);
+const phone = document.getElementById('phoneNumber');
+phone.addEventListener('keydown',enforceNumericFormat);
+phone.addEventListener('keyup',formatToPhone);
 
 const inputZipcode = document.getElementById('zipCode');
 inputZipcode.addEventListener('keydown',enforceNumericFormat);
 
-const birthdayElem = document.getElementById('studentBirthday');
+const wage = document.getElementById('wage');
+wage.addEventListener('keydown', enforceDecimalFormat)
+wage.addEventListener('keyup', formatToNumber)
+
+const birthdayElem = document.getElementById('birthday');
 birthdayElem.addEventListener('keydown',enforceNumericFormat);
 birthdayElem.addEventListener('keyup',formatToDate);
 
-// const goalACTDate = document.getElementById('studentDesiredACTDate');
-// goalACTDate.addEventListener('keydown',enforceNumericFormat);
-// goalACTDate.addEventListener('keyup',formatToDate);
-
-const goalACTScore = document.getElementById('studentDesiredACTScore');
-goalACTScore.addEventListener('keydown',enforceNumericFormat);
-goalACTScore.addEventListener('keyup',formatToNumber);
-
-const gpa = document.getElementById('studentGpa');
-gpa.addEventListener('keydown',enforceDecimalFormat);
-gpa.addEventListener('keyup',formatToNumber);
-
-const graduation = document.getElementById('studentGraduation');
-graduation.addEventListener('keydown', enforceNumericFormat);
-graduation.addEventListener('keyup', formatToNumber);
-
 //grade should change graduation year
-
-const grade = document.getElementById('studentGrade');
-grade.addEventListener('change', updateGraduationYear);
-graduation.addEventListener('change', updateGrade);
 
 function updateGraduationYear() {
   console.log("Updating gradution year");
@@ -1310,24 +696,11 @@ function capitalizeFirstLettersInString(string) {
   return words.join(" ");
 }
 
-// const studentType = document.getElementById('studentType');
-// studentType.addEventListener('change', () => {
-//   let type = studentType.options[studentType.selectedIndex].textContent;
-//   //show the act tab
-//   if (type == "ACT") {
-//     document.getElementById("type").classList.remove("hidden");
-//   }
-//   //hide the tab
-//   else {
-//     document.getElementById("type").classList.add("hidden");
-//   }
-// });
-
-const wasatchLocation = document.getElementById('location');
-wasatchLocation.addEventListener('change', () => {
+const locationElement = document.getElementById('location');
+locationElement.addEventListener('change', () => {
   clearSchoolOptions();
 
-  let location = wasatchLocation.value;
+  let location = locationElement.value;
   let schools = [];
   const schoolRef = firebase.firestore().collection("Schools");
   schoolRef.where("schoolLocation", "==", location).get()
@@ -1357,7 +730,7 @@ wasatchLocation.addEventListener('change', () => {
     })
     setSchoolOption("", "none of these")
     //reset student school
-    document.getElementById("studentSchool").value = studentData["studentSchool"] ?? ""
+    document.getElementById("school").value = staffData["school"] ?? ""
   })
   .catch((error) => {
     handleFirebaseErrors(error, window.location.href);
@@ -1368,18 +741,18 @@ function setSchoolOption(schoolId, schoolName) {
   let option = document.createElement('option');
   option.value = schoolId;
   option.innerHTML = schoolName;
-  document.getElementById("studentSchool").appendChild(option);
+  document.getElementById("school").appendChild(option);
 }
 
 function clearSchoolOptions() {
-  document.getElementById("studentSchool").innerHTML = null;
+  document.getElementById("school").innerHTML = null;
   let option = document.createElement('option');
   option.value = "";
   option.innerHTML = "select a school";
   option.selected = true;
   option.disabled = true;
 
-  document.getElementById("studentSchool").appendChild(option);
+  document.getElementById("school").appendChild(option);
 }
 
 function setExtracurriculars() {
@@ -1388,7 +761,7 @@ function setExtracurriculars() {
   .then((doc) => {
     if (doc.exists) {
       const data = doc.data();
-      const extracurricularElem = document.getElementById("studentExtracurriculars");
+      const extracurricularElem = document.getElementById("extracurriculars");
 
       let extracurricularArray = data.extracurriculars;
       extracurricularArray.sort();
@@ -1443,55 +816,3 @@ function goBack() {
     history.back()
   }
 }
-
-function marketingCheck(type) {
-  let moreWrapper = document.getElementById(type + "MarketingMoreWrapper");
-  let moreLabel = document.getElementById(type + "MarketingMoreLabel");
-  let marketingValue = document.getElementById(type + "Marketing").value;
-
-  switch (marketingValue) {
-    case 'family':
-      moreWrapper.style.visibility = 'visible';
-      moreLabel.innerHTML = "Who in your family referred you?";
-      break
-    case 'friend':
-      moreWrapper.style.visibility = 'visible';
-      moreLabel.innerHTML = "Which one of your friends referred you?";
-      break;
-    case 'social media':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'online':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'drive by':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'flyer':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'ad':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'school':
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-    case 'other':
-      moreWrapper.style.visibility = 'visible';
-      moreLabel.innerHTML = "Please specify";
-      break;
-    default:
-      moreWrapper.style.visibility = 'hidden';
-      moreLabel.innerHTML = "";
-      break;
-  }
-}
-
-document.getElementById("parentMarketing").addEventListener('change', () => marketingCheck('parent'));
-document.getElementById("studentMarketing").addEventListener('change', () => marketingCheck('student'));

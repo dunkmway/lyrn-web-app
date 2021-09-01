@@ -50,59 +50,62 @@ function setStudentTable() {
   let promises = [];
 
   //get array of location ids
-  let locationUIDs = [];
   currentLocations.forEach((location) => {
-    locationUIDs.push(location.id);
+    //query all students whose types are in the current locations array
+    promises.push(firebase.firestore().collection('Users')
+    .where('location', '==', location.id)
+    .where('roles', 'array-contains', 'student')
+    .where('status', '==', 'active')
+    .get()
+    .then((studentQuerySnapshot) => {
+      studentQuerySnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+
+        //convert type string to array
+        let studentTypesTable = "";
+        studentData.types.forEach((type) => {
+          switch(type) {
+            case 'act':
+              studentTypesTable += 'ACT, ';
+              break;
+            case 'subjectTutoring':
+              studentTypesTable += 'Subject-Tutoring, ';
+              break;
+            case 'mathProgram':
+              studentTypesTable += 'Math-Program, ';
+              break;
+            case 'phonicsProgram':
+              studentTypesTable += 'Phonics-Program, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
+
+        //figure out the location name
+        let locationName = "";
+        currentLocations.forEach((location) => {
+          if (studentData.location == location.id) {
+            locationName = location.name;
+          }
+        })
+
+        const student = {
+          studentUID: studentDoc.id,
+          studentName: studentData.lastName + ", " + studentData.firstName,
+          studentTypes: studentData.types,
+          studentTypesTable: studentTypesTable,
+          location: locationName
+        }
+
+        tableData.push(student);
+      });
+    }));
   })
 
-  //query all students whose types are in the current locations array
-  return firebase.firestore().collection('Students').where('location', 'in', locationUIDs).where('status', '==', 'active').get()
-  .then((studentQuerySnapshot) => {
-    studentQuerySnapshot.forEach((studentDoc) => {
-      const studentData = studentDoc.data();
-
-      //convert type string to array
-      let studentTypesTable = "";
-      studentData.studentTypes.forEach((type) => {
-        switch(type) {
-          case 'act':
-            studentTypesTable += 'ACT, ';
-            break;
-          case 'subjectTutoring':
-            studentTypesTable += 'Subject-Tutoring, ';
-            break;
-          case 'mathProgram':
-            studentTypesTable += 'Math-Program, ';
-            break;
-          case 'phonicsProgram':
-            studentTypesTable += 'Phonics-Program, ';
-            break;
-          default:
-            //nothing
-        }
-      })
-      studentTypesTable = studentTypesTable.substring(0, studentTypesTable.length - 2);
-
-      //figure out the location name
-      let locationName = "";
-      currentLocations.forEach((location) => {
-        if (studentData.location == location.id) {
-          locationName = location.name;
-        }
-      })
-
-      const student = {
-        studentUID: studentDoc.id,
-        studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
-        studentTypes: studentData.studentTypes,
-        studentTypesTable: studentTypesTable,
-        location: locationName
-      }
-
-      tableData.push(student);
-    });
-
-
+  Promise.all(promises)
+  .then(() => {
     let studentTable = $('#student-table').DataTable( {
       data: tableData,
       columns: [
@@ -201,13 +204,13 @@ function resetPassword() {
 }
 
 function getTutorProfile(tutorUID) {
-  const tutorProfileRef = firebase.firestore().collection("Tutors").doc(tutorUID);
+  const tutorProfileRef = firebase.firestore().collection("Users").doc(tutorUID);
   return tutorProfileRef.get();
 }
 
 function setTutorProfile(profileData = {}) {
-  if (profileData['tutorFirstName'] && profileData['tutorLastName']) {
-    document.getElementById('tutor-name').textContent = "Welcome " + profileData['tutorFirstName'] + " " + profileData['tutorLastName'] + "!";
+  if (profileData['firstName'] && profileData['lastName']) {
+    document.getElementById('tutor-name').textContent = "Welcome " + profileData['firstName'] + " " + profileData['lastName'] + "!";
   }
   else {
     document.getElementById('tutor-name').textContent = "Welcome Tutor!";

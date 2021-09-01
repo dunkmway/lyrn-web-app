@@ -33,7 +33,7 @@ function retrieveInitialData() {
 }
 
 function getStudentProfile(studentUID) {
-  const studentProfileRef = firebase.firestore().collection('Students').doc(studentUID);
+  const studentProfileRef = firebase.firestore().collection('Users').doc(studentUID);
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -43,7 +43,7 @@ function getStudentProfile(studentUID) {
 }
 
 function getStudentSTProfile(studentUID) {
-  const studentSTProfileRef = firebase.firestore().collection('Students').doc(studentUID).collection('Subject-Tutoring').doc('profile');
+  const studentSTProfileRef = firebase.firestore().collection('Users').doc(studentUID).collection('Subject-Tutoring').doc('profile');
   return studentSTProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -53,7 +53,7 @@ function getStudentSTProfile(studentUID) {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['firstName'] + " " + student_profile_data['lastName'];
 }
 
 function setStudentSTProfile() {
@@ -69,7 +69,7 @@ function setupStudentGrades(studentUID) {
 
   for (let i = 0; i < 8; i++) {
     let newRow = document.createElement('th');
-    newRow.innerHTML = `<div><span contentEditable onfocusout="updateCurrentClasses()">${classes[i] ?? 'no class'}</span></div>`;
+    newRow.innerHTML = `<div><span contentEditable="true" onfocusout="updateCurrentClasses()">${classes[i] ?? 'no class'}</span></div>`;
     newRow.classList.add('rotate-45');
     document.getElementById('gradeTableHeaders').appendChild(newRow)
   }
@@ -122,7 +122,7 @@ function updateCurrentClasses() {
   currentClasses = classes;
   console.log(currentClasses);
 
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
     classes: currentClasses
   }, {merge : true})
   .then(() => {
@@ -149,7 +149,7 @@ function updateGradeList() {
   else {currentGrades.splice(0,1,rowToday);}
   isGradeUpdated = true;
 
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').set({
     grades: currentGrades
   }, {merge : true})
   .then(() => {
@@ -162,7 +162,7 @@ function updateGradeList() {
 
 function resetGrades() {
   if (!confirm('Are you sure you want to reset this students classes and grades? This action cannot be undone and will remove all data in THIS TABLE!')) {return}
-  firebase.firestore().collection('Students').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').update({
+  firebase.firestore().collection('Users').doc(CURRENT_STUDENT_UID).collection('Subject-Tutoring').doc('profile').update({
     grades: firebase.firestore.FieldValue.delete(),
     classes: firebase.firestore.FieldValue.delete()
   })
@@ -201,7 +201,7 @@ function updateStudentExpectation(event) {
 
     studentExpectationElem.style.borderColor = null;
 
-    const studentSTProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Subject-Tutoring').doc('profile');
+    const studentSTProfileRef = firebase.firestore().collection('Users').doc(queryStrings()['student']).collection('Subject-Tutoring').doc('profile');
     studentSTProfileRef.get()
     .then((doc) => {
       if(doc.exists) {
@@ -239,7 +239,7 @@ function closeHelp(e) {
 }
 
 function setProfilePic() {
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
   ref.getDownloadURL()
   .then((url) => {
     document.getElementById('studentProfilePic').src=url;
@@ -272,7 +272,7 @@ function updateProfilePic() {
           if (role == 'admin' || role == 'dev' || role == 'secretary') {
             const data = document.getElementById('fileInput')
             //document.getElementById('studentProfilePic').style.src = data.files[0]
-            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
             let thisref = ref.put(data.files[0])
             thisref.on('state_changed', function (snapshot) {
 

@@ -203,3 +203,25 @@ function customConfirm(message = "", option1 = "", option2 = "", option1Callback
     confirmationSection.remove()
   });
 }
+
+/**
+ * Given a list of roles this function will return the role that has the highest permissions or if empty will return the absolute highest role (dev).
+ * @param {Array<String>} roleList list of roles to check
+ * @returns {String} highest role from the given for the highest role
+ */
+function getHighestRole(roleList) {
+  if (!roleList || roleList.length == undefined) {throw 'not the correct input'}
+  const listOfRoles = ['dev', 'admin', 'secretary', 'tutor', 'parent', 'student']
+
+  for (let i = 0; i < roleList.length; i++) {
+    if (listOfRoles.indexOf(roleList[i]) == -1) {throw 'the element at index ' + i + ' is not a valid role!'}
+  }
+
+  let lowestindex = Infinity;
+  for (let i = 0; i < roleList.length; i++) {
+    lowestindex = listOfRoles.indexOf(roleList[i]) < lowestindex ? listOfRoles.indexOf(roleList[i]) : lowestindex;
+    console.log(lowestindex)
+  }
+
+  return listOfRoles[lowestindex]
+}

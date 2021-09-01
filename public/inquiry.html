@@ -20,6 +20,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
     <script src="Site Templates/site-wide.js"></script>
+    <script src="Site Templates/generalFunctions.js" defer></script>
     <script src="inquiry.js" defer></script>
   </head>
 
@@ -50,11 +51,11 @@
 
         <div id="required_input_area" class="scroll-block">
           <div class="input-row">
-            <!-- Wasatch Location -->
+            <!-- Lyrn Location -->
             <div class="input-block">
                 <label for="location" class="label">Lyrn Location</label>
-                <div class="more-info" data-more-info="The primary wasatch location this student will be attending.">?</div>
-                <select id="location" class="input location-data" required>
+                <div class="more-info" data-more-info="The primary Lyrn location this student will be attending.">?</div>
+                <select id="location" class="input" required>
                   <option selected disabled value="">select a location</option>
                 </select>
             </div>
@@ -76,12 +77,12 @@
             <!-- Parent First Name -->
             <div class="input-block">
                 <label for="parentFirstName" class="label">Parent First Name</label>
-                <input id="parentFirstName" placeholder="John" class="input parent-data" required>
+                <input id="parentFirstName" placeholder="John" class="input" required>
             </div>
             <!-- Parent Last Name -->
             <div class="input-block">
                 <label for="parentLastName" class="label">Parent Last Name </label>
-                <input id="parentLastName" placeholder="Doe" class="input parent-data" required>
+                <input id="parentLastName" placeholder="Doe" class="input" required>
             </div>
           </div>
 
@@ -89,12 +90,12 @@
             <!-- Student First Name -->
             <div class="input-block">
                 <label for="studentFirstName" class="label">Student First Name</label>
-                <input id="studentFirstName" placeholder="John" class="input student-data" required>
+                <input id="studentFirstName" placeholder="John" class="input" required>
             </div>
             <!-- Student Last Name -->
             <div class="input-block">
                 <label for="studentLastName" class="label">Student Last Name</label>
-                <input id="studentLastName" placeholder="Doe" class="input student-data" required>
+                <input id="studentLastName" placeholder="Doe" class="input" required>
             </div>
           </div>
 
@@ -102,7 +103,7 @@
             <!-- Parent Email -->
             <div class="input-block">
               <label for="parentEmail" class="label">Parent Email Address</label>
-              <input id="parentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input parent-data" required>
+              <input id="parentEmail" placeholder="JohnDoe@WasatchTutors.com" class="input" required>
             </div>
           </div>
 
@@ -544,7 +545,7 @@
             <div class="input-block">
               <label for="studentEmail" class="label">Email Address</label>
               <div class="more-info" data-more-info="If no email is given a random email will be assigned to the student. This new email will be used to log into their dashboard.">?</div>
-              <input id="studentEmail" placeholder="studentfirstlast@wasatchtutors.com" class="input">
+              <input id="studentEmail" placeholder="studentfirstlast@lyrnwithus.com" class="input">
             </div>
           </div>
 
@@ -704,7 +705,7 @@
           <!-- ACT Test Info -->
           <div class = "input-row">
             <div class = "input-block">
-              <label for = "studentACTTestsArray" class="label">ACT Test(s)</label>
+              <label for = "actTestsArray" class="label">ACT Test(s)</label>
               <div class="more-info" data-more-info="Any ACT test that have been taken is the past. Dates can be approximate.">?</div>
               <img src="Images/Add Button.png" alt="add previous ACT test" height=25px id="addPreviousACTButton" class="addRemoveButton" onclick="addActTest()">
               <img src="Images/Remove Button.png" alt="remove previous ACT test" height=25px id="removePreviousACTButton" class="addRemoveButton" onclick="removeActTest()">
@@ -736,29 +737,20 @@
           <div class="input-row">
             <!-- Student Scholarships -->
             <div class="input-block">
-              <label for="studentScholarshipArray" class="label">Scholarship goal(s)</label>
-              <img src="Images/Add Button.png" alt="add scholarship goal" height=25px id="addScholarshipGoalButton" class="addRemoveButton" onclick="addElement('studentScholarshipArray')">
-              <img src="Images/Remove Button.png" alt="remove scholarship goal" height=25px id="removeScholarshipGoalButton" class="addRemoveButton" onclick="removeElement('studentScholarshipArray')">
+              <label for="scholarshipArray" class="label">Scholarship goal(s)</label>
+              <img src="Images/Add Button.png" alt="add scholarship goal" height=25px id="addScholarshipGoalButton" class="addRemoveButton" onclick="addElement('scholarshipArray')">
+              <img src="Images/Remove Button.png" alt="remove scholarship goal" height=25px id="removeScholarshipGoalButton" class="addRemoveButton" onclick="removeElement('scholarshipArray')">
             </div>
           </div>
 
           <div class="input-row">
             <!-- Student Colleges -->
             <div class="input-block">
-              <label for="studentCollegeArray" class="label">Top College(s)</label>
-              <img src="Images/Add Button.png" alt="add college" height=25px id="addCollegeButton" class="addRemoveButton" onclick="addElement('studentCollegeArray')">
-              <img src="Images/Remove Button.png" alt="remove college" height=25px id="removeCollegeButton" class="addRemoveButton" onclick="removeElement('studentCollegeArray')">
+              <label for="collegeArray" class="label">Top College(s)</label>
+              <img src="Images/Add Button.png" alt="add college" height=25px id="addCollegeButton" class="addRemoveButton" onclick="addElement('collegeArray')">
+              <img src="Images/Remove Button.png" alt="remove college" height=25px id="removeCollegeButton" class="addRemoveButton" onclick="removeElement('collegeArray')">
             </div>
           </div>
-
-          <!-- <div class="input-row"> -->
-            <!-- Student Extracurriculars -->
-            <!-- <div class="input-block">
-              <label for="studentExtracurricularArray" class="label">Extracurricular(s)</label>
-              <img src="Images/Add Button.png" alt="add extracurricular" height=25px id="addExtracurricularButton" onclick="addElement('studentExtracurricularArray')">
-              <img src="Images/Remove Button.png" alt="remove extracurricular" height=25px id="removeExtracurricularButton" onclick="removeElement('studentExtracurricularArray')">
-            </div>
-          </div> -->
 
           <div class="input-row">
             <!-- Student Accomodations -->

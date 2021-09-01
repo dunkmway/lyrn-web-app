@@ -74,7 +74,7 @@ function retrieveInitialData() {
 }
 
 function getStudentProfile(studentUId) {
-  const studentProfileRef = firebase.firestore().collection('Students').doc(studentUId);
+  const studentProfileRef = firebase.firestore().collection('Users').doc(studentUId);
   return studentProfileRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -84,7 +84,7 @@ function getStudentProfile(studentUId) {
 }
 
 function getStudentPhonicsProgramProfile(studentUId) {
-  const studentPhonicsProgramRef = firebase.firestore().collection('Students').doc(studentUId).collection('Phonics-Program').doc('profile');
+  const studentPhonicsProgramRef = firebase.firestore().collection('Users').doc(studentUId).collection('Phonics-Program').doc('profile');
   return studentPhonicsProgramRef.get()
   .then((doc) => {
     if (doc.exists) {
@@ -94,7 +94,7 @@ function getStudentPhonicsProgramProfile(studentUId) {
 }
 
 function setStudentProfile() {
-  document.getElementById('student-name').innerHTML = student_profile_data['studentFirstName'] + " " + student_profile_data['studentLastName'];
+  document.getElementById('student-name').innerHTML = student_profile_data['firstName'] + " " + student_profile_data['lastName'];
 }
 
 function setStudentSTProfile() {
@@ -110,7 +110,7 @@ function updateStudentExpectation(event) {
 
     studentExpectationElem.style.borderColor = null;
 
-    const studentMathProgramProfileRef = firebase.firestore().collection('Students').doc(queryStrings()['student']).collection('Phonics-Program').doc('profile');
+    const studentMathProgramProfileRef = firebase.firestore().collection('Users').doc(queryStrings()['student']).collection('Phonics-Program').doc('profile');
     studentMathProgramProfileRef.get()
     .then((doc) => {
       if(doc.exists) {
@@ -238,7 +238,7 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
 function getLessons() {
   return new Promise((resolve, reject) => {
     let student = queryStrings()['student'];
-    lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
+    lessonsRef = firebase.firestore().collection('Users').doc(student).collection('Phonics-Program').doc('lessons')
 
     lessonsRef.get()
     .then((doc) => {
@@ -299,7 +299,7 @@ function submitLessons() {
               }
               if (confirmation == true) {
                 let student = queryStrings()['student'];
-                lessonsRef = firebase.firestore().collection('Students').doc(student).collection('Phonics-Program').doc('lessons')
+                lessonsRef = firebase.firestore().collection('Users').doc(student).collection('Phonics-Program').doc('lessons')
 
                 lessonsRef.set(current_lesson_data).then(() => goToDashboard())
                 .catch((error) => reject('Fb error:' + error))
@@ -325,7 +325,7 @@ function submitLessons() {
 
 function openLesson(lesson) {
 
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/Phonics Program/Lesson pdfs/' + (lesson.replaceAll('/', ', ')) + '.pdf');
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/Phonics Program/Lesson pdfs/' + (lesson.replaceAll('/', ', ')) + '.pdf');
   ref.getDownloadURL().then((url) => {
       open(url);
     })
@@ -376,7 +376,7 @@ function getLessonNames() {
 // });
 
 function setProfilePic() {
-  let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+  let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
   ref.getDownloadURL()
   .then((url) => {
     document.getElementById('studentProfilePic').src=url;
@@ -409,7 +409,7 @@ function updateProfilePic() {
           if (role == 'admin' || role == 'dev' || role == 'secretary') {
             const data = document.getElementById('fileInput')
             //document.getElementById('studentProfilePic').style.src = data.files[0]
-            let ref = storage.refFromURL('gs://wasatch-tutors-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
+            let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + CURRENT_STUDENT_UID)
             let thisref = ref.put(data.files[0])
             thisref.on('state_changed', function (snapshot) {
 

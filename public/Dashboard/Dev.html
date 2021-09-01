@@ -30,10 +30,39 @@
       <div class="loading-ring"></div>
     </section>
 
+    <section id="add-location-section" class="add-user-section">
+      <div id="add-location-div" class="registration-block">
+        <div class="heading-block">
+          <h2>Add Location</h2>
+        </div>
+        <div id="form-scroll-block">
+          <div id="spinnyBoiLocation" class="loader"></div>
+          <form onsubmit="return false">
+            <div class="input-row">
+              <div class="input-block">
+                  <label for="locationName" class="label">Location</label>
+                  <input id="locationName" class="input" required>
+              </div>
+            </div>
+
+            <div class="input-row">
+              <button type = button class="button" onclick="closeModal('location')">back</button> 
+              <button type = button class="button" onclick="createLocation()">submit</button>
+            </div>
+
+            <div class="input-row">
+              <p id="locationErrMsg"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <div class="flex-row justify-space-between" style="margin: 20px;">
       <button class="button" onclick="window.location.href='Admin.html'">Go to Admin</button>
       <button class="button" onclick="window.location.href='../calendar.html'">Calendar Testing</button>
       <button class="button" onclick="window.location.href='../availability.html'">Availability Testing</button>
+      <button class="button" onclick="openModal('location')">Add Location</button>
       <button class="button" onclick="signOut()">Sign Out</button>
     </div>
 

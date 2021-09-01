@@ -116,3 +116,69 @@ function setFeedbackTable() {
     console.log(error);
   });
 }
+
+function createLocation() {
+  document.getElementById("spinnyBoiLocation").style.display = "block";
+  document.getElementById("locationErrMsg").textContent = null;
+  let locationName = document.getElementById("locationName")
+
+  if (validateFields([locationName])) {
+    let locationRef = firebase.firestore().collection("Locations").doc();
+    locationRef.set({
+      locationName: locationName.value.trim()
+    })
+    .then(() => {
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+      closeModal("location", true);
+    })
+    .catch((error) => {
+      handleFirebaseErrors(error, window.location.href);
+      document.getElementById("locationErrMsg").textContent = error.message;
+      document.getElementById("spinnyBoiLocation").style.display = "none";
+    })
+  }
+  else {
+    document.getElementById("spinnyBoiLocation").style.display = "none";
+  }
+}
+
+function openModal(type) {
+  document.getElementById("add-" + type + "-section").style.display = "flex";
+}
+
+function closeModal(type, submitted = false) {
+  let allInputs = document.getElementById("add-" + type + "-section").querySelectorAll("input, select");
+  let allClear = true;
+  for(let i = 0; i < allInputs.length; i++) {
+    if (allInputs[i].value != "") {
+      allClear = false;
+      break;
+    }
+  }
+
+  if (!allClear && !submitted) {
+    let confirmation = confirm("This " + type + " has not been saved.\nAre you sure you want to go back?");
+    if (confirmation) {
+      for(let i = 0; i < allInputs.length; i++) {
+        allInputs[i].value = "";
+      }
+      document.getElementById("add-" + type + "-section").style.display = "none";
+      let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
+
+      for (let err = errorMessages.length - 1; err >= 0; err--) {
+        errorMessages[err].remove()
+      }
+    }
+  }
+  else {
+    for(let i = 0; i < allInputs.length; i++) {
+      allInputs[i].value = "";
+    }
+    document.getElementById("add-" + type + "-section").style.display = "none";
+    let errorMessages = document.querySelectorAll("p[id$='ErrorMessage']");
+
+    for (let err = errorMessages.length - 1; err >= 0; err--) {
+      errorMessages[err].remove()
+    }
+  }
+}

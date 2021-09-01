@@ -17,6 +17,10 @@ function initialSetupData() {
   firebase.auth().onAuthStateChanged(function(user) {
     currentUser = user;
     if (currentUser) {
+
+      currentUser.updateProfile({
+        displayName: "Duncan Morais"
+      })
       // User is signed in.
       // getLocationList(currentUser)
       getAllLocations()
@@ -27,14 +31,14 @@ function initialSetupData() {
         getAdminProfile(currentUser.uid)
         .then((doc) => {
           if (doc.exists) {
-            setAdminProfile(doc.data());
+            setAdminName();
             setActiveStudentTable();
             getStaffData()
             .then(() => {
               reinitializeStaffTableData();
             })
           }
-          else setAdminProfile();
+          else setAdminName();
         })
         .catch((error) => {
           console.log(error);
@@ -48,17 +52,12 @@ function initialSetupData() {
 }
 
 function getAdminProfile(adminUID) {
-  const adminProfileRef = firebase.firestore().collection("Admins").doc(adminUID);
+  const adminProfileRef = firebase.firestore().collection("Users").doc(adminUID);
   return adminProfileRef.get();
 }
 
-function setAdminProfile(profileData = {}) {
-  if (profileData['adminFirstName'] && profileData['adminLastName']) {
-    document.getElementById('admin-name').textContent = "Welcome " + profileData['adminFirstName'] + " " + profileData['adminLastName'] + "!";
-  }
-  else {
-    document.getElementById('admin-name').textContent = "Welcome Admin!";
-  }
+function setAdminName() {
+  document.getElementById('admin-name').textContent = "Welcome " + (currentUser.displayName ? currentUser.displayName : 'Admin') + "!";
 }
 
 function getLocationList(user) {
@@ -158,8 +157,9 @@ function getActiveStudentData() {
   //run through all locations
   currentLocations.forEach((location) => {
     //query all students whose types are active
-    promises.push(firebase.firestore().collection('Students')
+    promises.push(firebase.firestore().collection('Users')
     .where('location', '==', location.id)
+    .where('roles', 'array-contains', 'student')
     .where('status', '==', 'active')
     .get()
     .then((studentQuerySnapshot) => {
@@ -170,7 +170,7 @@ function getActiveStudentData() {
 
         //convert type string to array
         let studentTypesTable = "";
-        studentData.studentTypes.forEach((type) => {
+        studentData.types.forEach((type) => {
           switch(type) {
             case 'act':
               studentTypesTable += 'ACT, ';
@@ -201,17 +201,17 @@ function getActiveStudentData() {
           }
         })
 
-        studentPromises.push(getParentData(studentData.parent)
+        studentPromises.push(getParentData(studentData.parents[0])
         .then((parentData) => {
 
           const student = {
             studentUID: studentDoc.id,
-            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
-            studentTypes: studentData.studentTypes,
+            studentName: studentData.lastName + ", " + studentData.firstName,
+            studentTypes: studentData.types,
             studentTypesTable: studentTypesTable,
             location: locationName,
             parentUID: parentData.parentUID,
-            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+            parentName: parentData.lastName + ", " + parentData.firstName, 
           }
           return tableDataActive.push(student);
         }));
@@ -262,19 +262,19 @@ function getInactiveStudentData() {
   //run through all locations
   currentLocations.forEach((location) => {
     //query all students whose types are active
-    promises.push(firebase.firestore().collection('Students')
+    promises.push(firebase.firestore().collection('Users')
     .where('location', '==', location.id)
+    .where('roles', 'array-contains', 'student')
     .where('status', '==', 'inactive')
     .get()
     .then((studentQuerySnapshot) => {
       let studentPromises = [];
-
       studentQuerySnapshot.forEach((studentDoc) => {
         const studentData = studentDoc.data();
 
         //convert type string to array
         let studentTypesTable = "";
-        studentData.studentTypes.forEach((type) => {
+        studentData.types.forEach((type) => {
           switch(type) {
             case 'act':
               studentTypesTable += 'ACT, ';
@@ -305,17 +305,17 @@ function getInactiveStudentData() {
           }
         })
 
-        studentPromises.push(getParentData(studentData.parent)
+        studentPromises.push(getParentData(studentData.parents[0])
         .then((parentData) => {
 
           const student = {
             studentUID: studentDoc.id,
-            studentName: studentData.studentLastName + ", " + studentData.studentFirstName,
-            studentTypes: studentData.studentTypes,
+            studentName: studentData.lastName + ", " + studentData.firstName,
+            studentTypes: studentData.types,
             studentTypesTable: studentTypesTable,
             location: locationName,
             parentUID: parentData.parentUID,
-            parentName: parentData.parentLastName + ", " + parentData.parentFirstName, 
+            parentName: parentData.lastName + ", " + parentData.firstName, 
           }
           return tableDataInactive.push(student);
         }));
@@ -392,61 +392,50 @@ function reinitializeAllTableData() {
 function getStaffData() {
   let promises = [];
 
-  //query all tutors
-  promises.push(firebase.firestore().collection('Tutors')
-  .get()
-  .then((tutorQuerySnapshot) => {
-    let tutorPromises = [];
-
-    tutorQuerySnapshot.forEach((tutorDoc) => {
-      const tutorData = tutorDoc.data();
-
-      //figure out the location name
-      let locationName = "";
-      currentLocations.forEach((location) => {
-        if (tutorData.location == location.id) {
-          locationName = location.name;
+  currentLocations.forEach((location) => {
+    promises.push(firebase.firestore().collection('Users')
+    .where('location', '==', location.id)
+    .where('roles', 'array-contains-any', ['tutor', 'secreatary', 'admin', 'dev'])
+    .where('status', '==', 'active')
+    .get()
+    .then(staffQuerySnapshot => {
+      staffQuerySnapshot.forEach(staffDoc => {
+        //convert role array to string
+        let staffRolesSTR = "";
+        staffDoc.data().roles.forEach((role) => {
+          switch(role) {
+            case 'dev':
+              staffRolesSTR += 'Dev, ';
+              break;
+            case 'tutor':
+              staffRolesSTR += 'Tutor, ';
+              break;
+            case 'secretary':
+              staffRolesSTR += 'Secretary, ';
+              break;
+            case 'admin':
+              staffRolesSTR += 'Admin, ';
+              break;
+            case 'inactive':
+              staffRolesSTR += 'Inactive, ';
+              break;
+            default:
+              //nothing
+          }
+        })
+        staffRolesSTR = staffRolesSTR.substring(0, staffRolesSTR.length - 2);
+        
+        const staff = {
+          staffUID: staffDoc.id,
+          staffName: staffDoc.data().lastName + ", " + staffDoc.data().firstName,
+          staffRoles: staffRolesSTR,
+          location: location.name
         }
+
+        return tableDataStaff.push(staff)
       })
-
-      const tutor = {
-        staffUID: tutorDoc.id,
-        staffName: tutorData.tutorLastName + ", " + tutorData.tutorFirstName,
-        staffType: 'Tutor',
-        location: locationName,
-      }
-      return tableDataStaff.push(tutor);
-    });
-    return Promise.all(tutorPromises);
-  })
-  .catch((error) => {
-    handleFirebaseErrors(error, window.location.href);
-    console.log(error);
-  }));
-
-  //query all admins
-  promises.push(firebase.firestore().collection('Admins')
-  .get()
-  .then((adminQuerySnapshot) => {
-    let adminPromises = [];
-
-    adminQuerySnapshot.forEach((adminDoc) => {
-      const adminData = adminDoc.data();
-
-      const admin = {
-        staffUID: adminDoc.id,
-        staffName: adminData.adminLastName + ", " + adminData.adminFirstName,
-        staffType: 'Admin',
-        location: 'All',
-      }
-      return tableDataStaff.push(admin);
-    });
-    return Promise.all(adminPromises);
-  })
-  .catch((error) => {
-    handleFirebaseErrors(error, window.location.href);
-    console.log(error);
-  }));
+    }));
+  });
 
   return Promise.all(promises);
 }
@@ -461,7 +450,7 @@ function reinitializeStaffTableData() {
     data: tableDataStaff,
     columns: [
       { data: 'staffName' },
-      { data: 'staffType'},
+      { data: 'staffRoles'},
       { data: 'location'},
     ],
     "scrollY": "400px",
@@ -475,13 +464,17 @@ function reinitializeStaffTableData() {
       let staffUID = tableDataStaff[args.target._DT_CellIndex.row].staffUID;
       let staffName = tableDataStaff[args.target._DT_CellIndex.row].staffName;
       let staffType = tableDataStaff[args.target._DT_CellIndex.row].staffType;
-      deleteStaff(staffUID, staffName, staffType)
-      .then(() => {
-        location.reload();
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+      const queryStr = "?staff=" + staffUID;
+      window.location.href = "../staff-registration.html" + queryStr
+
+
+      // deleteStaff(staffUID, staffName, staffType)
+      // .then(() => {
+      //   location.reload();
+      // })
+      // .catch((error) => {
+      //   console.log(error)
+      // })
     }
   })
 }
@@ -531,7 +524,7 @@ function getParentData(parentUID) {
       parentUID: null,
     })
   }
-  return firebase.firestore().collection('Parents').doc(parentUID).get()
+  return firebase.firestore().collection('Users').doc(parentUID).get()
   .then(parentDoc => {
     return {
       ...parentDoc.data(),
@@ -589,232 +582,6 @@ function closeModal(type, submitted = false) {
   }
 }
 
-function createTutor() {
-  document.getElementById("spinnyBoiTutor").style.display = "block";
-  document.getElementById("tutorErrMsg").textContent = null;
-  let allInputs = document.getElementById("add-tutor-section").querySelectorAll("input");
-
-  if (validateFields([...allInputs, document.getElementById("tutorLocation")])) {
-    // console.log("all clear");
-    let allInputValues = {};
-    for(let i = 0; i < allInputs.length; i++) {
-      allInputValues[allInputs[i].id] = allInputs[i].value;
-    }
-
-    // console.log(allInputValues);
-
-    //create the tutor account
-    const addUser = firebase.functions().httpsCallable('addUser');
-    addUser({
-      email: allInputValues['tutorEmail'],
-      password: "abc123",
-      role: "tutor"
-    })
-    .then((result) => {
-
-      let tutorUID = result.data.user.uid;
-      let newUser = result.data.newUser;
-      // console.log(tutorUID);
-      // console.log(newUser);
-
-      let currentLocation = document.getElementById("tutorLocation").value;
-
-      if (newUser) {
-        //set up the tutor doc
-        const tutorDocRef = firebase.firestore().collection("Tutors").doc(tutorUID);
-        let tutorDocData = {
-          ...allInputValues,
-          location: currentLocation
-        }
-        tutorDocRef.set(tutorDocData)
-        .then((result) => {
-          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-          updateUserDisplayName({
-            uid: tutorUID,
-            displayName: allInputValues["tutorFirstName"] + " " + allInputValues["tutorLastName"]
-          })
-          .then(() => {
-            document.getElementById("spinnyBoiTutor").style.display = "none";
-            closeModal("tutor", true);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, window.location.href);
-            document.getElementById("tutorErrMsg").textContent = error.message;
-            document.getElementById("spinnyBoiTutor").style.display = "none";
-          });
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-          document.getElementById("tutorErrMsg").textContent = error.message;
-          document.getElementById("spinnyBoiTutor").style.display = "none";
-        });
-      }
-      else {
-        document.getElementById("tutorErrMsg").textContent = "This tutor already exists!";
-        document.getElementById("spinnyBoiTutor").style.display = "none";
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      document.getElementById("tutorErrMsg").textContent = error.message;
-      document.getElementById("spinnyBoiTutor").style.display = "none";
-    })
-  }
-  else {
-    // console.log("not done yet!!!");
-    document.getElementById("spinnyBoiTutor").style.display = "none";
-  }
-}
-
-function createSecretary() {
-  document.getElementById("spinnyBoiSecretary").style.display = "block";
-  document.getElementById("secretaryErrMsg").textContent = null;
-  let allInputs = document.getElementById("add-secretary-section").querySelectorAll("input");
-  if (validateFields(allInputs) && validateFields([document.getElementById("secretaryLocation")])) {
-    // console.log("all clear");
-    let allInputValues = {};
-    for(let i = 0; i < allInputs.length; i++) {
-      allInputValues[allInputs[i].id] = allInputs[i].value;
-    }
-
-    // console.log(allInputValues);
-
-    //create the tutor account
-    const addUser = firebase.functions().httpsCallable('addUser');
-    addUser({
-      email: allInputValues['secretaryEmail'],
-      password: "abc123",
-      role: "secretary"
-    })
-    .then((result) => {
-
-      let secretaryUID = result.data.user.uid;
-      let newUser = result.data.newUser;
-      // console.log(secretaryUID);
-      // console.log(newUser);
-
-      let currentLocation = document.getElementById("secretaryLocation").value;
-
-      if (newUser) {
-        //set up the tutor doc
-        const secretaryDocRef = firebase.firestore().collection("Secretaries").doc(secretaryUID);
-        let secretaryDocData = {
-          ...allInputValues,
-          location: currentLocation
-        }
-        secretaryDocRef.set(secretaryDocData)
-        .then((result) => {
-          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-          updateUserDisplayName({
-            uid: secretaryUID,
-            displayName: allInputValues["secretaryFirstName"] + " " + allInputValues["secretaryLastName"]
-          })
-          .then(() => {
-            document.getElementById("spinnyBoiSecretary").style.display = "none";
-            closeModal("secretary", true);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, window.location.href);
-            document.getElementById("secretaryErrMsg").textContent = error.message;
-            document.getElementById("spinnyBoiSecretary").style.display = "none";
-          });
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-          document.getElementById("secretaryErrMsg").textContent = error.message;
-          document.getElementById("spinnyBoiSecretary").style.display = "none";
-        });
-      }
-      else {
-        document.getElementById("secretaryErrMsg").textContent = "This secretary already exists!";
-        document.getElementById("spinnyBoiSecretary").style.display = "none";
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      document.getElementById("secretaryErrMsg").textContent = error.message;
-      document.getElementById("spinnyBoiSecretary").style.display = "none";
-    })
-  }
-  else {
-    // console.log("not done yet!!!");
-    document.getElementById("spinnyBoiSecretary").style.display = "none";
-  }
-}
-
-function createAdmin() {
-  document.getElementById("spinnyBoiAdmin").style.display = "block";
-  document.getElementById("adminErrMsg").textContent = null;
-  let allInputs = document.getElementById("add-admin-section").querySelectorAll("input");
-  if (validateFields(allInputs)) {
-    // console.log("all clear");
-    let allInputValues = {};
-    for(let i = 0; i < allInputs.length; i++) {
-      allInputValues[allInputs[i].id] = allInputs[i].value;
-    }
-
-    // console.log(allInputValues);
-
-    //create the tutor account
-    const addUser = firebase.functions().httpsCallable('addUser');
-    addUser({
-      email: allInputValues['adminEmail'],
-      password: "abc123",
-      role: "admin"
-    })
-    .then((result) => {
-
-      let adminUID = result.data.user.uid;
-      let newUser = result.data.newUser;
-      // console.log(secretaryUID);
-      // console.log(newUser);
-
-      if (newUser) {
-        //set up the tutor doc
-        const adminDocRef = firebase.firestore().collection("Admins").doc(adminUID);
-        let adminDocData = {
-          ...allInputValues
-        }
-        adminDocRef.set(adminDocData)
-        .then((result) => {
-          const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
-          updateUserDisplayName({
-            uid: adminUID,
-            displayName: allInputValues["adminFirstName"] + " " + allInputValues["adminLastName"]
-          })
-          .then(() => {
-            document.getElementById("spinnyBoiAdmin").style.display = "none";
-            closeModal("admin", true);
-          })
-          .catch((error) => {
-            handleFirebaseErrors(error, window.location.href);
-            document.getElementById("adminErrMsg").textContent = error.message;
-            document.getElementById("spinnyBoiAdmin").style.display = "none";
-          });
-        })
-        .catch((error) => {
-          handleFirebaseErrors(error, window.location.href);
-          document.getElementById("adminErrMsg").textContent = error.message;
-          document.getElementById("spinnyBoiAdmin").style.display = "none";
-        });
-      }
-      else {
-        document.getElementById("adminErrMsg").textContent = "This admin already exists!";
-        document.getElementById("spinnyBoiAdmin").style.display = "none";
-      }
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      document.getElementById("adminErrMsg").textContent = error.message;
-      document.getElementById("spinnyBoiAdmin").style.display = "none";
-    })
-  }
-  else {
-    // console.log("not done yet!!!");
-    document.getElementById("spinnyBoiAdmin").style.display = "none";
-  }
-}
-
 function createSchool() {
   document.getElementById("spinnyBoiSchool").style.display = "block";
   document.getElementById("schoolErrMsg").textContent = null;
@@ -865,31 +632,6 @@ function createExtracurricular() {
   }
   else {
     document.getElementById("spinnyBoiExtracurricular").style.display = "none";
-  }
-}
-
-function createLocation() {
-  document.getElementById("spinnyBoiLocation").style.display = "block";
-  document.getElementById("locationErrMsg").textContent = null;
-  let location = document.getElementById("location")
-
-  if (validateFields([location])) {
-    let locationRef = firebase.firestore().collection("Locations").doc();
-    locationRef.update({
-      locationName: location.value.trim()
-    })
-    .then(() => {
-      document.getElementById("spinnyBoiLocation").style.display = "none";
-      closeModal("location", true);
-    })
-    .catch((error) => {
-      handleFirebaseErrors(error, window.location.href);
-      document.getElementById("locationErrMsg").textContent = error.message;
-      document.getElementById("spinnyBoiLocation").style.display = "none";
-    })
-  }
-  else {
-    document.getElementById("spinnyBoiLocation").style.display = "none";
   }
 }
 
