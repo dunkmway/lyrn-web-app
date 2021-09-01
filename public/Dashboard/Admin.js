@@ -18,9 +18,6 @@ function initialSetupData() {
     currentUser = user;
     if (currentUser) {
 
-      currentUser.updateProfile({
-        displayName: "Duncan Morais"
-      })
       // User is signed in.
       // getLocationList(currentUser)
       getAllLocations()
