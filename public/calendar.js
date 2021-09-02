@@ -41,7 +41,8 @@ function initialSetup() {
         locationIDs.push(location.id);
       });
       addDropdownOptions(document.getElementById('calendarLocation'), locationIDs, locationNames, locationChange);
-      addDropdownOptions(document.getElementById('calendarType'), ['event', 'availability'], ['Event', 'Availability'], typeChange);
+      addDropdownOptions(document.getElementById('calendarType'), ['availability', 'event'], ['Availability', 'Event'], typeChange);
+      // addDropdownOptions(document.getElementById('calendarType'), ['admin', 'availability', 'event', 'practiceTest', 'secretary'], ['Admin', 'Availability', 'Event', 'Practice Test', 'Secretary'], typeChange);
     })
     .catch((error) =>{
       console.log(error);
@@ -100,12 +101,17 @@ function setupNavLists(locationUID) {
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-    $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a student');
+    // $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a student');
     $('#studentFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         current_filter.student = value;
         //change the filter label
-        document.getElementById('filterSelection').innerHTML = 'filter active';
+        if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
+          document.getElementById('filterSelection').innerHTML = 'filter active';
+        }
+        else {
+          document.getElementById('filterSelection').innerHTML = 'filter events';
+        }
         
         getCurrentCalendarTypeEvents();
       })
@@ -128,12 +134,17 @@ function setupNavLists(locationUID) {
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
+    // $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
     $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         current_filter.staff = value;
         //change the filter label
-        document.getElementById('filterSelection').innerHTML = 'filter active';
+        if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
+          document.getElementById('filterSelection').innerHTML = 'filter active';
+        }
+        else {
+          document.getElementById('filterSelection').innerHTML = 'filter events';
+        }
         
         getCurrentCalendarTypeEvents()
       })
@@ -143,7 +154,7 @@ function setupNavLists(locationUID) {
     $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
     $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
     $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
+    // $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
     //firebase will only allow 10 OR queries on a given field
     $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'maxSelections', 10);
     $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
@@ -169,15 +180,20 @@ function setupNavLists(locationUID) {
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-  $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a type');
+  // $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a type');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
-      (value, text) => {
-        current_filter.type = value;
-        //change the filter label
+    (value, text) => {
+      current_filter.type = value;
+      //change the filter label
+      if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
         document.getElementById('filterSelection').innerHTML = 'filter active';
-        
-        getCurrentCalendarTypeEvents()
-      })
+      }
+      else {
+        document.getElementById('filterSelection').innerHTML = 'filter events';
+      }
+      
+      getCurrentCalendarTypeEvents()
+    })
 }
 
 function clearFilter(resetCalendar = false) {
@@ -251,27 +267,46 @@ function typeChange(type) {
   clearFilter();
   clearAvailabilityFilter();
 
-  if (type == 'event') {
-    //change the nav
-    document.querySelectorAll('.type-availability').forEach(element => {
-      element.style.display = 'none';
-    })
-    document.querySelectorAll('.type-event').forEach(element => {
-      element.style.display = 'block';
-    })
-  }
-  else if (type == 'availability') {
-    //change the nav
-    document.querySelectorAll('.type-event').forEach(element => {
-      element.style.display = 'none';
-    })
-    document.querySelectorAll('.type-availability').forEach(element => {
-      element.style.display = 'block';
-    })
+  hideAllTypeNav();
+
+  switch(type) {
+    // case 'admin':
+    //   document.querySelectorAll('.type-admin').forEach(element => {
+    //     element.style.display = 'block';
+    //   });
+    //   break;
+    case 'availability':
+      document.querySelectorAll('.type-availability').forEach(element => {
+        element.style.display = 'block';
+      });
+      break;
+    case 'event':
+      document.querySelectorAll('.type-event').forEach(element => {
+        element.style.display = 'block';
+      });
+      break;
+    // case 'practiceTest':
+    //   document.querySelectorAll('.type-practiceTest').forEach(element => {
+    //     element.style.display = 'block';
+    //   });
+    //   break;
+    // case 'secretary':
+    //   document.querySelectorAll('.type-secretary').forEach(element => {
+    //     element.style.display = 'block';
+    //   });
+    //   break;
+    default:
+
   }
 
   //change the calendar
   getCurrentCalendarTypeEvents()
+}
+
+function hideAllTypeNav() {
+  document.querySelector(".calendarNav").querySelectorAll("div[class*='type-']").forEach(element => {
+    element.style.display = 'none';
+  })
 }
 
 function getCurrentCalendarTypeEvents() {
@@ -810,42 +845,64 @@ function getEventsUser(user) {
 }
 
 function getEventsLocation(location, start, end, filter) {
+  let events = [];
+  let queryPromises = [];
+
+  //run through each filter and query for each filter (logical OR)
   let eventRef = firebase.firestore().collection('Events')
   .where("location", '==', location)
   .where('start', '>=', start)
   .where('start', '<', end)
-  if (filter.staff) {
-    eventRef = eventRef.where('staff', 'array-contains', filter.staff)
+
+  if (filter?.staff?.length > 0) {
+    filter.staff.forEach(staff => {
+      queryPromises.push(eventRef.where('staff', 'array-contains', staff).get());
+    })
   }
-  if (filter.student) {
-    eventRef = eventRef.where('student', '==', filter.student)
+  if (filter?.student?.length > 0) {
+    filter.student.forEach(student => {
+      queryPromises.push(eventRef.where('student', '==', student).get());
+    })
   }
-  if (filter.type) {
-    eventRef = eventRef.where('type', '==', filter.type)
+  if (filter?.type?.length > 0) {
+    filter.type.forEach(type => {
+      queryPromises.push(eventRef.where('type', '==', type).get())
+    })
   }
 
-  return eventRef.get()
-  .then((eventSnapshot) => {
-    console.log('number of events grabbed:', eventSnapshot.size)
-    let events = [];
-    eventSnapshot.forEach((eventDoc) => {
-      const eventData = eventDoc.data();
-      events.push({
-        id: eventDoc.id,
-        title: eventData.title,
-        start: convertFromDateInt(eventData.start).fullCalendar,
-        end: convertFromDateInt(eventData.end).fullCalendar,
-        allDay: eventData.allDay,
-        color: eventData.color,
-        textColor: eventData.textColor,
+  //if there is no filter
+  if ((filter?.staff?.length == 0 && filter?.student?.length == 0 && filter?.type?.length == 0) || (!filter.staff && !filter.student && !filter.type)) {
+    queryPromises.push(eventRef.get());
+  }
 
-        //FIXME: quick fix for availability view
-        //ISSUE: can't query for not availability so we have to hide it after the query
-        //SOLUTION: this availability feature is temporary so we can probably just keep this for now
-        //display: (eventData.type == 'availability' && filter.type != 'availability') ? 'none' : 'auto'
+  return Promise.all(queryPromises)
+  .then((eventSnapshots) => {
+    console.log('number of filters active', eventSnapshots.length)
+    eventSnapshots.forEach((eventSnapshot, index) => {
+      console.log('number of events grabbed for filter ' + (index+1), eventSnapshot.size);
+      eventSnapshot.forEach((eventDoc) => {
+        const eventData = eventDoc.data();
+        events.push({
+          id: eventDoc.id,
+          title: eventData.title,
+          start: convertFromDateInt(eventData.start).fullCalendar,
+          end: convertFromDateInt(eventData.end).fullCalendar,
+          allDay: eventData.allDay,
+          color: eventData.color,
+          textColor: eventData.textColor,
+        });
       });
+    })
+
+    //remove duplicate events
+    return events.filter((event, index, array) => {
+      for (let i = index + 1; i < array.length; i++) {
+        if (event.id == array[i].id) { 
+          return false
+        }
+      }
+      return true
     });
-    return events;
   });
 }
 
@@ -2641,7 +2698,7 @@ function savePracticeTest(eventInfo) {
   .then((studentDoc) => {
     const data = studentDoc.data();
     const studentName = data.lastName + ", " + data.firstName;
-    const studentParent = data.parent;
+    const studentParents = data.parents;
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
@@ -2658,9 +2715,9 @@ function savePracticeTest(eventInfo) {
       student: eventInfo.student,
       studentName: studentName,
       
-      parent: studentParent,
+      parents: studentParents,
 
-      attendees: [eventInfo.student, studentParent]
+      attendees: [eventInfo.student, ...studentParents]
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -2684,7 +2741,7 @@ function saveConference(eventInfo) {
   .then((studentDoc) => {
     const data = studentDoc.data();
     const studentName = data.lastName + ", " + data.firstName;
-    const studentParent = data.parent;
+    const studentParents = data.parents;
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
@@ -2701,9 +2758,9 @@ function saveConference(eventInfo) {
       student: eventInfo.student,
       studentName: studentName,
       
-      parent: studentParent,
+      parents: studentParents,
 
-      attendees: [eventInfo.student, studentParent]
+      attendees: [eventInfo.student, ...studentParents]
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -2737,7 +2794,7 @@ function saveTestReview(eventInfo) {
     tutorData = tutorDoc.data();
 
     const studentName = studentData.lastName + ", " + studentData.firstName;
-    const studentParent = studentData.parent;
+    const studentParents = studentData.parents;
     const tutorColor = tutorData?.color;
 
     const eventRef = firebase.firestore().collection("Events").doc()
@@ -2754,11 +2811,11 @@ function saveTestReview(eventInfo) {
       student: eventInfo.student,
       studentName: studentName,
       
-      parent: studentParent,
+      parents: studentParents,
 
       staff: eventInfo.staff,
 
-      attendees: [eventInfo.student, studentParent, ...eventInfo.staff]
+      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -2791,7 +2848,7 @@ function saveLesson(eventInfo) {
     tutorData = tutorDoc.data();
 
     const studentName = studentData.lastName + ", " + studentData.firstName;
-    const studentParent = studentData.parent;
+    const studentParents = studentData.parents;
     const tutorColor = tutorData?.color;
     let lessonTypeReadable = ""
 
@@ -2826,11 +2883,11 @@ function saveLesson(eventInfo) {
       student: eventInfo.student,
       studentName: studentName,
       
-      parent: studentParent,
+      parents: studentParents,
 
       staff: eventInfo.staff,
 
-      attendees: [eventInfo.student, studentParent, ...eventInfo.staff]
+      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -3164,6 +3221,7 @@ function checkStaffAvailability(staffUID, start, end) {
   .then((availabilitySnapshot) => {
     //if there are no events in the snapshot then the staff is not available
     if (availabilitySnapshot.empty) {
+      console.log('snapshot empty')
       return {
         isAvailable: false,
         staff: staffUID
@@ -3179,6 +3237,7 @@ function checkStaffAvailability(staffUID, start, end) {
       }
       //else they are not
       else {
+        console.log('the event start is not within the start value but is within the end')
         return {
           isAvailable: false,
           staff: staffUID

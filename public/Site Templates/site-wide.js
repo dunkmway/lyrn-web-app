@@ -155,7 +155,7 @@ function clearLoadingScreen() {
 }
 
 function sendErrorReport(msg, url, lineNo, columnNo, error) {
-    console.log(error)
+    //console.log(error)
     // BELOW CODE IS FOR ERRORS
     //let userMsg = prompt("OH NO!!! An error has occured.\nLet us know what happened and we'll get right on it!") ?? null;
     // var report = {

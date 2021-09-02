@@ -4,6 +4,15 @@ body {
   margin: 0;
 }
 
+/* height of time slot */
+.fc .fc-timegrid-slot {
+  height: 2em !important;
+}
+
+#mainCalendarContent {
+  height: 80vh;
+}
+
 .input-row {
   display: flex;
   flex-direction: row;

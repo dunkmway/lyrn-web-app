@@ -55,6 +55,40 @@
       </div>
     </div>
 
+    <!-- admin nav options -->
+    <!-- <div class="dropdown type-admin" style="display: none;">
+      <button class="dropbtn">add event</button>
+      <div class="dropdown-content">
+        <div onclick="setupAddSidebar('conference')">Conference</div>
+        <div onclick="setupAddSidebar('adminGeneral')">Admin General</div>
+      </div>
+    </div> -->
+
+    <!-- availability nav options -->
+    <div class="dropdown type-availability" style="display: none;">
+      <button class="dropbtn">add availability</button>
+      <div class="dropdown-content">
+        <div onclick="setupAddSidebar('availability')">Availability</div>
+      </div>
+    </div>
+
+    <div class="dropdown type-availability" style="display: none;">
+      <button id="availabilitySelection" class="dropbtn">filter availability</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Tutor</div>
+          <div class="dropdown-content">
+            <select id="tutorAvailabilityContent" class="ui dropdown search selection" multiple>
+              <option value="">select tutor</option>
+            </select>
+          </div>
+        </div>
+        
+        <div onclick="clearAvailabilityFilter(true)">Clear filter</div>
+      </div>
+    </div>
+
+    <!-- event nav options -->
     <div class="dropdown type-event" style="display: none;">
       <button class="dropbtn">add event</button>
       <div class="dropdown-content">
@@ -73,8 +107,8 @@
         <div class="dropdown-right">
           <div>Student</div>
           <div class="dropdown-content">
-            <select id="studentFilterContent" class="ui dropdown search selection">
-              <option value="">select location first</option>
+            <select id="studentFilterContent" class="ui dropdown search selection" multiple>
+              <option value="">select student</option>
             </select>
           </div>
         </div>
@@ -82,8 +116,8 @@
         <div class="dropdown-right">
           <div>Tutor</div>
           <div class="dropdown-content">
-            <select id="tutorFilterContent" class="ui dropdown search selection">
-              <option value="">select location first</option>
+            <select id="tutorFilterContent" class="ui dropdown search selection" multiple>
+              <option value="">select tutor</option>
             </select>
           </div>
         </div>
@@ -91,8 +125,8 @@
         <div class="dropdown-right">
           <div>Type</div>
           <div class="dropdown-content">
-            <select id="typeFilterContent" class="ui dropdown search selection">
-              <option value="">select a location first</option>
+            <select id="typeFilterContent" class="ui dropdown search selection" multiple>
+              <option value="">select type</option>
               <option value="act">ACT</option>
               <option value="conference">Conference</option>
               <option value="generalInfo">General Info</option>
@@ -109,28 +143,21 @@
       </div>
     </div>
 
-    <div class="dropdown type-availability" style="display: none;">
-      <button class="dropbtn">add availability</button>
+    <!-- practice test nav options -->
+    <!-- <div class="dropdown type-practiceTest" style="display: none;">
+      <button class="dropbtn">add event</button>
       <div class="dropdown-content">
-        <div onclick="setupAddSidebar('availability')">Availability</div>
+        <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
       </div>
-    </div>
+    </div> -->
 
-    <div class="dropdown type-availability" style="display: none;">
-      <button id="availabilitySelection" class="dropbtn">filter availability</button>
+    <!-- secreatry nav options -->
+    <!-- <div class="dropdown type-secretary" style="display: none;">
+      <button class="dropbtn">add event</button>
       <div class="dropdown-content">
-        <div class="dropdown-right">
-          <div>Tutor</div>
-          <div class="dropdown-content">
-            <select id="tutorAvailabilityContent" class="ui dropdown search selection" multiple>
-              <option value="">select location first</option>
-            </select>
-          </div>
-        </div>
-        
-        <div onclick="clearAvailabilityFilter(true)">Clear filter</div>
+        <div onclick="setupAddSidebar('secretaryGeneral')">Secretary General</div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <div id="mainCalendarContent">
