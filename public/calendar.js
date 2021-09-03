@@ -62,14 +62,14 @@ function setupNavLists(locationUID) {
   studentDefaultOption.textContent = 'select a student';
   document.getElementById('studentFilterContent').appendChild(studentDefaultOption);
 
-  //tutor list
-  for (let i = document.getElementById('tutorFilterContent').options.length; i > 0; i--) {
-    document.getElementById('tutorFilterContent').options[i-1].remove();
+  //staff list
+  for (let i = document.getElementById('staffFilterContent').options.length; i > 0; i--) {
+    document.getElementById('staffFilterContent').options[i-1].remove();
   }
-  let tutorDefaultOption = document.createElement('option');
-  tutorDefaultOption.value = "";
-  tutorDefaultOption.textContent = 'select a tutor';
-  document.getElementById('tutorFilterContent').appendChild(tutorDefaultOption);
+  let staffDefaultOption = document.createElement('option');
+  staffDefaultOption.value = "";
+  staffDefaultOption.textContent = 'select a staff';
+  document.getElementById('staffFilterContent').appendChild(staffDefaultOption);
 
   //type list
   let typeDefaultOption = document.createElement('option');
@@ -78,13 +78,13 @@ function setupNavLists(locationUID) {
   document.getElementById('typeFilterContent').options[0] = typeDefaultOption;
 
   //filter availability list
-  for (let i = document.getElementById('tutorAvailabilityContent').options.length; i > 0; i--) {
-    document.getElementById('tutorAvailabilityContent').options[i-1].remove();
+  for (let i = document.getElementById('staffAvailabilityContent').options.length; i > 0; i--) {
+    document.getElementById('staffAvailabilityContent').options[i-1].remove();
   }
-  let tutorAvailabilityDefaultOption = document.createElement('option');
-  tutorAvailabilityDefaultOption.value = "";
-  tutorAvailabilityDefaultOption.textContent = 'select a tutor';
-  document.getElementById('tutorAvailabilityContent').appendChild(tutorAvailabilityDefaultOption);
+  let staffAvailabilityDefaultOption = document.createElement('option');
+  staffAvailabilityDefaultOption.value = "";
+  staffAvailabilityDefaultOption.textContent = 'select a staff';
+  document.getElementById('staffAvailabilityContent').appendChild(staffAvailabilityDefaultOption);
 
   //add in the options for the given location
   getStudentList(locationUID)
@@ -106,7 +106,7 @@ function setupNavLists(locationUID) {
       (value, text) => {
         current_filter.student = value;
         //change the filter label
-        if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
+        if (current_filter?.student[0] || current_filter?.staff[0] || current_filter?.type[0]) {
           document.getElementById('filterSelection').innerHTML = 'filter active';
         }
         else {
@@ -120,26 +120,26 @@ function setupNavLists(locationUID) {
     console.log(error)
   });
 
-  getTutorList(locationUID)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  getStaffList(locationUID)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('tutorFilterContent'), tutorUIDs, tutorNames);
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-    // $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
-    $('#tutorFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+    addSelectOptions(document.getElementById('staffFilterContent'), staffUIDs, staffNames);
+    $('#staffFilterContent').closest(".ui.dropdown").dropdown('clear');
+    $('#staffFilterContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#staffFilterContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#staffFilterContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    // $('#staffFilterContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a staff');
+    $('#staffFilterContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         current_filter.staff = value;
         //change the filter label
-        if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
+        if (current_filter?.student[0] || current_filter?.staff[0] || current_filter?.type[0]) {
           document.getElementById('filterSelection').innerHTML = 'filter active';
         }
         else {
@@ -149,15 +149,15 @@ function setupNavLists(locationUID) {
         getCurrentCalendarTypeEvents()
       })
 
-    addSelectOptions(document.getElementById('tutorAvailabilityContent'), tutorUIDs, tutorNames);
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-    // $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a tutor');
+    addSelectOptions(document.getElementById('staffAvailabilityContent'), staffUIDs, staffNames);
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    // $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a staff');
     //firebase will only allow 10 OR queries on a given field
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'maxSelections', 10);
-    $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'maxSelections', 10);
+    $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
       (value, text) => {
         current_availability_filter = value;
         
@@ -185,7 +185,7 @@ function setupNavLists(locationUID) {
     (value, text) => {
       current_filter.type = value;
       //change the filter label
-      if (current_filter?.student?.length != 0 || current_filter?.staff?.length != 0 || current_filter?.type?.length != 0) {
+      if (current_filter?.student[0] || current_filter?.staff[0] || current_filter?.type[0]) {
         document.getElementById('filterSelection').innerHTML = 'filter active';
       }
       else {
@@ -201,27 +201,23 @@ function clearFilter(resetCalendar = false) {
     delete key;
   }
   $('#studentFilterContent').closest(".ui.dropdown").dropdown('clear');
-  $('#tutorFilterContent').closest(".ui.dropdown").dropdown('clear');
+  $('#staffFilterContent').closest(".ui.dropdown").dropdown('clear');
   $('#typeFilterContent').closest(".ui.dropdown").dropdown('clear');
 
   if (resetCalendar) {
     getCurrentCalendarTypeEvents()
   }
-
-  document.getElementById('filterSelection').innerHTML = 'filter events';
 }
 
 function clearAvailabilityFilter(resetCalendar = false) {
   while (current_availability_filter.length > 0) {
     current_availability_filter.pop();
   }
-  $('#tutorAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
+  $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
 
   if (resetCalendar) {
     getCurrentCalendarTypeEvents()
   }
-
-  document.getElementById('availabilitySelection').innerHTML = 'filter availability';
 }
 
 function addDropdownOptions(dropdownElement, optionValues, optionTexts, clickCallback) {
@@ -849,31 +845,67 @@ function getEventsLocation(location, start, end, filter) {
   let queryPromises = [];
 
   //run through each filter and query for each filter (logical OR)
-  let eventRef = firebase.firestore().collection('Events')
-  .where("location", '==', location)
-  .where('start', '>=', start)
-  .where('start', '<', end)
+  // let eventRef = firebase.firestore().collection('Events')
+  // .where("location", '==', location)
+  // .where('start', '>=', start)
+  // .where('start', '<', end)
 
-  if (filter?.staff?.length > 0) {
-    filter.staff.forEach(staff => {
-      queryPromises.push(eventRef.where('staff', 'array-contains', staff).get());
-    })
+  // if (filter?.staff?.length > 0) {
+  //   filter.staff.forEach(staff => {
+  //     queryPromises.push(eventRef.where('staff', 'array-contains', staff).get());
+  //   })
+  // }
+  // if (filter?.student?.length > 0) {
+  //   filter.student.forEach(student => {
+  //     queryPromises.push(eventRef.where('student', '==', student).get());
+  //   })
+  // }
+  // if (filter?.type?.length > 0) {
+  //   filter.type.forEach(type => {
+  //     queryPromises.push(eventRef.where('type', '==', type).get())
+  //   })
+  // }
+
+  //first make sure that the filters are arrays (single null array if not so we can create the cartesian product off without filters)
+  if (!filter.staff || filter?.staff?.length == 0) {
+    filter.staff = [null];
   }
-  if (filter?.student?.length > 0) {
-    filter.student.forEach(student => {
-      queryPromises.push(eventRef.where('student', '==', student).get());
-    })
+  if (!filter.student || filter?.student?.length == 0) {
+    filter.student = [null];
   }
-  if (filter?.type?.length > 0) {
-    filter.type.forEach(type => {
-      queryPromises.push(eventRef.where('type', '==', type).get())
-    })
+  if (!filter.type || filter?.type?.length == 0) {
+    filter.type = [null];
   }
 
-  //if there is no filter
-  if ((filter?.staff?.length == 0 && filter?.student?.length == 0 && filter?.type?.length == 0) || (!filter.staff && !filter.student && !filter.type)) {
-    queryPromises.push(eventRef.get());
-  }
+  //get the cartesian product of the arrays to get all of the AND queries we need to make
+  const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  console.log(cartesian(filter.staff, filter.student, filter.type))
+
+  cartesian(filter.staff, filter.student, filter.type).forEach(filterTuple => {
+    let eventRef = firebase.firestore().collection('Events')
+    .where("location", '==', location)
+    .where('start', '>=', start)
+    .where('start', '<', end)
+
+    if (filterTuple[0]) {
+      eventRef = eventRef.where('staff', 'array-contains', filterTuple[0])
+    }
+    if (filterTuple[1]) {
+      eventRef = eventRef.where('student', '==', filterTuple[1])
+    }
+    if (filterTuple[2]) {
+      eventRef = eventRef.where('type', '==', filterTuple[2])
+    }
+
+    queryPromises.push(eventRef.get())
+  })
+
+  console.log(current_filter)
+
+  // //if there is no filter
+  // if ((filter?.staff?.length == 0 && filter?.student?.length == 0 && filter?.type?.length == 0) || (!filter.staff && !filter.student && !filter.type)) {
+  //   queryPromises.push(eventRef.get());
+  // }
 
   return Promise.all(queryPromises)
   .then((eventSnapshots) => {
@@ -1140,7 +1172,10 @@ function setupAddSidebar(type) {
   }
 
   //remove eventClickHandler
-  main_calendar.setOption('eventClick', () => {});
+  //FIXME: avaialbaility needs a event click function. Maybe not the best way to handle this
+  if (type != 'availability') {
+    main_calendar.setOption('eventClick', () => {});
+  }
 }
 
 /**
@@ -1206,17 +1241,17 @@ function setupAddGeneralInfo() {
   calendar_mode = "addGeneralInfo";
   main_calendar.setOption('selectable', true);
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('addGeneralInfoTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('addGeneralInfoStaff'), staffUIDs, staffNames);
   })
   .catch((error) => {
     console.log(error)
@@ -1243,26 +1278,26 @@ function setupEditGeneralInfo(data, id) {
   //fill in appropriate fields
   document.getElementById('editGeneralInfoTitle').value = data.title;
 
-  //add back the default option (tutor)
-  const defaultOptionTutor = document.createElement('option');
-  defaultOptionTutor.value = "";
-  defaultOptionTutor.textContent = "NO TUTOR"
-  document.getElementById('editGeneralInfoTutor').appendChild(defaultOptionTutor);
+  //add back the default option (staff)
+  const defaultOptionStaff = document.createElement('option');
+  defaultOptionStaff.value = "";
+  defaultOptionStaff.textContent = "NO STAFF"
+  document.getElementById('editGeneralInfoStaff').appendChild(defaultOptionStaff);
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('editGeneralInfoTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('editGeneralInfoStaff'), staffUIDs, staffNames);
 
-    //select previously saved tutors
-    $("#editGeneralInfoTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+    //select previously saved staff
+    $("#editGeneralInfoStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
   })
   .catch((error) => {
     console.log(error)
@@ -1405,11 +1440,11 @@ function setupAddTestReview() {
   defaultOptionStudent.textContent = "select a student"
   document.getElementById('addTestReviewStudent').appendChild(defaultOptionStudent);
 
-  //add back the default option (tutor)
-  const defaultOptionTutor = document.createElement('option');
-  defaultOptionTutor.value = "";
-  defaultOptionTutor.textContent = "NO TUTOR"
-  document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
+  //add back the default option (staff)
+  const defaultOptionStaff = document.createElement('option');
+  defaultOptionStaff.value = "";
+  defaultOptionStaff.textContent = "NO STAFF"
+  document.getElementById('addTestReviewStaff').appendChild(defaultOptionStaff);
 
   //add in the student list. If no location is selected this will reject
   getStudentList(document.getElementById('calendarLocation').dataset.value)
@@ -1428,17 +1463,17 @@ function setupAddTestReview() {
     return closeCalendarSidebar(true);
   });
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('addTestReviewTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('addTestReviewStaff'), staffUIDs, staffNames);
   })
   .catch((error) => {
     console.log(error)
@@ -1465,26 +1500,26 @@ function setupEditTestReview(data, id) {
 
   document.getElementById('editTestReviewStudent').textContent = data.studentName;
 
-  //add back the default option (tutor)
-  const defaultOptionTutor = document.createElement('option');
-  defaultOptionTutor.value = "";
-  defaultOptionTutor.textContent = "NO TUTOR"
-  document.getElementById('addTestReviewTutor').appendChild(defaultOptionTutor);
+  //add back the default option (staff)
+  const defaultOptionStaff = document.createElement('option');
+  defaultOptionStaff.value = "";
+  defaultOptionStaff.textContent = "NO STAFF"
+  document.getElementById('addTestReviewStaff').appendChild(defaultOptionStaff);
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('editTestReviewTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('editTestReviewStaff'), staffUIDs, staffNames);
 
-    //select previously saved tutors
-    $("#editTestReviewTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+    //select previously saved staff
+    $("#editTestReviewStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
   })
   .catch((error) => {
     console.log(error)
@@ -1519,11 +1554,11 @@ function setupAddLesson() {
   defaultOptionStudent.textContent = "select a student"
   document.getElementById('addLessonStudent').appendChild(defaultOptionStudent);
 
-  //add the default option (tutor)
-  const defaultOptionTutor = document.createElement('option');
-  defaultOptionTutor.value = "noTutor";
-  defaultOptionTutor.textContent = "NO TUTOR"
-  document.getElementById('addLessonTutor').appendChild(defaultOptionTutor);
+  //add the default option (staff)
+  const defaultOptionStaff = document.createElement('option');
+  defaultOptionStaff.value = "noStaff";
+  defaultOptionStaff.textContent = "NO STAFF"
+  document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
 
   //add in the list of lesson types. If no location is selected this will reject
   getLessonTypeList(document.getElementById('calendarLocation').dataset.value)
@@ -1559,17 +1594,17 @@ function setupAddLesson() {
     return closeCalendarSidebar(true);
   });
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('addLessonTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('addLessonStaff'), staffUIDs, staffNames);
   })
   .catch((error) => {
     console.log(error)
@@ -1617,26 +1652,26 @@ function setupEditLesson(data, id) {
   document.getElementById('editLessonType').textContent = lessonTypeReadable;
   document.getElementById('editLessonStudent').textContent = data.studentName;
 
-  //add back the default option (tutor)
-  const defaultOptionTutor = document.createElement('option');
-  defaultOptionTutor.value = "noTutor";
-  defaultOptionTutor.textContent = "NO TUTOR"
-  document.getElementById('addLessonTutor').appendChild(defaultOptionTutor);
+  //add back the default option (staff)
+  const defaultOptionStaff = document.createElement('option');
+  defaultOptionStaff.value = "noStaff";
+  defaultOptionStaff.textContent = "NO STAFF"
+  document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('editLessonTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('editLessonStaff'), staffUIDs, staffNames);
 
-    //select previously saved tutors
-    $("#editLessonTutor").closest(".ui.dropdown").dropdown('set value', data.staff);
+    //select previously saved staff
+    $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
   })
   .catch((error) => {
     console.log(error)
@@ -1655,17 +1690,17 @@ function setupAddAvailability() {
   calendar_mode = "addAvailability";
   main_calendar.setOption('selectable', true);
 
-  //add in the tutor list. If no location is selected this will reject
-  getTutorList(document.getElementById('calendarLocation').dataset.value)
-  .then((tutors) => {
-    let tutorNames = [];
-    let tutorUIDs = [];
-    tutors.forEach((tutor) => {
-      tutorNames.push(tutor.name);
-      tutorUIDs.push(tutor.id);
+  //add in the staff list. If no location is selected this will reject
+  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  .then((staff) => {
+    let staffNames = [];
+    let staffUIDs = [];
+    staff.forEach((staff) => {
+      staffNames.push(staff.name);
+      staffUIDs.push(staff.id);
     });
 
-    addSelectOptions(document.getElementById('addAvailabilityTutor'), tutorUIDs, tutorNames);
+    addSelectOptions(document.getElementById('addAvailabilityStaff'), staffUIDs, staffNames);
   })
   .catch((error) => {
     console.log(error)
@@ -1739,7 +1774,7 @@ function submitAddGeneralInfo() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const title = document.getElementById('addGeneralInfoTitle').value
-  const staff = getDropdownValues('addGeneralInfoTutor');
+  const staff = getDropdownValues('addGeneralInfoStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !title || !location) {
@@ -1821,7 +1856,7 @@ function updateEditGeneralInfo() {
     return
   }
   pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
-  pending_calendar_event.staff = getDropdownValues('editGeneralInfoTutor');
+  pending_calendar_event.staff = getDropdownValues('editGeneralInfoStaff');
 
   if (pending_calendar_event.staff.length > 0) {
     //check for conflicts
@@ -1844,13 +1879,13 @@ function updateEditGeneralInfo() {
           }
         }
 
-        //get the first tutor doc to grab their color
+        //get the first staff doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
           firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
-          .then((tutorDoc) => {
-            pending_calendar_event.color = tutorDoc.data().color ?? null;
-            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+          .then((staffDoc) => {
+            pending_calendar_event.color = staffDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
 
             return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
@@ -1863,7 +1898,7 @@ function updateEditGeneralInfo() {
             closeCalendarSidebar(true);
           })
         }
-        // same first tutor; proceed
+        // same first staff; proceed
         else {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
@@ -1883,13 +1918,13 @@ function updateEditGeneralInfo() {
     })
   }
   else {
-    //get the first tutor doc to grab their color
+    //get the first staff doc to grab their color
     //don't waste time if it hasn't changed
     if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
       firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
-      .then((tutorDoc) => {
-        pending_calendar_event.color = tutorDoc.data().color ?? null;
-        pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+      .then((staffDoc) => {
+        pending_calendar_event.color = staffDoc.data().color ?? null;
+        pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
 
         return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
       })
@@ -1906,7 +1941,7 @@ function updateEditGeneralInfo() {
         alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
       })
     }
-    // same first tutor; proceed
+    // same first staff; proceed
     else {
       firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
       .then(() => {
@@ -2074,7 +2109,7 @@ function submitAddTestReview() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addTestReviewStudent').value;
-  const staff = getDropdownValues('addTestReviewTutor');
+  const staff = getDropdownValues('addTestReviewStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location || staff.length == 0) {
@@ -2138,7 +2173,7 @@ function updateEditTestReview() {
   if (!confirm('Are you sure you want to update this test review?')) {
     return
   }
-  pending_calendar_event.staff = getDropdownValues('editTestReviewTutor');
+  pending_calendar_event.staff = getDropdownValues('editTestReviewStaff');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -2166,13 +2201,13 @@ function updateEditTestReview() {
           }
         }
 
-        //get the first tutor doc to grab their color
+        //get the first staff doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
           firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
-          .then((tutorDoc) => {
-            pending_calendar_event.color = tutorDoc.data().color ?? null;
-            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+          .then((staffDoc) => {
+            pending_calendar_event.color = staffDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
 
             return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
@@ -2185,7 +2220,7 @@ function updateEditTestReview() {
             closeCalendarSidebar(true);
           })
         }
-        // same first tutor; proceed
+        // same first staff; proceed
         else {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
@@ -2219,7 +2254,7 @@ function submitAddLesson() {
 
   const type = document.getElementById('addLessonType').value;
   const student = document.getElementById('addLessonStudent').value;
-  const staff = getDropdownValues('addLessonTutor');
+  const staff = getDropdownValues('addLessonStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (scheduleType == 'single') {
@@ -2402,7 +2437,7 @@ function updateEditLesson() {
   if (!confirm('Are you sure you want to update this lesson?')) {
     return
   }
-  pending_calendar_event.staff = getDropdownValues('editLessonTutor');
+  pending_calendar_event.staff = getDropdownValues('editLessonStaff');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -2430,13 +2465,13 @@ function updateEditLesson() {
           }
         }
 
-        //get the first tutor doc to grab their color
+        //get the first staff doc to grab their color
         //don't waste time if it hasn't changed
         if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
           firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
-          .then((tutorDoc) => {
-            pending_calendar_event.color = tutorDoc.data().color ?? null;
-            pending_calendar_event.textColor = tinycolor.mostReadable(tutorDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+          .then((staffDoc) => {
+            pending_calendar_event.color = staffDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
 
             return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           })
@@ -2449,7 +2484,7 @@ function updateEditLesson() {
             closeCalendarSidebar(true);
           })
         }
-        // same first tutor; proceed
+        // same first staff; proceed
         else {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
@@ -2471,7 +2506,7 @@ function updateEditLesson() {
 }
 
 function submitAddAvailability() {
-  const staff = document.getElementById('addAvailabilityTutor').value;
+  const staff = document.getElementById('addAvailabilityStaff').value;
   const location = document.getElementById('calendarLocation').dataset.value;
 
   let recurringEventsFulfilled = [];
@@ -2636,9 +2671,9 @@ function saveGeneralInfo(eventInfo) {
     let eventData = {};
     //get first staff name for color
     return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
-    .then((tutorDoc) => {
-      tutorData = tutorDoc.data();
-      const tutorColor = tutorData?.color;
+    .then((staffDoc) => {
+      staffData = staffDoc.data();
+      const staffColor = staffData?.color;
       eventData = {
         type: eventInfo.type,
         title: eventInfo.title,
@@ -2647,8 +2682,8 @@ function saveGeneralInfo(eventInfo) {
         end: parseInt(eventInfo.end),
         allDay: eventInfo.allDay,
         location: eventInfo.location,
-        color: tutorColor ?? GENRAL_INFO_COLOR,
-        textColor: tutorColor ? tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(GENRAL_INFO_COLOR, ["#FFFFFF", "000000"]).toHexString()
+        color: staffColor ?? GENRAL_INFO_COLOR,
+        textColor: staffColor ? tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(GENRAL_INFO_COLOR, ["#FFFFFF", "000000"]).toHexString()
       }
       return eventRef.set(eventData)
     })
@@ -2780,7 +2815,7 @@ function saveConference(eventInfo) {
 
 function saveTestReview(eventInfo) {
   let studentData = {};
-  let tutorData = {};
+  let staffData = {};
 
   //get the student doc for name and parent
   return firebase.firestore().collection("Users").doc(eventInfo.student).get()
@@ -2790,12 +2825,12 @@ function saveTestReview(eventInfo) {
     //get first staff name for color
     return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
   })
-  .then((tutorDoc) => {
-    tutorData = tutorDoc.data();
+  .then((staffDoc) => {
+    staffData = staffDoc.data();
 
     const studentName = studentData.lastName + ", " + studentData.firstName;
     const studentParents = studentData.parents;
-    const tutorColor = tutorData?.color;
+    const staffColor = staffData?.color;
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
@@ -2805,8 +2840,8 @@ function saveTestReview(eventInfo) {
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
       location: eventInfo.location,
-      color: tutorColor ?? null,
-      textColor: tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
+      color: staffColor ?? null,
+      textColor: tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
 
       student: eventInfo.student,
       studentName: studentName,
@@ -2834,7 +2869,7 @@ function saveTestReview(eventInfo) {
 
 function saveLesson(eventInfo) {
   let studentData = {};
-  let tutorData = {};
+  let staffData = {};
 
   //get the student doc for name and parent
   return firebase.firestore().collection("Users").doc(eventInfo.student).get()
@@ -2844,12 +2879,12 @@ function saveLesson(eventInfo) {
     //get first staff name for color
     return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
   })
-  .then((tutorDoc) => {
-    tutorData = tutorDoc.data();
+  .then((staffDoc) => {
+    staffData = staffDoc.data();
 
     const studentName = studentData.lastName + ", " + studentData.firstName;
     const studentParents = studentData.parents;
-    const tutorColor = tutorData?.color;
+    const staffColor = staffData?.color;
     let lessonTypeReadable = ""
 
     switch(eventInfo.type) {
@@ -2877,8 +2912,8 @@ function saveLesson(eventInfo) {
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
       location: eventInfo.location,
-      color: tutorColor ?? null,
-      textColor: tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
+      color: staffColor ?? null,
+      textColor: tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
 
       student: eventInfo.student,
       studentName: studentName,
@@ -2905,25 +2940,25 @@ function saveLesson(eventInfo) {
 }
 
 function saveAvailability(eventInfo) {
-  let tutorData = {};
+  let staffData = {};
 
   return firebase.firestore().collection("Users").doc(eventInfo.staff).get()
-  .then((tutorDoc) => {
-    tutorData = tutorDoc.data();
+  .then((staffDoc) => {
+    staffData = staffDoc.data();
 
-    const tutorColor = tutorData?.color;
-    const tutorName = tutorData.firstName + " " + tutorData.lastName;
+    const staffColor = staffData?.color;
+    const staffName = staffData.firstName + " " + staffData.lastName;
 
     const eventRef = firebase.firestore().collection("Availabilities").doc()
     let eventData = {
       type: eventInfo.type,
-      title: tutorName + " - Availability",
+      title: staffName + " - Availability",
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
       location: eventInfo.location,
-      color: tutorColor ?? AVAILABILITY_COLOR,
-      textColor: tutorColor ? tinycolor.mostReadable(tutorColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(AVAILABILITY_COLOR, ["#FFFFFF", "000000"]).toHexString(),
+      color: staffColor ?? AVAILABILITY_COLOR,
+      textColor: staffColor ? tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() : tinycolor.mostReadable(AVAILABILITY_COLOR, ["#FFFFFF", "000000"]).toHexString(),
 
       staff: eventInfo.staff,
     }
@@ -3011,26 +3046,26 @@ function getStudentList(location) {
   })
 }
 
-function getTutorList(location) {
+function getStaffList(location) {
   if(!location) {
     alert("Choose a location first!");
     return Promise.reject('no location selected')
   }
   return firebase.firestore().collection("Users")
   .where("location", "==", location)
-  .where("roles", 'array-contains', 'tutor')
+  .where("roles", 'array-contains-any', ['tutor', 'secretary', 'admin'])
   .orderBy("lastName").get()
-  .then((tutorSnapshot) => {
-    let tutors = [];
-    tutorSnapshot.forEach((tutorDoc) => {
-      const data = tutorDoc.data();
-      tutors.push({
+  .then((staffSnapshot) => {
+    let staff = [];
+    staffSnapshot.forEach((staffDoc) => {
+      const data = staffDoc.data();
+      staff.push({
         name: data.lastName + ", " + data.firstName,
-        id: tutorDoc.id
+        id: staffDoc.id
       })
     })
 
-    return tutors;
+    return staff;
   })
 }
 
