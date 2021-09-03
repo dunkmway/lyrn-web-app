@@ -213,10 +213,10 @@ function setGeneralInfo() {
 
         goalsDivider.before(testDateElement);
         goalsDivider.before(createElement('div', ['gridItem', highlightedClass], ['id', 'onclick'], ['compositePreTest-' + index.toString(), `togglePreTestBaseScore(${index})`], compositeScore?.toString() ?? ""));
-        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPreTest-' + index.toString(), score.englishPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPreTest-' + index.toString(), score.mathPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPreTest-' + index.toString(), score.readingPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePreTest-' + index.toString(), score.sciencePreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishPreTest-' + index.toString(), score.englishPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathPreTest-' + index.toString(), score.mathPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingPreTest-' + index.toString(), score.readingPreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        goalsDivider.before(createElement('input', ['gridItem', highlightedClass], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['sciencePreTest-' + index.toString(), score.sciencePreTest?.toString() ?? "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
       })
     }
 
@@ -252,10 +252,10 @@ function setGeneralInfo() {
 
         postTestDivider.before(goalDateElement);
         postTestDivider.before(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + index.toString()], compositeGoal?.toString() ?? ""));
-        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishGoal-' + index.toString(), goal.englishGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathGoal-' + index.toString(), goal.mathGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingGoal-' + index.toString(), goal.readingGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['scienceGoal-' + index.toString(), goal.scienceGoal?.toString() ?? "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
       })
     }
 
@@ -291,10 +291,10 @@ function setGeneralInfo() {
 
         generalInfoGrid.appendChild(testDateElement);
         generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositePostTest-' + index.toString()], compositeScore?.toString() ?? ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPostTest-' + index.toString(), score.englishPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPostTest-' + index.toString(), score.mathPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPostTest-' + index.toString(), score.readingPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePostTest-' + index.toString(), score.sciencePostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishPostTest-' + index.toString(), score.englishPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathPostTest-' + index.toString(), score.mathPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingPostTest-' + index.toString(), score.readingPostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+        generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['sciencePostTest-' + index.toString(), score.sciencePostTest?.toString() ?? "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
       })
     }
 
@@ -367,10 +367,10 @@ function placePreTestRow(isPracticeTest) {
 
   goalDivider.before(testDateElement);
   goalDivider.before(createElement('div', ['gridItem'], ['id', 'onclick'], ['compositePreTest-' + numPreTests.toString(), `togglePreTestBaseScore(${numPreTests})`], ""));
-  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingPreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  goalDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['sciencePreTest-' + numPreTests.toString(), "", "studentPreTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
 
   //run through all of the grid items and add in the numeric formating
   document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
@@ -486,10 +486,10 @@ function addGeneralInfoGoalRow() {
 
   postTestDivider.before(goalDateElement);
   postTestDivider.before(createElement('div', ['gridItem'], ['id'], ['compositeGoal-' + numGoals.toString()], ""));
-  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  postTestDivider.before(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['scienceGoal-' + numGoals.toString(), "", "studentGoalScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
 
   //run through all of the grid items and add in the numeric formating
   document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
@@ -561,10 +561,10 @@ function placePostTestRow(isPracticeTest) {
 
   generalInfoGrid.appendChild(testDateElement);
   generalInfoGrid.appendChild(createElement('div', ['gridItem'], ['id'], ['compositePostTest-' + numPostTests.toString()], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['englishPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['mathPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['readingPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
-  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max'], ['sciencePostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['englishPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['mathPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['readingPostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
+  generalInfoGrid.appendChild(createElement('input', ['gridItem'], ['id', 'value', 'onfocusout', 'oninput', 'min', 'max', 'autocomplete'], ['sciencePostTest-' + numPostTests.toString(), "", "studentPostTestScoreFocusOutCallback(this)", 'generalInfoInputCallback(this)', '0', '36', 'off'], ""));
 
   //run through all of the grid items and add in the numeric formating
   document.querySelectorAll('#studentGeneralInfoContainer .gridItem').forEach(element => {
