@@ -791,7 +791,7 @@ function deleteEventCallback() {
   }
 }
 
-function deleteRecurringEventCallback() {
+function deleteRecurringLessonsCallback() {
   if (confirm("Are you sure you want to delete all events going forward? This action cannot be undone.")) {
     const student = pending_calendar_event.student
     const type = pending_calendar_event.type;
@@ -802,6 +802,37 @@ function deleteRecurringEventCallback() {
     firebase.firestore().collection('Events')
     .where('student', '==', student)
     .where('type', '==', type)
+    .where('start', '>=', start)
+    .get()
+    .then(querySnapshot => {
+      let deletePromises = [];
+      querySnapshot.forEach(eventDoc => {
+        deletePromises.push(deleteEvent(eventDoc.id)
+        .then(() => {
+          main_calendar.getEventById(eventDoc.id)?.remove()
+        }))
+      })
+
+      Promise.all(deletePromises)
+      .then(() => {
+        closeCalendarSidebar(true);
+      })
+    })
+    .catch((error) => {console.log(error)});
+  }
+}
+
+function deleteRecurringGeneralInfoCallback() {
+  if (confirm("Are you sure you want to delete all events going forward? This action cannot be undone.")) {
+    const staff = pending_calendar_event.staff
+    const title = pending_calendar_event.title;
+    const start = pending_calendar_event.start;
+
+    //query all events for this student, of this type and starting at or after this start time
+
+    firebase.firestore().collection('Events')
+    .where('staff', '==', staff)
+    .where('title', '==', title)
     .where('start', '>=', start)
     .get()
     .then(querySnapshot => {

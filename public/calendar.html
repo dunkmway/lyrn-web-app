@@ -277,7 +277,14 @@
         <div class="bottom">
           <button onclick="closeCalendarSidebar()" class="button">cancel</button>
           <button onclick="updateEditGeneralInfo()" class="button">update</button>
-          <button onclick="deleteEventCallback()" class="button danger">delete</button>
+          <!-- <button onclick="deleteEventCallback()" class="button danger">delete</button> -->
+          <div class="dropdown">
+            <button class="button danger">delete</button>
+            <div class="dropdown-content">
+              <div class="danger" onclick="deleteRecurringGeneralInfoCallback()">delete all recurring general info that match this one</div>
+              <div class="danger" onclick="deleteEventCallback()">delete this general info</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -578,7 +585,7 @@
           <div class="dropdown">
             <button class="button danger">delete</button>
             <div class="dropdown-content">
-              <div class="danger" onclick="deleteRecurringEventCallback()">delete all recurring lessons of this type</div>
+              <div class="danger" onclick="deleteRecurringLessonsCallback()">delete all recurring lessons of this type</div>
               <div class="danger" onclick="deleteEventCallback()">delete this lesson</div>
             </div>
           </div>
