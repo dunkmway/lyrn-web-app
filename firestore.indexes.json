@@ -134,6 +134,24 @@
       "fields": [
         {
           "fieldPath": "staff",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "title",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "start",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "staff",
           "arrayConfig": "CONTAINS"
         },
         {
@@ -303,6 +321,5 @@
       ]
     }
   ],
-
   "fieldOverrides": []
 }
