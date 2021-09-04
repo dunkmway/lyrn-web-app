@@ -229,6 +229,19 @@
         <select id="addGeneralInfoStaff" name="addGeneralInfoStaff" class="ui dropdown search selection" multiple></select>
         <br>
 
+
+        <!-- single vs recurring events -->
+        <input type="radio" id="addGeneralInfoSingleRadio" name="addGeneralInfoEventSchedule" value="single" checked onchange="addGeneralInfoSingleSelected(this)">
+        <label for="addGeneralInfoSingleRadio">single general info</label><br>
+        <input type="radio" id="addGeneralInfoRecurringRadio" name="addGeneralInfoEventSchedule" value="recurring" onchange="addGeneralInfoRecurringSelected(this)">
+        <label for="addGeneralInfoRecurringRadio">recurring general info</label>
+        <br><br>
+
+        <div id="addGeneralInfoRecurringWrapper">
+          <button class="input" onclick="recurringEventTimesClickCallback(this)">select the recurring event times</button>
+          <button class="input"onclick="recurringEventStartEndClickCallback(this)">select the start and end dates</button>
+        </div>
+
         <!-- buttons -->
         <div class="bottom">
           <button onclick="closeCalendarSidebar()" class="button">cancel</button>
@@ -347,6 +360,14 @@
         <select id="addConferenceStudent" name="addConferenceStudent" class="ui dropdown search selection"></select>
         <br>
 
+        <!-- admin(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the admins performing the conference">?</div>
+          <label for="addConferenceAdmin" class="label">Admins</label>
+        </div>
+        <select id="addConferenceAdmin" name="addConferenceAdmin" class="ui dropdown search selection" multiple></select>
+        <br>
+
         <!-- description -->
         <div class="inputRow">
           <div class="more-info " data-more-info="Any additional info.">?</div>
@@ -376,6 +397,14 @@
           <label for="editConferenceStudent" class="label">Student</label>
         </div>
         <div id="editConferenceStudent" name="editConferenceStudent" class="input nonEditable"></div>
+        <br>
+
+        <!-- admin(s) attending the event -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is/are the admins performing the conference">?</div>
+          <label for="editConferenceAdmin" class="label">Admins</label>
+        </div>
+        <select id="editConferenceAdmin" name="editConferenceAdmin" class="ui dropdown search selection" multiple></select>
         <br>
 
         <!-- description -->

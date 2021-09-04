@@ -20,6 +20,8 @@ const GENRAL_INFO_COLOR = "#B3B3B3";
 const TEACHER_MEETING_COLOR = "#B3B3B3";
 const AVAILABILITY_COLOR = "#F09C99";
 
+const STAFF_ROLES = ['tutor', 'secretary', 'admin'];
+
 let current_user;
 
 let main_calendar;
@@ -87,7 +89,7 @@ function setupNavLists(locationUID) {
   document.getElementById('staffAvailabilityContent').appendChild(staffAvailabilityDefaultOption);
 
   //add in the options for the given location
-  getStudentList(locationUID)
+  getUserListByRole(locationUID, ['student'])
   .then((students) => {
     let studentNames = [];
     let studentUIDs = [];
@@ -120,7 +122,7 @@ function setupNavLists(locationUID) {
     console.log(error)
   });
 
-  getStaffList(locationUID)
+  getUserListByRole(locationUID, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1181,7 +1183,7 @@ function getOpeningLocation(location, start, end, eventLength) {
   if (eventLength) {
     // get all events and availabilities within the timeframe
 
-    return Promise.all([getEventsLocationForDocs(location, start, end), getAvailabilityLocationForDocs(location, start, end), getTutorList(location)])
+    return Promise.all([getEventsLocationForDocs(location, start, end), getAvailabilityLocationForDocs(location, start, end), getUserListByRole(location, ['tutor'])])
     .then((locationContent) => {
       let events = locationContent[0];
       let availabilities = locationContent[1];
@@ -1507,7 +1509,7 @@ function setupAddGeneralInfo() {
   main_calendar.setOption('selectable', true);
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1550,7 +1552,7 @@ function setupEditGeneralInfo(data, id) {
   document.getElementById('editGeneralInfoStaff').appendChild(defaultOptionStaff);
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1590,7 +1592,7 @@ function setupAddPracticeTest() {
   document.getElementById('addPracticeTestStudent').appendChild(defaultOption);
 
   //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, ['student'])
   .then((students) => {
     let studentNames = [];
     let studentUIDs = [];
@@ -1648,7 +1650,7 @@ function setupAddConference() {
   document.getElementById('addConferenceStudent').appendChild(defaultOption);
 
   //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, ['student'])
   .then((students) => {
     let studentNames = [];
     let studentUIDs = [];
@@ -1658,6 +1660,23 @@ function setupAddConference() {
     });
 
     addSelectOptions(document.getElementById('addConferenceStudent'), studentUIDs, studentNames);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar(true);
+  });
+
+  //add in the admin list. If no location is selected this will reject
+  getUserListByRole(current_location, ['admin'])
+  .then((admins) => {
+    let adminNames = [];
+    let adminUIDs = [];
+    admins.forEach((admin) => {
+      adminNames.push(admin.name);
+      adminUIDs.push(admin.id);
+    });
+
+    addSelectOptions(document.getElementById('addConferenceAdmin'), adminUIDs, adminNames);
   })
   .catch((error) => {
     console.log(error)
@@ -1681,6 +1700,24 @@ function setupEditConference(data, id) {
   old_calendar_event = {...data};
   pending_calendar_event_id = id;
   pending_calendar_event = {...data};
+
+  //add in the staff list. If no location is selected this will reject
+  getUserListByRole(current_location, ['admin'])
+  .then((admins) => {
+    let adminNames = [];
+    let adminUIDs = [];
+    admins.forEach((admin) => {
+      adminNames.push(admin.name);
+      adminUIDs.push(admin.id);
+    });
+
+    addSelectOptions(document.getElementById('editConferenceAdmin'), adminUIDs, adminNames);
+    $("#editConferenceAdmin").closest(".ui.dropdown").dropdown('set value', data.staff);
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar(true);
+  });
 
   document.getElementById('editConferenceStudent').textContent = data.studentName;
   document.getElementById('editConferenceDescription').value = data.description;
@@ -1712,7 +1749,7 @@ function setupAddTestReview() {
   document.getElementById('addTestReviewStaff').appendChild(defaultOptionStaff);
 
   //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, ['student'])
   .then((students) => {
     let studentNames = [];
     let studentUIDs = [];
@@ -1729,7 +1766,7 @@ function setupAddTestReview() {
   });
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1772,7 +1809,7 @@ function setupEditTestReview(data, id) {
   document.getElementById('addTestReviewStaff').appendChild(defaultOptionStaff);
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1843,7 +1880,7 @@ function setupAddLesson() {
   });
 
   //add in the student list. If no location is selected this will reject
-  getStudentList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, ['student'])
   .then((students) => {
     let studentNames = [];
     let studentUIDs = [];
@@ -1860,7 +1897,7 @@ function setupAddLesson() {
   });
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1924,7 +1961,7 @@ function setupEditLesson(data, id) {
   document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -1956,7 +1993,7 @@ function setupAddAvailability() {
   main_calendar.setOption('selectable', true);
 
   //add in the staff list. If no location is selected this will reject
-  getStaffList(document.getElementById('calendarLocation').dataset.value)
+  getUserListByRole(current_location, STAFF_ROLES)
   .then((staff) => {
     let staffNames = [];
     let staffUIDs = [];
@@ -2035,84 +2072,255 @@ function updateEditTeacherMeeting() {
 }
 
 function submitAddGeneralInfo() {
-  const start = pending_calendar_event.start;
-  const end = pending_calendar_event.end;
-  const allDay = pending_calendar_event.allDay;
+  //decide if it is a single event or a recurring event
+  let scheduleType = '';
+  const radios = document.getElementsByName('addGeneralInfoEventSchedule');
+  for (let i = 0; i < radios.length; i++) {
+    if (radios[i].checked) {
+      scheduleType = radios[i].value
+      break;
+    }
+  }
+
   const title = document.getElementById('addGeneralInfoTitle').value
   const staff = getDropdownValues('addGeneralInfoStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
-  if (!start || !title || !location) {
-    return alert("It looks like you're still missing some data for this general info");
-  }
+  if (scheduleType == 'single') {
+    const start = pending_calendar_event.start;
+    const end = pending_calendar_event.end;
+    const allDay = pending_calendar_event.allDay;
 
-  if (confirm("Are you sure you want to submit this event?")) {
-    if (staff.length > 0) {
-      //check for conflicts
-      checkStaffConflicts(staff, start, end)
-      .then((conflict) => {
-        if (conflict) {
-          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
-        }
+    if (!start || !title || !location) {
+      return alert("It looks like you're still missing some data for this general info");
+    }
 
-        let availablePromises = [];
-        for (let i = 0; i < staff.length; i++) {
-          availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
-        }
+    if (confirm("Are you sure you want to submit this event?")) {
+      if (staff.length > 0) {
+        //check for conflicts
+        checkStaffConflicts(staff, start, end)
+        .then((conflict) => {
+          if (conflict) {
+            return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+          }
 
-        Promise.all(availablePromises)
-        .then((areAvailable) => {
-          for (let i = 0; i < areAvailable.length; i++) {
-            if (!areAvailable[i].isAvailable) {
-              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+          let availablePromises = [];
+          for (let i = 0; i < staff.length; i++) {
+            availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
+          }
+
+          Promise.all(availablePromises)
+          .then((areAvailable) => {
+            for (let i = 0; i < areAvailable.length; i++) {
+              if (!areAvailable[i].isAvailable) {
+                return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+              }
             }
-          }
 
-          eventInfo = {
-            type: 'generalInfo',
-            start: start,
-            end: end,
-            allDay, allDay,
-            title: title,
-            staff: staff,
-            location: location
-          }
+            eventInfo = {
+              type: 'generalInfo',
+              start: start,
+              end: end,
+              allDay, allDay,
+              title: title,
+              staff: staff,
+              location: location
+            }
 
-          saveGeneralInfo(eventInfo)
-          .then((event) => {
-            //FIXME: This should automatically update for the client and put it in a pending status
-            main_calendar.addEvent(event);
-            closeCalendarSidebar(true);
+            saveGeneralInfo(eventInfo)
+            .then((event) => {
+              //FIXME: This should automatically update for the client and put it in a pending status
+              main_calendar.addEvent(event);
+              closeCalendarSidebar(true);
+            })
           })
         })
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
-      })
-    }
-    else {
-      eventInfo = {
-        type: 'generalInfo',
-        start: start,
-        end: end,
-        allDay, allDay,
-        title: title,
-        staff: staff,
-        location: location
+        .catch((error) => {
+          console.log(error);
+          alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+        })
       }
+      else {
+        eventInfo = {
+          type: 'generalInfo',
+          start: start,
+          end: end,
+          allDay, allDay,
+          title: title,
+          staff: staff,
+          location: location
+        }
 
-      saveGeneralInfo(eventInfo)
-      .then((event) => {
-        //FIXME: This should automatically update for the client and put it in a pending status
-        main_calendar.addEvent(event);
-        closeCalendarSidebar(true);
-      })
-      .catch((error) => {
-        console.log(error);
-        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
-      })
+        saveGeneralInfo(eventInfo)
+        .then((event) => {
+          //FIXME: This should automatically update for the client and put it in a pending status
+          main_calendar.addEvent(event);
+          closeCalendarSidebar(true);
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+        })
+      }
     }
+  }
+
+  else if (scheduleType == 'recurring') {
+    let recurringPendingEventsFulfilled = [];
+    let recurringEventsFulfilled = [];
+
+    let studentConflicts = [];
+    let staffConflicts = [];
+    let staffUnavailable = [];
+    let pendingEvents = [];
+
+    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !title || !location) {
+      return alert("It looks like you're still missing some data for this lesson");
+    }
+    if (confirm("Are you sure you want to submit these events?")) {
+      if (staff.length > 0) {
+        //figure out all of the events that must be added based on recurring start, end, and times.
+        const millisecondsWeek = 604800000;
+
+        pending_recurring_times.forEach(weekTime => {
+          let start = weekTime.start.getTime();
+          let end = weekTime.end.getTime();
+
+          //get the week time up to the start of the recurring schedule
+          while (start < pending_recurring_start.start.getTime()) {
+            start += millisecondsWeek;
+            end += millisecondsWeek;
+          }
+
+          //save an event for each time until the end of the recurring
+          while (end < pending_recurring_end.end.getTime()) {
+            let passThruTimes = (start, end) => {
+              //check for conflicts
+              recurringPendingEventsFulfilled.push(
+                checkStaffConflicts(staff, start, end)
+                .then((staffConflict) => {
+                  if (staffConflict) {
+                    staffConflicts.push(staffConflict)
+                    alert('There is a conflict with this staff: eventID = ' + staffConflict.id)
+                  }
+
+                  let availablePromises = [];
+                  for (let i = 0; i < staff.length; i++) {
+                    availablePromises.push(checkStaffAvailability(staff[i], start, end))
+                  }
+
+                  return Promise.all(availablePromises)
+                  .then((areAvailable) => {
+                    for (let i = 0; i < areAvailable.length; i++) {
+                      if (!areAvailable[i].isAvailable) {
+                        staffUnavailable.push(areAvailable[i])
+                        alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+                      }
+                    }
+
+                    let eventInfo = {
+                      type: 'generalInfo',
+                      start: start,
+                      end: end,
+                      allDay: weekTime.allDay,
+                      location: location,
+                      staff: staff,
+                      title: title
+                    }
+                    pendingEvents.push(eventInfo);
+                  })
+                })
+              );
+            }
+            passThruTimes(start, end);
+            start += millisecondsWeek;
+            end += millisecondsWeek;
+          }
+        })
+
+        Promise.all(recurringPendingEventsFulfilled)
+        .then(() => {
+          if (studentConflicts.length == 0 && staffConflicts.length == 0 && staffUnavailable.length == 0) {
+            console.log(pendingEvents);
+            pendingEvents.forEach(event => {
+              recurringEventsFulfilled.push(saveGeneralInfo(event));
+            })
+
+            Promise.all(recurringEventsFulfilled)
+            .then(events => {
+              events.forEach(event => {
+                main_calendar.addEvent(event);
+              })
+              closeCalendarSidebar(true);
+            })
+            .catch((error) => {
+              console.log(error);
+              alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+            })
+          }
+          else {
+            console.log(studentConflicts);
+            console.log(staffConflicts);
+            console.log(staffUnavailable);
+            console.log(pendingEvents);
+          }
+        })
+      }
+      else {
+        //figure out all of the events that must be added based on recurring start, end, and times.
+        const millisecondsWeek = 604800000;
+
+        pending_recurring_times.forEach(weekTime => {
+          let start = weekTime.start.getTime();
+          let end = weekTime.end.getTime();
+
+          //get the week time up to the start of the recurring schedule
+          while (start < pending_recurring_start.start.getTime()) {
+            start += millisecondsWeek;
+            end += millisecondsWeek;
+          }
+
+          //save an event for each time until the end of the recurring
+          while (end < pending_recurring_end.end.getTime()) {
+            let passThruTimes = (start, end) => {
+              //check for conflicts
+              let eventInfo = {
+                type: 'generalInfo',
+                start: start,
+                end: end,
+                allDay: weekTime.allDay,
+                location: location,
+                staff: staff,
+                title: title
+              }
+              pendingEvents.push(eventInfo);
+            }
+            passThruTimes(start, end);
+            start += millisecondsWeek;
+            end += millisecondsWeek;
+          }
+        })
+
+        pendingEvents.forEach(event => {
+          recurringEventsFulfilled.push(saveGeneralInfo(event));
+        })
+
+        Promise.all(recurringEventsFulfilled)
+        .then(events => {
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+          closeCalendarSidebar(true);
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+        })
+      }
+    }
+  }
+  else {
+    console.warn("no schedule type: shouldn't be possible.")
   }
 }
 
@@ -2300,11 +2508,12 @@ function submitAddConference() {
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addConferenceStudent').value;
+  const staff = getDropdownValues('addConferenceAdmin');
   const description = document.getElementById('addConferenceDescription').value;
   const location = document.getElementById('calendarLocation').dataset.value;
 
-  if (!start || !student || !location) {
-    return alert("It looks like you're still missing some data for this conference");
+  if (!start || !student || !location || staff.length == 0) {
+    return alert("It looks like you're still missing some data for this test review");
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
@@ -2315,28 +2524,50 @@ function submitAddConference() {
         return alert('There is a conflict with this student: eventID = ' + conflict.id)
       }
 
-      eventInfo = {
-        type: 'conference',
-        start: start,
-        end: end,
-        allDay, allDay,
-        location: location,
-        student: student,
-        description: description,
-        color: CONFERENCE_COLOR,
-        textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
-      }
+      checkStaffConflicts(staff, start, end)
+      .then((conflict) => {
+        if (conflict) {
+          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+        }
 
-      saveConference(eventInfo)
-      .then((event) => {
-        //FIXME: This should automatically update for the client and put it in a pending status
-        main_calendar.addEvent(event);
-        closeCalendarSidebar(true);
+        let availablePromises = [];
+        for (let i = 0; i < staff.length; i++) {
+          availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
+        }
+
+        Promise.all(availablePromises)
+        .then((areAvailable) => {
+          for (let i = 0; i < areAvailable.length; i++) {
+            if (!areAvailable[i].isAvailable) {
+              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            }
+          }
+
+          eventInfo = {
+            type: 'conference',
+            start: start,
+            end: end,
+            allDay, allDay,
+            location: location,
+            student: student,
+            staff: staff,
+            description: description,
+            color: CONFERENCE_COLOR,
+            textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
+          }
+    
+          saveConference(eventInfo)
+          .then((event) => {
+            //FIXME: This should automatically update for the client and put it in a pending status
+            main_calendar.addEvent(event);
+            closeCalendarSidebar(true);
+          })
+        })
       })
     })
     .catch((error) => {
       console.log(error);
-      alert("We are having issues saving this conference :(\nPlease try again and if the issue persist please contact the devs.");
+      alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
 }
@@ -2345,7 +2576,8 @@ function updateEditConference() {
   if (!confirm('Are you sure you want to update this conference?')) {
     return
   }
-  pending_calendar_event.description = document.getElementById('editConferenceDescription').value;
+  pending_calendar_event.staff = getDropdownValues('editConferenceAdmin');
+
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
   .then((conflict) => {
@@ -2353,14 +2585,57 @@ function updateEditConference() {
       return alert('There is a conflict with this student: eventID = ' + conflict.id)
     }
 
-    firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-    .then(() => {
-      main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
-        id: pending_calendar_event_id,
-        ...pending_calendar_event
+    checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+    .then((conflict) => {
+      if (conflict) {
+        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+      }
+
+      let availablePromises = [];
+      for (let i = 0; i < pending_calendar_event.staff.length; i++) {
+        availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
+      }
+
+      Promise.all(availablePromises)
+      .then((areAvailable) => {
+        for (let i = 0; i < areAvailable.length; i++) {
+          if (!areAvailable[i].isAvailable) {
+            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+          }
+        }
+
+        //get the first staff doc to grab their color
+        //don't waste time if it hasn't changed
+        if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
+          firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
+          .then((staffDoc) => {
+            pending_calendar_event.color = staffDoc.data().color ?? null;
+            pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
+
+            return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+          })
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
+          })
+        }
+        // same first staff; proceed
+        else {
+          firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+          .then(() => {
+            main_calendar.getEventById(pending_calendar_event_id).remove();
+            main_calendar.addEvent({
+              id: pending_calendar_event_id,
+              ...pending_calendar_event
+            })
+            closeCalendarSidebar(true);
+          })
+        }
       })
-      closeCalendarSidebar(true);
     })
   })
   .catch((error) => {
@@ -2590,6 +2865,7 @@ function submitAddLesson() {
 
     let studentConflicts = [];
     let staffConflicts = [];
+    let staffUnavailable = [];
     let pendingEvents = [];
 
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
@@ -2630,7 +2906,7 @@ function submitAddLesson() {
 
                   let availablePromises = [];
                   for (let i = 0; i < staff.length; i++) {
-                    availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
+                    availablePromises.push(checkStaffAvailability(staff[i], start, end))
                   }
 
                   return Promise.all(availablePromises)
@@ -3036,31 +3312,44 @@ function savePracticeTest(eventInfo) {
 }
 
 function saveConference(eventInfo) {
+  let studentData = {};
+  let staffData = {};
+
   //get the student doc for name and parent
   return firebase.firestore().collection("Users").doc(eventInfo.student).get()
   .then((studentDoc) => {
-    const data = studentDoc.data();
-    const studentName = data.lastName + ", " + data.firstName;
-    const studentParents = data.parents;
+    studentData = studentDoc.data();
+    
+    //get first staff name for color
+    return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
+  })
+  .then((staffDoc) => {
+    staffData = staffDoc.data();
+
+    const studentName = studentData.lastName + ", " + studentData.firstName;
+    const studentParents = studentData.parents;
+    const staffColor = staffData?.color;
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
       type: eventInfo.type,
       title: studentName + " - Conference",
-      description: eventInfo.description,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
       location: eventInfo.location,
-      color: eventInfo.color,
-      textColor: eventInfo.textColor,
+      description: eventInfo.description,
+      color: staffColor ?? eventInfo.color,
+      textColor: tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() ?? eventInfo.textColor,
 
       student: eventInfo.student,
       studentName: studentName,
       
       parents: studentParents,
 
-      attendees: [eventInfo.student, ...studentParents]
+      staff: eventInfo.staff,
+
+      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -3074,7 +3363,6 @@ function saveConference(eventInfo) {
         textColor: eventData.textColor,
       }
     })
-
   })
 }
 
@@ -3288,72 +3576,26 @@ function getLessonTypeList(location) {
   })
 }
 
-function getStudentList(location) {
+function getUserListByRole(location, roles) {
   if(!location) {
     alert("Choose a location first!");
     return Promise.reject('no location selected')
   }
   return firebase.firestore().collection("Users")
   .where("location", "==", location)
-  .where("roles", 'array-contains', 'student')
+  .where("roles", 'array-contains-any', roles)
   .orderBy("lastName").get()
-  .then((studentSnapshot) => {
-    let students = [];
-    studentSnapshot.forEach((studentDoc) => {
-      const data = studentDoc.data();
-      students.push({
+  .then((userSnapshot) => {
+    let users = [];
+    userSnapshot.forEach((userDoc) => {
+      const data = userDoc.data();
+      users.push({
         name: data.lastName + ", " + data.firstName,
-        id: studentDoc.id
+        id: userDoc.id
       })
     })
 
-    return students;
-  })
-}
-
-function getStaffList(location) {
-  if(!location) {
-    alert("Choose a location first!");
-    return Promise.reject('no location selected')
-  }
-  return firebase.firestore().collection("Users")
-  .where("location", "==", location)
-  .where("roles", 'array-contains-any', ['tutor', 'secretary', 'admin'])
-  .orderBy("lastName").get()
-  .then((staffSnapshot) => {
-    let staff = [];
-    staffSnapshot.forEach((staffDoc) => {
-      const data = staffDoc.data();
-      staff.push({
-        name: data.lastName + ", " + data.firstName,
-        id: staffDoc.id
-      })
-    })
-
-    return staff;
-  })
-}
-
-function getTutorList(location) {
-  if(!location) {
-    alert("Choose a location first!");
-    return Promise.reject('no location selected')
-  }
-  return firebase.firestore().collection("Users")
-  .where("location", "==", location)
-  .where("roles", 'array-contains', 'tutor')
-  .orderBy("lastName").get()
-  .then((tutorSnapshot) => {
-    let tutors = [];
-    tutorSnapshot.forEach((tutorDoc) => {
-      const data = tutorDoc.data();
-      tutors.push({
-        name: data.lastName + ", " + data.firstName,
-        id: tutorDoc.id
-      })
-    })
-
-    return tutors;
+    return users;
   })
 }
 
@@ -3401,6 +3643,31 @@ function addLessonRecurringSelected(target) {
   clearAddLessonSingleSelected();
 
   recurringEventTimesClickCallback(document.getElementById('addLessonRecurringWrapper').children[0]);
+}
+
+function clearAddGeneralInfoRecurringSelected() {
+  //unselect the buttons for recurring
+  unselectSiblings(document.getElementById('addGeneralInfoRecurringWrapper').children.item(0))
+
+  //remove any recurring event data from pending?
+}
+
+function clearAddGeneralInfoSingleSelected() {
+  //remove any single event data from pending?
+}
+
+function addGeneralInfoSingleSelected(target) {
+  clearAddGeneralInfoRecurringSelected();
+
+  //set up the default behavior when adding single events
+  initializeDefaultCalendar([]);
+  main_calendar.setOption('selectable', true);
+}
+
+function addGeneralInfoRecurringSelected(target) {
+  clearAddGeneralInfoSingleSelected();
+
+  recurringEventTimesClickCallback(document.getElementById('addGeneralInfoRecurringWrapper').children[0]);
 }
 
 function recurringEventTimesClickCallback(target) {

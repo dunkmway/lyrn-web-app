@@ -411,6 +411,10 @@ select {
   color: white;
 }
 
+#addLessonRecurringRadio:checked~#addLessonRecurringWrapper {
+  display: block;
+}
+
 #addAvailabilityRecurringWrapper button.input:hover:not(.selected) {
   background-color: #DEDEDF;
 }
@@ -421,6 +425,22 @@ select {
   color: white;
 }
 
-#addLessonRecurringRadio:checked~#addLessonRecurringWrapper {
+
+
+#addGeneralInfoRecurringWrapper {
+  display: none;
+}
+
+#addGeneralInfoRecurringWrapper button.input:hover:not(.selected) {
+  background-color: #DEDEDF;
+}
+
+#addGeneralInfoRecurringWrapper .selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#addGeneralInfoRecurringRadio:checked~#addGeneralInfoRecurringWrapper {
   display: block;
 }
