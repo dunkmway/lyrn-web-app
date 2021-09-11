@@ -25,7 +25,9 @@ firebase.analytics();
 
 window.onerror = sendErrorReport;
 
-checkPermissions();
+//FIXME: temporary for development
+//checkPermissions();
+window.addEventListener('load', clearLoadingScreen)
 
 function checkPermissions() {
     const publicPages = [

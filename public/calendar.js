@@ -20,11 +20,15 @@ const GENRAL_INFO_COLOR = "#B3B3B3";
 const TEACHER_MEETING_COLOR = "#B3B3B3";
 const AVAILABILITY_COLOR = "#F09C99";
 
+let event_glance_timeout_id = null;
+
 const STAFF_ROLES = ['tutor', 'secretary', 'admin'];
 
 let current_user;
 
 let main_calendar;
+
+let storage = firebase.storage();
 
 
 function initialSetup() {
@@ -259,6 +263,9 @@ function locationChange(location) {
   clearAvailabilityFilter();
   setupNavLists(location);
 
+  //change the eventGlance grid
+  setupEventGlanceGrid();
+
   //change the calendar
   getCurrentCalendarTypeContent();
 }
@@ -458,6 +465,12 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
       pending_calendar_event.start = changeInfo.event.start.getTime();
       pending_calendar_event.end = changeInfo.event?.end?.getTime() ?? changeInfo.event.start.getTime() + 3600000;
       pending_calendar_event.allDay = changeInfo.event.allDay;
+    },
+
+    eventDidMount: function (info) {
+      if (info.event.extendedProps.background) {
+        info.el.style.background = info.event.extendedProps.background;
+      }
     },
 
     selectable: false,
@@ -1237,10 +1250,10 @@ function getOpeningLocation(location, start, end, eventLength) {
           //check if the tutor is available during this time
           const isAvailable = (availability) => availability.data().staff.includes(tutor.id) && availability.data().start <= tempStart && availability.data().end >= tempEnd;
           const hasConflict = (event) => {
-            return (event.data().staff.includes(tutor.id) && event.data().start <= tempStart && event.data().end >= tempEnd) ||
-            (event.data().staff.includes(tutor.id) && event.data().start >= tempStart && event.data().start < tempEnd) ||
-            (event.data().staff.includes(tutor.id) && event.data().end > tempStart && event.data().end <= tempEnd) ||
-            (event.data().staff.includes(tutor.id) && event.data().start >= tempStart && event.data().end <= tempEnd)
+            return (event.data()?.staff?.includes(tutor.id) && event.data().start <= tempStart && event.data().end >= tempEnd) ||
+            (event.data()?.staff?.includes(tutor.id) && event.data().start >= tempStart && event.data().start < tempEnd) ||
+            (event.data()?.staff?.includes(tutor.id) && event.data().end > tempStart && event.data().end <= tempEnd) ||
+            (event.data()?.staff?.includes(tutor.id) && event.data().start >= tempStart && event.data().end <= tempEnd)
           }
           if (availabilities.some(isAvailable) && !events.some(hasConflict)) {tutorsOpen.push(tutor)}
         })
@@ -1773,11 +1786,31 @@ function setupAddTestReview() {
   defaultOptionStudent.textContent = "select a student"
   document.getElementById('addTestReviewStudent').appendChild(defaultOptionStudent);
 
-  //add back the default option (staff)
-  const defaultOptionStaff = document.createElement('option');
-  defaultOptionStaff.value = "";
-  defaultOptionStaff.textContent = "NO STAFF"
-  document.getElementById('addTestReviewStaff').appendChild(defaultOptionStaff);
+  $('#addTestReviewStaff').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+    (value, text) => {
+      if (value.length == $('#addTestReviewStaff > option').length) {
+        $('#addTestReviewStaffSelectAll').parent()
+        .checkbox('set checked');
+      }
+      else {
+        $('#addTestReviewStaffSelectAll').parent()
+        .checkbox('set unchecked');
+      }
+    }
+  )
+
+  $('#addTestReviewStaffSelectAll').parent()
+  .checkbox({
+    onChecked() {
+      const options = $('#addTestReviewStaff > option').toArray().map(
+        (obj) => obj.value
+      );
+      $('#addTestReviewStaff').dropdown('set exactly', options);
+    },
+    onUnchecked() {
+      $('#addTestReviewStaff').dropdown('clear');
+    },
+  });
 
   //add in the student list. If no location is selected this will reject
   getUserListByRole(current_location, ['student'])
@@ -1887,23 +1920,55 @@ function setupAddLesson() {
   defaultOptionStudent.textContent = "select a student"
   document.getElementById('addLessonStudent').appendChild(defaultOptionStudent);
 
-  //add the default option (staff)
-  const defaultOptionStaff = document.createElement('option');
-  defaultOptionStaff.value = "noStaff";
-  defaultOptionStaff.textContent = "NO STAFF"
-  document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
+  // //add the default option (staff)
+  // const defaultOptionStaff = document.createElement('option');
+  // defaultOptionStaff.value = "noStaff";
+  // defaultOptionStaff.textContent = "NO STAFF";
+  // document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
+
+  $('#addLessonStaff').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+    (value, text) => {
+      if (value.length == $('#addLessonStaff > option').length) {
+        $('#addLessonStaffSelectAll').parent()
+        .checkbox('set checked');
+      }
+      else {
+        $('#addLessonStaffSelectAll').parent()
+        .checkbox('set unchecked');
+      }
+    }
+  )
+
+  $('#addLessonStaffSelectAll').parent()
+  .checkbox({
+    onChecked() {
+      const options = $('#addLessonStaff > option').toArray().map(
+        (obj) => obj.value
+      );
+      $('#addLessonStaff').dropdown('set exactly', options);
+    },
+    onUnchecked() {
+      $('#addLessonStaff').dropdown('clear');
+    },
+  });
 
   //add in the list of lesson types. If no location is selected this will reject
   getLessonTypeList(document.getElementById('calendarLocation').dataset.value)
   .then((lessonTypes) => {
     let lessonNames = [];
     let lessonValues = [];
+    let lessonPrice = [];
     lessonTypes.forEach((type) => {
       lessonNames.push(type.name);
       lessonValues.push(type.value);
+      lessonPrice.push(type.price);
     });
 
     addSelectOptions(document.getElementById('addLessonType'), lessonValues, lessonNames);
+    $('#addLessonType').closest(".ui.dropdown").dropdown('setting', 'onChange',
+    (value, text) => {
+      document.getElementById('addLessonPrice').value = lessonPrice[lessonValues.indexOf(value)]
+    })
   })
   .catch((error) => {
     console.log(error)
@@ -1984,6 +2049,7 @@ function setupEditLesson(data, id) {
 
   document.getElementById('editLessonType').textContent = lessonTypeReadable;
   document.getElementById('editLessonStudent').textContent = data.studentName;
+  document.getElementById('editLessonPrice').value = data.price;
 
   //add back the default option (staff)
   const defaultOptionStaff = document.createElement('option');
@@ -2115,6 +2181,7 @@ function submitAddGeneralInfo() {
 
   const title = document.getElementById('addGeneralInfoTitle').value
   const staff = getDropdownValues('addGeneralInfoStaff');
+  const staffNames = getDropdownText('addGeneralInfoStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (scheduleType == 'single') {
@@ -2155,6 +2222,7 @@ function submitAddGeneralInfo() {
               allDay, allDay,
               title: title,
               staff: staff,
+              staffNames: staffNames,
               location: location
             }
 
@@ -2179,6 +2247,7 @@ function submitAddGeneralInfo() {
           allDay, allDay,
           title: title,
           staff: staff,
+          staffNames: staffNames,
           location: location
         }
 
@@ -2256,6 +2325,7 @@ function submitAddGeneralInfo() {
                       allDay: weekTime.allDay,
                       location: location,
                       staff: staff,
+                      staffNames: staffNames,
                       title: title
                     }
                     pendingEvents.push(eventInfo);
@@ -2322,6 +2392,7 @@ function submitAddGeneralInfo() {
                 allDay: weekTime.allDay,
                 location: location,
                 staff: staff,
+                staffNames: staffNames,
                 title: title
               }
               pendingEvents.push(eventInfo);
@@ -2361,6 +2432,7 @@ function updateEditGeneralInfo() {
   }
   pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
   pending_calendar_event.staff = getDropdownValues('editGeneralInfoStaff');
+  pending_calendar_event.staffNames = getDropdownText('editGeneralInfoStaff');
 
   if (pending_calendar_event.staff.length > 0) {
     //check for conflicts
@@ -2540,6 +2612,7 @@ function submitAddConference() {
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addConferenceStudent').value;
   const staff = getDropdownValues('addConferenceAdmin');
+  const staffNames = getDropdownText('editGeneralInfoStaff');
   const description = document.getElementById('addConferenceDescription').value;
   const location = document.getElementById('calendarLocation').dataset.value;
 
@@ -2582,6 +2655,7 @@ function submitAddConference() {
             location: location,
             student: student,
             staff: staff,
+            staffNames: staffNames,
             description: description,
             color: CONFERENCE_COLOR,
             textColor: tinycolor.mostReadable(CONFERENCE_COLOR, ["#FFFFFF", "000000"]).toHexString()
@@ -2608,6 +2682,7 @@ function updateEditConference() {
     return
   }
   pending_calendar_event.staff = getDropdownValues('editConferenceAdmin');
+  pending_calendar_event.staffNames = getDropdownText('editConferenceAdmin');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -2681,6 +2756,7 @@ function submitAddTestReview() {
   const allDay = pending_calendar_event.allDay;
   const student = document.getElementById('addTestReviewStudent').value;
   const staff = getDropdownValues('addTestReviewStaff');
+  const staffNames = getDropdownText('addTestReviewStaff');
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location || staff.length == 0) {
@@ -2695,25 +2771,14 @@ function submitAddTestReview() {
         return alert('There is a conflict with this student: eventID = ' + conflict.id)
       }
 
-      checkStaffConflicts(staff, start, end)
-      .then((conflict) => {
-        if (conflict) {
-          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
-        }
+      //get the list of all tutors and randomly assign a tutor to this event
+      //check if there is a conflict or they are not available
+      //if the tutor is not open then remove them from the list and try again
+      //return if no one is open.
 
-        let availablePromises = [];
-        for (let i = 0; i < staff.length; i++) {
-          availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
-        }
-
-        Promise.all(availablePromises)
-        .then((areAvailable) => {
-          for (let i = 0; i < areAvailable.length; i++) {
-            if (!areAvailable[i].isAvailable) {
-              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
-            }
-          }
-
+      getRandomOpenTutor(location, start, end, staff, staffNames)
+      .then(tutor => {
+        if (tutor) {
           eventInfo = {
             type: 'testReview',
             start: start,
@@ -2721,21 +2786,25 @@ function submitAddTestReview() {
             allDay, allDay,
             location: location,
             student: student,
-            staff: staff
+            staff: [tutor.id],
+            staffNames: [tutor.name]
           }
-      
+
           saveTestReview(eventInfo)
           .then((event) => {
             //FIXME: This should automatically update for the client and put it in a pending status
             main_calendar.addEvent(event);
             closeCalendarSidebar(true);
           })
-        })
+        }
+        else {
+          return alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
+        }
       })
     })
     .catch((error) => {
       console.log(error);
-      alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
+      alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
 }
@@ -2745,6 +2814,7 @@ function updateEditTestReview() {
     return
   }
   pending_calendar_event.staff = getDropdownValues('editTestReviewStaff');
+  pending_calendar_event.staffNames = getDropdownText('editTestReviewStaff');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -2826,6 +2896,8 @@ function submitAddLesson() {
   const type = document.getElementById('addLessonType').value;
   const student = document.getElementById('addLessonStudent').value;
   const staff = getDropdownValues('addLessonStaff');
+  const staffNames = getDropdownText('addLessonStaff');
+  const price = Number(document.getElementById('addLessonPrice').value)
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (scheduleType == 'single') {
@@ -2833,8 +2905,8 @@ function submitAddLesson() {
     const end = pending_calendar_event.end;
     const allDay = pending_calendar_event.allDay;
 
-    if (!start || !type || !student || !location || staff.length == 0) {
-      return alert("It looks like you're still missing some data for this test review");
+    if (!start || !type || !student || !location || staff.length == 0 || isNaN(price)) {
+      return alert("It looks like you're still missing some data for this lesson");
     }
 
     if (confirm("Are you sure you want to submit this event?")) {
@@ -2845,25 +2917,14 @@ function submitAddLesson() {
           return alert('There is a conflict with this student: eventID = ' + conflict.id)
         }
 
-        checkStaffConflicts(staff, start, end)
-        .then((conflict) => {
-          if (conflict) {
-            return alert('There is a conflict with this staff: eventID = ' + conflict.id)
-          }
+        //get the list of all tutors and randomly assign a tutor to this event
+        //check if there is a conflict or they are not available
+        //if the tutor is not open then remove them from the list and try again
+        //return if no one is open.
 
-          let availablePromises = [];
-          for (let i = 0; i < staff.length; i++) {
-            availablePromises.push(checkStaffAvailability(staff[i], pending_calendar_event.start, pending_calendar_event.end))
-          }
-
-          Promise.all(availablePromises)
-          .then((areAvailable) => {
-            for (let i = 0; i < areAvailable.length; i++) {
-              if (!areAvailable[i].isAvailable) {
-                return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
-              }
-            }
-
+        getRandomOpenTutor(location, start, end, staff, staffNames)
+        .then(tutor => {
+          if (tutor) {
             eventInfo = {
               type: type,
               start: start,
@@ -2871,16 +2932,21 @@ function submitAddLesson() {
               allDay, allDay,
               location: location,
               student: student,
-              staff: staff
+              staff: [tutor.id],
+              staffNames: [tutor.name],
+              price: price
             }
-      
+
             saveLesson(eventInfo)
             .then((event) => {
               //FIXME: This should automatically update for the client and put it in a pending status
               main_calendar.addEvent(event);
               closeCalendarSidebar(true);
             })
-          })
+          }
+          else {
+            return alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
+          }
         })
       })
       .catch((error) => {
@@ -2896,7 +2962,6 @@ function submitAddLesson() {
 
     let studentConflicts = [];
     let staffConflicts = [];
-    let staffUnavailable = [];
     let pendingEvents = [];
 
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
@@ -2928,38 +2993,25 @@ function submitAddLesson() {
                   alert('There is a conflict with this student: eventID = ' + studentConflict.id)
                 }
 
-                return checkStaffConflicts(staff, start, end)
-                .then((staffConflict) => {
-                  if (staffConflict) {
-                    staffConflicts.push(staffConflict)
-                    alert('There is a conflict with this staff: eventID = ' + staffConflict.id)
-                  }
-
-                  let availablePromises = [];
-                  for (let i = 0; i < staff.length; i++) {
-                    availablePromises.push(checkStaffAvailability(staff[i], start, end))
-                  }
-
-                  return Promise.all(availablePromises)
-                  .then((areAvailable) => {
-                    for (let i = 0; i < areAvailable.length; i++) {
-                      if (!areAvailable[i].isAvailable) {
-                        staffUnavailable.push(areAvailable[i])
-                        alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
-                      }
-                    }
-
-                    let eventInfo = {
+                return getRandomOpenTutor(location, start, end, staff, staffNames)
+                .then(tutor => {
+                  if (tutor) {
+                    eventInfo = {
                       type: type,
                       start: start,
                       end: end,
-                      allDay: weekTime.allDay,
                       location: location,
                       student: student,
-                      staff: staff
+                      staff: [tutor],
+                      staffNames: [tutor.name],
+                      price: price
                     }
                     pendingEvents.push(eventInfo);
-                  })
+                  }
+                  else {
+                    staffConflicts.push(true)
+                    alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
+                  }
                 })
               })
             );
@@ -2972,7 +3024,7 @@ function submitAddLesson() {
 
       Promise.all(recurringPendingEventsFulfilled)
       .then(() => {
-        if (studentConflicts.length == 0 && staffConflicts.length == 0 && staffUnavailable.length == 0) {
+        if (studentConflicts.length == 0 && staffConflicts.length == 0) {
           console.log(pendingEvents);
           pendingEvents.forEach(event => {
             recurringEventsFulfilled.push(saveLesson(event));
@@ -2993,8 +3045,8 @@ function submitAddLesson() {
         else {
           console.log(studentConflicts);
           console.log(staffConflicts);
-          console.log(staffUnavailable);
           console.log(pendingEvents);
+          alert('There was a conflict or unavaiability')
         }
       })
     }
@@ -3005,11 +3057,54 @@ function submitAddLesson() {
   }
 }
 
+/**
+ * Return a random tutor that is available to teach during the given time
+ * @param {String} location 
+ * @return random tutor uid that is open
+ */
+function getRandomOpenTutor(location, start, end, tutorList, tutorNameList) {
+  if (tutorList.length > 0) {
+    let randomIndex = Math.floor(Math.random() * tutorList.length);
+    randomIndex = randomIndex == tutorList.length ? randomIndex - 1 : randomIndex;
+    const tutor = tutorList[randomIndex];
+    return checkStaffConflicts([tutor], start, end)
+    .then((conflict) => {
+      if (conflict) {
+        //remove the tutor from the list and run the function again
+        tutorList.splice(randomIndex, 1);
+        tutorNameList.splice(randomIndex, 1);
+        return getRandomOpenTutor(location, start, end, tutorList, tutorNameList)
+      }
+      else {
+        return checkStaffAvailability(tutor, start, end)
+        .then((isAvailable) => {
+          if (!isAvailable.isAvailable) {
+            //remove the tutor from the list and run the function again
+            tutorList.splice(randomIndex, 1);
+            tutorNameList.splice(randomIndex, 1);
+            return getRandomOpenTutor(location, start, end, tutorList, tutorNameList)
+          }
+          else {
+            return {
+              id: tutorList[randomIndex],
+              name: tutorNameList[randomIndex],
+            }
+          }
+        })
+      }
+    })
+  }
+  else {
+    return null;
+  }
+}
+
 function updateEditLesson() {
   if (!confirm('Are you sure you want to update this lesson?')) {
     return
   }
   pending_calendar_event.staff = getDropdownValues('editLessonStaff');
+  pending_calendar_event.staffNames = getDropdownText('editLessonStaff');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -3179,6 +3274,8 @@ function submitAddAvailability() {
   })
 }
 
+//SAVE FUNCTIONS
+
 function saveTeacherMeeting(eventInfo) {
   //first get all of the staff that are invited to this meeting
   let promises = [];
@@ -3250,6 +3347,7 @@ function saveGeneralInfo(eventInfo) {
         type: eventInfo.type,
         title: eventInfo.title,
         staff: eventInfo.staff,
+        staffNames: eventInfo.staffNames,
         start: parseInt(eventInfo.start),
         end: parseInt(eventInfo.end),
         allDay: eventInfo.allDay,
@@ -3276,6 +3374,7 @@ function saveGeneralInfo(eventInfo) {
       type: eventInfo.type,
       title: eventInfo.title,
       staff: eventInfo.staff,
+      staffNames: eventInfo.staffNames,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
       allDay: eventInfo.allDay,
@@ -3351,7 +3450,7 @@ function saveConference(eventInfo) {
   .then((studentDoc) => {
     studentData = studentDoc.data();
     
-    //get first staff name for color
+    //get first staff doc for color
     return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
   })
   .then((staffDoc) => {
@@ -3379,6 +3478,7 @@ function saveConference(eventInfo) {
       parents: studentParents,
 
       staff: eventInfo.staff,
+      staffNames: eventInfo.staffNames,
 
       attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
     }
@@ -3433,6 +3533,7 @@ function saveTestReview(eventInfo) {
       parents: studentParents,
 
       staff: eventInfo.staff,
+      staffNames: eventInfo.staffNames,
 
       attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
     }
@@ -3494,7 +3595,6 @@ function saveLesson(eventInfo) {
       title: studentName + " - " + lessonTypeReadable,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
-      allDay: eventInfo.allDay,
       location: eventInfo.location,
       color: staffColor ?? null,
       textColor: tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
@@ -3505,8 +3605,11 @@ function saveLesson(eventInfo) {
       parents: studentParents,
 
       staff: eventInfo.staff,
+      staffNames: eventInfo.staffNames,
 
-      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff]
+      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
+
+      price: eventInfo.price
     }
     return eventRef.set(eventData)
     .then(() => {
@@ -3607,7 +3710,13 @@ function getLessonTypeList(location) {
   })
 }
 
-function getUserListByRole(location, roles) {
+/**
+ * Return a list of users (name and id) for the given location and role.
+ * @param {String} location location uid
+ * @param {Array<String>} roles roles to get
+ * @returns list of desired users with name and id properties
+ */
+ function getUserListByRole(location, roles) {
   if(!location) {
     alert("Choose a location first!");
     return Promise.reject('no location selected')
@@ -3639,6 +3748,17 @@ function getDropdownValues(dropdownId) {
   })
 
   return values;
+}
+
+function getDropdownText(dropdownId) {
+  const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
+  
+  let texts = []
+  inputs.forEach((input) => {
+    texts.push(input.textContent)
+  })
+
+  return texts;
 }
 
 /**
@@ -3865,5 +3985,156 @@ function checkStaffAvailability(staffUID, start, end) {
         }
       }
     }
+  })
+}
+
+/**
+ * get a snapshot of event documents that will start at the next hour
+ * @param {String} location UID for the location to pull the upcoming events
+ * @returns promise that resolves with a firebase snapshot collection
+ */
+function getNextHourEvents(location) {
+  const nextHour = new Date().setHours(new Date().getHours() + 1, 0, 0, 0);
+  // test with custom hour
+  // const nextHour = new Date().setHours(13, 0, 0, 0);
+  return firebase.firestore().collection('Events')
+  .where('location', '==', location)
+  .where('start', '==', nextHour)
+  .get();
+}
+
+//FIXME: Assuming that current events started at most the beginning of the day
+function getCurrentEvents(location) {
+  const currentTime = new Date().getTime();
+  const beginningOfDay = new Date().setHours(0, 0, 0, 0);
+  return firebase.firestore().collection('Events')
+  .where('location', '==', location)
+  .where('start', '<=', currentTime)
+  .where('start', '>=', beginningOfDay)
+  .get()
+  .then(eventSnapshot => {
+    let currentEvents = []
+
+    eventSnapshot.forEach(eventDoc => {
+      if (eventDoc.data().end > currentTime) {
+        currentEvents.push(eventDoc)
+      }
+    })
+
+    return currentEvents;
+  })
+}
+
+function setupEventGlanceGrid() {
+  if (!current_location) {
+    return
+  }
+  //clear the grid
+  document.getElementById('eventGlance').querySelectorAll('.gridItem').forEach(item => {
+    item.remove()
+  })
+
+  //set this function to run at the next hour
+  const nextHour = new Date().setHours(new Date().getHours(), 10, 0, 0);
+  let diff = nextHour - new Date().getTime();
+  diff = diff <= 0 ? diff + 3600000 : diff;
+  console.log(diff)
+
+  //FIXME: If the user navigates away the browser will clear the timeout for performance reasons. 
+  //We might need to run an interval every second to see if we are in a different hour and then call this function again
+  clearTimeout(event_glance_timeout_id);
+  event_glance_timeout_id = setTimeout(setupEventGlanceGrid, diff);
+
+  getNextHourEvents(current_location)
+  .then(eventSnapshot => {
+    eventSnapshot.forEach(eventDoc => {
+      const id = eventDoc.id;
+      const data = eventDoc.data()
+      const upcomingDivider = document.getElementById('upcomingDivider');
+
+      //get the srudent's image
+      let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + data.student)
+      ref.getDownloadURL()
+      .then((url) => {
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], 'reconcile'))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
+        upcomingDivider.after(createElement('img', ['gridItem'], ['src'], [url], ""))
+      })
+      .catch((error) => {
+        console.log("No image found")
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], 'reconcile'))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
+        upcomingDivider.after(createElement('img', ['gridItem'], ['src'], ["Images/blank-profile-picture.png"], ""))
+      })
+    })
+  })
+
+  getCurrentEvents(current_location)
+  .then(events => {
+    events.forEach(eventDoc => {
+      const id = eventDoc.id;
+      const data = eventDoc.data()
+      const currentDivider = document.getElementById('currentDivider');
+
+      //get the srudent's image
+      let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + data.student)
+      ref.getDownloadURL()
+      .then((url) => {
+        currentDivider.after(createElement('div', ['gridItem'], ['onclick'], [`reconcileEvent(${id})`], 'reconcile'))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
+        currentDivider.after(createElement('img', ['gridItem'], ['src'], [url], ""))
+      })
+      .catch((error) => {
+        console.log("No image found")
+        currentDivider.after(createElement('div', ['gridItem'], ['onclick'], [`reconcileEvent(${id})`], 'reconcile'))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
+        currentDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
+        currentDivider.after(createElement('img', ['gridItem'], ['src'], ["Images/blank-profile-picture.png"], ""))
+      })
+    })
+  })
+}
+
+function eventTypeReadable(type) {
+  switch(type) {
+    case 'conference':
+      return 'Conference'
+    case 'generalInfo':
+      return 'General Info'
+    case 'practiceTest':
+      return 'Practice Test'
+    case 'teacherMeeting':
+      return 'Teacher Meeting'
+    case 'testReview':
+      return 'Test Review'
+    case 'act':
+      return 'ACT';
+    case 'subjectTutoring':
+      return 'Subject Tutoring';
+    case 'mathProgram':
+      return 'Math Program';
+    case 'phonicsProgram':
+      return 'Phonics Program';
+    default:
+      return type;
+  }
+}
+
+function reconcileEvent(eventID) {
+  firebase.firestore().collection('Events').doc(eventID).update({
+    isReconciled: true
+  })
+}
+
+function unreconcileEvent(eventID) {
+  firebase.firestore().collection('Events').doc(eventID).update({
+    isReconciled: false
   })
 }

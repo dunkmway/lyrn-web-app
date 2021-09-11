@@ -1215,6 +1215,7 @@ span:hover + .wrap a, .wrap:hover a{
 #studentGeneralInfoContainer .gridContainer .practiceTest {
   background-color: white;
   color: #242424;
+  height: auto;
 }
 
 #studentGeneralInfoContainer .gridContainer .gridItem {

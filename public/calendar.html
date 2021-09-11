@@ -33,6 +33,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
 
   <script src="Site Templates/site-wide.js" defer></script>
   <script src="Site Templates/generalFunctions.js" defer></script>
@@ -147,8 +148,8 @@
     <div class="dropdown type-opening" style="display: none;">
       <button class="dropbtn">event length</button>
       <div class="dropdown-content">
-        <div onclick="changeEventLengthOpening(1)">1</div>
-        <div onclick="changeEventLengthOpening(2)">2</div>
+        <div onclick="changeEventLengthOpening(1)">1 hour</div>
+        <div onclick="changeEventLengthOpening(2)">2 hours</div>
       </div>
     </div>
   </div>
@@ -448,8 +449,12 @@
 
         <!-- staff attending the test review -->
         <div class="inputRow">
-          <div class="more-info " data-more-info="This is/are the staff performing the test review">?</div>
+          <div class="more-info " data-more-info="These are the staff that could possible perform this test review. One will be randomly chosen after submission.">?</div>
           <label for="addTestReviewStaff" class="label">Staff</label>
+        </div>
+        <div class="ui checkbox">
+          <input type="checkbox" id="addTestReviewStaffSelectAll">
+          <label>Select all</label>
         </div>
         <select id="addTestReviewStaff" name="addTestReviewStaff" class="ui dropdown search selection" multiple></select>
         <br>
@@ -519,11 +524,23 @@
 
         <!-- staff teaching the lesson -->
         <div class="inputRow">
-          <div class="more-info " data-more-info="This is/are the staff teaching the lesson">?</div>
+          <div class="more-info " data-more-info="These are the staff that could possible perform this test review. One will be randomly chosen after submission.">?</div>
           <label for="addLessonStaff" class="label">Staff</label>
+        </div>
+        <div class="ui checkbox">
+          <input type="checkbox" id="addLessonStaffSelectAll">
+          <label>Select all</label>
         </div>
         <select id="addLessonStaff" name="addLessonStaff" class="ui dropdown search selection" multiple></select>
         <br>
+
+        <!-- price of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the price for this lesson. This value will autopopulate when you select the type of lesson.">?</div>
+          <label for="addLessonPrice" class="label">Price</label>
+        </div>
+        <input id="addLessonPrice" name="addLessonPrice" class="input">
+
         <div class="headerLine"></div>
 
         <!-- single vs recurring events -->
@@ -576,6 +593,13 @@
         </div>
         <select id="editLessonStaff" name="editLessonStaff" class="ui dropdown search selection" multiple></select>
         <br>
+
+        <!-- price of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the price for this lesson. This value will autopopulate when you select the type of lesson.">?</div>
+          <label for="editLessonPrice" class="label">Price</label>
+        </div>
+        <input id="editLessonPrice" name="editLessonPrice" class="input">
 
         <!-- buttons -->
         <div class="bottom">
@@ -647,6 +671,16 @@
 
 
     </div>
+  </div>
+
+  <div id="eventGlance" class="gridContainer">
+      <div class="gridHeaderItem"></div>
+      <div class="gridHeaderItem">Student</div>
+      <div class="gridHeaderItem">Type</div>
+      <div class="gridHeaderItem">Tutor</div>
+      <div class="gridHeaderItem">Reconcile</div>
+      <div id="currentDivider" class="gridDividerItem">Current Events</div>
+      <div id="upcomingDivider" class="gridDividerItem">Upcoming Events</div>
   </div>
 
 </body>
