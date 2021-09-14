@@ -6,6 +6,17 @@ document.getElementById("mathStudentMessagesInput").addEventListener('keydown', 
 document.getElementById("readingStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'reading'));
 document.getElementById("scienceStudentMessagesInput").addEventListener('keydown', (event) => submitStudentMessage(event, CURRENT_STUDENT_UID, CURRENT_STUDENT_TYPE, 'science'));
 
+let printTest = document.getElementById("printTest")
+printTest.addEventListener('keydown', (event) => {
+  if (event.repeat) {return};
+  if (!event.ctrlKey && event.key == "Enter") {
+    event.preventDefault();
+    console.log(printTest.value)
+    openTest(printTest.value)
+    printTest.value = ''
+  }
+});
+
 // Listen for wrong answers (Homeworks)
 let popupAnswers = document.getElementById("passage")
 popupAnswers.addEventListener('click', function (event) {
