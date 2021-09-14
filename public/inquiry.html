@@ -19,6 +19,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+    <!-- Stripe's JS library -->
+    <script src="https://js.stripe.com/v3/"></script>
+
     <script src="Site Templates/site-wide.js"></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
     <script src="inquiry.js" defer></script>
@@ -38,6 +42,7 @@
             <div id="parent" class="step" onclick="changeRegistrationBlock(this)"> <span>Parent</span> </div>
             <div id="student" class="step" onclick="changeRegistrationBlock(this)"> <span> Student</span> </div>
             <div id="act" class="step" onclick="changeRegistrationBlock(this)"> <span>ACT</span> </div>
+            <!-- <div id="payment" class="step" onclick="changeRegistrationBlock(this)"> <span>Payment</span> </div> -->
             <div id="admin" class="step" onclick="changeRegistrationBlock(this)"> <span>Admin</span> </div>
           </div>
         </div>
@@ -790,6 +795,15 @@
       <div id = "phonics-program_info" class="registration-block">
 
         <div id="phonics-program_input_area" class="scroll-block">
+        </div>
+      </div>
+
+      <!-------------------------->
+      <!-- Payment Information -->
+      <!-------------------------->
+      <div id = "payment_info" class="registration-block">
+
+        <div id="payment_input_area" class="scroll-block">
         </div>
       </div>
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payments</title>
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css"
+    />
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="Site Templates/site-wide.js"></script>
+  </head>
+  <style>
+    fieldset {
+      background-color: #f6f8fa;
+    }
+    #error-message {
+      color: red;
+      height: 2em;
+    }
+  </style>
+  <body>
+    <h1>Payment Portal</h1>
+    <!-- <section id="firebaseui-auth-container"></section>
+    <div id="loader">Loading &hellip;</div> -->
+    <section id="content">
+      <!-- <button type="button" id="signout">
+        Sign out
+      </button>
+      <button type="button" id="resetPassword">
+        Reset Password
+      </button> -->
+      <div>
+        <h2>Payment Methods</h2>
+        <details id="add-new-card">
+          <summary>Add new</summary>
+          <form id="payment-method-form">
+            <label>
+              Cardholder name
+              <input type="text" name="name" required />
+            </label>
+            <fieldset>
+              <div id="card-element"></div>
+            </fieldset>
+            <div id="error-message" role="alert"></div>
+            <button>Save Card</button>
+          </form>
+        </details>
+        <hr />
+
+        <details>
+          <summary>Make payment</summary>
+          <form id="payment-form">
+            <div>
+              <label>
+                Card:
+                <select name="payment-method" required></select>
+              </label>
+            </div>
+            <div>
+              <label>
+                Amount:
+                <input
+                  name="amount"
+                  type="number"
+                  min="1"
+                  max="99999999"
+                  value="100"
+                  required
+                />
+              </label>
+              <label>
+                Currency:
+                <select name="currency">
+                  <option value="usd">USD</option>
+                  <!-- <option value="eur">EUR</option>
+                  <option value="gbp">GBP</option>
+                  <option value="jpy">JPY</option> -->
+                </select>
+              </label>
+            </div>
+            <button>Charge selected card</button>
+          </form>
+        </details>
+      </div>
+      <div>
+        <h2>Charges</h2>
+        <ul id="charges-list"></ul>
+      </div>
+      <div>
+        <h2>Payments</h2>
+        <ul id="payments-list"></ul>
+      </div>
+      <div>
+        <h2>Balance</h2>
+        <p id="balance"></p>
+      </div>
+    </section>
+    <hr />
+
+    <!-- Import and configure the Firebase SDK -->
+    <!-- These scripts are made available when the app is served or deployed on Firebase Hosting -->
+    <!-- If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup -->
+
+    <!-- Import Firebase UI -->
+    <script src="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.js"></script>
+
+    <!-- Stripe's JS library -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Our application script -->
+    <script src="payment.js"></script>
+  </body>
+</html>

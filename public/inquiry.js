@@ -1,3 +1,4 @@
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
 let studentData = {};
 let parentData = {};
 let typeData = {};
@@ -495,6 +496,11 @@ function createRegistration() {
           if (newParent) {
             let studentProm = setStudentDoc(studentUID, parentUID, {...studentInputValues, ...actInputValues, ...adminInputValues});
             let parentProm = setParentDoc(parentUID, studentUID, {...parentInputValues});
+            const createStripeCustomer = firebase.functions().httpsCallable('stripe-createStripeCustomer')
+            let stripeProm = createStripeCustomer({
+              uid: parentUID,
+              email: parentInputValues['email'].replace(/\s+/g, '')
+            })
 
             let studentFirstName = allInputValues["studentFirstName"];
             let studentLastName = allInputValues["studentLastName"];
@@ -518,7 +524,7 @@ function createRegistration() {
               })
             }
 
-            let promises = [studentProm, parentProm, studentDisplayNameProm, parentDisplayNameProm];
+            let promises = [studentProm, parentProm, stripeProm, studentDisplayNameProm, parentDisplayNameProm];
             Promise.all(promises)
             .then(() => {
               //go back
@@ -718,7 +724,7 @@ function updateRegistration() {
     if (parentEmail) {
       const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
       emailProm = updateUserEmail({
-        uid: studentUID,
+        uid: parentUID,
         email : parentEmail,
       })
     }

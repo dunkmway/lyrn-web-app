@@ -247,7 +247,8 @@ function reinitializeActiveTableData() {
     //this should fix some "cannot read property of undefined" errors
     if (args?.target?._DT_CellIndex) {
       let studentUID = tableDataActive[args.target._DT_CellIndex.row].studentUID;
-      setupNavigationModal(studentUID);
+      let parentUID = tableDataActive[args.target._DT_CellIndex.row].parentUID;
+      setupNavigationModal(studentUID, parentUID);
       document.getElementById("navigationSection").style.display = "flex";
     }
   })
@@ -351,7 +352,8 @@ function reinitializeInactiveTableData() {
     //this should fix some "cannot read property of undefined" errors
     if (args?.target?._DT_CellIndex) {
       let studentUID = tableDataInactive[args.target._DT_CellIndex.row].studentUID;
-      setupNavigationModal(studentUID);
+      let parentUID = tableDataInactive[args.target._DT_CellIndex.row].parentUID;
+      setupNavigationModal(studentUID, parentUID);
       document.getElementById("navigationSection").style.display = "flex";
     }
   })
@@ -380,7 +382,8 @@ function reinitializeAllTableData() {
     //this should fix some "cannot read property of undefined" errors
     if (args?.target?._DT_CellIndex) {
       let studentUID = tableDataAll[args.target._DT_CellIndex.row].studentUID;
-      setupNavigationModal(studentUID);
+      let parentUID = tableDataAll[args.target._DT_CellIndex.row].parentUID;
+      setupNavigationModal(studentUID, parentUID);
       document.getElementById("navigationSection").style.display = "flex";
     }
   })
@@ -792,29 +795,34 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
 // }
 
-function setupNavigationModal(studentUID) {
+function setupNavigationModal(studentUID, parentUID) {
   const modal = document.getElementById("navigationSection");
-  let queryStr = "?student=" + studentUID;
+  let studentQueryStr = "?student=" + studentUID;
+  let parentQueryStr = "?parent=" + parentUID;
 
   document.getElementById("actNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
   };
   document.getElementById("subjectTutoringNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../subject-tutoring-dash.html" + queryStr
+    window.location.href = "../subject-tutoring-dash.html" + studentQueryStr
   };
   document.getElementById("mathProgramNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../math-program.html" + queryStr
+    window.location.href = "../math-program.html" + studentQueryStr
   };
   document.getElementById("phonicsProgramNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../phonics-program.html" + queryStr
+    window.location.href = "../phonics-program.html" + studentQueryStr
   };
   document.getElementById("registrationNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../inquiry.html" + queryStr
+    window.location.href = "../inquiry.html" + studentQueryStr;
+  };
+  document.getElementById("paymentNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../payment.html" + parentQueryStr;
   };
 }
 
