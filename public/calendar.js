@@ -12,7 +12,7 @@ let current_type = null;
 let current_location = null;
 let current_filter = {};
 let current_availability_filter = {};
-let current_opening_event_length = null;
+let current_opening_event_length = 2;
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -23,6 +23,7 @@ const AVAILABILITY_COLOR = "#F09C99";
 let event_glance_timeout_id = null;
 
 const STAFF_ROLES = ['tutor', 'secretary', 'admin'];
+const LESSON_TYPES = ['act', 'subjectTutoring', 'mathProgram', 'phonicsProgram'];
 
 let current_user;
 
@@ -226,10 +227,6 @@ function clearAvailabilityFilter(resetCalendar = false) {
   }
 }
 
-function clearOpeningLessonLength() {
-  current_opening_event_length = null;
-}
-
 function addDropdownOptions(dropdownElement, optionValues, optionTexts, clickCallback) {
   let contentDiv = dropdownElement.querySelector('.dropdown-content');
   let dropdownBtn = dropdownElement.querySelector('.dropbtn');
@@ -275,7 +272,6 @@ function typeChange(type) {
   closeCalendarSidebar();
   clearFilter();
   clearAvailabilityFilter();
-  clearOpeningLessonLength();
 
   hideAllTypeNav();
 
@@ -315,7 +311,7 @@ function getCurrentCalendarTypeContent() {
     if (current_location) {
       //initialize the new calendar if needed
       //initializing will grab events so we don't need to here
-      if (calendar_view != 'event') {
+      if (calendar_view != 'event' && calendar_view != 'week' && calendar_view != 'month') {
         initializeDefaultCalendar([], main_calendar.view.activeStart)
       }
       else {
@@ -340,7 +336,7 @@ function getCurrentCalendarTypeContent() {
       initializeDefaultCalendar([], main_calendar.view.activeStart)
     }
   }
-  else if (current_type == 'availability') {
+  else if (current_type == 'availability' && calendar_view != 'week' && calendar_view != 'month') {
     if (current_location) {
       //initialize the new calendar if needed
       //initializing will grab events so we don't need to here
@@ -445,6 +441,7 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
           })
         })
         .catch((error) =>{
+          calendarNotWorking();
           console.log(error);
           alert("We had an issue loading the calendar events. Try refreshing the page.")
         })
@@ -524,6 +521,7 @@ function initializeAvailabilityCalendar(events, initialDate = new Date()) {
           })
         })
         .catch((error) =>{
+          calendarNotWorking();
           console.log(error);
           alert("We had an issue loading the calendar availabilities. Try refreshing the page.")
         })
@@ -611,7 +609,7 @@ function initializepMonthScheduleCalendar(events) {
     initialView: 'dayGridMonth',
     validRange: function(nowDate) {
       //select based on the events that are passed in
-      let start = nowDate;
+      let start = nowDate.setDate(nowDate.getDate() + 1);
       let end = null;
       events.forEach(event => {
         if (event.id == 'start') {
@@ -743,7 +741,8 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
             main_calendar.addEvent(event);
           })
         })
-        .catch((error) =>{
+        .catch((error) => {
+          calendarNotWorking();
           console.log(error);
           alert("We had an issue loading the calendar openings. Try refreshing the page.")
         })
@@ -793,6 +792,7 @@ function deleteAvailability(eventID) {
 }
 
 function deleteEventCallback() {
+  sidebarWorking();
   if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
     const eventID = pending_calendar_event_id;
     deleteEvent(eventID)
@@ -800,7 +800,10 @@ function deleteEventCallback() {
       main_calendar.getEventById(eventID).remove()
       closeCalendarSidebar(true);
     })
-    .catch((error) => {console.log(error)});
+    .catch((error) => {
+      sidebarNotWorking();
+      console.log(error)
+    });
   }
 }
 
@@ -967,6 +970,7 @@ function getEventsUser(user) {
 }
 
 function getEventsLocationForCalendar(location, start, end, filter = {}) {
+  calendarWorking();
   let events = [];
   let queryPromises = [];
 
@@ -1053,6 +1057,7 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
     })
 
     //remove duplicate events
+    calendarNotWorking();
     return events.filter((event, index, array) => {
       for (let i = index + 1; i < array.length; i++) {
         if (event.id == array[i].id) { 
@@ -1065,6 +1070,7 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
 }
 
 function getAvailabilityLocationForCalendar(location, start, end, staff = []) {
+  calendarWorking();
   let eventRef = firebase.firestore().collection('Availabilities')
   .where("location", '==', location)
   .where('start', '>=', start)
@@ -1089,11 +1095,13 @@ function getAvailabilityLocationForCalendar(location, start, end, staff = []) {
         textColor: eventData.textColor
       });
     });
+    calendarNotWorking();
     return events;
   });
 }
 
 function getEventsLocationForDocs(location, start, end, filter = {}) {
+
   let events = [];
   let queryPromises = [];
 
@@ -1205,6 +1213,7 @@ function getAvailabilityLocationForDocs(location, start, end, staff = []) {
 function changeEventLengthOpening(newLength) {
   current_opening_event_length = newLength;
   if (current_location) {
+    calendarWorking()
     getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length)
     .then(openings => {
       //remove the old events
@@ -1215,8 +1224,10 @@ function changeEventLengthOpening(newLength) {
       openings.forEach(event => {
         main_calendar.addEvent(event);
       })
+      calendarNotWorking();
     })
     .catch((error) =>{
+      calendarNotWorking();
       console.log(error);
       alert("We had an issue loading the calendar openings. Try refreshing the page.")
     })
@@ -1224,6 +1235,7 @@ function changeEventLengthOpening(newLength) {
 }
 
 function getOpeningLocation(location, start, end, eventLength) {
+  calendarWorking();
   if (eventLength) {
     // get all events and availabilities within the timeframe
 
@@ -1274,6 +1286,7 @@ function getOpeningLocation(location, start, end, eventLength) {
         start = tempEnd
       }
 
+      calendarNotWorking();
       return checkEvents
 
     })
@@ -1288,7 +1301,7 @@ function getOpeningLocation(location, start, end, eventLength) {
  */
 function openCalendarSidebar() {
   //disble filter being dropped down while sidebar open
-  document.getElementById('filterSelection').parentNode.querySelector('.dropdown-content').style.display = 'none';
+  //document.getElementById('filterSelection').parentNode.querySelector('.dropdown-content').style.display = 'none';
   document.getElementById('sidebar').classList.remove("closed");
   document.getElementById('sidebar').classList.add('open');
   main_calendar.updateSize();
@@ -1298,6 +1311,7 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar(force = false) {
+  sidebarNotWorking();
   const calendarType = document.getElementById('calendarType').dataset.value;
   
   //call the cancel function on the open sidebar
@@ -1967,7 +1981,7 @@ function setupAddLesson() {
     addSelectOptions(document.getElementById('addLessonType'), lessonValues, lessonNames);
     $('#addLessonType').closest(".ui.dropdown").dropdown('setting', 'onChange',
     (value, text) => {
-      document.getElementById('addLessonPrice').value = lessonPrice[lessonValues.indexOf(value)]
+      document.getElementById('addLessonPrice').value = lessonPrice[lessonValues.indexOf(value)] ?? ''
     })
   })
   .catch((error) => {
@@ -2111,7 +2125,32 @@ function setupAddAvailability() {
   openCalendarSidebar();
 }
 
+function sidebarWorking() {
+  document.getElementById('sidebar').querySelectorAll('button').forEach(button => {
+    button.disabled = true;
+  })
+
+  document.getElementById('spinnyBoiSidebar').style.display = 'block';
+}
+
+function sidebarNotWorking() {
+  document.getElementById('sidebar').querySelectorAll('button').forEach(button => {
+    button.disabled = false;
+  })
+
+  document.getElementById('spinnyBoiSidebar').style.display = 'none';
+}
+
+function calendarWorking() {
+  document.getElementById('spinnyBoiCalendarContent').style.display = 'block';
+}
+
+function calendarNotWorking() {
+  document.getElementById('spinnyBoiCalendarContent').style.display = 'none';
+}
+
 function submitAddTeacherMeeting() {
+  sidebarWorking();
   const start = pending_calendar_event.start;
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
@@ -2119,6 +2158,7 @@ function submitAddTeacherMeeting() {
   const meetingLocation = document.getElementById('addTeacherMeetingLocation').value
 
   if (!start || !invitedLocation || !meetingLocation) {
+    sidebarNotWorking()
     return alert("It looks like you're still missing some data for this teacher meeting");
   }
 
@@ -2142,15 +2182,20 @@ function submitAddTeacherMeeting() {
       closeCalendarSidebar(true);
     })
     .catch((error) => {
+      sidebarNotWorking();
       console.log(error);
       alert("We are having issues saving this teacher meeting :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+  else {
+    sidebarNotWorking();
+  }
 }
 
 function updateEditTeacherMeeting() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this teacher meeting?')) {
-    return
+    return sidebarNotWorking();
   }
   pending_calendar_event.meetingLocation = document.getElementById('editTeacherMeetingLocation').value;
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
@@ -2163,12 +2208,14 @@ function updateEditTeacherMeeting() {
     closeCalendarSidebar(true);
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this teacher meeting :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
 function submitAddGeneralInfo() {
+  sidebarWorking();
   //decide if it is a single event or a recurring event
   let scheduleType = '';
   const radios = document.getElementsByName('addGeneralInfoEventSchedule');
@@ -2190,6 +2237,7 @@ function submitAddGeneralInfo() {
     const allDay = pending_calendar_event.allDay;
 
     if (!start || !title || !location) {
+      sidebarNotWorking();
       return alert("It looks like you're still missing some data for this general info");
     }
 
@@ -2197,9 +2245,14 @@ function submitAddGeneralInfo() {
       if (staff.length > 0) {
         //check for conflicts
         checkStaffConflicts(staff, start, end)
-        .then((conflict) => {
-          if (conflict) {
-            return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+        .then((staffConflict) => {
+          if (staffConflict) {
+            sidebarNotWorking();
+            return alert('This staff has a conflict with a(n) ' + 
+              eventTypeReadable(staffConflict.data().type) + ' event from ' +
+              convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+              convertFromDateInt(staffConflict.data().end).longReadable
+            )
           }
 
           let availablePromises = [];
@@ -2211,7 +2264,8 @@ function submitAddGeneralInfo() {
           .then((areAvailable) => {
             for (let i = 0; i < areAvailable.length; i++) {
               if (!areAvailable[i].isAvailable) {
-                return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+                sidebarNotWorking();
+                return alert('The staff are not available at this time.')
               }
             }
 
@@ -2235,6 +2289,7 @@ function submitAddGeneralInfo() {
           })
         })
         .catch((error) => {
+          sidebarNotWorking();
           console.log(error);
           alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
         })
@@ -2258,10 +2313,14 @@ function submitAddGeneralInfo() {
           closeCalendarSidebar(true);
         })
         .catch((error) => {
+          sidebarNotWorking();
           console.log(error);
           alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
         })
       }
+    }
+    else {
+      sidebarNotWorking();
     }
   }
 
@@ -2275,12 +2334,12 @@ function submitAddGeneralInfo() {
     let pendingEvents = [];
 
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !title || !location) {
+      sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
     if (confirm("Are you sure you want to submit these events?")) {
       if (staff.length > 0) {
         //figure out all of the events that must be added based on recurring start, end, and times.
-        const millisecondsWeek = 604800000;
 
         pending_recurring_times.forEach(weekTime => {
           let start = weekTime.start.getTime();
@@ -2288,8 +2347,8 @@ function submitAddGeneralInfo() {
 
           //get the week time up to the start of the recurring schedule
           while (start < pending_recurring_start.start.getTime()) {
-            start += millisecondsWeek;
-            end += millisecondsWeek;
+            start = new Date(start).setDate(new Date(start).getDate() + 7);
+            end = new Date(end).setDate(new Date(end).getDate() + 7);
           }
 
           //save an event for each time until the end of the recurring
@@ -2301,7 +2360,11 @@ function submitAddGeneralInfo() {
                 .then((staffConflict) => {
                   if (staffConflict) {
                     staffConflicts.push(staffConflict)
-                    alert('There is a conflict with this staff: eventID = ' + staffConflict.id)
+                    return alert('This staff has a conflict with a(n) ' + 
+                      eventTypeReadable(staffConflict.data().type) + ' event from ' +
+                      convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+                      convertFromDateInt(staffConflict.data().end).longReadable
+                    )
                   }
 
                   let availablePromises = [];
@@ -2334,8 +2397,8 @@ function submitAddGeneralInfo() {
               );
             }
             passThruTimes(start, end);
-            start += millisecondsWeek;
-            end += millisecondsWeek;
+            start = new Date(start).setDate(new Date(start).getDate() + 7);
+            end = new Date(end).setDate(new Date(end).getDate() + 7);
           }
         })
 
@@ -2355,11 +2418,13 @@ function submitAddGeneralInfo() {
               closeCalendarSidebar(true);
             })
             .catch((error) => {
+              sidebarNotWorking();
               console.log(error);
               alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
             })
           }
           else {
+            sidebarNotWorking();
             console.log(studentConflicts);
             console.log(staffConflicts);
             console.log(staffUnavailable);
@@ -2369,7 +2434,6 @@ function submitAddGeneralInfo() {
       }
       else {
         //figure out all of the events that must be added based on recurring start, end, and times.
-        const millisecondsWeek = 604800000;
 
         pending_recurring_times.forEach(weekTime => {
           let start = weekTime.start.getTime();
@@ -2377,8 +2441,8 @@ function submitAddGeneralInfo() {
 
           //get the week time up to the start of the recurring schedule
           while (start < pending_recurring_start.start.getTime()) {
-            start += millisecondsWeek;
-            end += millisecondsWeek;
+            start = new Date(start).setDate(new Date(start).getDate() + 7);
+            end = new Date(end).setDate(new Date(end).getDate() + 7);
           }
 
           //save an event for each time until the end of the recurring
@@ -2398,8 +2462,8 @@ function submitAddGeneralInfo() {
               pendingEvents.push(eventInfo);
             }
             passThruTimes(start, end);
-            start += millisecondsWeek;
-            end += millisecondsWeek;
+            start = new Date(start).setDate(new Date(start).getDate() + 7);
+            end = new Date(end).setDate(new Date(end).getDate() + 7);
           }
         })
 
@@ -2415,19 +2479,26 @@ function submitAddGeneralInfo() {
           closeCalendarSidebar(true);
         })
         .catch((error) => {
+          sidebarNotWorking()
           console.log(error);
           alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
         })
       }
     }
+    else {
+      sidebarNotWorking();
+    }
   }
   else {
+    sidebarNotWorking();
     console.warn("no schedule type: shouldn't be possible.")
   }
 }
 
 function updateEditGeneralInfo() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this general info?')) {
+    sidebarNotWorking();
     return
   }
   pending_calendar_event.title = document.getElementById('editGeneralInfoTitle').value;
@@ -2437,9 +2508,14 @@ function updateEditGeneralInfo() {
   if (pending_calendar_event.staff.length > 0) {
     //check for conflicts
     checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+    .then((staffConflict) => {
+      if (staffConflict) {
+        sidebarNotWorking();
+        return alert('This staff has a conflict with a(n) ' + 
+          eventTypeReadable(staffConflict.data().type) + ' event from ' +
+          convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(staffConflict.data().end).longReadable
+        )
       }
 
       let availablePromises = [];
@@ -2451,7 +2527,8 @@ function updateEditGeneralInfo() {
       .then((areAvailable) => {
         for (let i = 0; i < areAvailable.length; i++) {
           if (!areAvailable[i].isAvailable) {
-            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            sidebarNotWorking();
+            return alert('The staff are not available at this time.')
           }
         }
 
@@ -2489,6 +2566,7 @@ function updateEditGeneralInfo() {
       })
     })
     .catch((error) => {
+      sidebarNotWorking();
       console.log(error);
       alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
     })
@@ -2513,6 +2591,7 @@ function updateEditGeneralInfo() {
         closeCalendarSidebar(true);
       })
       .catch((error) => {
+        sidebarNotWorking();
         console.log(error);
         alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
       })
@@ -2528,11 +2607,17 @@ function updateEditGeneralInfo() {
         })
         closeCalendarSidebar(true);
       })
+      .catch((error) => {
+        sidebarNotWorking();
+        console.log(error);
+        alert("We are having issues saving this general info :(\nPlease try again and if the issue persist please contact the devs.");
+      })
     }
   }
 }
 
 function submitAddPracticeTest() {
+  sidebarWorking();
   const start = pending_calendar_event.start;
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
@@ -2541,15 +2626,21 @@ function submitAddPracticeTest() {
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location) {
+    sidebarNotWorking();
     return alert("It looks like you're still missing some data for this practice test");
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
     //check for conflicts
     checkStudentConflicts(student, start, end)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    .then((studentConflict) => {
+      if (studentConflict) {
+        sidebarNotWorking();
+        return alert('This student has a conflict with a(n) ' + 
+          eventTypeReadable(studentConflict.data().type) + ' event from ' +
+          convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(studentConflict.data().end).longReadable
+        )
       }
 
       eventInfo = {
@@ -2572,22 +2663,33 @@ function submitAddPracticeTest() {
       })
     })
     .catch((error) => {
+      sidebarNotWorking();
       console.log(error);
       alert("We are having issues saving this practice test :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+  else {
+    sidebarNotWorking();
+  }
 }
 
 function updateEditPracticeTest() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this practice test?')) {
+    sidebarNotWorking();
     return
   }
   pending_calendar_event.description = document.getElementById('editPracticeTestDescription').value;
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-  .then((conflict) => {
-    if (conflict) {
-      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+  .then((studentConflict) => {
+    if (studentConflict) {
+      sidebarNotWorking();
+      return alert('This student has a conflict with a(n) ' + 
+        eventTypeReadable(studentConflict.data().type) + ' event from ' +
+        convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+        convertFromDateInt(studentConflict.data().end).longReadable
+      )
     }
 
     firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
@@ -2601,12 +2703,14 @@ function updateEditPracticeTest() {
     })
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this practice test :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
 function submitAddConference() {
+  sidebarWorking();
   const start = pending_calendar_event.start;
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
@@ -2617,21 +2721,32 @@ function submitAddConference() {
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location || staff.length == 0) {
+    sidebarNotWorking();
     return alert("It looks like you're still missing some data for this test review");
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
     //check for conflicts
     checkStudentConflicts(student, start, end)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    .then((studentConflict) => {
+      if (studentConflict) {
+        sidebarNotWorking();
+        return alert('This student has a conflict with a(n) ' + 
+          eventTypeReadable(studentConflict.data().type) + ' event from ' +
+          convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(studentConflict.data().end).longReadable
+        )
       }
 
       checkStaffConflicts(staff, start, end)
-      .then((conflict) => {
-        if (conflict) {
-          return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+      .then((staffConflict) => {
+        if (staffConflict) {
+          sidebarNotWorking();
+          return alert('This staff has a conflict with a(n) ' + 
+            eventTypeReadable(staffConflict.data().type) + ' event from ' +
+            convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+            convertFromDateInt(staffConflict.data().end).longReadable
+          )
         }
 
         let availablePromises = [];
@@ -2643,7 +2758,8 @@ function submitAddConference() {
         .then((areAvailable) => {
           for (let i = 0; i < areAvailable.length; i++) {
             if (!areAvailable[i].isAvailable) {
-              return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+              sidebarNotWorking();
+              return alert('The staff are not available at this time.')
             }
           }
 
@@ -2671,14 +2787,20 @@ function submitAddConference() {
       })
     })
     .catch((error) => {
+      sidebarNotWorking();
       console.log(error);
       alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+  else {
+    sidebarNotWorking();
+  }
 }
 
 function updateEditConference() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this conference?')) {
+    sidebarNotWorking();
     return
   }
   pending_calendar_event.staff = getDropdownValues('editConferenceAdmin');
@@ -2686,15 +2808,24 @@ function updateEditConference() {
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-  .then((conflict) => {
-    if (conflict) {
-      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+  .then((studentConflict) => {
+    if (studentConflict) {
+      return alert('This student has a conflict with a(n) ' + 
+        eventTypeReadable(studentConflict.data().type) + ' event from ' +
+        convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+        convertFromDateInt(studentConflict.data().end).longReadable
+      )
     }
 
     checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+    .then((staffConflict) => {
+      if (staffConflict) {
+        sidebarNotWorking();
+        return alert('This staff has a conflict with a(n) ' + 
+          eventTypeReadable(staffConflict.data().type) + ' event from ' +
+          convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(staffConflict.data().end).longReadable
+        )
       }
 
       let availablePromises = [];
@@ -2706,7 +2837,8 @@ function updateEditConference() {
       .then((areAvailable) => {
         for (let i = 0; i < areAvailable.length; i++) {
           if (!areAvailable[i].isAvailable) {
-            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            sidebarNotWorking();
+            return alert('The staff are not available at this time.')
           }
         }
 
@@ -2745,12 +2877,14 @@ function updateEditConference() {
     })
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this conference :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
 function submitAddTestReview() {
+  sidebarWorking();
   const start = pending_calendar_event.start;
   const end = pending_calendar_event.end;
   const allDay = pending_calendar_event.allDay;
@@ -2760,15 +2894,21 @@ function submitAddTestReview() {
   const location = document.getElementById('calendarLocation').dataset.value;
 
   if (!start || !student || !location || staff.length == 0) {
+    sidebarNotWorking();
     return alert("It looks like you're still missing some data for this test review");
   }
 
   if (confirm("Are you sure you want to submit this event?")) {
     //check for conflicts
     checkStudentConflicts(student, start, end)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this student: eventID = ' + conflict.id)
+    .then((studentConflict) => {
+      if (studentConflict) {
+        sidebarNotWorking();
+        return alert('This student has a conflict with a(n) ' + 
+          eventTypeReadable(studentConflict.data().type) + ' event from ' +
+          convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(studentConflict.data().end).longReadable
+        )
       }
 
       //get the list of all tutors and randomly assign a tutor to this event
@@ -2776,7 +2916,7 @@ function submitAddTestReview() {
       //if the tutor is not open then remove them from the list and try again
       //return if no one is open.
 
-      getRandomOpenTutor(location, start, end, staff, staffNames)
+      getRandomOpenTutor(start, end, staff, staffNames)
       .then(tutor => {
         if (tutor) {
           eventInfo = {
@@ -2798,19 +2938,26 @@ function submitAddTestReview() {
           })
         }
         else {
+          sidebarNotWorking();
           return alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
         }
       })
     })
     .catch((error) => {
+      sidebarNotWorking();
       console.log(error);
       alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
     })
   }
+  else {
+    sidebarNotWorking();
+  }
 }
 
 function updateEditTestReview() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this test review?')) {
+    sidebarNotWorking();
     return
   }
   pending_calendar_event.staff = getDropdownValues('editTestReviewStaff');
@@ -2818,15 +2965,25 @@ function updateEditTestReview() {
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-  .then((conflict) => {
-    if (conflict) {
-      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+  .then((studentConflict) => {
+    if (studentConflict) {
+      sidebarNotWorking();
+      return alert('This student has a conflict with a(n) ' + 
+        eventTypeReadable(studentConflict.data().type) + ' event from ' +
+        convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+        convertFromDateInt(studentConflict.data().end).longReadable
+      )
     }
 
     checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+    .then((staffConflict) => {
+      if (staffConflict) {
+        sidebarNotWorking();
+        return alert('This staff has a conflict with a(n) ' + 
+          eventTypeReadable(staffConflict.data().type) + ' event from ' +
+          convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(staffConflict.data().end).longReadable
+        )
       }
 
       let availablePromises = [];
@@ -2838,7 +2995,8 @@ function updateEditTestReview() {
       .then((areAvailable) => {
         for (let i = 0; i < areAvailable.length; i++) {
           if (!areAvailable[i].isAvailable) {
-            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            sidebarNotWorking();
+            return alert('The staff are not available at this time.')
           }
         }
 
@@ -2877,12 +3035,14 @@ function updateEditTestReview() {
     })
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this test review :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
 function submitAddLesson() {
+  sidebarWorking();
   ///decide if it is a single event or a recurring event
   let scheduleType = '';
   const radios = document.getElementsByName('addLessonEventSchedule');
@@ -2894,6 +3054,7 @@ function submitAddLesson() {
   }
 
   const type = document.getElementById('addLessonType').value;
+  const description = document.getElementById('addLessonDescription').value;
   const student = document.getElementById('addLessonStudent').value;
   const staff = getDropdownValues('addLessonStaff');
   const staffNames = getDropdownText('addLessonStaff');
@@ -2906,15 +3067,21 @@ function submitAddLesson() {
     const allDay = pending_calendar_event.allDay;
 
     if (!start || !type || !student || !location || staff.length == 0 || isNaN(price)) {
+      sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
 
     if (confirm("Are you sure you want to submit this event?")) {
       //check for conflicts
       checkStudentConflicts(student, start, end)
-      .then((conflict) => {
-        if (conflict) {
-          return alert('There is a conflict with this student: eventID = ' + conflict.id)
+      .then((studentConflict) => {
+        if (studentConflict) {
+          sidebarNotWorking();
+          return alert('This student has a conflict with a(n) ' + 
+            eventTypeReadable(studentConflict.data().type) + ' event from ' +
+            convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+            convertFromDateInt(studentConflict.data().end).longReadable
+          )
         }
 
         //get the list of all tutors and randomly assign a tutor to this event
@@ -2922,11 +3089,12 @@ function submitAddLesson() {
         //if the tutor is not open then remove them from the list and try again
         //return if no one is open.
 
-        getRandomOpenTutor(location, start, end, staff, staffNames)
+        getRandomOpenTutor(start, end, staff, staffNames)
         .then(tutor => {
           if (tutor) {
             eventInfo = {
               type: type,
+              description: description,
               start: start,
               end: end,
               allDay, allDay,
@@ -2945,14 +3113,19 @@ function submitAddLesson() {
             })
           }
           else {
+            sidebarNotWorking();
             return alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
           }
         })
       })
       .catch((error) => {
+        sidebarNotWorking();
         console.log(error);
         alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
       })
+    }
+    else {
+      sidebarNotWorking();
     }
   }
 
@@ -2965,11 +3138,11 @@ function submitAddLesson() {
     let pendingEvents = [];
 
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
+      sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
     if (confirm("Are you sure you want to submit these events?")) {
       //figure out all of the events that must be added based on recurring start, end, and times.
-      const millisecondsWeek = 604800000;
 
       pending_recurring_times.forEach(weekTime => {
         let start = weekTime.start.getTime();
@@ -2977,8 +3150,8 @@ function submitAddLesson() {
 
         //get the week time up to the start of the recurring schedule
         while (start < pending_recurring_start.start.getTime()) {
-          start += millisecondsWeek;
-          end += millisecondsWeek;
+          start = new Date(start).setDate(new Date(start).getDate() + 7);
+          end = new Date(end).setDate(new Date(end).getDate() + 7);
         }
 
         //save an event for each time until the end of the recurring
@@ -2990,35 +3163,44 @@ function submitAddLesson() {
               .then((studentConflict) => {
                 if (studentConflict) {
                   studentConflicts.push(studentConflict);
-                  alert('There is a conflict with this student: eventID = ' + studentConflict.id)
+                  alert('This student has a conflict with a(n) ' + 
+                    eventTypeReadable(studentConflict.data().type) + ' event from ' +
+                    convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+                    convertFromDateInt(studentConflict.data().end).longReadable
+                  )
                 }
 
-                return getRandomOpenTutor(location, start, end, staff, staffNames)
+                return getRandomOpenTutor(start, end, staff, staffNames)
                 .then(tutor => {
                   if (tutor) {
                     eventInfo = {
                       type: type,
+                      description: description,
                       start: start,
                       end: end,
                       location: location,
                       student: student,
-                      staff: [tutor],
+                      staff: [tutor.id],
                       staffNames: [tutor.name],
                       price: price
                     }
                     pendingEvents.push(eventInfo);
                   }
                   else {
-                    staffConflicts.push(true)
-                    alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
+                    sidebarNotWorking();
+                    staffConflicts.push({
+                      start : new Date(start),
+                      end : new Date(end)
+                    })
+                    alert('None of the tutors given are open from ' + convertFromDateInt(start).longReadable + ' to ' + convertFromDateInt(end).longReadable + '. Try adding more tutors to the options or change the time of this lesson.')
                   }
                 })
               })
             );
           }
           passThruTimes(start, end);
-          start += millisecondsWeek;
-          end += millisecondsWeek;
+          start = new Date(start).setDate(new Date(start).getDate() + 7);
+          end = new Date(end).setDate(new Date(end).getDate() + 7);
         }
       })
 
@@ -3038,21 +3220,27 @@ function submitAddLesson() {
             closeCalendarSidebar(true);
           })
           .catch((error) => {
+            sidebarNotWorking();
             console.log(error);
             alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
           })
         }
         else {
+          sidebarNotWorking();
+          console.log('These are the conflicts')
           console.log(studentConflicts);
           console.log(staffConflicts);
           console.log(pendingEvents);
-          alert('There was a conflict or unavaiability')
         }
       })
+    }
+    else {
+      sidebarNotWorking();
     }
   }
 
   else {
+    sidebarNotWorking();
     console.warn("no schedule type: shouldn't be possible.")
   }
 }
@@ -3060,34 +3248,41 @@ function submitAddLesson() {
 /**
  * Return a random tutor that is available to teach during the given time
  * @param {String} location 
- * @return random tutor uid that is open
+ * @return random tutor uid and name that is open
  */
-function getRandomOpenTutor(location, start, end, tutorList, tutorNameList) {
-  if (tutorList.length > 0) {
-    let randomIndex = Math.floor(Math.random() * tutorList.length);
-    randomIndex = randomIndex == tutorList.length ? randomIndex - 1 : randomIndex;
-    const tutor = tutorList[randomIndex];
-    return checkStaffConflicts([tutor], start, end)
+function getRandomOpenTutor(start, end, tutorList, tutorNameList) {
+  //make deep copies so that the original array that are being worked on by the other functions
+  let newTutorList = JSON.parse(JSON.stringify(tutorList));
+  let newTutorNameList = JSON.parse(JSON.stringify(tutorNameList));
+
+  if (newTutorList.length > 0) {
+    let randomIndex = Math.floor(Math.random() * newTutorList.length);
+    randomIndex = randomIndex == newTutorList.length ? randomIndex - 1 : randomIndex;
+
+    const tutorUID = newTutorList[randomIndex];
+    const tutorName = newTutorNameList[randomIndex];
+
+    return checkStaffConflicts([tutorUID], start, end)
     .then((conflict) => {
       if (conflict) {
         //remove the tutor from the list and run the function again
-        tutorList.splice(randomIndex, 1);
-        tutorNameList.splice(randomIndex, 1);
-        return getRandomOpenTutor(location, start, end, tutorList, tutorNameList)
+        newTutorList.splice(randomIndex, 1);
+        newTutorNameList.splice(randomIndex, 1);
+        return getRandomOpenTutor(start, end, newTutorList, newTutorNameList)
       }
       else {
-        return checkStaffAvailability(tutor, start, end)
+        return checkStaffAvailability(tutorUID, start, end)
         .then((isAvailable) => {
           if (!isAvailable.isAvailable) {
             //remove the tutor from the list and run the function again
-            tutorList.splice(randomIndex, 1);
-            tutorNameList.splice(randomIndex, 1);
-            return getRandomOpenTutor(location, start, end, tutorList, tutorNameList)
+            newTutorList.splice(randomIndex, 1);
+            newTutorNameList.splice(randomIndex, 1);
+            return getRandomOpenTutor(start, end, newTutorList, newTutorNameList)
           }
           else {
             return {
-              id: tutorList[randomIndex],
-              name: tutorNameList[randomIndex],
+              id: tutorUID,
+              name: tutorName,
             }
           }
         })
@@ -3100,23 +3295,36 @@ function getRandomOpenTutor(location, start, end, tutorList, tutorNameList) {
 }
 
 function updateEditLesson() {
+  sidebarWorking();
   if (!confirm('Are you sure you want to update this lesson?')) {
+    sidebarNotWorking();
     return
   }
+  pending_calendar_event.description = document.getElementById('editLessonDescription').value;
   pending_calendar_event.staff = getDropdownValues('editLessonStaff');
   pending_calendar_event.staffNames = getDropdownText('editLessonStaff');
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-  .then((conflict) => {
-    if (conflict) {
-      return alert('There is a conflict with this student: eventID = ' + conflict.id)
+  .then((studentConflict) => {
+    if (studentConflict) {
+      sidebarNotWorking();
+      return alert('This student has a conflict with a(n) ' + 
+        eventTypeReadable(studentConflict.data().type) + ' event from ' +
+        convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+        convertFromDateInt(studentConflict.data().end).longReadable
+      )
     }
 
     checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-    .then((conflict) => {
-      if (conflict) {
-        return alert('There is a conflict with this staff: eventID = ' + conflict.id)
+    .then((staffConflict) => {
+      if (staffConflict) {
+        sidebarNotWorking();
+        return alert('This staff has a conflict with a(n) ' + 
+          eventTypeReadable(staffConflict.data().type) + ' event from ' +
+          convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+          convertFromDateInt(staffConflict.data().end).longReadable
+        )
       }
 
       let availablePromises = [];
@@ -3128,7 +3336,8 @@ function updateEditLesson() {
       .then((areAvailable) => {
         for (let i = 0; i < areAvailable.length; i++) {
           if (!areAvailable[i].isAvailable) {
-            return alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+            sidebarNotWorking();
+            return alert('The staff are not available at this time.')
           }
         }
 
@@ -3167,28 +3376,35 @@ function updateEditLesson() {
     })
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
 function submitAddAvailability() {
+  sidebarWorking();
   const staff = document.getElementById('addAvailabilityStaff').value;
+  const staffName = document.getElementById('addAvailabilityStaff').options[document.getElementById('addAvailabilityStaff').selectedIndex].text;
   const location = document.getElementById('calendarLocation').dataset.value;
 
   let recurringEventsFulfilled = [];
 
   if (!pending_recurring_start.start || !pending_recurring_end.end || !staff || !location) {
-    return alert("It looks like you're still missing some data for this lesson");
+    sidebarNotWorking();
+    return alert("It looks like you're still missing some data for this availability");
   }
 
   if (pending_recurring_times.length == 0) {
+    sidebarNotWorking();
     if (!confirm('You are about to remove all availability for this staff member starting from the start date until the end date. Are you sure you want to proceed?')) {
       return
     }
   }
   else {
+    sidebarNotWorking();
     if (!confirm('Are you sure you want to submit this availability? This action will remove all availability for this staff member from the start date until the end date and replace it with what was entered.')) {
+      sidebarNotWorking();
       return
     }
   }
@@ -3228,16 +3444,14 @@ function submitAddAvailability() {
     Promise.all(deletePromises)
     .then(() => {
       //figure out all of the events that must be added based on recurring start, end, and times.
-      const millisecondsWeek = 604800000;
-
       pending_recurring_times.forEach(weekTime => {
         let start = weekTime.start.getTime();
         let end = weekTime.end.getTime();
 
         //get the week time up to the start of the recurring schedule
         while (start < pending_recurring_start.start.getTime()) {
-          start += millisecondsWeek;
-          end += millisecondsWeek;
+          start = new Date(start).setDate(new Date(start).getDate() + 7);
+          end = new Date(end).setDate(new Date(end).getDate() + 7);
         }
 
         //save an event for each time until the end of the recurring
@@ -3253,24 +3467,135 @@ function submitAddAvailability() {
 
           recurringEventsFulfilled.push(saveAvailability(eventInfo));
 
-          start += millisecondsWeek;
-          end += millisecondsWeek;
+          start = new Date(start).setDate(new Date(start).getDate() + 7);
+          end = new Date(end).setDate(new Date(end).getDate() + 7);
         }
-
       })
 
-      Promise.all(recurringEventsFulfilled)
-      .then(events => {
-        events.forEach(event => {
-          main_calendar.addEvent(event);
+      //try and correct the conflicts created by the change in availability
+      fixAvailabilityChangeConflicts(staff, pending_recurring_start.start.getTime(), pending_recurring_end.end.getTime())
+      .then(conflicts => {
+        console.log('remaining conflicts', conflicts);
+        if (conflicts.length > 0) {
+          let displayMessage = `
+            <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
+            <p>I tried my best to resolve the conflicts that were created by this action.</p>
+            <p>Here is a list of the events I could not fix for ${staffName}.</p>
+            <ul>
+          `
+          conflicts.forEach(conflictDoc => {
+            displayMessage += `
+              <li>${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}</li>
+            `
+          })
+          displayMessage += `
+            </ul>
+          `
+          customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
+        }
+
+        //then finish the availability process
+        Promise.all(recurringEventsFulfilled)
+        .then(events => {
+          events.forEach(event => {
+            main_calendar.addEvent(event);
+          })
+          closeCalendarSidebar(true);
         })
-        closeCalendarSidebar(true);
       })
     })
   })
   .catch((error) => {
+    sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this availability :(\nPlease try again and if the issue persist please contact the devs.");
+  })
+}
+
+/**
+ * Call this function after a tutor's availability has changed to try and fix conflicts by changing tutors for the lessons that now have conflicts
+ * @param {String} staff staff uid 
+ * @param {Number} start start time of availability change
+ * @param {Number} end end time of availability change
+ * @returns List of lessons that still have conflicts
+ */
+function fixAvailabilityChangeConflicts(staff, start, end) {
+  let conflicts = [];
+
+  //get all events that the staff has between start and end
+  return firebase.firestore().collection('Events')
+  .where('staff', 'array-contains', staff)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  .get()
+  .then(eventSnapshot => {
+    let promises = [];
+    //check if the staff member is still available to be at these lessons
+    eventSnapshot.forEach(eventDoc => {
+      promises.push(checkStaffAvailability(staff, eventDoc.data().start, eventDoc.data().end)
+      .then((availability) => {
+        //if so then do nothing
+        if (availability.isAvailable) {return}
+        //if not then get choose a random tutor to fill the spot if it is a lesson
+        else {
+          //we can only do something if the event is something where a random tutor could replace the other tutor
+          if ([...LESSON_TYPES, 'testReview'].includes(eventDoc.data().type)) {
+            return getUserListByRole(current_location, ['tutor'])
+            .then(tutorList => {
+              let tutorUIDs = [];
+              let tutorNames = [];
+              tutorList.forEach(tutor => {
+                tutorUIDs.push(tutor.id);
+                tutorNames.push(tutor.name)
+              })
+
+              return getRandomOpenTutor(eventDoc.data().start, eventDoc.data().end, tutorUIDs, tutorNames)
+              .then(openTutor => {
+                //if a another tutor is available then update the lesson
+                if (openTutor) {
+                  let staffList = eventDoc.data().staff;
+                  let staffNameList = eventDoc.data().staffNames;
+
+                  const removeIndex = staffList.indexOf(staff);
+                  staffList.splice(removeIndex, 1);
+                  staffNameList.splice(removeIndex, 1);
+
+                  staffList.push(openTutor.id);
+                  staffNameList.push(openTutor.name);
+
+                  //get the new tutor color
+                  return firebase.firestore().collection('Users').doc(openTutor.id).get()
+                  .then(tutorDoc => {
+                    const color = tutorDoc.data().color;
+                    const textColor = tinycolor.mostReadable(color, ["#FFFFFF", "000000"]).toHexString()
+
+                    return firebase.firestore().collection('Events').doc(eventDoc.id).update({
+                      staff : staffList,
+                      staffNames : staffNameList,
+                      color : color,
+                      textColor : textColor
+                    })
+                  })
+                }
+                //if not then store the lessons to display to the user
+                else {
+                  return conflicts.push(eventDoc);
+                }
+              })
+            })
+          }
+          //can't do anything so pass the issue to the user
+          else {
+            return conflicts.push(eventDoc);
+          }
+        }
+      }));
+    })
+
+    return Promise.all(promises)
+    .then(() => {
+      return conflicts;
+    })
   })
 }
 
@@ -3592,6 +3917,7 @@ function saveLesson(eventInfo) {
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
       type: eventInfo.type,
+      description: eventInfo.description,
       title: studentName + " - " + lessonTypeReadable,
       start: parseInt(eventInfo.start),
       end: parseInt(eventInfo.end),
@@ -3962,7 +4288,6 @@ function checkStaffAvailability(staffUID, start, end) {
   .then((availabilitySnapshot) => {
     //if there are no events in the snapshot then the staff is not available
     if (availabilitySnapshot.empty) {
-      console.log('snapshot empty')
       return {
         isAvailable: false,
         staff: staffUID
@@ -3978,7 +4303,6 @@ function checkStaffAvailability(staffUID, start, end) {
       }
       //else they are not
       else {
-        console.log('the event start is not within the start value but is within the end')
         return {
           isAvailable: false,
           staff: staffUID

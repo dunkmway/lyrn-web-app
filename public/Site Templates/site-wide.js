@@ -26,8 +26,8 @@ firebase.analytics();
 window.onerror = sendErrorReport;
 
 //FIXME: temporary for development
-//checkPermissions();
-window.addEventListener('load', clearLoadingScreen)
+checkPermissions();
+// window.addEventListener('load', clearLoadingScreen)
 
 function checkPermissions() {
     const publicPages = [
@@ -58,7 +58,8 @@ function checkPermissions() {
         "/inquiry",
         "/Forms/New%20Student/New%20Student%20Form",
         "/Forms/ACT%20Daily%20Log/Daily%20Log",
-        "/subject-tutoring-dash"
+        "/subject-tutoring-dash",
+        "/calendar"
     ]
     
     const adminPages = [

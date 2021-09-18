@@ -155,8 +155,11 @@
   </div>
 
   <div id="mainCalendarContent">
+    <div id="spinnyBoiCalendarContent" class="loader"></div>
     <div id='calendar'></div>
     <div id="sidebar" class="closed">
+
+      <div id="spinnyBoiSidebar" class="loader"></div>
       <!------------------------->
       <!-- add teacher meeting -->
       <!------------------------->
@@ -514,6 +517,14 @@
         <select id="addLessonType" name="addLessonType" class="ui dropdown"></select>
         <br>
 
+        <!-- description of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the description of lesson">?</div>
+          <label for="addLessonDescription" class="label">Description</label>
+        </div>
+        <textarea id="addLessonDescription" name="addLessonDescription" class="textarea"></textarea>
+        <br>
+
         <!-- student attending the lesson -->
         <div class="inputRow">
           <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
@@ -576,6 +587,14 @@
           <label for="editLessonType" class="label">Type</label>
         </div>
         <div id="editLessonType" name="editLessonType" class="input nonEditable"></div>
+        <br>
+
+        <!-- description of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the description of lesson">?</div>
+          <label for="editLessonDescription" class="label">Description</label>
+        </div>
+        <textarea id="editLessonDescription" name="editLessonDescription" class="textarea"></textarea>
         <br>
 
         <!-- student attending the lesson -->

@@ -395,7 +395,7 @@ function getStaffData() {
   currentLocations.forEach((location) => {
     promises.push(firebase.firestore().collection('Users')
     .where('location', '==', location.id)
-    .where('roles', 'array-contains-any', ['tutor', 'secreatary', 'admin', 'dev'])
+    .where('roles', 'array-contains-any', ['tutor', 'secretary', 'admin', 'dev'])
     .where('status', '==', 'active')
     .get()
     .then(staffQuerySnapshot => {
