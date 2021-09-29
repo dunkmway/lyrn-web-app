@@ -79,6 +79,8 @@
   text-align: left;
   border-bottom: #D5D5D5 solid 1px;
   font-size: 14px;
+  max-height: 100px;
+  overflow-y: auto;
 }
 
 
