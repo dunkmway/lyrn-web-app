@@ -317,14 +317,11 @@ function getCurrentCalendarTypeContent() {
       else {
         getEventsLocationForCalendar(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_filter)
         .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) =>{
           console.log(error);
@@ -346,14 +343,11 @@ function getCurrentCalendarTypeContent() {
       else {
         getAvailabilityLocationForCalendar(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_availability_filter)
         .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) =>{
           console.log(error);
@@ -374,15 +368,12 @@ function getCurrentCalendarTypeContent() {
       }
       else {
         getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length)
-        .then(openings => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          openings.forEach(event => {
-            main_calendar.addEvent(event);
+        .then(events => {
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) =>{
           console.log(error);
@@ -431,14 +422,11 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
       if (current_location) {
         getEventsLocationForCalendar(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_filter)
         .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) =>{
           calendarNotWorking();
@@ -511,14 +499,11 @@ function initializeAvailabilityCalendar(events, initialDate = new Date()) {
       if (current_location) {
         getAvailabilityLocationForCalendar(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_availability_filter)
         .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) =>{
           calendarNotWorking();
@@ -731,15 +716,12 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
     datesSet: function(dateInfo) {
       if (current_location) {
         getOpeningLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_opening_event_length)
-        .then(openings => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          openings.forEach(event => {
-            main_calendar.addEvent(event);
+        .then(events => {
+          main_calendar.getEventSources().forEach(eventSource => {
+            eventSource.remove();
           })
+          
+          main_calendar.addEventSource(events)
         })
         .catch((error) => {
           calendarNotWorking();
@@ -762,14 +744,24 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
 function getEvent(eventID) {
   return firebase.firestore().collection('Events').doc(eventID).get()
   .then(doc => {
-    return doc.data();
+    if (doc.exists) {
+      return doc.data();
+    }
+    else {
+      return null;
+    }
   });
 }
 
 function getAvailability(eventID) {
   return firebase.firestore().collection('Availabilities').doc(eventID).get()
   .then(doc => {
-    return doc.data();
+    if (doc.exists) {
+      return doc.data();
+    }
+    else {
+      return null;
+    }
   });
 }
 
@@ -779,7 +771,12 @@ function eventClickHandler(info) {
   info.event.setProp('textColor', 'black')
   getEvent(info.event.id)
   .then((data) => {
-    setupEditSidebar(data, info.event.id)
+    if (data) {
+      setupEditSidebar(data, info.event.id)
+    }
+    else {
+      alert('It appears we are having issues loading this event. Try refreshing the page if the issue persists.')
+    }
   })
 }
 
@@ -974,28 +971,6 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
   let events = [];
   let queryPromises = [];
 
-  //run through each filter and query for each filter (logical OR)
-  // let eventRef = firebase.firestore().collection('Events')
-  // .where("location", '==', location)
-  // .where('start', '>=', start)
-  // .where('start', '<', end)
-
-  // if (filter?.staff?.length > 0) {
-  //   filter.staff.forEach(staff => {
-  //     queryPromises.push(eventRef.where('staff', 'array-contains', staff).get());
-  //   })
-  // }
-  // if (filter?.student?.length > 0) {
-  //   filter.student.forEach(student => {
-  //     queryPromises.push(eventRef.where('student', '==', student).get());
-  //   })
-  // }
-  // if (filter?.type?.length > 0) {
-  //   filter.type.forEach(type => {
-  //     queryPromises.push(eventRef.where('type', '==', type).get())
-  //   })
-  // }
-
   //first make sure that the filters are arrays (single null array if not so we can create the cartesian product off without filters)
   if (!filter.staff || filter?.staff?.length == 0) {
     filter.staff = [null];
@@ -1009,9 +984,9 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
 
   //get the cartesian product of the arrays to get all of the AND queries we need to make
   const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
-  console.log(cartesian(filter.staff, filter.student, filter.type))
+  const filterList = cartesian(filter.staff, filter.student, filter.type);
 
-  cartesian(filter.staff, filter.student, filter.type).forEach(filterTuple => {
+  filterList.forEach(filterTuple => {
     let eventRef = firebase.firestore().collection('Events')
     .where("location", '==', location)
     .where('start', '>=', start)
@@ -1032,16 +1007,9 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
 
   console.log(current_filter)
 
-  // //if there is no filter
-  // if ((filter?.staff?.length == 0 && filter?.student?.length == 0 && filter?.type?.length == 0) || (!filter.staff && !filter.student && !filter.type)) {
-  //   queryPromises.push(eventRef.get());
-  // }
-
   return Promise.all(queryPromises)
   .then((eventSnapshots) => {
-    console.log('number of filters active', eventSnapshots.length)
-    eventSnapshots.forEach((eventSnapshot, index) => {
-      console.log('number of events grabbed for filter ' + (index+1), eventSnapshot.size);
+    eventSnapshots.forEach(eventSnapshot => {
       eventSnapshot.forEach((eventDoc) => {
         const eventData = eventDoc.data();
         events.push({
@@ -1058,6 +1026,7 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
 
     //remove duplicate events
     calendarNotWorking();
+
     return events.filter((event, index, array) => {
       for (let i = index + 1; i < array.length; i++) {
         if (event.id == array[i].id) { 
@@ -1215,15 +1184,12 @@ function changeEventLengthOpening(newLength) {
   if (current_location) {
     calendarWorking()
     getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length)
-    .then(openings => {
-      //remove the old events
-      main_calendar.getEvents().forEach(event => {
-        event.remove()
-      });
-      //add the new ones
-      openings.forEach(event => {
-        main_calendar.addEvent(event);
+    .then(events => {
+      main_calendar.getEventSources().forEach(eventSource => {
+        eventSource.remove();
       })
+      
+      main_calendar.addEventSource(events)
       calendarNotWorking();
     })
     .catch((error) =>{
@@ -1252,10 +1218,9 @@ function getOpeningLocation(location, start, end, eventLength) {
       start = new Date(start).setHours(9, 0, 0, 0);
       let checkEvents = [];
 
-      const millisecondHour = 3600000;
-      while (start + (eventLength * millisecondHour) < end) {
+      while (new Date(start).setHours(new Date(start).getHours() + eventLength) < end) {
         let tempStart = start;
-        let tempEnd = start + (eventLength * millisecondHour);
+        let tempEnd = new Date(start).setHours(new Date(start).getHours() + eventLength);
 
         let tutorsOpen = [];
         tutors.forEach(tutor => {
@@ -4319,8 +4284,6 @@ function checkStaffAvailability(staffUID, start, end) {
  */
 function getNextHourEvents(location) {
   const nextHour = new Date().setHours(new Date().getHours() + 1, 0, 0, 0);
-  // test with custom hour
-  // const nextHour = new Date().setHours(13, 0, 0, 0);
   return firebase.firestore().collection('Events')
   .where('location', '==', location)
   .where('start', '==', nextHour)
