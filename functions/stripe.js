@@ -11,6 +11,9 @@ const stripe = new Stripe(functions.config().stripe.secret, {
   apiVersion: '2020-08-27',
 });
 
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(functions.config().sendgrid.secret);
+
 /**
  * When a user is created, create a Stripe customer object for them.
  *
@@ -91,6 +94,23 @@ exports.createStripePayment = functions.firestore
      );
      // If the result is successful, write it back to the database.
      await snap.ref.set(payment);
+     //FIXME!!!
+     //need to check if the parent should be removed from probation after each successful payment.
+     //also email them about the status of their payment and place them on probabtion if applicable
+
+     const parentRecord = await admin.auth().getUser(context.params.userId);
+
+     const msg = {
+      to: parentRecord.email, // Change to your recipient
+      from: 'support@lyrnwithus.com', // Change to your verified sender
+      subject: 'Lyrn Lesson Payment',
+      text: `Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
+        For more details about your account please review your payment portal.`,
+      html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
+        For more details about your account please review your payment portal.`,
+    }
+    await sgMail.send(msg)
+
    } catch (error) {
      // We want to capture errors and render them in a user-friendly way, while
      // still logging an exception with StackDriver
@@ -141,6 +161,11 @@ exports.cleanupUser = functions.auth.user().onDelete(async (user) => {
    .collection('payments')
    .get();
  paymentsSnapshot.forEach((snap) => batch.delete(snap.ref));
+ const chargesSnapshot = await dbRef
+   .doc(user.uid)
+   .collection('charges')
+   .get();
+ chargesSnapshot.forEach((snap) => batch.delete(snap.ref));
 
  await batch.commit();
 
@@ -201,4 +226,40 @@ function userFacingMessage(error) {
  return error.type
    ? error.message
    : 'An error occurred, developers have been alerted';
+}
+
+// Format amount for diplay in the UI
+function formatAmount(amount, currency) {
+  amount = zeroDecimalCurrency(amount, currency)
+    ? amount
+    : (amount / 100).toFixed(2);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+}
+
+// Format amount for Stripe
+function formatAmountForStripe(amount, currency) {
+  return zeroDecimalCurrency(amount, currency)
+    ? amount
+    : Math.round(amount * 100);
+}
+
+// Check if we have a zero decimal currency
+// https://stripe.com/docs/currencies#zero-decimal
+function zeroDecimalCurrency(amount, currency) {
+  let numberFormat = new Intl.NumberFormat(['en-US'], {
+    style: 'currency',
+    currency: currency,
+    currencyDisplay: 'symbol',
+  });
+  const parts = numberFormat.formatToParts(amount);
+  let zeroDecimalCurrency = true;
+  for (let part of parts) {
+    if (part.type === 'decimal') {
+      zeroDecimalCurrency = false;
+    }
+  }
+  return zeroDecimalCurrency;
 }

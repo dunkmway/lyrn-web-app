@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 exports.stripe = require('./stripe');
+exports.billing = require('./billing');
 admin.initializeApp();
 
 //don't let this request go public becuase it could really mess things up!!!

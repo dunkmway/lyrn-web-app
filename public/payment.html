@@ -7,7 +7,7 @@
     <link
       type="text/css"
       rel="stylesheet"
-      href="https://www.gstatic.com/firebasejs/ui/4.5.0/firebase-ui-auth.css"
+      href="payment.css"
     />
     <link
       rel="stylesheet"
@@ -18,6 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
     <script src="Site Templates/site-wide.js"></script>
+    <script src="Site Templates/generalFunctions.js"></script>
   </head>
   <style>
     fieldset {
@@ -29,41 +30,82 @@
     }
   </style>
   <body>
+    <button onclick="goToDashboard()" style="position: absolute; right: 10px; top: 10px;">Dashboard</button>
     <h1>Payment Portal</h1>
-    <!-- <section id="firebaseui-auth-container"></section>
-    <div id="loader">Loading &hellip;</div> -->
+    <h3 id="parent-name"></h3>
     <section id="content">
-      <!-- <button type="button" id="signout">
-        Sign out
-      </button>
-      <button type="button" id="resetPassword">
-        Reset Password
-      </button> -->
       <div>
-        <h2>Payment Methods</h2>
-        <details id="add-new-card">
-          <summary>Add new</summary>
-          <form id="payment-method-form">
-            <label>
-              Cardholder name
-              <input type="text" name="name" required />
-            </label>
-            <fieldset>
-              <div id="card-element"></div>
-            </fieldset>
-            <div id="error-message" role="alert"></div>
-            <button>Save Card</button>
-          </form>
-        </details>
-        <hr />
-
         <details>
           <summary>Make payment</summary>
           <form id="payment-form">
             <div>
+              <div style="display: inline-block; margin-right: 10px;">
+                <input type="radio" id="new-card" name="payment-type" value="new" checked>
+                <label for="new-card">New Card</label>
+              </div>
+              <div style="display: inline-block;">
+                <input type="radio" id="saved-card" name="payment-type" value="saved">
+                <label for="saved-card">Saved Card</label>
+              </div>
+
+              <!-- new card -->
+              <div id="new-card-wrapper">
+                <label>
+                  Cardholder name
+                  <input type="text" name="name"/>
+                </label>
+                <fieldset>
+                  <div id="card-element"></div>
+                </fieldset>
+                <div id="error-message" role="alert"></div>
+              </div>
+
+              <!-- saved card -->
+              <div id="saved-card-wrapper" style="display: none;">
+                <label>
+                  <select name="payment-method"></select>
+                </label>
+              </div>
+
+              <!-- amount and such -->
+            </div>
+            <div>
               <label>
-                Card:
-                <select name="payment-method" required></select>
+                Amount:
+                <input
+                  id="payment-amount"
+                  name="amount"
+                  type="number"
+                  min="1"
+                  max="99999999"
+                  value="0"
+                  required
+                />
+              </label>
+              <label>
+                Currency:
+                <select name="currency">
+                  <option value="usd" selected>USD</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit">Charge card</button>
+            <button type="button" id="save-card-button">Save card</button>
+          </form>
+        </details>
+        <hr/>
+
+        <details>
+          <summary>Create Charge</summary>
+          <form id="charge-form">
+            <div>
+              <label>
+                Title:
+                <input
+                  name="title"
+                  type="text"
+                  required
+                />
               </label>
             </div>
             <div>
@@ -74,23 +116,21 @@
                   type="number"
                   min="1"
                   max="99999999"
-                  value="100"
+                  value=""
                   required
                 />
               </label>
               <label>
                 Currency:
                 <select name="currency">
-                  <option value="usd">USD</option>
-                  <!-- <option value="eur">EUR</option>
-                  <option value="gbp">GBP</option>
-                  <option value="jpy">JPY</option> -->
+                  <option value="usd" selected>USD</option>
                 </select>
               </label>
             </div>
-            <button>Charge selected card</button>
+            <button>Apply charge to this parent</button>
           </form>
         </details>
+
       </div>
       <div>
         <h2>Charges</h2>

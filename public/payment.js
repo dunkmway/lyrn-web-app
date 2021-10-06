@@ -1,34 +1,45 @@
 
- const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
- let currentUser = {};
- let customerData = {};
- let parentUID = queryStrings().parent;
- console.log(parentUID)
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
+let currentUser = {};
+let customerData = {};
+let parentData = {};
+let parentUID = queryStrings().parent;
+console.log(parentUID)
 
- let payments = [];
- let charges = [];
+let payments = [];
+let charges = [];
  
- firebase.auth().onAuthStateChanged((firebaseUser) => {
-   if (firebaseUser) {
-     currentUser = firebaseUser;
-     firebase
-       .firestore()
-       .collection('stripe_customers')
-       .doc(parentUID)
-       .onSnapshot((snapshot) => {
-         if (snapshot.data()) {
-           customerData = snapshot.data();
-           startDataListeners();
-         } else {
-           console.warn(
-             `No Stripe customer found in Firestore for user: ${parentUID}`
-           );
-         }
-       });
-   } else {
-     console.error('This user is not signed in');
-   }
- });
+firebase.auth().onAuthStateChanged((firebaseUser) => {
+  if (firebaseUser) {
+    currentUser = firebaseUser;
+    firebase.firestore().collection('stripe_customers').doc(parentUID).onSnapshot((snapshot) => {
+      if (snapshot.data()) {
+        customerData = snapshot.data();
+        startDataListeners();
+      } else {
+        console.warn(
+          `No Stripe customer found in Firestore for user: ${parentUID}`
+        );
+      }
+    });
+
+    firebase.firestore().collection('Users').doc(parentUID).onSnapshot((snapshot) => {
+      if (snapshot.data()) {
+        parentData = snapshot.data();
+        //set up the parent name in the title
+        const {firstName, lastName} = parentData;
+        document.getElementById('parent-name').textContent = firstName + " " + lastName;
+      } else {
+        console.warn(
+          `No Lyrn User found in Firestore for user: ${parentUID}`
+        );
+      }
+    });
+  } 
+  else {
+    console.error('This user is not signed in');
+  }
+});
  
  /**
   * Set up Stripe Elements
@@ -59,9 +70,6 @@
      .doc(parentUID)
      .collection('payment_methods')
      .onSnapshot((snapshot) => {
-       if (snapshot.empty) {
-         document.querySelector('#add-new-card').open = true;
-       }
        snapshot.forEach(function (doc) {
          const paymentMethod = doc.data();
          if (!paymentMethod.card) {
@@ -93,6 +101,7 @@
      .collection('stripe_customers')
      .doc(parentUID)
      .collection('payments')
+     .orderBy('created', 'desc')
      .onSnapshot((snapshot) => {
       payments = [];
        snapshot.forEach((doc) => {
@@ -110,27 +119,28 @@
            payment.status === 'new' ||
            payment.status === 'requires_confirmation'
          ) {
+           console.log('new payment')
            content = `Creating Payment of ${formatAmount(
              payment.amount,
              payment.currency
-           )}`;
+           )} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
          } else if (payment.status === 'succeeded') {
            const card = payment.charges.data[0].payment_method_details.card;
            content = `✅ Payment of ${formatAmount(
              payment.amount,
              payment.currency
-           )} on ${card.brand} card •••• ${card.last4}.`;
+           )} with ${card.brand} card •••• ${card.last4} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
          } else if (payment.status === 'requires_action') {
            content = `🚨 Payment of ${formatAmount(
              payment.amount,
              payment.currency
-           )} ${payment.status}`;
+           )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
            handleCardAction(payment, doc.id);
          } else {
            content = `⚠️ Payment of ${formatAmount(
              payment.amount,
              payment.currency
-           )} ${payment.error}`;
+           )} ${payment.error} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
          }
          liElement.innerText = content;
          document.querySelector('#payments-list').appendChild(liElement);
@@ -146,6 +156,7 @@
      .collection('stripe_customers')
      .doc(parentUID)
      .collection('charges')
+     .orderBy('created', 'desc')
      .onSnapshot((snapshot) => {
        charges = [];
        snapshot.forEach((doc) => {
@@ -158,7 +169,12 @@
            liElement.id = `charge-${doc.id}`;
          }
  
-         let content = `⚠️ Charge of ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
+         let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: Charge of ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
+         if (charge.eventStart && charge.eventEnd) {
+           //remove period
+           content = content.substring(0, content.length - 1);
+           content += ` from ${convertFromDateInt(charge.eventStart)['longDate']} to ${convertFromDateInt(charge.eventEnd)['time']}.`
+         }
          liElement.innerText = content;
          document.querySelector('#charges-list').appendChild(liElement);
        });
@@ -180,6 +196,7 @@ function updateBalance() {
   })
 
   const balance = totalPaymentAmount - totalChargeAmount;
+  document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
 }
@@ -187,55 +204,25 @@ function updateBalance() {
  /**
   * Event listeners
   */
- 
- 
- // Add new card form
- document
-   .querySelector('#payment-method-form')
-   .addEventListener('submit', async (event) => {
-     event.preventDefault();
-     if (!event.target.reportValidity()) {
-       return;
-     }
-     document
-       .querySelectorAll('button')
-       .forEach((button) => (button.disabled = true));
- 
-     const form = new FormData(event.target);
-     const cardholderName = form.get('name');
- 
-     const { setupIntent, error } = await stripe.confirmCardSetup(
-       customerData.setup_secret,
-       {
-         payment_method: {
-           card: cardElement,
-           billing_details: {
-             name: cardholderName,
-           },
-         },
-       }
-     );
- 
-     if (error) {
-       document.querySelector('#error-message').textContent = error.message;
-       document
-         .querySelectorAll('button')
-         .forEach((button) => (button.disabled = false));
-       return;
-     }
- 
-     await firebase
-       .firestore()
-       .collection('stripe_customers')
-       .doc(parentUID)
-       .collection('payment_methods')
-       .add({ id: setupIntent.payment_method });
- 
-     document.querySelector('#add-new-card').open = false;
-     document
-       .querySelectorAll('button')
-       .forEach((button) => (button.disabled = false));
-   });
+
+// payment radios
+document
+.querySelectorAll('input[name="payment-type"]')
+.forEach((radio) => {
+  radio.addEventListener('change', (event) => {
+    if (event.target.value == 'new') {
+      document.querySelector('#new-card-wrapper').style.display = 'block';
+      document.querySelector('#saved-card-wrapper').style.display = 'none';
+      document.querySelector('#save-card-button').style.visibility = 'visible';
+      
+    }
+    else if (event.target.value == 'saved') {
+      document.querySelector('#saved-card-wrapper').style.display = 'block';
+      document.querySelector('#new-card-wrapper').style.display = 'none';
+      document.querySelector('#save-card-button').style.visibility = 'hidden';
+    }
+  })
+})
  
  // Create payment form
 document
@@ -247,14 +234,10 @@ document
   .forEach((button) => (button.disabled = true));
 
   const form = new FormData(event.target);
+  const cardholderName = form.get('name');
+
   const amount = Number(form.get('amount'));
   const currency = form.get('currency');
-  const data = {
-    payment_method: form.get('payment-method'),
-    currency,
-    amount: formatAmountForStripe(amount, currency),
-    status: 'new',
-  };
 
   if (!confirm(`Are you sure you want to charge this card an amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
     document
@@ -262,6 +245,52 @@ document
     .forEach((button) => (button.disabled = false));
     return;
   }
+
+  const paymentType = form.get('payment-type');
+  let paymentMethodID = null;
+  if (paymentType == 'new') {
+    if (!cardholderName) {
+      document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
+      document
+        .querySelectorAll('button')
+        .forEach((button) => (button.disabled = false));
+      return;
+    }
+
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        name: cardholderName,
+      },
+    })
+
+    if (error) {
+      document.querySelector('#error-message').textContent = error.message;
+      document
+        .querySelectorAll('button')
+        .forEach((button) => (button.disabled = false));
+      return;
+    }
+
+    paymentMethodID = paymentMethod.id;
+  }
+  else if (paymentType == 'saved') {
+    paymentMethodID = form.get('payment-method');
+  }
+  else {
+    document
+    .querySelectorAll('button')
+    .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  const data = {
+    payment_method: paymentMethodID,
+    currency,
+    amount: formatAmountForStripe(amount, currency),
+    status: 'new',
+  };
 
   await firebase
     .firestore()
@@ -273,6 +302,103 @@ document
   document
   .querySelectorAll('button')
   .forEach((button) => (button.disabled = false));
+
+  event.target.reset();
+  cardElement.clear();
+});
+
+//save the new card
+document
+.querySelector('#save-card-button')
+.addEventListener('click', async (event) => {
+  event.preventDefault();
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = true));
+
+  const form = new FormData(document.querySelector('#payment-form'));
+  const cardholderName = form.get('name');
+  if (!cardholderName) {
+    document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
+    document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  const { setupIntent, error } = await stripe.confirmCardSetup(
+    customerData.setup_secret,
+    {
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          name: cardholderName,
+        },
+      },
+    }
+  );
+
+  if (error) {
+    document.querySelector('#error-message').textContent = error.message;
+    document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  await firebase
+  .firestore()
+  .collection('stripe_customers')
+  .doc(parentUID)
+  .collection('payment_methods')
+  .add({ id: setupIntent.payment_method });
+
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = false));
+
+});
+
+// Create charge form
+document
+.querySelector('#charge-form')
+.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = true));
+
+  const form = new FormData(event.target);
+  const amount = Number(form.get('amount'));
+  const currency = form.get('currency');
+  const title = form.get('title');
+  const data = {
+    currency,
+    amount: formatAmountForStripe(amount, currency),
+    title,
+    created: new Date().getTime()
+  }
+
+  if (!confirm(`Are you sure you want to add a charge to this parent of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
+    document
+    .querySelectorAll('button')
+    .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  await firebase
+    .firestore()
+    .collection('stripe_customers')
+    .doc(parentUID)
+    .collection('charges')
+    .add(data);
+
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = false));
+
+  //reset form
+  event.target.reset();
 });
  
  /**
