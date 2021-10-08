@@ -122,10 +122,27 @@ function createLocation() {
   document.getElementById("locationErrMsg").textContent = null;
   let locationName = document.getElementById("locationName")
 
-  if (validateFields([locationName])) {
+  if (locationName) {
     let locationRef = firebase.firestore().collection("Locations").doc();
     locationRef.set({
-      locationName: locationName.value.trim()
+      locationName: locationName.value.trim(),
+      lessonTypes: [
+        {
+          name: 'ACT',
+          price: 75,
+          value: 'act'
+        },
+        {
+          name: 'AP Exam',
+          price: 60,
+          value: 'apExam'
+        },
+        {
+          name: 'Subject',
+          price: 50,
+          value: 'subject'
+        }
+      ]
     })
     .then(() => {
       document.getElementById("spinnyBoiLocation").style.display = "none";

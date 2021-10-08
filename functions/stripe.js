@@ -74,6 +74,7 @@ exports.createStripePayment = functions.firestore
  .document('stripe_customers/{userId}/payments/{pushId}')
  .onCreate(async (snap, context) => {
    const { amount, currency, payment_method } = snap.data();
+   const parentRecord = await admin.auth().getUser(context.params.userId);
    try {
      // Look up the Stripe customer id.
      const customer = (await snap.ref.parent.parent.get()).data().customer_id;
@@ -98,20 +99,35 @@ exports.createStripePayment = functions.firestore
      //need to check if the parent should be removed from probation after each successful payment.
      //also email them about the status of their payment and place them on probabtion if applicable
 
-     const parentRecord = await admin.auth().getUser(context.params.userId);
-
      const msg = {
       to: parentRecord.email, // Change to your recipient
       from: 'support@lyrnwithus.com', // Change to your verified sender
       subject: 'Lyrn Lesson Payment',
       text: `Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
-        For more details about your account please review your payment portal.`,
+        For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
       html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
-        For more details about your account please review your payment portal.`,
+        For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
     }
     await sgMail.send(msg)
 
    } catch (error) {
+     //tell them that their payment failed
+    const msg = {
+      to: parentRecord.email, // Change to your recipient
+      from: 'support@lyrnwithus.com', // Change to your verified sender
+      subject: 'Lyrn Lesson Payment Issue',
+      text: `We tried billing your account for your upcoming lesson and it appears that we running into some issues. Unfortuanately we have to place your account
+        on probabtion until your balance is resolved. Feel free to contact our office with any concerns.`,
+      html: `<strong>We tried billing your account for your upcoming lesson and it appears that we running into some issuesn. Unfortuanately we have to place your account
+        on probabtion until your balance is resolved. Feel free to contact our office with any concerns.</strong>`,
+    }
+    await sgMail.send(msg)
+
+    //place the parent on probation
+    await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
+      probationDate: new Date().getTime()
+    })
+
      // We want to capture errors and render them in a user-friendly way, while
      // still logging an exception with StackDriver
      functions.logger.log(error);

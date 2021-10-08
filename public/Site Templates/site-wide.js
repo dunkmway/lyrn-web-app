@@ -42,6 +42,7 @@ function checkPermissions() {
     
     const parentPages = [
         "/Dashboard/Parent",
+        "/payment-parent"
     ]
     
     const tutorPages = [
@@ -59,7 +60,8 @@ function checkPermissions() {
         "/Forms/New%20Student/New%20Student%20Form",
         "/Forms/ACT%20Daily%20Log/Daily%20Log",
         "/subject-tutoring-dash",
-        "/calendar"
+        "/calendar",
+        "/payment"
     ]
     
     const adminPages = [
@@ -91,6 +93,7 @@ function checkPermissions() {
                     case "parent":
                         if (!parentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
                             //access denied
+                            alert('access denied')
                             window.location.replace(location.origin + "/Dashboard/Parent");
                         } 
                         break;

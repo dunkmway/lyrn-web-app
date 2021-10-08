@@ -40,7 +40,9 @@ function initialSetup() {
 
   firebase.auth().onAuthStateChanged((user) => {
     current_user = user;
-    getLocationList(user)
+    //Get all locations for right now
+    //getLocationList(user)
+    getAllLocations()
     .then((locations) => {
       let locationNames = [];
       let locationIDs = [];
@@ -3987,6 +3989,22 @@ function getLocationList(user) {
         name: locationData.locationName
       }]
     })
+  })
+}
+
+function getAllLocations() {
+  return firebase.firestore().collection('Locations').get()
+  .then((locationSnapshot) => {
+    let locationData = [];
+
+    locationSnapshot.forEach(locationDoc => {
+      locationData.push({
+        id: locationDoc.id,
+        name: locationDoc.data().locationName
+      });
+    })
+
+    return locationData;
   })
 }
 

@@ -7,7 +7,7 @@
     <link
       type="text/css"
       rel="stylesheet"
-      href="payment.css"
+      href="payment-parent.css"
     />
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -26,7 +26,8 @@
     }
   </style>
   <body>
-    <button onclick="goToDashboard()" style="position: absolute; right: 10px; top: 10px;">Dashboard</button>
+    <button onclick="signOut()" style="position: absolute; right: 10px; top: 10px;">Sign Out</button>
+    <button onclick="resetPassword()" style="position: absolute; left: 10px; top: 10px;">Reset Password</button>
     <h1>Payment Portal</h1>
     <h3 id="parent-name"></h3>
     <section id="content">
@@ -92,42 +93,6 @@
         </details>
         <hr/>
 
-        <details>
-          <summary>Create Charge</summary>
-          <form id="charge-form">
-            <div>
-              <label>
-                Title:
-                <input
-                  name="title"
-                  type="text"
-                  required
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                Amount:
-                <input
-                  name="amount"
-                  type="number"
-                  min="1"
-                  max="99999999"
-                  value=""
-                  required
-                />
-              </label>
-              <label>
-                Currency:
-                <select name="currency">
-                  <option value="usd" selected>USD</option>
-                </select>
-              </label>
-            </div>
-            <button>Apply charge to this parent</button>
-          </form>
-        </details>
-
       </div>
       <div>
         <h2>Charges</h2>
@@ -155,6 +120,6 @@
     <script src="https://js.stripe.com/v3/"></script>
 
     <!-- Our application script -->
-    <script src="payment.js"></script>
+    <script src="payment-parent.js"></script>
   </body>
 </html>

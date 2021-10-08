@@ -2,9 +2,6 @@
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
 let currentUser = {};
 let customerData = {};
-let parentData = {};
-let parentUID = queryStrings().parent;
-console.log(parentUID)
 
 let payments = [];
 let charges = [];
@@ -12,18 +9,18 @@ let charges = [];
 firebase.auth().onAuthStateChanged((firebaseUser) => {
   if (firebaseUser) {
     currentUser = firebaseUser;
-    firebase.firestore().collection('stripe_customers').doc(parentUID).onSnapshot((snapshot) => {
+    firebase.firestore().collection('stripe_customers').doc(currentUser.uid).onSnapshot((snapshot) => {
       if (snapshot.data()) {
         customerData = snapshot.data();
         startDataListeners();
       } else {
         console.warn(
-          `No Stripe customer found in Firestore for user: ${parentUID}`
+          `No Stripe customer found in Firestore for user: ${currentUser.uid}`
         );
       }
     });
 
-    firebase.firestore().collection('Users').doc(parentUID).onSnapshot((snapshot) => {
+    firebase.firestore().collection('Users').doc(currentUser.uid).onSnapshot((snapshot) => {
       if (snapshot.data()) {
         parentData = snapshot.data();
         //set up the parent name in the title
@@ -31,7 +28,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
         document.getElementById('parent-name').textContent = firstName + " " + lastName;
       } else {
         console.warn(
-          `No Lyrn User found in Firestore for user: ${parentUID}`
+          `No Lyrn User found in Firestore for user: ${currentUser.uid}`
         );
       }
     });
@@ -67,7 +64,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payment_methods')
      .onSnapshot((snapshot) => {
        snapshot.forEach(function (doc) {
@@ -99,7 +96,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payments')
      .orderBy('created', 'desc')
      .onSnapshot((snapshot) => {
@@ -154,7 +151,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('charges')
      .orderBy('created', 'desc')
      .onSnapshot((snapshot) => {
@@ -205,7 +202,6 @@ function updateBalance() {
   * Event listeners
   */
 
-// payment radios
 document
 .querySelectorAll('input[name="payment-type"]')
 .forEach((radio) => {
@@ -296,7 +292,7 @@ document
   await firebase
     .firestore()
     .collection('stripe_customers')
-    .doc(parentUID)
+    .doc(currentUser.uid)
     .collection('payments')
     .add(data);
 
@@ -350,7 +346,7 @@ document
   await firebase
   .firestore()
   .collection('stripe_customers')
-  .doc(parentUID)
+  .doc(currentUser.uid)
   .collection('payment_methods')
   .add({ id: setupIntent.payment_method });
 
@@ -381,7 +377,7 @@ document
   }
 
   //delete the firebase doc that holds this payment method
-  await firebase.firestore().collection('stripe_customers').doc(parentUID).collection('payment_methods').doc(cardDocId).delete();
+  await firebase.firestore().collection('stripe_customers').doc(currentUser.uid).collection('payment_methods').doc(cardDocId).delete();
   
   //remove the card option from the select
   savedCardElem.remove();
@@ -391,47 +387,6 @@ document
   .forEach((button) => (button.disabled = false));
 })
 
-// Create charge form
-document
-.querySelector('#charge-form')
-.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  document
-  .querySelectorAll('button')
-  .forEach((button) => (button.disabled = true));
-
-  const form = new FormData(event.target);
-  const amount = Number(form.get('amount'));
-  const currency = form.get('currency');
-  const title = form.get('title');
-  const data = {
-    currency,
-    amount: formatAmountForStripe(amount, currency),
-    title,
-    created: new Date().getTime()
-  }
-
-  if (!confirm(`Are you sure you want to add a charge to this parent of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
-    document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = false));
-    return;
-  }
-
-  await firebase
-    .firestore()
-    .collection('stripe_customers')
-    .doc(parentUID)
-    .collection('charges')
-    .add(data);
-
-  document
-  .querySelectorAll('button')
-  .forEach((button) => (button.disabled = false));
-
-  //reset form
-  event.target.reset();
-});
  
  /**
   * Helper functions
@@ -488,8 +443,34 @@ document
    await firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payments')
      .doc(docId)
      .set(payment, { merge: true });
  }
+
+ function resetPassword() {
+  let confirmation = confirm("Are you sure you want to reset your password?");
+  if (confirmation) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var auth = firebase.auth();
+        var emailAddress = user.email;
+
+        auth.sendPasswordResetEmail(emailAddress)
+        .then(function() {
+          // Email sent.
+          alert("An email has been sent to your email to continue with your password reset.");
+        })
+        .catch(function(error) {
+          // An error happened.
+          alert("There was an issue with your password reset. \nPlease try again later.");
+          handleFirebaseErrors(error, window.location.href);
+        });
+      } else {
+        // No user is signed in.
+        alert("Oops! No one is signed in to change the password");
+      }
+    });
+  }
+}

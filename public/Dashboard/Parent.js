@@ -1,1 +1,1 @@
-window.location.href = '../payment.html'
+window.location.href = '../payment-parent.html'

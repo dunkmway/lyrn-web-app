@@ -6,9 +6,11 @@ sgMail.setApiKey(functions.config().sendgrid.secret);
 
 //check for events happening the next day and place a charge on the parent account whose student is attending the event.
 exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('America/Denver').onRun(async (context) => {
-  const now  = new Date();
-  const tomorrowStart = now.setHours(24,0,0,0);
-  const tomorrowEnd = now.setHours(48,0,0,0);
+  //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
+  const SALTLAKE_TIME_OFFSET = 6;
+  const UTC_TO_SALTLAKE = new Date().setHours(new Date().getHours() - SALTLAKE_TIME_OFFSET);
+  const tomorrowStart = new Date(UTC_TO_SALTLAKE).setHours(24 + SALTLAKE_TIME_OFFSET,0,0,0);
+  const tomorrowEnd = new Date(UTC_TO_SALTLAKE).setHours(48 + SALTLAKE_TIME_OFFSET,0,0,0);
 
   let eventQuery = await admin.firestore().collection('Events')
   .where('start', '>=', tomorrowStart)
@@ -142,9 +144,11 @@ exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('Ameri
 
 
 exports.chargeAccountsTest = functions.https.onRequest(async (req, res) => {
-  const now  = new Date();
-  const tomorrowStart = now.setHours(24,0,0,0);
-  const tomorrowEnd = now.setHours(48,0,0,0);
+  //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
+  const SALTLAKE_TIME_OFFSET = 6;
+  const UTC_TO_SALTLAKE = new Date().setHours(new Date().getHours() - SALTLAKE_TIME_OFFSET);
+  const tomorrowStart = new Date(UTC_TO_SALTLAKE).setHours(24 + SALTLAKE_TIME_OFFSET,0,0,0);
+  const tomorrowEnd = new Date(UTC_TO_SALTLAKE).setHours(48 + SALTLAKE_TIME_OFFSET,0,0,0);
 
   let eventQuery = await admin.firestore().collection('Events')
   .where('start', '>=', tomorrowStart)
