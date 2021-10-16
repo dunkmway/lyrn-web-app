@@ -118,7 +118,9 @@ function createElement(elementType, classes = [], attributes = [], values = [], 
 
   // Add the classes to the element
   for (let i = 0; i < classes.length; i++) {
-    element.classList.add(classes[i]);
+    if (classes[i]) {
+      element.classList.add(classes[i]);
+    }
   }
 
   // Set the inner html text

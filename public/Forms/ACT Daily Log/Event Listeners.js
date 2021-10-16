@@ -53,7 +53,10 @@ for (let i = 0; i < sectionPassages.length; i++) {
     sectionPassages[i].addEventListener('click', function (event) {
 
       if (!event.target.id.includes('Passage')) {
-        console.log(event.target.id)
+        //temp FIXME:
+        if (true) {
+          return
+        }
         // Needed info
         const test = current_practice_test
         const section = current_practice_section

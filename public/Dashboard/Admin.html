@@ -12,6 +12,11 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
 
+    <!-- flatpickr (date picker)-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
     <!-- firebase requirments -->
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
@@ -370,12 +375,14 @@
         </table>
 
         <h2 style="margin-bottom: 0px;">Staff</h2>
+        <input id="timesheet-dates" style="width: 200px"></input>
         <table id="staff-table" class="display" width="100%">
           <thead>
             <tr>
               <th>Name</th>
               <th>Roles</th>
               <th>Location</th>
+              <th>Pay</th>
             </tr>
           </thead>
         </table>

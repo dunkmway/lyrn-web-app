@@ -47,17 +47,17 @@ function setStudentMessage(mes, type) {
     let timeElem = document.createElement('p');
 
     //display the time above the mesasge
-    timeElem.innerHTML = convertFromDateInt(mes.timestamp)['shortDate'];
+    timeElem.textContent = convertFromDateInt(mes.timestamp)['shortDate'];
     timeElem.classList.add('time');
     messageDiv.appendChild(timeElem);
 
     //set up the message
-    message.innerHTML = mes.message;
+    message.textContent = mes.message;
     //author's name element
     let authorElem = document.createElement('p');
     authorElem.classList.add("author");
     message.appendChild(authorElem);
-    authorElem.innerHTML = mes.author;
+    authorElem.textContent = mes.author;
 
     //give the message an id
     messageDiv.setAttribute('data-id', mes.id);
@@ -131,7 +131,7 @@ function setDeleteButton(message) {
   let deleteButton = document.createElement('div');
   deleteButton.classList.add("delete");
   let theX = document.createElement('p');
-  theX.innerHTML = "X";
+  theX.textContent = "X";
   theX.classList.add('noMargins');
   deleteButton.appendChild(theX);
   deleteButton.addEventListener('click', (event) => deleteStudentMessage(event));
@@ -142,7 +142,7 @@ function setReloadButton(message) {
   let reloadButton = document.createElement('div');
   reloadButton.classList.add("delete");
   let theX = document.createElement('p');
-  theX.innerHTML = "⟳";
+  theX.textContent = "⟳";
   theX.classList.add('noMargins');
   reloadButton.appendChild(theX);
   reloadButton.addEventListener('click', (event) => reloadStudentMessage(event));
@@ -163,7 +163,7 @@ function deleteStudentMessage(event) {
     const messageDocRef = firebase.firestore().collection("Student-Chats").doc(id);
     messageDocRef.delete()
     .then(() => {
-      if (Date.parse(message.getElementsByClassName('time')[0].innerHTML) >= convertFromDateInt(date.getTime())['startOfDayInt']) {
+      if (Date.parse(message.getElementsByClassName('time')[0].textContent) >= convertFromDateInt(date.getTime())['startOfDayInt']) {
         session_message_count -= 1;
       }
       message.remove();

@@ -24,7 +24,7 @@ exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('Ameri
 
   eventQuery.forEach(event => {
     const eventData = event.data();
-    if (eventData?.price) {
+    if (eventData?.price > 0) {
       const start = eventData.start;
       const end = eventData.end;
       const length = end - start;

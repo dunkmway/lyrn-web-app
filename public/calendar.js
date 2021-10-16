@@ -458,6 +458,12 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
       if (info.event.extendedProps.background) {
         info.el.style.background = info.event.extendedProps.background;
       }
+
+      //if the event is reconciled then render the event with a (color) outline
+      if (info.event.extendedProps.isReconciled) {
+        info.el.style.borderColor = 'black';
+        info.el.style.borderWidth = '2px';
+      }
     },
 
     selectable: false,
@@ -935,10 +941,10 @@ function cancelEditCallback() {
   if (confirm("Are you sure you want to cancel this event?\nAny data just entered will be lost.")) {
     //set the event back to it's original position (edit)
     main_calendar.getEventById(pending_calendar_event_id)?.remove();
-    main_calendar.addEvent({
+    main_calendar.addEventSource([{
       id: old_calendar_event_id,
       ...old_calendar_event
-    })
+    }])
     cancelSidebar();
     // closeCalendarSidebar();
     return true
@@ -1021,7 +1027,8 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
           end: convertFromDateInt(eventData.end).fullCalendar,
           allDay: eventData.allDay,
           color: eventData.color,
-          textColor: eventData.textColor
+          textColor: eventData.textColor,
+          isReconciled: eventData.isReconciled,
         });
       });
     })
@@ -2058,6 +2065,24 @@ function setupEditLesson(data, id) {
     return closeCalendarSidebar(true);
   });
 
+  //show the reconciled state
+  $('#editLessonReconciled').parent()
+  .checkbox({
+    onChecked() {
+      //check if the event has started yet first
+      if (pending_calendar_event.start <= new Date().getTime()) {
+        pending_calendar_event.isReconciled = true;
+      }
+      else {
+        $('#editLessonReconciled').parent().checkbox('set unchecked')
+        alert("Strange things are afoot at the Circle K. You can't reconcile a lesson that hasn't started yet.")
+      }
+    },
+    onUnchecked() {
+      pending_calendar_event.isReconciled = false;
+    },
+  });
+
   showEditLessonWrapper();
   openCalendarSidebar();
 }
@@ -2145,7 +2170,7 @@ function submitAddTeacherMeeting() {
     saveTeacherMeeting(eventInfo)
     .then((event) => {
       //FIXME: This should automatically update for the client and put it in a pending status
-      main_calendar.addEvent(event);
+      main_calendar.addEventSource([event]);
       closeCalendarSidebar(true);
     })
     .catch((error) => {
@@ -2168,10 +2193,10 @@ function updateEditTeacherMeeting() {
   firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
   .then(() => {
     main_calendar.getEventById(pending_calendar_event_id).remove();
-    main_calendar.addEvent({
+    main_calendar.addEventSource([{
       id: pending_calendar_event_id,
       ...pending_calendar_event
-    })
+    }])
     closeCalendarSidebar(true);
   })
   .catch((error) => {
@@ -2250,7 +2275,7 @@ function submitAddGeneralInfo() {
             saveGeneralInfo(eventInfo)
             .then((event) => {
               //FIXME: This should automatically update for the client and put it in a pending status
-              main_calendar.addEvent(event);
+              main_calendar.addEventSource([event]);
               closeCalendarSidebar(true);
             })
           })
@@ -2276,7 +2301,7 @@ function submitAddGeneralInfo() {
         saveGeneralInfo(eventInfo)
         .then((event) => {
           //FIXME: This should automatically update for the client and put it in a pending status
-          main_calendar.addEvent(event);
+          main_calendar.addEventSource([event]);
           closeCalendarSidebar(true);
         })
         .catch((error) => {
@@ -2380,7 +2405,7 @@ function submitAddGeneralInfo() {
             Promise.all(recurringEventsFulfilled)
             .then(events => {
               events.forEach(event => {
-                main_calendar.addEvent(event);
+                main_calendar.addEventSource([event]);
               })
               closeCalendarSidebar(true);
             })
@@ -2441,7 +2466,7 @@ function submitAddGeneralInfo() {
         Promise.all(recurringEventsFulfilled)
         .then(events => {
           events.forEach(event => {
-            main_calendar.addEvent(event);
+            main_calendar.addEventSource([event]);
           })
           closeCalendarSidebar(true);
         })
@@ -2511,10 +2536,10 @@ function updateEditGeneralInfo() {
           })
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -2523,10 +2548,10 @@ function updateEditGeneralInfo() {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -2551,10 +2576,10 @@ function updateEditGeneralInfo() {
       })
       .then(() => {
         main_calendar.getEventById(pending_calendar_event_id).remove();
-        main_calendar.addEvent({
+        main_calendar.addEventSource([{
           id: pending_calendar_event_id,
           ...pending_calendar_event
-        })
+        }])
         closeCalendarSidebar(true);
       })
       .catch((error) => {
@@ -2568,10 +2593,10 @@ function updateEditGeneralInfo() {
       firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
       .then(() => {
         main_calendar.getEventById(pending_calendar_event_id).remove();
-        main_calendar.addEvent({
+        main_calendar.addEventSource([{
           id: pending_calendar_event_id,
           ...pending_calendar_event
-        })
+        }])
         closeCalendarSidebar(true);
       })
       .catch((error) => {
@@ -2625,7 +2650,7 @@ function submitAddPracticeTest() {
       savePracticeTest(eventInfo)
       .then((event) => {
         //FIXME: This should automatically update for the client and put it in a pending status
-        main_calendar.addEvent(event);
+        main_calendar.addEventSource([event]);
         closeCalendarSidebar(true);
       })
     })
@@ -2662,10 +2687,10 @@ function updateEditPracticeTest() {
     firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
     .then(() => {
       main_calendar.getEventById(pending_calendar_event_id).remove();
-      main_calendar.addEvent({
+      main_calendar.addEventSource([{
         id: pending_calendar_event_id,
         ...pending_calendar_event
-      })
+      }])
       closeCalendarSidebar(true);
     })
   })
@@ -2747,7 +2772,7 @@ function submitAddConference() {
           saveConference(eventInfo)
           .then((event) => {
             //FIXME: This should automatically update for the client and put it in a pending status
-            main_calendar.addEvent(event);
+            main_calendar.addEventSource([event]);
             closeCalendarSidebar(true);
           })
         })
@@ -2821,10 +2846,10 @@ function updateEditConference() {
           })
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -2833,10 +2858,10 @@ function updateEditConference() {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -2900,7 +2925,7 @@ function submitAddTestReview() {
           saveTestReview(eventInfo)
           .then((event) => {
             //FIXME: This should automatically update for the client and put it in a pending status
-            main_calendar.addEvent(event);
+            main_calendar.addEventSource([event]);
             closeCalendarSidebar(true);
           })
         }
@@ -2979,10 +3004,10 @@ function updateEditTestReview() {
           })
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -2991,10 +3016,10 @@ function updateEditTestReview() {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -3075,7 +3100,7 @@ function submitAddLesson() {
             saveLesson(eventInfo)
             .then((event) => {
               //FIXME: This should automatically update for the client and put it in a pending status
-              main_calendar.addEvent(event);
+              main_calendar.addEventSource([event]);
               closeCalendarSidebar(true);
             })
           }
@@ -3182,7 +3207,7 @@ function submitAddLesson() {
           Promise.all(recurringEventsFulfilled)
           .then(events => {
             events.forEach(event => {
-              main_calendar.addEvent(event);
+              main_calendar.addEventSource([event]);
             })
             closeCalendarSidebar(true);
           })
@@ -3320,10 +3345,10 @@ function updateEditLesson() {
           })
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -3332,10 +3357,10 @@ function updateEditLesson() {
           firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
           .then(() => {
             main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEvent({
+            main_calendar.addEventSource([{
               id: pending_calendar_event_id,
               ...pending_calendar_event
-            })
+            }])
             closeCalendarSidebar(true);
           })
         }
@@ -3465,7 +3490,7 @@ function submitAddAvailability() {
         Promise.all(recurringEventsFulfilled)
         .then(events => {
           events.forEach(event => {
-            main_calendar.addEvent(event);
+            main_calendar.addEventSource([event]);
           })
           closeCalendarSidebar(true);
         })
@@ -4361,7 +4386,7 @@ function setupEventGlanceGrid() {
       let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + data.student)
       ref.getDownloadURL()
       .then((url) => {
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], 'reconcile'))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], ''))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
@@ -4369,7 +4394,7 @@ function setupEventGlanceGrid() {
       })
       .catch((error) => {
         console.log("No image found")
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], 'reconcile'))
+        upcomingDivider.after(createElement('div', ['gridItem'], [], [], ''))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
         upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
@@ -4427,6 +4452,8 @@ function eventTypeReadable(type) {
       return 'Math Program';
     case 'phonicsProgram':
       return 'Phonics Program';
+    case 'apExam':
+      return 'AP Exam'
     default:
       return type;
   }

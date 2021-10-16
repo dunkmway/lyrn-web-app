@@ -495,6 +495,9 @@ div p {
     text-align: center;
     border-radius: 20px;
     margin-top: 3px;
+    border-width: 2px;
+    border-color: transparent;
+    border-style: solid;
 }
 /* MASTER
   justify-content: flex-start;
@@ -582,6 +585,23 @@ MASTER */
     justify-content: space-around;
     text-align: center;
     margin-top: 3px;
+    border-radius: 20px;
+    border-width: 2px;
+    border-color: transparent;
+    border-style: solid;
+}
+
+.popupAnswer.correct{
+  color: green;
+  font-weight: bold;
+}
+
+.popupAnswer.selected{
+  border-color: black;
+}
+
+.popupValue.selected{
+  border-color: blue;
 }
 
 .smallerText {

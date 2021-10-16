@@ -18,6 +18,22 @@ function initialSetupData() {
     currentUser = user;
     if (currentUser) {
 
+      //set up the staff timesheet date picker
+      flatpickr('#timesheet-dates', {
+        mode: 'range',
+        maxDate: new Date(),
+        dateFormat: 'M d, Y',
+        onChange: ((selectedDates, dateStr, instance) => {
+          //i only want the full range to be included
+          if (selectedDates.length === 2) {
+            recalculateTimesheet(selectedDates[0].getTime(), selectedDates[1].setHours(24,0,0,0))
+            .then(() => {
+              reinitializeStaffTableData();
+            })
+          }
+        })
+      });
+
       // User is signed in.
       // getLocationList(currentUser)
       getAllLocations()
@@ -201,6 +217,13 @@ function getActiveStudentData() {
         studentPromises.push(getParentData(studentData.parents[0])
         .then((parentData) => {
 
+          // let parentPaymentStatus = null;
+          // if (parentData.probationDate) {
+          //   if (parentData.probationDate < new Date().getTime()) {
+          //     parentPaymentStatus = '🚨'
+          //   }
+          // }
+
           const student = {
             studentUID: studentDoc.id,
             studentName: studentData.lastName + ", " + studentData.firstName,
@@ -208,7 +231,7 @@ function getActiveStudentData() {
             studentTypesTable: studentTypesTable,
             location: locationName,
             parentUID: parentData.parentUID,
-            parentName: parentData.lastName + ", " + parentData.firstName, 
+            parentName: (parentData.probationDate ? (new Date(parentData.probationDate).setDate(new Date(parentData.probationDate).getDate() + 7) < new Date().getTime() ? '🚨 ' : '⚠️ ' ) : '✅ ') + parentData.lastName + ", " + parentData.firstName, 
           }
           return tableDataActive.push(student);
         }));
@@ -424,12 +447,13 @@ function getStaffData() {
           }
         })
         staffRolesSTR = staffRolesSTR.substring(0, staffRolesSTR.length - 2);
-        
         const staff = {
           staffUID: staffDoc.id,
           staffName: staffDoc.data().lastName + ", " + staffDoc.data().firstName,
           staffRoles: staffRolesSTR,
-          location: location.name
+          staffWage: staffDoc.data().wage,
+          location: location.name,
+          staffPay: 'n/a'
         }
 
         return tableDataStaff.push(staff)
@@ -452,6 +476,7 @@ function reinitializeStaffTableData() {
       { data: 'staffName' },
       { data: 'staffRoles'},
       { data: 'location'},
+      { data: 'staffPay'}
     ],
     "scrollY": "400px",
     "scrollCollapse": true,
@@ -477,6 +502,37 @@ function reinitializeStaffTableData() {
       // })
     }
   })
+}
+
+function getStaffHoursWorked(staffUID, start, end) {
+  return firebase.firestore().collection('Events')
+  .where('staff', 'array-contains', staffUID)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  .get()
+  .then((querySnapshot) => {
+    let millisecondsWorked = 0;
+    querySnapshot.forEach(eventDoc => {
+      if (eventDoc.data().type != 'conference') {
+        millisecondsWorked += eventDoc.data().end - eventDoc.data().start;
+      }
+    })
+
+    return millisecondsWorked / 3600000;
+  })
+  
+}
+
+function recalculateTimesheet(start, end) {
+  let staffPromises = [];
+  tableDataStaff.forEach((staff, index) => {
+    staffPromises.push(getStaffHoursWorked(staff.staffUID, start, end)
+    .then(hoursWorked => {
+      tableDataStaff[index].staffPay = '$' + (hoursWorked * staff.staffWage).toString()
+    }))
+  });
+
+  return Promise.all(staffPromises);
 }
 
 function deleteStaff(staffUID, staffName, staffType) {
@@ -526,10 +582,14 @@ function getParentData(parentUID) {
   }
   return firebase.firestore().collection('Users').doc(parentUID).get()
   .then(parentDoc => {
-    return {
-      ...parentDoc.data(),
-      parentUID: parentDoc.id
-    }
+    return firebase.firestore().collection('stripe_customers').doc(parentUID).get()
+    .then(parentStripeDoc => {
+      return {
+        ...parentDoc.data(),
+        ...parentStripeDoc.data(),
+        parentUID: parentDoc.id
+      }
+    })
   });
 }
 

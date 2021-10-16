@@ -71,73 +71,80 @@ exports.createStripeCustomer = functions.https.onCall(async (data, context) => {
 // [START chargecustomer]
 
 exports.createStripePayment = functions.firestore
- .document('stripe_customers/{userId}/payments/{pushId}')
- .onCreate(async (snap, context) => {
-   const { amount, currency, payment_method } = snap.data();
-   const parentRecord = await admin.auth().getUser(context.params.userId);
-   try {
-     // Look up the Stripe customer id.
-     const customer = (await snap.ref.parent.parent.get()).data().customer_id;
-     // Create a charge using the pushId as the idempotency key
-     // to protect against double charges.
-     const idempotencyKey = context.params.pushId;
-     const payment = await stripe.paymentIntents.create(
-       {
-         amount,
-         currency,
-         customer,
-         payment_method,
-         off_session: false,
-         confirm: true,
-         confirmation_method: 'manual',
-       },
-       { idempotencyKey }
-     );
-     // If the result is successful, write it back to the database.
-     await snap.ref.set(payment);
-     //FIXME!!!
-     //need to check if the parent should be removed from probation after each successful payment.
-     //also email them about the status of their payment and place them on probabtion if applicable
+.document('stripe_customers/{userId}/payments/{pushId}')
+.onCreate(async (snap, context) => {
+  const { amount, currency, payment_method } = snap.data();
+  const parentRecord = await admin.auth().getUser(context.params.userId);
+  try {
+    // Look up the Stripe customer id.
+    const customer = (await snap.ref.parent.parent.get()).data().customer_id;
+    // Create a charge using the pushId as the idempotency key
+    // to protect against double charges.
+    const idempotencyKey = context.params.pushId;
+    const payment = await stripe.paymentIntents.create(
+      {
+        amount,
+        currency,
+        customer,
+        payment_method,
+        off_session: false,
+        confirm: true,
+        confirmation_method: 'manual',
+      },
+      { idempotencyKey }
+    );
+    // If the result is successful, write it back to the database.
+    await snap.ref.set(payment);
+    //FIXME!!!
+    //need to check if the parent should be removed from probation after each successful payment.
+    //also email them about the status of their payment and place them on probabtion if applicable
 
-     const msg = {
+    const msg = {
       to: parentRecord.email, // Change to your recipient
       from: 'support@lyrnwithus.com', // Change to your verified sender
       subject: 'Lyrn Lesson Payment',
-      text: `Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
+      text: `Great news!!! We were able to process your payment of ${formatAmount(amount, currency)}!
         For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
-      html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(amount, currency)} for your upcoming lesson!
+      html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(amount, currency)}!
         For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
     }
     await sgMail.send(msg)
 
-   } catch (error) {
-     //tell them that their payment failed
+    //remove the parent from probation if their balance is now >= 0
+    if (await getUserBalance(parentRecord.uid) >= 0) {
+      await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
+        probationDate: null
+      })
+    }
+  } 
+  catch (error) {
+    //tell them that their payment failed
     const msg = {
       to: parentRecord.email, // Change to your recipient
       from: 'support@lyrnwithus.com', // Change to your verified sender
       subject: 'Lyrn Lesson Payment Issue',
       text: `We tried billing your account for your upcoming lesson and it appears that we running into some issues. Unfortuanately we have to place your account
         on probabtion until your balance is resolved. Feel free to contact our office with any concerns.`,
-      html: `<strong>We tried billing your account for your upcoming lesson and it appears that we running into some issuesn. Unfortuanately we have to place your account
+      html: `<strong>We tried billing your account for your upcoming lesson and it appears that we running into some issues. Unfortuanately we have to place your account
         on probabtion until your balance is resolved. Feel free to contact our office with any concerns.</strong>`,
     }
     await sgMail.send(msg)
 
-    //place the parent on probation
+    //place the parent on probation if their balance is now < 0
     await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
       probationDate: new Date().getTime()
     })
 
-     // We want to capture errors and render them in a user-friendly way, while
-     // still logging an exception with StackDriver
-     functions.logger.log(error);
-     await snap.ref.set({ 
+    // We want to capture errors and render them in a user-friendly way, while
+    // still logging an exception with StackDriver
+    functions.logger.log(error);
+    await snap.ref.set({ 
         error: userFacingMessage(error),
         status: 'error'
       }, { merge: true });
-     await reportError(error, { user: context.params.userId });
-   }
- });
+    await reportError(error, { user: context.params.userId });
+  }
+});
 
 // [END chargecustomer]
 
@@ -278,4 +285,42 @@ function zeroDecimalCurrency(amount, currency) {
     }
   }
   return zeroDecimalCurrency;
+}
+
+function getUserBalance(userUID) {
+  return Promise.all([
+    admin.firestore().collection('stripe_customers').doc(userUID).collection('payments').get(),
+    admin.firestore().collection('stripe_customers').doc(userUID).collection('charges').get()
+  ])
+  .then(result => {
+    let payments, charges;
+    [payments, charges] = result;
+
+    let paymentAmount = 0;
+    let chargeAmount = 0;
+    payments.forEach(paymentDoc => {
+      if (paymentDoc.data().status == 'succeeded') {
+        paymentAmount += paymentDoc.data().amount;
+      }
+    })
+    charges.forEach(chargeDoc => {
+      chargeAmount += chargeDoc.data().amount;
+    })
+
+    const balance = paymentAmount - chargeAmount;
+    return balance;
+  })
+}
+
+function paymentSuccessfulBalanceNonNegativeEmail(parentEmail, paymentAmount, paymentCurrency) {
+  const msg = {
+    to: parentEmail, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn Lesson Payment',
+    text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
+      For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
+    html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
+      For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
+  }
+  return sgMail.send(msg)
 }

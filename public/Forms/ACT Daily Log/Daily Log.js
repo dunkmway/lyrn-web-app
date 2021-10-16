@@ -892,7 +892,7 @@ function previousPassage() {
   swapTestForm(current_homework_test, current_homework_section, current_homework_passage_number)
 }
 
-function swapTestForm(test, section = undefined, passageNumber = undefined) {
+function swapTestForm(test, section = undefined, passageNumber = 1) {
   let testForm = document.getElementById('testAnswersPopup')
   let chatForm = document.getElementById('generalChat')
 
@@ -916,14 +916,17 @@ function swapTestForm(test, section = undefined, passageNumber = undefined) {
     // Change the current test, section, and passage number variables
     current_homework_test = test;
     current_homework_section = section;
-    current_homework_passage_number = passageNumber ?? 1;
+    current_homework_passage_number = passageNumber;
 
     // swap which popup is being viewed
     chatForm.style.display = 'none'
     testForm.style.display = 'flex'
 
     // Display the test form
-    updateHomeworkGraphics(test, section, (passageNumber ?? 1));
+    if (!test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']) {
+      setObjectValue([test, section, passageNumber, 'questions'], initializeEmptyPassageAnswers(test, section, passageNumber), test_answers_grading)
+    }
+    updateHomeworkGraphics(test, section, (passageNumber));
   }
 
 }
@@ -1192,6 +1195,14 @@ function openPracticeTest(test, section, passageNumber, element = undefined) {
 }
 
 function updatePracticeGraphics(test, section, passageNumber) {
+  console.log(test_answers_grading[test][section])
+  const answerOptionsFourOdd = ['A', 'B', 'C', 'D'];
+  const answerOptionsFourEven = ['F', 'G', 'H', 'J'];
+  const answerOptionsFiveOdd = ['A', 'B', 'C', 'D', 'E'];
+  const answerOptionsFiveEven = ['F', 'G', 'H', 'J', 'K'];
+
+  const fourOptionSections = ['english', 'reading', 'science'];
+  const fiveOptionSections = ['math'];
 
   // Get a list of all the answers for the given section
   let allAnswers = test_answers_data[test][section + "Answers"];
@@ -1211,18 +1222,69 @@ function updatePracticeGraphics(test, section, passageNumber) {
 
   // Display the answers, (color them too if needed)
   for (let answer = 0; answer < passageAnswers.length; answer++) {
-    ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
-    passage.appendChild(ele);
-    ele.setAttribute("data-question", passageNumbers[answer]);
-    ele.setAttribute("data-answer", passageAnswers[answer]);
-    ele.classList.add('redOnHover')
-    if (test_answers_grading[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isWrong'] == true) {
-      ele.querySelectorAll('div')[0].classList.add('Qred')
+    //set up the answer choice depending on the test
+    
+    //four option sections
+    if (fourOptionSections.includes(section)) {
+      //get the correct question modulus options
+      const currentQuestionsAnswerOptions = passageNumbers[answer] % 2 == 1 ? answerOptionsFourOdd : answerOptionsFourEven;
+      const correctAnswerIndex = currentQuestionsAnswerOptions.indexOf(passageAnswers[answer]);
+      const selectedAnswerIndex = currentQuestionsAnswerOptions.indexOf(test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['selectedAnswer']);
+      const isGuess = test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isGuess'];
+      const onclickAnswerCallback = (answerOptionIndex) => {return `answerClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', '${currentQuestionsAnswerOptions[answerOptionIndex]}', '${passageAnswers[answer]}', this)`};
+      const onclickGuessCallback = `guessClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', this)`;
+
+      let ele = createElements(
+        ['div', 'div', 'div', 'div', 'div'],
+        [['popupValue', isGuess ? 'selected': null], ['popupAnswer', correctAnswerIndex == 0 ? 'correct' : null, selectedAnswerIndex == 0 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 1 ? 'correct' : null, selectedAnswerIndex == 1 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 2 ? 'correct' : null, selectedAnswerIndex == 2 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 3 ? 'correct' : null, selectedAnswerIndex == 3 ? 'selected' : null]],
+        [['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick']],
+        [[onclickGuessCallback], [onclickAnswerCallback(0)], [onclickAnswerCallback(1)], [onclickAnswerCallback(2)], [onclickAnswerCallback(3)]],
+        [(passageNumbers[answer]).toString() + ':', currentQuestionsAnswerOptions[0], currentQuestionsAnswerOptions[1], currentQuestionsAnswerOptions[2], currentQuestionsAnswerOptions[3]],
+        ["input-row-center", "cursor"]
+      )
+
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer]);
+      ele.setAttribute("data-answer", passageAnswers[answer]);
+    }
+    //five option sections
+    else if (fiveOptionSections.includes(section)) {
+      //get the correct question modulus options
+      const currentQuestionsAnswerOptions = passageNumbers[answer] % 2 == 1 ? answerOptionsFiveOdd : answerOptionsFiveEven;
+      const correctAnswerIndex = currentQuestionsAnswerOptions.indexOf(passageAnswers[answer]);
+      const selectedAnswerIndex = currentQuestionsAnswerOptions.indexOf(test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['selectedAnswer']);
+      const isGuess = test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isGuess'];
+      const onclickAnswerCallback = (answerOptionIndex) => {return `answerClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', '${currentQuestionsAnswerOptions[answerOptionIndex]}', '${passageAnswers[answer]}', this)`};
+      const onclickGuessCallback = `guessClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', this)`;
+
+      let ele = createElements(
+        ['div', 'div', 'div', 'div', 'div', 'div'],
+        [['popupValue', isGuess ? 'selected': null], ['popupAnswer', correctAnswerIndex == 0 ? 'correct' : null, selectedAnswerIndex == 0 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 1 ? 'correct' : null, selectedAnswerIndex == 1 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 2 ? 'correct' : null, selectedAnswerIndex == 2 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 3 ? 'correct' : null, selectedAnswerIndex == 3 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 4 ? 'correct' : null, selectedAnswerIndex == 4 ? 'selected' : null]],
+        [['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick']],
+        [[onclickGuessCallback], [onclickAnswerCallback(0)], [onclickAnswerCallback(1)], [onclickAnswerCallback(2)], [onclickAnswerCallback(3)], [onclickAnswerCallback(4)]],
+        [(passageNumbers[answer]).toString() + ':', currentQuestionsAnswerOptions[0], currentQuestionsAnswerOptions[1], currentQuestionsAnswerOptions[2], currentQuestionsAnswerOptions[3], currentQuestionsAnswerOptions[4]],
+        ["input-row-center", "cursor"]
+      )
+
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer]);
+      ele.setAttribute("data-answer", passageAnswers[answer]);
+    }
+    else {
+      console.warn('This section is not formmatted properly: ' + section);
     }
   }
 }
 
 function updateHomeworkGraphics(test, section, passageNumber = 1) {
+  console.log(test_answers_grading[test][section])
+  const answerOptionsFourOdd = ['A', 'B', 'C', 'D'];
+  const answerOptionsFourEven = ['F', 'G', 'H', 'J'];
+  const answerOptionsFiveOdd = ['A', 'B', 'C', 'D', 'E'];
+  const answerOptionsFiveEven = ['F', 'G', 'H', 'J', 'K'];
+
+  const fourOptionSections = ['english', 'reading', 'science'];
+  const fiveOptionSections = ['math'];
 
   // Check to see if either left arrow or right arrows need to be hidden
   let lastPassageNumber = test_answers_data[test][section + "Answers"][test_answers_data[test][section + "Answers"].length - 1]["passageNumber"]
@@ -1250,18 +1312,157 @@ function updateHomeworkGraphics(test, section, passageNumber = 1) {
     }
   }
 
+  // // Display the answers, (color them too if needed)
+  // let passage = document.getElementById("passage");
+  // for (let answer = 0; answer < passageAnswers.length; answer++) {
+  //   ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
+  //   passage.appendChild(ele);
+  //   ele.setAttribute("data-question", passageNumbers[answer]);
+  //   ele.setAttribute("data-answer", passageAnswers[answer]);
+  //   ele.classList.add('redOnHover')
+  //   if (test_answers_grading[test][section]['questions'][passageNumbers[answer] - 1]['isWrong'] == true) {
+  //     ele.querySelectorAll('div')[0].classList.add('Qred')
+  //   }
+  // }
+
   // Display the answers, (color them too if needed)
-  let passage = document.getElementById("passage");
   for (let answer = 0; answer < passageAnswers.length; answer++) {
-    ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
-    passage.appendChild(ele);
-    ele.setAttribute("data-question", passageNumbers[answer]);
-    ele.setAttribute("data-answer", passageAnswers[answer]);
-    ele.classList.add('redOnHover')
-    if (test_answers_grading[test][section]['questions'][passageNumbers[answer] - 1]['isWrong'] == true) {
-      ele.querySelectorAll('div')[0].classList.add('Qred')
+    //set up the answer choice depending on the test
+    
+    //four option sections
+    if (fourOptionSections.includes(section)) {
+      //get the correct question modulus options
+      const currentQuestionsAnswerOptions = passageNumbers[answer] % 2 == 1 ? answerOptionsFourOdd : answerOptionsFourEven;
+      const correctAnswerIndex = currentQuestionsAnswerOptions.indexOf(passageAnswers[answer]);
+      const selectedAnswerIndex = currentQuestionsAnswerOptions.indexOf(test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['selectedAnswer']);
+      const isGuess = test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isGuess'];
+      const onclickAnswerCallback = (answerOptionIndex) => {return `answerClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', '${currentQuestionsAnswerOptions[answerOptionIndex]}', '${passageAnswers[answer]}', this)`};
+      const onclickGuessCallback = `guessClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', this)`;
+
+      let ele = createElements(
+        ['div', 'div', 'div', 'div', 'div'],
+        [['popupValue', isGuess ? 'selected': null], ['popupAnswer', correctAnswerIndex == 0 ? 'correct' : null, selectedAnswerIndex == 0 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 1 ? 'correct' : null, selectedAnswerIndex == 1 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 2 ? 'correct' : null, selectedAnswerIndex == 2 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 3 ? 'correct' : null, selectedAnswerIndex == 3 ? 'selected' : null]],
+        [['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick']],
+        [[onclickGuessCallback], [onclickAnswerCallback(0)], [onclickAnswerCallback(1)], [onclickAnswerCallback(2)], [onclickAnswerCallback(3)]],
+        [(passageNumbers[answer]).toString() + ':', currentQuestionsAnswerOptions[0], currentQuestionsAnswerOptions[1], currentQuestionsAnswerOptions[2], currentQuestionsAnswerOptions[3]],
+        ["input-row-center", "cursor"]
+      )
+
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer]);
+      ele.setAttribute("data-answer", passageAnswers[answer]);
+    }
+    //five option sections
+    else if (fiveOptionSections.includes(section)) {
+      //get the correct question modulus options
+      const currentQuestionsAnswerOptions = passageNumbers[answer] % 2 == 1 ? answerOptionsFiveOdd : answerOptionsFiveEven;
+      const correctAnswerIndex = currentQuestionsAnswerOptions.indexOf(passageAnswers[answer]);
+      const selectedAnswerIndex = currentQuestionsAnswerOptions.indexOf(test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['selectedAnswer']);
+      const isGuess = test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[answer]?.['isGuess'];
+      const onclickAnswerCallback = (answerOptionIndex) => {return `answerClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', '${currentQuestionsAnswerOptions[answerOptionIndex]}', '${passageAnswers[answer]}', this)`};
+      const onclickGuessCallback = `guessClickCallback('${test}', '${section}', '${passageNumber}', '${answer}', this)`;
+
+      let ele = createElements(
+        ['div', 'div', 'div', 'div', 'div', 'div'],
+        [['popupValue', isGuess ? 'selected': null], ['popupAnswer', correctAnswerIndex == 0 ? 'correct' : null, selectedAnswerIndex == 0 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 1 ? 'correct' : null, selectedAnswerIndex == 1 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 2 ? 'correct' : null, selectedAnswerIndex == 2 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 3 ? 'correct' : null, selectedAnswerIndex == 3 ? 'selected' : null], ['popupAnswer', correctAnswerIndex == 4 ? 'correct' : null, selectedAnswerIndex == 4 ? 'selected' : null]],
+        [['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick'], ['onclick']],
+        [[onclickGuessCallback], [onclickAnswerCallback(0)], [onclickAnswerCallback(1)], [onclickAnswerCallback(2)], [onclickAnswerCallback(3)], [onclickAnswerCallback(4)]],
+        [(passageNumbers[answer]).toString() + ':', currentQuestionsAnswerOptions[0], currentQuestionsAnswerOptions[1], currentQuestionsAnswerOptions[2], currentQuestionsAnswerOptions[3], currentQuestionsAnswerOptions[4]],
+        ["input-row-center", "cursor"]
+      )
+
+      passage.appendChild(ele);
+      ele.setAttribute("data-question", passageNumbers[answer]);
+      ele.setAttribute("data-answer", passageAnswers[answer]);
+    }
+    else {
+      console.warn('This section is not formmatted properly: ' + section);
     }
   }
+}
+
+/**
+ * Callback for a click event on an answer for a test.
+ * Update the test answer object and visually select the user selected answer
+ * @param {String} test test id
+ * @param {String} section section id
+ * @param {String} passageNumber passage id
+ * @param {Number} questionIndex question index
+ * @param {String} selectedAnswer answer selected by user
+ * @param {String} correctAnswer correct anser for this problem
+ * @param {HTMLElement} selectedElement the element that the callback is being called for
+ */
+function answerClickCallback(test, section, passageNumber, questionIndex, selectedAnswer, correctAnswer, selectedElement) {
+  //we are passing all strings into the parameters since we are using a string literal to add this callback as an onclick event attribute to an html element
+  //convert this index back to a number
+  questionIndex = Number(questionIndex);
+
+  //toggle functionality
+  if (test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[questionIndex]?.selectedAnswer == selectedAnswer) {
+    //already selected this answer
+
+    //update the test answers object
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].selectedAnswer = null;
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].isWrong = null;
+
+    //visually unselect this elements siblings
+    unselectSiblingsByClass(selectedElement, '.popupAnswer');
+  }
+  else {
+    //this answer option is not currently selected
+
+    //update the test answers object
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].selectedAnswer = selectedAnswer;
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].isWrong = (selectedAnswer != correctAnswer);
+
+    //visually unselect this elements siblings
+    unselectSiblingsByClass(selectedElement, '.popupAnswer');
+
+    //visually select the option
+    selectedElement.classList.add('selected');
+  }
+
+  console.log(test_answers_grading[test][section][passageNumber]['questions'][questionIndex])
+}
+
+/**
+ * Callback for a click event on an guess for a test.
+ * Update the test answer object and visually select question number to indicate a guess
+ * @param {String} test test id
+ * @param {String} section section id
+ * @param {String} passageNumber passage id
+ * @param {Number} questionIndex question index
+ * @param {HTMLElement} selectedElement the element that the callback is being called for
+ */
+ function guessClickCallback(test, section, passageNumber, questionIndex, selectedElement) {
+  //we are passing all strings into the parameters since we are using a string literal to add this callback as an onclick event attribute to an html element
+  //convert this index back to a number
+  questionIndex = Number(questionIndex);
+
+  //update the test answers object
+  if (test_answers_grading?.[test]?.[section]?.[passageNumber]?.['questions']?.[questionIndex]?.isGuess) {
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].isGuess = false;
+    //visually unselect the option
+    selectedElement.classList.remove('selected');
+  }
+  else {
+    test_answers_grading[test][section][passageNumber]['questions'][questionIndex].isGuess = true;
+    //visually select the option
+    selectedElement.classList.add('selected');
+  }
+
+  console.log(test_answers_grading[test][section][passageNumber]['questions'][questionIndex])
+}
+
+/**
+ * remove the 'selected' class from this child's parent's children that have the same class names
+ * @param {HTMLElement} child element whose siblings (inclusiding itself) will be unselected
+ * @param {String} classNames class names that should be queryed for within the parent (use css naming convention)
+ */
+function unselectSiblingsByClass(child, classNames = '*') {
+  child.parentNode.querySelectorAll(classNames).forEach(sibling => {
+    sibling.classList.remove('selected');
+  })
 }
 
 function resetAnswers() {
@@ -1400,10 +1601,10 @@ function toggleHomeworkPopup() {
 }
 
 function gradeHomework(status) {
-
-  // grab the test and section
+  // grab the test, section, and num passages
   const test = current_homework_test;
   const section = current_homework_section;
+  const numPassages = test_answers_data[test][section + 'Answers'][test_answers_data[test][section + 'Answers'].length - 1]['passageNumber'];
   const tempStatus = test_answers_grading[test]?.[section]?.['status']
 
   // Set the status bar as loading
@@ -1421,9 +1622,22 @@ function gradeHomework(status) {
     setObjectValue([test, section, 'status'], status, test_answers_grading)
   }
 
+  //go through all of the passages and combine them
+  //FIXME: can't do this since the code later will read this as separate passages and fill in the detail from there. Maybe redo for homework?
+  //What would be better is to save homework as separate passages and combine them after?
+  //different idea: make the practice test all combine into one test and section and not separated by passage. Just have all of the passages together.
+  test_answers_grading[test][section]['questions'] = [];
+  for (let i = 1; i <= numPassages; i++) {
+    test_answers_grading[test][section]['questions'] = test_answers_grading[test][section]['questions'].concat(test_answers_grading[test][section][i.toString()]['questions']);
+  }
+
+  //this should be the whole test
+  console.log(test_answers_grading[test][section]['questions'])
+
   // Calculate how many questions they missed and got correct
   let totalMissed = test_answers_grading[test][section]['questions'].filter(function(val) { return val.isWrong == true} ).length;
   let score = test_answers_grading[test][section]['questions'].length - totalMissed;
+  console.log(score)
   setObjectValue([test, section, 'score'], score, test_answers_grading)
 
   // Calculate the scaled score
@@ -1940,8 +2154,10 @@ function initializeEmptyPassageAnswers(test, section, passageNumber) {
       }
     }
     studentQuestions.push({
-      'isWrong' : false,
-      'question' : questionNumber
+      'isWrong' : null,
+      'question' : questionNumber,
+      'selectedAnswer' : null,
+      'isGuess' : null
     })
   }
 
