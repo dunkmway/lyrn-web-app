@@ -382,43 +382,80 @@ nav a:hover {
   position: relative;
   min-height: 85vh;
   padding-left: 3em;
+  background-color: var(--color-secondary);
 }
 
-/* .about details::before {
-  content: '';
-  position: absolute;
-  left: -2.5em;
-  top: -.25em;
-  width: 2em;
-  height: 2em;
-  display: inline-block;
-  background-size: cover;
-} */
-
-.about > div {
+.about .details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  border-radius: .5em;
+  padding: .5em;
   position: relative;
+  /* overflow: hidden; */
 }
 
-.about > div::before {
+.about .summary {
+  width: 100%;
+  cursor: pointer;
+  color: #C4C4C4;
+}
+
+.about .about_toggle:checked ~ .summary {
+  color: inherit;
+}
+
+.about .summary h3 {
+  margin: 0;
+}
+
+.about .about_toggle {
+  position: absolute;
+  z-index: -1;
+}
+
+.about .content {
+  max-height: 0px;
+  overflow: hidden;
+}
+
+.about .content * {
+  opacity: 0;
+}
+
+.about .about_toggle:checked ~ .content {
+  margin-top: 1em;
+  max-height: 100vh;
+  transition: max-height 800ms ease-in-out;
+}
+
+.about .about_toggle:checked ~ .content * {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out 200ms;
+}
+
+.about > .details::before {
   content: '';
   position: absolute;
   left: -2.5em;
-  top: -.25em;
+  top: .25em;
   width: 2em;
   height: 2em;
   display: inline-block;
   background-size: cover;
+  background-position: 0 0;
 }
 
-.about > div:nth-child(1)::before {
+.about > .details:nth-child(1)::before {
   background-image: url('Images/Lyrn_Green_Check.png');
 }
 
-.about > div:nth-child(2)::before {
+.about > .details:nth-child(2)::before {
   background-image: url('Images/Lyrn_Blue_Check.png');
 }
 
-.about > div:nth-child(3)::before {
+.about > .details:nth-child(3)::before {
   background-image: url('Images/Lyrn_Red_Check.png');
 }
 
@@ -430,25 +467,24 @@ nav a:hover {
   content: '';
   background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
   height: 4px;
+  width: 100%;
   display: block;
   margin: 1em 0;
   animation: slider 10s linear;
-}
-
-.about details:hover .content::after {
   animation-play-state: paused;
 }
 
-.about div:nth-child(1) details[open] img {
-  opacity: 1;
+.about .content.remove::after {
+  content: none;
 }
 
-.about div:nth-child(2) details[open] img {
-  opacity: 1;
+
+.about .about_toggle:checked~.content::after {
+  animation-play-state: running;
 }
 
-.about div:nth-child(3) details[open] img {
-  opacity: 1;
+.about .details:hover .content::after {
+  animation-play-state: paused;
 }
 
 @keyframes slider {
@@ -462,31 +498,27 @@ nav a:hover {
 
 @media screen and (min-width: 800px) {
 
-  .about > div {
+  .about > .details {
     max-width: 40%;
     position: relative;
     left: 50%;
   }
 
-  .about img {
-    opacity: 0;
-    padding: 1em 0;
+  .about > .details img {
     position: absolute;
-    left: -120%;
-
-    transition: opacity 500ms ease-in;
+    left: -110%;
   }
 
-  .about > div:nth-child(1) img {
+  .about > .details:nth-child(1) img {
     top: -50%;
   }
   
-  .about > div:nth-child(2) img {
-    top: -120%;
+  .about > .details:nth-child(2) img {
+    top: -100%;
   }
   
-  .about > div:nth-child(3) img {
-    top: -180%;
+  .about > .details:nth-child(3) img {
+    top: -120%;
   }
 }
 
@@ -726,29 +758,25 @@ nav a:hover {
   color: var(--color-primary);
 }
 
-.faq details {
+.faq .details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   background-color: var(--color-secondary);
   border-radius: .5em;
   margin: 1em 0;
-}
-
-.faq summary {
+  padding: 1em;
   position: relative;
-  display: block;
-  padding: .75em;
-  padding-right: 2.5em;
+  overflow: hidden;
 }
 
-.faq summary h3 {
-  margin: 0;
+.faq .summary {
+  width: 100%;
+  cursor: pointer;
 }
 
-.faq details[open] > summary::after {
-  transform: rotate(225deg);
-}
-
-.faq summary::after {
+.faq .summary::after {
   content: "";
   border: 2px solid black;
   border-top-style: none;
@@ -758,19 +786,50 @@ nav a:hover {
   display: block;
   position: absolute;
   right: 1em;
-  top: 30%;
+  top: 1.3em;
   pointer-events: none;
   transform: rotate(45deg);
   transform-origin: center;
-  transition: transform 500ms linear;
+  transition: transform 250ms linear;
 }
 
-.faq details p {
-  padding: 0em .75em .75em .75em;
+.faq .summary h3 {
+  margin: 0;
 }
+
+.faq .faq_toggle {
+  position: absolute;
+  z-index: -1;
+}
+
+.faq .content {
+  background-color: var(--color-secondary);
+  overflow: hidden;
+  max-height: 0px;
+}
+
+.faq .content * {
+  opacity: 0;
+}
+
+.faq .faq_toggle:checked ~ .content {
+  margin-top: 1em;
+  max-height: 400px;
+  transition: max-height 800ms ease-in-out;
+}
+
+.faq .faq_toggle:checked ~ .content * {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out 200ms;
+}
+
+.faq .faq_toggle:checked ~ .summary::after {
+  transform: rotate(225deg);
+}
+
 
 @media screen and (min-width: 800px) {
-  .faq details {
+  .faq .details {
     width: 70%;
   }
 }

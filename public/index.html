@@ -7,7 +7,7 @@
 
     <link href="index.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
-    <script src="Site Templates/details_accordian.js" defer></script>
+    <!-- <script src="Site Templates/details_accordian.js" defer></script> -->
     <script src="index.js" defer></script>
   </head>
 
@@ -55,35 +55,38 @@
     </section>
 
     <section class="about">
-      <div>
-        <details open>
-          <summary><h3>Not Just Personal. Curated</h3></summary>
-          <div class="content">
-            <p>Our courses are designed to give students specific topics to focus on with our professional tutors,
-              so that your student recieves not just 1 on 1 tutoring but a unique, curated education.
-              Each time a student completes a Lyrn course, their next visit will be a completely new and educational experience.
-            </p>
-            <img src="Images/Lyrn_About_1.png" alt="General Tutoring">
-          </div>
-        </details>
+      <div class="details">
+        <input type="checkbox" name="about_1" id="about_1" class="about_toggle" checked>
+        <label for="about_1" class="summary"><h3>Not Just Personal. Curated</h3></label>
+        <div class="content">
+          <p>Our courses are designed to give students specific topics to focus on with our professional tutors,
+            so that your student recieves not just 1 on 1 tutoring but a unique, curated education.
+            Each time a student completes a Lyrn course, their next visit will be a completely new and educational experience.
+          </p>
+          <img src="Images/Lyrn_About_1.png" alt="General Tutoring">
+        </div>
       </div>
-      <div>
-        <details>
-          <summary><h3>Calculates the Perfect Math Plan</h3></summary>
-          <div class="content">
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel non tempora mollitia nemo. Veritatis, quas reiciendis vero laboriosam expedita soluta omnis quibusdam temporibus nisi porro. Aliquid necessitatibus cupiditate rerum consequuntur.</p>
-            <img src="Images/Lyrn_About_2.png" alt="Math Tutoring Plan">
-          </div>
-        </details>
+      <div class="details">
+        <input type="checkbox" name="about_2" id="about_2" class="about_toggle">
+        <label for="about_2" class="summary"><h3>Calculates the Perfect Math Plan</h3></label>
+        <div class="content">
+          <p>Our courses are designed to give students specific topics to focus on with our professional tutors,
+            so that your student recieves not just 1 on 1 tutoring but a unique, curated education.
+            Each time a student completes a Lyrn course, their next visit will be a completely new and educational experience.
+          </p>
+          <img src="Images/Lyrn_About_2.png" alt="Math Tutoring Plan">
+        </div>
       </div>
-      <div>
-        <details>
-          <summary><h3>Conquer Your English Homework</h3></summary>
-          <div class="content">
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Et eos assumenda, perferendis a repellendus, inventore beatae dolore eaque minus corporis odit temporibus deserunt magni praesentium dolor vitae cumque nisi dicta.</p>
-            <img src="Images/Lyrn_About_3.png" alt="English Tutoring Plan">
-          </div>
-        </details>
+      <div class="details">
+        <input type="checkbox" name="about_3" id="about_3" class="about_toggle">
+        <label for="about_3" class="summary"><h3>Conquer Your English Homework</h3></label>
+        <div class="content">
+          <p>Our courses are designed to give students specific topics to focus on with our professional tutors,
+            so that your student recieves not just 1 on 1 tutoring but a unique, curated education.
+            Each time a student completes a Lyrn course, their next visit will be a completely new and educational experience.
+          </p>
+          <img src="Images/Lyrn_About_3.png" alt="English Tutoring Plan">
+        </div>
       </div>
     </section>
 
@@ -158,42 +161,48 @@
 
     <section class="faq">
       <h2 class="title">FAQ</h2>
-      <details>
-        <summary><h3>How long is a typical program?</h3></summary>
+      <div class="details">
+        <input type="checkbox" name="faq_1" id="faq_1" class="faq_toggle">
+        <label for="faq_1" class="summary"><h3>How long is a typical program?</h3></label>
         <div class="content">
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio ex aspernatur maiores inventore voluptatum praesentium libero, asperiores eos quod voluptates.</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
-      <details>
-        <summary><h3>What is a good ACT score?</h3></summary>
+      </div>
+      <div class="details">
+        <input type="checkbox" name="faq_2" id="faq_2" class="faq_toggle">
+        <label for="faq_2" class="summary"><h3>What is a good ACT score?</h3></label>
         <div class="content">
-          <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam facilis dicta similique asperiores? Delectus facilis odio repellat cupiditate corporis blanditiis.</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
-      <details>
-        <summary><h3>When should I take the ACT?</h3></summary>
+      </div>
+      <div class="details">
+        <input type="checkbox" name="faq_3" id="faq_3" class="faq_toggle">
+        <label for="faq_3" class="summary"><h3>When should I take the ACT?</h3></label>
         <div class="content">
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat nemo soluta dolor. Tempore quae at, aspernatur praesentium perferendis nihil dicta.</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
-      <details>
-        <summary><h3>How many times should I take the ACT?</h3></summary>
+      </div>
+      <div class="details">
+        <input type="checkbox" name="faq_4" id="faq_4" class="faq_toggle">
+        <label for="faq_4" class="summary"><h3>How many times should I take the ACT?</h3></label>
         <div class="content">
-          <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Pariatur earum maxime recusandae aliquid assumenda at perspiciatis amet vel ex. Provident?</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
-      <details>
-        <summary><h3>Can I send just my best section scores?</h3></summary>
+      </div>
+      <div class="details">
+        <input type="checkbox" name="faq_5" id="faq_5" class="faq_toggle">
+        <label for="faq_5" class="summary"><h3>Can I send just my best section scores?</h3></label>
         <div class="content">
-          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquam sint vel molestiae quidem harum numquam voluptas ipsam doloribus, alias enim.</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
-      <details>
-        <summary><h3>Do schools automatically see my scores?</h3></summary>
+      </div>
+      <div class="details">
+        <input type="checkbox" name="faq_6" id="faq_6" class="faq_toggle">
+        <label for="faq_6" class="summary"><h3>Do schools automatically see my scores?</h3></label>
         <div class="content">
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor tempora autem quis iure, maiores provident? Vitae, possimus nam? Fuga, corrupti!</p>
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus magni ducimus provident exercitationem recusandae reprehenderit, earum porro voluptatum, aliquid doloremque cupiditate sapiente nulla iusto deleniti optio culpa rerum ratione consequuntur?</p>
         </div>
-      </details>
+      </div>
     </section>
 
     <section class="topics"></section>
