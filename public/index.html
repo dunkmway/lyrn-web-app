@@ -3,96 +3,237 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Index: Redirecting---></title>
+    <title>Lyrn</title>
 
-    <!-- update the version number as needed -->
-    <!-- <script defer src="/__/firebase/8.2.7/firebase-app.js"></script> -->
-    <!-- include only the Firebase features as you need -->
-    <!-- <script defer src="/__/firebase/8.2.7/firebase-auth.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-database.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-firestore.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-functions.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-messaging.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-storage.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-analytics.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-remote-config.js"></script>
-    <script defer src="/__/firebase/8.2.7/firebase-performance.js"></script> -->
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <!-- <script defer src="/__/firebase/init.js?useEmulator=true"></script> -->
-
-    <!-- <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style> -->
-    <script>window.location.href = "Sign-In/Sign-In.html";</script>
+    <link href="index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+    <script src="Site Templates/details_accordian.js" defer></script>
+    <script src="index.js" defer></script>
   </head>
+
   <body>
-    <!-- <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
-    <button onclick="goToSignIn()">Go to the sign in page!</button>
+    <header>
+      <img class="logo" src="Images/Lyrn_Logo.png" alt="lyrn logo">
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <li><a href="#">Tutoring</a></li>
+          <li><a href="#">Our Story</a></li>
+          <li><a href="Sign-In/Sign-In.html">Parent Portal</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a class="enroll" href="#">Enroll</a></li>
+        </ul>
+      </nav>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+    </header>
 
-    <script>
-      function goToSignIn() {
-        console.log("Pressed!")
-        window.location.href = "Sign-In/Sign-In.html";
-      }
-    </script>
+    <main>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    </main>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script> -->
+    <section class="hero">
+      <div class="hero__intro">
+        <h1>Get Into Your Dream College</h1>
+        <h4>ACT and Subject Tutoring with Adaptive Learning Intelligence</h4>
+        <div><a class="enroll">Enroll</a></div>
+      </div>
+      <div class="hero__body">
+          <img src="Images/Lyrn_hero_section_image.png">
+      </div>
+    </section>
+
+    <section class="method">
+      <h5 class="title">The Lyrn Method</h5>
+      <h2 class="subtitle">Adaptively Intelligent Courses</h3>
+      <p class="description">Whether you're prepping for an important test, 
+        or just want to get ahead on your homework, 
+        Lyrn can help you ace your subject with a highly unique tutoring plan made just for you.
+      </p>
+      <img src="Images/Lyrn_method_section_image.png">
+    </section>
+
+    <section class="about">
+      <div>
+        <details open>
+          <summary><h3>Not Just Personal. Curated</h3></summary>
+          <div class="content">
+            <p>Our courses are designed to give students specific topics to focus on with our professional tutors,
+              so that your student recieves not just 1 on 1 tutoring but a unique, curated education.
+              Each time a student completes a Lyrn course, their next visit will be a completely new and educational experience.
+            </p>
+            <img src="Images/Lyrn_About_1.png" alt="General Tutoring">
+          </div>
+        </details>
+      </div>
+      <div>
+        <details>
+          <summary><h3>Calculates the Perfect Math Plan</h3></summary>
+          <div class="content">
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel non tempora mollitia nemo. Veritatis, quas reiciendis vero laboriosam expedita soluta omnis quibusdam temporibus nisi porro. Aliquid necessitatibus cupiditate rerum consequuntur.</p>
+            <img src="Images/Lyrn_About_2.png" alt="Math Tutoring Plan">
+          </div>
+        </details>
+      </div>
+      <div>
+        <details>
+          <summary><h3>Conquer Your English Homework</h3></summary>
+          <div class="content">
+            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Et eos assumenda, perferendis a repellendus, inventore beatae dolore eaque minus corporis odit temporibus deserunt magni praesentium dolor vitae cumque nisi dicta.</p>
+            <img src="Images/Lyrn_About_3.png" alt="English Tutoring Plan">
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="tutors">
+      <h5 class="title">Lyrn Qualified Tutors</h5>
+      <p class="description">All of our tutors have been certified to teach the ACT and have recieved exeptional grades
+        in all college level subject matter courses.
+      </p>
+      <div class="breakdown">
+        <div>
+          <img src="Images/logo-act-blue-300.png" alt="act logo">
+        </div>
+        <div>
+          <h2>33+</h2>
+          <h5>ACT SCORES</h5>
+        </div>
+        <div>
+          <h2>3.9</h2>
+          <h5>COLLEGE GPA</h5>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact">
+      <div class="filter"></div>
+      <div class="contact__intro">
+        <h2>Next Steps</h2>
+        <h4>Meet with your tutors and select the help you need. Then take the initial
+          Lyrn quiz to build your personalized tutoring just for you.
+        </h4>
+      </div>
+      <div class="contact-form">
+        <h3>Schedule Your Meeting</h3>
+        <h5>Schedule your Enrollment Conference and recieve your Adaptive Learning Course</h5>
+        <form action="" id="contactForm">
+          <label for="name">First and Last Name</label>
+          <input type="text" name="name" id="name">
+          <label for="email">Email Address</label>
+          <input type="email" name="email" id="email">
+          <label for="phoneNumber">Phone Number</label>
+          <input type="text" name="number" id="phoneNumber">
+          <label for="course">Subject</label>
+          <div class="select-wrapper">
+            <select name="course" id="course" required>
+              <option value="" disabled selected>Courses</option>
+              <option value="act">ACT Test Prep</option>
+              <option value="ap">AP Exam Prep</option>
+              <option value="subjectTutoring">Subject Tutoring</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <label for="notes">Notes</label>
+          <textarea name="notes" id="notes"></textarea>
+          <input type="submit" value="Enroll" class="enroll">
+        </form>
+      </div>
+    </section>
+
+    <section class="help">
+      <h2 class="title">I need help with</h2>
+      <div class="course-grid">
+        <a href="#" class="course-item"><h4>ACT Test Prep</h4></a>
+        <a href="#" class="course-item"><h4>Physics Homework</h4></a>
+        <a href="#" class="course-item"><h4>Math Homework</h4></a>
+        <a href="#" class="course-item"><h4>Reading Homework</h4></a>
+        <a href="#" class="course-item"><h4>English Homework</h4></a>
+        <a href="#" class="course-item"><h4>AP Test Prep</h4></a>
+        <a href="#" class="course-item"><h4>Chemistry Homework</h4></a>
+        <a href="#" class="course-item"><h4>Other Homework</h4></a>
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2 class="title">FAQ</h2>
+      <details>
+        <summary><h3>How long is a typical program?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio ex aspernatur maiores inventore voluptatum praesentium libero, asperiores eos quod voluptates.</p>
+        </div>
+      </details>
+      <details>
+        <summary><h3>What is a good ACT score?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ullam facilis dicta similique asperiores? Delectus facilis odio repellat cupiditate corporis blanditiis.</p>
+        </div>
+      </details>
+      <details>
+        <summary><h3>When should I take the ACT?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat nemo soluta dolor. Tempore quae at, aspernatur praesentium perferendis nihil dicta.</p>
+        </div>
+      </details>
+      <details>
+        <summary><h3>How many times should I take the ACT?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Pariatur earum maxime recusandae aliquid assumenda at perspiciatis amet vel ex. Provident?</p>
+        </div>
+      </details>
+      <details>
+        <summary><h3>Can I send just my best section scores?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquam sint vel molestiae quidem harum numquam voluptas ipsam doloribus, alias enim.</p>
+        </div>
+      </details>
+      <details>
+        <summary><h3>Do schools automatically see my scores?</h3></summary>
+        <div class="content">
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor tempora autem quis iure, maiores provident? Vitae, possimus nam? Fuga, corrupti!</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="topics"></section>
+
+    <footer>
+      <div class="links">
+        <div>
+          <div class="logo-box">
+            <img src="Images/Lyrn_Logo.png" alt="Lyrn Logo">
+          </div>
+        </div>
+        <div>
+          <h3>Site Map</h3>
+          <ul>
+            <li><a href="">Home</a></li>
+            <li><a href="">About Lyrn</a></li>
+            <li><a href="">Enrollment</a></li>
+            <li><a href="">Parent Portal</a></li>
+            <li><a href="">Pricing</a></li>
+            <li><a href="">Log In</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Social</h3>
+          <ul>
+            <li><a href="">Instagram</a></li>
+            <li><a href="">Facebook</a></li>
+            <li><a href="">LinkedIn</a></li>
+            <li><a href="">TikTok</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contact Us</h3>
+          <ul>
+            <li><a href="">Email Us</a></li>
+            <li><a href="">801-555-555</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="copyright">Copyright © 2021 Advanced Education Solutions LLC. All rights reserved.</p>
+    </footer>
   </body>
-</html>

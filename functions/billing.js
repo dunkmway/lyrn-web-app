@@ -64,74 +64,50 @@ exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('Ameri
     .then(paymentMethodQuery => {
       if (paymentMethodQuery.size > 0) {
         //the parent does have a card on file
-        //calculate their balance
-        return Promise.all([
-          admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').get(),
-          admin.firestore().collection('stripe_customers').doc(parentUID).collection('charges').get()
-        ])
-        .then(result => {
-          let payments, charges;
-          [payments, charges] = result;
-    
-          let paymentAmount = 0;
-          let chargeAmount = 0;
-          payments.forEach(paymentDoc => {
-            if (paymentDoc.data().status == 'succeeded') {
-              paymentAmount += paymentDoc.data().amount;
-            }
-          })
-          charges.forEach(chargeDoc => {
-            chargeAmount += chargeDoc.data().amount;
-          })
-
-          const balance = paymentAmount - chargeAmount;
-          if (balance < 0) {
-            //now charge their card by requesting a payment
-            const currency = 'usd';
-            const amount = balance * -1;
-            const data = {
-              payment_method: paymentMethodQuery.docs[0].data().id,
-              currency,
-              amount,
-              status: 'new',
-            };
-          
-            return admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').add(data); 
-          }
-          else {
-            //they have a non-negative balance so don't charge them
-            return;
-          }
-        })
+        //charge the parent if their balance is negative
+        const balance = await getUserBalance(parentUID);
+        if (balance < 0) {
+          //now charge their card by requesting a payment
+          const currency = 'usd';
+          const amount = balance * -1;
+          const data = {
+            payment_method: paymentMethodQuery.docs[0].data().id,
+            currency,
+            amount,
+            status: 'new',
+          };
+        
+          return admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').add(data); 
+        }
+        else {
+          //they have a non-negative balance so don't charge them
+          return;
+        }
       }
       //the parent does not have a card saved
       else {
-        //place the parent on probation
-        return admin.firestore().collection('stripe_customers').doc(parentUID).update({
-          probationDate: new Date().getTime()
-        })
-        .then(() => {
-          //email them and let them know
-          return admin.auth().getUser(parentUID)
-          .then(parentRecord => {
-            const msg = {
-              to: parentRecord.email, // Change to your recipient
-              from: 'support@lyrnwithus.com', // Change to your verified sender
-              subject: 'Lyrn Lesson Payment Issue',
-              text: `We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-                on probabtion until your balance is resolved. Feel free to contact our office with any concerns.`,
-              html: `<strong>We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-                on probabtion until your balance is resolved. Feel free to contact our office with any concerns.</strong>`,
-            }
-            return sgMail
-            .send(msg)
-            .then(() => {
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-          })
-        })
+        //and their balance is negative
+        if (await getUserBalance(parentUID) < 0) {
+          await setProbation(parentUID);
+          const parentRecord = await admin.auth().getUser(parentUID);
+          const msg = {
+            to: parentRecord.email, // Change to your recipient
+            from: 'support@lyrnwithus.com', // Change to your verified sender
+            subject: 'Lyrn Lesson Payment Issue',
+            text: `We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
+            on probabtion until your balance is resolved. Feel free to contact our office with any concerns and view the payment portal for more detail.
+            www.lyrnwithus.com`,
+            html: `<strong>We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
+            on probabtion until your balance is resolved. Feel free to contact our office with any concerns and view the payment portal for more detail.
+            www.lyrnwithus.com</strong>`,
+          }
+          await sgMail.send(msg)
+          return;
+        }
+        else {
+          //the parent has a non-negative balance so do nothing
+          return;
+        }
       }
     }));
   })
@@ -141,180 +117,6 @@ exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('Ameri
     console.log(error)
   })
 })
-
-
-exports.chargeAccountsTest = functions.https.onRequest(async (req, res) => {
-  //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
-  const SALTLAKE_TIME_OFFSET = 6;
-  const UTC_TO_SALTLAKE = new Date().setHours(new Date().getHours() - SALTLAKE_TIME_OFFSET);
-  const tomorrowStart = new Date(UTC_TO_SALTLAKE).setHours(24 + SALTLAKE_TIME_OFFSET,0,0,0);
-  const tomorrowEnd = new Date(UTC_TO_SALTLAKE).setHours(48 + SALTLAKE_TIME_OFFSET,0,0,0);
-
-  let eventQuery = await admin.firestore().collection('Events')
-  .where('start', '>=', tomorrowStart)
-  .where('start', '<', tomorrowEnd)
-  .orderBy('start')
-  .get()
-
-  const batch = admin.firestore().batch();
-
-  let parentsCharged = [];
-
-  eventQuery.forEach(event => {
-    const eventData = event.data();
-    if (eventData?.price) {
-      const start = eventData.start;
-      const end = eventData.end;
-      const length = end - start;
-      const hourLength = length / 3600000;
-
-      const amount = eventData.price * hourLength;
-      const currency = 'usd';
-      const title = eventData.title;
-      const chargeData = {
-        currency,
-        amount: formatAmountForStripe(amount, currency),
-        title,
-        created: new Date().getTime(),
-        event: event.id,
-        eventStart: start,
-        eventEnd: end
-      }
-
-      batch.set(admin.firestore().collection('stripe_customers').doc(eventData.parents[0]).collection('charges').doc(), chargeData);
-
-      //append the parents here so we know who to request payments for in the next step.
-      if (!parentsCharged.includes(eventData.parents[0])) {
-        parentsCharged.push(eventData.parents[0]);
-      }
-    }
-  })
-
-  //FIXME: batch can only commit 500 operation!!!
-  await batch.commit();
-  
-
-  //run through the parents that have been charged and request payments from them
-  let parentPromises = [];
-  parentsCharged.forEach(parentUID => {
-    //check first of the parent has a payment method saved
-    parentPromises.push(admin.firestore().collection('stripe_customers').doc(parentUID).collection('payment_methods').limit(1).get()
-    .then(paymentMethodQuery => {
-      if (paymentMethodQuery.size > 0) {
-        //the parent does have a card on file
-        //calculate their balance
-        return Promise.all([
-          admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').get(),
-          admin.firestore().collection('stripe_customers').doc(parentUID).collection('charges').get()
-        ])
-        .then(result => {
-          let payments, charges;
-          [payments, charges] = result;
-    
-          let paymentAmount = 0;
-          let chargeAmount = 0;
-          payments.forEach(paymentDoc => {
-            if (paymentDoc.data().status == 'succeeded') {
-              paymentAmount += paymentDoc.data().amount;
-            }
-          })
-          charges.forEach(chargeDoc => {
-            chargeAmount += chargeDoc.data().amount;
-          })
-    
-          console.log('payment', paymentAmount);
-          console.log('charge', chargeAmount);
-
-          const balance = paymentAmount - chargeAmount;
-          if (balance < 0) {
-            //now charge their card by requesting a payment
-            const currency = 'usd';
-            const amount = balance * -1;
-            const data = {
-              payment_method: paymentMethodQuery.docs[0].data().id,
-              currency,
-              amount,
-              status: 'new',
-            };
-          
-            return admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').add(data); 
-          }
-          else {
-            //they have a non-negative balance so don't charge them
-            return;
-          }
-        })
-      }
-      //the parent does not have a card saved
-      else {
-        //place the parent on probation
-        return admin.firestore().collection('stripe_customers').doc(parentUID).update({
-          probationDate: new Date().getTime()
-        })
-        .then(() => {
-          //email them and let them know
-          return admin.auth().getUser(parentUID)
-          .then(parentRecord => {
-            const msg = {
-              to: parentRecord.email, // Change to your recipient
-              from: 'support@lyrnwithus.com', // Change to your verified sender
-              subject: 'Lyrn Lesson Payment Issue',
-              text: `We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-                on probabtion until your balance is resolved. Feel free to contact our office with any concerns.`,
-              html: `<strong>We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-                on probabtion until your balance is resolved. Feel free to contact our office with any concerns.</strong>`,
-            }
-            return sgMail
-            .send(msg)
-            .then(() => {
-              console.log('Email sent')
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-          })
-        })
-      }
-    }));
-  })
-
-  Promise.all(parentPromises)
-  .then(() => {
-    res.send('All done!');
-  })
-  .catch((error) => {
-    console.log(error)
-    res.send('yeah we had and issue');
-  })
-})
-
-
-
-exports.emailTest = functions.https.onRequest(async (req, res) => {
-  //email texting from sendgrid
-  sgMail.setApiKey(functions.config().sendgrid.secret)
-  const msg = {
-    to: 'duncanmorais@gmail.com', // Change to your recipient
-    from: 'support@lyrnwithus.com', // Change to your verified sender
-    subject: 'Sending with SendGrid is Fun',
-    text: 'and easy to do anywhere, even with Node.js',
-    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-  }
-  sgMail
-  .send(msg)
-  .then(() => {
-    console.log('Email sent')
-    res.send('Email sent!')
-  })
-  .catch((error) => {
-    console.error(error)
-    res.send('Email failed!')
-  })
-});
-
-
-
-
 
 /**
  * Parse the datetime as an integer into a datetime object
@@ -402,4 +204,54 @@ function zeroDecimalCurrency(amount, currency) {
     }
   }
   return zeroDecimalCurrency;
+}
+
+function getUserBalance(userUID) {
+  return Promise.all([
+    admin.firestore().collection('stripe_customers').doc(userUID).collection('payments').get(),
+    admin.firestore().collection('stripe_customers').doc(userUID).collection('charges').get()
+  ])
+  .then(result => {
+    let payments, charges;
+    [payments, charges] = result;
+
+    let paymentAmount = 0;
+    let chargeAmount = 0;
+    payments.forEach(paymentDoc => {
+      if (paymentDoc.data().status == 'succeeded') {
+        paymentAmount += paymentDoc.data().amount;
+      }
+    })
+    charges.forEach(chargeDoc => {
+      chargeAmount += chargeDoc.data().amount;
+    })
+
+    const balance = paymentAmount - chargeAmount;
+    return balance;
+  })
+}
+
+async function setProbation(userUID) {
+  //first check that the parent isn't already on probation
+  const userStripeDoc = await firebase.firestore().collection('stripe_customers').doc(userUID);
+  const probation = userStripeDoc.data().probation;
+
+  if (probation) {
+    //if they are already on probation do nothing (keep the oldest probation date)
+    return;
+  }
+  else {
+    //place the user on probation from the current timestamp
+    await firebase.firestore().collection('stripe_customers').doc(userUID).update({
+      probation: new Date().getTime()
+    })
+    return;
+  }
+}
+
+async function unsetProbation(userUID) {
+  await firebase.firestore().collection('stripe_customers').doc(userUID).update({
+    probation: null
+  })
+  return;
 }

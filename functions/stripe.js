@@ -12,6 +12,7 @@ const stripe = new Stripe(functions.config().stripe.secret, {
 });
 
 const sgMail = require("@sendgrid/mail");
+const { firebaseConfig } = require("firebase-functions");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
 /**
@@ -99,36 +100,28 @@ exports.createStripePayment = functions.firestore
     //need to check if the parent should be removed from probation after each successful payment.
     //also email them about the status of their payment and place them on probabtion if applicable
 
-    const msg = {
-      to: parentRecord.email, // Change to your recipient
-      from: 'support@lyrnwithus.com', // Change to your verified sender
-      subject: 'Lyrn Lesson Payment',
-      text: `Great news!!! We were able to process your payment of ${formatAmount(amount, currency)}!
-        For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
-      html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(amount, currency)}!
-        For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
-    }
-    await sgMail.send(msg)
-
     //remove the parent from probation if their balance is now >= 0
     if (await getUserBalance(parentRecord.uid) >= 0) {
-      await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
-        probationDate: null
-      })
+      await unsetProbation(parentRecord.uid);
+      await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, amount, currency);
+    }
+    //payment was successful but the account of the parent is still negative
+    else {
+      await setProbation(parentRecord.uid)
+      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, amount, currency)
     }
   } 
   catch (error) {
-    //tell them that their payment failed
-    const msg = {
-      to: parentRecord.email, // Change to your recipient
-      from: 'support@lyrnwithus.com', // Change to your verified sender
-      subject: 'Lyrn Lesson Payment Issue',
-      text: `We tried billing your account for your upcoming lesson and it appears that we running into some issues. Unfortuanately we have to place your account
-        on probabtion until your balance is resolved. Feel free to contact our office with any concerns.`,
-      html: `<strong>We tried billing your account for your upcoming lesson and it appears that we running into some issues. Unfortuanately we have to place your account
-        on probabtion until your balance is resolved. Feel free to contact our office with any concerns.</strong>`,
+    //remove the parent from probation if their balance is now >= 0
+    if (await getUserBalance(parentRecord.uid) >= 0) {
+      await unsetProbation(parentRecord.uid);
+      await paymentFailedBalanceNonNegativeEmail(parentRecord.email, amount, currency);
     }
-    await sgMail.send(msg)
+    //payment was unsuccessful but the account of the parent is still negative
+    else {
+      await setProbation(parentRecord.uid)
+      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, amount, currency)
+    }
 
     //place the parent on probation if their balance is now < 0
     await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
@@ -312,15 +305,86 @@ function getUserBalance(userUID) {
   })
 }
 
+async function setProbation(userUID) {
+  //first check that the parent isn't already on probation
+  const userStripeDoc = await firebase.firestore().collection('stripe_customers').doc(userUID);
+  const probation = userStripeDoc.data().probation;
+
+  if (probation) {
+    //if they are already on probation do nothing (keep the oldest probation date)
+    return;
+  }
+  else {
+    //place the user on probation from the current timestamp
+    await firebase.firestore().collection('stripe_customers').doc(userUID).update({
+      probation: new Date().getTime()
+    })
+    return;
+  }
+}
+
+async function unsetProbation(userUID) {
+  await firebase.firestore().collection('stripe_customers').doc(userUID).update({
+    probation: null
+  })
+  return;
+}
+
+
 function paymentSuccessfulBalanceNonNegativeEmail(parentEmail, paymentAmount, paymentCurrency) {
   const msg = {
     to: parentEmail, // Change to your recipient
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Lesson Payment',
     text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-      For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
+    For more details about your account please review your payment portal. www.lyrnwithus.com`,
     html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-      For more details about your account please review your payment portal. (FIXME: add link to payment portal here)`,
+    For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+  }
+  return sgMail.send(msg)
+}
+
+function paymentSuccessfulBalanceNegativeEmail(parentEmail, paymentAmount, paymentCurrency) {
+  const msg = {
+    to: parentEmail, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn Lesson Payment',
+    text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.
+    For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.
+    For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+  }
+  return sgMail.send(msg)
+}
+
+function paymentFailedBalanceNegativeEmail(parentEmail, paymentAmount, paymentCurrency) {
+  const msg = {
+    to: parentEmail, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn Lesson Payment',
+    text: `We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
+    Your current balance is negative and due to this we have placed your account on probation. We will be in contact
+    in the coming days to discuss your balance. For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    html: `<strong>We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
+    Your current balance is negative and due to this we have placed your account on probation. We will be in contact
+    in the coming days to discuss your balance. For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+  }
+  return sgMail.send(msg)
+}
+
+function paymentFailedBalanceNonNegativeEmail(parentEmail, paymentAmount, paymentCurrency) {
+  const msg = {
+    to: parentEmail, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn Lesson Payment',
+    text: `We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
+    Your current balance is still positive so you will not be placed on probation. We recommend seeing what payment failed and contacting
+    us if you think there was a mistake. For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    html: `<strong>We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
+    Your current balance is still positive so you will not be placed on probation. We recommend seeing what payment failed and contacting
+    us if you think there was a mistake. For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
   }
   return sgMail.send(msg)
 }
