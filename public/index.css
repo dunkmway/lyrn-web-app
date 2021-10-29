@@ -744,6 +744,10 @@ nav a:hover {
   margin: 0;
 }
 
+.faq details[open] > summary::after {
+  transform: rotate(225deg);
+}
+
 .faq summary::after {
   content: "";
   border: 2px solid black;
@@ -757,15 +761,12 @@ nav a:hover {
   top: 30%;
   pointer-events: none;
   transform: rotate(45deg);
-  transition: transform 500ms ease-in-out;
+  transform-origin: center;
+  transition: transform 500ms linear;
 }
 
 .faq details p {
   padding: 0em .75em .75em .75em;
-}
-
-.faq details[open] > summary::after {
-  transform: rotate(225deg);
 }
 
 @media screen and (min-width: 800px) {
