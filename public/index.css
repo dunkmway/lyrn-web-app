@@ -337,6 +337,7 @@ nav a:hover {
   }
 
   .hero__body {
+    min-width: none;
     max-width: 40%;
   }
 }
