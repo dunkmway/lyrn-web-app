@@ -322,7 +322,7 @@ nav a:hover {
 }
 
 .hero__body {
-  min-width: 500px;
+  max-width: 100%;
 }
 
 @media screen and (min-width: 800px) {
@@ -337,7 +337,6 @@ nav a:hover {
   }
 
   .hero__body {
-    min-width: none;
     max-width: 40%;
   }
 }
