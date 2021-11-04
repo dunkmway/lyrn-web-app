@@ -144,6 +144,7 @@ header {
 .logo {
   width: 5em;
   padding: 1em 0px;
+  display: block;
 }
 
 /* changed this from the tutorial video to
