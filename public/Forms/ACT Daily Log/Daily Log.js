@@ -134,6 +134,7 @@ function initialSetup() {
       submitSession();
       setProfilePic();
       setChartData(CURRENT_STUDENT_UID);
+
     })
     .catch((error) => console.log(error))
   })
@@ -542,7 +543,6 @@ function openPracticeTest(test, section, passageNumber, element = undefined) {
 }
 
 function updatePracticeGraphics(test, section, passageNumber) {
-  console.log(test_answers_grading[test][section])
   const answerOptionsFourOdd = ['A', 'B', 'C', 'D'];
   const answerOptionsFourEven = ['F', 'G', 'H', 'J'];
   const answerOptionsFiveOdd = ['A', 'B', 'C', 'D', 'E'];
@@ -624,7 +624,6 @@ function updatePracticeGraphics(test, section, passageNumber) {
 }
 
 function updateHomeworkGraphics(test, section, passageNumber = 1) {
-  console.log(test_answers_grading[test][section])
   const answerOptionsFourOdd = ['A', 'B', 'C', 'D'];
   const answerOptionsFourEven = ['F', 'G', 'H', 'J'];
   const answerOptionsFiveOdd = ['A', 'B', 'C', 'D', 'E'];
@@ -658,19 +657,6 @@ function updateHomeworkGraphics(test, section, passageNumber = 1) {
       passageNumbers.push(answer + 1)
     }
   }
-
-  // // Display the answers, (color them too if needed)
-  // let passage = document.getElementById("passage");
-  // for (let answer = 0; answer < passageAnswers.length; answer++) {
-  //   ele = createElements(["div", "div", "div"], [["popupValue"], ["popupDash"], ["popupAnswer"]], [[]], [[]], [(passageNumbers[answer]).toString(), "-", passageAnswers[answer]], ["input-row-center", "cursor"]);
-  //   passage.appendChild(ele);
-  //   ele.setAttribute("data-question", passageNumbers[answer]);
-  //   ele.setAttribute("data-answer", passageAnswers[answer]);
-  //   ele.classList.add('redOnHover')
-  //   if (test_answers_grading[test][section]['questions'][passageNumbers[answer] - 1]['isWrong'] == true) {
-  //     ele.querySelectorAll('div')[0].classList.add('Qred')
-  //   }
-  // }
 
   // Display the answers, (color them too if needed)
   for (let answer = 0; answer < passageAnswers.length; answer++) {
@@ -736,7 +722,7 @@ function updateHomeworkGraphics(test, section, passageNumber = 1) {
  * @param {String} passageNumber passage id
  * @param {Number} questionIndex question index
  * @param {String} selectedAnswer answer selected by user
- * @param {String} correctAnswer correct anser for this problem
+ * @param {String} correctAnswer correct answer for this problem
  * @param {HTMLElement} selectedElement the element that the callback is being called for
  */
 function answerClickCallback(test, section, passageNumber, questionIndex, selectedAnswer, correctAnswer, selectedElement) {
@@ -768,8 +754,6 @@ function answerClickCallback(test, section, passageNumber, questionIndex, select
     //visually select the option
     selectedElement.classList.add('selected');
   }
-
-  console.log(test_answers_grading[test][section][passageNumber]['questions'][questionIndex])
 }
 
 /**
@@ -797,8 +781,6 @@ function answerClickCallback(test, section, passageNumber, questionIndex, select
     //visually select the option
     selectedElement.classList.add('selected');
   }
-
-  console.log(test_answers_grading[test][section][passageNumber]['questions'][questionIndex])
 }
 
 /**
@@ -829,7 +811,9 @@ function resetAnswers() {
   // Reset the answers for the working test
   let questions = test_answers_grading[test][section]['questions']
   for (let i = 0; i < questions.length; i++) {
-    test_answers_grading[test][section]['questions'][i]['isWrong'] = false
+    test_answers_grading[test][section]['questions'][i]['isWrong'] = null;
+    test_answers_grading[test][section]['questions'][i]['isGuess'] = null;
+    test_answers_grading[test][section]['questions'][i]['selectedAnswer'] = null;
   }
 
   // Reset the test if need be
@@ -934,6 +918,12 @@ function resetAnswers() {
     document.getElementById('submitHomework').disabled = false;
   })
 
+  //reinitialize the passage answers
+  const numPassages = test_answers_data[test][section + 'Answers'][test_answers_data[test][section + 'Answers'].length - 1]['passageNumber'];
+  for (let i = 1; i <= numPassages; i++) {
+    setObjectValue([test, section, i, 'questions'], initializeEmptyPassageAnswers(test, section, i), test_answers_grading)
+  }
+
   // Set up the student_testsPopup again
   //swapTestForm(test, section, passageNumber)
   swapTestForm(test, section, 1)
@@ -973,18 +963,26 @@ function gradeHomework(status) {
   //FIXME: can't do this since the code later will read this as separate passages and fill in the detail from there. Maybe redo for homework?
   //What would be better is to save homework as separate passages and combine them after?
   //different idea: make the practice test all combine into one test and section and not separated by passage. Just have all of the passages together.
+
+  //make sure we have all of the passages first
+  for (let i = 1; i <= numPassages; i++) {
+    if (test_answers_grading[test][section][i.toString()] == undefined) {
+      alert("Make sure you are on the last passage before you submit this homework.")
+      document.getElementById('resetHomework').disabled = false;
+      document.getElementById('submitHomework').disabled = false;
+      return;
+    }
+  }
+
   test_answers_grading[test][section]['questions'] = [];
+
   for (let i = 1; i <= numPassages; i++) {
     test_answers_grading[test][section]['questions'] = test_answers_grading[test][section]['questions'].concat(test_answers_grading[test][section][i.toString()]['questions']);
   }
 
-  //this should be the whole test
-  console.log(test_answers_grading[test][section]['questions'])
-
   // Calculate how many questions they missed and got correct
-  let totalMissed = test_answers_grading[test][section]['questions'].filter(function(val) { return val.isWrong == true} ).length;
+  let totalMissed = test_answers_grading[test][section]['questions'].filter(function(val) { return val.isWrong == true || val.isWrong == null} ).length;
   let score = test_answers_grading[test][section]['questions'].length - totalMissed;
-  console.log(score)
   setObjectValue([test, section, 'score'], score, test_answers_grading)
 
   // Calculate the scaled score
@@ -1212,7 +1210,7 @@ function gradePractice(status) {
   toggleGradeButtons(true);
 
   // Calculate how many questions they missed and got correct
-  let totalMissed = test_answers_grading[test][section][passageNumber]['questions'].filter(function(val) { return val.isWrong == true} ).length;
+  let totalMissed = test_answers_grading[test][section][passageNumber]['questions'].filter(function(val) { return val.isWrong == true || val.isWrong == null} ).length;
   let score = test_answers_grading[test][section][passageNumber]['questions'].length - totalMissed;
 
   // Change the score back if it's not applicable
@@ -1480,8 +1478,10 @@ function initializeEmptyAnswers(test, section) {
   let studentQuestions = [];
   for (let i = 0; i < questions.length; i++) {
     studentQuestions.push({
-      'isWrong' : false,
-      'passageNumber' : questions[i]['passageNumber']
+      'isWrong' : null,
+      'passageNumber' : questions[i]['passageNumber'],
+      'selectedAnswer' : null,
+      'isGuess' : null
     })
   }
 
@@ -1489,6 +1489,9 @@ function initializeEmptyAnswers(test, section) {
 }
 
 function initializeEmptyPassageAnswers(test, section, passageNumber) {
+  //FIXME: Hack incoming!
+  //check if there is a questions key in the test test_answers_data and if there is a selected answer there save this in the passage instead of null
+
   const questions = test_answers_data[test][section + "Answers"].filter(function(val) { return val.passageNumber == passageNumber})
   let studentQuestions = [];
   for (let i = 0; i < questions.length; i++) {
@@ -1501,10 +1504,10 @@ function initializeEmptyPassageAnswers(test, section, passageNumber) {
       }
     }
     studentQuestions.push({
-      'isWrong' : null,
+      'isWrong' : test_answers_grading?.[test]?.[section]?.['questions']?.[Number(questionNumber) - 1]?.['isWrong'] ?? null,
       'question' : questionNumber,
-      'selectedAnswer' : null,
-      'isGuess' : null
+      'selectedAnswer' : test_answers_grading?.[test]?.[section]?.['questions']?.[Number(questionNumber) - 1]?.['selectedAnswer'] ?? null,
+      'isGuess' : test_answers_grading?.[test]?.[section]?.['questions']?.[Number(questionNumber) - 1]?.['isGuess'] ?? null
     })
   }
 

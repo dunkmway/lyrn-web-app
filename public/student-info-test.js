@@ -184,7 +184,7 @@ function assignTeachingOrder(data) {
 }
 
 function getActProfileData(studentUID) {
-  const actProfileDocRef = firebase.firestore().collection("Students").doc(studentUID).collection("ACT").doc("profile");
+  const actProfileDocRef = firebase.firestore().collection("Users").doc(studentUID).collection("ACT").doc("profile");
   return actProfileDocRef.get();
 }
 
@@ -497,7 +497,6 @@ function updateChart(section, addPoint = true, value = undefined) {
   // Get the section index
   for (let i = 0; i < currentDatasets.length; i++) {
     if (currentDatasets[i]['label'].toLowerCase() == section) {
-      console.log(section, currentDatasets[i]['label'], i)
       location = i
     }
   }
@@ -535,7 +534,6 @@ function updateChart(section, addPoint = true, value = undefined) {
 
       // Get the delta
       const diff = (value - lastValue) / 4
-      console.log('calc diff:', value, lastValue, diff)
 
       // Get the latest composite value for adding the delta to
       j = 1;
@@ -544,7 +542,6 @@ function updateChart(section, addPoint = true, value = undefined) {
         lastValue = charts[sec]['data']['datasets'][i]['data'][charts[sec]['data']['datasets'][i]['data'].length - j]
         j += 1
       }
-      console.log(lastValue, diff)
       if (push == true) {
         charts[sec]['data']['datasets'][i]['data'].push(lastValue + diff)
       }
