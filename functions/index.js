@@ -1,6 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
+exports.home = require('./home');
+exports.sign_in = require('./sign-in');
 exports.stripe = require('./stripe');
 exports.billing = require('./billing');
 exports.notifications = require('./notifications');

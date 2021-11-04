@@ -103,3 +103,8 @@ const formatToInt = (event) => {
   }
 
 }
+
+document.querySelectorAll('input[type="tel"]').forEach(telInput => {
+	telInput.addEventListener('keydown',enforceNumericFormat);
+	telInput.addEventListener('keyup',formatToPhone);
+})

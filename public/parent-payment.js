@@ -2,36 +2,36 @@
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
 let currentUser = {};
 let customerData = {};
-let parentData = {};
-let parentUID = queryStrings().parent;
-console.log(parentUID)
 
 let payments = [];
 let charges = [];
+
+//set the date
+document.querySelector('.date').textContent = convertFromDateInt(new Date().getTime())['dayAndDate'];
  
 firebase.auth().onAuthStateChanged((firebaseUser) => {
   if (firebaseUser) {
     currentUser = firebaseUser;
-    firebase.firestore().collection('stripe_customers').doc(parentUID).onSnapshot((snapshot) => {
+    firebase.firestore().collection('stripe_customers').doc(currentUser.uid).onSnapshot((snapshot) => {
       if (snapshot.data()) {
         customerData = snapshot.data();
         startDataListeners();
       } else {
         console.warn(
-          `No Stripe customer found in Firestore for user: ${parentUID}`
+          `No Stripe customer found in Firestore for user: ${currentUser.uid}`
         );
       }
     });
 
-    firebase.firestore().collection('Users').doc(parentUID).onSnapshot((snapshot) => {
+    firebase.firestore().collection('Users').doc(currentUser.uid).onSnapshot((snapshot) => {
       if (snapshot.data()) {
         parentData = snapshot.data();
         //set up the parent name in the title
         const {firstName, lastName} = parentData;
-        document.getElementById('parent-name').textContent = firstName + " " + lastName;
+        document.getElementById('parent-name').textContent = "Welcome back, " +  firstName;
       } else {
         console.warn(
-          `No Lyrn User found in Firestore for user: ${parentUID}`
+          `No Lyrn User found in Firestore for user: ${currentUser.uid}`
         );
       }
     });
@@ -67,7 +67,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payment_methods')
      .onSnapshot((snapshot) => {
        snapshot.forEach(function (doc) {
@@ -75,21 +75,26 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          if (!paymentMethod.card) {
            return;
          }
- 
-         const optionId = `card-${doc.id}`;
-         let optionElement = document.getElementById(optionId);
+         
+         const paymentMethodId = `card-${doc.id}`;
+         let radioElement = document.getElementById(paymentMethodId);
+         let labelElement = document.querySelector(`label[for="${paymentMethodId}"]`);
  
          // Add a new option if one doesn't exist yet.
-         if (!optionElement) {
-            optionElement = document.createElement('option');
-            optionElement.id = optionId;
-            document
-            .querySelector('select[name=payment-method]')
-            .appendChild(optionElement);
+         if (!radioElement) {
+            radioElement = document.createElement('input');
+            radioElement.setAttribute('type', 'radio');
+            radioElement.setAttribute('name', 'payment_method')
+            radioElement.id = paymentMethodId;
+            document.querySelector('.make-payment').insertBefore(radioElement, document.querySelector('#newCard'));
+
+            labelElement = document.createElement('label');
+            labelElement.setAttribute('for', paymentMethodId)
+            document.querySelector('.make-payment').insertBefore(labelElement, document.querySelector('#newCard'));
          }
  
-         optionElement.value = paymentMethod.id;
-         optionElement.text = `${paymentMethod.card.brand} •••• ${paymentMethod.card.last4} | Expires ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
+         radioElement.value = paymentMethod.id;
+         labelElement.textContent = `${paymentMethod.card.brand} •••• ${paymentMethod.card.last4} | Expires ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
        });
      });
  
@@ -99,7 +104,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payments')
      .onSnapshot((snapshot) => {
       payments = [];
@@ -112,13 +117,15 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
 
        payments.sort((a,b) => b.created - a.created);
        payments.forEach(payment => {
- 
+
          let liElement = document.getElementById(`payment-${payment.docId}`);
          if (!liElement) {
            liElement = document.createElement('li');
            liElement.id = `payment-${payment.docId}`;
          }
  
+         console.log('got new payment')
+         console.log(payment.status)
          let content = '';
          if (
            payment.status === 'new' ||
@@ -131,18 +138,18 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            )} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
          } else if (payment.status === 'succeeded') {
            const card = payment.charges.data[0].payment_method_details.card;
-           content = `✅ Payment of ${formatAmount(
+           content = `✅ ${formatAmount(
              payment.amount,
              payment.currency
            )} with ${card.brand} card •••• ${card.last4} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
          } else if (payment.status === 'requires_action') {
-           content = `🚨 Payment of ${formatAmount(
+           content = `🚨 ${formatAmount(
              payment.amount,
              payment.currency
            )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
            handleCardAction(payment, doc.id);
          } else {
-           content = `⚠️ Payment of ${formatAmount(
+           content = `⚠️ ${formatAmount(
              payment.amount,
              payment.currency
            )} ${payment.error} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
@@ -159,7 +166,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
    firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('charges')
      .orderBy('created', 'desc')
      .onSnapshot((snapshot) => {
@@ -174,7 +181,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            liElement.id = `charge-${doc.id}`;
          }
  
-         let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: Charge of ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
+         let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
          if (charge.eventStart && charge.eventEnd) {
            //remove period
            content = content.substring(0, content.length - 1);
@@ -201,7 +208,7 @@ function updateBalance() {
   })
 
   const balance = totalPaymentAmount - totalChargeAmount;
-  document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
+  document.querySelector('#amount').value = balance < 0 ? '$' + (balance / -100).toString() : '';
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
 }
@@ -209,56 +216,48 @@ function updateBalance() {
  /**
   * Event listeners
   */
-
-// payment radios
-document
-.querySelectorAll('input[name="payment-type"]')
-.forEach((radio) => {
-  radio.addEventListener('change', (event) => {
-    if (event.target.value == 'new') {
-      document.querySelector('#new-card-wrapper').style.display = 'block';
-      document.querySelector('#saved-card-wrapper').style.display = 'none';
-      document.querySelector('#save-card-button').style.display = 'inline-block';
-      document.querySelector('#delete-card-button').style.display = 'none';
-    }
-    else if (event.target.value == 'saved') {
-      document.querySelector('#saved-card-wrapper').style.display = 'block';
-      document.querySelector('#new-card-wrapper').style.display = 'none';
-      document.querySelector('#save-card-button').style.display = 'none';
-      document.querySelector('#delete-card-button').style.display = 'inline-block';
-    }
-  })
-})
  
  // Create payment form
 document
-.querySelector('#payment-form')
-.addEventListener('submit', async (event) => {
-  event.preventDefault();
+.querySelector('.pay')
+.addEventListener('click', async (event) => {
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
-  const form = new FormData(event.target);
-  const cardholderName = form.get('name');
+  const cardholderName = document.querySelector('#cardholderName');
 
-  const amount = Number(form.get('amount'));
-  const currency = form.get('currency');
+  const amount = Number(document.querySelector('#amount').value.replace('$', ''));
+  const currency = 'usd';
+
+  if (amount == 0) {
+    alert("It's ok you can keep it...\nYou are paying $0.00")
+    return;
+  }
 
   if (!confirm(`Are you sure you want to charge this card an amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
     document
-    .querySelectorAll('button')
+    .querySelectorAll('.button')
     .forEach((button) => (button.disabled = false));
     return;
   }
 
-  const paymentType = form.get('payment-type');
+  //get the current selected card
+  let paymentType;
+  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+    if (radio.checked) {
+      paymentType = radio;
+      return;
+    }
+  })
+  let savedCardLabel = paymentType.nextElementSibling;
+
   let paymentMethodID = null;
-  if (paymentType == 'new') {
+  if (paymentType.id == 'newCard') {
     if (!cardholderName) {
       document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
       document
-        .querySelectorAll('button')
+        .querySelectorAll('.button')
         .forEach((button) => (button.disabled = false));
       return;
     }
@@ -274,21 +273,15 @@ document
     if (error) {
       document.querySelector('#error-message').textContent = error.message;
       document
-        .querySelectorAll('button')
+        .querySelectorAll('.button')
         .forEach((button) => (button.disabled = false));
       return;
     }
 
     paymentMethodID = paymentMethod.id;
   }
-  else if (paymentType == 'saved') {
-    paymentMethodID = form.get('payment-method');
-  }
   else {
-    document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = false));
-    return;
+    paymentMethodID = paymentType.value;
   }
 
   const data = {
@@ -302,34 +295,35 @@ document
   await firebase
     .firestore()
     .collection('stripe_customers')
-    .doc(parentUID)
+    .doc(currentUser.uid)
     .collection('payments')
     .add(data);
 
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = false));
 
-  event.target.reset();
   cardElement.clear();
 });
 
 //save the new card
 document
-.querySelector('#save-card-button')
+.querySelector('.save-card')
 .addEventListener('click', async (event) => {
-  event.preventDefault();
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
-  const form = new FormData(document.querySelector('#payment-form'));
-  const cardholderName = form.get('name');
+  const cardholderName = document.getElementById('cardholderName').value;
   if (!cardholderName) {
     document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
     document
-      .querySelectorAll('button')
+      .querySelectorAll('.button')
       .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  if (!confirm('Before you save this card we want to let you know that by pressing the "OK" button you agree to allow Lyrn to charge this card on an ongoing basis 24 hours before every lesson your student will attend.')) {
     return;
   }
 
@@ -348,7 +342,7 @@ document
   if (error) {
     document.querySelector('#error-message').textContent = error.message;
     document
-      .querySelectorAll('button')
+      .querySelectorAll('.button')
       .forEach((button) => (button.disabled = false));
     return;
   }
@@ -356,88 +350,58 @@ document
   await firebase
   .firestore()
   .collection('stripe_customers')
-  .doc(parentUID)
+  .doc(currentUser.uid)
   .collection('payment_methods')
   .add({ id: setupIntent.payment_method });
 
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = false));
 
 });
 
 //delete the saved card
 document
-.querySelector('#delete-card-button')
+.querySelector('.delete-card')
 .addEventListener('click', async (event) => {
   event.preventDefault();
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
   //get the current selected card
-  const savedCardElem = document.querySelector('#saved-payment-method').options[document.querySelector('#saved-payment-method').selectedIndex];
+  let savedCardElem;
+  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+    if (radio.checked) {
+      savedCardElem = radio;
+      return;
+    }
+  })
+  let savedCardLabel = savedCardElem.nextElementSibling;
   const cardDocId = savedCardElem.id.substring(5, savedCardElem.id.length);
 
-  if (!confirm('Are you sure you want to delete ' + savedCardElem.textContent)) {
+  if (!confirm("If you delete this card it may interrupt your subscription with us. This could possibly place your account on probation if your balance is ever negative. " + 'Are you sure you want to delete ' + savedCardLabel.textContent + '.')) {
     document
-    .querySelectorAll('button')
+    .querySelectorAll('.button')
     .forEach((button) => (button.disabled = false));
     return;
   }
 
   //delete the firebase doc that holds this payment method
-  await firebase.firestore().collection('stripe_customers').doc(parentUID).collection('payment_methods').doc(cardDocId).delete();
+  await firebase.firestore().collection('stripe_customers').doc(currentUser.uid).collection('payment_methods').doc(cardDocId).delete();
   
   //remove the card option from the select
   savedCardElem.remove();
+  savedCardLabel.remove();
+
+  //reselect the new card input
+  document.querySelector('#newCard').checked = true;
 
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = false));
 })
 
-// Create charge form
-document
-.querySelector('#charge-form')
-.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  document
-  .querySelectorAll('button')
-  .forEach((button) => (button.disabled = true));
-
-  const form = new FormData(event.target);
-  const amount = Number(form.get('amount'));
-  const currency = form.get('currency');
-  const title = form.get('title');
-  const data = {
-    currency,
-    amount: formatAmountForStripe(amount, currency),
-    title,
-    created: new Date().getTime()
-  }
-
-  if (!confirm(`Are you sure you want to add a charge to this parent of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
-    document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = false));
-    return;
-  }
-
-  await firebase
-    .firestore()
-    .collection('stripe_customers')
-    .doc(parentUID)
-    .collection('charges')
-    .add(data);
-
-  document
-  .querySelectorAll('button')
-  .forEach((button) => (button.disabled = false));
-
-  //reset form
-  event.target.reset();
-});
  
  /**
   * Helper functions
@@ -494,8 +458,129 @@ document
    await firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(parentUID)
+     .doc(currentUser.uid)
      .collection('payments')
      .doc(docId)
      .set(payment, { merge: true });
  }
+
+ function resetPassword() {
+  let confirmation = confirm("Are you sure you want to reset your password?");
+  if (confirmation) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        var auth = firebase.auth();
+        var emailAddress = user.email;
+
+        auth.sendPasswordResetEmail(emailAddress)
+        .then(function() {
+          // Email sent.
+          alert("An email has been sent to your email to continue with your password reset.");
+        })
+        .catch(function(error) {
+          // An error happened.
+          alert("There was an issue with your password reset. \nPlease try again later.");
+          handleFirebaseErrors(error, window.location.href);
+        });
+      } else {
+        // No user is signed in.
+        alert("Oops! No one is signed in to change the password");
+      }
+    });
+  }
+}
+
+
+
+
+
+
+
+
+//  handle currency formatting
+// Jquery Dependency
+
+$("input[data-type='currency']").on({
+  keyup: function() {
+    formatCurrency($(this));
+  },
+  blur: function() { 
+    formatCurrency($(this), "blur");
+  }
+});
+
+
+function formatNumber(n) {
+// format number 1000000 to 1,234,567
+return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+}
+
+
+function formatCurrency(input, blur) {
+// appends $ to value, validates decimal side
+// and puts cursor back in right position.
+
+// get input value
+var input_val = input.val();
+
+// don't validate empty input
+if (input_val === "") { return; }
+
+// original length
+var original_len = input_val.length;
+
+// initial caret position 
+var caret_pos = input.prop("selectionStart");
+  
+// check for decimal
+if (input_val.indexOf(".") >= 0) {
+
+  // get position of first decimal
+  // this prevents multiple decimals from
+  // being entered
+  var decimal_pos = input_val.indexOf(".");
+
+  // split number by decimal point
+  var left_side = input_val.substring(0, decimal_pos);
+  var right_side = input_val.substring(decimal_pos);
+
+  // add commas to left side of number
+  left_side = formatNumber(left_side);
+
+  // validate right side
+  right_side = formatNumber(right_side);
+  
+  // On blur make sure 2 numbers after decimal
+  if (blur === "blur") {
+    right_side += "00";
+  }
+  
+  // Limit decimal to only 2 digits
+  right_side = right_side.substring(0, 2);
+
+  // join number by .
+  input_val = "$" + left_side + "." + right_side;
+
+} else {
+  // no decimal entered
+  // add commas to number
+  // remove all non-digits
+  input_val = formatNumber(input_val);
+  input_val = "$" + input_val;
+  
+  // final formatting
+  if (blur === "blur") {
+    input_val += ".00";
+  }
+}
+
+// send updated string to input
+input.val(input_val);
+
+// put caret back in the right position
+var updated_len = input_val.length;
+caret_pos = updated_len - original_len + caret_pos;
+input[0].setSelectionRange(caret_pos, caret_pos);
+}
+
+

@@ -1,0 +1,572 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600');
+
+:root {
+  --nav-background: white;
+  --nav-color: black;
+
+  --color-primary: #ffffff;
+  --color-secondary: #e7e8e9;
+  --color-tertiary: #101b42;
+
+  --color-accent-1-deep: #ffb102;
+  --color-accent-2-deep: #27c13a;
+  --color-accent-3-deep: #19a7c8;
+  --color-accent-4-deep: #6b6be5;
+  --color-accent-5-deep: #ef6b6b;
+
+  --color-accent-1-light: #ffca02;
+  --color-accent-2-light: #3cdd58;
+  --color-accent-3-light: #02c6ff;
+  --color-accent-4-light: #8787ff;
+  --color-accent-5-light: #ea5a5a;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-size: 1rem;
+  overflow-x: hidden;
+  width: 100vw;
+  margin: 0;
+  background-color: var(--color-secondary);
+}
+
+section {
+  padding: 3em 1em;
+}
+
+a {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+input[type='radio'] {
+  position: absolute;
+  z-index: -1;
+}
+
+input[type='radio']+label {
+  position: relative;
+  margin-left: 1.5em;
+  cursor: pointer;
+}
+
+input[type='radio']+label::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: -1.5em;
+  width: 1em;
+  height: 1em;
+  background-color: var(--color-secondary);
+  border: 2px solid var(--color-secondary);
+  border-radius: 50%;
+}
+
+input[type='radio']:checked+label::before {
+  background-image: linear-gradient(90deg, var(--color-accent-1-light), var(--color-accent-5-deep));
+}
+
+/* Typography */
+
+h1, h2, h3, h4, h5, p {
+  margin: 0 0 .5em;
+  line-height: 1em;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 1000;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+h3 {
+  font-size: 3rem;
+  font-weight: 100;
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+h5 {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+p {
+  font-size: .75rem;
+}
+
+@media screen and (min-width: 800px) {
+  h1 {
+    font-size: 2rem;
+    font-weight: 1000;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
+  
+  h3 {
+    font-size: 3rem;
+    font-weight: 100;
+  }
+  
+  h4 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  
+  h5 {
+    font-size: 1.5rem;
+    font-weight: 300;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+}
+
+header {
+  background: var(--nav-background);
+  color: var(--nav-color);
+  text-align: center;
+  position: sticky;
+  top: 0px;
+  z-index: 999;
+  width: 100%;
+  box-shadow: #00000041 0em .5em 20px;
+  transition: background-color 200ms ease-in;
+}
+
+.logo {
+  width: 5em;
+  padding: 1em 0px;
+}
+
+/* changed this from the tutorial video to
+   allow it to gain focus, making it tabbable */
+.nav-toggle {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
+.nav-toggle:focus ~ .nav-toggle-label {
+  outline: 3px solid rgba(lightblue, .75);
+}
+
+.nav-toggle-label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 1em;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.nav-toggle-label span,
+.nav-toggle-label span::before,
+.nav-toggle-label span::after {
+  display: block;
+  background: var(--nav-color);
+  height: 2px;
+  width: 2em;
+  border-radius: 2px;
+  position: relative;
+}
+
+.nav-toggle-label span::before,
+.nav-toggle-label span::after {
+  content: '';
+  position: absolute;
+}
+
+.nav-toggle-label span::before {
+  bottom: 7px;
+}
+
+.nav-toggle-label span::after {
+  top: 7px;
+}
+
+nav {
+  position: absolute;
+  text-align: right;
+  top: 100%;
+  right: 0;
+  background: var(--nav-background);
+  box-shadow: #00000041 0em .5em 20px;
+  width: 100%;
+  transform: scale(1, 0);
+  transform-origin: top;
+  transition: transform 400ms ease-in-out;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav li {
+  margin-bottom: 1em;
+  margin-right: 1em;
+}
+
+nav a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+
+.enroll {
+  padding: .7em 1.8em;
+  border-radius: .4em;
+  background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
+  font-weight: bold;
+  font-size: 1em;
+  color: inherit;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #000;
+}
+
+.nav-toggle:checked ~ nav {
+  transform: scale(1,1);
+}
+
+.nav-toggle:checked ~ nav a {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out 250ms;
+}
+
+@media screen and (min-width: 800px) {
+  .nav-toggle-label {
+    display: none;
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: .2fr auto minmax(600px, 3fr) .2fr;
+    border-radius: 0px 0px 2rem 2rem;
+  }
+  
+  .logo {
+    grid-column: 2 / 3;
+  }
+  
+  nav {
+    all: unset; /* this causes issues with Edge, since it's unsupported */
+    
+    /* the following lines are not from my video, but add Edge support */
+    /* position: relative;
+    text-align: left;
+    transition: none;
+    transform: scale(1,1);
+    background: none;
+    top: initial;
+    left: initial; */
+    /* end Edge support stuff */
+    
+    grid-column: 3 / 4;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  nav ul {
+    display: flex;
+  }
+  
+  nav li {
+    margin-left: 3em;
+    margin-bottom: 0;
+  }
+  
+  nav a {
+    opacity: 1;
+    position: relative;
+  }
+  
+  nav a::before {
+    content: '';
+    display: block;
+    height: 5px;
+    background: black;
+    position: absolute;
+    top: -.75em;
+    left: 0;
+    right: 0;
+    transform: scale(0, 1);
+    transition: transform ease-in-out 250ms;
+  }
+  
+  nav a:hover::before {
+    transform: scale(1,1);
+  }
+}
+
+main {
+  padding: 2em;
+}
+
+.page-nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+  margin-bottom: 2em;
+}
+
+.log-out {
+  padding: .5em 1.5em;
+  color: var(--color-tertiary);
+  border-radius: .5em;
+  border: 2px solid var(--color-tertiary);
+  font-size: 1.25em;
+  white-space: nowrap;
+  max-height: min-content;
+}
+
+.pay-wrapper #error-message {
+  color: var(--color-accent-5-deep);
+  font-size: 1em;
+}
+
+.button {
+  cursor: pointer;
+}
+
+.welcome {
+  background-image: linear-gradient(90deg, var(--color-accent-3-light), 80%, var(--color-accent-4-light));
+  border-radius: 1em;
+  color: white;
+  text-align: center;
+  margin-bottom: 2em;
+  box-shadow: .5em .5em 10px #00000034;
+}
+
+.payments {
+  background-color: var(--color-primary);
+  border-radius: 1em;
+  box-shadow: .5em .5em 10px #00000034;
+}
+
+.payments .make-payment {
+  border: 2px solid var(--color-secondary);
+  padding: 1em;
+  border-radius: .5em;
+}
+
+.payments .make-payment .new-card-wrapper {
+  margin-top: 1em;
+  display: none;
+}
+
+.payments .make-payment #newCard:checked ~ .new-card-wrapper {
+  display: block;
+} 
+
+.payments .make-payment #newCard:checked ~ .delete-card {
+  display: none;
+} 
+
+.payments .make-payment label {
+  display: block;
+  padding: .5em 0em;
+}
+
+.payments .make-payment input[type='text'] {
+  border: 2px solid var(--color-secondary);
+  padding: 1em;
+  height: 3em;
+  font-size: 1em;
+  -moz-appearance:none;
+  -webkit-appearance:none;
+  appearance:none;
+  padding: 0 0.5em;
+  color: black;
+  margin-bottom: .5em;
+  width: 100%;
+}
+
+.payments .make-payment #card-element {
+  border: 2px solid var(--color-secondary);
+  padding: 1em;
+  height: 3em;
+  margin-bottom: .5em;
+}
+
+.payments .make-payment .save-card {
+  padding: 1em 1.5em;
+  height: 3em;
+  width: min-content;
+  white-space: nowrap;
+  background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
+  color: white;
+  border-radius: .5em;
+}
+
+.payments .make-payment .delete-card {
+  padding: 1em 1.5em;
+  height: 3em;
+  width: min-content;
+  white-space: nowrap;
+  background-image: linear-gradient(45deg, var(--color-accent-4-light), 65%, var(--color-accent-5-light));
+  color: white;
+  border-radius: .5em;
+}
+
+.payments .make-payment .pay-wrapper {
+  margin-top: 2em;
+}
+
+.pay-wrapper #amount {
+  color: black;
+  border-radius: .5em;
+  font-size: 1.5em;
+}
+
+.pay-wrapper .pay {
+  color: white;
+  border-radius: .5em;
+  text-align: center;
+  padding: 1em;
+  background-image: linear-gradient(45deg, var(--color-accent-3-light), 65%, var(--color-accent-4-light));
+}
+
+.pay-wrapper p {
+  color: var(--color-secondary);
+  text-align: center;
+  margin-top: 1em;
+}
+
+.payments .transactions {
+  height: 80vh;
+  margin-top: 1em;
+  border: 2px solid var(--color-secondary);
+  padding: 1em;
+  border-radius: .5em;
+}
+
+@media screen and (min-width: 800px) {
+  .payments {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    padding: 2em;
+    width: 100%;
+  }
+
+  .payments h3 {
+    grid-column: 1 / 3;
+  }
+
+  .payments .make-payment {
+    width: 100%;
+  }
+
+  .payments .transactions {
+    width: 90%;
+    justify-self: end;
+    margin: 0;
+  }
+}
+
+.payments .transactions p {
+  text-decoration: underline;
+}
+
+#payments-list {
+  list-style: none;
+  padding: 0;
+  height: 35%;
+  overflow-y: scroll;
+}
+
+#charges-list {
+  list-style: none;
+  padding: 0;
+  height: 35%;
+  overflow-y: scroll;
+}
+
+#balance {
+  margin-top: 1em;
+}
+
+#balance::before {
+  content: '';
+  height: 2px;
+  width: 100%;
+  background-color: var(--color-tertiary);
+  display: block;
+  margin-bottom: .5em;
+}
+
+footer {
+  padding: 2em;
+  color: #000;
+  background-color: var(--color-secondary);
+  border-top: 1px solid #D4D5D7;
+}
+
+footer .links {
+  display: flex;
+  flex-direction: column;
+}
+
+footer .logo-box {
+  max-width: 100px;
+  height: 100px;
+  border: 1px solid var(--color-tertiary);
+  border-radius: .75em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+footer a {
+  text-decoration: none;
+  color: inherit;
+}
+
+footer .copyright {
+  text-align: center;
+}
+
+@media screen and (min-width: 800px) {
+  footer .links {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}

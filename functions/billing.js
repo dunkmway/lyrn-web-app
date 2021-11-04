@@ -61,7 +61,7 @@ exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('Ameri
   parentsCharged.forEach(parentUID => {
     //check first of the parent has a payment method saved
     parentPromises.push(admin.firestore().collection('stripe_customers').doc(parentUID).collection('payment_methods').limit(1).get()
-    .then(paymentMethodQuery => {
+    .then(async (paymentMethodQuery) => {
       if (paymentMethodQuery.size > 0) {
         //the parent does have a card on file
         //charge the parent if their balance is negative
@@ -233,7 +233,7 @@ function getUserBalance(userUID) {
 
 async function setProbation(userUID) {
   //first check that the parent isn't already on probation
-  const userStripeDoc = await firebase.firestore().collection('stripe_customers').doc(userUID);
+  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID);
   const probation = userStripeDoc.data().probation;
 
   if (probation) {
@@ -242,16 +242,16 @@ async function setProbation(userUID) {
   }
   else {
     //place the user on probation from the current timestamp
-    await firebase.firestore().collection('stripe_customers').doc(userUID).update({
-      probation: new Date().getTime()
+    await admin.firestore().collection('stripe_customers').doc(userUID).update({
+      probationDate: new Date().getTime()
     })
     return;
   }
 }
 
 async function unsetProbation(userUID) {
-  await firebase.firestore().collection('stripe_customers').doc(userUID).update({
-    probation: null
+  await admin.firestore().collection('stripe_customers').doc(userUID).update({
+    probationDate: null
   })
   return;
 }

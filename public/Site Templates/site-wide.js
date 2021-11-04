@@ -22,7 +22,6 @@ firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 
 
-
 window.onerror = sendErrorReport;
 
 //FIXME: temporary for development
@@ -31,9 +30,7 @@ checkPermissions();
 
 function checkPermissions() {
     const publicPages = [
-        "/Sign-In/Sign-In",
-        "/index",
-        "/404"
+        "/sign-in",
     ]
     
     const studentPages = [
@@ -91,9 +88,8 @@ function checkPermissions() {
                         } 
                         break;
                     case "parent":
-                        if (!parentPages.includes(currentPath) && !publicPages.includes(currentPath)) {
+                        if (!parentPages.includes(currentPath) && publicPages.includes(currentPath)) {
                             //access denied
-                            alert('access denied')
                             window.location.replace(location.origin + "/Dashboard/Parent");
                         } 
                         break;
@@ -126,14 +122,14 @@ function checkPermissions() {
             })
             .catch((error) => {
                 handleFirebaseErrors(error, window.location.href);
-                window.location.replace(location.origin + "/Sign-In/Sign-In");
+                window.location.replace(location.origin + "/sign-in");
             });
         }
         else {
             if (!publicPages.includes(currentPath)) {
                 //access denied
                 // console.log("no user is logged in and they are not on a private page")
-                window.location.replace(location.origin + "/Sign-In/Sign-In");
+                window.location.replace(location.origin + "/sign-in");
             }
             clearLoadingScreen();
         }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in portal for accessing even more Lyrn content">
+  <title>Document</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+  <link rel="stylesheet" href="Site Templates/site-wide.css">
+  <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
+
+  <link rel="stylesheet" href="sign-in.css">
+  <script src="sign-in.js" defer></script>
+</head>
+<body>
+  <section class="sign-in">
+    <div class="wrapper">
+      <a class="logo" href="index.html">
+        <img src="Images/Lyrn_Logo.png" alt="Lyrn Logo">
+      </a>
+      <label for="email">Email Address</label>
+      <input type="email" name="email" id="email">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password">
+      <p class="forgot" onclick="forgotPassword()">Forgot your password?</p>
+      <p class="error"></p>
+      <div class="button" onclick="login()" tabindex="0">Log in</div>
+    </div>
+  </section>
+</body>
+</html>

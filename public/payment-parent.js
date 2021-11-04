@@ -25,7 +25,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
         parentData = snapshot.data();
         //set up the parent name in the title
         const {firstName, lastName} = parentData;
-        document.getElementById('parent-name').textContent = firstName + " " + lastName;
+        document.getElementById('parent-name').textContent = "Welcome back, " +  firstName;
       } else {
         console.warn(
           `No Lyrn User found in Firestore for user: ${currentUser.uid}`
@@ -73,20 +73,23 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            return;
          }
  
-         const optionId = `card-${doc.id}`;
-         let optionElement = document.getElementById(optionId);
+         const paymentMethodId = `card-${doc.id}`;
+         let radioElement = document.getElementById(paymentMethodId);
+         let labelElement = document.querySelector(`label[for="${paymentMethodId}"]"`);
  
          // Add a new option if one doesn't exist yet.
-         if (!optionElement) {
-            optionElement = document.createElement('option');
-            optionElement.id = optionId;
-            document
-            .querySelector('select[name=payment-method]')
-            .appendChild(optionElement);
+         if (!radioElement) {
+            radioElement = document.createElement('radio');
+            radioElement.id = paymentMethodId;
+            document.querySelector('.make-payment').insertBefore(radioElement, document.querySelector('#newCard'));
+
+            labelElement = document.createElement('label');
+            labelElement.setAttribute('for', paymentMethodId)
+            document.querySelector('.make-payment').insertBefore(radioElement, document.querySelector('#newCard'));
          }
  
-         optionElement.value = paymentMethod.id;
-         optionElement.text = `${paymentMethod.card.brand} •••• ${paymentMethod.card.last4} | Expires ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
+         radioElement.value = paymentMethod.id;
+         labelElement.text = `${paymentMethod.card.brand} •••• ${paymentMethod.card.last4} | Expires ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
        });
      });
  
@@ -193,7 +196,7 @@ function updateBalance() {
   })
 
   const balance = totalPaymentAmount - totalChargeAmount;
-  document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
+  document.querySelector('#amount').value = balance < 0 ? balance / -100 : 0;
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
 }
@@ -202,50 +205,57 @@ function updateBalance() {
   * Event listeners
   */
 
-document
-.querySelectorAll('input[name="payment-type"]')
-.forEach((radio) => {
-  radio.addEventListener('change', (event) => {
-    if (event.target.value == 'new') {
-      document.querySelector('#new-card-wrapper').style.display = 'block';
-      document.querySelector('#saved-card-wrapper').style.display = 'none';
-      document.querySelector('#save-card-button').style.display = 'inline-block';
-      document.querySelector('#delete-card-button').style.display = 'none';
-    }
-    else if (event.target.value == 'saved') {
-      document.querySelector('#saved-card-wrapper').style.display = 'block';
-      document.querySelector('#new-card-wrapper').style.display = 'none';
-      document.querySelector('#save-card-button').style.display = 'none';
-      document.querySelector('#delete-card-button').style.display = 'inline-block';
-    }
-  })
-})
+// document
+// .querySelectorAll('input[name="payment-type"]')
+// .forEach((radio) => {
+//   radio.addEventListener('change', (event) => {
+//     if (event.target.value == 'new') {
+//       document.querySelector('#new-card-wrapper').style.display = 'block';
+//       document.querySelector('#saved-card-wrapper').style.display = 'none';
+//       document.querySelector('#save-card-button').style.display = 'inline-block';
+//       document.querySelector('#delete-card-button').style.display = 'none';
+//     }
+//     else if (event.target.value == 'saved') {
+//       document.querySelector('#saved-card-wrapper').style.display = 'block';
+//       document.querySelector('#new-card-wrapper').style.display = 'none';
+//       document.querySelector('#save-card-button').style.display = 'none';
+//       document.querySelector('#delete-card-button').style.display = 'inline-block';
+//     }
+//   })
+// })
  
  // Create payment form
 document
-.querySelector('#payment-form')
-.addEventListener('submit', async (event) => {
-  event.preventDefault();
+.querySelector('.pay')
+.addEventListener('click', async (event) => {
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
-  const form = new FormData(event.target);
-  const cardholderName = form.get('name');
+  const cardholderName = document.querySelector('#cardholderName');
 
-  const amount = Number(form.get('amount'));
-  const currency = form.get('currency');
+  const amount = Number(document.querySelector('.amount'));
+  const currency = 'usd';
 
   if (!confirm(`Are you sure you want to charge this card an amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
     document
-    .querySelectorAll('button')
+    .querySelectorAll('.button')
     .forEach((button) => (button.disabled = false));
     return;
   }
 
-  const paymentType = form.get('payment-type');
+  //get the current selected card
+  let paymentType;
+  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+    if (radio.checked) {
+      paymentType = radio;
+      return;
+    }
+  })
+  let savedCardLabel = paymentType.nextElementSibling;
+
   let paymentMethodID = null;
-  if (paymentType == 'new') {
+  if (paymentType.id == 'newCard') {
     if (!cardholderName) {
       document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
       document
@@ -272,14 +282,8 @@ document
 
     paymentMethodID = paymentMethod.id;
   }
-  else if (paymentType == 'saved') {
-    paymentMethodID = form.get('payment-method');
-  }
   else {
-    document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = false));
-    return;
+    paymentMethodID = paymentType.value;
   }
 
   const data = {
@@ -306,19 +310,18 @@ document
 
 //save the new card
 document
-.querySelector('#save-card-button')
+.querySelector('.save-card')
 .addEventListener('click', async (event) => {
   event.preventDefault();
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
-  const form = new FormData(document.querySelector('#payment-form'));
-  const cardholderName = form.get('name');
+  const cardholderName = document.getElementById('cardholderName').value;
   if (!cardholderName) {
     document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
     document
-      .querySelectorAll('button')
+      .querySelectorAll('.button')
       .forEach((button) => (button.disabled = false));
     return;
   }
@@ -338,7 +341,7 @@ document
   if (error) {
     document.querySelector('#error-message').textContent = error.message;
     document
-      .querySelectorAll('button')
+      .querySelectorAll('.button')
       .forEach((button) => (button.disabled = false));
     return;
   }
@@ -351,27 +354,34 @@ document
   .add({ id: setupIntent.payment_method });
 
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = false));
 
 });
 
 //delete the saved card
 document
-.querySelector('#delete-card-button')
+.querySelector('.delete-card')
 .addEventListener('click', async (event) => {
   event.preventDefault();
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = true));
 
   //get the current selected card
-  const savedCardElem = document.querySelector('#saved-payment-method').options[document.querySelector('#saved-payment-method').selectedIndex];
+  let savedCardElem;
+  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+    if (radio.checked) {
+      savedCardElem = radio;
+      return;
+    }
+  })
+  let savedCardLabel = savedCardElem.nextElementSibling;
   const cardDocId = savedCardElem.id.substring(5, savedCardElem.id.length);
 
-  if (!confirm('Are you sure you want to delete ' + savedCardElem.textContent)) {
+  if (!confirm('Are you sure you want to delete ' + savedCardLabel.textContent)) {
     document
-    .querySelectorAll('button')
+    .querySelectorAll('.button')
     .forEach((button) => (button.disabled = false));
     return;
   }
@@ -383,7 +393,7 @@ document
   savedCardElem.remove();
 
   document
-  .querySelectorAll('button')
+  .querySelectorAll('.button')
   .forEach((button) => (button.disabled = false));
 })
 

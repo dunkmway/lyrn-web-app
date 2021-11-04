@@ -12,7 +12,6 @@ const stripe = new Stripe(functions.config().stripe.secret, {
 });
 
 const sgMail = require("@sendgrid/mail");
-const { firebaseConfig } = require("firebase-functions");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
 /**
@@ -110,6 +109,8 @@ exports.createStripePayment = functions.firestore
       await setProbation(parentRecord.uid)
       await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, amount, currency)
     }
+
+    return;
   } 
   catch (error) {
     //remove the parent from probation if their balance is now >= 0
@@ -120,13 +121,8 @@ exports.createStripePayment = functions.firestore
     //payment was unsuccessful but the account of the parent is still negative
     else {
       await setProbation(parentRecord.uid)
-      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, amount, currency)
+      await paymentFailedBalanceNegativeEmail(parentRecord.email, amount, currency)
     }
-
-    //place the parent on probation if their balance is now < 0
-    await admin.firestore().collection('stripe_customers').doc(parentRecord.uid).update({
-      probationDate: new Date().getTime()
-    })
 
     // We want to capture errors and render them in a user-friendly way, while
     // still logging an exception with StackDriver
@@ -136,6 +132,8 @@ exports.createStripePayment = functions.firestore
         status: 'error'
       }, { merge: true });
     await reportError(error, { user: context.params.userId });
+
+    return;
   }
 });
 
@@ -307,8 +305,8 @@ function getUserBalance(userUID) {
 
 async function setProbation(userUID) {
   //first check that the parent isn't already on probation
-  const userStripeDoc = await firebase.firestore().collection('stripe_customers').doc(userUID);
-  const probation = userStripeDoc.data().probation;
+  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID);
+  const probation = userStripeDoc.data().probationDate;
 
   if (probation) {
     //if they are already on probation do nothing (keep the oldest probation date)
@@ -316,16 +314,16 @@ async function setProbation(userUID) {
   }
   else {
     //place the user on probation from the current timestamp
-    await firebase.firestore().collection('stripe_customers').doc(userUID).update({
-      probation: new Date().getTime()
+    await admin.firestore().collection('stripe_customers').doc(userUID).update({
+      probationDate: new Date().getTime()
     })
     return;
   }
 }
 
 async function unsetProbation(userUID) {
-  await firebase.firestore().collection('stripe_customers').doc(userUID).update({
-    probation: null
+  await admin.firestore().collection('stripe_customers').doc(userUID).update({
+    probationDate: null
   })
   return;
 }

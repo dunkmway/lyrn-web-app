@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lyrn</title>
+    <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning.">
+    <title>Lyrn Tutoring</title>
+
+    <!-- Firebase -->
+    <script>
+      //this is so reCaptcha will trust local host
+      if (window.location.hostname == 'localhost') {
+        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+    <script src="index.js" defer></script>
+
+    <script src="Site Templates/formatting.js" defer></script>
 
     <link href="index.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
-    <!-- <script src="Site Templates/details_accordian.js" defer></script> -->
-    <script src="index.js" defer></script>
   </head>
 
   <body>
-    <header>
-      <img class="logo" src="Images/Lyrn_Logo.png" alt="lyrn logo">
+    <header class="nav-start">
+      <a href="#" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
       <input type="checkbox" id="nav-toggle" class="nav-toggle">
       <nav>
         <ul>
           <li><a href="#">Tutoring</a></li>
           <li><a href="#">Our Story</a></li>
-          <li><a href="Sign-In/Sign-In.html">Parent Portal</a></li>
+          <li><a href="sign-in.html">Parent Portal</a></li>
           <li><a href="#">Pricing</a></li>
-          <li><a class="enroll" href="#">Enroll</a></li>
+          <li><a class="enroll" href="#contact">Enroll</a></li>
         </ul>
       </nav>
       <label for="nav-toggle" class="nav-toggle-label">
@@ -34,13 +48,71 @@
     </main>
 
     <section class="hero">
+      <div class="hero__background">
+        <!-- center -->
+        <div class="background-item">Advanced Trig</div>
+        <div class="background-item">Word Choice</div>
+        <div class="background-item">Basic Equations</div>
+        <div class="background-item">Parts of Speech</div>
+        <div class="background-item">Fractions</div>
+        <div class="background-item">Interpreting Graphs</div>
+        <div class="background-item">Facts</div>
+        <div class="background-item">Main Idea</div>
+        <div class="background-item">Quadratics</div>
+        <div class="background-item">Extrapolation</div>
+        <div class="background-item">Sentence Structure</div>
+        <div class="background-item">Circles</div>
+        <div class="background-main">ACT Test Prep</div>
+        <div class="background-main">Subject Tutoring</div>
+        <div class="background-main">AP Exam Prep</div>
+        <div class="background-main">Homework Help</div>
+        <div class="background-main">Practice Test</div>
+
+        <!-- left -->
+        <div class="background-item">Advanced Trig</div>
+        <div class="background-item">Word Choice</div>
+        <div class="background-item">Basic Equations</div>
+        <div class="background-item">Parts of Speech</div>
+        <div class="background-item">Fractions</div>
+        <div class="background-item">Interpreting Graphs</div>
+        <div class="background-item">Facts</div>
+        <div class="background-item">Main Idea</div>
+        <div class="background-item">Quadratics</div>
+        <div class="background-item">Extrapolation</div>
+        <div class="background-item">Sentence Structure</div>
+        <div class="background-item">Circles</div>
+        <div class="background-main">ACT Test Prep</div>
+        <div class="background-main">Subject Tutoring</div>
+        <div class="background-main">AP Exam Prep</div>
+        <div class="background-main">Homework Help</div>
+        <div class="background-main">Practice Test</div>
+
+        <!-- right -->
+        <div class="background-item">Advanced Trig</div>
+        <div class="background-item">Word Choice</div>
+        <div class="background-item">Basic Equations</div>
+        <div class="background-item">Parts of Speech</div>
+        <div class="background-item">Fractions</div>
+        <div class="background-item">Interpreting Graphs</div>
+        <div class="background-item">Facts</div>
+        <div class="background-item">Main Idea</div>
+        <div class="background-item">Quadratics</div>
+        <div class="background-item">Extrapolation</div>
+        <div class="background-item">Sentence Structure</div>
+        <div class="background-item">Circles</div>
+        <div class="background-main">ACT Test Prep</div>
+        <div class="background-main">Subject Tutoring</div>
+        <div class="background-main">AP Exam Prep</div>
+        <div class="background-main">Homework Help</div>
+        <div class="background-main">Practice Test</div>
+      </div>
       <div class="hero__intro">
         <h1>Get Into Your Dream College</h1>
         <h4>ACT and Subject Tutoring with Adaptive Learning Intelligence</h4>
-        <div><a class="enroll">Enroll</a></div>
+        <div><a class="enroll" href="#contact">Enroll</a></div>
       </div>
       <div class="hero__body">
-          <img src="Images/Lyrn_hero_section_image.png">
+          <img src="Images/Lyrn_hero_section_image.png" alt="Adaptive Learning in action">
       </div>
     </section>
 
@@ -51,7 +123,7 @@
         or just want to get ahead on your homework, 
         Lyrn can help you ace your subject with a highly unique tutoring plan made just for you.
       </p>
-      <img src="Images/Lyrn_method_section_image.png">
+      <img src="Images/Lyrn_method_section_image.png" alt="Example course load">
     </section>
 
     <section class="about">
@@ -96,7 +168,7 @@
         in all college level subject matter courses.
       </p>
       <div class="breakdown">
-        <div>
+        <div class="act-logo">
           <img src="Images/logo-act-blue-300.png" alt="act logo">
         </div>
         <div>
@@ -110,7 +182,7 @@
       </div>
     </section>
 
-    <section class="contact">
+    <section class="contact" id="contact">
       <div class="filter"></div>
       <div class="contact__intro">
         <h2>Next Steps</h2>
@@ -123,11 +195,11 @@
         <h5>Schedule your Enrollment Conference and recieve your Adaptive Learning Course</h5>
         <form action="" id="contactForm">
           <label for="name">First and Last Name</label>
-          <input type="text" name="name" id="name">
+          <input type="text" name="name" id="name" required>
           <label for="email">Email Address</label>
-          <input type="email" name="email" id="email">
+          <input type="email" name="email" id="email" required>
           <label for="phoneNumber">Phone Number</label>
-          <input type="text" name="number" id="phoneNumber">
+          <input type="tel" id="number" name="number">
           <label for="course">Subject</label>
           <div class="select-wrapper">
             <select name="course" id="course" required>
@@ -138,8 +210,8 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <label for="notes">Notes</label>
-          <textarea name="notes" id="notes"></textarea>
+          <label for="message">Message</label>
+          <textarea name="message" id="message"></textarea>
           <input type="submit" value="Enroll" class="enroll">
         </form>
       </div>
@@ -148,18 +220,18 @@
     <section class="help">
       <h2 class="title">I need help with</h2>
       <div class="course-grid">
-        <a href="#" class="course-item"><h4>ACT Test Prep</h4></a>
-        <a href="#" class="course-item"><h4>Physics Homework</h4></a>
-        <a href="#" class="course-item"><h4>Math Homework</h4></a>
-        <a href="#" class="course-item"><h4>Reading Homework</h4></a>
-        <a href="#" class="course-item"><h4>English Homework</h4></a>
-        <a href="#" class="course-item"><h4>AP Test Prep</h4></a>
-        <a href="#" class="course-item"><h4>Chemistry Homework</h4></a>
-        <a href="#" class="course-item"><h4>Other Homework</h4></a>
+        <a href="" class="course-item"><h4>ACT Test Prep</h4></a>
+        <a href="" class="course-item"><h4>Physics Homework</h4></a>
+        <a href="" class="course-item"><h4>Math Homework</h4></a>
+        <a href="" class="course-item"><h4>Reading Homework</h4></a>
+        <a href="" class="course-item"><h4>English Homework</h4></a>
+        <a href="" class="course-item"><h4>AP Test Prep</h4></a>
+        <a href="" class="course-item"><h4>Chemistry Homework</h4></a>
+        <a href="" class="course-item"><h4>Other Homework</h4></a>
       </div>
     </section>
 
-    <section class="faq">
+    <!-- <section class="faq">
       <h2 class="title">FAQ</h2>
       <div class="details">
         <input type="checkbox" name="faq_1" id="faq_1" class="faq_toggle">
@@ -205,7 +277,7 @@
       </div>
     </section>
 
-    <section class="topics"></section>
+    <section class="topics"></section> -->
 
     <footer>
       <div class="links">
@@ -217,12 +289,12 @@
         <div>
           <h3>Site Map</h3>
           <ul>
-            <li><a href="">Home</a></li>
+            <li><a href="#">Home</a></li>
             <li><a href="">About Lyrn</a></li>
             <li><a href="">Enrollment</a></li>
-            <li><a href="">Parent Portal</a></li>
+            <li><a href="sign-in.html">Parent Portal</a></li>
             <li><a href="">Pricing</a></li>
-            <li><a href="">Log In</a></li>
+            <li><a href="sign-in.html">Log In</a></li>
           </ul>
         </div>
         <div>
@@ -237,7 +309,7 @@
         <div>
           <h3>Contact Us</h3>
           <ul>
-            <li><a href="">Email Us</a></li>
+            <li><a href="#contact">Email Us</a></li>
             <li><a href="">801-555-555</a></li>
           </ul>
         </div>

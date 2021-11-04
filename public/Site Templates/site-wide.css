@@ -93,5 +93,6 @@
 #customConfirmationSection .optionsContainer>div {
   color: #057AFB;
   padding: 10px;
+  cursor: pointer;
 }
 /********************************************************************************/
