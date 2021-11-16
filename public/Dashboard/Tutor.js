@@ -129,18 +129,21 @@ function eventClickHandler(info) {
   getEvent(info.event.id)
   .then((data) => {
     const queryStr = '?student=' + data.student;
+    console.log(data.type)
     switch(data.type) {
       case 'act':
+      case 'actFundamentals':
+      case 'actComprehensive':
         window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
         break;
       case 'subjectTutoring':
-        window.location.href == "../subject-tutoring-dash.html" + queryStr;
+        window.location.href = "../subject-tutoring-dash.html" + queryStr;
         break;
       case 'mathProgram':
-        window.location.href == "../math-program.html" + queryStr;
+        window.location.href = "../math-program.html" + queryStr;
         break;
       case 'phonicsProgram':
-        window.location.href == "../phonics-program.html" + queryStr;
+        window.location.href = "../phonics-program.html" + queryStr;
         break;
       default:
     }

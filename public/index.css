@@ -429,7 +429,7 @@ nav a:hover {
     color: var(--color-primary);
     margin-right: 1em;
     position: absolute;
-    top: .5em;
+    top: .625em;
     left: 1em;
   }
 
@@ -444,7 +444,7 @@ nav a:hover {
     text-align: center;
     font-size: 1.5em;
     font-weight: 900;
-    padding: .75em;
+    padding: .75em 0em .75em 1em;
     z-index: 1;
   }
 

@@ -4,10 +4,15 @@ let currentUser = {};
 let customerData = {};
 let parentData = {};
 let parentUID = queryStrings().parent;
-console.log(parentUID)
+let payoffAmount = 0;
+let remainingTime = 0;
 
 let payments = [];
 let charges = [];
+let balance = 0;
+
+const HOURS_TO_GET_DISCOUNT = 20;
+const DISCOUNT = 0.9;
  
 firebase.auth().onAuthStateChanged((firebaseUser) => {
   if (firebaseUser) {
@@ -151,6 +156,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          document.querySelector('#payments-list').appendChild(liElement);
        });
        updateBalance();
+       updatePayoffAmount();
      });
 
   /**
@@ -184,8 +190,69 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          document.querySelector('#charges-list').appendChild(liElement);
        });
        updateBalance();
+       updatePayoffAmount();
      });
- }
+
+  //get all of the remaining events that this parent is connected to
+  firebase.firestore()
+  .collection('Events')
+  .where('parents', 'array-contains', parentUID)
+  .where('start', '>', new Date().setHours(24))
+  .onSnapshot((snapshot) => {
+    remainingTime = 0;
+    payoffAmount = 0;
+    snapshot.forEach(doc => {
+      const { start, end, price } = doc.data();
+      remainingTime += (end - start);
+      payoffAmount += (price * 100);
+    })
+
+    console.log('payoff before dicount')
+    console.log(payoffAmount);
+
+    //apply discount
+    payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
+
+    payoffAmount -= balance;
+    togglePayoffAmount();
+
+    console.log('payoff after dicount')
+    console.log(payoffAmount);
+    console.log('time remaining')
+    console.log(remainingTime);
+  })
+}
+
+function updatePayoffAmount() {
+  firebase.firestore()
+  .collection('Events')
+  .where('parents', 'array-contains', parentUID)
+  .where('start', '>', new Date().setHours(24))
+  .get()
+  .then((snapshot) => {
+    remainingTime = 0;
+    payoffAmount = 0;
+    snapshot.forEach(doc => {
+      const { start, end, price } = doc.data();
+      remainingTime += (end - start);
+      payoffAmount += (price * 100);
+    })
+
+    console.log('payoff before dicount')
+    console.log(payoffAmount);
+
+    //if the remaining time is less than 20 hours then discount the payoff by 10%
+    payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
+
+    payoffAmount -= balance;
+    togglePayoffAmount();
+
+    console.log('payoff after dicount')
+    console.log(payoffAmount);
+    console.log('time remaining')
+    console.log(remainingTime);
+  })
+}
 
 function updateBalance() {
   let totalPaymentAmount = 0;
@@ -200,7 +267,7 @@ function updateBalance() {
   totalChargeAmount += charge.amount;
   })
 
-  const balance = totalPaymentAmount - totalChargeAmount;
+  balance = totalPaymentAmount - totalChargeAmount;
   document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
@@ -228,6 +295,30 @@ document
       document.querySelector('#delete-card-button').style.display = 'inline-block';
     }
   })
+})
+
+//payoff checkbox
+document
+.querySelector('#payoff')
+.addEventListener('change', togglePayoffAmount);
+
+function togglePayoffAmount() {
+  const payoffElement = document.querySelector('#payoff');
+  const amountElement = document.querySelector('#payment-amount');
+
+  if (payoffElement.checked) {
+    //place the payoff amount into the amount field
+    amountElement.value = payoffAmount / 100;
+  }
+  else {
+    //return the amount field to the default value;
+    updateBalance()
+  }
+}
+
+//remove payoff check if the amount is modified
+document.querySelector('#payment-amount').addEventListener('input', () => {
+  document.querySelector('#payoff').checked = false;
 })
  
  // Create payment form

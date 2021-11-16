@@ -5,7 +5,7 @@ exports.home = require('./home');
 exports.sign_in = require('./sign-in');
 exports.stripe = require('./stripe');
 exports.billing = require('./billing');
-exports.notifications = require('./notifications');
+exports.text_reminders = require('./text-reminders');
 admin.initializeApp();
 
 //don't let this request go public becuase it could really mess things up!!!

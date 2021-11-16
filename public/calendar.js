@@ -19,11 +19,12 @@ const CONFERENCE_COLOR = "#7FF3FB";
 const GENRAL_INFO_COLOR = "#B3B3B3";
 const TEACHER_MEETING_COLOR = "#B3B3B3";
 const AVAILABILITY_COLOR = "#F09C99";
+const TEST_COLOR = "#A985F7";
 
 let event_glance_timeout_id = null;
 
 const STAFF_ROLES = ['tutor', 'secretary', 'admin'];
-const LESSON_TYPES = ['act', 'subjectTutoring', 'mathProgram', 'phonicsProgram'];
+const LESSON_TYPES = ['act', 'subjectTutoring', 'apExam'];
 
 let current_user;
 
@@ -52,6 +53,10 @@ function initialSetup() {
       });
       addDropdownOptions(document.getElementById('calendarLocation'), locationIDs, locationNames, locationChange);
       addDropdownOptions(document.getElementById('calendarType'), ['availability', 'event', 'opening'], ['Availability', 'Event', 'Opening'], typeChange);
+
+      //select the event calendar by default and the first location
+      document.querySelector('#calendarType .dropdown-content>div[data-value="event"]').dispatchEvent(new Event('click'));
+      document.querySelector('#calendarLocation .dropdown-content>div').dispatchEvent(new Event('click'));
     })
     .catch((error) =>{
       console.log(error);
@@ -1408,6 +1413,14 @@ function showAddAvailabilityWrapper() {
   document.getElementById('addAvailabilityWrapper').classList.remove("displayNone")
 }
 
+function showAddTestWrapper() {
+  document.getElementById('addTestWrapper').classList.remove("displayNone")
+}
+
+function showEditTestWrapper() {
+  document.getElementById('editTestWrapper').classList.remove("displayNone")
+}
+
 function setupEditSidebar(eventData, eventID) {
   switch (eventData.type) {
     case 'teacherMeeting':
@@ -1436,6 +1449,9 @@ function setupEditSidebar(eventData, eventID) {
       break
     case 'phonicsProgram':
       setupEditLesson(eventData, eventID);
+      break
+    case 'test':
+      setupEditTest(eventData, eventID);
       break
     default:
   }
@@ -1466,6 +1482,9 @@ function setupAddSidebar(type) {
       break
     case 'availability':
       setupAddAvailability();
+      break
+    case 'test':
+      setupAddTest();
       break
     default:
   }
@@ -2117,6 +2136,38 @@ function setupAddAvailability() {
   openCalendarSidebar();
 }
 
+function setupAddTest() {
+  //close the sidebar just in case another tab is open.
+  if (!closeCalendarSidebar()) {
+    return
+  }
+  calendar_mode = "addTest";
+  main_calendar.setOption('selectable', true);
+
+  showAddTestWrapper();
+  openCalendarSidebar();
+}
+
+function setupEditTest(data, id) {
+  if (!closeCalendarSidebar()) {
+    return
+  }
+  calendar_mode = 'editTest';
+  main_calendar.getEventById(id).setProp('editable', true);
+
+  //fill in all saved data
+  old_calendar_event_id = id;
+  old_calendar_event = {...data};
+  pending_calendar_event_id = id;
+  pending_calendar_event = {...data};
+
+  //fill in appropriate fields
+  document.getElementById('editTestType').textContent = data.title;
+
+  showEditTestWrapper();
+  openCalendarSidebar();
+}
+
 function sidebarWorking() {
   document.getElementById('sidebar').querySelectorAll('button').forEach(button => {
     button.disabled = true;
@@ -2320,7 +2371,6 @@ function submitAddGeneralInfo() {
     let recurringPendingEventsFulfilled = [];
     let recurringEventsFulfilled = [];
 
-    let studentConflicts = [];
     let staffConflicts = [];
     let staffUnavailable = [];
     let pendingEvents = [];
@@ -2352,11 +2402,11 @@ function submitAddGeneralInfo() {
                 .then((staffConflict) => {
                   if (staffConflict) {
                     staffConflicts.push(staffConflict)
-                    return alert('This staff has a conflict with a(n) ' + 
-                      eventTypeReadable(staffConflict.data().type) + ' event from ' +
-                      convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
-                      convertFromDateInt(staffConflict.data().end).longReadable
-                    )
+                    // return alert('This staff has a conflict with a(n) ' + 
+                    //   eventTypeReadable(staffConflict.data().type) + ' event from ' +
+                    //   convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+                    //   convertFromDateInt(staffConflict.data().end).longReadable
+                    // )
                   }
 
                   let availablePromises = [];
@@ -2369,7 +2419,7 @@ function submitAddGeneralInfo() {
                     for (let i = 0; i < areAvailable.length; i++) {
                       if (!areAvailable[i].isAvailable) {
                         staffUnavailable.push(areAvailable[i])
-                        alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
+                        // alert('The staff are not available at this time: staffID = ' + areAvailable[i].staff)
                       }
                     }
 
@@ -2396,7 +2446,7 @@ function submitAddGeneralInfo() {
 
         Promise.all(recurringPendingEventsFulfilled)
         .then(() => {
-          if (studentConflicts.length == 0 && staffConflicts.length == 0 && staffUnavailable.length == 0) {
+          if (staffConflicts.length == 0 && staffUnavailable.length == 0) {
             console.log(pendingEvents);
             pendingEvents.forEach(event => {
               recurringEventsFulfilled.push(saveGeneralInfo(event));
@@ -2417,10 +2467,33 @@ function submitAddGeneralInfo() {
           }
           else {
             sidebarNotWorking();
-            console.log(studentConflicts);
             console.log(staffConflicts);
             console.log(staffUnavailable);
             console.log(pendingEvents);
+
+            let displayMessage = `
+            <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
+            <p>I tried my best to schedule the events you had inputted but we ran into some issues</p>
+            <p>so I aborted the entire operation. No event was saved.</p>
+            <p>Here is a list of the events that had issues.</p>
+            <ul>
+          `
+          staffConflicts.forEach(conflictDoc => {
+            displayMessage += `
+              <li>The staff ${conflictDoc.staffName} has a conflict with ${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}.</li>
+            `
+          })
+          staffUnavailable.forEach(unavailable => {
+            displayMessage += `
+              <li>One of the staff on the list is not available from ${convertFromDateInt(unavailable.start).longReadable} to ${convertFromDateInt(unavailable.end).longReadable}.
+              Yeah I know I'm being super lazy by not giving the name of the staff but if you found this congratulations you can come bother me about it.
+              -Duncan Morais</li>
+            `
+          })
+          displayMessage += `
+            </ul>
+          `
+          customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
           }
         })
       }
@@ -3155,11 +3228,11 @@ function submitAddLesson() {
               .then((studentConflict) => {
                 if (studentConflict) {
                   studentConflicts.push(studentConflict);
-                  alert('This student has a conflict with a(n) ' + 
-                    eventTypeReadable(studentConflict.data().type) + ' event from ' +
-                    convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
-                    convertFromDateInt(studentConflict.data().end).longReadable
-                  )
+                  // alert('This student has a conflict with a(n) ' + 
+                  //   eventTypeReadable(studentConflict.data().type) + ' event from ' +
+                  //   convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+                  //   convertFromDateInt(studentConflict.data().end).longReadable
+                  // )
                 }
 
                 return getRandomOpenTutor(start, end, staff, staffNames)
@@ -3181,10 +3254,10 @@ function submitAddLesson() {
                   else {
                     sidebarNotWorking();
                     staffConflicts.push({
-                      start : new Date(start),
-                      end : new Date(end)
+                      start : start,
+                      end : end
                     })
-                    alert('None of the tutors given are open from ' + convertFromDateInt(start).longReadable + ' to ' + convertFromDateInt(end).longReadable + '. Try adding more tutors to the options or change the time of this lesson.')
+                    // alert('None of the tutors given are open from ' + convertFromDateInt(start).longReadable + ' to ' + convertFromDateInt(end).longReadable + '. Try adding more tutors to the options or change the time of this lesson.')
                   }
                 })
               })
@@ -3223,6 +3296,27 @@ function submitAddLesson() {
           console.log(studentConflicts);
           console.log(staffConflicts);
           console.log(pendingEvents);
+
+          let displayMessage = `
+            <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
+            <p>I tried my best to schedule the lessons you had inputted but we ran into some issues so I aborted the entire operation. No lesson was saved.</p>
+            <p>Here is a list of the events that had issues.</p>
+            <ul>
+          `
+          studentConflicts.forEach(conflictDoc => {
+            displayMessage += `
+              <li>The student has a conflict with ${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}.</li>
+            `
+          })
+          staffConflicts.forEach(conflict => {
+            displayMessage += `
+              <li>No tutor is available from ${convertFromDateInt(conflict.start).longReadable} to ${convertFromDateInt(conflict.end).longReadable}.</li>
+            `
+          })
+          displayMessage += `
+            </ul>
+          `
+          customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
         }
       })
     }
@@ -3464,35 +3558,35 @@ function submitAddAvailability() {
         }
       })
 
-      //try and correct the conflicts created by the change in availability
-      fixAvailabilityChangeConflicts(staff, pending_recurring_start.start.getTime(), pending_recurring_end.end.getTime())
-      .then(conflicts => {
-        console.log('remaining conflicts', conflicts);
-        if (conflicts.length > 0) {
-          let displayMessage = `
-            <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
-            <p>I tried my best to resolve the conflicts that were created by this action.</p>
-            <p>Here is a list of the events I could not fix for ${staffName}.</p>
-            <ul>
-          `
-          conflicts.forEach(conflictDoc => {
-            displayMessage += `
-              <li>${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}</li>
+      //then finish the availability process
+      Promise.all(recurringEventsFulfilled)
+      .then(events => {
+        events.forEach(event => {
+          main_calendar.addEventSource([event]);
+        })
+        closeCalendarSidebar(true);
+        
+        //try and correct the conflicts created by the change in availability
+        fixAvailabilityChangeConflicts(staff, pending_recurring_start.start.getTime(), pending_recurring_end.end.getTime())
+        .then(conflicts => {
+          console.log('remaining conflicts', conflicts);
+          if (conflicts.length > 0) {
+            let displayMessage = `
+              <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
+              <p>I tried my best to resolve the conflicts that were created by this action.</p>
+              <p>Here is a list of the events I could not fix for ${staffName}.</p>
+              <ul>
             `
-          })
-          displayMessage += `
-            </ul>
-          `
-          customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
-        }
-
-        //then finish the availability process
-        Promise.all(recurringEventsFulfilled)
-        .then(events => {
-          events.forEach(event => {
-            main_calendar.addEventSource([event]);
-          })
-          closeCalendarSidebar(true);
+            conflicts.forEach(conflictDoc => {
+              displayMessage += `
+                <li>${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}</li>
+              `
+            })
+            displayMessage += `
+              </ul>
+            `
+            customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
+          }
         })
       })
     })
@@ -3501,6 +3595,66 @@ function submitAddAvailability() {
     sidebarNotWorking();
     console.log(error);
     alert("We are having issues saving this availability :(\nPlease try again and if the issue persist please contact the devs.");
+  })
+}
+
+function submitAddTest() {
+  sidebarWorking();
+  const start = pending_calendar_event.start;
+  const end = pending_calendar_event.end;
+  const allDay = pending_calendar_event.allDay;
+  const type = document.getElementById('addTestType').value;
+  const location = document.getElementById('calendarLocation').dataset.value;
+
+  if (!start || !type || !location) {
+    sidebarNotWorking();
+    return alert("It looks like you're still missing some data for this test");
+  }
+
+  if (confirm("Are you sure you want to submit this event?")) {
+    
+    eventInfo = {
+      type: type,
+      start: start,
+      end: end,
+      allDay, allDay,
+      location: location,
+      color: TEST_COLOR,
+      textColor: tinycolor.mostReadable(TEST_COLOR, ["#FFFFFF", "000000"]).toHexString()
+    }
+
+    saveTest(eventInfo)
+    .then((event) => {
+      //FIXME: This should automatically update for the client and put it in a pending status
+      main_calendar.addEventSource([event]);
+      closeCalendarSidebar(true);
+    })
+  }
+  else {
+    sidebarNotWorking();
+  }
+}
+
+function updateEditTest() {
+  sidebarWorking();
+  if (!confirm('Are you sure you want to update this test?')) {
+    sidebarNotWorking();
+    return
+  }
+
+  firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+  .then(() => {
+    main_calendar.getEventById(pending_calendar_event_id).remove();
+    main_calendar.addEventSource([{
+      id: pending_calendar_event_id,
+      ...pending_calendar_event
+    }])
+    closeCalendarSidebar(true);
+  })
+  .catch((error) => {
+    sidebarNotWorking();
+    console.log(error);
+    alert("We are having issues saving this test :(\nPlease try again and if the issue persist please contact the devs.");
   })
 }
 
@@ -3982,6 +4136,45 @@ function saveAvailability(eventInfo) {
   })
 }
 
+function saveTest(eventInfo) {
+    let testTypeReadable = ""
+
+    switch(eventInfo.type) {
+      case 'actTest':
+        testTypeReadable = 'ACT Test';
+        break;
+      case 'satTest':
+        testTypeReadable = 'SAT Test';
+        break;
+      default:
+        testTypeReadable = 'Test';
+    }
+
+    const eventRef = firebase.firestore().collection("Events").doc()
+    let eventData = {
+      type: 'test',
+      title: testTypeReadable,
+      start: parseInt(eventInfo.start),
+      end: parseInt(eventInfo.end),
+      allDay: eventInfo.allDay,
+      location: eventInfo.location,
+      color: eventInfo.color,
+      textColor: eventInfo.textColor,
+    }
+    return eventRef.set(eventData)
+    .then(() => {
+      return {
+        id: eventRef.id,
+        title: eventData.title,
+        start: convertFromDateInt(eventData.start).fullCalendar,
+        end: convertFromDateInt(eventData.end).fullCalendar,
+        allDay: eventData.allDay,
+        color: eventData.color,
+        textColor: eventData.textColor,
+      }
+    })
+}
+
 /**
  * The callback when selecting a date range
  */
@@ -4298,7 +4491,9 @@ function checkStaffAvailability(staffUID, start, end) {
     if (availabilitySnapshot.empty) {
       return {
         isAvailable: false,
-        staff: staffUID
+        staff: staffUID,
+        start: start,
+        end: end
       }
     }
     else {
@@ -4306,14 +4501,18 @@ function checkStaffAvailability(staffUID, start, end) {
       if (availabilitySnapshot.docs[0].data().start <= start) {
         return {
           isAvailable: true,
-          staff: staffUID
+          staff: staffUID,
+          start: start,
+          end: end
         }
       }
       //else they are not
       else {
         return {
           isAvailable: false,
-          staff: staffUID
+          staff: staffUID,
+          start: start,
+          end: end
         }
       }
     }

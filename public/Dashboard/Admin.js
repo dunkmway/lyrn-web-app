@@ -868,14 +868,14 @@ function setupNavigationModal(studentUID, parentUID) {
     modal.style.display = 'none';
     window.location.href = "../subject-tutoring-dash.html" + studentQueryStr
   };
-  document.getElementById("mathProgramNav").onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = "../math-program.html" + studentQueryStr
-  };
-  document.getElementById("phonicsProgramNav").onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = "../phonics-program.html" + studentQueryStr
-  };
+  // document.getElementById("mathProgramNav").onclick = () => {
+  //   modal.style.display = 'none';
+  //   window.location.href = "../math-program.html" + studentQueryStr
+  // };
+  // document.getElementById("phonicsProgramNav").onclick = () => {
+  //   modal.style.display = 'none';
+  //   window.location.href = "../phonics-program.html" + studentQueryStr
+  // };
   document.getElementById("registrationNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../inquiry.html" + studentQueryStr;

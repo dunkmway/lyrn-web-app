@@ -700,8 +700,8 @@ MASTER */
 }
 
 #logo {
-    height: calc(0.75 * 9vh);
-    width: calc(0.75 * 2.51 * 9vh);
+    height: calc(0.5 * 9vh);
+    width: calc(0.5 * 2.51 * 9vh);
     cursor: pointer;
 }
 

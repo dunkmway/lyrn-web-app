@@ -98,6 +98,7 @@
         <div onclick="setupAddSidebar('lesson')">Lesson</div>
         <div onclick="setupAddSidebar('practiceTest')">Practice Test</div>
         <div onclick="setupAddSidebar('teacherMeeting')">Teacher Meeting</div>
+        <div onclick="setupAddSidebar('test')">Test</div>
         <div onclick="setupAddSidebar('testReview')">Test Review</div>
       </div>
     </div>
@@ -135,6 +136,7 @@
               <option value="practiceTest">Practice Test</option>
               <option value="subjectTutoring">Subject Tutoring</option>
               <option value="teacherMeeting">Teacher Meeting</option>
+              <option value="test">Test</option>
               <option value="testReview">Test Review</option>
             </select>
           </div>
@@ -694,6 +696,55 @@
           <button onclick="closeCalendarSidebar()" class="button">cancel</button>
           <!-- <button onclick="updateEditAvailability()" class="button">update</button> -->
           <!-- <button onclick="deleteEventCallback()" class="button danger">delete</button> -->
+        </div>
+      </div>
+
+      <!---------------------------->
+      <!----- add test ----->
+      <!---------------------------->
+      <div id="addTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Click and drag over the times you want to add Test.">?</div>
+        <h3>Add Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- test type -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the test type">?</div>
+          <label for="addTestType" class="label">Type</label>
+        </div>
+        <select id="addTestType" name="addTestType" class="ui dropdown search selection">
+          <option value="">Choose a type</option>
+          <option value="actTest">ACT</option>
+          <option value="satTest">SAT</option>
+        </select>
+
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="submitAddTest()" class="button">submit</button>
+        </div>
+      </div>
+
+      <!----------------------------->
+      <!----- edit test ----->
+      <!----------------------------->
+      <div id="editTestWrapper" class="sidebarContent displayNone">
+        <div class="more-info " data-more-info="Drag the event to change its time or pull down on the botton to change its length.">?</div>
+        <h3>Edit Test</h3>
+        <div class="headerLine"></div>
+
+        <!-- type of test -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the type of test">?</div>
+          <label for="editTestType" class="label">Type</label>
+        </div>
+        <div id="editTestType" name="editTestType" class="input nonEditable"></div>
+        
+        <!-- buttons -->
+        <div class="bottom">
+          <button onclick="closeCalendarSidebar()" class="button">cancel</button>
+          <button onclick="updateEditTest()" class="button">update</button>
+          <button onclick="deleteEventCallback()" class="button danger">delete</button>
         </div>
       </div>
 
