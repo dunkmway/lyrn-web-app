@@ -74,12 +74,28 @@
         </div>
       </div>
       <div class="transactions">
-        <h4>Transaction History</h4>
-        <p>Payments</p>
+        <h4>Payment History</h4>
+        <!-- <p>Payments</p>
         <ul id="payments-list"></ul>
         <p>Charges</p>
-        <ul id="charges-list"></ul>
-        <h2 id="balance"></h2>
+        <ul id="charges-list"></ul> -->
+        <div class="table-wrapper">
+          <table id="payments-table">
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>STATUS</th>
+                <th>AMOUNT</th>
+                <th>CARD</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="balance-wrapper">
+          <h4>Balance:</h4>
+          <h2 id="balance"></h2>
+        </div>
       </div>
     </section>
   </main>

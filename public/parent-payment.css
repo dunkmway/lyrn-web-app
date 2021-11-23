@@ -353,6 +353,10 @@ main {
   max-height: min-content;
 }
 
+.log-out:hover {
+  background-color: #dadada;
+}
+
 .pay-wrapper #error-message {
   color: var(--color-accent-5-deep);
   font-size: 1em;
@@ -360,6 +364,14 @@ main {
 
 .button {
   cursor: pointer;
+
+  background-position: left;
+  background-size: 200%;
+  transition: background-position 200ms ease-out;
+}
+
+.button:hover {
+  background-position: right;
 }
 
 .welcome {
@@ -399,6 +411,7 @@ main {
 .payments .make-payment label {
   display: block;
   padding: .5em 0em;
+  font-size: 1.25em;
 }
 
 .payments .make-payment input[type='text'] {
@@ -427,7 +440,7 @@ main {
   height: 3em;
   width: min-content;
   white-space: nowrap;
-  background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
+  background-image: linear-gradient(45deg, var(--color-accent-5-light), var(--color-accent-1-light), var(--color-accent-5-light));
   color: white;
   border-radius: .5em;
 }
@@ -437,7 +450,7 @@ main {
   height: 3em;
   width: min-content;
   white-space: nowrap;
-  background-image: linear-gradient(45deg, var(--color-accent-4-light), 65%, var(--color-accent-5-light));
+  background-image: linear-gradient(45deg, var(--color-accent-4-light), var(--color-accent-5-light), var(--color-accent-4-light));
   color: white;
   border-radius: .5em;
 }
@@ -457,7 +470,8 @@ main {
   border-radius: .5em;
   text-align: center;
   padding: 1em;
-  background-image: linear-gradient(45deg, var(--color-accent-3-light), 65%, var(--color-accent-4-light));
+  font-size: 1.25em;
+  background-image: linear-gradient(45deg, var(--color-accent-4-light), var(--color-accent-3-light), var(--color-accent-4-light));
 }
 
 .pay-wrapper p {
@@ -467,11 +481,12 @@ main {
 }
 
 .payments .transactions {
-  height: 80vh;
+  height: 70vh;
   margin-top: 1em;
   border: 2px solid var(--color-secondary);
-  padding: 1em;
   border-radius: .5em;
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (min-width: 800px) {
@@ -501,6 +516,76 @@ main {
   text-decoration: underline;
 }
 
+.payments .transactions h4 {
+  margin: 1em 0em 1em 1em;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  border-bottom: 2px solid #E7E8E9;
+}
+
+#payments-table {
+  width: 100%;
+  height: 100%;
+  border-spacing: 0px;
+  border-collapse: separate;
+}
+
+#payments-table tr {
+  color: #A3A3A3;
+  font-size: 1rem;
+  text-align: center;
+}
+
+#payments-table th {
+  padding: 0;
+  color: #A3A3A3;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0em 0em 1em;
+  background-color: var(--color-primary);
+
+  /* position: sticky;
+  top: 0px;
+  z-index: 1; */
+}
+
+#payments-table td {
+  padding: 2em 0em;
+  color: #000;
+  font-size: .9rem;
+  text-align: center;
+  border-bottom: 2px solid #E7E8E9;
+}
+
+#payments-table td .status {
+  border-radius: .25em;
+  text-align: center;
+  padding: .25em 0em;
+  width: 70%;
+  transform: translateX(22.5%);
+}
+
+#payments-table td .status.green {
+  color: #67C857;
+  background-color: #CAF9D0;
+  border: 2px solid #67C857;
+}
+
+#payments-table td .status.yellow {
+  color: #F5B433;
+  background-color: #FDEDCE;
+  border: 2px solid #F5B433;
+}
+
+#payments-table td .status.red {
+  color: #E87271;
+  background-color: #F8D8D8;
+  border: 2px solid #E87271;
+}
+
 #payments-list {
   list-style: none;
   padding: 0;
@@ -515,18 +600,34 @@ main {
   overflow-y: scroll;
 }
 
-#balance {
-  margin-top: 1em;
+.balance-wrapper {
+  padding: 1em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
 }
 
-#balance::before {
+#balance {
+  padding: 0em .5em;
+}
+
+.payments .transactions .balance-wrapper * {
+  margin: 0;
+  color: #A5A5A5;
+}
+
+/* .balance-wrapper::before {
   content: '';
   height: 2px;
   width: 100%;
   background-color: var(--color-tertiary);
   display: block;
   margin-bottom: .5em;
-}
+  transform: translateX(-1em);
+  position: absolute;
+  top: -.2em;
+} */
 
 footer {
   padding: 2em;

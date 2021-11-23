@@ -71,7 +71,7 @@ a {
   position: relative;
 }
 
-.sign-in .wrapper::after {
+/* .sign-in .wrapper::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -80,7 +80,7 @@ a {
   height: 1em;
   display: block;
   background-color: var(--color-tertiary);
-}
+} */
 
 .sign-in .logo {
   min-width: 200px;

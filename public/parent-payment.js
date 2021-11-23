@@ -108,54 +108,109 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
      .collection('payments')
      .onSnapshot((snapshot) => {
       payments = [];
-       snapshot.forEach((doc) => {
-         const payment = doc.data();
-         payment.docId = doc.id;
-         payments.push(payment);
-         console.log(payment)
-       })
+      snapshot.forEach((doc) => {
+        const payment = doc.data();
+        payment.docId = doc.id;
+        payments.push(payment);
+      })
 
-       payments.sort((a,b) => b.created - a.created);
-       payments.forEach(payment => {
+      payments.sort((a,b) => a.created - b.created);
+      payments.forEach(payment => {
+        //see if this payment row already exists
+        let paymentRow = document.getElementById(`payment-${payment.docId}`);
 
-         let liElement = document.getElementById(`payment-${payment.docId}`);
-         if (!liElement) {
-           liElement = document.createElement('li');
-           liElement.id = `payment-${payment.docId}`;
-         }
+        let date = convertFromDateInt(payment.created * 1000)['shortDate'];
+        let status = payment.status;
+        let statusColor = null;
+        let statusWord = null;
+        switch (status) {
+          case 'new':
+          case 'requires_confirmation':
+            statusColor = 'yellow';
+            statusWord = 'PENDING';
+            break;
+          case 'succeeded':
+            statusColor = 'green';
+            statusWord = 'PAID';
+            break;
+          default:
+            statusColor = 'red';
+            statusWord = 'DECLINED';
+        }
+        let amount = formatAmount(payment.amount, payment.currency);
+        let card = payment?.charges?.data[0]?.payment_method_details?.card;
+        let cardDetails = card ? `${card.brand} •••• ${card.last4}` : "••••";
+
+        //if it does then update the table data
+        if (paymentRow) {
+          paymentRow.querySelector('.date').textContent = date;
+          paymentRow.querySelector('.status').innerHTML = `<div class='status ${statusColor}'>${statusWord}</div>`;
+          paymentRow.querySelector('.amount').textContent = amount;
+          paymentRow.querySelector('.card').textContent = cardDetails;
+        }
+        //if not create it
+        else {
+          paymentRow = document.createElement('tr');
+          paymentRow.id = `payment-${payment.docId}`;
+          paymentRow.innerHTML = `
+            <td class='date'>${date}</td>
+            <td class='status'>
+              <div class='status ${statusColor}'>${statusWord}</div>
+            </td>
+            <td class='amount'>${amount}</td>
+            <td class='card'>${cardDetails}</td>
+          `
+          document.querySelector('#payments-table tbody').prepend(paymentRow);
+          //only scroll after the first load in
+          if (document.timeline.currentTime > 5000) {
+            paymentRow.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+          }
+        }
+
+
+
+
+
+
+
+      //    let liElement = document.getElementById(`payment-${payment.docId}`);
+      //    if (!liElement) {
+      //      liElement = document.createElement('li');
+      //      liElement.id = `payment-${payment.docId}`;
+      //    }
  
-         console.log('got new payment')
-         console.log(payment.status)
-         let content = '';
-         if (
-           payment.status === 'new' ||
-           payment.status === 'requires_confirmation'
-         ) {
-           console.log('new payment')
-           content = `Creating Payment of ${formatAmount(
-             payment.amount,
-             payment.currency
-           )} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-         } else if (payment.status === 'succeeded') {
-           const card = payment.charges.data[0].payment_method_details.card;
-           content = `✅ ${formatAmount(
-             payment.amount,
-             payment.currency
-           )} with ${card.brand} card •••• ${card.last4} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-         } else if (payment.status === 'requires_action') {
-           content = `🚨 ${formatAmount(
-             payment.amount,
-             payment.currency
-           )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-           handleCardAction(payment, doc.id);
-         } else {
-           content = `⚠️ ${formatAmount(
-             payment.amount,
-             payment.currency
-           )} ${payment.error} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-         }
-         liElement.innerText = content;
-         document.querySelector('#payments-list').appendChild(liElement);
+      //    console.log('got new payment')
+      //    console.log(payment.status)
+      //    let content = '';
+      //    if (
+      //      payment.status === 'new' ||
+      //      payment.status === 'requires_confirmation'
+      //    ) {
+      //      console.log('new payment')
+      //      content = `Creating Payment of ${formatAmount(
+      //        payment.amount,
+      //        payment.currency
+      //      )} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
+      //    } else if (payment.status === 'succeeded') {
+      //      const card = payment.charges.data[0].payment_method_details.card;
+      //      content = `✅ ${formatAmount(
+      //        payment.amount,
+      //        payment.currency
+      //      )} with ${card.brand} card •••• ${card.last4} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
+      //    } else if (payment.status === 'requires_action') {
+      //      content = `🚨 ${formatAmount(
+      //        payment.amount,
+      //        payment.currency
+      //      )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
+      //      handleCardAction(payment, doc.id);
+      //    } else {
+      //      content = `⚠️ ${formatAmount(
+      //        payment.amount,
+      //        payment.currency
+      //      )} ${payment.error} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
+      //    }
+      //    liElement.innerText = content;
+      //    document.querySelector('#payments-list').appendChild(liElement);
        });
        updateBalance();
      });
@@ -175,20 +230,20 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          const charge = doc.data();
          charges.push(charge);
  
-         let liElement = document.getElementById(`charge-${doc.id}`);
-         if (!liElement) {
-           liElement = document.createElement('li');
-           liElement.id = `charge-${doc.id}`;
-         }
+        //  let liElement = document.getElementById(`charge-${doc.id}`);
+        //  if (!liElement) {
+        //    liElement = document.createElement('li');
+        //    liElement.id = `charge-${doc.id}`;
+        //  }
  
-         let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
-         if (charge.eventStart && charge.eventEnd) {
-           //remove period
-           content = content.substring(0, content.length - 1);
-           content += ` from ${convertFromDateInt(charge.eventStart)['longDate']} to ${convertFromDateInt(charge.eventEnd)['time']}.`
-         }
-         liElement.innerText = content;
-         document.querySelector('#charges-list').appendChild(liElement);
+        //  let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
+        //  if (charge.eventStart && charge.eventEnd) {
+        //    //remove period
+        //    content = content.substring(0, content.length - 1);
+        //    content += ` from ${convertFromDateInt(charge.eventStart)['longDate']} to ${convertFromDateInt(charge.eventEnd)['time']}.`
+        //  }
+        //  liElement.innerText = content;
+        //  document.querySelector('#charges-list').appendChild(liElement);
        });
        updateBalance();
      });
@@ -209,8 +264,9 @@ function updateBalance() {
 
   const balance = totalPaymentAmount - totalChargeAmount;
   document.querySelector('#amount').value = balance < 0 ? '$' + (balance / -100).toString() : '';
-  const symbol = balance < 0 ? '🚨' : '✅';
-  document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
+  const color = balance < 0 ? '#E87271' : '#67C857';
+  document.querySelector('#balance').textContent = `${formatAmount(balance, 'USD')}`;
+  document.querySelector('#balance').style.color = color;
 }
  
  /**
@@ -289,7 +345,7 @@ document
     currency,
     amount: formatAmountForStripe(amount, currency),
     status: 'new',
-    created: new Date().getTime()
+    created: new Date().getTime() / 1000
   };
 
   await firebase
@@ -304,6 +360,7 @@ document
   .forEach((button) => (button.disabled = false));
 
   cardElement.clear();
+  document.querySelector('#cardholderName').value = "";
 });
 
 //save the new card

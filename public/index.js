@@ -60,16 +60,17 @@ function setAboutAnimations() {
         setTimeout(() => {
           animationElem.classList.remove('remove');
           setAboutAnimations();
-        }, 5000)
+        }, 2000)
       }
       catch (error) {
-        console.log(error)
+        // console.log(error)
       }
     }
   })
 }
 
-setAboutAnimations();
+//wait for the animations to load
+setTimeout(setAboutAnimations, 500)
 
 //listen for the about checkboxes to be changed by the user
 document.querySelectorAll('.about .about_toggle').forEach(toggle => {
