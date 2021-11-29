@@ -227,7 +227,7 @@ function goToDashboard() {
                     window.location.replace(location.origin + "/Dashboard/Admin");
                     break;
                     case "dev":
-                    window.location.replace(location.origin + "/Dashboard/Admin");
+                    window.location.replace(location.origin + "/Dashboard/Dev");
                     break;
                     default:
                     

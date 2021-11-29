@@ -11,6 +11,7 @@ body {
 
 #mainCalendarContent {
   height: 80vh;
+  margin-top: 3em;
 }
 
 .input-row {
