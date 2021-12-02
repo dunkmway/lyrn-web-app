@@ -103,7 +103,24 @@ exports.addUser = functions.https.onCall((data, context) => {
         });
     }
     else {
-        throw new functions.https.HttpsError("unauthenticated", "You messed up big time... go fix it")
+        throw new functions.https.HttpsError("permission-denied", "You messed up big time... go fix it")
+    }
+});
+
+exports.addUserRole = functions.https.onCall((data, context) => {
+    //this function will only allow for adding a student or parent role
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', "User must be authenticated");
+    }
+    else {
+        if (data.role == 'student' || data.role == 'parent') {
+            return admin.auth().setCustomUserClaims(context.auth.uid, {
+                role: data.role
+            })
+        }
+        else {
+            throw new functions.https.HttpsError('permission-denied', "Role must be either student or parent");
+        }
     }
 });
 

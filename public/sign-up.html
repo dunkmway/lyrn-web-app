@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. Data driven success for your student in any class or upcoming test.">
+    <title>Lyrn | Data Driven Tutoring through Adaptive Learning</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+    <script src="sign-up.js" defer></script>
+
+    <script src="Site Templates/formatting.js" defer></script>
+
+    <link href="sign-up.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+  </head>
+
+  <body>
+    <header class="nav-start">
+      <a href="#" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="story.html">Our Story</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="sign-in.html">Sign In</a></li>
+          <li><a class="enroll" href="enroll.html">Enroll</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section class="register">
+        <form action="" id="signup">
+          <input type="radio" name="type" id="student" value="student" checked required>
+          <label for="student">Student</label>
+          <input type="radio" name="type" id="parent" value="parent" required>
+          <label for="parent">Parent</label>
+          <label for="firstName">First Name</label>
+          <input type="text" name="firstName" id="firstName" required>
+          <label for="lastName">Last Name</label>
+          <input type="text" name="lastName" id="lastName" required>
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" required>
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" required>
+          <input type="checkbox" name="hidePassword" id="hidePassword" checked>
+          <label for="hidePassword">Hide Passwrod</label>
+          <input type="submit" value="Sign Up!">
+        </form>
+      </section>
+      <section class="topics"></section>
+    </main>
+
+    <footer>
+      <div class="links">
+        <div>
+          <div class="logo-box">
+            <img src="Images/Lyrn_Logo.png" alt="Lyrn Logo">
+          </div>
+        </div>
+        <div>
+          <h3>Site Map</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="story.html">About Lyrn</a></li>
+            <li><a href="enroll.html">Enrollment</a></li>
+            <li><a href="sign-in.html">Parent Portal</a></li>
+            <li><a href="">Pricing</a></li>
+            <li><a href="sign-in.html">Log In</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Social</h3>
+          <ul>
+            <li><a href="">Instagram</a></li>
+            <li><a href="">Facebook</a></li>
+            <li><a href="">LinkedIn</a></li>
+            <li><a href="">TikTok</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contact Us</h3>
+          <ul>
+            <li><a href="mailto:contact@lyrnwithus.com">contact@lyrnwithus.com</a></li>
+            <li><a href="tel:+13857070215">(385) 707-0215</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="copyright">Copyright © 2021 Advanced Education Solutions LLC. All rights reserved.</p>
+    </footer>
+  </body>

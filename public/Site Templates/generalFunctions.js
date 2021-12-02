@@ -233,3 +233,15 @@ function getHighestRole(roleList) {
 
   return listOfRoles[lowestindex]
 }
+
+function queryStrings() {
+  var GET = {};
+  var queryString = window.location.search.replace(/^\?/, '');
+  queryString.split(/\&/).forEach(function(keyValuePair) {
+      var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
+      var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
+      GET[paramName] = paramValue;
+  });
+
+  return GET;
+}
