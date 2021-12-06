@@ -371,7 +371,7 @@ nav a:hover {
 .course-wrapper {
   display: flex;
   flex-direction: column;
-  transform-origin: center;
+  width: 100%;
 }
 
 .course-block {
@@ -718,12 +718,13 @@ nav a:hover {
 @media screen and (min-width: 800px) {
   .course-wrapper {
     flex-direction: row;
+    justify-content: center;
     align-items: start;
   }
 
   .course-block {
     padding: 0em 2em;
-    max-width: 50%;
+    width: 50%;
   }
 
   .course-section {

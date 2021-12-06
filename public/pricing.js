@@ -11,6 +11,7 @@ function openCourse(sectionID) {
   })
 
   document.getElementById(sectionID).style.display = 'flex';
+  document.getElementById(sectionID).scrollIntoView({behavior: "smooth", block: "start"});
 }
 
 initialSetup();
