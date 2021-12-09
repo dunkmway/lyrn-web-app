@@ -1,0 +1,84 @@
+:root {
+	--mainColor: rgb(230, 231, 232);
+}
+
+.main {
+	background-color: var(--mainColor)
+}
+
+.hidden {
+	display: none;
+}
+
+.finalProductDiv {
+	background-color: white;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	margin-right: 5vw;
+	width: 10vw;
+	height: 80%;
+	margin-top: calc(.10 * 70vh);
+	padding: 1em;
+}
+
+.finalProductDiv:last-child {
+	margin-right: 0vw;
+	width: 20vw;
+}
+
+.finalProductDiv:first-child {
+	margin-left: 5vw;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+#firstHalf {
+	width: 20vw;
+}
+
+#secondHalf {
+	width: 80vw;
+}
+
+#form {
+	display: flex;
+	flex-direction: row;
+	height: 30vh;
+}
+
+#finalProduct {
+	border-top-style: solid;
+	border-top-width: 2px;
+	border-top-color: black;
+	height: 68vh;
+	display: flex;
+	flex-direction: row;
+}
+
+#pText {
+	width: 45vw;
+	overflow: auto;
+	line-height: 1.5;
+}
+
+.highlight:hover {
+	background-color: yellow;
+	cursor: pointer;
+}
+
+#questions {
+	width: 20vw;
+}
+
+#passageText {
+	width: 90%;
+	height: 65%;
+}
+
+#passageTitle {
+	width: 90%;
+	height: 15%;
+}
