@@ -171,18 +171,23 @@ function getUserBalance(userUID) {
 async function setProbation(userUID) {
   //first check that the parent isn't already on probation
   const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID);
-  const probation = userStripeDoc.data().probation;
+  if (userStripeDoc.exists) {
+    const probation = userStripeDoc.data().probation;
 
-  if (probation) {
-    //if they are already on probation do nothing (keep the oldest probation date)
-    return;
+    if (probation) {
+      //if they are already on probation do nothing (keep the oldest probation date)
+      return;
+    }
+    else {
+      //place the user on probation from the current timestamp
+      await admin.firestore().collection('stripe_customers').doc(userUID).update({
+        probationDate: new Date().getTime()
+      })
+      return;
+    }
   }
   else {
-    //place the user on probation from the current timestamp
-    await admin.firestore().collection('stripe_customers').doc(userUID).update({
-      probationDate: new Date().getTime()
-    })
-    return;
+    throw new functions.https.HttpsError('not-found', `User ${userUID} does not have a stripe customer doc.`);
   }
 }
 

@@ -137,7 +137,8 @@ function eventClickHandler(info) {
         window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
         break;
       case 'subjectTutoring':
-        window.location.href = "../subject-tutoring-dash.html" + queryStr;
+        // window.location.href = "../subject-tutoring-dash.html" + queryStr;
+        window.open(data.staffZoomURL)
         break;
       case 'mathProgram':
         window.location.href = "../math-program.html" + queryStr;

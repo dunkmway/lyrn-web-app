@@ -172,8 +172,8 @@ function getActiveStudentData() {
     //query all students whose types are active
     promises.push(firebase.firestore().collection('Users')
     .where('location', '==', location.id)
-    .where('roles', 'array-contains', 'student')
-    .where('status', '==', 'active')
+    .where('role', '==', 'student')
+    // .where('status', '==', 'active')
     .get()
     .then((studentQuerySnapshot) => {
       let studentPromises = [];
@@ -183,7 +183,7 @@ function getActiveStudentData() {
 
         //convert type string to array
         let studentTypesTable = "";
-        studentData.types.forEach((type) => {
+        studentData?.types?.forEach((type) => {
           switch(type) {
             case 'act':
               studentTypesTable += 'ACT, ';
@@ -214,7 +214,7 @@ function getActiveStudentData() {
           }
         })
 
-        studentPromises.push(getParentData(studentData.parents[0])
+        studentPromises.push(getParentData(studentData?.parents?.[0])
         .then((parentData) => {
 
           // let parentPaymentStatus = null;
@@ -227,7 +227,7 @@ function getActiveStudentData() {
           const student = {
             studentUID: studentDoc.id,
             studentName: studentData.lastName + ", " + studentData.firstName,
-            studentTypes: studentData.types,
+            studentTypes: studentData?.types,
             studentTypesTable: studentTypesTable,
             location: locationName,
             parentUID: parentData.parentUID,
@@ -418,39 +418,15 @@ function getStaffData() {
   currentLocations.forEach((location) => {
     promises.push(firebase.firestore().collection('Users')
     .where('location', '==', location.id)
-    .where('roles', 'array-contains-any', ['tutor', 'secretary', 'admin', 'dev'])
-    .where('status', '==', 'active')
+    .where('role', 'in', ['tutor', 'secretary', 'admin', 'dev'])
+    // .where('status', '==', 'active')
     .get()
     .then(staffQuerySnapshot => {
       staffQuerySnapshot.forEach(staffDoc => {
-        //convert role array to string
-        let staffRolesSTR = "";
-        staffDoc.data().roles.forEach((role) => {
-          switch(role) {
-            case 'dev':
-              staffRolesSTR += 'Dev, ';
-              break;
-            case 'tutor':
-              staffRolesSTR += 'Tutor, ';
-              break;
-            case 'secretary':
-              staffRolesSTR += 'Secretary, ';
-              break;
-            case 'admin':
-              staffRolesSTR += 'Admin, ';
-              break;
-            case 'inactive':
-              staffRolesSTR += 'Inactive, ';
-              break;
-            default:
-              //nothing
-          }
-        })
-        staffRolesSTR = staffRolesSTR.substring(0, staffRolesSTR.length - 2);
         const staff = {
           staffUID: staffDoc.id,
           staffName: staffDoc.data().lastName + ", " + staffDoc.data().firstName,
-          staffRoles: staffRolesSTR,
+          staffRole: staffDoc.data().role,
           staffWage: staffDoc.data().wage,
           location: location.name,
           staffPay: 'n/a'
@@ -474,7 +450,7 @@ function reinitializeStaffTableData() {
     data: tableDataStaff,
     columns: [
       { data: 'staffName' },
-      { data: 'staffRoles'},
+      { data: 'staffRole'},
       { data: 'location'},
       { data: 'staffPay'}
     ],
@@ -575,8 +551,8 @@ function setLocations () {
 function getParentData(parentUID) {
   if (!parentUID) {
     return Promise.resolve({
-      parentFirstName: 'PARENT',
-      parentLastName: 'NO',
+      firstName: 'PARENT',
+      lastName: 'NO',
       parentUID: null,
     })
   }

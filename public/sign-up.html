@@ -6,10 +6,12 @@
     <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. Data driven success for your student in any class or upcoming test.">
     <title>Lyrn | Data Driven Tutoring through Adaptive Learning</title>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+    <script src="Site Templates/site-wide.js"></script>
     <script src="sign-up.js" defer></script>
 
     <script src="Site Templates/formatting.js" defer></script>
@@ -39,9 +41,9 @@
     <main>
       <section class="register">
         <form action="" id="signup">
-          <input type="radio" name="type" id="student" value="student" checked required>
+          <input type="radio" name="role" id="student" value="student" checked required>
           <label for="student">Student</label>
-          <input type="radio" name="type" id="parent" value="parent" required>
+          <input type="radio" name="role" id="parent" value="parent" required>
           <label for="parent">Parent</label>
           <label for="firstName">First Name</label>
           <input type="text" name="firstName" id="firstName" required>

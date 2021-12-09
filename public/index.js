@@ -121,9 +121,9 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
     submitBtn.value = 'We got it!'
   })
   .catch(error => {
-  console.log(error)
-  alert('We had an issue receiving your contact info. Please try again.')
-  submitBtn.disabled = false;
-  submitBtn.value = 'Enroll'
+    console.log(error)
+    alert('We had an issue receiving your contact info. Please try again.')
+    submitBtn.disabled = false;
+    submitBtn.value = 'Enroll'
   });
 })

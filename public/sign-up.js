@@ -16,6 +16,7 @@ document.getElementById('signup').addEventListener('submit', (event) => {
   event.preventDefault();
   const target = event.target;
   const registrationData = Object.fromEntries(new FormData(target).entries())
+  console.log(registrationData)
 
   //create the user account
   firebase.auth().createUserWithEmailAndPassword(registrationData.email.trim(), registrationData.password)
@@ -37,13 +38,17 @@ document.getElementById('signup').addEventListener('submit', (event) => {
       firstName : registrationData.firstName.trim(),
       lastName : registrationData.lastName.trim(),
       email : registrationData.email.trim(),
-      role : registrationData.role
+      role : registrationData.role,
+      location : 'WIZWBumUoo7Ywkc3pl2G' //hard coded for the online location
     })
 
     //set up their stripe profile
     //This happens automatically on user creation
 
     target.reset();
+    console.log('new user uid:', user.uid)
+
+    goToDashboard();
     
   })
   .catch((error) => {

@@ -31,6 +31,7 @@ checkPermissions();
 function checkPermissions() {
     const publicPages = [
         "/sign-in",
+        "/sign-up",
     ]
     
     const studentPages = [
@@ -115,8 +116,8 @@ function checkPermissions() {
                         //UNLIMITED POWER!!!
                         break;
                     default:
-                        alert("no role for this user. contact the devs to fix this issue. will sign out user now. goodbye!");
-                        signOut();
+                        // alert("no role for this user. contact the devs to fix this issue. will sign out user now. goodbye!");
+                        // signOut();
                 }
                 clearLoadingScreen();
             })

@@ -128,9 +128,14 @@ function createLocation() {
       locationName: locationName.value.trim(),
       lessonTypes: [
         {
-          name: 'ACT',
-          price: 75,
-          value: 'act'
+          name: 'Comprehensive ACT',
+          price: 90,
+          value: 'actComprehensive'
+        },
+        {
+          name: 'ACT Fundamentals',
+          price: 70,
+          value: 'actFundamentals'
         },
         {
           name: 'AP Exam',
@@ -138,9 +143,9 @@ function createLocation() {
           value: 'apExam'
         },
         {
-          name: 'Subject',
+          name: 'Subject Tutoring',
           price: 50,
-          value: 'subject'
+          value: 'subjectTutoring'
         }
       ]
     })

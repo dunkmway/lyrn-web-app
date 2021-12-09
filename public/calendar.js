@@ -4250,7 +4250,8 @@ function getLessonTypeList(location) {
   }
   return firebase.firestore().collection("Users")
   .where("location", "==", location)
-  .where("roles", 'array-contains-any', roles)
+  // .where("roles", 'array-contains-any', roles)
+  .where("role", 'in', roles)
   .orderBy("lastName").get()
   .then((userSnapshot) => {
     let users = [];

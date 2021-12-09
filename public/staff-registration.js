@@ -126,7 +126,7 @@ function objectifyRegistration() {
   }
 
   //handle the dropdowns
-  allInputValues["roles"] = getDropdownValues("roles");
+  // allInputValues["role"] = getDropdownValues("roles"); //only get the first one for right now
   allInputValues['qualifiedLessons'] = getDropdownValues('qualifiedLessons');
   allInputValues['extracurriculars'] = getDropdownValues('extracurriculars');
 
@@ -134,12 +134,12 @@ function objectifyRegistration() {
   allInputValues['wage'] = allInputValues['wage'] ? parseInt(allInputValues['wage']) : 0;
 
 
-  if (getDropdownValues("roles").includes('inactive')) {
-    allInputValues['status'] = "inactive";
-  }
-  else {
-    allInputValues['status'] = "active";
-  }
+  // if (getDropdownValues("roles").includes('inactive')) {
+  //   allInputValues['status'] = "inactive";
+  // }
+  // else {
+  //   allInputValues['status'] = "active";
+  // }
 
   return {
     allValues: allInputValues,
