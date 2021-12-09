@@ -5,68 +5,6 @@ const axios = require("axios").default;
 
 const zoomBaseURL = 'https://api.zoom.us/v2'
 
-exports.zoomTest = functions.https.onCall(async (data, context) => {
-  const payload = {
-    iss: functions.config().zoom.key,
-    exp: Math.round(((new Date()).getTime() + 5000) / 1000)
-  };
-  
-  const token = jwt.sign(payload, functions.config().zoom.secret);
-  
-  var config = {
-    method: 'post',
-    url: '/users/zdUkw8oGTt6_g3yDUD4icQ/meetings',
-    baseURL: zoomBaseURL,
-    data: {
-      topic: 'TEST meeting from api',
-      type: 2,
-      start_time: '2021-12-09T12:00:00Z',
-      duration: 60,
-    },
-    headers: {
-      Authorization: 'Bearer ' + token
-    }
-  }
-
-  let response = await axios(config);
-
-  //we don't need to send back the whole entire response (probably key parts of the data) but firebase won't let us send back the response. We first have to break ti down to it's parts.
-  //IDK why but that is what got it to work.
-  return convertAxiosResponseToJSON(response);
-});
-
-exports.zoomTestCreateUser = functions.https.onRequest(async (req, res) => {
-  const payload = {
-    iss: functions.config().zoom.key,
-    exp: Math.round(((new Date()).getTime() + 5000) / 1000)
-  };
-  
-  const token = jwt.sign(payload, functions.config().zoom.secret);
-  
-  var config = {
-    method: 'post',
-    url: '/users',
-    baseURL: zoomBaseURL,
-    data: {
-      action: 'create',
-        user_info: {
-          email: 'matthew15243@gmail.com',
-          type: 1,
-          first_name: 'Matthew',
-          last_name: 'Wilkinson',
-        }
-    },
-    headers: {
-      Authorization: 'Bearer ' + token
-    }
-  }
-
-  let response = await axios(config);
-
-  console.log(response)
-  res.send('All good');
-});
-
 function convertAxiosResponseToJSON(axiosResponse) {
   return {
     data: axiosResponse.data,

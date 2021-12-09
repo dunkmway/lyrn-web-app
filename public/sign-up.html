@@ -21,7 +21,7 @@
   </head>
 
   <body>
-    <header class="nav-start">
+    <!-- <header class="nav-start">
       <a href="#" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
       <label for="nav-toggle" class="nav-toggle-label">
         <span></span>
@@ -36,15 +36,22 @@
           <li><a class="enroll" href="enroll.html">Enroll</a></li>
         </ul>
       </nav>
-    </header>
+    </header> -->
 
     <main>
       <section class="register">
+        <div class="info">
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium architecto similique ut eius earum alias ad ullam fuga, iusto ratione animi praesentium inventore rem quibusdam dolore placeat sed rerum beatae.</p>
+        </div>
         <form action="" id="signup">
-          <input type="radio" name="role" id="student" value="student" checked required>
-          <label for="student">Student</label>
-          <input type="radio" name="role" id="parent" value="parent" required>
-          <label for="parent">Parent</label>
+          <h1>Start Lyrning</h1>
+          <h2>I'm a </h2>
+          <div class="radios">
+            <input type="radio" name="role" id="student" value="student" checked required>
+            <label for="student">Student</label>
+            <input type="radio" name="role" id="parent" value="parent" required>
+            <label for="parent">Parent</label>
+          </div>
           <label for="firstName">First Name</label>
           <input type="text" name="firstName" id="firstName" required>
           <label for="lastName">Last Name</label>
@@ -53,15 +60,17 @@
           <input type="email" name="email" id="email" required>
           <label for="password">Password</label>
           <input type="password" name="password" id="password" required>
-          <input type="checkbox" name="hidePassword" id="hidePassword" checked>
-          <label for="hidePassword">Hide Passwrod</label>
-          <input type="submit" value="Sign Up!">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" name="confirmPassword" id="confirmPassword" required>
+          <input type="submit" value="Create account">
+          <p class="error"></p>
+          <p class="have-account">Have an account? <a href="sign-in">Sign in</a></p>
         </form>
-      </section>
-      <section class="topics"></section>
+      <!-- </section>
+      <section class="topics"></section> -->
     </main>
 
-    <footer>
+    <!-- <footer>
       <div class="links">
         <div>
           <div class="logo-box">
@@ -98,5 +107,5 @@
       </div>
 
       <p class="copyright">Copyright © 2021 Advanced Education Solutions LLC. All rights reserved.</p>
-    </footer>
+    </footer> -->
   </body>

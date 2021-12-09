@@ -239,7 +239,7 @@ function goToDashboard() {
             });
         }
         else {
-            window.location.replace(location.origin + "/Sign-In/Sign-In");
+            window.location.replace(location.origin + "/sign-in");
         }
     });
 }

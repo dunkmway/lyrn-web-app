@@ -1,16 +1,3 @@
-//hide password functionality
-document.getElementById('hidePassword').addEventListener('change', (event) => {
-  const target = event.target;
-  const passwordField = document.getElementById('password');
-
-  if (target.checked) {
-    passwordField.type = 'password';
-  }
-  else {
-    passwordField.type = 'text';
-  }
-})
-
 //form submission
 document.getElementById('signup').addEventListener('submit', (event) => {
   event.preventDefault();
