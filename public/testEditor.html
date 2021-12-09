@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="This is where you will add new tests">
+  <title>Test Editor</title>
+
+  <!-- Firebase -->
+  <script>
+    //this is so reCaptcha will trust local host
+    if (window.location.hostname == 'localhost') {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    }
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
+
+  <!-- site wide -->
+  <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
+  <script src="Site Templates/formatting.js" defer></script>
+  <script src="testEditor.js" defer></script>
+
+  <link href="testEditor.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+</head>
+
+<body class='main'>
+  <!--<header class="nav-start">
+      <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="story.html">Our Story</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="sign-in.html">Sign In</a></li>
+          <li><a class="enroll" href="#">Enroll</a></li>
+        </ul>
+      </nav>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+    </header>-->
+
+  <main>
+    <form id='form'>
+
+      <div id='firstHalf'>
+        <div>
+          <!-- Test List -->
+          <label class='label' for="testList">Test</label>
+          <select id="testList">
+            <option value="newTest">New Test</option>
+          </select>
+        </div>
+      
+        <div>
+          <!-- Test Year -->
+          <label class='label' for="testYear" id='testYearLabel'>Test Year</label>
+          <input type="number" class='input' id="testYear" min=1959>
+        </div>
+
+        <div>
+          <!-- Test Month -->
+          <label class='label' for="testMonth" id='testMonthLabel'>Test Month</label>
+          <select id="testMonth">
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+        </div>
+      
+        <div>
+          <!-- Test Code -->
+          <label class='label' for="test" id='testLabel'>Test Code</label>
+          <input type="text" class='input' id="test" placeholder="Enter new test id (ex. B05)">
+        </div>
+      
+        <div>
+          <!-- Add Test -->
+          <button type='button' onclick="addTest()" id='testAdd'>Add Test</button>
+        </div>
+      
+        <div>
+          <!-- Add Section Data -->
+          <label class='label hidden' for="sectionList" id='sectionListLabel'>Section</label>
+          <select class='hidden' id="sectionList">
+            <option value="english">English</option>
+            <!--<option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>-->
+          </select>
+        </div>
+      
+        <div>
+          <label class='label hidden' for="passageList" id='passageListLabel'>Passage</label>
+          <select class='hidden' id="passageList">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <div>
+          <!-- Add Passage Text -->
+          <button type='button' onclick="submitPassageText()" id='passageAdd' class = "hidden">Save Passage Text</button>
+          <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
+
+          <!-- Add Question -->
+          <button type='button' onclick="formDisplay('section')" id='passageShow' class = "hidden">Go to Passage Text</button>
+          <button type='button' onclick="questionAdd()" id='questionAdd' class = "hidden">Add Question</button>
+        </div>
+      </div>
+      
+      <div id='secondHalf'>
+
+        <!-- Passages -->
+        <div>
+          <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
+        </div>
+        <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageTitle'></textarea>
+
+        <div>
+          <label class='label hidden' for="passageText" id='passageTextLabel'>Passage</label>
+        </div>
+        <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageText'></textarea>
+
+        <!-- Questions -->
+        <div>
+
+          <div>
+            <label class='label hidden' for="questionList" id='questionListLabel'>Problem</label>
+            <select class='hidden' id="questionList">
+            </select>
+
+            <label class='label hidden' for="topic" id='topicLabel'>Topic(s)</label>
+            <select class='hidden' id="topic">
+            </select>
+
+            <label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
+            <select class='hidden' id="subTopic">
+            </select>
+
+            <label class='label hidden' for="modifier" id='modifierLabel'>Modifier(s)</label>
+            <select class='hidden' id="modifier">
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </form>
+
+    <div id='finalProduct'>
+      <div id='qNumbers' class='finalProductDiv'>Questions Numbers</div>
+      <div id='pText' class='finalProductDiv'></div>
+      <div id='qList' class='finalProductDiv'>Questions</div>
+    </div>
+
+  </main>
+
+</body>
+
+</html>
