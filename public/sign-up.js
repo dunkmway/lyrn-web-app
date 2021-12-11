@@ -3,7 +3,17 @@ document.getElementById('signup').addEventListener('submit', (event) => {
   event.preventDefault();
   const target = event.target;
   const registrationData = Object.fromEntries(new FormData(target).entries())
-  console.log(registrationData)
+  const errorMsg = document.getElementById('error');
+
+  errorMsg.innerText = '';
+  errorMsg.hidden = true;
+
+  //verify that the passwords match
+  if (registrationData.password != registrationData.confirmPassword) {
+    errorMsg.textContent = 'Your password does not match'
+    errorMsg.hidden = false;
+    return;
+  }
 
   //create the user account
   firebase.auth().createUserWithEmailAndPassword(registrationData.email.trim(), registrationData.password)

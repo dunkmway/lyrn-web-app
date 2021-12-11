@@ -608,11 +608,12 @@ nav a:hover {
   background-color: #C1C1C1;
   color: white;
   text-align: center;
-  padding: 1em;
-}
-
-.plan-wrapper .discount-wrapper h4 {
-  font-size: 1.5em;
+  padding: .5em;
+  margin-top: 1em;
+  width: max-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .plan-wrapper .discount-wrapper * {

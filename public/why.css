@@ -352,6 +352,18 @@ nav a:hover {
   background-color: var(--color-primary);
   border-radius: 1em;
   box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.36);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero .intro::after {
+  content: "";
+  height: 1em;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  background-image: linear-gradient(90deg, var(--color-accent-1-light), var(--color-accent-5-light));
+  transform: translateX(-2em);
 }
 
 .hero h1 {
