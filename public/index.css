@@ -355,6 +355,7 @@ nav a:hover {
   background-color: var(--color-secondary);
   min-height: calc(100vh - 60px);
   background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light));
+  overflow: hidden;
 
 
   /* background-image: url('Images/Lyrn_Topics.png');
@@ -393,7 +394,7 @@ nav a:hover {
   visibility: hidden;
 }
 
-.hero__background .background-main {
+.hero__background .background-main.mobile {
   visibility: visible;
 }
 
@@ -426,254 +427,44 @@ nav a:hover {
   background-color: white;
 }
 
-
-.hero__background .background-main:nth-child(n+1):nth-child(-n+17) {
-  animation: center-background-slide 80s linear infinite;
-}
-
-.hero__background .background-main:nth-child(n+18):nth-child(-n+34) {
-  animation: left-background-slide 80s linear infinite;
-}
-
-.hero__background .background-main:nth-child(n+35):nth-child(-n+51) {
-  animation: right-background-slide 80s linear infinite;
-}
-
-@keyframes center-background-slide {
-  0% {
-    transform: translateX(0vw);
-  }
-  17% {
-    transform: translateX(-50vw);
-  }
-  33% {
-    transform: translateX(-100vw);
-    opacity: 1;
-  }
-  48% {
-    opacity: 1;
-  }
-  49% {
-    transform: translateX(-150vw);
-    opacity: 0;
-  }
-  51% {
-    transform: translateX(150vw);
-    opacity: 0;
-  }
-  52% {
-    opacity: 1;
-  }
-  67% {
-    transform: translateX(100vw);
-    opacity: 1;
-  }
-  83% {
-    transform: translateX(50vw);
-  }
-  100% {
-    transform: translateX(0vw);
-  }
-}
-
-@keyframes left-background-slide {
-  0% {
-    transform: translateX(0vw);
-    opacity: 1;
-  }
-  15% {
-    opacity: 1;
-  }
-  16% {
-    transform: translateX(-50vw);
-    opacity: 0;
-  }
-  18% {
-    transform: translateX(250vw);
-    opacity: 0;
-  }
-  19% {
-    opacity: 1;
-  }
-  33% {
-    transform: translateX(200vw);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(150vw);
-  }
-  67% {
-    transform: translateX(100vw);
-  }
-  83% {
-    transform: translateX(50vw);
-  }
-  100% {
-    transform: translateX(0vw);
-  }
-}
-
-@keyframes right-background-slide {
-  0% {
-    transform: translateX(0vw);
-  }
-  17% {
-    transform: translateX(-50vw);
-  }
-  33% {
-    transform: translateX(-100vw);
-  }
-  50% {
-    transform: translateX(-150vw);
-  }
-  67% {
-    transform: translateX(-200vw);
-    opacity: 1;
-  }
-  81% {
-    opacity: 1;
-  }
-  82% {
-    transform: translateX(-250vw);
-    opacity: 0;
-  }
-  84% {
-    transform: translateX(50vw);
-    opacity: 0;
-  }
-  85% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(0vw);
-    opacity: 1;
-  }
-}
-
-/* center */
-
 .hero__background .background-main:nth-child(13) {
-  top: 80%;
-  left: 5%;
+  top: 90%;
+  left: 15%;
   background-color: var(--color-accent-1-light);
 }
 .hero__background .background-main:nth-child(13)::before {
   color: var(--color-accent-1-light);
 }
 .hero__background .background-main:nth-child(14) {
-  top: 35%;
-  left: 40%;
+  top: 53%;
+  left: -20%;
   background-color: var(--color-accent-2-light);
 }
 .hero__background .background-main:nth-child(14)::before {
   color: var(--color-accent-2-light);
 }
 .hero__background .background-main:nth-child(15) {
-  top: 50%;
-  left: 85%;
+  top: 60%;
+  left: 33%;
   background-color: var(--color-accent-3-light);
 }
 .hero__background .background-main:nth-child(15)::before {
   color: var(--color-accent-3-light);
 }
 .hero__background .background-main:nth-child(16) {
-  top: 15%;
-  left: 10%;
+  top: 8%;
+  left: 31%;
   background-color: var(--color-accent-4-light);
 }
 .hero__background .background-main:nth-child(16)::before {
   color: var(--color-accent-4-light);
 }
 .hero__background .background-main:nth-child(17) {
-  top: 70%;
-  left: 60%;
+  top: 75%;
+  left: -5%;
   background-color: var(--color-accent-5-light);
 }
 .hero__background .background-main:nth-child(17)::before {
-  color: var(--color-accent-5-light);
-}
-
-/* left */
-.hero__background .background-main:nth-child(30) {
-  top: 80%;
-  left: -95%;
-  background-color: var(--color-accent-1-light);
-}
-.hero__background .background-main:nth-child(30)::before {
-  color: var(--color-accent-1-light);
-}
-.hero__background .background-main:nth-child(31) {
-  top: 35%;
-  left: -60%;
-  background-color: var(--color-accent-2-light);
-}
-.hero__background .background-main:nth-child(31)::before {
-  color: var(--color-accent-2-light);
-}
-.hero__background .background-main:nth-child(32) {
-  top: 50%;
-  left: -15%;
-  background-color: var(--color-accent-3-light);
-}
-.hero__background .background-main:nth-child(32)::before {
-  color: var(--color-accent-3-light);
-}
-.hero__background .background-main:nth-child(33) {
-  top: 15%;
-  left: -90%;
-  background-color: var(--color-accent-4-light);
-}
-.hero__background .background-main:nth-child(33)::before {
-  color: var(--color-accent-4-light);
-}
-.hero__background .background-main:nth-child(34) {
-  top: 70%;
-  left: -40%;
-  background-color: var(--color-accent-5-light);
-}
-.hero__background .background-main:nth-child(34)::before {
-  color: var(--color-accent-5-light);
-}
-
-/* right */
-.hero__background .background-main:nth-child(47) {
-  top: 80%;
-  left: 105%;
-  background-color: var(--color-accent-1-light);
-}
-.hero__background .background-main:nth-child(47)::before {
-  color: var(--color-accent-1-light);
-}
-.hero__background .background-main:nth-child(48) {
-  top: 35%;
-  left: 140%;
-  background-color: var(--color-accent-2-light);
-}
-.hero__background .background-main:nth-child(48)::before {
-  color: var(--color-accent-2-light);
-}
-.hero__background .background-main:nth-child(49) {
-  top: 50%;
-  left: 185%;
-  background-color: var(--color-accent-3-light);
-}
-.hero__background .background-main:nth-child(49)::before {
-  color: var(--color-accent-3-light);
-}
-.hero__background .background-main:nth-child(50) {
-  top: 15%;
-  left: 110%;
-  background-color: var(--color-accent-4-light);
-}
-.hero__background .background-main:nth-child(50)::before {
-  color: var(--color-accent-4-light);
-}
-.hero__background .background-main:nth-child(51) {
-  top: 70%;
-  left: 160%;
-  background-color: var(--color-accent-5-light);
-}
-.hero__background .background-main:nth-child(51)::before {
   color: var(--color-accent-5-light);
 }
 

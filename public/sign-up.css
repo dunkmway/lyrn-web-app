@@ -19,6 +19,12 @@
   --color-accent-3-light: #02c6ff;
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
+
+  --color-accent-yellow-veryLight: #FFF4CC;
+  --color-accent-green-veryLight: #CCFFD5;
+  --color-accent-blue-veryLight: #CCF4FF;
+  --color-accent-purple-veryLight: #CCCCFF;
+  --color-accent-red-veryLight: #FFCCCC;
 }
 
 *, *::before, *::after {
@@ -169,6 +175,8 @@ details summary {
 
 #signup .radios input:checked+label {
   border: 2px solid var(--color-accent-2-deep);
+  background-color: var(--color-accent-green-veryLight);
+  /* background-color: var(--color-accent-2-light); */
 }
 
 #signup input[type='radio'], #signup input[type='radio']+label {
@@ -197,6 +205,7 @@ details summary {
   background-color: var(--color-accent-2-deep);
   color: white;
   font-size: 1em;
+  cursor: pointer;
 }
 
 #signup .error {
