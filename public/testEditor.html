@@ -21,6 +21,13 @@
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
 
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- semantic UI -->
+  <link async rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
+  <script async src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
   <!-- site wide -->
   <script src="Site Templates/site-wide.js" defer></script>
   <script src="Site Templates/generalFunctions.js" defer></script>
@@ -125,8 +132,8 @@
           <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
 
           <!-- Add Question -->
-          <button type='button' onclick="formDisplay('section')" id='passageShow' class = "hidden">Go to Passage Text</button>
-          <button type='button' onclick="questionAdd()" id='questionAdd' class = "hidden">Add Question</button>
+          <button type='button' onclick="formDisplay('passage')" id='passageShow' class = "hidden">Go to Passage Text</button>
+          <button type='button' onclick="addQuestion()" id='questionAdd' class = "hidden">Add Question</button>
         </div>
       </div>
       
@@ -136,7 +143,7 @@
         <div>
           <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
         </div>
-        <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageTitle'></textarea>
+        <textarea class = 'hidden' placeholder="Copy passage title here" id = 'passageTitle'></textarea>
 
         <div>
           <label class='label hidden' for="passageText" id='passageTextLabel'>Passage</label>
@@ -152,18 +159,50 @@
             </select>
 
             <label class='label hidden' for="topic" id='topicLabel'>Topic(s)</label>
-            <select class='hidden' id="topic">
+            <select class='hidden ui dropdown search multiple' id="topic" style = 'display:none'>
             </select>
 
-            <label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
+            <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
             <select class='hidden' id="subTopic">
-            </select>
+            </select>-->
 
             <label class='label hidden' for="modifier" id='modifierLabel'>Modifier(s)</label>
-            <select class='hidden' id="modifier">
+            <select class='hidden ui dropdown search multiple' id="modifier" style = 'display:none'>
             </select>
 
           </div>
+
+          <div class = 'columns'>
+
+            <div class = 'rows' id = 'questionsPart1'>
+              <div>
+                <label class='label hidden' for="questionText" id='questionTextLabel'>Question Text</label>
+              </div>
+              <textarea class = 'hidden' placeholder="Copy question here" id = 'questionText'></textarea>
+            </div>
+
+            <div id = 'questionsPart2' class = 'rows'>
+
+              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer1" id='answer1Label'>A</label>
+              <textarea class = 'hidden' id = 'answer1'></textarea>
+
+              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer2" id='answer2Label'>B</label>
+              <textarea class = 'hidden' id = 'answer2'></textarea>
+
+              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer3" id='answer3Label'>C</label>
+              <textarea class = 'hidden' id = 'answer3'></textarea>
+
+              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer4" id='answer4Label'>D</label>
+              <textarea class = 'hidden' id = 'answer4'></textarea>
+
+              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer5" id='answer5Label'>E</label>
+              <textarea class = 'hidden' id = 'answer5'></textarea>
+
+            </div>
+
+          </div>
+
+
 
         </div>
 

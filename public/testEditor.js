@@ -5,7 +5,11 @@ let workingText = document.getElementById('passageText')
 let title = document.getElementById('passageTitle')
 let passageNumber = document.getElementById('passageList')
 let dom_topic = document.getElementById('topic')
-let dom_subTopic = document.getElementById('subTopic')
+let dom_modifier = document.getElementById('modifier')
+let dom_questionList = document.getElementById('questionList')
+//let dom_subTopic = document.getElementById('subTopic')
+let editorState = 'test'
+let passageReferences = []
 
 let passageText = ''
 
@@ -53,7 +57,8 @@ function getTests() {
 	})
 }
 
-/*function addTopic(section, topic, subTopics) {
+/*
+function addTopic(section, topic, subTopics = undefined, type = 'topic') {
 
 	if (section != undefined && topic != undefined && subTopics != undefined) {
 
@@ -61,14 +66,16 @@ function getTests() {
 			data = {
 				'section' : section,
 				'topic' : topic,
-				'subTopics' : subTopics.split(', ')
+				'subTopics' : subTopics.split(', '),
+				'type' : type
 			}
 		}
 		else {
 			data = {
 				'section' : section,
 				'topic' : topic,
-				'subTopics' : []
+				'subTopics' : [],
+				'type' : type
 			}
 		}
 
@@ -78,21 +85,49 @@ function getTests() {
 			console.log('Set', section, ':', topic, ':', subTopics.split(', '))
 		})
 	}
-}*/
+}
+*/
 
 
-/*addTopic('english', 'Clear and Concise', 'Redundancy, Simplicity, Pronoun Ambiguity')
-addTopic('english', 'Comprehension', 'Adding / Deleting / Revising Sentences, Main Idea')
-addTopic('english', 'Conjugation', 'Subject-Verb Agreement, Tense, Noun-Pronoun Agreement')
-addTopic('english', 'Essay Organization', 'Adding Sentence, Transition Phrases, Ordering, Phrase Placement, Splitting a paragraph')
-addTopic('english', 'Fundamentals', 'IC, DC, Phrases, Parts of Speech, Subject, Verb, Object')
-addTopic('english', 'Good Luck', 'Vocab and Expressions')
-addTopic('english', 'Language', 'Connotation, Active and Passive Voice, Tone and Emphasis')
-addTopic('english', 'Punctuation', 'Commas, Apostrophes, Citing Quotations, Semicolon')
-addTopic('english', 'Sentence Structure', 'Sentence Composition, Identify IC, DC, Phrases')
-addTopic('english', 'Word Choice', 'Transition words, Homophones, Preposition, Parallelism, Transitive vs Intransitive, Concrete vs Abstract adjectives, Identify Parts of Speech, Conjunctions')
+/*
+addTopic('english', 'Redundancy', '')
+addTopic('english', 'Simplicity', '')
+addTopic('english', 'Pronoun Ambiguity', '')
+addTopic('english', 'Adding / Deleting / Revising Sentences', '')
+addTopic('english', 'Main Idea', '')
+addTopic('english', 'Subject-Verb Agreement', '')
+addTopic('english', 'Tense', '')
+addTopic('english', 'Noun-Pronoun Agreement', '')
+addTopic('english', 'Adding Sentence', '')
+addTopic('english', 'Transition Phrases', '')
+addTopic('english', 'Ordering', '')
+addTopic('english', 'Phrase Placement', '')
+addTopic('english', 'Splitting a paragraph', '')
+addTopic('english', 'IC, DC, Phrases', '')
+addTopic('english', 'Parts of Speech', '')
+addTopic('english', 'Subject, Verb, Object', '')
+addTopic('english', 'Vocab and Expressions', '', 'modifier')
+addTopic('english', 'Vocab and Expressions', '')
+addTopic('english', 'Connotation', '')
+addTopic('english', 'Active and Passive Voice', '')
+addTopic('english', 'Tone and Emphasis', '')
+addTopic('english', 'Commas', '')
+addTopic('english', 'Apostrophes', '')
+addTopic('english', 'Citing Quotations', '')
+addTopic('english', 'Semicolon', '')
+addTopic('english', 'Sentence Composition', '')
+addTopic('english', 'Identify IC, DC, Phrases', '')
+addTopic('english', 'Transition words', '')
+addTopic('english', 'Homophones', '')
+addTopic('english', 'Preposition', '')
+addTopic('english', 'Parallelism', '')
+addTopic('english', 'Transitive vs Intransitive', '')
+addTopic('english', 'Concrete vs Abstract adjectives', '')
+addTopic('english', 'Identify Parts of Speech', '')
+addTopic('english', 'Conjunctions', '')
+addTopic('english', 'NOT', '', 'modifier')
 
-addTopic('math', 'Word Problems', '')
+addTopic('math', 'Word Problems', '', 'modifier')
 addTopic('math', 'Arithmetic', '')
 addTopic('math', 'Functions', '')
 addTopic('math', 'Polygons', '')
@@ -135,9 +170,14 @@ addTopic('math', 'Distributing', '')
 addTopic('math', 'Fractions', '')
 addTopic('math', 'Geometry Fundamentals', '')
 
-addTopic('reading', 'Contextual', 'Ambiguous Pronouns, Phrase Interpretation, Multiple Word Definition')
-addTopic('reading', 'Main Idea / Purpose', 'Essay, Paragraph, Point of View')
-addTopic('reading', 'Fact', 'Findable answer, Direct inference')
+addTopic('reading', 'Ambiguous Pronouns', '')
+addTopic('reading', 'Phrase Interpretation', '')
+addTopic('reading', 'Multiple Word Definition', '')
+addTopic('reading', 'Essay', '')
+addTopic('reading', 'Paragraph', '')
+addTopic('reading', 'Point of View', '')
+addTopic('reading', 'Findable answer', '')
+addTopic('reading', 'Direct inference', '')
 
 addTopic('science', 'Graph Reading', '')
 addTopic('science', 'Variable Relationships', '')
@@ -146,13 +186,13 @@ addTopic('science', 'Reasoned Answer', '')
 addTopic('science', 'Variable Types', '')
 addTopic('science', 'Experimental Design', '')
 addTopic('science', 'Conflicting Viewpoints', '')
-addTopic('science', 'Modify the experiment', '')*/
+addTopic('science', 'Modify the experiment', '')
+*/
 
 
 
 function initializeQuestionList(section) {
 	let count = 40
-	let questions = document.getElementById('questionList')
 
 	if (section.toLowerCase() == 'english') {
 		count = 75;
@@ -162,18 +202,20 @@ function initializeQuestionList(section) {
 	}
 
 	// Delete the current list of questions
-	while (questionList.firstChild) {
-		questionList.removeChild(questionList.firstChild)
+	while (dom_questionList.firstChild) {
+		dom_questionList.removeChild(dom_questionList.firstChild)
 	}
 
 	// Add the needed questions
 	for (let i = 0; i < count; i++) {
-		questions.appendChild(createElement('option', [], ['value'], [i + 1], (i + 1).toString()))
+		dom_questionList.appendChild(createElement('option', [], ['value'], [i + 1], (i + 1).toString()))
 	}
 }
 
 function initializeTopicList(section) {
-	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section)
+  	$('.ui.dropdown').dropdown();
+
+	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('type', '==', 'topic')
 
 	// Delete the current list of topics
 	while (dom_topic.firstChild) {
@@ -193,9 +235,34 @@ function initializeTopicList(section) {
 			dom_topic.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
 		}
 	})
+
+	initializeModifierList(section);
 }
 
-function initializeSubTopicList(section, topic) {
+function initializeModifierList(section) {
+	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('type', '==', 'modifier')
+
+	// Delete the current list of topics
+	while (dom_topic.firstChild) {
+		dom_modifier.removeChild(dom_topic.firstChild)
+	}
+
+	let topics = []
+	ref.get()
+	.then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			topics.push(doc.data().topic)
+		})
+
+		topics.sort()
+		dom_modifier.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
+		for (let i = 0; i < topics.length; i++) {
+			dom_modifier.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
+		}
+	})
+}
+
+/*function initializeSubTopicList(section, topic) {
 	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('topic', '==', topic)
 
 	// Delete the current list of topics
@@ -217,10 +284,9 @@ function initializeSubTopicList(section, topic) {
 		}
 	})
 
-}
+}*/
 
 function initializeTestList() {
-
 	// Delete the current list of tests
 	while (testList.firstChild) {
 		testList.removeChild(testList.firstChild)
@@ -275,7 +341,7 @@ function addTest() {
 									testList.selectedIndex = tests.indexOf(test.value.toUpperCase()) + 1
 									testList.value = test.value.toUpperCase()
 								})
-							formDisplay('section')
+							formDisplay('passage')
 						})
 						.catch((error) => {
 							console.log(error)
@@ -318,7 +384,7 @@ function setPassageText(passageText, passageTitle = undefined, passageNumber = u
 	// Add the passage Text
 	let text = passageText.split(" ")
 	for (let i = 0; i < text.length; i++) {
-		passageDiv.appendChild(createElement('span', ['highlight'], [], [], text[i]))
+		passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
 		passageDiv.appendChild(createElement('span', [], [], [], ' '))
 	}
 }
@@ -369,6 +435,7 @@ function submitPassageText() {
 }
 
 function formDisplay(event) {
+	editorState = event
 
 	if (event == 'test') {
 		document.getElementById('test').classList.remove('hidden')
@@ -396,13 +463,28 @@ function formDisplay(event) {
 		document.getElementById('questionList').classList.add('hidden')
 		document.getElementById('questionListLabel').classList.add('hidden')
 		document.getElementById('topic').classList.add('hidden')
+		document.getElementById('topic').parentNode.style = 'display:none'
 		document.getElementById('topicLabel').classList.add('hidden')
-		document.getElementById('subTopic').classList.add('hidden')
-		document.getElementById('subTopicLabel').classList.add('hidden')
+		//document.getElementById('subTopic').classList.add('hidden')
+		//document.getElementById('subTopicLabel').classList.add('hidden')
 		document.getElementById('modifier').classList.add('hidden')
+		document.getElementById('modifier').parentNode.style = 'display:none'
 		document.getElementById('modifierLabel').classList.add('hidden')
+
+		document.getElementById('questionText').classList.add('hidden')
+		document.getElementById('questionTextLabel').classList.add('hidden')
+		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Label').classList.add('hidden')
+		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Label').classList.add('hidden')
+		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Label').classList.add('hidden')
+		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Label').classList.add('hidden')
+		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Label').classList.add('hidden')
 	}
-	else if (event == 'section') {
+	else if (event == 'passage') {
 		document.getElementById('test').classList.add('hidden')
 		document.getElementById('testYear').classList.add('hidden')
 		document.getElementById('testMonth').classList.add('hidden')
@@ -428,13 +510,29 @@ function formDisplay(event) {
 		document.getElementById('questionList').classList.add('hidden')
 		document.getElementById('questionListLabel').classList.add('hidden')
 		document.getElementById('topic').classList.add('hidden')
+		document.getElementById('topic').parentNode.style = 'display:none'
 		document.getElementById('topicLabel').classList.add('hidden')
-		document.getElementById('subTopic').classList.add('hidden')
-		document.getElementById('subTopicLabel').classList.add('hidden')
+		//document.getElementById('subTopic').classList.add('hidden')
+		//document.getElementById('subTopicLabel').classList.add('hidden')
 		document.getElementById('modifier').classList.add('hidden')
+		document.getElementById('modifier').parentNode.style = 'display:none'
 		document.getElementById('modifierLabel').classList.add('hidden')
+
+		document.getElementById('questionText').classList.add('hidden')
+		document.getElementById('questionTextLabel').classList.add('hidden')
+		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Label').classList.add('hidden')
+		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Label').classList.add('hidden')
+		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Label').classList.add('hidden')
+		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Label').classList.add('hidden')
+		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Label').classList.add('hidden')
 	}
 	else if (event == 'question') {
+
 		document.getElementById('test').classList.add('hidden')
 		document.getElementById('testYear').classList.add('hidden')
 		document.getElementById('testMonth').classList.add('hidden')
@@ -460,12 +558,184 @@ function formDisplay(event) {
 		document.getElementById('questionList').classList.remove('hidden')
 		document.getElementById('questionListLabel').classList.remove('hidden')
 		document.getElementById('topic').classList.remove('hidden')
+		document.getElementById('topic').parentNode.style = ''
 		document.getElementById('topicLabel').classList.remove('hidden')
-		document.getElementById('subTopic').classList.remove('hidden')
-		document.getElementById('subTopicLabel').classList.remove('hidden')
+		//document.getElementById('subTopic').classList.remove('hidden')
+		//document.getElementById('subTopicLabel').classList.remove('hidden')
 		document.getElementById('modifier').classList.remove('hidden')
+		document.getElementById('modifier').parentNode.style = ''
 		document.getElementById('modifierLabel').classList.remove('hidden')
+
+		document.getElementById('questionText').classList.remove('hidden')
+		document.getElementById('questionTextLabel').classList.remove('hidden')
+		document.getElementById('answer1').classList.remove('hidden')
+		document.getElementById('answer1Label').classList.remove('hidden')
+		document.getElementById('answer2').classList.remove('hidden')
+		document.getElementById('answer2Label').classList.remove('hidden')
+		document.getElementById('answer3').classList.remove('hidden')
+		document.getElementById('answer3Label').classList.remove('hidden')
+		document.getElementById('answer4').classList.remove('hidden')
+		document.getElementById('answer4Label').classList.remove('hidden')
+
+		// Display the 5th answer if on the math section
+		let section = document.getElementById('sectionList').value
+		if (section == 'math') {
+			document.getElementById('answer5').classList.remove('hidden')
+			document.getElementById('answer5Label').classList.remove('hidden')
+		}
+
+		initializeQuestionList(section)
+		initializeTopicList(section)
+
+		let questionNumber = parseInt(dom_questionList.value)
+		initializeQuestion(questionNumber)
+
 	}
+}
+
+function initializeQuestion(number) {
+	// Make sure that the questions have their correct value
+	if (number % 2 == 1) {
+		document.getElementById('answer1Label').innerHTML = 'A'
+		document.getElementById('answer2Label').innerHTML = 'B'
+		document.getElementById('answer3Label').innerHTML = 'C'
+		document.getElementById('answer4Label').innerHTML = 'D'
+		document.getElementById('answer5Label').innerHTML = 'E'
+	}
+	else {
+		document.getElementById('answer1Label').innerHTML = 'F'
+		document.getElementById('answer2Label').innerHTML = 'G'
+		document.getElementById('answer3Label').innerHTML = 'H'
+		document.getElementById('answer4Label').innerHTML = 'J'
+		document.getElementById('answer5Label').innerHTML = 'K'
+	}
+
+	// Grab the data
+	const section = document.getElementById('sectionList').value
+	getQuestion(testList.value, section, number)
+		.then((data) => {
+			if (data != -1) {
+				const questionLocations = {
+					'A': '1',
+					'B': '2',
+					'C': '3',
+					'D': '4',
+					'E': '5',
+					'F': '1',
+					'G': '2',
+					'H': '3',
+					'J': '4',
+					'K': '5'
+				}
+
+				// Set the Topics
+    			$('#topic').closest(".ui.dropdown").dropdown('set selected', data['topic']);
+
+				// Set the Modifiers
+    			$('#modifier').closest(".ui.dropdown").dropdown('set selected', data['modifier']);
+
+				// Set the correct answer
+				selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']] + 'Label'))
+
+				// Set the answers
+				for (let i = 0; i < data['answers'].length; i++) {
+					document.getElementById('answer' + (i + 1).toString()).value = data['answers'][i]
+				}
+
+				// Set the question text
+				document.getElementById('questionText').value = data['questionText']
+
+				// Highlight the Text
+				highlightText(data['passageText'], true)
+			}
+		})
+
+
+
+}
+
+function getQuestion(test, section, number) {
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.where('test', '==', test)
+	.where('section', '==', section)
+	.where('problem', '==', number)
+
+	return new Promise(function(resolve, reject) {
+		ref.get()
+	.then((querySnapshot) => {
+		if (querySnapshot.size == 1) {
+			querySnapshot.forEach((doc) => {
+				resolve(doc.data())
+			})
+		}
+		else {
+			resolve(-1)
+		}
+	})
+})
+}
+
+function addQuestion() {
+	const ref = firebase.firestore().collection('ACT-Tests').doc()
+
+	const test = testList.value
+	const section = document.getElementById('sectionList').value
+	const number = document.getElementById('questionList').value
+
+	let answer = document.getElementsByClassName('correctAnswer')
+	if (answer.length > 0) {
+		answer = answer[0].innerHTML
+	}
+	else {
+		console.log("Please select the correct answer by clicking on its letter")
+		return
+	}
+
+	const passageText = getReferenceText()
+	let attempts = 0;
+	let correctAttempts = 0
+
+	let answers = []
+	if (section != 'math') {
+		for (let i = 0; i < 4; i++) {
+			answers.push(document.getElementById('answer' + (i + 1).toString()).value)
+		}
+	}
+
+	getQuestion(test, section, number)
+		.then((info) => {
+			if (info != -1) {
+				attempts = info['attempts']
+				correctAttempts = info['correctAttempts']
+			}
+
+			const topics = getDropdownValues('topic')
+			const modifiers = getDropdownValues('modifier')
+			if (topics.length > 0 && answers.length == (section != 'math' ? 4 : 5)) {
+				const data = {
+					'test': test,
+					'section': section,
+					'passage': parseInt(passageNumber.value),
+					'type': 'question',
+					'topic': topics,
+					'subTopics': 'None',
+					'modifier': modifiers,
+					'problem': parseInt(number),
+					'questionText': document.getElementById('questionText').value,
+					'answers': answers,
+					'questionImages': [],
+					'answerImages': [],
+					'correctAnswer': answer,
+					'passageText': passageText,
+					'numberOfAttempts': attempts,
+					'correctAttempts': correctAttempts
+				}
+
+				ref.set(data)
+					.then(() => { console.log("It is done") })
+			}
+		})
 }
 
 function checkForPassage(test, section, passage) {
@@ -488,6 +758,187 @@ function checkForPassage(test, section, passage) {
 	}
 }
 
+function prepend(value, array) {
+  var newArray = array.slice();
+  newArray.unshift(value);
+  return newArray;
+}
+
+function selectAnswer(element) {
+	let answers = document.getElementById('questionsPart2').querySelectorAll('label')
+
+	for (let i = 0; i < answers.length; i++) {
+		answers[i].classList.remove('correctAnswer')
+	}
+
+	element.classList.add('correctAnswer')
+}
+
+function getReferenceText() {
+	if (passageReferences.length == 2) {
+		let text = ''
+
+		const index1 = Array.prototype.indexOf.call(passageReferences[0].parentNode.children, passageReferences[0])
+		const index2 = Array.prototype.indexOf.call(passageReferences[1].parentNode.children, passageReferences[1])
+
+		if (index1 < index2) {
+			let dom_iter = passageReferences[0]
+			for (let i = 0; i <= (index2 - index1); i++) {
+				text += dom_iter.innerHTML
+				dom_iter = dom_iter.nextSibling
+			}
+			return text
+		}
+		else {
+			let dom_iter = passageReferences[1]
+			for (let i = 0; i <= (index1 - index2); i++) {
+				text += dom_iter.innerHTML
+				dom_iter = dom_iter.nextSibling
+			}
+			return text
+		}
+	}
+	else if (passageReferences.length == 1) {
+		return passageReferences[0].innerHTML
+	}
+	else {
+		return -1
+	}
+
+}
+
+function highlightText(text, setReferences = false) {
+	removeHighlight()
+	if (text != -1) {
+
+		text = text.replace('<p><p>', '<p></p><p></p>')
+		const textArray = text.split(' ')
+		let passageDiv = document.getElementById('pText')
+
+		// Find the child index for the start of the text
+		let children = passageDiv.children
+		let foundLocation = false
+		let location = -1
+		for (let i = 0; i < children.length; i++) {
+			if (children[i].innerHTML == [textArray[0]]) {
+				foundLocation = true
+				for (let j = 0; j < textArray.length; j++) {
+					if (children[i + (2 * j)].innerHTML != textArray[j]) {
+						foundLocation = false
+						break
+					}
+				}
+				if (foundLocation == true) {
+					location = i;
+					break
+				}
+			}
+		}
+
+		// Highlight the text
+		for (let i = 0; i < (2 * textArray.length) - 1; i++) {
+			children[location + i].classList.add('highlight-yellow')
+		}
+
+		// Set the passage References if needed
+		if (setReferences == true) {
+			passageReferences = [children[location], children[location + (2 * textArray.length) - 2]]
+		}
+	}
+}
+
+function removeHighlight() {
+	let children = document.getElementById('pText').children
+	for (let i = 0; i < children.length; i++) {
+		children[i].classList.remove('highlight-yellow')
+	}
+}
+
+function toggleParagraph(element) {
+	if (editorState == 'passage') {
+		let text = [element.innerHTML]
+		const textCount = 7
+
+		// They pressed the first word
+		if (element.previousSibling.innerHTML == '') {
+			return
+		}
+
+		// Grab a few elements before the selected word
+		let childIter = element
+		let previousCount = 0;
+		for (let i = 0; i < textCount; i++) {
+			if (childIter.nextSibling) {
+				childIter = childIter.previousSibling
+				text = prepend(childIter.innerHTML, text)
+				previousCount += 1
+			}
+			else {
+				break
+			}
+		}
+
+		// Grab a few elements after the selected word
+		childIter = element
+		for (let i = 0; i < textCount; i++) {
+			if (childIter.nextSibling) {
+				childIter = childIter.nextSibling
+				text.push(childIter.innerHTML)
+			}
+			else {
+				break
+			}
+		}
+
+		// Update the working text and reset the passage
+		if (previousCount > 1) {
+			if (text[previousCount - 2] == '<p></p><p></p>') {
+				workingText.value = workingText.value.replace(text.join('').replace('<p></p><p></p>', '<p><p>'), text.join('').replace('<p></p><p></p> ', ''))
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+			}
+			else {
+				let newText = [...text]
+				newText[previousCount] = '<p><p> ' + text[previousCount]
+				workingText.value = workingText.value.replace(text.join(''), newText.join(''))
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+			}
+		}
+	}
+	else if (editorState == 'question') {
+		if (passageReferences.includes(element)) {
+
+			if (passageReferences[0] == element) {
+				passageReferences.splice(0, 1)
+			}
+			else {
+				passageReferences.splice(1, 1)
+			}
+
+			highlightText(getReferenceText())
+		}
+		else {
+			if (passageReferences.length == 0) {
+				passageReferences.push(element)
+				element.classList.add('highlight-yellow')
+			}
+			else if (passageReferences.length == 1) {
+				passageReferences.push(element)
+				highlightText(getReferenceText())
+			}
+		}
+	}
+}
+
+function getDropdownValues(dropdownId) {
+  const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
+  
+  let values = []
+  inputs.forEach((input) => {
+    values.push(input.dataset.value)
+  })
+
+  return values;
+}
 
 /*********************************************************
  *                    Event Listeners                    *
@@ -497,7 +948,7 @@ testList.addEventListener('change', function () {
 		formDisplay('test')
 	}
 	else {
-		formDisplay('section')
+		formDisplay('passage')
 
 		let section = document.getElementById('sectionList')
 		let pNumber = document.getElementById('passageList')
@@ -514,9 +965,13 @@ title.addEventListener('input', function () {
 	setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
 })
 
-dom_topic.addEventListener('change', function () {
+dom_questionList.addEventListener('change', function () {
+	initializeQuestion(parseInt(dom_questionList.value))
+})
+
+/*dom_topic.addEventListener('change', function () {
 	const section = document.getElementById('sectionList').value
 	const topic = dom_topic.value
 	console.log(section, topic)
 	initializeSubTopicList(section, topic)
-})
+})*/
