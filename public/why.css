@@ -231,14 +231,27 @@ nav a {
   transition: opacity 150ms ease-in-out;
 }
 
+nav .enroll {
+  font-size: 1rem;
+}
+
 .enroll {
-  padding: .7em 1.8em;
+  padding: .5em 1.8em;
   border-radius: .4em;
-  background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
+  background-image: linear-gradient(45deg, var(--color-accent-5-light), 10%, var(--color-accent-1-light), 90%, var(--color-accent-5-light));
   font-weight: bold;
-  color: inherit;
+  font-size: 1.25em;
+  color: black;
   text-decoration: none;
   cursor: pointer;
+  background-size: 200%;
+  background-position: left;
+  transition: background-position 200ms ease-in;
+}
+
+.enroll:hover {
+  color: inherit;
+  background-position: right;
 }
 
 nav a:hover {
@@ -308,7 +321,7 @@ nav a:hover {
     position: relative;
   }
   
-  nav a::before {
+  nav a:not(.enroll)::before {
     content: '';
     display: block;
     height: 5px;

@@ -252,6 +252,10 @@ nav a {
   transition: opacity 150ms ease-in-out;
 }
 
+nav .enroll {
+  font-size: 1rem;
+}
+
 .enroll {
   padding: .7em 1.8em;
   border-radius: .4em;
@@ -324,7 +328,7 @@ nav a:hover {
     position: relative;
   }
   
-  nav a::before {
+  nav a:not(.enroll)::before {
     content: '';
     display: block;
     height: 5px;
