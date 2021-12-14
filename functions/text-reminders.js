@@ -32,7 +32,7 @@ exports.textReminder = functions.pubsub.schedule('30 17 * * *').timeZone('Americ
     attendees.forEach(async (attendee) => {
       let userDoc = await admin.firestore().collection('Users').doc(attendee).get();
       //only send reminders to parents and students
-      if (userDoc.data().roles.includes('student') || userDoc.data().roles.includes('parent')) {
+      if (userDoc.data().role == 'student' || userDoc.data().role == 'parent') {
         if (userDoc.data().phoneNumber) {
           const unformattedNumber = userDoc.data().phoneNumber;
           const userPhoneNumber = '+1' + unformattedNumber.replace(/\(|\)|-| /g, '');
