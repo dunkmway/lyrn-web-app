@@ -1,6 +1,7 @@
 let tests = [];
 const date = new Date()
 let testList = document.getElementById('testList')
+let dom_section = document.getElementById('sectionList')
 let workingText = document.getElementById('passageText')
 let title = document.getElementById('passageTitle')
 let passageNumber = document.getElementById('passageList')
@@ -530,6 +531,9 @@ function formDisplay(event) {
 		document.getElementById('answer4Label').classList.add('hidden')
 		document.getElementById('answer5').classList.add('hidden')
 		document.getElementById('answer5Label').classList.add('hidden')
+
+		removeChildren('qNumbers')
+		removeChildren('qList')
 	}
 	else if (event == 'question') {
 
@@ -586,6 +590,7 @@ function formDisplay(event) {
 
 		initializeQuestionList(section)
 		initializeTopicList(section)
+		initializeFinishedQuestions(testList.value, section)
 
 		let questionNumber = parseInt(dom_questionList.value)
 		initializeQuestion(questionNumber)
@@ -593,7 +598,41 @@ function formDisplay(event) {
 	}
 }
 
-function initializeQuestion(number) {
+function removeChildren(id) {
+	let dom_parent = document.getElementById(id)
+	while(dom_parent.children.length > 0) {
+		dom_parent.firstChild.remove()
+	}
+
+}
+
+function initializeFinishedQuestions(test, section) {
+
+	removeChildren('qNumbers')
+	let dom_finishedQuestions = document.getElementById('qNumbers')
+
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.where('test', '==', test)
+	.where('section', '==', section)
+
+	let list = []
+	ref.get()
+	.then((querySnapshot) => {
+		if (querySnapshot.size > 0) {
+			querySnapshot.forEach((doc) => {
+				list.push(doc.data().problem)
+			})
+
+			list.sort(function(a, b) {return a - b;})
+			for (let i = 0; i < list.length; i++) {
+				dom_finishedQuestions.appendChild(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + (list[i]).toString() + ")"], list[i].toString()))
+			}
+		}
+	})
+}
+
+function resetQuestion(number) {
 	// Make sure that the questions have their correct value
 	if (number % 2 == 1) {
 		document.getElementById('answer1Label').innerHTML = 'A'
@@ -610,11 +649,59 @@ function initializeQuestion(number) {
 		document.getElementById('answer5Label').innerHTML = 'K'
 	}
 
+	// Reset the Topics
+    $('#topic').closest(".ui.dropdown").dropdown('clear')
+
+	// Reset the Modifiers
+    $('#modifier').closest(".ui.dropdown").dropdown('clear')
+
+	// Reset the answers
+	selectAnswer()
+
+	// Set the answers
+	const section = document.getElementById('sectionList').value
+	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
+		document.getElementById('answer' + (i + 1).toString()).value = ''
+	}
+
+	// Set the question text
+	document.getElementById('questionText').value = ''
+
+	// Highlight the Text
+	removeHighlight()
+
+	// Remove the passage References
+	passageReferences = []
+
+	// Set the question
+	document.getElementById('questionList').value = number
+
+}
+
+function initializeQuestionPreview(question, answers, number) {
+	let dom_qList = document.getElementById('qList')
+	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
+
+	removeChildren('qList')
+
+	if (question != undefined && question != '') {
+		dom_qList.appendChild(createElement('div', ['questionText'], [], [], question))
+	}
+
+	for (let i = 0; i < answers.length; i++) {
+		dom_qList.appendChild(createElement('p', ['answerText'], [], [], answerLetters[i + (number % 2) * 5] + '. ' + answers[i]))
+	}
+}
+
+function initializeQuestion(number) {
+
+	resetQuestion(number)
+
 	// Grab the data
 	const section = document.getElementById('sectionList').value
 	getQuestion(testList.value, section, number)
 		.then((data) => {
-			if (data != -1) {
+			if (data[0] != -1) {
 				const questionLocations = {
 					'A': '1',
 					'B': '2',
@@ -629,59 +716,59 @@ function initializeQuestion(number) {
 				}
 
 				// Set the Topics
-    			$('#topic').closest(".ui.dropdown").dropdown('set selected', data['topic']);
+    			$('#topic').closest(".ui.dropdown").dropdown('set selected', data[0]['topic']);
 
 				// Set the Modifiers
-    			$('#modifier').closest(".ui.dropdown").dropdown('set selected', data['modifier']);
+    			$('#modifier').closest(".ui.dropdown").dropdown('set selected', data[0]['modifier']);
 
 				// Set the correct answer
-				selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']] + 'Label'))
+				selectAnswer(document.getElementById('answer' + questionLocations[data[0]['correctAnswer']] + 'Label'))
 
 				// Set the answers
-				for (let i = 0; i < data['answers'].length; i++) {
-					document.getElementById('answer' + (i + 1).toString()).value = data['answers'][i]
+				for (let i = 0; i < data[0]['answers'].length; i++) {
+					document.getElementById('answer' + (i + 1).toString()).value = data[0]['answers'][i]
 				}
 
 				// Set the question text
-				document.getElementById('questionText').value = data['questionText']
+				document.getElementById('questionText').value = data[0]['questionText']
 
 				// Highlight the Text
-				highlightText(data['passageText'], true)
+				highlightText(data[0]['passageText'], true)
+
+				// Initialize the Question Preview
+				initializeQuestionPreview(data[0]['questionText'], data[0]['answers'], data[0]['problem'])
 			}
 		})
 
-
-
 }
 
-function getQuestion(test, section, number) {
+async function getQuestion(test, section, number) {
 	const ref = firebase.firestore().collection('ACT-Tests')
 	.where('type', '==', 'question')
 	.where('test', '==', test)
 	.where('section', '==', section)
 	.where('problem', '==', number)
 
-	return new Promise(function(resolve, reject) {
-		ref.get()
-	.then((querySnapshot) => {
+	try {
+		const querySnapshot = await ref.get()
 		if (querySnapshot.size == 1) {
-			querySnapshot.forEach((doc) => {
-				resolve(doc.data())
-			})
+			return [querySnapshot.docs[0].data(), querySnapshot.docs[0].id]
 		}
 		else {
-			resolve(-1)
+			return [-1]
 		}
-	})
-})
+	}
+	catch (error) {
+		throw error
+	}
 }
 
 function addQuestion() {
-	const ref = firebase.firestore().collection('ACT-Tests').doc()
+	let ref = firebase.firestore().collection('ACT-Tests')
 
 	const test = testList.value
 	const section = document.getElementById('sectionList').value
-	const number = document.getElementById('questionList').value
+	const number = parseInt(document.getElementById('questionList').value)
 
 	let answer = document.getElementsByClassName('correctAnswer')
 	if (answer.length > 0) {
@@ -705,9 +792,13 @@ function addQuestion() {
 
 	getQuestion(test, section, number)
 		.then((info) => {
-			if (info != -1) {
-				attempts = info['attempts']
-				correctAttempts = info['correctAttempts']
+			if (info[0] != -1) {
+				attempts = info[0]['numberOfAttempts']
+				correctAttempts = info[0]['correctAttempts']
+				ref = ref.doc(info[1])
+			}
+			else {
+				ref = ref.doc()
 			}
 
 			const topics = getDropdownValues('topic')
@@ -733,7 +824,21 @@ function addQuestion() {
 				}
 
 				ref.set(data)
-					.then(() => { console.log("It is done") })
+					.then(() => {
+						//formDisplay('question')
+						let dom_qNumbers = document.getElementById('qNumbers')
+						const children = dom_qNumbers.children
+						for (let i = 0; i < children.length; i++) {
+							if (parseInt(children[i].innerHTML) == number) {
+								break;
+							}
+							if (parseInt(children[i].innerHTML) > number) {
+								dom_qNumbers.insertBefore(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString()), children[i])
+								break;
+							}
+						}
+						console.log('It is done')
+					})
 			}
 		})
 }
@@ -764,14 +869,16 @@ function prepend(value, array) {
   return newArray;
 }
 
-function selectAnswer(element) {
+function selectAnswer(element = undefined) {
 	let answers = document.getElementById('questionsPart2').querySelectorAll('label')
 
 	for (let i = 0; i < answers.length; i++) {
 		answers[i].classList.remove('correctAnswer')
 	}
 
-	element.classList.add('correctAnswer')
+	if (element != undefined) {
+		element.classList.add('correctAnswer')
+	}
 }
 
 function getReferenceText() {
@@ -969,9 +1076,5 @@ dom_questionList.addEventListener('change', function () {
 	initializeQuestion(parseInt(dom_questionList.value))
 })
 
-/*dom_topic.addEventListener('change', function () {
-	const section = document.getElementById('sectionList').value
-	const topic = dom_topic.value
-	console.log(section, topic)
-	initializeSubTopicList(section, topic)
-})*/
+//dom_section.addEventListener('change', function () {
+//})

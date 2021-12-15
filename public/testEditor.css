@@ -29,6 +29,7 @@
 
 .finalProductDiv:first-child {
 	margin-left: 5vw;
+	text-align: center;
 }
 
 .bold {
@@ -120,4 +121,17 @@
 	color:white;
 	font-weight: bold;
 	background-color: green;
+}
+
+.problem {
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 10px;
+	background-color: rgb(230, 231, 232);
+	margin: 2px;
+	cursor: pointer;
+}
+
+.answerText {
+	margin: 0em 0em 0em 2em;
 }
