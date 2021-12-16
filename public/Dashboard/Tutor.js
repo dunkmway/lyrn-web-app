@@ -15,22 +15,6 @@ function initialSetupData() {
       //get the events for this tutor and display them on the calendar
       initializeDefaultCalendar([]);
       if (current_user) {
-        getEventsStaff(current_user.uid, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime())
-        .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
-          })
-        })
-        .catch((error) =>{
-          console.log(error);
-          alert("We had an issue loading the calendar events. Try refreshing the page.")
-        })
-
         // User is signed in.
         getTutorProfile(user.uid)
         .then((doc) => {
@@ -72,6 +56,31 @@ function getEventsStaff(staffUID, start, end) {
   });
 }
 
+function getAvailabilityStaff(staffUID, start, end) {
+  return firebase.firestore().collection('Availabilities')
+  .where("staff", '==', staffUID)
+  .where('start', '>=', start)
+  .where('start', '<', end)
+  .get()
+  .then((availSnapshot) => {
+    console.log('number of availabilities grabbed:', availSnapshot.size)
+    let avails = [];
+    availSnapshot.forEach((availDoc) => {
+      const availData = availDoc.data();
+      avails.push({
+        id: availDoc.id,
+        start: convertFromDateInt(availData.start).fullCalendar,
+        end: convertFromDateInt(availData.end).fullCalendar,
+        allDay: availData.allDay,
+        color: availData.color,
+        textColor: availData.textColor,
+        display: 'background' //place availability in the background for fullCalendar
+      });
+    });
+    return avails;
+  });
+}
+
 function initializeDefaultCalendar(events, initialDate = new Date()) {
   if (main_calendar) {
     main_calendar.destroy();
@@ -92,23 +101,40 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
-      start:   'today prev,next',
+      start:   'today prev,next availability',
       center: 'title',
       end:  'dayGridMonth,timeGridWeek,timeGridDay'
     },
     themeSystem: 'standard',
+    customButtons: {
+      availability: {
+        text: 'My Availability',
+        click: availabilityCallback
+      }
+    },
 
     datesSet: function(dateInfo) {
       if (current_user) {
-        getEventsStaff(current_user.uid, dateInfo.start.getTime(), dateInfo.end.getTime())
+        getEventsStaff(current_user.uid, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime())
         .then(events => {
-          //remove the old events
-          main_calendar.getEvents().forEach(event => {
-            event.remove()
-          });
-          //add the new ones
-          events.forEach(event => {
-            main_calendar.addEvent(event);
+          getAvailabilityStaff(current_user.uid, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime())
+          .then(avails => {
+            //remove the old events
+            main_calendar.getEvents().forEach(event => {
+              event.remove()
+            });
+            //add the new ones
+            events.forEach(event => {
+              main_calendar.addEvent(event);
+            })
+            //add the new ones
+            avails.forEach(avail => {
+              main_calendar.addEvent(avail);
+            })
+          })
+          .catch((error) =>{
+            console.log(error);
+            alert("We had an issue loading the calendar events. Try refreshing the page.")
           })
         })
         .catch((error) =>{
@@ -149,6 +175,16 @@ function eventClickHandler(info) {
       default:
     }
   })
+}
+
+function availabilityCallback() {
+  customConfirm(
+    `What would you like to do?`,
+    `Update my availability`,
+    `Remove my availability`,
+    () => {alert('update')},
+    () => {alert('remove')}
+  )
 }
 
 function getEvent(eventID) {

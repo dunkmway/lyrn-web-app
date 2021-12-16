@@ -15,6 +15,9 @@ function convertAxiosResponseToJSON(axiosResponse) {
   }
 }
 
+/**
+ * create zoom user when a user is first created in auth
+ */
 exports.createZoomUser = functions.firestore
 .document('/Users/{userID}')
 .onCreate(async (snap, context) => {
@@ -53,6 +56,9 @@ exports.createZoomUser = functions.firestore
   return;
 });
 
+/**
+ * triggered when a subject tutoring lesson is create
+ */
 exports.createZoomMeeting = functions.firestore
 .document('/Events/{eventID}')
 .onCreate(async (snap, context) => {

@@ -75,7 +75,7 @@ details summary {
   background-position: left;
   background-size: 1100%;
   background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light));
-  animation: gradient-background 30s linear infinite;
+  animation: gradient-background 60s linear infinite alternate;
   overflow-y: auto;
 }
 
@@ -133,9 +133,10 @@ details summary {
 #signup h1 {
   margin: 0;
   font-size: 3em;
-  background: linear-gradient(45deg, var(--color-accent-3-light), var(--color-accent-4-deep));
+  /* background: linear-gradient(45deg, var(--color-accent-3-light), var(--color-accent-4-deep));
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent; */
+  color: var(--color-accent-3-light);
   font-weight: 900;
   text-align: center;
   border-bottom: 1px solid var(--color-secondary);
