@@ -29,6 +29,7 @@
 
 .finalProductDiv:first-child {
 	margin-left: 5vw;
+	text-align: center;
 }
 
 .bold {
@@ -81,4 +82,56 @@
 #passageTitle {
 	width: 90%;
 	height: 15%;
+}
+
+.columns {
+	display: flex;
+	flex-direction: row;
+}
+
+.rows {
+	display: flex;
+	flex-direction: column;
+}
+
+#questionsPart1 {
+	width: 50%;
+	height: 25vh;
+}
+
+#questionsPart1 textarea {
+	height: 100%;
+}
+
+#questionsPart2 {
+	width: 40%;
+	height: 25vh;
+	margin-left: 5%;
+}
+
+#questionsPart2 label {
+	cursor: pointer;
+}
+
+.highlight-yellow {
+	background-color: yellow;
+}
+
+.correctAnswer {
+	color:white;
+	font-weight: bold;
+	background-color: green;
+}
+
+.problem {
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 10px;
+	background-color: rgb(230, 231, 232);
+	margin: 2px;
+	cursor: pointer;
+}
+
+.answerText {
+	margin: 0em 0em 0em 2em;
 }
