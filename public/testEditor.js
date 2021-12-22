@@ -8,11 +8,20 @@ let passageNumber = document.getElementById('passageList')
 let dom_topic = document.getElementById('topic')
 let dom_modifier = document.getElementById('modifier')
 let dom_questionList = document.getElementById('questionList')
+let dom_labelParagraphs = document.getElementById('labelParagraphs')
+let dom_pText = document.getElementById('pText')
 //let dom_subTopic = document.getElementById('subTopic')
 let editorState = 'test'
 let passageReferences = []
-
+let storage = firebase.storage();
 let passageText = ''
+let maxPassageImageNumber = -1;
+let maxQuestionImageNumber = -1;
+let maxAnswerImageNumber = -1;
+
+let passageImages = []
+let questionImages = []
+let answerImages = []
 
 function checkThatTestExists(test) {
 	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'test').where('test', '==', test.toUpperCase())
@@ -88,7 +97,6 @@ function addTopic(section, topic, subTopics = undefined, type = 'topic') {
 	}
 }
 */
-
 
 /*
 addTopic('english', 'Redundancy', '')
@@ -355,7 +363,7 @@ function addTest() {
 	}
 }
 
-function setPassageText(passageText, passageTitle = undefined, passageNumber = undefined) {
+async function setPassageText(passageText, passageTitle = undefined, passageNumber = undefined, shouldLabelParagraphs = undefined) {
 
 	let passageDiv = document.getElementById('pText')
 
@@ -371,11 +379,17 @@ function setPassageText(passageText, passageTitle = undefined, passageNumber = u
 	}
 
 	// Add the passage title
+	let pCount = 1
 	if (passageTitle != undefined && passageTitle != '') {
 		let titleText = passageTitle.split(" ")
 		for (let i = 0; i < titleText.length; i++) {
 			passageDiv.appendChild(createElement('span', ['bold'], [], [], titleText[i]))
 			passageDiv.appendChild(createElement('span', [], [], [], ' '))
+		}
+
+		if (shouldLabelParagraphs == true) {
+			passageDiv.appendChild(createElement('p', ['bold', 'paragraphLabel'], [], [], '[' + pCount + ']'))
+			pCount += 1
 		}
 
 		passageDiv.appendChild(createElement('p', [], [], [], ''))
@@ -384,10 +398,41 @@ function setPassageText(passageText, passageTitle = undefined, passageNumber = u
 
 	// Add the passage Text
 	let text = passageText.split(" ")
+	passageImages = []
 	for (let i = 0; i < text.length; i++) {
-		passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
-		passageDiv.appendChild(createElement('span', [], [], [], ' '))
+		if (!text[i].includes('<image')) {
+			passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
+			passageDiv.appendChild(createElement('span', [], [], [], ' '))
+			if (shouldLabelParagraphs == true && text[i] == '<p><p>') {
+				passageDiv.appendChild(createElement('p', ['bold', 'paragraphLabel'], [], [], '[' + pCount + ']'))
+				pCount += 1
+			}
+		}
+		else {
+			const imageLocation = parseInt(text[i].replace('<image', '').replace('>'));
+			if (imageLocation > maxPassageImageNumber) {
+				maxPassageImageNumber = imageLocation
+			}
+			//if (imageLocation < passageImages.length) {
+			try {
+				const url = await getImage(testList.value, dom_section.value, passageNumber, imageLocation)
+				passageDiv.appendChild(createElement('img', ['textImage'], ['src', 'id', 'style'], [url, 'image' + (imageLocation).toString(), 'width:100%;'], ''))
+				passageImages.push(url)
+			}
+			catch {
+				console.log("You done messed up AA-ron")
+			}
+		}
 	}
+
+  	/*let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/0xxnCYDh8XWPd3f4fKd9GxeCKtB2')
+  	ref.getDownloadURL()
+  	.then((url) => {
+		passageDiv.appendChild(createElement('img', [], ['src', 'id', 'style'], ['https://firebasestorage.googleapis.com/v0/b/lyrn-web-app.appspot.com/o/Programs%2FACT%2FImages%2F0xxnCYDh8XWPd3f4fKd9GxeCKtB2?alt=media&token=fe90669a-3a12-41b6-b330-6a6f68f106ff', 'image1', 'width:100%;'], ''))
+  	})
+  	.catch((error) => {
+    	console.log("No image found")
+  	})*/
 }
 
 function submitPassageText() {
@@ -404,8 +449,8 @@ function submitPassageText() {
 		'title' : title.value,
 		'passageText' : text.value.replaceAll('\n', ' '),
 		'passageNumber' : parseInt(passageNumber.value),
-		'passageImages' : [],
-		'shouldLabelParagraphs': false,
+		'passageImages' : passageImages,
+		'shouldLabelParagraphs': (dom_labelParagraphs.value == 0 ? false : true),
 	}
 
 	// Validate then set the data
@@ -423,7 +468,7 @@ function submitPassageText() {
 							ref.doc(passageExists).set(data)
 							.then(() => {
 								console.log("Updated")
-								setPassageText(text.value, title.value, parseInt(passageNumber.value))
+								setPassageText(text.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 							})
 						}
 					})
@@ -458,6 +503,8 @@ function formDisplay(event) {
 		document.getElementById('passageTitleLabel').classList.add('hidden')
 		document.getElementById('passageAdd').classList.add('hidden')
 		document.getElementById('passageShow').classList.add('hidden')
+		document.getElementById('labelParagraphs').classList.add('hidden')
+		document.getElementById('labelParagraphsLabel').classList.add('hidden')
 
 		document.getElementById('questionAdd').classList.add('hidden')
 		document.getElementById('questionShow').classList.add('hidden')
@@ -484,6 +531,12 @@ function formDisplay(event) {
 		document.getElementById('answer4Label').classList.add('hidden')
 		document.getElementById('answer5').classList.add('hidden')
 		document.getElementById('answer5Label').classList.add('hidden')
+
+		removeChildren('answers')
+
+		document.getElementById('answers').classList.add('hidden')
+		document.getElementById('answerShow').classList.remove('hidden')
+		document.getElementById('answerAdd').classList.add('hidden')
 	}
 	else if (event == 'passage') {
 		document.getElementById('test').classList.add('hidden')
@@ -505,6 +558,8 @@ function formDisplay(event) {
 		document.getElementById('passageTitleLabel').classList.remove('hidden')
 		document.getElementById('passageAdd').classList.remove('hidden')
 		document.getElementById('passageShow').classList.add('hidden')
+		document.getElementById('labelParagraphs').classList.remove('hidden')
+		document.getElementById('labelParagraphsLabel').classList.remove('hidden')
 
 		document.getElementById('questionShow').classList.remove('hidden')
 		document.getElementById('questionAdd').classList.add('hidden')
@@ -532,6 +587,11 @@ function formDisplay(event) {
 		document.getElementById('answer5').classList.add('hidden')
 		document.getElementById('answer5Label').classList.add('hidden')
 
+		document.getElementById('answers').classList.add('hidden')
+		document.getElementById('answerShow').classList.remove('hidden')
+		document.getElementById('answerAdd').classList.add('hidden')
+
+		removeChildren('answers')
 		removeChildren('qNumbers')
 		removeChildren('qList')
 	}
@@ -556,6 +616,8 @@ function formDisplay(event) {
 		document.getElementById('passageTitleLabel').classList.add('hidden')
 		document.getElementById('passageAdd').classList.add('hidden')
 		document.getElementById('passageShow').classList.remove('hidden')
+		document.getElementById('labelParagraphs').classList.add('hidden')
+		document.getElementById('labelParagraphsLabel').classList.add('hidden')
 
 		document.getElementById('questionAdd').classList.remove('hidden')
 		document.getElementById('questionShow').classList.add('hidden')
@@ -581,6 +643,10 @@ function formDisplay(event) {
 		document.getElementById('answer4').classList.remove('hidden')
 		document.getElementById('answer4Label').classList.remove('hidden')
 
+		document.getElementById('answers').classList.add('hidden')
+		document.getElementById('answerShow').classList.remove('hidden')
+		document.getElementById('answerAdd').classList.add('hidden')
+
 		// Display the 5th answer if on the math section
 		let section = document.getElementById('sectionList').value
 		if (section == 'math') {
@@ -588,14 +654,223 @@ function formDisplay(event) {
 			document.getElementById('answer5Label').classList.remove('hidden')
 		}
 
+		removeChildren('answers')
+
+		let questionNumber = parseInt(dom_questionList.value)
 		initializeQuestionList(section)
 		initializeTopicList(section)
 		initializeFinishedQuestions(testList.value, section)
 
-		let questionNumber = parseInt(dom_questionList.value)
 		initializeQuestion(questionNumber)
 
 	}
+	else if (event == 'answer') {
+		document.getElementById('test').classList.add('hidden')
+		document.getElementById('testYear').classList.add('hidden')
+		document.getElementById('testMonth').classList.add('hidden')
+		document.getElementById('testLabel').classList.add('hidden')
+		document.getElementById('testYearLabel').classList.add('hidden')
+		document.getElementById('testMonthLabel').classList.add('hidden')
+		document.getElementById('testAdd').classList.add('hidden')
+
+		document.getElementById('sectionList').classList.remove('hidden')
+		document.getElementById('sectionListLabel').classList.remove('hidden')
+
+		document.getElementById('passageList').classList.remove('hidden')
+		document.getElementById('passageListLabel').classList.remove('hidden')
+		document.getElementById('passageText').classList.add('hidden')
+		document.getElementById('passageTextLabel').classList.add('hidden')
+		document.getElementById('passageTitle').classList.add('hidden')
+		document.getElementById('passageTitleLabel').classList.add('hidden')
+		document.getElementById('passageAdd').classList.add('hidden')
+		document.getElementById('passageShow').classList.remove('hidden')
+		document.getElementById('labelParagraphs').classList.add('hidden')
+		document.getElementById('labelParagraphsLabel').classList.add('hidden')
+
+		document.getElementById('questionAdd').classList.add('hidden')
+		document.getElementById('questionShow').classList.remove('hidden')
+		document.getElementById('questionList').classList.add('hidden')
+		document.getElementById('questionListLabel').classList.add('hidden')
+		document.getElementById('topic').classList.add('hidden')
+		document.getElementById('topic').parentNode.style = 'display:none'
+		document.getElementById('topicLabel').classList.add('hidden')
+		//document.getElementById('subTopic').classList.remove('hidden')
+		//document.getElementById('subTopicLabel').classList.remove('hidden')
+		document.getElementById('modifier').classList.add('hidden')
+		document.getElementById('modifier').parentNode.style = 'display:none'
+		document.getElementById('modifierLabel').classList.add('hidden')
+
+		document.getElementById('questionText').classList.add('hidden')
+		document.getElementById('questionTextLabel').classList.add('hidden')
+		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Label').classList.add('hidden')
+		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Label').classList.add('hidden')
+		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Label').classList.add('hidden')
+		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Label').classList.add('hidden')
+
+		document.getElementById('answers').classList.remove('hidden')
+		document.getElementById('answerShow').classList.add('hidden')
+		document.getElementById('answerAdd').classList.remove('hidden')
+
+		displayAnswerKey()
+	}
+}
+
+async function getAnswers(test, section) {
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.where('test', '==', test)
+	.where('section', '==', section)
+
+	let data = {}
+
+	const snapshot = await ref.get()
+	if (snapshot.size > 0) {
+		snapshot.forEach((doc) => {
+			data[doc.data()['problem']] = doc.data()['correctAnswer']
+		})
+	}
+
+	return data
+}
+
+async function displayAnswerKey() {
+	let answers = await getAnswers(testList.value, dom_section.value)
+	removeChildren('answers')
+	let dom_answers = document.getElementById('answers')
+
+	let count = 40;
+	if (dom_section.value == 'english') {
+		count = 75;
+	}
+	else if (dom_section.value == 'math') {
+		count = 60;
+	}
+
+	for (let i = 0; i < Math.floor((count + 6) / 10); i++) {
+
+		// Set the labels (10 at a time)
+		let labelDiv = createElement('div', ['rows'], [], [], '')
+		for (let j = 0; j < 10; j++) {
+			if (i * 10 + j < count) {
+				labelDiv.appendChild(createElement('label', [], ['id', 'for'], ['q' + (i * 10 + j + 1).toString() + 'Label', 'q' + (i * 10 + j + 1).toString()], (i * 10 + j + 1)));
+			}
+		}
+		dom_answers.appendChild(labelDiv)
+
+		// Set the inputs (10 at a time)
+		let inputDiv = createElement('div', ['rows'], [], [], '')
+		for (let j = 0; j < 10; j++) {
+			if (i * 10 + j < count) {
+				if (answers[i * 10 + j + 1]) {
+					inputDiv.appendChild(createElement('input', [], ['id', 'value'], ['q' + (i * 10 + j + 1).toString(), answers[i * 10 + j + 1]], ''));
+				}
+				else {
+					inputDiv.appendChild(createElement('input', [], ['id'], ['q' + (i * 10 + j + 1).toString()], ''));
+				}
+			}
+		}
+		dom_answers.appendChild(inputDiv)
+	}
+}
+
+function addAnswers() {
+
+	const answers = document.querySelectorAll("input[id^='q']")
+
+	const odds  = ['A', 'B', 'C', 'D']
+	const evens = ['F', 'G', 'H', 'J']
+
+	let isValidated = true
+	for (let i = 0; i < answers.length; i++) {
+		if (dom_section != 'math') {
+			if (i % 2 == 0) {
+				if (!odds.includes(answers[i].value.toUpperCase())) {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
+			else {
+				if (!evens.includes(answers[i].value.toUpperCase())) {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
+		}
+		else {
+			if (i % 2 == 0) {
+				if (!odds.includes(answers[i].value.toUpperCase()) && answers[i].value.toUpperCase() != 'E') {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
+			else {
+				if (!evens.includes(answers[i].value.toUpperCase()) && answers[i].value.toUpperCase() != 'K') {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
+		}
+	}
+
+	if (isValidated == true) {
+		for (let i = 0; i < answers.length; i++) {
+			if (answers[i].value != '') {
+				getQuestion(testList.value, dom_section.value, (i + 1))
+					.then((results) => {
+
+						let pNumber = -1
+						if (dom_section.value == 'english') {
+							pNumber = Math.floor(i / 15) + 1
+						}
+						else if (dom_section.value == 'reading') {
+							pNumber = Math.floor(i / 10) + 1
+						}
+
+						// Doc doesn't exist yet - set
+						if (results[0] == -1) {
+							const data = {
+								'test': testList.value,
+								'section': dom_section.value,
+								'passage': pNumber,
+								'type': 'question',
+								'topic': [],
+								'subTopics': 'None',
+								'modifier': [],
+								'problem': (i + 1),
+								'questionText': '',
+								'answers': [],
+								'questionImages': [],
+								'answerImages': [],
+								'correctAnswer': answers[i].value.toUpperCase(),
+								'passageText': '',
+								'passageTextLocation': -1,
+								'numberOfAttempts': 0,
+								'correctAttempts': 0
+							}
+
+							firebase.firestore().collection('ACT-Tests').doc().set(data)
+						}
+						// Doc exists - update
+						else {
+							firebase.firestore().collection('ACT-Tests').doc(results[1]).update({
+								['correctAnswer']: answers[i].value.toUpperCase()
+							})
+						}
+					})
+			}
+			else {
+				console.log("'" + answers[i].value + "'")
+			}
+		}
+	}
+	else {
+		console.log("Please correct your issues")
+	}
+	
 }
 
 function removeChildren(id) {
@@ -617,16 +892,29 @@ function initializeFinishedQuestions(test, section) {
 	.where('section', '==', section)
 
 	let list = []
+	let data = {}
 	ref.get()
 	.then((querySnapshot) => {
 		if (querySnapshot.size > 0) {
 			querySnapshot.forEach((doc) => {
-				list.push(doc.data().problem)
+				const problem = doc.data().problem
+				list.push(problem)
+				if (doc.data().answers.length == (dom_section != 'math' ? 4 : 5)) {
+					if (doc.data().topic.length != 0) {
+						data[problem] = 'stage3'
+					}
+					else {
+						data[problem] = 'stage2'
+					}
+				}
+				else {
+					data[problem] = 'stage1'
+				}
 			})
 
 			list.sort(function(a, b) {return a - b;})
 			for (let i = 0; i < list.length; i++) {
-				dom_finishedQuestions.appendChild(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + (list[i]).toString() + ")"], list[i].toString()))
+				dom_finishedQuestions.appendChild(createElement('div', ['problem', data[(i + 1)]], ['onclick'], ["initializeQuestion(" + (list[i]).toString() + ")"], list[i].toString()))
 			}
 		}
 	})
@@ -684,12 +972,27 @@ function initializeQuestionPreview(question, answers, number) {
 
 	removeChildren('qList')
 
+	// Display the question
 	if (question != undefined && question != '') {
-		dom_qList.appendChild(createElement('div', ['questionText'], [], [], question))
+		let questionDiv = createElement('div', ['questionText'], [], [], '')
+		const text = question.split(' ')
+		for (let i = 0; i < text.length; i++) {
+			questionDiv.appendChild(createElement('span', ['highlight'], [], [], text[i]))
+			questionDiv.appendChild(createElement('span', [], [], [], ' '))
+		}
+		dom_qList.appendChild(questionDiv)
 	}
 
+	// Display the answers
 	for (let i = 0; i < answers.length; i++) {
-		dom_qList.appendChild(createElement('p', ['answerText'], [], [], answerLetters[i + (number % 2) * 5] + '. ' + answers[i]))
+		let answerDiv = createElement('p', ['answerText'], [], [], '')
+		const text = answers[i].split(' ');
+		answerDiv.appendChild(createElement('span', [], [], [], answerLetters[i + (number % 2) * 5] + '. '))
+		for (let j = 0; j < text.length; j++) {
+			answerDiv.appendChild(createElement('span', ['highlight'], [], [], text[j]))
+			answerDiv.appendChild(createElement('span', ['highlight'], [], [], ' '))
+		}
+		dom_qList.appendChild(answerDiv)
 	}
 }
 
@@ -721,6 +1024,12 @@ function initializeQuestion(number) {
 				// Set the Modifiers
     			$('#modifier').closest(".ui.dropdown").dropdown('set selected', data[0]['modifier']);
 
+				// Set the Passage Number
+				if (passageNumber.value != data[0]['passage']) {
+					passageNumber.value = data[0]['passage']
+					checkForPassage(testList.value, dom_section.value, data[0]['passage'])
+				}
+
 				// Set the correct answer
 				selectAnswer(document.getElementById('answer' + questionLocations[data[0]['correctAnswer']] + 'Label'))
 
@@ -733,7 +1042,9 @@ function initializeQuestion(number) {
 				document.getElementById('questionText').value = data[0]['questionText']
 
 				// Highlight the Text
-				highlightText(data[0]['passageText'], true)
+				if (data[0]['passageText'] != '') {
+					highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
+				}
 
 				// Initialize the Question Preview
 				initializeQuestionPreview(data[0]['questionText'], data[0]['answers'], data[0]['problem'])
@@ -752,6 +1063,8 @@ async function getQuestion(test, section, number) {
 	try {
 		const querySnapshot = await ref.get()
 		if (querySnapshot.size == 1) {
+			questionImages = querySnapshot.docs[0].data()['questionImages']
+			answerImages = querySnapshot.docs[0].data()['answerImages']
 			return [querySnapshot.docs[0].data(), querySnapshot.docs[0].id]
 		}
 		else {
@@ -779,7 +1092,14 @@ function addQuestion() {
 		return
 	}
 
-	const passageText = getReferenceText()
+	const passageText = getReferenceText()[0]
+	let passageTextLocation = -1
+	try {
+		passageTextLocation = Array.prototype.indexOf.call(passageReferences[0].parentNode.children, passageReferences[0])
+	}
+	catch {
+		passageTextLocation = -1;
+	}
 	let attempts = 0;
 	let correctAttempts = 0
 
@@ -803,7 +1123,8 @@ function addQuestion() {
 
 			const topics = getDropdownValues('topic')
 			const modifiers = getDropdownValues('modifier')
-			if (topics.length > 0 && answers.length == (section != 'math' ? 4 : 5)) {
+			//if (topics.length > 0 && answers.length == (section != 'math' ? 4 : 5)) {
+			if (answers.length == (section != 'math' ? 4 : 5)) {
 				const data = {
 					'test': test,
 					'section': section,
@@ -819,6 +1140,7 @@ function addQuestion() {
 					'answerImages': [],
 					'correctAnswer': answer,
 					'passageText': passageText,
+					'passageTextLocation': passageTextLocation,
 					'numberOfAttempts': attempts,
 					'correctAttempts': correctAttempts
 				}
@@ -828,15 +1150,42 @@ function addQuestion() {
 						//formDisplay('question')
 						let dom_qNumbers = document.getElementById('qNumbers')
 						const children = dom_qNumbers.children
+						let insertedElement = false;
+						let ele = undefined;
 						for (let i = 0; i < children.length; i++) {
 							if (parseInt(children[i].innerHTML) == number) {
+								ele = children[i]
+								insertedElement = true
 								break;
 							}
 							if (parseInt(children[i].innerHTML) > number) {
-								dom_qNumbers.insertBefore(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString()), children[i])
+								ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
+								dom_qNumbers.insertBefore(ele, children[i])
+								insertedElement = true
 								break;
 							}
 						}
+						if (insertedElement == false) {
+							ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
+							dom_qNumbers.appendChild(ele)
+						}
+
+						// Assign the set question a color
+						ele.classList.remove('stage1')
+						ele.classList.remove('stage2')
+						ele.classList.remove('stage3')
+						if (answers.length == (dom_section != 'math' ? 4 : 5)) {
+							if (topics.length > 0) {
+								ele.classList.add('stage3')
+							}
+							else {
+								ele.classList.add('stage2')
+							}
+						}
+						else {
+							ele.classList.add('stage1')
+						}
+						initializeQuestion(number + 1)
 						console.log('It is done')
 					})
 			}
@@ -851,10 +1200,19 @@ function checkForPassage(test, section, passage) {
 				if (querySnapshot.size == 1) {
 					querySnapshot.forEach((doc) => {
 						let text = document.getElementById('passageText')
+						//passageImages = doc.data().passageImages
 						title.value = doc.data().title
 						text.value = doc.data().passageText
-						setPassageText(doc.data().passageText, title.value, parseInt(passage))
+						dom_labelParagraphs.value = (doc.data().shouldLabelParagraphs == false ? 0 : 1)
+						setPassageText(doc.data().passageText, title.value, parseInt(passage), dom_labelParagraphs.value)
 					})
+				}
+				else {
+					let text = document.getElementById('passageText')
+					title.value = ''
+					text.value = ''
+					dom_labelParagraphs.value = 0
+					setPassageText('', '', parseInt(passage), dom_labelParagraphs.value)
 				}
 			})
 	}
@@ -894,7 +1252,7 @@ function getReferenceText() {
 				text += dom_iter.innerHTML
 				dom_iter = dom_iter.nextSibling
 			}
-			return text
+			return [text, index1]
 		}
 		else {
 			let dom_iter = passageReferences[1]
@@ -902,11 +1260,11 @@ function getReferenceText() {
 				text += dom_iter.innerHTML
 				dom_iter = dom_iter.nextSibling
 			}
-			return text
+			return [text, index2]
 		}
 	}
 	else if (passageReferences.length == 1) {
-		return passageReferences[0].innerHTML
+		return [passageReferences[0].innerHTML, Array.prototype.indexOf.call(passageReferences[0].parentNode.children, passageReferences[0])]
 	}
 	else {
 		return -1
@@ -914,9 +1272,9 @@ function getReferenceText() {
 
 }
 
-function highlightText(text, setReferences = false) {
+function highlightText(text, textStart, setReferences = false) {
 	removeHighlight()
-	if (text != -1) {
+	if (text != -1 && text != undefined) {
 
 		text = text.replace('<p><p>', '<p></p><p></p>')
 		const textArray = text.split(' ')
@@ -930,7 +1288,7 @@ function highlightText(text, setReferences = false) {
 			if (children[i].innerHTML == [textArray[0]]) {
 				foundLocation = true
 				for (let j = 0; j < textArray.length; j++) {
-					if (children[i + (2 * j)].innerHTML != textArray[j]) {
+					if (children[i + (2 * j)].innerHTML != textArray[j] || Math.abs(textStart - i) > 5) {
 						foundLocation = false
 						break
 					}
@@ -944,12 +1302,19 @@ function highlightText(text, setReferences = false) {
 
 		// Highlight the text
 		for (let i = 0; i < (2 * textArray.length) - 1; i++) {
-			children[location + i].classList.add('highlight-yellow')
+			if (children[location + i] != undefined) {
+				children[location + i].classList.add('highlight-yellow')
+			}
 		}
 
 		// Set the passage References if needed
 		if (setReferences == true) {
-			passageReferences = [children[location], children[location + (2 * textArray.length) - 2]]
+			if (textArray.length > 1) {
+				passageReferences = [children[location], children[location + (2 * textArray.length) - 2]]
+			}
+			else {
+				passageReferences = [children[location]]
+			}
 		}
 	}
 }
@@ -971,14 +1336,18 @@ function toggleParagraph(element) {
 			return
 		}
 
+		const ignorables = ['[1]', '[2]', '[3]', '[4]', '[5]']
+
 		// Grab a few elements before the selected word
 		let childIter = element
 		let previousCount = 0;
 		for (let i = 0; i < textCount; i++) {
-			if (childIter.nextSibling) {
+			if (childIter.previousSibling) {
 				childIter = childIter.previousSibling
-				text = prepend(childIter.innerHTML, text)
-				previousCount += 1
+				if (!ignorables.includes(childIter.innerHTML)) {
+					text = prepend(childIter.innerHTML, text)
+					previousCount += 1
+				}
 			}
 			else {
 				break
@@ -990,7 +1359,9 @@ function toggleParagraph(element) {
 		for (let i = 0; i < textCount; i++) {
 			if (childIter.nextSibling) {
 				childIter = childIter.nextSibling
-				text.push(childIter.innerHTML)
+				if (!ignorables.includes(childIter.innerHTML)) {
+					text.push(childIter.innerHTML)
+				}
 			}
 			else {
 				break
@@ -1000,14 +1371,17 @@ function toggleParagraph(element) {
 		// Update the working text and reset the passage
 		if (previousCount > 1) {
 			if (text[previousCount - 2] == '<p></p><p></p>') {
-				workingText.value = workingText.value.replace(text.join('').replace('<p></p><p></p>', '<p><p>'), text.join('').replace('<p></p><p></p> ', ''))
-				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+				newText = [...text]
+				newText[previousCount - 2] = text[previousCount - 2].replace('<p></p><p></p>', '')
+				newText.splice(previousCount - 1, 1)
+				workingText.value = workingText.value.replace(text.join('').replaceAll('<p></p><p></p>', '<p><p>'), newText.join('').replaceAll('<p></p><p></p>', '<p><p>'))
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 			}
 			else {
 				let newText = [...text]
 				newText[previousCount] = '<p><p> ' + text[previousCount]
-				workingText.value = workingText.value.replace(text.join(''), newText.join(''))
-				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+				workingText.value = workingText.value.replace(text.join('').replaceAll('<p></p><p></p>', '<p><p>'), newText.join('').replaceAll('<p></p><p></p>', '<p><p>'))
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 			}
 		}
 	}
@@ -1021,7 +1395,8 @@ function toggleParagraph(element) {
 				passageReferences.splice(1, 1)
 			}
 
-			highlightText(getReferenceText())
+			const datum = getReferenceText()
+			highlightText(datum[0], datum[1])
 		}
 		else {
 			if (passageReferences.length == 0) {
@@ -1030,7 +1405,8 @@ function toggleParagraph(element) {
 			}
 			else if (passageReferences.length == 1) {
 				passageReferences.push(element)
-				highlightText(getReferenceText())
+				const datum = getReferenceText()
+				highlightText(datum[0], datum[1])
 			}
 		}
 	}
@@ -1047,6 +1423,215 @@ function getDropdownValues(dropdownId) {
   return values;
 }
 
+function displayMenu(action = 'toggle', x = 0, y = 0) {
+	dom_menu = document.getElementById('imagePopup')
+
+	if (action == 'toggle') {
+		dom_menu.classList.toggle('hidden')
+	}
+	else if (action == 'remove') {
+		dom_menu.classList.add('hidden')
+	}
+	else if (action == 'add') {
+		dom_menu.classList.remove('hidden')
+	}
+
+	dom_menu.style.left = (parseInt(x) + 30).toString() + 'px'
+	dom_menu.style.top = y + 'px'
+}
+
+function displayRemovalMenu(action = 'toggle', x = 0, y = 0) {
+	dom_menu = document.getElementById('imageRemovalPopup')
+
+	if (action == 'toggle') {
+		dom_menu.classList.toggle('hidden')
+	}
+	else if (action == 'remove') {
+		dom_menu.classList.add('hidden')
+	}
+	else if (action == 'add') {
+		dom_menu.classList.remove('hidden')
+	}
+
+	dom_menu.style.left = (parseInt(x) + 30).toString() + 'px'
+	dom_menu.style.top = y + 'px'
+}
+
+function updateWorkingText(element, action) {
+	let text = element.innerHTML
+	const wordCount = 9
+	let count = 0;
+	let dom_iter = element
+	while (count < wordCount) {
+		if (dom_iter.nextSibling) {
+			dom_iter = dom_iter.nextSibling
+			text += dom_iter.innerHTML
+		}
+		else {
+			break;
+		}
+
+		count += 1
+	}
+
+	if (count == wordCount) {
+		if (action == 'before') {
+			workingText.value = workingText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), '<image' + (maxPassageImageNumber).toString() + '> ' + text.replaceAll('<p></p><p></p>', '<p><p>'))
+		}
+		else if (action == 'after') {
+			workingText.value = workingText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML, element.innerHTML + ' <image' + (maxPassageImageNumber).toString() + '>'))
+		}
+	}
+	else {
+		let text = element.innerHTML
+		const wordCount = 9
+		let count = 0;
+		let dom_iter = element
+		while (count < wordCount) {
+			if (dom_iter.previousSibling) {
+				dom_iter = dom_iter.previousSibling
+				text += dom_iter.innerHTML
+			}
+			else {
+				break;
+			}
+
+			count += 1
+		}
+
+		if (action == 'before') {
+			workingText.value = workingText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML,'<image' + (maxPassageImageNumber).toString() + '> ' + element.innerHTML))
+		}
+		else if (action == 'after') {
+			workingText.value = workingText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>') + ' <image' + (maxPassageImageNumber).toString() + '>')
+		}
+	}
+
+	submitPassageText()
+	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+}
+
+function addImage(action, type = 'passage') {
+	if (dom_imageBefore.files.length > 0 || dom_imageAfter.files.length > 0){
+		//passageImages.push(dom_imageBefore.files[0])
+		let image = undefined
+
+		if (action == 'before') {
+			image = dom_imageBefore.files[0]
+		}
+		else if (action == 'after') {
+			image = dom_imageAfter.files[0]
+		}
+
+		let filename = undefined
+		if (type == 'passage') {
+			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		}
+		else if (type == 'question') {
+			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		}
+		//else if (type == 'answer') {
+			//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		//}
+    	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+        let thisref = ref.put(image)
+
+        thisref.on('state_changed', function (snapshot) {
+        }, function (error) {
+          console.log(error)
+        }, function () {
+          // Uploaded completed successfully, now we can get the download URL
+          thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+
+            // Setting image
+			passageImages.push(downloadURL)
+			maxPassageImageNumber += 1
+			updateWorkingText(selectedWord, action)
+			dom_imageAfter.value = null
+			dom_imageBefore.value = null
+          });
+        });
+	}
+
+}
+
+async function getImage(test, section, passage, imageNumber) {
+	const filename = test + '-' + section + '-P' + passage + '-I' + parseInt(imageNumber) + '.png'
+	return await storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
+}
+
+function removeImage() {
+	const imageNumber = parseInt(selectedImage.id.replace('image', ''))
+	workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
+	passageImages.splice(imageNumber, 1)
+
+	const filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + imageNumber.toString() + '.png'
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+	ref.delete()
+		.then(() => {
+			setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+			submitPassageText()
+			displayRemovalMenu('remove')
+		})
+		.catch((err) => {
+			console.log(err)
+		})
+}
+
+/*function removeImageOld() {
+	const imageNumber = parseInt(selectedImage.id.replace('image', ''))
+	const lastImageIndex = passageImages.length - 1
+
+	if (imageNumber == lastImageIndex) {
+		workingText.value = workingText.value.replaceAll('<image' + lastImageIndex.toString() + '> ', '')
+		passageImages.splice(lastImageIndex, 1)
+
+		const filename = testList.value + '-' + dom_section.value + '-' + passageNumber.value + '-' + lastImageIndex.toString() + '.png'
+		console.log(filename)
+		let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+		ref.delete()
+			.then(() => {
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+				submitPassageText()
+				displayRemovalMenu('remove')
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+	}
+	else {
+
+		const filename = testList.value + '-' + dom_section.value + '-' + passageNumber.value + '-' + lastImageIndex.toString() + '.png'
+		storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
+			.then((url) => {
+				const oldFilename = testList.value + '-' + dom_section.value + '-' + passageNumber.value + '-' + imageNumber.toString() + '.png'
+				storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + oldFilename).putFile(url)
+
+				workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
+				workingText.value = workingText.value.replaceAll('<image' + lastImageIndex.toString() + '> ', '<image' + imageNumber.toString() + '> ')
+
+				console.log(passageImages)
+				passageImages[imageNumber] = passageImages[lastImageIndex]
+				passageImages.splice(lastImageIndex, 1)
+				console.log(passageImages)
+
+				// copy lastImageIndex to imageNumber
+
+				let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+				ref.delete()
+					.then(() => {
+						setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+						submitPassageText()
+						displayRemovalMenu('remove')
+					})
+					.catch((err) => {
+						console.log(err)
+					})
+			})
+	}
+
+}*/
+
 /*********************************************************
  *                    Event Listeners                    *
  *********************************************************/
@@ -1056,25 +1641,78 @@ testList.addEventListener('change', function () {
 	}
 	else {
 		formDisplay('passage')
-
-		let section = document.getElementById('sectionList')
-		let pNumber = document.getElementById('passageList')
-		checkForPassage(testList.value, section.value, pNumber.value)
+		checkForPassage(testList.value, dom_section.value, passageNumber.value)
 	}
 })
 
+dom_section.addEventListener('change', function() {
+		formDisplay(editorState)
+		checkForPassage(testList.value, dom_section.value, passageNumber.value)
+})
+
+passageNumber.addEventListener('change', function() {
+		//formDisplay(editorState)
+		checkForPassage(testList.value, dom_section.value, passageNumber.value)
+})
 
 workingText.addEventListener('input', function () {
-	setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+	workingText.value = workingText.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('  ', ' ')
+	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 })
 
 title.addEventListener('input', function () {
-	setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 })
 
 dom_questionList.addEventListener('change', function () {
 	initializeQuestion(parseInt(dom_questionList.value))
 })
 
-//dom_section.addEventListener('change', function () {
-//})
+dom_labelParagraphs.addEventListener('change', function () {
+	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+})
+
+let selectedWord = undefined
+let selectedImage = undefined
+dom_pText.addEventListener('contextmenu', function(event) {
+	if (editorState == 'passage') {
+		try {
+			selectedWord.classList.remove('spotlight')
+		}
+		catch {
+		}
+
+		if (event.target.classList.contains('highlight')) {
+			event.preventDefault()
+			selectedWord = event.target
+			selectedWord.classList.add('spotlight')
+			displayMenu('toggle', event.clientX, event.clientY)
+		}
+		else if (event.target.classList.contains('textImage')) {
+			event.preventDefault()
+			selectedImage = event.target
+			displayRemovalMenu('toggle', event.clientX, event.clientY)
+		}
+	}
+})
+
+document.getElementsByTagName('main')[0].addEventListener('click', function() {
+	if (selectedWord != undefined) {
+		displayMenu('remove')
+		selectedWord.classList.remove('spotlight')
+	}
+})
+
+// Add image before text
+dom_imageBefore = document.getElementById('imageBefore')
+document.getElementById('before').addEventListener('click', function() {
+	dom_imageBefore.click()
+})
+
+
+
+// Add image after text
+dom_imageAfter = document.getElementById('imageAfter')
+document.getElementById('after').addEventListener('click', function() {
+	dom_imageAfter.click()
+})

@@ -6,10 +6,6 @@
 	background-color: var(--mainColor)
 }
 
-.hidden {
-	display: none;
-}
-
 .finalProductDiv {
 	background-color: white;
 	border-style: solid;
@@ -25,11 +21,13 @@
 .finalProductDiv:last-child {
 	margin-right: 0vw;
 	width: 20vw;
+	overflow: auto;
 }
 
 .finalProductDiv:first-child {
 	margin-left: 5vw;
 	text-align: center;
+	overflow: auto;
 }
 
 .bold {
@@ -70,6 +68,10 @@
 	cursor: pointer;
 }
 
+.spotlight {
+	background-color: yellow;
+}
+
 #questions {
 	width: 20vw;
 }
@@ -81,7 +83,6 @@
 
 #passageTitle {
 	width: 90%;
-	height: 15%;
 }
 
 .columns {
@@ -133,5 +134,58 @@
 }
 
 .answerText {
-	margin: 0em 0em 0em 2em;
+	margin: 0em 0em 0.5em 2em;
+}
+
+.stage1 {
+	background-color: rgb(230, 231, 232);
+}
+
+.stage2 {
+	background-color: yellowgreen;
+}
+
+.stage3 {
+	background-color: green;
+}
+
+#secondHalf .columns .rows:first-child {
+	width: 80%;
+}
+
+#answers .rows input{
+	height: 20px;
+	width: 50px;
+	margin-top: 2px;
+	margin-left: 5px;
+}
+
+#answers .rows label{
+	height: 20px;
+	margin-top: 2px;
+	margin-left: 20px;
+}
+
+#secondHalf #answers .rows {
+	width: inherit;
+}
+
+.imagePopup {
+	position: absolute;
+	background-color: rgb(230, 230, 230);
+	border-style: solid;
+	border-width: 2px;
+}
+
+.imagePopup div:hover {
+	background-color: rgb(180, 180, 180);
+	cursor:pointer;
+}
+
+.hidden {
+	display: none;
+}
+
+.questionText {
+	margin-bottom: 1em;
 }

@@ -57,6 +57,19 @@
     </header>-->
 
   <main>
+    <div id = 'imagePopup' class = 'rows hidden imagePopup'>
+      <div>
+        <span id = 'before'><input id = 'imageBefore' type = 'file' style = "display:none" accept = "image/png" onchange="addImage('before')">Add image before</span>
+      </div>
+      <div>
+        <span id = 'after'><input id = 'imageAfter' type = 'file' style = "display:none" accept = "image/png" onchange="addImage('after')">Add image after</span>
+      </div>
+    </div>
+    <div id = 'imageRemovalPopup' class = 'hidden imagePopup'>
+      <div>
+        <span id = 'remove' onclick="removeImage()">Remove image</span>
+      </div>
+    </div>
     <form id='form'>
 
       <div id='firstHalf'>
@@ -127,28 +140,48 @@
         </div>
 
         <div>
-          <!-- Add Passage Text -->
+          <!-- Buttons -->
           <button type='button' onclick="submitPassageText()" id='passageAdd' class = "hidden">Save Passage Text</button>
-          <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
-
-          <!-- Add Question -->
           <button type='button' onclick="formDisplay('passage')" id='passageShow' class = "hidden">Go to Passage Text</button>
+          <button type='button' onclick="formDisplay('answer')" id='answerShow' class = "hidden">Go to Answers</button>
+          <button type='button' onclick="addAnswers()" id='answerAdd' class = "hidden">Save Answers</button>
+          <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
           <button type='button' onclick="addQuestion()" id='questionAdd' class = "hidden">Add Question</button>
+
         </div>
       </div>
       
       <div id='secondHalf'>
 
         <!-- Passages -->
-        <div>
-          <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
+        <div class = 'columns'>
+          <div class = 'rows'>
+            <div>
+              <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
+            </div>
+            <textarea class = 'hidden' placeholder="Copy passage title here" id = 'passageTitle'></textarea>
+          </div>
+
+          <div class = 'rows'>
+            <div>
+              <label class='label hidden' for="labelParagraphs" id='labelParagraphsLabel'>Label Paragraphs</label>
+            </div>
+            <select id="labelParagraphs" class = "hidden">
+              <option value=0>No</option>
+              <option value=1>Yes</option>
+            </select>
+          </div>
         </div>
-        <textarea class = 'hidden' placeholder="Copy passage title here" id = 'passageTitle'></textarea>
 
         <div>
           <label class='label hidden' for="passageText" id='passageTextLabel'>Passage</label>
         </div>
         <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageText'></textarea>
+
+        <!-- Answers -->
+        <div class = 'columns hidden' id = 'answers'>
+        </div>
+
 
         <!-- Questions -->
         <div>
