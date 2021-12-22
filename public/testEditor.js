@@ -10,6 +10,13 @@ let dom_modifier = document.getElementById('modifier')
 let dom_questionList = document.getElementById('questionList')
 let dom_labelParagraphs = document.getElementById('labelParagraphs')
 let dom_pText = document.getElementById('pText')
+let dom_qList = document.getElementById('qList')
+let dom_questionText = document.getElementById('questionText')
+let dom_answer1 = document.getElementById('answer1')
+let dom_answer2 = document.getElementById('answer2')
+let dom_answer3 = document.getElementById('answer3')
+let dom_answer4 = document.getElementById('answer4')
+let dom_answer5 = document.getElementById('answer5')
 //let dom_subTopic = document.getElementById('subTopic')
 let editorState = 'test'
 let passageReferences = []
@@ -656,7 +663,10 @@ function formDisplay(event) {
 
 		removeChildren('answers')
 
-		let questionNumber = parseInt(dom_questionList.value)
+		let questionNumber = 1
+		if (dom_questionList.value != '') {
+			questionNumber = parseInt(dom_questionList.value)
+		}
 		initializeQuestionList(section)
 		initializeTopicList(section)
 		initializeFinishedQuestions(testList.value, section)
@@ -966,19 +976,33 @@ function resetQuestion(number) {
 
 }
 
-function initializeQuestionPreview(question, answers, number) {
-	let dom_qList = document.getElementById('qList')
+async function initializeQuestionPreview(question, answers, number) {
 	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
 
 	removeChildren('qList')
 
 	// Display the question
 	if (question != undefined && question != '') {
-		let questionDiv = createElement('div', ['questionText'], [], [], '')
 		const text = question.split(' ')
+		let questionDiv = createElement('div', ['questionText'], [], [], '')
 		for (let i = 0; i < text.length; i++) {
-			questionDiv.appendChild(createElement('span', ['highlight'], [], [], text[i]))
-			questionDiv.appendChild(createElement('span', [], [], [], ' '))
+			if (!text[i].includes('<image')) {
+				questionDiv.appendChild(createElement('span', ['highlight'], [], [], text[i]))
+				questionDiv.appendChild(createElement('span', [], [], [], ' '))
+			}
+			else {
+				const imageLocation = parseInt(text[i].replace('<image', '').replace('>'));
+				if (imageLocation > maxQuestionImageNumber) {
+					maxQuestionImageNumber = imageLocation
+				}
+				try {
+					const url = await getImage(testList.value, dom_section.value, passageNumber.value, imageLocation, number)
+					questionDiv.appendChild(createElement('img', ['textImage'], ['src', 'id', 'style'], [url, 'image' + (imageLocation).toString(), 'width:100%;'], ''))
+				}
+				catch {
+					console.log("You done messed up AA-ron")
+				}
+			}
 		}
 		dom_qList.appendChild(questionDiv)
 	}
@@ -1076,7 +1100,7 @@ async function getQuestion(test, section, number) {
 	}
 }
 
-function addQuestion() {
+function addQuestion(goToNext = true) {
 	let ref = firebase.firestore().collection('ACT-Tests')
 
 	const test = testList.value
@@ -1185,7 +1209,12 @@ function addQuestion() {
 						else {
 							ele.classList.add('stage1')
 						}
-						initializeQuestion(number + 1)
+						if (goToNext == true) {
+							initializeQuestion(number + 1)
+						}
+						else {
+							initializeQuestion(number)
+						}
 						console.log('It is done')
 					})
 			}
@@ -1457,6 +1486,60 @@ function displayRemovalMenu(action = 'toggle', x = 0, y = 0) {
 	dom_menu.style.top = y + 'px'
 }
 
+function updateQuestionText(element, action) {
+	let text = element.innerHTML
+	const wordCount = 3
+	let count = 0;
+	let dom_iter = element
+	while (count < wordCount) {
+		if (dom_iter.nextSibling) {
+			dom_iter = dom_iter.nextSibling
+			text += dom_iter.innerHTML
+		}
+		else {
+			break;
+		}
+
+		count += 1
+	}
+
+	console.log(text)
+	if (count == wordCount) {
+		if (action == 'before') {
+			dom_questionText.value = dom_questionText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), '<image' + (maxQuestionImageNumber).toString() + '> ' + text.replaceAll('<p></p><p></p>', '<p><p>'))
+		}
+		else if (action == 'after') {
+			dom_questionText.value = dom_questionText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML, element.innerHTML + ' <image' + (maxQuestionImageNumber).toString() + '>'))
+		}
+	}
+	else {
+		let text = element.innerHTML
+		const wordCount = 3
+		let count = 0;
+		let dom_iter = element
+		while (count < wordCount) {
+			if (dom_iter.previousSibling) {
+				dom_iter = dom_iter.previousSibling
+				text += dom_iter.innerHTML
+			}
+			else {
+				break;
+			}
+
+			count += 1
+		}
+
+		if (action == 'before') {
+			dom_questionText.value = dom_questionText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML,'<image' + (maxQuestionImageNumber).toString() + '> ' + element.innerHTML))
+		}
+		else if (action == 'after') {
+			dom_questionText.value = dom_questionText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>') + ' <image' + (maxQuestionImageNumber).toString() + '>')
+		}
+	}
+
+	addQuestion(false)
+}
+
 function updateWorkingText(element, action) {
 	let text = element.innerHTML
 	const wordCount = 9
@@ -1511,9 +1594,18 @@ function updateWorkingText(element, action) {
 	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 }
 
-function addImage(action, type = 'passage') {
+function addImage(action) {
+	console.log(action)
 	if (dom_imageBefore.files.length > 0 || dom_imageAfter.files.length > 0){
-		//passageImages.push(dom_imageBefore.files[0])
+		let type = 'passage'
+		if (selectedWord.closest('.questionText') != null) {
+			type = 'question'
+		}
+		else if (selectedWord.closest('.answerText') != null) {
+			type = 'answer'
+		}
+		console.log(type)
+
 		let image = undefined
 
 		if (action == 'before') {
@@ -1530,9 +1622,11 @@ function addImage(action, type = 'passage') {
 		else if (type == 'question') {
 			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 		}
-		//else if (type == 'answer') {
-			//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
-		//}
+		else if (type == 'answer') {
+			answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode)
+			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber - 1).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		}
+		console.log(filename)
     	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
         let thisref = ref.put(image)
 
@@ -1544,9 +1638,16 @@ function addImage(action, type = 'passage') {
           thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
 
             // Setting image
-			passageImages.push(downloadURL)
-			maxPassageImageNumber += 1
-			updateWorkingText(selectedWord, action)
+			if (type == 'passage') {
+				passageImages.push(downloadURL)
+				maxPassageImageNumber += 1
+				updateWorkingText(selectedWord, action)
+			}
+			else if (type == 'question') {
+				maxQuestionImageNumber += 1
+				updateQuestionText(selectedWord, action)
+			}
+
 			dom_imageAfter.value = null
 			dom_imageBefore.value = null
           });
@@ -1555,23 +1656,62 @@ function addImage(action, type = 'passage') {
 
 }
 
-async function getImage(test, section, passage, imageNumber) {
-	const filename = test + '-' + section + '-P' + passage + '-I' + parseInt(imageNumber) + '.png'
+async function getImage(test, section, passage, imageNumber, question = undefined, answer = undefined) {
+	let filename = test + '-' + section + '-P' + passage
+	if (question != undefined) {
+		filename += '-Q' + question.toString()
+		if (answer != undefined) {
+			filename += '-A' + answer.toString()
+		}
+	}
+
+	filename += '-I' + imageNumber.toString() + '.png'
+	console.log("grabbing:", filename)
+
 	return await storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
 }
 
 function removeImage() {
 	const imageNumber = parseInt(selectedImage.id.replace('image', ''))
-	workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
-	passageImages.splice(imageNumber, 1)
 
-	const filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + imageNumber.toString() + '.png'
+	let type = 'passage'
+	if (selectedImage.closest('.questionText') != null) {
+		type = 'question'
+		dom_questionText.value = dom_questionText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
+	}
+	else if (selectedImage.closest('.answerText') != null) {
+		type = 'answer'
+	}
+	else {
+		workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
+		passageImages.splice(imageNumber, 1)
+	}
+
+	let filename = undefined
+	if (type == 'passage') {
+		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+	}
+	else if (type == 'question') {
+		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+	}
+	else if (type == 'answer') {
+		answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode)
+		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber - 1).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+	}
+
+
 	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
 	ref.delete()
 		.then(() => {
-			setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
-			submitPassageText()
-			displayRemovalMenu('remove')
+			if (type == 'passage') {
+				setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
+				submitPassageText()
+				displayMenu('remove')
+			}
+			else if (type == 'question') {
+				addQuestion(false)
+				displayRemovalMenu('remove')
+			}
 		})
 		.catch((err) => {
 			console.log(err)
@@ -1696,6 +1836,28 @@ dom_pText.addEventListener('contextmenu', function(event) {
 	}
 })
 
+dom_qList.addEventListener('contextmenu', function(event) {
+	if (editorState == 'question') {
+		try {
+			selectedWord.classList.remove('spotlight')
+		}
+		catch {
+		}
+
+		if (event.target.classList.contains('highlight')) {
+			event.preventDefault()
+			selectedWord = event.target
+			selectedWord.classList.add('spotlight')
+			displayMenu('toggle', event.clientX, event.clientY)
+		}
+		else if (event.target.classList.contains('textImage')) {
+			event.preventDefault()
+			selectedImage = event.target
+			displayRemovalMenu('toggle', event.clientX, event.clientY)
+		}
+	}
+})
+
 document.getElementsByTagName('main')[0].addEventListener('click', function() {
 	if (selectedWord != undefined) {
 		displayMenu('remove')
@@ -1715,4 +1877,58 @@ document.getElementById('before').addEventListener('click', function() {
 dom_imageAfter = document.getElementById('imageAfter')
 document.getElementById('after').addEventListener('click', function() {
 	dom_imageAfter.click()
+})
+
+dom_questionText.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
+})
+
+dom_answer1.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
+})
+
+dom_answer2.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
+})
+
+dom_answer3.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
+})
+
+dom_answer4.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
+})
+
+dom_answer5.addEventListener('input', function() {
+	if (dom_section.value != 'math') {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
+	}
+	else {
+		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
+	}
 })
