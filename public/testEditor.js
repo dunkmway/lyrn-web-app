@@ -24,7 +24,7 @@ let storage = firebase.storage();
 let passageText = ''
 let maxPassageImageNumber = -1;
 let maxQuestionImageNumber = -1;
-let maxAnswerImageNumber = -1;
+let maxAnswerImageNumber = [-1, -1, -1, -1, -1]
 
 let passageImages = []
 let questionImages = []
@@ -985,6 +985,7 @@ async function initializeQuestionPreview(question, answers, number) {
 	if (question != undefined && question != '') {
 		const text = question.split(' ')
 		let questionDiv = createElement('div', ['questionText'], [], [], '')
+		maxQuestionImageNumber = -1
 		for (let i = 0; i < text.length; i++) {
 			if (!text[i].includes('<image')) {
 				questionDiv.appendChild(createElement('span', ['highlight'], [], [], text[i]))
@@ -1009,12 +1010,29 @@ async function initializeQuestionPreview(question, answers, number) {
 
 	// Display the answers
 	for (let i = 0; i < answers.length; i++) {
+		maxAnswerImageNumber = [-1, -1, -1, -1, -1]
 		let answerDiv = createElement('p', ['answerText'], [], [], '')
 		const text = answers[i].split(' ');
 		answerDiv.appendChild(createElement('span', [], [], [], answerLetters[i + (number % 2) * 5] + '. '))
 		for (let j = 0; j < text.length; j++) {
-			answerDiv.appendChild(createElement('span', ['highlight'], [], [], text[j]))
-			answerDiv.appendChild(createElement('span', ['highlight'], [], [], ' '))
+			if (!text[j].includes('<image')) {
+				answerDiv.appendChild(createElement('span', ['highlight'], [], [], text[j]))
+				answerDiv.appendChild(createElement('span', ['highlight'], [], [], ' '))
+			}
+			else {
+				const imageLocation = parseInt(text[j].replace('<image', '').replace('>'));
+				if (imageLocation > maxAnswerImageNumber[i]) {
+					maxAnswerImageNumber[i] = imageLocation
+				}
+				try {
+					const url = await getImage(testList.value, dom_section.value, passageNumber.value, imageLocation, number, i + 1)
+					console.log(url)
+					answerDiv.appendChild(createElement('img', ['textImage'], ['src', 'id', 'style'], [url, 'image' + (imageLocation).toString(), 'width:100%;'], ''))
+				}
+				catch {
+					console.log("You done messed up AA-ron")
+				}
+			}
 		}
 		dom_qList.appendChild(answerDiv)
 	}
@@ -1486,6 +1504,61 @@ function displayRemovalMenu(action = 'toggle', x = 0, y = 0) {
 	dom_menu.style.top = y + 'px'
 }
 
+function updateAnswerText(element, action, imageNumber) {
+	let answerNumber = Array.prototype.indexOf.call(element.parentNode.parentNode.children, element.parentNode) + 1
+	let dom_answerText = document.getElementById('answer' + (answerNumber).toString())
+	let text = element.innerHTML
+	const wordCount = 3
+	let count = 0;
+	let dom_iter = element
+	while (count < wordCount) {
+		if (dom_iter.nextSibling) {
+			dom_iter = dom_iter.nextSibling
+			text += dom_iter.innerHTML
+		}
+		else {
+			break;
+		}
+
+		count += 1
+	}
+
+	if (count == wordCount) {
+		if (action == 'before') {
+			dom_answerText.value = dom_answerText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), '<image' + (imageNumber).toString() + '> ' + text.replaceAll('<p></p><p></p>', '<p><p>'))
+		}
+		else if (action == 'after') {
+			dom_answerText.value = dom_answerText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML, element.innerHTML + ' <image' + (imageNumber).toString() + '>'))
+		}
+	}
+	else {
+		let text = element.innerHTML
+		const wordCount = 3
+		let count = 0;
+		let dom_iter = element
+		while (count < wordCount) {
+			if (dom_iter.previousSibling) {
+				dom_iter = dom_iter.previousSibling
+				text += dom_iter.innerHTML
+			}
+			else {
+				break;
+			}
+
+			count += 1
+		}
+
+		if (action == 'before') {
+			dom_answerText.value = dom_answerText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>').replace(element.innerHTML,'<image' + (imageNumber).toString() + '> ' + element.innerHTML))
+		}
+		else if (action == 'after') {
+			dom_answerText.value = dom_answerText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), text.replaceAll('<p></p><p></p>', '<p><p>') + ' <image' + (imageNumber).toString() + '>')
+		}
+	}
+
+	addQuestion(false)
+}
+
 function updateQuestionText(element, action) {
 	let text = element.innerHTML
 	const wordCount = 3
@@ -1503,7 +1576,6 @@ function updateQuestionText(element, action) {
 		count += 1
 	}
 
-	console.log(text)
 	if (count == wordCount) {
 		if (action == 'before') {
 			dom_questionText.value = dom_questionText.value.replace(text.replaceAll('<p></p><p></p>', '<p><p>'), '<image' + (maxQuestionImageNumber).toString() + '> ' + text.replaceAll('<p></p><p></p>', '<p><p>'))
@@ -1595,7 +1667,6 @@ function updateWorkingText(element, action) {
 }
 
 function addImage(action) {
-	console.log(action)
 	if (dom_imageBefore.files.length > 0 || dom_imageAfter.files.length > 0){
 		let type = 'passage'
 		if (selectedWord.closest('.questionText') != null) {
@@ -1604,7 +1675,6 @@ function addImage(action) {
 		else if (selectedWord.closest('.answerText') != null) {
 			type = 'answer'
 		}
-		console.log(type)
 
 		let image = undefined
 
@@ -1623,10 +1693,9 @@ function addImage(action) {
 			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 		}
 		else if (type == 'answer') {
-			answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode)
-			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber - 1).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+			const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
+			filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 		}
-		console.log(filename)
     	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
         let thisref = ref.put(image)
 
@@ -1647,6 +1716,11 @@ function addImage(action) {
 				maxQuestionImageNumber += 1
 				updateQuestionText(selectedWord, action)
 			}
+			else if (type == 'answer') {
+				const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
+				maxAnswerImageNumber[answerNumber - 1] += 1
+				updateAnswerText(selectedWord, action, maxAnswerImageNumber[answerNumber - 1])
+			}
 
 			dom_imageAfter.value = null
 			dom_imageBefore.value = null
@@ -1666,7 +1740,7 @@ async function getImage(test, section, passage, imageNumber, question = undefine
 	}
 
 	filename += '-I' + imageNumber.toString() + '.png'
-	console.log("grabbing:", filename)
+	console.log('grabbing: ', filename)
 
 	return await storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
 }
@@ -1681,6 +1755,9 @@ function removeImage() {
 	}
 	else if (selectedImage.closest('.answerText') != null) {
 		type = 'answer'
+		const answerNumber = Array.prototype.indexOf.call(selectedImage.parentNode.parentNode.children, selectedImage.parentNode) + 1
+		let dom_answerText = document.getElementById('answer' + answerNumber.toString())
+		dom_answerText.value = dom_answerText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
 	}
 	else {
 		workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
@@ -1695,8 +1772,8 @@ function removeImage() {
 		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 	}
 	else if (type == 'answer') {
-		answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode)
-		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber - 1).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		let answerNumber = Array.prototype.indexOf.call(selectedImage.parentNode.parentNode.children, selectedImage.parentNode) + 1
+		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 	}
 
 
@@ -1708,7 +1785,7 @@ function removeImage() {
 				submitPassageText()
 				displayMenu('remove')
 			}
-			else if (type == 'question') {
+			else {
 				addQuestion(false)
 				displayRemovalMenu('remove')
 			}
