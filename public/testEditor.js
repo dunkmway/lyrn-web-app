@@ -1395,12 +1395,10 @@ function highlightText(text, textStart, setReferences = false) {
 		let passageDiv = document.getElementById('pText')
 
 		let iter = 0;
-		console.log(textArray)
 		while (iter < textArray.length) {
 			let subSplit = ''
 			if (textArray[iter].includes('—')) {
 				subSplit = textArray[iter].split('—')
-				console.log(subSplit)
 				if (subSplit[0] != '' && subSplit[1] != '') {
 					textArray[iter] = subSplit[0]
 					textArray.splice(iter + 1, 0, subSplit[1])
@@ -1431,7 +1429,6 @@ function highlightText(text, textStart, setReferences = false) {
 			}
 			iter += 1
 		}
-		console.log(textArray)
 
 		// Find the child index for the start of the text
 		let children = passageDiv.children
@@ -1457,11 +1454,9 @@ function highlightText(text, textStart, setReferences = false) {
 		if (text.length != 1) {
 			if (text[0] == '—' || text[0] == '&mdash;') {
 				children[location - 1].classList.add('highlight-yellow')
-				console.log('front')
 			}
 			if (text[text.length - 1] == '—' || text[text.length - 1] == '&mdash;') {
 				children[location + (2 * textArray.length) - 1].classList.add('highlight-yellow')
-				console.log('end')
 			}
 		}
 
@@ -1469,7 +1464,6 @@ function highlightText(text, textStart, setReferences = false) {
 		if (shouldMakeBox == false) {
 			for (let i = 0; i < (2 * textArray.length) - 1; i++) {
 				if (children[location + i] != undefined) {
-					console.log(children[location + i].innerHTML)
 					children[location + i].classList.add('highlight-yellow')
 				}
 			}
