@@ -414,11 +414,25 @@ async function setPassageText(passageText, passageTitle = undefined, passageNumb
 	passageImages = []
 	for (let i = 0; i < text.length; i++) {
 		if (!text[i].includes('<image')) {
-			passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
-			passageDiv.appendChild(createElement('span', [], [], [], ' '))
-			if (shouldLabelParagraphs == true && text[i] == '<p><p>') {
-				passageDiv.appendChild(createElement('p', ['bold', 'paragraphLabel'], [], [], '[' + pCount + ']'))
-				pCount += 1
+			if (!text[i].includes('&mdash;') && !text[i].includes('—')) {
+				passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
+				passageDiv.appendChild(createElement('span', [], [], [], ' '))
+				if (shouldLabelParagraphs == true && text[i] == '<p><p>') {
+					passageDiv.appendChild(createElement('p', ['bold', 'paragraphLabel'], [], [], '[' + pCount + ']'))
+					pCount += 1
+				}
+			}
+			else {
+				console.log('here')
+				let subSplit = text[i].split('&mdash;')
+				if (subSplit.length <= 1) {
+					subSplit = text[i].split('—')
+				}
+
+				passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], subSplit[0]))
+				passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], '—'))
+				passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], subSplit[1]))
+				passageDiv.appendChild(createElement('span', [], [], [], ' '))
 			}
 		}
 		else {
@@ -1377,8 +1391,47 @@ function highlightText(text, textStart, setReferences = false) {
 	if (text != -1 && text != undefined) {
 
 		text = text.replace('<p><p>', '<p></p><p></p>')
-		const textArray = text.split(' ')
+		let textArray = text.split(' ')
 		let passageDiv = document.getElementById('pText')
+
+		let iter = 0;
+		console.log(textArray)
+		while (iter < textArray.length) {
+			let subSplit = ''
+			if (textArray[iter].includes('—')) {
+				subSplit = textArray[iter].split('—')
+				console.log(subSplit)
+				if (subSplit[0] != '' && subSplit[1] != '') {
+					textArray[iter] = subSplit[0]
+					textArray.splice(iter + 1, 0, subSplit[1])
+				}
+				else if (subSplit[0] == '' && subSplit[1] != '') {
+					textArray[iter] = subSplit[1]
+				}
+				else if (subSplit[0] != '' && subSplit[1] == '') {
+					textArray[iter] = subSplit[0]
+				}
+				//textArray.splice(iter + 1, 0, '—')
+				//iter += 1
+			}
+			if (textArray[iter].includes('&mdash;')) {
+				subSplit = textArray[iter].split('&mdash;')
+				if (subSplit[0] != '' && subSplit[1] != '') {
+					textArray[iter] = subSplit[0]
+					textArray.splice(iter + 1, 0, subSplit[1])
+				}
+				else if (subSplit[0] == '' && subSplit[1] != '') {
+					textArray[iter] = subSplit[1]
+				}
+				else if (subSplit[0] != '' && subSplit[1] == '') {
+					textArray[iter] = subSplit[0]
+				}
+				//textArray.splice(iter + 1, 0, '&mdash;')
+				//iter += 1
+			}
+			iter += 1
+		}
+		console.log(textArray)
 
 		// Find the child index for the start of the text
 		let children = passageDiv.children
@@ -1400,10 +1453,23 @@ function highlightText(text, textStart, setReferences = false) {
 			}
 		}
 
+		// Add the ends if needed (just add to the length for the next section)
+		if (text.length != 1) {
+			if (text[0] == '—' || text[0] == '&mdash;') {
+				children[location - 1].classList.add('highlight-yellow')
+				console.log('front')
+			}
+			if (text[text.length - 1] == '—' || text[text.length - 1] == '&mdash;') {
+				children[location + (2 * textArray.length) - 1].classList.add('highlight-yellow')
+				console.log('end')
+			}
+		}
+
 		// Highlight the text
 		if (shouldMakeBox == false) {
 			for (let i = 0; i < (2 * textArray.length) - 1; i++) {
 				if (children[location + i] != undefined) {
+					console.log(children[location + i].innerHTML)
 					children[location + i].classList.add('highlight-yellow')
 				}
 			}
