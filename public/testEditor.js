@@ -1,3 +1,5 @@
+const debug = false
+
 let tests = [];
 const date = new Date()
 let testList = document.getElementById('testList')
@@ -25,6 +27,7 @@ let passageText = ''
 let maxPassageImageNumber = -1;
 let maxQuestionImageNumber = -1;
 let maxAnswerImageNumber = [-1, -1, -1, -1, -1]
+let shouldMakeBox = false
 
 let passageImages = []
 let questionImages = []
@@ -371,6 +374,9 @@ function addTest() {
 }
 
 async function setPassageText(passageText, passageTitle = undefined, passageNumber = undefined, shouldLabelParagraphs = undefined) {
+	if (debug == true) {
+		console.log('setPassageText(' + passageText + ', ' + passageTitle + ', ' + (passageNumber ?? 'undefined').toString() + ', ' + shouldLabelParagraphs.toString())
+	}
 
 	let passageDiv = document.getElementById('pText')
 
@@ -529,14 +535,19 @@ function formDisplay(event) {
 		document.getElementById('questionText').classList.add('hidden')
 		document.getElementById('questionTextLabel').classList.add('hidden')
 		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Image').classList.add('hidden')
 		document.getElementById('answer1Label').classList.add('hidden')
 		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Image').classList.add('hidden')
 		document.getElementById('answer2Label').classList.add('hidden')
 		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Image').classList.add('hidden')
 		document.getElementById('answer3Label').classList.add('hidden')
 		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Image').classList.add('hidden')
 		document.getElementById('answer4Label').classList.add('hidden')
 		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Image').classList.add('hidden')
 		document.getElementById('answer5Label').classList.add('hidden')
 
 		removeChildren('answers')
@@ -584,14 +595,19 @@ function formDisplay(event) {
 		document.getElementById('questionText').classList.add('hidden')
 		document.getElementById('questionTextLabel').classList.add('hidden')
 		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Image').classList.add('hidden')
 		document.getElementById('answer1Label').classList.add('hidden')
 		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Image').classList.add('hidden')
 		document.getElementById('answer2Label').classList.add('hidden')
 		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Image').classList.add('hidden')
 		document.getElementById('answer3Label').classList.add('hidden')
 		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Image').classList.add('hidden')
 		document.getElementById('answer4Label').classList.add('hidden')
 		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Image').classList.add('hidden')
 		document.getElementById('answer5Label').classList.add('hidden')
 
 		document.getElementById('answers').classList.add('hidden')
@@ -642,12 +658,16 @@ function formDisplay(event) {
 		document.getElementById('questionText').classList.remove('hidden')
 		document.getElementById('questionTextLabel').classList.remove('hidden')
 		document.getElementById('answer1').classList.remove('hidden')
+		document.getElementById('answer1Image').classList.remove('hidden')
 		document.getElementById('answer1Label').classList.remove('hidden')
 		document.getElementById('answer2').classList.remove('hidden')
+		document.getElementById('answer2Image').classList.remove('hidden')
 		document.getElementById('answer2Label').classList.remove('hidden')
 		document.getElementById('answer3').classList.remove('hidden')
+		document.getElementById('answer3Image').classList.remove('hidden')
 		document.getElementById('answer3Label').classList.remove('hidden')
 		document.getElementById('answer4').classList.remove('hidden')
+		document.getElementById('answer4Image').classList.remove('hidden')
 		document.getElementById('answer4Label').classList.remove('hidden')
 
 		document.getElementById('answers').classList.add('hidden')
@@ -658,6 +678,7 @@ function formDisplay(event) {
 		let section = document.getElementById('sectionList').value
 		if (section == 'math') {
 			document.getElementById('answer5').classList.remove('hidden')
+			document.getElementById('answer5Image').classList.remove('hidden')
 			document.getElementById('answer5Label').classList.remove('hidden')
 		}
 
@@ -713,19 +734,29 @@ function formDisplay(event) {
 		document.getElementById('questionText').classList.add('hidden')
 		document.getElementById('questionTextLabel').classList.add('hidden')
 		document.getElementById('answer1').classList.add('hidden')
+		document.getElementById('answer1Image').classList.add('hidden')
 		document.getElementById('answer1Label').classList.add('hidden')
 		document.getElementById('answer2').classList.add('hidden')
+		document.getElementById('answer2Image').classList.add('hidden')
 		document.getElementById('answer2Label').classList.add('hidden')
 		document.getElementById('answer3').classList.add('hidden')
+		document.getElementById('answer3Image').classList.add('hidden')
 		document.getElementById('answer3Label').classList.add('hidden')
 		document.getElementById('answer4').classList.add('hidden')
+		document.getElementById('answer4Image').classList.add('hidden')
 		document.getElementById('answer4Label').classList.add('hidden')
+		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Image').classList.add('hidden')
+		document.getElementById('answer5Label').classList.add('hidden')
 
 		document.getElementById('answers').classList.remove('hidden')
 		document.getElementById('answerShow').classList.add('hidden')
 		document.getElementById('answerAdd').classList.remove('hidden')
 
 		displayAnswerKey()
+		removeChildren('answers')
+		removeChildren('qNumbers')
+		removeChildren('qList')
 	}
 }
 
@@ -909,7 +940,7 @@ function initializeFinishedQuestions(test, section) {
 			querySnapshot.forEach((doc) => {
 				const problem = doc.data().problem
 				list.push(problem)
-				if (doc.data().answers.length == (dom_section != 'math' ? 4 : 5)) {
+				if (doc.data().answers.length == (dom_section != 'math' ? 4 : 5) && doc.data().answers[0] != "") {
 					if (doc.data().topic.length != 0) {
 						data[problem] = 'stage3'
 					}
@@ -1026,7 +1057,6 @@ async function initializeQuestionPreview(question, answers, number) {
 				}
 				try {
 					const url = await getImage(testList.value, dom_section.value, passageNumber.value, imageLocation, number, i + 1)
-					console.log(url)
 					answerDiv.appendChild(createElement('img', ['textImage'], ['src', 'id', 'style'], [url, 'image' + (imageLocation).toString(), 'width:100%;'], ''))
 				}
 				catch {
@@ -1039,8 +1069,17 @@ async function initializeQuestionPreview(question, answers, number) {
 }
 
 function initializeQuestion(number) {
+	if (debug == true) {
+		console.log('initializeQuestion(' + number.toString() + ')')
+	}
 
 	resetQuestion(number)
+
+	// Remove all boxes
+	let boxes = document.getElementsByClassName('box')
+	for (let i = 0; i < boxes.length; i++) {
+		boxes[i].remove()
+	}
 
 	// Grab the data
 	const section = document.getElementById('sectionList').value
@@ -1070,6 +1109,20 @@ function initializeQuestion(number) {
 				if (passageNumber.value != data[0]['passage']) {
 					passageNumber.value = data[0]['passage']
 					checkForPassage(testList.value, dom_section.value, data[0]['passage'])
+					.then(() => {
+						// Highlight the Text
+						shouldMakeBox = data[0]['makeBox'] ?? false
+						if (data[0]['passageText'] != '') {
+							highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
+						}
+					})
+				}
+				else {
+					// Highlight the Text
+					shouldMakeBox = data[0]['makeBox'] ?? false
+					if (data[0]['passageText'] != '') {
+						highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
+					}
 				}
 
 				// Set the correct answer
@@ -1083,19 +1136,18 @@ function initializeQuestion(number) {
 				// Set the question text
 				document.getElementById('questionText').value = data[0]['questionText']
 
-				// Highlight the Text
-				if (data[0]['passageText'] != '') {
-					highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
-				}
-
 				// Initialize the Question Preview
 				initializeQuestionPreview(data[0]['questionText'], data[0]['answers'], data[0]['problem'])
+
 			}
 		})
 
 }
 
 async function getQuestion(test, section, number) {
+	if (debug == true) {
+		console.log('getQuestion(' + test + ', ' + section + ', ' + number.toString() + ')')
+	}
 	const ref = firebase.firestore().collection('ACT-Tests')
 	.where('type', '==', 'question')
 	.where('test', '==', test)
@@ -1181,10 +1233,11 @@ function addQuestion(goToNext = true) {
 					'questionImages': [],
 					'answerImages': [],
 					'correctAnswer': answer,
-					'passageText': passageText,
+					'passageText': passageText ?? '',
 					'passageTextLocation': passageTextLocation,
 					'numberOfAttempts': attempts,
-					'correctAttempts': correctAttempts
+					'correctAttempts': correctAttempts,
+					'makeBox' : shouldMakeBox
 				}
 
 				ref.set(data)
@@ -1216,7 +1269,7 @@ function addQuestion(goToNext = true) {
 						ele.classList.remove('stage1')
 						ele.classList.remove('stage2')
 						ele.classList.remove('stage3')
-						if (answers.length == (dom_section != 'math' ? 4 : 5)) {
+						if (answers.length == (dom_section != 'math' ? 4 : 5) && answers[0] != "") {
 							if (topics.length > 0) {
 								ele.classList.add('stage3')
 							}
@@ -1239,10 +1292,10 @@ function addQuestion(goToNext = true) {
 		})
 }
 
-function checkForPassage(test, section, passage) {
+async function checkForPassage(test, section, passage) {
 	if (test ?? section ?? passage) {
 		const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'passage').where('test', '==', test.toUpperCase()).where('section', '==', section.toLowerCase()).where('passageNumber', '==', parseInt(passage))
-		ref.get()
+		await ref.get()
 			.then((querySnapshot) => {
 				if (querySnapshot.size == 1) {
 					querySnapshot.forEach((doc) => {
@@ -1348,10 +1401,16 @@ function highlightText(text, textStart, setReferences = false) {
 		}
 
 		// Highlight the text
-		for (let i = 0; i < (2 * textArray.length) - 1; i++) {
-			if (children[location + i] != undefined) {
-				children[location + i].classList.add('highlight-yellow')
+		if (shouldMakeBox == false) {
+			for (let i = 0; i < (2 * textArray.length) - 1; i++) {
+				if (children[location + i] != undefined) {
+					children[location + i].classList.add('highlight-yellow')
+				}
 			}
+		}
+		else {
+			children[location].parentNode.insertBefore(createElement('span', ['box'], [], [], dom_questionList.value), children[location].nextSibling)
+			children[location].parentNode.insertBefore(createElement('span', [], [], [], ' '), children[location].nextSibling)
 		}
 
 		// Set the passage References if needed
@@ -1373,7 +1432,31 @@ function removeHighlight() {
 	}
 }
 
-function toggleParagraph(element) {
+function toggleQuestionText(element) {
+	if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML != '') {
+		element.parentNode.insertBefore(createElement('p', [], [], [], ''), element)
+		element.parentNode.insertBefore(createElement('span', [], [], [], ' '), element)
+	}
+	else if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
+		element.previousSibling.remove()
+		element.previousSibling.remove()
+	}
+
+	const children = element.parentNode.children
+	let text = []
+	for (let i = 0; i < children.length; i++) {
+		if (children[i].innerHTML != '') {
+			text.push(children[i].innerHTML)
+		}
+		else {
+			text.push('<p><p>')
+		}
+	}
+	
+	dom_questionText.value = text.join('')
+}
+
+function toggleParagraph(element, toggleBox = false) {
 	if (editorState == 'passage') {
 		let text = [element.innerHTML]
 		const textCount = 7
@@ -1433,6 +1516,14 @@ function toggleParagraph(element) {
 		}
 	}
 	else if (editorState == 'question') {
+		if (toggleBox == true) {
+			if (shouldMakeBox == false) {
+				shouldMakeBox = true;
+			}
+			else {
+				shouldMakeBox = false;
+			}
+		}
 		if (passageReferences.includes(element)) {
 
 			if (passageReferences[0] == element) {
@@ -1740,7 +1831,6 @@ async function getImage(test, section, passage, imageNumber, question = undefine
 	}
 
 	filename += '-I' + imageNumber.toString() + '.png'
-	console.log('grabbing: ', filename)
 
 	return await storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
 }
@@ -1758,6 +1848,7 @@ function removeImage() {
 		const answerNumber = Array.prototype.indexOf.call(selectedImage.parentNode.parentNode.children, selectedImage.parentNode) + 1
 		let dom_answerText = document.getElementById('answer' + answerNumber.toString())
 		dom_answerText.value = dom_answerText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
+		dom_answerText.value = dom_answerText.value.replaceAll('<image' + imageNumber.toString() + '>', '')
 	}
 	else {
 		workingText.value = workingText.value.replaceAll('<image' + imageNumber.toString() + '> ', '')
@@ -1766,7 +1857,7 @@ function removeImage() {
 
 	let filename = undefined
 	if (type == 'passage') {
-		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-I' + (maxPassageImageNumber).toString() + '.png'
 	}
 	else if (type == 'question') {
 		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
@@ -1776,19 +1867,18 @@ function removeImage() {
 		filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber).toString() +  '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 	}
 
-
 	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
 	ref.delete()
 		.then(() => {
 			if (type == 'passage') {
 				setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 				submitPassageText()
-				displayMenu('remove')
 			}
 			else {
 				addQuestion(false)
-				displayRemovalMenu('remove')
 			}
+			displayMenu('remove')
+			displayRemovalMenu('remove')
 		})
 		.catch((err) => {
 			console.log(err)
@@ -1873,7 +1963,7 @@ passageNumber.addEventListener('change', function() {
 })
 
 workingText.addEventListener('input', function () {
-	workingText.value = workingText.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('  ', ' ')
+	workingText.value = workingText.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	setPassageText(workingText.value, title.value, parseInt(passageNumber.value), dom_labelParagraphs.value)
 })
 
@@ -1893,6 +1983,7 @@ let selectedWord = undefined
 let selectedImage = undefined
 dom_pText.addEventListener('contextmenu', function(event) {
 	if (editorState == 'passage') {
+		event.preventDefault()
 		try {
 			selectedWord.classList.remove('spotlight')
 		}
@@ -1900,16 +1991,21 @@ dom_pText.addEventListener('contextmenu', function(event) {
 		}
 
 		if (event.target.classList.contains('highlight')) {
-			event.preventDefault()
 			selectedWord = event.target
 			selectedWord.classList.add('spotlight')
 			displayMenu('toggle', event.clientX, event.clientY)
 		}
 		else if (event.target.classList.contains('textImage')) {
-			event.preventDefault()
 			selectedImage = event.target
 			displayRemovalMenu('toggle', event.clientX, event.clientY)
 		}
+	}
+	else if (editorState == 'question' && event.target != null && event.target.innerHTML.includes('.')) {
+		event.preventDefault()
+		toggleParagraph(event.target)
+		addQuestion(false)
+		//event.target.parentNode.insertBefore(createElement('span', ['box'], [], [], dom_questionList.value), event.target.nextSibling)
+		//event.target.parentNode.insertBefore(createElement('span', [], [], [], ' '), event.target.nextSibling)
 	}
 })
 
@@ -1935,9 +2031,16 @@ dom_qList.addEventListener('contextmenu', function(event) {
 	}
 })
 
+dom_qList.addEventListener('click', function(event) {
+	if (event.target.parentNode.classList.contains('questionText')) {
+		toggleQuestionText(event.target)
+	}
+})
+
 document.getElementsByTagName('main')[0].addEventListener('click', function() {
 	if (selectedWord != undefined) {
 		displayMenu('remove')
+		displayRemovalMenu('remove')
 		selectedWord.classList.remove('spotlight')
 	}
 })
@@ -1948,8 +2051,6 @@ document.getElementById('before').addEventListener('click', function() {
 	dom_imageBefore.click()
 })
 
-
-
 // Add image after text
 dom_imageAfter = document.getElementById('imageAfter')
 document.getElementById('after').addEventListener('click', function() {
@@ -1957,6 +2058,7 @@ document.getElementById('after').addEventListener('click', function() {
 })
 
 dom_questionText.addEventListener('input', function() {
+	dom_questionText.value = dom_questionText.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -1966,6 +2068,7 @@ dom_questionText.addEventListener('input', function() {
 })
 
 dom_answer1.addEventListener('input', function() {
+	dom_answer1.value = dom_answer1.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -1975,6 +2078,7 @@ dom_answer1.addEventListener('input', function() {
 })
 
 dom_answer2.addEventListener('input', function() {
+	dom_answer2.value = dom_answer2.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -1984,6 +2088,7 @@ dom_answer2.addEventListener('input', function() {
 })
 
 dom_answer3.addEventListener('input', function() {
+	dom_answer3.value = dom_answer3.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -1993,6 +2098,7 @@ dom_answer3.addEventListener('input', function() {
 })
 
 dom_answer4.addEventListener('input', function() {
+	dom_answer4.value = dom_answer4.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -2002,6 +2108,7 @@ dom_answer4.addEventListener('input', function() {
 })
 
 dom_answer5.addEventListener('input', function() {
+	dom_answer5.value = dom_answer5.value.replaceAll('\n', ' ').replaceAll('.', '. ').replaceAll('--', '&mdash;').replaceAll('  ', ' ')
 	if (dom_section.value != 'math') {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value], dom_questionList.value)
 	}
@@ -2009,3 +2116,83 @@ dom_answer5.addEventListener('input', function() {
 		initializeQuestionPreview(dom_questionText.value, [dom_answer1.value, dom_answer2.value, dom_answer3.value, dom_answer4.value, dom_answer5.value], dom_questionList.value)
 	}
 })
+
+let answer1Image = document.getElementById('answer1Image')
+answer1Image.addEventListener('change', function() {
+	filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A1-I0.png';
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+    let thisref = ref.put(answer1Image.files[0])
+
+    thisref.on('state_changed', function (snapshot) {
+    }, function (error) {
+      console.log(error)
+    }, function () {
+		document.getElementById('answer1').value = '<image0>'
+		answer1Image.value = null
+		addQuestion(false)
+	})
+});
+
+let answer2Image = document.getElementById('answer2Image')
+answer2Image.addEventListener('change', function() {
+	filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A2-I0.png';
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+    let thisref = ref.put(answer2Image.files[0])
+
+    thisref.on('state_changed', function (snapshot) {
+    }, function (error) {
+      console.log(error)
+    }, function () {
+		document.getElementById('answer2').value = '<image0>'
+		answer2Image.value = null
+		addQuestion(false)
+	})
+});
+
+let answer3Image = document.getElementById('answer3Image')
+answer3Image.addEventListener('change', function() {
+	filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A3-I0.png';
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+    let thisref = ref.put(answer3Image.files[0])
+
+    thisref.on('state_changed', function (snapshot) {
+    }, function (error) {
+      console.log(error)
+    }, function () {
+		document.getElementById('answer3').value = '<image0>'
+		answer3Image.value = null
+		addQuestion(false)
+	})
+});
+
+let answer4Image = document.getElementById('answer4Image')
+answer4Image.addEventListener('change', function() {
+	filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A4-I0.png';
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+    let thisref = ref.put(answer4Image.files[0])
+
+    thisref.on('state_changed', function (snapshot) {
+    }, function (error) {
+      console.log(error)
+    }, function () {
+		document.getElementById('answer4').value = '<image0>'
+		answer4Image.value = null
+		addQuestion(false)
+	})
+});
+
+let answer5Image = document.getElementById('answer5Image')
+answer5Image.addEventListener('change', function() {
+	filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A5-I0.png';
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+    let thisref = ref.put(answer5Image.files[0])
+
+    thisref.on('state_changed', function (snapshot) {
+    }, function (error) {
+      console.log(error)
+    }, function () {
+		document.getElementById('answer5').value = '<image0>'
+		answer5Image.value = null
+		addQuestion(false)
+	})
+});
