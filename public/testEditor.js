@@ -2002,7 +2002,7 @@ dom_pText.addEventListener('contextmenu', function(event) {
 	}
 	else if (editorState == 'question' && event.target != null && event.target.innerHTML.includes('.')) {
 		event.preventDefault()
-		toggleParagraph(event.target)
+		toggleParagraph(event.target, true)
 		addQuestion(false)
 		//event.target.parentNode.insertBefore(createElement('span', ['box'], [], [], dom_questionList.value), event.target.nextSibling)
 		//event.target.parentNode.insertBefore(createElement('span', [], [], [], ' '), event.target.nextSibling)
