@@ -464,7 +464,7 @@ function createRegistration() {
   let adminInputValues = registrationObject["adminValues"];
 
   //validate and confirm submission
-  if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
+  if (validateFields(getAllInputs()) && confirm("Are you sure you are ready to submit this registration?")) {
     //if no student email was created, generate one
     let randomNumber = Math.round(Math.random() * 10000).toString().padStart(4, '0');
     studentInputValues['email'] = studentInputValues['email'].replace(/\s+/g, '') || studentInputValues['firstName'].replace(/\s+/g, '').toLowerCase() + studentInputValues['lastName'].replace(/\s+/g, '').toLowerCase() + randomNumber + '@lyrnwithus.com';

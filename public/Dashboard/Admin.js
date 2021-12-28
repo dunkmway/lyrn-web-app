@@ -856,6 +856,10 @@ function setupNavigationModal(studentUID, parentUID) {
     modal.style.display = 'none';
     window.location.href = "../inquiry.html" + studentQueryStr;
   };
+  document.getElementById("studentInfoNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../new-student.html" + studentQueryStr;
+  };
   document.getElementById("paymentNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../payment.html" + parentQueryStr;
