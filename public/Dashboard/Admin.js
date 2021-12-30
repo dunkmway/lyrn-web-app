@@ -834,7 +834,7 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 function setupNavigationModal(studentUID, parentUID) {
   const modal = document.getElementById("navigationSection");
   let studentQueryStr = "?student=" + studentUID;
-  let parentQueryStr = "?parent=" + parentUID;
+  let parentQueryStr = parentUID ? "?parent=" + parentUID : '';
 
   document.getElementById("actNav").onclick = () => {
     modal.style.display = 'none';
@@ -859,6 +859,10 @@ function setupNavigationModal(studentUID, parentUID) {
   document.getElementById("studentInfoNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../new-student.html" + studentQueryStr;
+  };
+  document.getElementById("parentInfoNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../new-parent.html" + parentQueryStr;
   };
   document.getElementById("paymentNav").onclick = () => {
     modal.style.display = 'none';

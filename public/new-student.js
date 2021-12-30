@@ -1,5 +1,5 @@
 const errorMsg = document.querySelector('.error')
-let studentData = null;
+let parentData = null;
 
 async function getAllLocations() {
   return await firebase.firestore().collection('Locations').orderBy('locationName').get()
@@ -36,12 +36,14 @@ async function initialSetup() {
     fillInData();
 
     document.getElementById('action').innerHTML = 'Update';
-    document.getElementById('action').addEventListener('click', update)
+    document.getElementById('action').addEventListener('click', update);
+    document.getElementById('title').textContent = 'Update Student';
   }
   else {
     //submitting
     document.getElementById('action').innerHTML = 'Submit';
-    document.getElementById('action').addEventListener('click', submit)
+    document.getElementById('action').addEventListener('click', submit);
+    document.getElementById('title').textContent = 'Add Student';
   }
 }
 
@@ -75,7 +77,7 @@ async function fillInData() {
   const studentUID = queryStrings().student;
   const studentDoc = await firebase.firestore().collection('Users').doc(studentUID).get();
 
-  studentData = studentDoc.data()
+  parentData = studentDoc.data()
 
   //use this for the regular fields (special case for semantic ui weirdness)
   document.querySelectorAll('input:not(.search)').forEach(input => {
@@ -83,22 +85,28 @@ async function fillInData() {
   })
 
   //deal with the select (especially changing location then semantic ui select)
-  document.getElementById('location').value = studentData.location;
+  document.getElementById('location').value = parentData.location;
   await locationCallback(document.getElementById('location'));
-  $('#parents').closest(".ui.dropdown").dropdown('set selected', studentData.parents);
+  $('#parents').closest(".ui.dropdown").dropdown('set selected', parentData.parents);
   return;
 }
 
 async function submit() {
-  toggleWorking()
+  toggleWorking();
   const values = getValues();
-  if (!validate(values) || !confirm('Are you sure you are ready to submit this student?')) return;
+  if (!validate(values) || !confirm('Are you sure you are ready to submit this student?')) {
+    toggleWorking();
+    return;
+  }
 
   try {
     //split based on if we have an email
     const userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
     //adding user with email can fail if the email is already in use. Not an error so catch it here
-    if (!userUID) return; 
+    if (!userUID) {
+      toggleWorking();
+      return;
+    } 
 
     await updateUserDisplayName(userUID, values)
     await addUserDoc(userUID, values);
@@ -120,15 +128,18 @@ async function submit() {
 async function update() {
   toggleWorking();
   const values = getValues();
-  if (!validate(values) || !confirm('Are you sure you are ready to update this student?')) return;
+  if (!validate(values) || !confirm('Are you sure you are ready to update this student?')) {
+    toggleWorking();
+    return;
+  }
 
   const studentUID = queryStrings().student;
 
   //split based on if we had an email before updating and if we have an email now
   //check if we had an email before
-  if (studentData.email) {
+  if (parentData.email) {
     //had email now check if the email is the same
-    if (studentData.email === values.email) {
+    if (parentData.email === values.email) {
       //RESULT: same email as before
       //update just the user doc
       await updateUserDoc(studentUID, values);
@@ -157,7 +168,7 @@ async function update() {
   }
 
   //split if we need to update the display name
-  await (studentData.firstName === values.firstName && studentData.lastName === values.lastName ? null : updateUserDisplayName(studentUID, values)) 
+  await (parentData.firstName === values.firstName && parentData.lastName === values.lastName ? null : updateUserDisplayName(studentUID, values));
 
   toggleWorking()
   //finish with a toast message
@@ -329,9 +340,3 @@ function getDropdownValues(dropdownId) {
 
   return values;
 }
-
-document.addEventListener('keypress', e => {
-  if (e.key == 'Enter') {
-    toggleWorking();
-  }
-})
