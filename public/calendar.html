@@ -150,8 +150,15 @@
     <div class="dropdown type-opening" style="display: none;">
       <button class="dropbtn">event length</button>
       <div class="dropdown-content">
-        <div onclick="changeEventLengthOpening(1)">1 hour</div>
-        <div onclick="changeEventLengthOpening(2)">2 hours</div>
+        <div onclick="changeEventLengthOpening(30)">1/2 hour</div>
+        <div onclick="changeEventLengthOpening(60)">1 hour</div>
+        <div onclick="changeEventLengthOpening(120)">2 hours</div>
+      </div>
+    </div>
+    <div class="dropdown type-opening" style="display: none;">
+      <button class="dropbtn">weeks to view</button>
+      <div class="dropdown-content">
+        <input type="text" onchange="changeRecurringWeeksOpenings(this)" value="1">
       </div>
     </div>
   </div>

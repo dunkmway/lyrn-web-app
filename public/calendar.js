@@ -12,7 +12,8 @@ let current_type = null;
 let current_location = null;
 let current_filter = {};
 let current_availability_filter = {};
-let current_opening_event_length = 2;
+let current_opening_event_length = 60;
+let current_opening_recurring_weeks = 1;
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
 const CONFERENCE_COLOR = "#7FF3FB";
@@ -307,7 +308,7 @@ function typeChange(type) {
 }
 
 function hideAllTypeNav() {
-  document.querySelector(".calendarNav").querySelectorAll("div[class*='type-']").forEach(element => {
+  document.querySelector(".calendarNav").querySelectorAll("*[class*='type-']").forEach(element => {
     element.style.display = 'none';
   })
 }
@@ -374,7 +375,7 @@ function getCurrentCalendarTypeContent() {
         initializeOpeningCalendar([], main_calendar.view.activeStart)
       }
       else {
-        getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length)
+        getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
         .then(events => {
           main_calendar.getEventSources().forEach(eventSource => {
             eventSource.remove();
@@ -728,7 +729,7 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
 
     datesSet: function(dateInfo) {
       if (current_location) {
-        getOpeningLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_opening_event_length)
+        getOpeningLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_opening_event_length, current_opening_recurring_weeks)
         .then(events => {
           main_calendar.getEventSources().forEach(eventSource => {
             eventSource.remove();
@@ -1197,7 +1198,7 @@ function changeEventLengthOpening(newLength) {
   current_opening_event_length = newLength;
   if (current_location) {
     calendarWorking()
-    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length)
+    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
     .then(events => {
       main_calendar.getEventSources().forEach(eventSource => {
         eventSource.remove();
@@ -1214,27 +1215,60 @@ function changeEventLengthOpening(newLength) {
   }
 }
 
-function getOpeningLocation(location, start, end, eventLength) {
+function changeRecurringWeeksOpenings(target) {
+  //check that the value is valid
+  if (isNaN(parseInt(target.value))) {
+    target.value = 1;
+    return;
+  }
+
+  current_opening_recurring_weeks = target.value;
+  if (current_location) {
+    calendarWorking()
+    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
+    .then(events => {
+      main_calendar.getEventSources().forEach(eventSource => {
+        eventSource.remove();
+      })
+      
+      main_calendar.addEventSource(events)
+      calendarNotWorking();
+    })
+    .catch((error) =>{
+      calendarNotWorking();
+      console.log(error);
+      alert("We had an issue loading the calendar openings. Try refreshing the page.")
+    })
+  }
+}
+
+function getOpeningLocation(location, start, end, eventLength, recurringWeeks) {
   calendarWorking();
   if (eventLength) {
-    // get all events and availabilities within the timeframe
 
-    return Promise.all([getEventsLocationForDocs(location, start, end), getAvailabilityLocationForDocs(location, start, end), getUserListByRole(location, ['tutor'])])
+    const viewableEnd = end;
+    const recurringEnd = new Date(end).setDate(new Date(end).getDate() + ((recurringWeeks - 1) * 7));
+
+    // the view is a week view so end should be extended by recurring weeks - 1
+
+    // get all events and availabilities within the timeframe
+    return Promise.all([getEventsLocationForDocs(location, start, recurringEnd), getAvailabilityLocationForDocs(location, start, recurringEnd), getUserListByRole(location, ['tutor'])])
     .then((locationContent) => {
       let events = locationContent[0];
       let availabilities = locationContent[1];
       let tutors = locationContent[2];
 
       //generate all of the events that need to be checked
-      //these are all events that are eventLength long from 9am to 9pm from start to end
+      //these are all events that are eventLength long from 12am to 12am from start to end
 
-      //adjust start to start at 9 am
-      start = new Date(start).setHours(9, 0, 0, 0);
+      //adjust start to start at 12 am
+      // start = new Date(start).setHours(0, 0, 0, 0);
       let checkEvents = [];
+      let viewableCheckEvents = [];
 
-      while (new Date(start).setHours(new Date(start).getHours() + eventLength) < end) {
+      while (new Date(start).setMinutes(new Date(start).getMinutes() + eventLength) < recurringEnd) {
         let tempStart = start;
-        let tempEnd = new Date(start).setHours(new Date(start).getHours() + eventLength);
+        let tempEnd = new Date(start).setMinutes(new Date(start).getMinutes() + eventLength);
 
         let tutorsOpen = [];
         tutors.forEach(tutor => {
@@ -1249,28 +1283,68 @@ function getOpeningLocation(location, start, end, eventLength) {
           if (availabilities.some(isAvailable) && !events.some(hasConflict)) {tutorsOpen.push(tutor)}
         })
 
-        if (tutorsOpen.length > 0) {
+        // if (tutorsOpen.length > 0) {
           const color = "hsl(" + (Math.round((tutorsOpen.length - 1) * (240 / (tutors.length - 1)))) + ", 100%, 50%)";
-          checkEvents.push({
+          const eventData = {
             title: tutorsOpen.length,
-            start: convertFromDateInt(tempStart).fullCalendar,
-            end: convertFromDateInt(tempEnd).fullCalendar,
+            start: tempStart,
+            end: tempEnd,
             tutors: tutorsOpen,
             color: color,
             textColor: tinycolor.mostReadable(color, ["#FFFFFF", "000000"]).toHexString()
-          })
-        }
+          }
+          //push everything to our check array
+          checkEvents.push(eventData)
+          //only push the viewable days to this array
+          if (tempEnd <= viewableEnd) {viewableCheckEvents.push(eventData)}
+        // }
         
         //increment the start to the next time slot
         start = tempEnd
       }
 
+      //check for the recurring weeks to filter out the times for this week down to the min of all fo the days at the given times
+      viewableCheckEvents.forEach((viewableEvent) => {
+        //find all of the check events that line up with this event (checking to the hour should be good for now. Must be changed if we make this more granular)
+        let matchedEvents = checkEvents.filter(checkEvent => {
+          return (new Date(checkEvent.start).getDay() == new Date(viewableEvent.start).getDay()) && 
+          (new Date(checkEvent.start).getHours() == new Date(viewableEvent.start).getHours()) &&
+          (new Date(checkEvent.start).getMinutes() == new Date(viewableEvent.start).getMinutes())
+        });
+
+        // console.log(viewableEvent)
+        // console.log(matchedEvents)
+
+        //find the lowest number of tutors avaiable to teach on any of these times
+        let min = Infinity;
+        matchedEvents.forEach(matchedEvent => {
+          if (matchedEvent.title < min) {
+            min = matchedEvent.title;
+          }
+        })
+
+        //TODO: maybe keep track of which tutors are available as well
+        //this doesn't make sense now because we aren't caring about keeping tutors consistent only if we have anyone
+
+        //adjust the viewable event to match this min as well as the color
+        viewableEvent.title = min;
+        viewableEvent.color = "hsl(" + (Math.round((min - 1) * (240 / (tutors.length - 1)))) + ", 100%, 50%)";
+
+        ///make sure to convert the start and end so that fullCalendar can usnertand it
+        viewableEvent.start = convertFromDateInt(viewableEvent.start).fullCalendar;
+        viewableEvent.end = convertFromDateInt(viewableEvent.end).fullCalendar;
+      })
+
+      //we don't want to see the check events that don't have any tutor available
+      viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
+
       calendarNotWorking();
-      return checkEvents
+      return viewableCheckEvents;
 
     })
   }
   else {
+    calendarNotWorking();
     return Promise.resolve([]);
   }
 }
