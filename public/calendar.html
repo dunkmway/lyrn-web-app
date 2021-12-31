@@ -161,6 +161,33 @@
         <input type="text" onchange="changeRecurringWeeksOpenings(this)" value="1">
       </div>
     </div>
+    <div class="dropdown type-opening" style="display: none;">
+      <button id="openingSelection" class="dropbtn">filter qualification</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Qualification</div>
+          <div class="dropdown-content">
+            <select id="qualificationOpeningContent" class="ui dropdown search selection">
+              <option value="" disabled selected>select qualifications</option>
+              <option value="math">Math</option>
+              <option value="physics">Physics</option>
+              <option value="chemistry">Chemistry</option>
+              <option value="biology">Biology</option>
+              <option value="english">English</option>
+              <option value="history">History</option>
+              <option value="spanish">Spanish</option>
+              <option value="french">French</option>
+              <option value="actEnglish">ACT English</option>
+              <option value="actMath">ACT Math</option>
+              <option value="actReading">ACT Reading</option>
+              <option value="actScience">ACT Science</option>
+            </select>
+          </div>
+        </div>
+        
+        <div onclick="clearOpeningQualificationFilter(true)">Clear filter</div>
+      </div>
+    </div>
   </div>
 
   <div id="mainCalendarContent">

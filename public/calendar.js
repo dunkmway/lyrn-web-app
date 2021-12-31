@@ -12,6 +12,7 @@ let current_type = null;
 let current_location = null;
 let current_filter = {};
 let current_availability_filter = {};
+let current_opening_qualification_filter = null;
 let current_opening_event_length = 60;
 let current_opening_recurring_weeks = 1;
 
@@ -209,6 +210,26 @@ function setupNavLists(locationUID) {
       
       getCurrentCalendarTypeContent()
     })
+
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('clear');
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+  // $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a staff');
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+    (value, text) => {
+      current_opening_qualification_filter = value;
+      
+      //change the filter label
+      if (!current_opening_qualification_filter) {
+        document.getElementById('openingSelection').innerHTML = 'filter qualification';
+      }
+      else {
+        document.getElementById('openingSelection').innerHTML = 'filter active';
+      }
+      
+      getCurrentCalendarTypeContent()
+    })
 }
 
 function clearFilter(resetCalendar = false) {
@@ -229,6 +250,15 @@ function clearAvailabilityFilter(resetCalendar = false) {
     current_availability_filter.pop();
   }
   $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('clear');
+
+  if (resetCalendar) {
+    getCurrentCalendarTypeContent()
+  }
+}
+
+function clearOpeningQualificationFilter(resetCalendar = false) {
+  current_opening_qualification_filter = null;;
+  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('clear');
 
   if (resetCalendar) {
     getCurrentCalendarTypeContent()
@@ -375,7 +405,7 @@ function getCurrentCalendarTypeContent() {
         initializeOpeningCalendar([], main_calendar.view.activeStart)
       }
       else {
-        getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
+        getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks, current_opening_qualification_filter)
         .then(events => {
           main_calendar.getEventSources().forEach(eventSource => {
             eventSource.remove();
@@ -729,7 +759,7 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
 
     datesSet: function(dateInfo) {
       if (current_location) {
-        getOpeningLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_opening_event_length, current_opening_recurring_weeks)
+        getOpeningLocation(current_location, dateInfo.start.getTime(), dateInfo.end.getTime(), current_opening_event_length, current_opening_recurring_weeks, current_opening_qualification_filter)
         .then(events => {
           main_calendar.getEventSources().forEach(eventSource => {
             eventSource.remove();
@@ -1198,7 +1228,7 @@ function changeEventLengthOpening(newLength) {
   current_opening_event_length = newLength;
   if (current_location) {
     calendarWorking()
-    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
+    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks, current_opening_qualification_filter)
     .then(events => {
       main_calendar.getEventSources().forEach(eventSource => {
         eventSource.remove();
@@ -1225,7 +1255,7 @@ function changeRecurringWeeksOpenings(target) {
   current_opening_recurring_weeks = target.value;
   if (current_location) {
     calendarWorking()
-    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks)
+    getOpeningLocation(current_location, main_calendar.view.activeStart.getTime(), main_calendar.view.activeEnd.getTime(), current_opening_event_length, current_opening_recurring_weeks, current_opening_qualification_filter)
     .then(events => {
       main_calendar.getEventSources().forEach(eventSource => {
         eventSource.remove();
@@ -1242,7 +1272,7 @@ function changeRecurringWeeksOpenings(target) {
   }
 }
 
-function getOpeningLocation(location, start, end, eventLength, recurringWeeks) {
+function getOpeningLocation(location, start, end, eventLength, recurringWeeks, qualification) {
   calendarWorking();
   if (eventLength) {
 
@@ -1252,11 +1282,14 @@ function getOpeningLocation(location, start, end, eventLength, recurringWeeks) {
     // the view is a week view so end should be extended by recurring weeks - 1
 
     // get all events and availabilities within the timeframe
-    return Promise.all([getEventsLocationForDocs(location, start, recurringEnd), getAvailabilityLocationForDocs(location, start, recurringEnd), getUserListByRole(location, ['tutor'])])
+    return Promise.all([getEventsLocationForDocs(location, start, recurringEnd), getAvailabilityLocationForDocs(location, start, recurringEnd), getUserDocsByRole(location, ['tutor'])])
     .then((locationContent) => {
       let events = locationContent[0];
       let availabilities = locationContent[1];
       let tutors = locationContent[2];
+
+      console.log('size', tutors.size)
+      console.log('qual', qualification)
 
       //generate all of the events that need to be checked
       //these are all events that are eventLength long from 12am to 12am from start to end
@@ -1280,28 +1313,27 @@ function getOpeningLocation(location, start, end, eventLength, recurringWeeks) {
             (event.data()?.staff?.includes(tutor.id) && event.data().end > tempStart && event.data().end <= tempEnd) ||
             (event.data()?.staff?.includes(tutor.id) && event.data().start >= tempStart && event.data().end <= tempEnd)
           }
-          if (availabilities.some(isAvailable) && !events.some(hasConflict)) {tutorsOpen.push(tutor)}
+          const isQualified = (tutorData) => tutorData?.qualifications?.includes(qualification);
+          if (availabilities.some(isAvailable) && !events.some(hasConflict) && (qualification ? isQualified(tutor.data()) : true)) {tutorsOpen.push(tutor)}
         })
 
-        // if (tutorsOpen.length > 0) {
-          const color = "hsl(" + (Math.round((tutorsOpen.length - 1) * (240 / (tutors.length - 1)))) + ", 100%, 50%)";
-          const eventData = {
-            title: tutorsOpen.length,
-            start: tempStart,
-            end: tempEnd,
-            tutors: tutorsOpen,
-            color: color,
-            textColor: tinycolor.mostReadable(color, ["#FFFFFF", "000000"]).toHexString()
-          }
-          //push everything to our check array
-          checkEvents.push(eventData)
-          //only push the viewable days to this array
-          if (tempEnd <= viewableEnd) {viewableCheckEvents.push(eventData)}
-        // }
+        const eventData = {
+          title: tutorsOpen.length,
+          start: tempStart,
+          end: tempEnd,
+          tutors: tutorsOpen,
+        }
+        //push everything to our check array
+        checkEvents.push(eventData)
+        //only push the viewable days to this array
+        if (tempEnd <= viewableEnd) {viewableCheckEvents.push(eventData)}
         
         //increment the start to the next time slot
         start = tempEnd
       }
+
+      //we don't want to see the check events that don't have any tutor available (do it here first to get rid of the first week zeros - this is for optimizations)
+      viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
 
       //check for the recurring weeks to filter out the times for this week down to the min of all fo the days at the given times
       viewableCheckEvents.forEach((viewableEvent) => {
@@ -1328,14 +1360,15 @@ function getOpeningLocation(location, start, end, eventLength, recurringWeeks) {
 
         //adjust the viewable event to match this min as well as the color
         viewableEvent.title = min;
-        viewableEvent.color = "hsl(" + (Math.round((min - 1) * (240 / (tutors.length - 1)))) + ", 100%, 50%)";
+        viewableEvent.color = "hsl(" + (Math.round((min - 1) * (240 / (tutors.size - 1)))) + ", 100%, 50%)";
+        viewableEvent.textColor = tinycolor.mostReadable(viewableEvent.color, ["#FFFFFF", "000000"]).toHexString()
 
         ///make sure to convert the start and end so that fullCalendar can usnertand it
         viewableEvent.start = convertFromDateInt(viewableEvent.start).fullCalendar;
         viewableEvent.end = convertFromDateInt(viewableEvent.end).fullCalendar;
       })
 
-      //we don't want to see the check events that don't have any tutor available
+      //we don't want to see the check events that don't have any tutor available (do it again to remove the zeros that came from the future weeks)
       viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
 
       calendarNotWorking();
@@ -4339,6 +4372,19 @@ function getLessonTypeList(location) {
 
     return users;
   })
+}
+
+function getUserDocsByRole(location, roles) {
+  if(!location) {
+    alert("Choose a location first!");
+    return Promise.reject('no location selected')
+  }
+  return firebase.firestore().collection("Users")
+  .where("location", "==", location)
+  // .where("roles", 'array-contains-any', roles)
+  .where("role", 'in', roles)
+  .orderBy("lastName")
+  .get()
 }
 
 function getDropdownValues(dropdownId) {
