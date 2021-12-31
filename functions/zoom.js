@@ -21,7 +21,7 @@ function convertAxiosResponseToJSON(axiosResponse) {
 exports.createZoomUser = functions.firestore
 .document('/Users/{userID}')
 .onCreate(async (snap, context) => {
-  if (snap.data().role == 'tutor') {
+  if (['tutor', 'admin', 'dev'].includes(snap.data().role)) {
     const payload = {
       iss: functions.config().zoom.key,
       exp: Math.round(((new Date()).getTime() + 5000) / 1000)
@@ -62,42 +62,40 @@ exports.createZoomUser = functions.firestore
 exports.createZoomMeeting = functions.firestore
 .document('/Events/{eventID}')
 .onCreate(async (snap, context) => {
-  if (snap.data().type == 'subjectTutoring') {
-    const payload = {
-      iss: functions.config().zoom.key,
-      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
-    };
+  const payload = {
+    iss: functions.config().zoom.key,
+    exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+  };
 
-    const eventData = snap.data();
-    
-    const token = jwt.sign(payload, functions.config().zoom.secret);
-
-    //get the zoomID of the tutor who is assigned to this meeting
-    let tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get()
-
-    var config = {
-      method: 'post',
-      url: `/users/${tutorDoc.data().zoomID}/meetings`,
-      baseURL: zoomBaseURL,
-      data: {
-        topic: eventData.title,
-        type: 2,
-        start_time: convertMilliToZoomDateFormat(eventData.start),
-        duration: (eventData.end - eventData.start) / 60000,
-      },
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    }
+  const eventData = snap.data();
   
-    let response = await axios(config);
-    console.log(response)
-    await snap.ref.update({
-      staffZoomURL: response.data.start_url,
-      studentZoomURL: response.data.join_url,
-      zoomMeetingID: response.data.id
-    })
+  const token = jwt.sign(payload, functions.config().zoom.secret);
+
+  //get the zoomID of the tutor who is assigned to this meeting
+  let tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get()
+
+  var config = {
+    method: 'post',
+    url: `/users/${tutorDoc.data().zoomID}/meetings`,
+    baseURL: zoomBaseURL,
+    data: {
+      topic: eventData.title,
+      type: 2,
+      start_time: convertMilliToZoomDateFormat(eventData.start),
+      duration: (eventData.end - eventData.start) / 60000,
+    },
+    headers: {
+      Authorization: 'Bearer ' + token
+    }
   }
+
+  let response = await axios(config);
+  console.log(response)
+  await snap.ref.update({
+    staffZoomURL: response.data.start_url,
+    studentZoomURL: response.data.join_url,
+    zoomMeetingID: response.data.id
+  })
   return;
 });
 

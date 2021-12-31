@@ -1,12 +1,8 @@
 const errorMsg = document.querySelector('.error')
-let studentData = null;
+let tutorData = null;
 
 async function getAllLocations() {
   return await firebase.firestore().collection('Locations').orderBy('locationName').get()
-}
-
-async function getLocationParents(locationUID) {
-  return await firebase.firestore().collection('Users').where('location', '==', locationUID).where('role', '==', 'parent').get()
 }
 
 function toggleLoading(elementID) {
@@ -30,78 +26,50 @@ async function initialSetup() {
   addSelectOptions(document.getElementById("location"), locationUIDs, locationNames);
   toggleLoading('location')
 
-  //determine if this is a new student or updating
-  if (queryStrings().student) {
+  //determine if this is a new tutor or updating
+  if (queryStrings().tutor) {
     //updating
     fillInData();
 
     document.getElementById('action').innerHTML = 'Update';
-    document.getElementById('action').addEventListener('click', update);
-    document.getElementById('title').textContent = 'Update Student';
+    document.getElementById('action').addEventListener('click', update)
+    document.getElementById('title').textContent = 'Update Tutor';
   }
   else {
     //submitting
     document.getElementById('action').innerHTML = 'Submit';
-    document.getElementById('action').addEventListener('click', submit);
-    document.getElementById('title').textContent = 'Add Student';
+    document.getElementById('action').addEventListener('click', submit)
+    document.getElementById('title').textContent = 'Add Tutor';
   }
 }
 
-async function locationCallback(elem) {
-  const locationUID = elem.value;
-
-  toggleLoading('parents')
-
-  const parentDocs = await getLocationParents(locationUID)
-
-  let parentUIDs = [];
-  let parentIdentifiers = [];
-
-  parentDocs.forEach(doc => {
-    parentUIDs.push(doc.id);
-    parentIdentifiers.push(`${doc.data().firstName} ${doc.data().lastName} (${doc.data().email})`)
-  })
-  $('#parents').dropdown('clear')
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-  document.getElementById('parents').innerHTML = '<option value="" disabled selected>select a parent</option>';
-  addSelectOptions(document.getElementById('parents'), parentUIDs, parentIdentifiers);
-
-  toggleLoading('parents')
-
-  return;
-}
-
 async function fillInData() {
-  const studentUID = queryStrings().student;
-  const studentDoc = await firebase.firestore().collection('Users').doc(studentUID).get();
+  const tutorUID = queryStrings().tutor;
+  const tutorDoc = await firebase.firestore().collection('Users').doc(tutorUID).get();
 
-  studentData = studentDoc.data()
+  tutorData = tutorDoc.data()
 
   //use this for the regular fields (special case for semantic ui weirdness)
   document.querySelectorAll('input:not(.search)').forEach(input => {
-    input.value = studentDoc.data()[input.id];
+    input.value = tutorDoc.data()[input.id];
   })
 
   //deal with the select (especially changing location then semantic ui select)
-  document.getElementById('location').value = studentData.location;
-  await locationCallback(document.getElementById('location'));
-  $('#parents').closest(".ui.dropdown").dropdown('set selected', studentData.parents);
+  document.getElementById('location').value = tutorData.location;
+  $('#qualifications').closest(".ui.dropdown").dropdown('set selected', tutorData.qualifications);
   return;
 }
 
 async function submit() {
   toggleWorking();
   const values = getValues();
-  if (!validate(values) || !confirm('Are you sure you are ready to submit this student?')) {
+  if (!validate(values) || !confirm('Are you sure you are ready to submit this tutor?')) {
     toggleWorking();
     return;
   }
 
   try {
-    //split based on if we have an email
-    const userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
+    const userUID = await addUserWithEmail(values);
     //adding user with email can fail if the email is already in use. Not an error so catch it here
     if (!userUID) {
       toggleWorking();
@@ -113,14 +81,14 @@ async function submit() {
   }
   catch (error) {
     console.log(error)
-    alert('We encountered an error while adding this student.')
+    alert('We encountered an error while adding this tutor.')
   }
 
   clearFields();
   toggleWorking();
   //finish with a toast message
   Toastify({
-    text: 'Student successfully submitted'
+    text: 'Tutor successfully submitted'
   }).showToast();
   return;
 }
@@ -128,52 +96,33 @@ async function submit() {
 async function update() {
   toggleWorking();
   const values = getValues();
-  if (!validate(values) || !confirm('Are you sure you are ready to update this student?')) {
+  if (!validate(values) || !confirm('Are you sure you are ready to update this tutor?')) {
     toggleWorking();
     return;
   }
 
-  const studentUID = queryStrings().student;
+  const tutorUID = queryStrings().tutor;
 
-  //split based on if we had an email before updating and if we have an email now
-  //check if we had an email before
-  if (studentData.email) {
-    //had email now check if the email is the same
-    if (studentData.email === values.email) {
-      //RESULT: same email as before
-      //update just the user doc
-      await updateUserDoc(studentUID, values);
-    }
-    else {
-      //RESULT: different email
-      //update the user email and doc
-      await updateUserEmail(studentUID, values);
-      await updateUserDoc(studentUID, values);
-    }
+  //had email now check if the email is the same
+  if (tutorData.email === values.email) {
+    //RESULT: same email as before
+    //update just the user doc
+    await updateUserDoc(tutorUID, values);
   }
   else {
-    // didn't have email now check if we have one now
-    if (values.email) {
-      //RESULT: first time getting the email
-      //add the user to firebase and use the old UID
-      await addUserWithUID(studentUID, values);
-      await updateUserDoc(studentUID, values)
-    }
-    else {
-      //RESULT: still don't have an email
-      //update just the user doc
-      await updateUserDoc(studentUID, values);
-    }
-
+    //RESULT: different email
+    //update the user email and doc
+    await updateUserEmail(tutorUID, values);
+    await updateUserDoc(tutorUID, values);
   }
 
   //split if we need to update the display name
-  await (studentData.firstName === values.firstName && studentData.lastName === values.lastName ? null : updateUserDisplayName(studentUID, values));
+  await (tutorData.firstName === values.firstName && tutorData.lastName === values.lastName ? null : updateUserDisplayName(tutorUID, values));
 
   toggleWorking()
   //finish with a toast message
   Toastify({
-    text: 'Student successfully updated!'
+    text: 'Tutor successfully updated!'
   }).showToast();
   return;
 }
@@ -187,15 +136,14 @@ function toggleWorking() {
 
 function clearFields() {
   document.querySelectorAll('input').forEach(input => input.value = '');
-  $('#parents').dropdown('clear');
   document.querySelector('#location').value = '';
 }
 
 function getValues() {
   //we'll have to handle selects differently becuase of sematic ui
   const values = getInputValues();
-  values.role = 'student';
-  values.parents = getDropdownValues('parents');
+  values.role = 'tutor';
+  values.qualifications = getDropdownValues('qualifications');
   values.location = document.getElementById('location').value;
   return values;
 }
@@ -210,8 +158,8 @@ function validate(values) {
     return false;
   }
 
-  //email is optional so only check its validity if the field is filled
-  if (values.email && !isEmailValid()) {
+  //check email validity
+  if (!isEmailValid()) {
     errorMsg.textContent = 'the email is not valid';
     errorMsg.style.visibility = 'visible';
     return false;
@@ -285,12 +233,6 @@ async function addUserWithEmail(userInfo) {
   }
 }
 
-async function addUserWithoutEmail(userInfo) {
-  console.log('no email')
-  const userRef = firebase.firestore().collection('Users').doc()
-  return userRef.id;
-}
-
 async function addUserDoc(userUID, userData) {
   return await firebase.firestore().collection('Users').doc(userUID).set(userData);
 }
@@ -304,16 +246,6 @@ async function updateUserEmail(userUID, userData) {
   return await updateUserEmail({
     uid: userUID,
     email: userData.email,
-  })
-}
-
-async function addUserWithUID(userUID, userData) {
-  const addUser = firebase.functions().httpsCallable('addUser');
-  return await addUser({
-    uid: userUID,
-    email: userData.email,
-    role: userData.role,
-    password: 'iujowdij9834uijr2948un095b3098v0'
   })
 }
 

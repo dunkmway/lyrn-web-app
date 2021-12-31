@@ -464,9 +464,9 @@ function reinitializeStaffTableData() {
     if (args?.target?._DT_CellIndex) {
       let staffUID = tableDataStaff[args.target._DT_CellIndex.row].staffUID;
       let staffName = tableDataStaff[args.target._DT_CellIndex.row].staffName;
-      let staffType = tableDataStaff[args.target._DT_CellIndex.row].staffType;
-      const queryStr = "?staff=" + staffUID;
-      window.location.href = "../staff-registration.html" + queryStr
+      let staffRole = tableDataStaff[args.target._DT_CellIndex.row].staffRole;
+      const queryStr = `?${staffRole}=` + staffUID;
+      window.location.href = `../new-${staffRole}.html` + queryStr;
 
 
       // deleteStaff(staffUID, staffName, staffType)
@@ -836,14 +836,14 @@ function setupNavigationModal(studentUID, parentUID) {
   let studentQueryStr = "?student=" + studentUID;
   let parentQueryStr = parentUID ? "?parent=" + parentUID : '';
 
-  document.getElementById("actNav").onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
-  };
-  document.getElementById("subjectTutoringNav").onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = "../subject-tutoring-dash.html" + studentQueryStr
-  };
+  // document.getElementById("actNav").onclick = () => {
+  //   modal.style.display = 'none';
+  //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
+  // };
+  // document.getElementById("subjectTutoringNav").onclick = () => {
+  //   modal.style.display = 'none';
+  //   window.location.href = "../subject-tutoring-dash.html" + studentQueryStr
+  // };
   // document.getElementById("mathProgramNav").onclick = () => {
   //   modal.style.display = 'none';
   //   window.location.href = "../math-program.html" + studentQueryStr
@@ -852,10 +852,10 @@ function setupNavigationModal(studentUID, parentUID) {
   //   modal.style.display = 'none';
   //   window.location.href = "../phonics-program.html" + studentQueryStr
   // };
-  document.getElementById("registrationNav").onclick = () => {
-    modal.style.display = 'none';
-    window.location.href = "../inquiry.html" + studentQueryStr;
-  };
+  // document.getElementById("registrationNav").onclick = () => {
+  //   modal.style.display = 'none';
+  //   window.location.href = "../inquiry.html" + studentQueryStr;
+  // };
   document.getElementById("studentInfoNav").onclick = () => {
     modal.style.display = 'none';
     window.location.href = "../new-student.html" + studentQueryStr;

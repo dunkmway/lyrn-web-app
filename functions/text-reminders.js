@@ -27,6 +27,7 @@ exports.textReminder = functions.pubsub.schedule('30 17 * * *').timeZone('Americ
     let attendees = eventData.attendees;
     let start = new Date(eventData.start).setHours(new Date(eventData.start).getHours(eventData.start) - SALTLAKE_TIME_OFFSET);
     let title = eventData.title;
+    let studentName = eventData.studentName.split(', ')[1] + " " + eventData.studentName.split(', ')[0];
 
     //for all attendees send them a reminder text
     attendees.forEach(async (attendee) => {
@@ -36,7 +37,7 @@ exports.textReminder = functions.pubsub.schedule('30 17 * * *').timeZone('Americ
         if (userDoc.data().phoneNumber) {
           const unformattedNumber = userDoc.data().phoneNumber;
           const userPhoneNumber = '+1' + unformattedNumber.replace(/\(|\)|-| /g, '');
-          await eventReminderText(userPhoneNumber, LYRN_MAIN_NUMBER, start, title);
+          await eventReminderText(userPhoneNumber, LYRN_MAIN_NUMBER, studentName);
         }
       }
     })
@@ -64,16 +65,17 @@ exports.text_reminder_test = functions.https.onRequest(async (request, response)
     let attendees = eventData.attendees;
     let start = new Date(eventData.start).setHours(new Date(eventData.start).getHours(eventData.start) - SALTLAKE_TIME_OFFSET);
     let title = eventData.title;
+    let studentName = eventData.studentName.split(', ')[1] + " " + eventData.studentName.split(', ')[0];
 
     //for all attendees send them a reminder text
     attendees.forEach(async (attendee) => {
       let userDoc = await admin.firestore().collection('Users').doc(attendee).get();
       //only send reminders to parents and students
-      if (userDoc.data().roles.includes('student') || userDoc.data().roles.includes('parent')) {
+      if (userDoc.data().role == 'student' || userDoc.data().role == 'parent') {
         if (userDoc.data().phoneNumber) {
           const unformattedNumber = userDoc.data().phoneNumber;
           const userPhoneNumber = '+1' + unformattedNumber.replace(/\(|\)|-| /g, '');
-          await eventReminderText(userPhoneNumber, LYRN_MAIN_NUMBER, start, title);
+          await eventReminderText(userPhoneNumber, LYRN_MAIN_NUMBER, studentName);
         }
       }
     })
@@ -82,8 +84,8 @@ exports.text_reminder_test = functions.https.onRequest(async (request, response)
   response.send('reminders sent!')
 });
 
-function eventReminderText(to, from, eventStart, eventTitle) {
-  const body = `Just a reminder about your event with us tomorrow! We're excited to see you tomorrow ${convertFromDateInt(eventStart)['longReadable']} for ${eventTitle}.`
+function eventReminderText(to, from, studentName) {
+  const body = `We're excited to see you tomorrow for your lesson with ${studentName}.`
   return client.messages.create({body: body, from: from, to: to})
 }
 
