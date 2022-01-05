@@ -6,6 +6,8 @@ exports.sign_in = require('./sign-in');
 exports.stripe = require('./stripe');
 exports.billing = require('./billing');
 exports.text_reminders = require('./text-reminders');
+exports.previous_tutors = require('./previous-tutors');
+exports.lesson_link = require('./lesson-link');
 exports.zoom = require('./zoom');
 admin.initializeApp();
 

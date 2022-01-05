@@ -4386,7 +4386,7 @@ function saveLesson(eventInfo) {
     return convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
   })
   .then((lessonTypeReadable) => {
-    const studentName = studentData.lastName + ", " + studentData.firstName;
+    const studentName = studentData.firstName + ' ' + studentData.lastName;
     const studentParents = studentData.parents;
     const staffColor = staffData?.color;
 
