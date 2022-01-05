@@ -101,17 +101,17 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
-      start:   'today prev,next availability',
+      start:   'today prev,next',
       center: 'title',
       end:  'dayGridMonth,timeGridWeek,timeGridDay'
     },
     themeSystem: 'standard',
-    customButtons: {
-      availability: {
-        text: 'My Availability',
-        click: availabilityCallback
-      }
-    },
+    // customButtons: {
+    //   availability: {
+    //     text: 'My Availability',
+    //     click: availabilityCallback
+    //   }
+    // },
 
     datesSet: function(dateInfo) {
       if (current_user) {
@@ -160,7 +160,8 @@ function eventClickHandler(info) {
       case 'act':
       case 'actFundamentals':
       case 'actComprehensive':
-        window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+        // window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+        window.open(data.staffZoomURL)
         break;
       case 'subjectTutoring':
         // window.location.href = "../subject-tutoring-dash.html" + queryStr;

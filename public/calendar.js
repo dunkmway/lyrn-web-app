@@ -34,6 +34,140 @@ let main_calendar;
 
 let storage = firebase.storage();
 
+// TEST
+// firebase.firestore().collection('Locations').doc('WIZWBumUoo7Ywkc3pl2G').update({
+//   lessonTypes : [
+//     {
+//       name: 'Comprehensive ACT',
+//       price: 90,
+//       value: 'actComprehensive',
+//       subtypes : [
+//         {
+//           name: 'English',
+//           value: 'english'
+//         },
+//         {
+//           name: 'Math',
+//           value: 'math'
+//         },
+//         {
+//           name: 'Reading',
+//           value: 'reading'
+//         },
+//         {
+//           name: 'Science',
+//           value: 'science'
+//         },
+//       ]
+//     },
+//     {
+//       name: 'ACT Fundamentals',
+//       price: 70,
+//       value: 'actFundamentals',
+//       subtypes : [
+//         {
+//           name: 'English',
+//           value: 'english'
+//         },
+//         {
+//           name: 'Math',
+//           value: 'math'
+//         },
+//         {
+//           name: 'Reading',
+//           value: 'reading'
+//         },
+//         {
+//           name: 'Science',
+//           value: 'science'
+//         },
+//       ]
+//     },
+//     {
+//       name: 'AP Exam',
+//       price: 60,
+//       value: 'apExam',
+//       subtypes : [
+//         {
+//           name: 'Research',
+//           value: 'research'
+//         },
+//         {
+//           name: 'Seminar',
+//           value: 'seminar'
+//         },
+//         {
+//           name: 'Art and Design Program',
+//           value: 'artAndDesignProgram'
+//         },
+//         {
+//           name: 'Art History',
+//           value: 'artHistory'
+//         },
+//         {
+//           name: 'Music Theory',
+//           value: 'musicTheory'
+//         },
+//         {
+//           name: 'Language and Composition',
+//           value: 'languageAndComposition'
+//         },
+//         {
+//           name: 'Literature and Composition',
+//           value: 'literatureAndComposition'
+//         },
+//         {
+//           name: 'FIXME: add the rest...',
+//           value: 'fixme'
+//         },
+//       ]
+//     },
+//     {
+//       name: 'Subject Tutoring',
+//       price: 50,
+//       value: 'subjectTutoring',
+//       subtypes : [
+//         {
+//           name: 'Math',
+//           value: 'math'
+//         },
+//         {
+//           name: 'Physics',
+//           value: 'physics'
+//         },
+//         {
+//           name: 'Chemistry',
+//           value: 'chemistry'
+//         },
+//         {
+//           name: 'Biology',
+//           value: 'biology'
+//         },
+//         {
+//           name: 'English',
+//           value: 'english'
+//         },
+//         {
+//           name: 'History',
+//           value: 'history'
+//         },
+//         {
+//           name: 'Spanish',
+//           value: 'spanish'
+//         },
+//         {
+//           name: 'French',
+//           value: 'french'
+//         },
+//       ]
+//     },
+//   ]
+// })
+// .then(() => {
+//   console.log('all done')
+// })
+// TEST
+
 
 function initialSetup() {
   //set up the semantic ui dropdowns
@@ -211,25 +345,46 @@ function setupNavLists(locationUID) {
       getCurrentCalendarTypeContent()
     })
 
-  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('clear');
-  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-  // $('#staffAvailabilityContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a staff');
-  $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
-    (value, text) => {
-      current_opening_qualification_filter = value;
-      
-      //change the filter label
-      if (!current_opening_qualification_filter) {
-        document.getElementById('openingSelection').innerHTML = 'filter qualification';
+  getLessonTypeList(current_location)
+  .then(lessonTypes => {
+    let qualificationNames = [];
+    let qualificationValues = [];
+
+    //go through the types and append their subtypes
+    lessonTypes.forEach(type => {
+      if (type.subtypes) {
+        type.subtypes.forEach(subtype => {
+          qualificationNames.push(type.name + ' ' + subtype.name);
+          qualificationValues.push(type.value + '-' + subtype.value);
+        })
       }
       else {
-        document.getElementById('openingSelection').innerHTML = 'filter active';
+        qualificationNames.push(type.name);
+        qualificationValues.push(type.value);
       }
-      
-      getCurrentCalendarTypeContent()
     })
+
+    addSelectOptions(document.getElementById('qualificationOpeningContent'), qualificationValues, qualificationNames);
+    $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('clear');
+    $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    // $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'placeholder', 'select a qualification');
+    $('#qualificationOpeningContent').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+      (value, text) => {
+        current_opening_qualification_filter = value;
+        
+        //change the filter label
+        if (!current_opening_qualification_filter) {
+          document.getElementById('openingSelection').innerHTML = 'filter qualification';
+        }
+        else {
+          document.getElementById('openingSelection').innerHTML = 'filter active';
+        }
+        
+        getCurrentCalendarTypeContent()
+      })
+  })
 }
 
 function clearFilter(resetCalendar = false) {
@@ -913,7 +1068,7 @@ function deleteRecurringGeneralInfoCallback() {
 
 function cancelSidebar() {
   //clear the input for every input
-  const allInputNodes = document.getElementById('sidebar').querySelectorAll('input');
+  const allInputNodes = document.getElementById('sidebar').querySelectorAll('input, textarea');
   for (let i = 0; i < allInputNodes.length; i++) {
     if (allInputNodes[i].type != 'radio') {
       allInputNodes[i].value = ""
@@ -1528,40 +1683,49 @@ function showEditTestWrapper() {
   document.getElementById('editTestWrapper').classList.remove("displayNone")
 }
 
-function setupEditSidebar(eventData, eventID) {
-  switch (eventData.type) {
-    case 'teacherMeeting':
-      setupEditTeacherMeeting(eventData, eventID);
-      break
-    case 'generalInfo':
-      setupEditGeneralInfo(eventData, eventID);
-      break
-    case 'practiceTest':
-      setupEditPracticeTest(eventData, eventID);
-      break
-    case 'conference':
-      setupEditConference(eventData, eventID);
-      break
-    case 'testReview':
-      setupEditTestReview(eventData, eventID);
-      break
-    case 'act':
-      setupEditLesson(eventData, eventID);
-      break
-    case 'subjectTutoring':
-      setupEditLesson(eventData, eventID);
-      break
-    case 'mathProgram':
-      setupEditLesson(eventData, eventID);
-      break
-    case 'phonicsProgram':
-      setupEditLesson(eventData, eventID);
-      break
-    case 'test':
-      setupEditTest(eventData, eventID);
-      break
-    default:
-  }
+async function setupEditSidebar(eventData, eventID) {
+  // switch (eventData.type) {
+  //   case 'teacherMeeting':
+  //     setupEditTeacherMeeting(eventData, eventID);
+  //     break
+  //   case 'generalInfo':
+  //     setupEditGeneralInfo(eventData, eventID);
+  //     break
+  //   case 'practiceTest':
+  //     setupEditPracticeTest(eventData, eventID);
+  //     break
+  //   case 'conference':
+  //     setupEditConference(eventData, eventID);
+  //     break
+  //   case 'testReview':
+  //     setupEditTestReview(eventData, eventID);
+  //     break
+  //   case 'act':
+  //     setupEditLesson(eventData, eventID);
+  //     break
+  //   case 'subjectTutoring':
+  //     setupEditLesson(eventData, eventID);
+  //     break
+  //   case 'mathProgram':
+  //     setupEditLesson(eventData, eventID);
+  //     break
+  //   case 'phonicsProgram':
+  //     setupEditLesson(eventData, eventID);
+  //     break
+  //   case 'test':
+  //     setupEditTest(eventData, eventID);
+  //     break
+  //   default:
+  // }
+
+  if (eventData.type == 'teacherMeeting') setupEditTeacherMeeting(eventData, eventID);
+  else if (eventData.type == 'generalInfo') setupEditGeneralInfo(eventData, eventID);
+  else if (eventData.type == 'practiceTest') setupEditPracticeTest(eventData, eventID);
+  else if (eventData.type == 'conference') setupEditConference(eventData, eventID);
+  else if (eventData.type == 'testReview') setupEditTestReview(eventData, eventID);
+  else if (eventData.type == 'test') setupEditTest(eventData, eventID);
+  else if ((await getLessonTypeList(eventData.location)).some(type => type.value === eventData.type)) setupEditLesson(eventData, eventID);
+  else // do nothing
 
   //remove eventClickHandler
   main_calendar.setOption('eventClick', () => {});
@@ -2040,31 +2204,31 @@ function setupAddLesson() {
   // defaultOptionStaff.textContent = "NO STAFF";
   // document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
 
-  $('#addLessonStaff').closest(".ui.dropdown").dropdown('setting', 'onChange', 
-    (value, text) => {
-      if (value.length == $('#addLessonStaff > option').length) {
-        $('#addLessonStaffSelectAll').parent()
-        .checkbox('set checked');
-      }
-      else {
-        $('#addLessonStaffSelectAll').parent()
-        .checkbox('set unchecked');
-      }
-    }
-  )
+  // $('#addLessonStaff').closest(".ui.dropdown").dropdown('setting', 'onChange', 
+  //   (value, text) => {
+  //     if (value.length == $('#addLessonStaff > option').length) {
+  //       $('#addLessonStaffSelectAll').parent()
+  //       .checkbox('set checked');
+  //     }
+  //     else {
+  //       $('#addLessonStaffSelectAll').parent()
+  //       .checkbox('set unchecked');
+  //     }
+  //   }
+  // )
 
-  $('#addLessonStaffSelectAll').parent()
-  .checkbox({
-    onChecked() {
-      const options = $('#addLessonStaff > option').toArray().map(
-        (obj) => obj.value
-      );
-      $('#addLessonStaff').dropdown('set exactly', options);
-    },
-    onUnchecked() {
-      $('#addLessonStaff').dropdown('clear');
-    },
-  });
+  // $('#addLessonStaffSelectAll').parent()
+  // .checkbox({
+  //   onChecked() {
+  //     const options = $('#addLessonStaff > option').toArray().map(
+  //       (obj) => obj.value
+  //     );
+  //     $('#addLessonStaff').dropdown('set exactly', options);
+  //   },
+  //   onUnchecked() {
+  //     $('#addLessonStaff').dropdown('clear');
+  //   },
+  // });
 
   //add in the list of lesson types. If no location is selected this will reject
   getLessonTypeList(document.getElementById('calendarLocation').dataset.value)
@@ -2072,16 +2236,31 @@ function setupAddLesson() {
     let lessonNames = [];
     let lessonValues = [];
     let lessonPrice = [];
+    let lessonSubtypes = [];
     lessonTypes.forEach((type) => {
       lessonNames.push(type.name);
       lessonValues.push(type.value);
       lessonPrice.push(type.price);
+      lessonSubtypes.push(type.subtypes);
     });
 
     addSelectOptions(document.getElementById('addLessonType'), lessonValues, lessonNames);
     $('#addLessonType').closest(".ui.dropdown").dropdown('setting', 'onChange',
     (value, text) => {
+      if (!value) return;
+
       document.getElementById('addLessonPrice').value = lessonPrice[lessonValues.indexOf(value)] ?? ''
+
+      //set up the subtypes
+      let subtypeValues = [];
+      let subtypeNames = [];
+      lessonSubtypes[lessonValues.indexOf(value)].forEach(subtype => {
+        subtypeValues.push(subtype.value);
+        subtypeNames.push(subtype.name);
+      })
+      document.getElementById('addLessonSubtype').innerHTML = null;
+      $('#addLessonSubtype').closest(".ui.dropdown").dropdown('clear');
+      addSelectOptions(document.getElementById('addLessonSubtype'), subtypeValues, subtypeNames);
     })
   })
   .catch((error) => {
@@ -2107,21 +2286,21 @@ function setupAddLesson() {
   });
 
   //add in the staff list. If no location is selected this will reject
-  getUserListByRole(current_location, STAFF_ROLES)
-  .then((staff) => {
-    let staffNames = [];
-    let staffUIDs = [];
-    staff.forEach((staff) => {
-      staffNames.push(staff.name);
-      staffUIDs.push(staff.id);
-    });
+  // getUserListByRole(current_location, STAFF_ROLES)
+  // .then((staff) => {
+  //   let staffNames = [];
+  //   let staffUIDs = [];
+  //   staff.forEach((staff) => {
+  //     staffNames.push(staff.name);
+  //     staffUIDs.push(staff.id);
+  //   });
 
-    addSelectOptions(document.getElementById('addLessonStaff'), staffUIDs, staffNames);
-  })
-  .catch((error) => {
-    console.log(error)
-    return closeCalendarSidebar(true);
-  });
+  //   addSelectOptions(document.getElementById('addLessonStaff'), staffUIDs, staffNames);
+  // })
+  // .catch((error) => {
+  //   console.log(error)
+  //   return closeCalendarSidebar(true);
+  // });
   
 
   showAddLessonWrapper();
@@ -2142,75 +2321,69 @@ function setupEditLesson(data, id) {
   pending_calendar_event_id = id;
   pending_calendar_event = {...data};
 
-  let lessonTypeReadable = '';
+  convertLessonTypeReadable(data.location, data.type, data.subtype)
+  .then(lessonTypeReadable => {
+  
+    document.getElementById('editLessonType').textContent = lessonTypeReadable;
+    document.getElementById('editLessonStudent').textContent = data.studentName;
+    document.getElementById('editLessonPrice').value = data.price;
+  
+    //add back the default option (staff)
+    const defaultOptionStaff = document.createElement('option');
+    defaultOptionStaff.value = "noStaff";
+    defaultOptionStaff.textContent = "NO STAFF"
+    document.getElementById('editLessonStaff').appendChild(defaultOptionStaff);
+  
+    //add in the staff list. If no location is selected this will reject
+    // getUserListByRole(current_location, STAFF_ROLES)
+    getTutorDocsByQualification(data.location, `${data.type}-${data.subtype}`)
+    .then((tutorDocs) => {
+      //get the black listed tutors as well
+      firebase.firestore().collection('Users').doc(data.student).get()
+      .then(studentDoc => {
+        const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
 
-  switch(data.type) {
-    case 'act':
-      lessonTypeReadable = 'ACT';
-      break;
-    case 'subjectTutoring':
-      lessonTypeReadable = 'Subject Tutoring';
-      break;
-    case 'mathProgram':
-      lessonTypeReadable = 'Math Program';
-      break;
-    case 'phonicsProgram':
-      lessonTypeReadable = 'Phonics Program';
-      break;
-    default:
-      lessonTypeReadable = 'Lesson';
-  }
-
-  document.getElementById('editLessonType').textContent = lessonTypeReadable;
-  document.getElementById('editLessonStudent').textContent = data.studentName;
-  document.getElementById('editLessonPrice').value = data.price;
-
-  //add back the default option (staff)
-  const defaultOptionStaff = document.createElement('option');
-  defaultOptionStaff.value = "noStaff";
-  defaultOptionStaff.textContent = "NO STAFF"
-  document.getElementById('addLessonStaff').appendChild(defaultOptionStaff);
-
-  //add in the staff list. If no location is selected this will reject
-  getUserListByRole(current_location, STAFF_ROLES)
-  .then((staff) => {
-    let staffNames = [];
-    let staffUIDs = [];
-    staff.forEach((staff) => {
-      staffNames.push(staff.name);
-      staffUIDs.push(staff.id);
+        let tutorNames = [];
+        let tutorUIDs = [];
+        tutorDocs.forEach((tutorDoc) => {
+          if (!blacklistTutors.includes(tutorDoc.id)) {
+            tutorNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+            tutorUIDs.push(tutorDoc.id);
+          }
+        });
+    
+        addSelectOptions(document.getElementById('editLessonStaff'), tutorUIDs, tutorNames);
+    
+        //select previously saved staff
+        $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+      return closeCalendarSidebar(true);
     });
-
-    addSelectOptions(document.getElementById('editLessonStaff'), staffUIDs, staffNames);
-
-    //select previously saved staff
-    $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
+  
+    //show the reconciled state
+    $('#editLessonReconciled').parent()
+    .checkbox({
+      onChecked() {
+        //check if the event has started yet first
+        if (pending_calendar_event.start <= new Date().getTime()) {
+          pending_calendar_event.isReconciled = true;
+        }
+        else {
+          $('#editLessonReconciled').parent().checkbox('set unchecked')
+          alert("Strange things are afoot at the Circle K. You can't reconcile a lesson that hasn't started yet.")
+        }
+      },
+      onUnchecked() {
+        pending_calendar_event.isReconciled = false;
+      },
+    });
+  
+    showEditLessonWrapper();
+    openCalendarSidebar();
   })
-  .catch((error) => {
-    console.log(error)
-    return closeCalendarSidebar(true);
-  });
-
-  //show the reconciled state
-  $('#editLessonReconciled').parent()
-  .checkbox({
-    onChecked() {
-      //check if the event has started yet first
-      if (pending_calendar_event.start <= new Date().getTime()) {
-        pending_calendar_event.isReconciled = true;
-      }
-      else {
-        $('#editLessonReconciled').parent().checkbox('set unchecked')
-        alert("Strange things are afoot at the Circle K. You can't reconcile a lesson that hasn't started yet.")
-      }
-    },
-    onUnchecked() {
-      pending_calendar_event.isReconciled = false;
-    },
-  });
-
-  showEditLessonWrapper();
-  openCalendarSidebar();
 }
 
 function setupAddAvailability() {
@@ -3226,10 +3399,11 @@ function submitAddLesson() {
   }
 
   const type = document.getElementById('addLessonType').value;
+  const subtype = document.getElementById('addLessonSubtype').value;
   const description = document.getElementById('addLessonDescription').value;
   const student = document.getElementById('addLessonStudent').value;
-  const staff = getDropdownValues('addLessonStaff');
-  const staffNames = getDropdownText('addLessonStaff');
+  // const staff = getDropdownValues('addLessonStaff');
+  // const staffNames = getDropdownText('addLessonStaff');
   const price = Number(document.getElementById('addLessonPrice').value)
   const location = document.getElementById('calendarLocation').dataset.value;
 
@@ -3238,7 +3412,7 @@ function submitAddLesson() {
     const end = pending_calendar_event.end;
     const allDay = pending_calendar_event.allDay;
 
-    if (!start || !type || !student || !location || staff.length == 0 || isNaN(price)) {
+    if (!start || !type || !subtype || !student || !location || isNaN(price)) {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
@@ -3261,11 +3435,13 @@ function submitAddLesson() {
         //if the tutor is not open then remove them from the list and try again
         //return if no one is open.
 
-        getRandomOpenTutor(start, end, staff, staffNames)
+        // getRandomOpenTutor(start, end, staff, staffNames)
+        return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
         .then(tutor => {
           if (tutor) {
             eventInfo = {
               type: type,
+              subtype: subtype,
               description: description,
               start: start,
               end: end,
@@ -3309,7 +3485,7 @@ function submitAddLesson() {
     let staffConflicts = [];
     let pendingEvents = [];
 
-    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !student || !location || staff.length == 0) {
+    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !subtype || !student || !location) {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
@@ -3342,11 +3518,13 @@ function submitAddLesson() {
                   // )
                 }
 
-                return getRandomOpenTutor(start, end, staff, staffNames)
+                // return getRandomOpenTutor(start, end, staff, staffNames)
+                return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
                 .then(tutor => {
                   if (tutor) {
                     eventInfo = {
                       type: type,
+                      subtype: subtype,
                       description: description,
                       start: start,
                       end: end,
@@ -3485,6 +3663,65 @@ function getRandomOpenTutor(start, end, tutorList, tutorNameList) {
   else {
     return null;
   }
+}
+
+async function getQualifiedOpenTutor(start, end, qualification, studentUID) {
+  // see if we can get a definite tutor from the list of tutors that have taught this student before.
+  // if not then just getRandomOpenTutor
+  // to do so we'll have to get a list of tutors that are qualified passed in 
+
+
+  //get the list of tutors that have tuaght this student before and order them by the number of times they have taught the student
+  const studentDoc = await firebase.firestore().collection('Users').doc(studentUID).get();
+  const previousTutors = studentDoc.data().previousTutors ?? {};
+  const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
+
+  // sort the previous tutors
+  const previousTutorList = Object.keys(previousTutors).map(tutorUID => {
+    return {
+      tutor: tutorUID,
+      num: previousTutors[tutorUID] 
+    }
+  }).sort((a,b) => b.num - a.num);
+
+  //remove the blacklist tutors
+  previousTutorList.filter(previousTutor => !blacklistTutors.includes(previousTutor.tutor))
+  
+  //run through each tutor and check if they can teach
+  for (let i = 0; i < previousTutorList.length; i++) {
+    //get the tutor's name from their doc
+    const tutorDoc = await firebase.firestore().collection('Users').doc(previousTutorList[i].tutor).get();
+    const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName
+    //if we get a tutor that is available then return
+    const availableTutor = await getRandomOpenTutor(start, end, [tutorDoc.id], [tutorName]);
+    if (availableTutor) {
+      console.log('returning previous tutor')
+      return availableTutor;
+    }
+  }  
+
+  // since this student doesn't have any previous tutors just get a random one that is qualified
+  const qualifiedTutorDocs = await getTutorDocsByQualification(current_location, qualification)
+  let tutorNames = [];
+  let tutorUIDs = [];
+  qualifiedTutorDocs.forEach(tutorDoc => {
+    //remove the previous tutors since we already checked them and the blacklist tutors
+    if (!previousTutorList.some(previousTutor => previousTutor.tutor == tutorDoc.id) && !blacklistTutors.includes(tutorDoc.id)) {
+      tutorNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+      tutorUIDs.push(tutorDoc.id);
+    }
+  })
+  console.log('returning random tutor')
+  return await getRandomOpenTutor(start, end, tutorUIDs, tutorNames);
+
+}
+
+function getTutorDocsByQualification(location, qualification) {
+  return firebase.firestore().collection('Users')
+  .where('role', '==', 'tutor')
+  .where('location', '==', location)
+  .where('qualifications', 'array-contains', qualification)
+  .get()
 }
 
 function updateEditLesson() {
@@ -3802,7 +4039,8 @@ function fixAvailabilityChangeConflicts(staff, start, end) {
                 tutorNames.push(tutor.name)
               })
 
-              return getRandomOpenTutor(eventDoc.data().start, eventDoc.data().end, tutorUIDs, tutorNames)
+              // return getRandomOpenTutor(eventDoc.data().start, eventDoc.data().end, tutorUIDs, tutorNames)
+              return getQualifiedOpenTutor(eventDoc.data().start, eventDoc.data().end, `${eventDoc.data().type}-${eventDoc.data().subtype}`, eventDoc.data().student)
               .then(openTutor => {
                 //if a another tutor is available then update the lesson
                 if (openTutor) {
@@ -4145,31 +4383,17 @@ function saveLesson(eventInfo) {
   .then((staffDoc) => {
     staffData = staffDoc.data();
 
+    return convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
+  })
+  .then((lessonTypeReadable) => {
     const studentName = studentData.lastName + ", " + studentData.firstName;
     const studentParents = studentData.parents;
     const staffColor = staffData?.color;
-    let lessonTypeReadable = ""
-
-    switch(eventInfo.type) {
-      case 'act':
-        lessonTypeReadable = 'ACT';
-        break;
-      case 'subjectTutoring':
-        lessonTypeReadable = 'Subject Tutoring';
-        break;
-      case 'mathProgram':
-        lessonTypeReadable = 'Math Program';
-        break;
-      case 'phonicsProgram':
-        lessonTypeReadable = 'Phonics Program';
-        break;
-      default:
-        lessonTypeReadable = 'Lesson';
-    }
 
     const eventRef = firebase.firestore().collection("Events").doc()
     let eventData = {
       type: eventInfo.type,
+      subtype: eventInfo.subtype,
       description: eventInfo.description,
       title: studentName + " - " + lessonTypeReadable,
       start: parseInt(eventInfo.start),
@@ -4202,7 +4426,7 @@ function saveLesson(eventInfo) {
         textColor: eventData.textColor,
       }
     })
-  })
+  });
 }
 
 function saveAvailability(eventInfo) {
@@ -4342,6 +4566,18 @@ function getLessonTypeList(location) {
   .then(locationDoc => {
     return locationDoc.data().lessonTypes;
   })
+}
+
+async function convertLessonTypeReadable(location, type, subtype = null) {
+  // get the location's lesson types
+  const lessonTypes = await getLessonTypeList(location);
+
+  // find the type and subtype names
+  const lessonType = lessonTypes.find(lesson => lesson.value == type);
+  const lessonName = lessonType.name;
+  const lessonSubname = subtype ? lessonType.subtypes.find(sublesson => sublesson.value == subtype).name : '';
+
+  return lessonName + ' ' + lessonSubname;
 }
 
 /**

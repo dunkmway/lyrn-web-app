@@ -1,5 +1,6 @@
 const errorMsg = document.querySelector('.error')
 let tutorData = null;
+let locationDocs;
 
 async function getAllLocations() {
   return await firebase.firestore().collection('Locations').orderBy('locationName').get()
@@ -13,7 +14,7 @@ async function initialSetup() {
   $('.ui.dropdown').dropdown();
 
   toggleLoading('location')
-  const locationDocs = await getAllLocations();
+  locationDocs = await getAllLocations();
 
   let locationUIDs = [];
   let locationNames = [];
@@ -43,6 +44,42 @@ async function initialSetup() {
   }
 }
 
+async function locationCallback(elem) {
+  const locationUID = elem.value;
+  toggleLoading('qualifications')
+
+  // find the relavant location doc
+  const lessonTypes = locationDocs.docs.find(doc => doc.id == locationUID).data().lessonTypes;
+
+  let qualificationNames = [];
+  let qualificationValues = [];
+
+  //go through the types and append their subtypes
+  lessonTypes.forEach(type => {
+    if (type.subtypes) {
+      type.subtypes.forEach(subtype => {
+        qualificationNames.push(type.name + ' ' + subtype.name);
+        qualificationValues.push(type.value + '-' + subtype.value);
+      })
+    }
+    else {
+      qualificationNames.push(type.name);
+      qualificationValues.push(type.value);
+    }
+  })
+
+  $('#qualifications').dropdown('clear')
+  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+  document.getElementById('qualifications').innerHTML = '<option value="" disabled selected>select qualifications</option>';
+  addSelectOptions(document.getElementById('qualifications'), qualificationValues, qualificationNames);
+
+  toggleLoading('qualifications')
+
+  return;
+}
+
 async function fillInData() {
   const tutorUID = queryStrings().tutor;
   const tutorDoc = await firebase.firestore().collection('Users').doc(tutorUID).get();
@@ -56,6 +93,7 @@ async function fillInData() {
 
   //deal with the select (especially changing location then semantic ui select)
   document.getElementById('location').value = tutorData.location;
+  await locationCallback(document.getElementById('location'));
   $('#qualifications').closest(".ui.dropdown").dropdown('set selected', tutorData.qualifications);
   return;
 }

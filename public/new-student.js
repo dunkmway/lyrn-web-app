@@ -9,6 +9,10 @@ async function getLocationParents(locationUID) {
   return await firebase.firestore().collection('Users').where('location', '==', locationUID).where('role', '==', 'parent').get()
 }
 
+async function getLocationTutors(locationUID) {
+  return await firebase.firestore().collection('Users').where('location', '==', locationUID).where('role', '==', 'tutor').get()
+}
+
 function toggleLoading(elementID) {
   document.getElementById(elementID).closest('.loading-wrapper').classList.toggle('loading');
 }
@@ -51,26 +55,47 @@ async function locationCallback(elem) {
   const locationUID = elem.value;
 
   toggleLoading('parents')
+  toggleLoading('blacklistTutors')
 
-  const parentDocs = await getLocationParents(locationUID)
+  const parentPromise = getLocationParents(locationUID)
+  .then(parentDocs => {
+    let parentUIDs = [];
+    let parentIdentifiers = [];
 
-  let parentUIDs = [];
-  let parentIdentifiers = [];
+    parentDocs.forEach(doc => {
+      parentUIDs.push(doc.id);
+      parentIdentifiers.push(`${doc.data().firstName} ${doc.data().lastName} (${doc.data().email})`)
+    })
+    $('#parents').dropdown('clear')
+    $('#parents').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#parents').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#parents').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    document.getElementById('parents').innerHTML = '<option value="" disabled selected>select a parent</option>';
+    addSelectOptions(document.getElementById('parents'), parentUIDs, parentIdentifiers);
 
-  parentDocs.forEach(doc => {
-    parentUIDs.push(doc.id);
-    parentIdentifiers.push(`${doc.data().firstName} ${doc.data().lastName} (${doc.data().email})`)
+    toggleLoading('parents')
   })
-  $('#parents').dropdown('clear')
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-  $('#parents').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-  document.getElementById('parents').innerHTML = '<option value="" disabled selected>select a parent</option>';
-  addSelectOptions(document.getElementById('parents'), parentUIDs, parentIdentifiers);
 
-  toggleLoading('parents')
+  const tutorPromise = getLocationTutors(locationUID)
+  .then(tutorDocs => {
+    let tutorUIDs = [];
+    let tutorIdentifiers = [];
 
-  return;
+    tutorDocs.forEach(doc => {
+      tutorUIDs.push(doc.id);
+      tutorIdentifiers.push(`${doc.data().firstName} ${doc.data().lastName} (${doc.data().email})`)
+    })
+    $('#blacklistTutors').dropdown('clear')
+    $('#blacklistTutors').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
+    $('#blacklistTutors').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
+    $('#blacklistTutors').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
+    document.getElementById('blacklistTutors').innerHTML = '<option value="" disabled selected>select a tutor</option>';
+    addSelectOptions(document.getElementById('blacklistTutors'), tutorUIDs, tutorIdentifiers);
+
+    toggleLoading('blacklistTutors')
+  })
+
+  return await Promise.all([parentPromise, tutorPromise]);
 }
 
 async function fillInData() {
@@ -88,6 +113,7 @@ async function fillInData() {
   document.getElementById('location').value = studentData.location;
   await locationCallback(document.getElementById('location'));
   $('#parents').closest(".ui.dropdown").dropdown('set selected', studentData.parents);
+  $('#blacklistTutors').closest(".ui.dropdown").dropdown('set selected', studentData.blacklistTutors);
   return;
 }
 
@@ -196,6 +222,7 @@ function getValues() {
   const values = getInputValues();
   values.role = 'student';
   values.parents = getDropdownValues('parents');
+  values.blacklistTutors = getDropdownValues('blacklistTutors');
   values.location = document.getElementById('location').value;
   return values;
 }

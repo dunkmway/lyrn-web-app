@@ -37,7 +37,7 @@
     <div id="pageLoading"></div>
     <label for="location">Location</label>
     <div class="loading-wrapper">
-      <select name="location" id="location" required>
+      <select name="location" id="location" required onchange="locationCallback(this)">
         <option value="" disabled selected>select a location</option>
       </select>
     </div>
@@ -49,21 +49,23 @@
     <input type="email" name="email" id="email" required>
     <label for="phoneNumber">Phone Number</label>
     <input type="tel" name="phoneNumber" id="phoneNumber" required>
-    <select name="qualifications" id="qualifications" class="ui dropdown search" multiple>
-      <option value="" disabled selected>select qualifications</option>
-      <option value="math">Math</option>
-      <option value="physics">Physics</option>
-      <option value="chemistry">Chemistry</option>
-      <option value="biology">Biology</option>
-      <option value="english">English</option>
-      <option value="history">History</option>
-      <option value="spanish">Spanish</option>
-      <option value="french">French</option>
-      <option value="actEnglish">ACT English</option>
-      <option value="actMath">ACT Math</option>
-      <option value="actReading">ACT Reading</option>
-      <option value="actScience">ACT Science</option>
-    </select>
+    <div class="loading-wrapper">
+      <select name="qualifications" id="qualifications" class="ui dropdown search" multiple>
+        <!-- <option value="" disabled selected>select qualifications</option>
+        <option value="math">Math</option>
+        <option value="physics">Physics</option>
+        <option value="chemistry">Chemistry</option>
+        <option value="biology">Biology</option>
+        <option value="english">English</option>
+        <option value="history">History</option>
+        <option value="spanish">Spanish</option>
+        <option value="french">French</option>
+        <option value="actEnglish">ACT English</option>
+        <option value="actMath">ACT Math</option>
+        <option value="actReading">ACT Reading</option>
+        <option value="actScience">ACT Science</option> -->
+      </select>
+    </div>
     <p class="error">error message</p>
     <button id="action"><div class="loading-wrapper loading">Loading</div></button>
   </body>

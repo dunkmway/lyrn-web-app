@@ -57,7 +57,7 @@ exports.createZoomUser = functions.firestore
 });
 
 /**
- * triggered when a subject tutoring lesson is create
+ * triggered when an event is created in the Event collection
  */
 exports.createZoomMeeting = functions.firestore
 .document('/Events/{eventID}')
@@ -98,6 +98,78 @@ exports.createZoomMeeting = functions.firestore
   })
   return;
 });
+
+/**
+ * triggered when an event is updated in the Event collection
+ */
+ exports.updateZoomMeeting = functions.firestore
+  .document('/Events/{eventID}')
+  .onUpdate(async (change, context) => {
+    const newValues = change.after.data();
+    const oldValues = change.before.data();
+
+    const payload = {
+      iss: functions.config().zoom.key,
+      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+    };
+
+    //update the zoom meeting
+    const token = jwt.sign(payload, functions.config().zoom.secret);
+
+    //get the zoomID of the tutor who is assigned to this meeting
+    let tutorDoc = await admin.firestore().collection('Users').doc(newValues.staff[0]).get()
+
+    var config = {
+      method: 'patch',
+      url: `/meetings/${oldValues.zoomMeetingID}`,
+      baseURL: zoomBaseURL,
+      data: {
+        schedule_for: tutorDoc.data().zoomID,
+        topic: newValues.title,
+        type: 2,
+        start_time: convertMilliToZoomDateFormat(newValues.start),
+        duration: (newValues.end - newValues.start) / 60000,
+      },
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    }
+
+    let response = await axios(config);
+    console.log(response)
+    return;
+  });
+
+ /**
+ * triggered when an event is updated in the Event collection
+ */
+  exports.deleteZoomMeeting = functions.firestore
+  .document('/Events/{eventID}')
+  .onDelete(async (snap, context) => {
+    const deletedValues = snap.data();
+
+    const payload = {
+      iss: functions.config().zoom.key,
+      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+    };
+ 
+    //delete the zoom meeting
+    const token = jwt.sign(payload, functions.config().zoom.secret);
+ 
+   var config = {
+     method: 'delete',
+     url: `/meetings/${deletedValues.zoomMeetingID}`,
+     baseURL: zoomBaseURL,
+     headers: {
+       Authorization: 'Bearer ' + token
+     }
+   }
+ 
+   let response = await axios(config);
+   console.log(response)
+   return;
+ 
+  });
 
 function convertMilliToZoomDateFormat(timeMilli) {
   const time = new Date(timeMilli);

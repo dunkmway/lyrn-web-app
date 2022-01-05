@@ -476,11 +476,11 @@ nav a:hover {
 }
 
 #act .intro-wrapper li::before {
-  background-image: linear-gradient(90deg, var(--color-accent-3-light), 70%, var(--color-accent-4-deep));
+  background: var(--color-accent-3-light);
 }
 
 #subjectTutoring .intro-wrapper li::before {
-  background-image: linear-gradient(90deg, var(--color-accent-5-light), 30%, var(--color-accent-1-light));
+  background: var(--color-accent-1-light);
 }
 
 .intro-wrapper .bottom {
@@ -670,7 +670,7 @@ nav a:hover {
 }
 
 #act .plan-wrapper.comprehensive li::before {
-  background-image: linear-gradient(45deg, var(--color-accent-3-light), 70%, var(--color-accent-4-light));
+  background: var(--color-accent-3-light);
 }
 
 #act .plan-wrapper.comprehensive .select {

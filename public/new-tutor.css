@@ -21,7 +21,7 @@ input, label, select, button {
 
 input, select, button {
   padding: .5em .5em;
-  margin: 0em 0em 1em;
+  margin: 0em;
   border-radius: .5em;
   min-width: 20em;
   font-size: 1rem;
@@ -36,6 +36,7 @@ select {
 
 label {
   font-size: 1.25em;
+  margin-top: 1em;
 }
 
 p.error {
