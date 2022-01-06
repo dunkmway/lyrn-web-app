@@ -20,6 +20,8 @@
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <!-- jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -39,45 +41,56 @@
 </head>
 
 <body class='main'>
-  <!--<header class="nav-start">
-      <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
-      <input type="checkbox" id="nav-toggle" class="nav-toggle">
-      <nav>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="story.html">Our Story</a></li>
-          <li><a href="#">Pricing</a></li>
-          <li><a href="sign-in.html">Sign In</a></li>
-          <li><a class="enroll" href="#">Enroll</a></li>
-        </ul>
-      </nav>
-      <label for="nav-toggle" class="nav-toggle-label">
-        <span></span>
-      </label>
-    </header>-->
 
   <main>
-    <form id='form'>
 
-      <div id='firstHalf'>
-        <div>
-          <!-- Test List -->
-          <label class='label' for="testList">Test</label>
-          <select id="testList">
-            <option value="newTest">New Test</option>
-          </select>
+    <div id='firstHalf'>
+
+      <!-- Opening Screen -->
+      <div id = 'openingDisplay' class = 'centerSpread'>
+        <button onclick = 'selectDisplay("testDisplay")'>Add Test</button>
+        <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
+        <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
+        <button>Add Question</button>
+      </div>
+
+
+      <!-- Tests -->
+      <div id = 'testDisplay' class = 'columns hidden'>
+
+
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- List -->
+          <label for="testList" class = 'mainLabel'>Test</label>
+
+          <!-- Year -->
+          <label for="testYear" class = 'mainLabel'>Test Year</label>
+
+          <!-- Month -->
+          <label for="testMonth" class = 'mainLabel'>Test Month</label>
+
+          <!-- Code -->
+          <label id = 'testCodeLabel' for="testCode" class = 'mainLabel'>Test Code</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
         </div>
       
-        <div>
-          <!-- Test Year -->
-          <label class='label' for="testYear" id='testYearLabel'>Test Year</label>
-          <input type="number" class='input' id="testYear" min=1959>
-        </div>
 
-        <div>
-          <!-- Test Month -->
-          <label class='label' for="testMonth" id='testMonthLabel'>Test Month</label>
-          <select id="testMonth">
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- List -->
+          <select id="testList" class = 'mainInput'>
+            <option value="newTest">New Test</option>
+          </select>
+
+          <!-- Year -->
+          <input type="number" id="testYear" min=1959 class = 'mainInput'>
+
+          <!-- Month -->
+          <select id="testMonth" class = 'mainInput'>
             <option value="January">January</option>
             <option value="February">February</option>
             <option value="March">March</option>
@@ -91,126 +104,216 @@
             <option value="November">November</option>
             <option value="December">December</option>
           </select>
-        </div>
-      
-        <div>
-          <!-- Test Code -->
-          <label class='label' for="test" id='testLabel'>Test Code</label>
-          <input type="text" class='input' id="test" placeholder="Enter new test id (ex. B05)">
-        </div>
-      
-        <div>
-          <!-- Add Test -->
-          <button type='button' onclick="addTest()" id='testAdd'>Add Test</button>
-        </div>
-      
-        <div>
-          <!-- Add Section Data -->
-          <label class='label hidden' for="sectionList" id='sectionListLabel'>Section</label>
-          <select class='hidden' id="sectionList">
-            <option value="english">English</option>
-            <!--<option value="math">Math</option>
-            <option value="reading">Reading</option>
-            <option value="science">Science</option>-->
-          </select>
-        </div>
-      
-        <div>
-          <label class='label hidden' for="passageList" id='passageListLabel'>Passage</label>
-          <select class='hidden' id="passageList">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
+
+          <!-- Code -->
+          <input type="text" id="testCode" placeholder="Enter new test id (ex. B05)" class = 'mainInput'>
+
+          <!-- Save Test Button -->
+          <button onclick="saveTest()" class = 'mainInput'>Save Test</button>
         </div>
 
-        <div>
-          <!-- Add Passage Text -->
-          <button type='button' onclick="submitPassageText()" id='passageAdd' class = "hidden">Save Passage Text</button>
-          <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
-
-          <!-- Add Question -->
-          <button type='button' onclick="formDisplay('passage')" id='passageShow' class = "hidden">Go to Passage Text</button>
-          <button type='button' onclick="addQuestion()" id='questionAdd' class = "hidden">Add Question</button>
-        </div>
       </div>
+
+
+      <!-- Passage -->
+      <div id = 'passageDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <label for="passageTest" class = 'mainLabel'>Test</label>
+
+          <!-- Section -->
+          <label for="passageSection" class = 'mainLabel'>Section</label>
+
+          <!-- Passage -->
+          <label for="passageNumber" class = 'mainLabel'>Passage</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
       
-      <div id='secondHalf'>
 
-        <!-- Passages -->
-        <div>
-          <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <select id="passageTest" class = 'mainInput'>
+          </select>
+
+          <!-- Section -->
+          <select id="passageSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Passage -->
+          <select id="passageNumber" class = 'mainInput'>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="savePassage()" class = 'mainInput'>Save Passage</button>
         </div>
-        <textarea class = 'hidden' placeholder="Copy passage title here" id = 'passageTitle'></textarea>
 
-        <div>
-          <label class='label hidden' for="passageText" id='passageTextLabel'>Passage</label>
+        <!-- Passage Info -->
+        <div id = 'englishPassage'>
+          <div class='columns'>
+            <div class='rows'>
+              <div>
+                <label for="englishPassageTitle" id='englishPassageTitleLabel'>Title</label>
+              </div>
+              <textarea class = 'title' placeholder="Copy passage title here" id='englishPassageTitle'></textarea>
+            </div>
+        
+            <div class='rows' style = 'margin-left:10px;'>
+              <label for="englishLabelParagraphs" id='englishLabelParagraphsLabel'>Label Paragraphs</label>
+              <select id="englishLabelParagraphs">
+                <option value=0>No</option>
+                <option value=1>Yes</option>
+              </select>
+
+              <button onclick = 'clickInput("english")' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'english')" style = 'display: none;'>
+            </div>
+          </div>
+        
+          <div>
+            <label for="englishPassageText" id='englishPassageTextLabel'>Passage</label>
+          </div>
+          <textarea class = 'textArea' placeholder="Copy passage text here" id='englishPassageText'></textarea>
         </div>
-        <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageText'></textarea>
 
-        <!-- Questions -->
-        <div>
+        <div id = 'mathPassage'>
+          <div class='columns'>
+            <div class='rows'>
+              <div>
+                <label for="mathPassageTitle" id='mathPassageTitleLabel'>Title</label>
+              </div>
+              <textarea class = 'title' placeholder="Copy passage title here" id='mathPassageTitle'></textarea>
+            </div>
+        
+            <div class='rows' style = 'margin-left:10px;'>
+              <!--<label for="mathLabelParagraphs" id='mathLabelParagraphsLabel'>Label Paragraphs</label>
+              <select id="mathLabelParagraphs">
+                <option value=0>No</option>
+                <option value=1>Yes</option>
+              </select>-->
+
+              <button onclick = 'clickInput("math")' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'mathImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'math')" style = 'display: none;'>
+            </div>
+          </div>
+        
+          <div>
+            <label for="mathPassageText" id='mathPassageTextLabel'>Passage</label>
+          </div>
+          <textarea class = 'textArea' placeholder="Copy passage text here" id='mathPassageText'></textarea>
+        </div>
+
+        <div id = 'readingPassage'>
+          <div class='columns'>
+            <div class='rows'>
+              <div>
+                <label for="readingPassageTitle" id='readingPassageTitleLabel'>Title</label>
+              </div>
+              <textarea class = 'title' placeholder="Copy passage title here" id='readingPassageTitle'></textarea>
+            </div>
+        
+            <div class='rows' style = 'margin-left:10px;'>
+              <!--<label for="readingLabelParagraphs" id='readingLabelParagraphsLabel'>Label Paragraphs</label>
+              <select id="readingLabelParagraphs">
+                <option value=0>No</option>
+                <option value=1>Yes</option>
+              </select>-->
+
+              <button onclick = 'clickInput("reading")' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'readingImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'reading')" style = 'display: none;'>
+            </div>
+          </div>
+        
+          <div>
+            <label for="readingPassageText" id='readingPassageTextLabel'>Passage</label>
+          </div>
+          <textarea class = 'textArea' placeholder="Copy passage text here" id='readingPassageText'></textarea>
+        </div>
+
+        <div id = 'sciencePassage'>
+          <div class='columns'>
+            <div class='rows'>
+              <div>
+                <label for="sciencePassageTitle" id='sciencePassageTitleLabel'>Title</label>
+              </div>
+              <textarea class = 'title' placeholder="Copy passage title here" id='sciencePassageTitle'></textarea>
+            </div>
+        
+            <div class='rows' style = 'margin-left:10px;'>
+              <!--<label for="scienceLabelParagraphs" id='scienceLabelParagraphsLabel'>Label Paragraphs</label>
+              <select id="scienceLabelParagraphs">
+                <option value=0>No</option>
+                <option value=1>Yes</option>
+              </select>-->
+
+              <button onclick = 'clickInput("science")' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'scienceImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'science')" style = 'display: none;'>
+            </div>
+          </div>
+        
+          <div>
+            <label for="sciencePassageText" id='sciencePassageTextLabel'>Passage</label>
+          </div>
+          <textarea class = 'textArea' placeholder="Copy passage text here" id='sciencePassageText'></textarea>
 
           <div>
-            <label class='label hidden' for="questionList" id='questionListLabel'>Problem</label>
-            <select class='hidden' id="questionList">
-            </select>
-
-            <label class='label hidden' for="topic" id='topicLabel'>Topic(s)</label>
-            <select class='hidden ui dropdown search multiple' id="topic" style = 'display:none'>
-            </select>
-
-            <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
-            <select class='hidden' id="subTopic">
-            </select>-->
-
-            <label class='label hidden' for="modifier" id='modifierLabel'>Modifier(s)</label>
-            <select class='hidden ui dropdown search multiple' id="modifier" style = 'display:none'>
-            </select>
-
+            <label for="sciencePassageReference" id='sciencePassageReferenceLabel'>Reference</label>
           </div>
-
-          <div class = 'columns'>
-
-            <div class = 'rows' id = 'questionsPart1'>
-              <div>
-                <label class='label hidden' for="questionText" id='questionTextLabel'>Question Text</label>
-              </div>
-              <textarea class = 'hidden' placeholder="Copy question here" id = 'questionText'></textarea>
-            </div>
-
-            <div id = 'questionsPart2' class = 'rows'>
-
-              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer1" id='answer1Label'>A</label>
-              <textarea class = 'hidden' id = 'answer1'></textarea>
-
-              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer2" id='answer2Label'>B</label>
-              <textarea class = 'hidden' id = 'answer2'></textarea>
-
-              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer3" id='answer3Label'>C</label>
-              <textarea class = 'hidden' id = 'answer3'></textarea>
-
-              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer4" id='answer4Label'>D</label>
-              <textarea class = 'hidden' id = 'answer4'></textarea>
-
-              <label class='label hidden' onclick = 'selectAnswer(this)' for="answer5" id='answer5Label'>E</label>
-              <textarea class = 'hidden' id = 'answer5'></textarea>
-
-            </div>
-
-          </div>
-
-
-
+          <textarea id = 'sciencePassageReference' class = 'reference'></textarea>
         </div>
 
       </div>
 
-    </form>
 
-    <div id='finalProduct'>
+      <!-- Answers -->
+      <div id = 'answersDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <label for="answersTest" class = 'mainLabel'>Test</label>
+
+          <!-- Section -->
+          <label for="answersSection" class = 'mainLabel'>Section</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
+      
+
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <select id="answersTest" class = 'mainInput'>
+          </select>
+
+          <!-- Section -->
+          <select id="answersSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="saveAnswers()" class = 'mainInput'>Save Answers</button>
+        </div>
+
+        <!-- Answer Key -->
+        <div id = 'answers' class = 'columns'>
+        </div>
+      </div>
+
+    </div>
+      
+    <div id='secondHalf'>
       <div id='qNumbers' class='finalProductDiv'></div>
       <div id='pText' class='finalProductDiv'></div>
       <div id='qList' class='finalProductDiv'></div>
