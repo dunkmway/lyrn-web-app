@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="This is where you will add new tests">
+  <title>Test Editor</title>
+
+  <!-- Firebase -->
+  <script>
+    //this is so reCaptcha will trust local host
+    if (window.location.hostname == 'localhost') {
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    }
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- semantic UI -->
+  <link async rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
+  <script async src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+  <!-- site wide -->
+  <script src="Site Templates/site-wide.js" defer></script>
+  <script src="Site Templates/generalFunctions.js" defer></script>
+  <script src="Site Templates/formatting.js" defer></script>
+  <script src="testEditorOld.js" defer></script>
+
+  <link href="testEditorOld.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+</head>
+
+<body class='main'>
+  <!--<header class="nav-start">
+      <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="story.html">Our Story</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="sign-in.html">Sign In</a></li>
+          <li><a class="enroll" href="#">Enroll</a></li>
+        </ul>
+      </nav>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+    </header>-->
+
+  <main>
+    <div id = 'imagePopup' class = 'rows hidden imagePopup'>
+      <div>
+        <span id = 'before'><input id = 'imageBefore' type = 'file' style = "display:none" accept = "image/png" onchange="addImage('before')">Add image before</span>
+      </div>
+      <div>
+        <span id = 'after'><input id = 'imageAfter' type = 'file' style = "display:none" accept = "image/png" onchange="addImage('after')">Add image after</span>
+      </div>
+    </div>
+    <div id = 'imageRemovalPopup' class = 'hidden imagePopup'>
+      <div>
+        <span id = 'remove' onclick="removeImage()">Remove image</span>
+      </div>
+    </div>
+    <form id='form'>
+
+      <div id='firstHalf'>
+        <div>
+          <!-- Test List -->
+          <label class='label' for="testList">Test</label>
+          <select id="testList">
+            <option value="newTest">New Test</option>
+          </select>
+        </div>
+      
+        <div>
+          <!-- Test Year -->
+          <label class='label' for="testYear" id='testYearLabel'>Test Year</label>
+          <input type="number" class='input' id="testYear" min=1959>
+        </div>
+
+        <div>
+          <!-- Test Month -->
+          <label class='label' for="testMonth" id='testMonthLabel'>Test Month</label>
+          <select id="testMonth">
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+        </div>
+      
+        <div>
+          <!-- Test Code -->
+          <label class='label' for="test" id='testLabel'>Test Code</label>
+          <input type="text" class='input' id="test" placeholder="Enter new test id (ex. B05)">
+        </div>
+      
+        <div>
+          <!-- Add Test -->
+          <button type='button' onclick="addTest()" id='testAdd'>Add Test</button>
+        </div>
+      
+        <div>
+          <!-- Add Section Data -->
+          <label class='label hidden' for="sectionList" id='sectionListLabel'>Section</label>
+          <select class='hidden' id="sectionList">
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+        </div>
+      
+        <div>
+          <label class='label hidden' for="passageList" id='passageListLabel'>Passage</label>
+          <select class='hidden' id="passageList">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <div>
+          <!-- Buttons -->
+          <button type='button' onclick="submitPassageText()" id='passageAdd' class = "hidden">Save Passage Text</button>
+          <button type='button' onclick="formDisplay('passage')" id='passageShow' class = "hidden">Go to Passage Text</button>
+          <button type='button' onclick="formDisplay('answer')" id='answerShow' class = "hidden">Go to Answers</button>
+          <button type='button' onclick="addAnswers()" id='answerAdd' class = "hidden">Save Answers</button>
+          <button type='button' onclick="formDisplay('question')" id='questionShow' class = "hidden">Go to Questions</button>
+          <button type='button' onclick="addQuestion()" id='questionAdd' class = "hidden">Add Question</button>
+
+        </div>
+      </div>
+      
+      <div id='secondHalf'>
+
+        <!-- Passages -->
+        <div class = 'columns'>
+          <div class = 'rows'>
+            <div>
+              <label class='label hidden' for="passageTitle" id='passageTitleLabel'>Title</label>
+            </div>
+            <textarea class = 'hidden' placeholder="Copy passage title here" id = 'passageTitle'></textarea>
+          </div>
+
+          <div class = 'rows'>
+            <div>
+              <label class='label hidden' for="labelParagraphs" id='labelParagraphsLabel'>Label Paragraphs</label>
+            </div>
+            <select id="labelParagraphs" class = "hidden">
+              <option value=0>No</option>
+              <option value=1>Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class='label hidden' for="passageText" id='passageTextLabel'>Passage</label>
+        </div>
+        <textarea class = 'hidden' placeholder="Copy passage text here" id = 'passageText'></textarea>
+
+
+        <div>
+          <label class='label hidden' for="passageReference" id='passageReferenceLabel'>Reference</label>
+        </div>
+        <textarea class = 'hidden' id = 'passageReference'></textarea>
+
+        <!-- Answers -->
+        <div class = 'columns hidden' id = 'answers'>
+        </div>
+
+
+        <!-- Questions -->
+        <div>
+
+          <div>
+            <label class='label hidden' for="questionList" id='questionListLabel'>Problem</label>
+            <select class='hidden' id="questionList">
+            </select>
+
+            <label class='label hidden' for="topic" id='topicLabel'>Topic(s)</label>
+            <select class='hidden ui dropdown search multiple' id="topic" style = 'display:none'>
+            </select>
+
+            <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
+            <select class='hidden' id="subTopic">
+            </select>-->
+
+            <label class='label hidden' for="modifier" id='modifierLabel'>Modifier(s)</label>
+            <select class='hidden ui dropdown search multiple' id="modifier" style = 'display:none'>
+            </select>
+
+          </div>
+
+          <div class = 'columns'>
+
+            <div class = 'rows' id = 'questionsPart1'>
+              <div>
+                <label class='label hidden' for="questionText" id='questionTextLabel'>Question Text</label>
+              </div>
+              <textarea class = 'hidden' placeholder="Copy question here" id = 'questionText'></textarea>
+            </div>
+
+            <div id = 'questionsPart2' class = 'rows'>
+
+              <div class = 'columns' style = 'text-align: right;'>
+                <label class='label hidden' for="answer1" id='answer1Label'>A</label>
+                <input type = 'file' id = 'answer1Image' class = 'hidden' >
+              </div>
+              <textarea class = 'hidden' id = 'answer1'></textarea>
+
+              <div class = 'columns' style = 'text-align: right;'>
+                <label class='label hidden' for="answer2" id='answer2Label'>B</label>
+                <input type = 'file' id = 'answer2Image' class = 'hidden' >
+              </div>
+              <textarea class = 'hidden' id = 'answer2'></textarea>
+
+              <div class = 'columns' style = 'text-align: right;'>
+                <label class='label hidden' for="answer3" id='answer3Label'>C</label>
+                <input type = 'file' id = 'answer3Image' class = 'hidden' >
+              </div>
+              <textarea class = 'hidden' id = 'answer3'></textarea>
+
+              <div class = 'columns' style = 'text-align: right;'>
+                <label class='label hidden' for="answer4" id='answer4Label'>D</label>
+                <input type = 'file' id = 'answer4Image' class = 'hidden' >
+              </div>
+              <textarea class = 'hidden' id = 'answer4'></textarea>
+
+              <div class = 'columns' style = 'text-align: right;'>
+                <label class='label hidden' for="answer5" id='answer5Label'>E</label>
+                <input type = 'file' id = 'answer5Image' class = 'hidden' >
+              </div>
+              <textarea class = 'hidden' id = 'answer5'></textarea>
+
+            </div>
+
+          </div>
+
+
+
+        </div>
+
+      </div>
+
+    </form>
+
+    <div id='finalProduct'>
+      <div id='qNumbers' class='finalProductDiv'></div>
+      <div id='pText' class='finalProductDiv'></div>
+      <div id='qList' class='finalProductDiv'></div>
+    </div>
+
+  </main>
+
+</body>
+
+</html>
