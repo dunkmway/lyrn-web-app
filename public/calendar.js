@@ -2325,43 +2325,45 @@ function setupEditLesson(data, id) {
   .then(lessonTypeReadable => {
   
     document.getElementById('editLessonType').textContent = lessonTypeReadable;
+    document.getElementById('editLessonDescription').textContent = data.description;
     document.getElementById('editLessonStudent').textContent = data.studentName;
+    document.getElementById('editLessonStaff').textContent = data.staffNames;
     document.getElementById('editLessonPrice').value = data.price;
   
-    //add back the default option (staff)
-    const defaultOptionStaff = document.createElement('option');
-    defaultOptionStaff.value = "noStaff";
-    defaultOptionStaff.textContent = "NO STAFF"
-    document.getElementById('editLessonStaff').appendChild(defaultOptionStaff);
+    // //add back the default option (staff)
+    // const defaultOptionStaff = document.createElement('option');
+    // defaultOptionStaff.value = "noStaff";
+    // defaultOptionStaff.textContent = "NO STAFF"
+    // document.getElementById('editLessonStaff').appendChild(defaultOptionStaff);
   
-    //add in the staff list. If no location is selected this will reject
-    // getUserListByRole(current_location, STAFF_ROLES)
-    getTutorDocsByQualification(data.location, `${data.type}-${data.subtype}`)
-    .then((tutorDocs) => {
-      //get the black listed tutors as well
-      firebase.firestore().collection('Users').doc(data.student).get()
-      .then(studentDoc => {
-        const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
+    // //add in the staff list. If no location is selected this will reject
+    // // getUserListByRole(current_location, STAFF_ROLES)
+    // getTutorDocsByQualification(data.location, `${data.type}-${data.subtype}`)
+    // .then((tutorDocs) => {
+    //   //get the black listed tutors as well
+    //   firebase.firestore().collection('Users').doc(data.student).get()
+    //   .then(studentDoc => {
+    //     const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
 
-        let tutorNames = [];
-        let tutorUIDs = [];
-        tutorDocs.forEach((tutorDoc) => {
-          if (!blacklistTutors.includes(tutorDoc.id)) {
-            tutorNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
-            tutorUIDs.push(tutorDoc.id);
-          }
-        });
+    //     let tutorNames = [];
+    //     let tutorUIDs = [];
+    //     tutorDocs.forEach((tutorDoc) => {
+    //       if (!blacklistTutors.includes(tutorDoc.id)) {
+    //         tutorNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+    //         tutorUIDs.push(tutorDoc.id);
+    //       }
+    //     });
     
-        addSelectOptions(document.getElementById('editLessonStaff'), tutorUIDs, tutorNames);
+    //     addSelectOptions(document.getElementById('editLessonStaff'), tutorUIDs, tutorNames);
     
-        //select previously saved staff
-        $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
-      })
-    })
-    .catch((error) => {
-      console.log(error)
-      return closeCalendarSidebar(true);
-    });
+    //     //select previously saved staff
+    //     $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
+    //   })
+    // })
+    // .catch((error) => {
+    //   console.log(error)
+    //   return closeCalendarSidebar(true);
+    // });
   
     //show the reconciled state
     $('#editLessonReconciled').parent()
@@ -3416,6 +3418,10 @@ function submitAddLesson() {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
+    if (start < new Date().getTime()) {
+      sidebarNotWorking();
+      return alert("You can't create a lesson in the past");
+    }
 
     if (confirm("Are you sure you want to submit this event?")) {
       //check for conflicts
@@ -3488,6 +3494,10 @@ function submitAddLesson() {
     if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !subtype || !student || !location) {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
+    }
+    if (start < new Date().getTime()) {
+      sidebarNotWorking();
+      return alert("You can't create a lesson in the past");
     }
     if (confirm("Are you sure you want to submit these events?")) {
       //figure out all of the events that must be added based on recurring start, end, and times.
@@ -3731,8 +3741,7 @@ function updateEditLesson() {
     return
   }
   pending_calendar_event.description = document.getElementById('editLessonDescription').value;
-  pending_calendar_event.staff = getDropdownValues('editLessonStaff');
-  pending_calendar_event.staffNames = getDropdownText('editLessonStaff');
+  pending_calendar_event.price = document.getElementById('editLessonPrice').value;
 
   //check for conflicts
   checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
@@ -3771,37 +3780,17 @@ function updateEditLesson() {
           }
         }
 
-        //get the first staff doc to grab their color
-        //don't waste time if it hasn't changed
-        if (pending_calendar_event.staff[0] != old_calendar_event.staff[0]) {
-          firebase.firestore().collection('Users').doc(pending_calendar_event.staff[0]).get()
-          .then((staffDoc) => {
-            pending_calendar_event.color = staffDoc.data().color ?? null;
-            pending_calendar_event.textColor = tinycolor.mostReadable(staffDoc.data().color, ["#FFFFFF", "000000"]).toHexString()
-
-            return firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-          })
-          .then(() => {
-            main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEventSource([{
-              id: pending_calendar_event_id,
-              ...pending_calendar_event
-            }])
-            closeCalendarSidebar(true);
-          })
-        }
-        // same first staff; proceed
-        else {
-          firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
-          .then(() => {
-            main_calendar.getEventById(pending_calendar_event_id).remove();
-            main_calendar.addEventSource([{
-              id: pending_calendar_event_id,
-              ...pending_calendar_event
-            }])
-            closeCalendarSidebar(true);
-          })
-        }
+        //update the doc with the pending event info
+        firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
+        .then(() => {
+          main_calendar.getEventById(pending_calendar_event_id).remove();
+          main_calendar.addEventSource([{
+            id: pending_calendar_event_id,
+            ...pending_calendar_event
+          }])
+          closeCalendarSidebar(true);
+        })
+        
       })
     })
   })

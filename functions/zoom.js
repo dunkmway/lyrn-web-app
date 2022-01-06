@@ -48,7 +48,7 @@ exports.createZoomUser = functions.firestore
     }
   
     let response = await axios(config);
-    console.log(response)
+    console.log(convertAxiosResponseToJSON(response))
     await snap.ref.update({
       zoomID: response.data.id
     })
@@ -90,7 +90,7 @@ exports.createZoomMeeting = functions.firestore
   }
 
   let response = await axios(config);
-  console.log(response)
+  console.log(convertAxiosResponseToJSON(response))
   await snap.ref.update({
     staffZoomURL: response.data.start_url,
     studentZoomURL: response.data.join_url,
@@ -102,11 +102,17 @@ exports.createZoomMeeting = functions.firestore
 /**
  * triggered when an event is updated in the Event collection
  */
+
  exports.updateZoomMeeting = functions.firestore
   .document('/Events/{eventID}')
   .onUpdate(async (change, context) => {
     const newValues = change.after.data();
     const oldValues = change.before.data();
+
+    // if the values that should be updated have actually changed then continue. if not return 
+    // with zoom we can't change the tutor without paying so we will just restrict the admin from changing the tutor
+    // this means the only thing that zoom cares about changing is the time
+    if (newValues.start == oldValues.start && newValues.end == oldValues.end) return;
 
     const payload = {
       iss: functions.config().zoom.key,
@@ -116,17 +122,11 @@ exports.createZoomMeeting = functions.firestore
     //update the zoom meeting
     const token = jwt.sign(payload, functions.config().zoom.secret);
 
-    //get the zoomID of the tutor who is assigned to this meeting
-    let tutorDoc = await admin.firestore().collection('Users').doc(newValues.staff[0]).get()
-
     var config = {
       method: 'patch',
       url: `/meetings/${oldValues.zoomMeetingID}`,
       baseURL: zoomBaseURL,
       data: {
-        schedule_for: tutorDoc.data().zoomID,
-        topic: newValues.title,
-        type: 2,
         start_time: convertMilliToZoomDateFormat(newValues.start),
         duration: (newValues.end - newValues.start) / 60000,
       },
@@ -135,9 +135,14 @@ exports.createZoomMeeting = functions.firestore
       }
     }
 
-    let response = await axios(config);
-    console.log(response)
-    return;
+    try {
+      let response = await axios(config);
+      console.log(convertAxiosResponseToJSON(response))
+     }
+     catch (error) {
+      console.log(error)
+     }
+     return;
   });
 
  /**
@@ -165,10 +170,14 @@ exports.createZoomMeeting = functions.firestore
      }
    }
  
-   let response = await axios(config);
-   console.log(response)
+   try {
+    let response = await axios(config);
+    console.log(convertAxiosResponseToJSON(response))
+   }
+   catch (error) {
+    console.log(error)
+   }
    return;
- 
   });
 
 function convertMilliToZoomDateFormat(timeMilli) {
