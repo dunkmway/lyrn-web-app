@@ -6,6 +6,8 @@ exports.sign_in = require('./sign-in');
 exports.stripe = require('./stripe');
 exports.billing = require('./billing');
 exports.text_reminders = require('./text-reminders');
+exports.previous_tutors = require('./previous-tutors');
+exports.lesson_link = require('./lesson-link');
 exports.zoom = require('./zoom');
 admin.initializeApp();
 
@@ -62,49 +64,59 @@ exports.getUserRole = functions.https.onCall((data, context) => {
     return promise;
 });
 
-exports.addUser = functions.https.onCall((data, context) => {
+exports.addUser = functions.https.onCall(async (data, context) => {
     //only give acces to create users to secretaries, admins, and devs
-    if (context.auth?.token?.role == 'secretary' || context.auth?.token?.role == 'admin' || context.auth?.token?.role == 'dev') {
-        return admin.auth().getUserByEmail(data.email)
-        .then((userRecord) => {
-            let result = {
+    if (context.auth.token.role == 'admin' || context.auth.token.role == 'dev') {
+        //get the user by their email
+        try {
+            //if we find them then they already exists
+            //return the user record to the client and send back that this user is not new
+            const userRecord = await admin.auth().getUserByEmail(data.email);
+            return {
                 user: userRecord,
                 newUser: false
             };
-            return result;
-        })
-        .catch((error) => {
-            if (error.code == "auth/user-not-found") {
-                return admin.auth().createUser({
-                    email: data.email,
-                    password: data.password
-                })
-                .then((userRecord) => {
-                    return admin.auth().setCustomUserClaims(userRecord.uid, {
-                        role: data.role
-                    })
-                    .then(() => {
-                        let result = {
-                            user: userRecord,
-                            newUser: true
-                        };
-                        return result;
-                    })
-                    .catch((error) => {
-                        throw new functions.https.HttpsError(error.code, error.message, error.details)
-                    });
-                })
-                .catch((error) => {
+        }
+        catch (error) {
+            //if we fail to get the user then we check if we failed to find the user or if there was an error
+            if (error.code === 'auth/user-not-found') {
+                //now we know that the user doesn't exist
+                //split based on if a UID was provided
+                try {
+                    const userRecord = await (
+                        data.uid ?                   //if the request included a UID
+                        admin.auth().createUser({    //then create the user with the uid
+                            uid: data.uid,
+                            email: data.email,
+                            password: data.password
+                        }) :
+                        admin.auth().createUser({    //else only use the email
+                            email: data.email,
+                            password: data.password
+                        })
+                    )
+                    //once the userRecord is created set the custom claims
+                    await admin.auth().setCustomUserClaims(userRecord.uid, { role: data.role })
+                    //finally we are ready to respond back to the client
+                    return {
+                        user: userRecord,
+                        newUser: true
+                    };
+                }
+                catch (error) {
+                    //failure creating the new user or setting their custom claims
                     throw new functions.https.HttpsError(error.code, error.message, error.details)
-                });
+                }
             }
             else {
+                //failure getting the initial user record
                 throw new functions.https.HttpsError(error.code, error.message, error.details)
             }
-        });
+        }
     }
     else {
-        throw new functions.https.HttpsError("permission-denied", "You messed up big time... go fix it")
+        //permission denied
+        throw new functions.https.HttpsError("permission-denied", "Yeah sorry... you can't do that :(")
     }
 });
 
@@ -126,7 +138,7 @@ exports.addUserRole = functions.https.onCall((data, context) => {
 });
 
 exports.deleteUser = functions.https.onCall((data, context) => {
-    if (context.auth?.token?.role == 'secretary' || context.auth?.token?.role == 'admin' || context.auth?.token?.role == 'dev') {
+    if (context.auth.token.role == 'admin' || context.auth.token.role == 'dev') {
         throw new functions.https.HttpsError('permission-denied', "You aren't allowed to do that!!!");
     }
     else {

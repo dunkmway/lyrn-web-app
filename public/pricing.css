@@ -252,6 +252,10 @@ nav a {
   transition: opacity 150ms ease-in-out;
 }
 
+nav .enroll {
+  font-size: 1rem;
+}
+
 .enroll {
   padding: .7em 1.8em;
   border-radius: .4em;
@@ -324,7 +328,7 @@ nav a:hover {
     position: relative;
   }
   
-  nav a::before {
+  nav a:not(.enroll)::before {
     content: '';
     display: block;
     height: 5px;
@@ -472,11 +476,11 @@ nav a:hover {
 }
 
 #act .intro-wrapper li::before {
-  background-image: linear-gradient(90deg, var(--color-accent-3-light), 70%, var(--color-accent-4-deep));
+  background: var(--color-accent-3-light);
 }
 
 #subjectTutoring .intro-wrapper li::before {
-  background-image: linear-gradient(90deg, var(--color-accent-5-light), 30%, var(--color-accent-1-light));
+  background: var(--color-accent-1-light);
 }
 
 .intro-wrapper .bottom {
@@ -608,11 +612,12 @@ nav a:hover {
   background-color: #C1C1C1;
   color: white;
   text-align: center;
-  padding: 1em;
-}
-
-.plan-wrapper .discount-wrapper h4 {
-  font-size: 1.5em;
+  padding: .5em;
+  margin-top: 1em;
+  width: max-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .plan-wrapper .discount-wrapper * {
@@ -665,7 +670,7 @@ nav a:hover {
 }
 
 #act .plan-wrapper.comprehensive li::before {
-  background-image: linear-gradient(45deg, var(--color-accent-3-light), 70%, var(--color-accent-4-light));
+  background: var(--color-accent-3-light);
 }
 
 #act .plan-wrapper.comprehensive .select {

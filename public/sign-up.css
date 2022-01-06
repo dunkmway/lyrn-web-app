@@ -19,6 +19,12 @@
   --color-accent-3-light: #02c6ff;
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
+
+  --color-accent-yellow-veryLight: #FFF4CC;
+  --color-accent-green-veryLight: #CCFFD5;
+  --color-accent-blue-veryLight: #CCF4FF;
+  --color-accent-purple-veryLight: #CCCCFF;
+  --color-accent-red-veryLight: #FFCCCC;
 }
 
 *, *::before, *::after {
@@ -36,10 +42,6 @@ body {
   width: 100vw;
   margin: 0;
   background-color: var(--color-secondary);
-}
-
-section {
-  padding: 3em 1em;
 }
 
 a {
@@ -64,16 +66,17 @@ details summary {
 
 .register {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   width: 100vw;
   height: 100vh;
-  padding-right: 5em;
+  padding: 5%;
   background-position: left;
   background-size: 1100%;
   background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light));
-  animation: gradient-background 30s linear infinite;
+  animation: gradient-background 60s linear infinite alternate;
+  overflow-y: auto;
 }
 
 @keyframes gradient-background {
@@ -85,25 +88,63 @@ details summary {
   }
 }
 
+.intro {
+  color: white;
+  font-size: 1.5em;
+  font-weight: 900;
+  padding: 1em 0em;
+  align-self: flex-start;
+}
+
+.intro .logo {
+  width: min-content;
+}
+
+.intro .logo img {
+  height: 1.5em;
+}
+
+.info {
+  display: none;
+}
+
+.info li {
+  margin: 1em 0em;
+}
+
+.info h2, .info p {
+  margin: 0;
+}
+
+.info p {
+  font-size: .75em;
+  color: black;
+}
+
 #signup {
   background-color: white;
   border-radius: 1em;
-  padding: 3em 3em 4em;
-  width: auto;
+  padding: 4% 3%;
+  max-width: 100%;
+  /* max-height: 100%; */
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.30);
 }
 
 #signup h1 {
   margin: 0;
   font-size: 3em;
-  background: linear-gradient(45deg, var(--color-accent-3-light), var(--color-accent-4-deep));
+  /* background: linear-gradient(45deg, var(--color-accent-3-light), var(--color-accent-4-deep));
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent; */
+  color: var(--color-accent-3-light);
   font-weight: 900;
+  text-align: center;
+  border-bottom: 1px solid var(--color-secondary);
 }
 
 #signup h2 {
   text-align: center;
+  margin: .3em;
 }
 
 #signup input, #signup label {
@@ -135,6 +176,8 @@ details summary {
 
 #signup .radios input:checked+label {
   border: 2px solid var(--color-accent-2-deep);
+  background-color: var(--color-accent-green-veryLight);
+  /* background-color: var(--color-accent-2-light); */
 }
 
 #signup input[type='radio'], #signup input[type='radio']+label {
@@ -144,7 +187,7 @@ details summary {
 #signup input:not([type='radio']):not([type='submit']) {
   font-size: 1em;
   height: 2em;
-  min-width: 20em;
+  width: 100%;
   padding: .5em;
   margin-bottom: 1em;
   border-radius: .5em;
@@ -163,8 +206,34 @@ details summary {
   background-color: var(--color-accent-2-deep);
   color: white;
   font-size: 1em;
+  cursor: pointer;
+}
+
+#signup .error {
+  color: var(--color-accent-5-light);
 }
 
 #signup .have-account {
   text-align: center;
+}
+
+@media screen and (min-width: 800px) {
+  .register {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .intro {
+    padding: 2em;
+    align-self: auto;
+  }
+
+  .intro .logo img {
+    margin-left: 1.5em;
+  }
+
+  .info {
+    display: block;
+  }
 }

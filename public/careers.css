@@ -413,6 +413,11 @@ nav a:hover {
   margin-top: .75em;
 }
 
+.content a {
+  text-decoration: none;
+  color: var(--color-accent-4-deep);
+}
+
 .content .quote-card {
   padding: 1em;
   background-color: var(--color-secondary);

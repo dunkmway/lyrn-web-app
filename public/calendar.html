@@ -150,8 +150,30 @@
     <div class="dropdown type-opening" style="display: none;">
       <button class="dropbtn">event length</button>
       <div class="dropdown-content">
-        <div onclick="changeEventLengthOpening(1)">1 hour</div>
-        <div onclick="changeEventLengthOpening(2)">2 hours</div>
+        <div onclick="changeEventLengthOpening(30)">1/2 hour</div>
+        <div onclick="changeEventLengthOpening(60)">1 hour</div>
+        <div onclick="changeEventLengthOpening(120)">2 hours</div>
+      </div>
+    </div>
+    <div class="dropdown type-opening" style="display: none;">
+      <button class="dropbtn">weeks to view</button>
+      <div class="dropdown-content">
+        <input type="text" onchange="changeRecurringWeeksOpenings(this)" value="1">
+      </div>
+    </div>
+    <div class="dropdown type-opening" style="display: none;">
+      <button id="openingSelection" class="dropbtn">filter qualification</button>
+      <div class="dropdown-content">
+        <div class="dropdown-right">
+          <div>Qualification</div>
+          <div class="dropdown-content">
+            <select id="qualificationOpeningContent" class="ui dropdown search selection">
+              <option value="" disabled selected>select qualifications</option>
+            </select>
+          </div>
+        </div>
+        
+        <div onclick="clearOpeningQualificationFilter(true)">Clear filter</div>
       </div>
     </div>
   </div>
@@ -519,6 +541,14 @@
         <select id="addLessonType" name="addLessonType" class="ui dropdown"></select>
         <br>
 
+        <!-- subtype of lesson -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="This is the subtype of lesson">?</div>
+          <label for="addLessonSubtype" class="label">Subtype</label>
+        </div>
+        <select id="addLessonSubtype" name="addLessonSubtype" class="ui dropdown"></select>
+        <br>
+
         <!-- description of lesson -->
         <div class="inputRow">
           <div class="more-info " data-more-info="This is the description of lesson">?</div>
@@ -536,8 +566,8 @@
         <br>
 
         <!-- staff teaching the lesson -->
-        <div class="inputRow">
-          <div class="more-info " data-more-info="These are the staff that could possible perform this test review. One will be randomly chosen after submission.">?</div>
+        <!-- <div class="inputRow">
+          <div class="more-info " data-more-info="These are the staff that could possible perform this lesson. One will be randomly chosen after submission.">?</div>
           <label for="addLessonStaff" class="label">Staff</label>
         </div>
         <div class="ui checkbox">
@@ -545,7 +575,7 @@
           <label>Select all</label>
         </div>
         <select id="addLessonStaff" name="addLessonStaff" class="ui dropdown search selection" multiple></select>
-        <br>
+        <br> -->
 
         <!-- price of lesson -->
         <div class="inputRow">
