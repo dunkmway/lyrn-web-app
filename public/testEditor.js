@@ -1,1080 +1,1097 @@
-let tests = [];
+const debug = true
+const spaceSize = '   '
+
+/*********************************************************
+ *                   Global Variables                    *
+ *********************************************************/
 const date = new Date()
-let testList = document.getElementById('testList')
-let dom_section = document.getElementById('sectionList')
-let workingText = document.getElementById('passageText')
-let title = document.getElementById('passageTitle')
-let passageNumber = document.getElementById('passageList')
-let dom_topic = document.getElementById('topic')
-let dom_modifier = document.getElementById('modifier')
-let dom_questionList = document.getElementById('questionList')
-//let dom_subTopic = document.getElementById('subTopic')
-let editorState = 'test'
-let passageReferences = []
+let storage = firebase.storage();
 
-let passageText = ''
 
-function checkThatTestExists(test) {
-	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'test').where('test', '==', test.toUpperCase())
-	return ref.get()
-	.then((querySnapshot) => {
-		if (querySnapshot.size > 0) {
-			return true
-		}
-		else {
-			return false
-		}
-	})
+
+/*********************************************************
+ *                        Functions                      *
+ *********************************************************/
+
+/**
+ * This will cause MathJax to look for unprocessed mathematics on the page and typeset it
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function resetMathJax(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'resetMathJax()')
+	}
+
+	// Re-process the HTML text on the page
+	MathJax.typeset()
 }
 
-function checkThatPassageExists(test, section, passage) {
-	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'passage').where('test', '==', test.toUpperCase()).where('section', '==', section).where('passageNumber', '==', passage)
-	return ref.get()
-	.then((querySnapshot) => {
-		let id = ''
-		if (querySnapshot.size == 1) {
-			querySnapshot.forEach((doc) => {
-				id = doc.id
-				//return doc.id
-			})
-		}
-		else {
-			return false
-		}
-		return id
-	})
-}
-
-function getTests() {
-	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'test')
-	return ref.get()
-	.then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			let data = doc.data();
-			if (!tests.includes(data['test'])) {
-				tests.push(data['test'])
-			}
-		})
-	})
-}
-
-/*
-function addTopic(section, topic, subTopics = undefined, type = 'topic') {
-
-	if (section != undefined && topic != undefined && subTopics != undefined) {
-
-		if (subTopics != '') {
-			data = {
-				'section' : section,
-				'topic' : topic,
-				'subTopics' : subTopics.split(', '),
-				'type' : type
-			}
-		}
-		else {
-			data = {
-				'section' : section,
-				'topic' : topic,
-				'subTopics' : [],
-				'type' : type
-			}
-		}
-
-		ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').doc()
-		ref.set(data)
-		.then(() => {
-			console.log('Set', section, ':', topic, ':', subTopics.split(', '))
+/**
+ *  This will grab an image from firebase storage
+ * 
+ * @param {string} test The test ID (ie. B05)
+ * @param {string} section The section (possible values: english, math, reading, or science)
+ * @param {string} passage The passage number (possible values: 1, 2, 3, 4, 5, 6, or 7)
+ * @param {number} imageNumber The image number within the passage, question, or answer
+ * @param {?number} question The question number (if applicable)
+ * @param {?number} answer The answer number (if applicable)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {string} returns the url of the image
+ */
+async function getImage(test, section, passage, imageNumber, question = undefined, answer = undefined, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getImage()', {
+			'test' : test,
+			'section' : section,
+			'passage' : passage,
+			'imageNumber' : imageNumber,
+			'question' : question,
+			'answer' : answer
 		})
 	}
-}
-*/
 
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
 
-/*
-addTopic('english', 'Redundancy', '')
-addTopic('english', 'Simplicity', '')
-addTopic('english', 'Pronoun Ambiguity', '')
-addTopic('english', 'Adding / Deleting / Revising Sentences', '')
-addTopic('english', 'Main Idea', '')
-addTopic('english', 'Subject-Verb Agreement', '')
-addTopic('english', 'Tense', '')
-addTopic('english', 'Noun-Pronoun Agreement', '')
-addTopic('english', 'Adding Sentence', '')
-addTopic('english', 'Transition Phrases', '')
-addTopic('english', 'Ordering', '')
-addTopic('english', 'Phrase Placement', '')
-addTopic('english', 'Splitting a paragraph', '')
-addTopic('english', 'IC, DC, Phrases', '')
-addTopic('english', 'Parts of Speech', '')
-addTopic('english', 'Subject, Verb, Object', '')
-addTopic('english', 'Vocab and Expressions', '', 'modifier')
-addTopic('english', 'Vocab and Expressions', '')
-addTopic('english', 'Connotation', '')
-addTopic('english', 'Active and Passive Voice', '')
-addTopic('english', 'Tone and Emphasis', '')
-addTopic('english', 'Commas', '')
-addTopic('english', 'Apostrophes', '')
-addTopic('english', 'Citing Quotations', '')
-addTopic('english', 'Semicolon', '')
-addTopic('english', 'Sentence Composition', '')
-addTopic('english', 'Identify IC, DC, Phrases', '')
-addTopic('english', 'Transition words', '')
-addTopic('english', 'Homophones', '')
-addTopic('english', 'Preposition', '')
-addTopic('english', 'Parallelism', '')
-addTopic('english', 'Transitive vs Intransitive', '')
-addTopic('english', 'Concrete vs Abstract adjectives', '')
-addTopic('english', 'Identify Parts of Speech', '')
-addTopic('english', 'Conjunctions', '')
-addTopic('english', 'NOT', '', 'modifier')
-
-addTopic('math', 'Word Problems', '', 'modifier')
-addTopic('math', 'Arithmetic', '')
-addTopic('math', 'Functions', '')
-addTopic('math', 'Polygons', '')
-addTopic('math', 'Trigonometry', '')
-addTopic('math', 'Units', '')
-addTopic('math', 'Probability', '')
-addTopic('math', 'Logic', '')
-addTopic('math', 'Mean', '')
-addTopic('math', 'Percentages', '')
-addTopic('math', 'Statistics', '')
-addTopic('math', 'Proportions', '')
-addTopic('math', 'Exponents', '')
-addTopic('math', 'Transformations', '')
-addTopic('math', 'Linear Equations - Algebra', '')
-addTopic('math', 'Quadratic Equations - Algebra', '')
-addTopic('math', 'Rational Functions', '')
-addTopic('math', 'Midpoint', '')
-addTopic('math', 'Triangles', '')
-addTopic('math', 'Ellipses', '')
-addTopic('math', 'Circles', '')
-addTopic('math', 'Complex Numbers', '')
-addTopic('math', 'Inequalities', '')
-addTopic('math', 'Matrices', '')
-addTopic('math', 'System of Equations', '')
-addTopic('math', 'Combinatorics', '')
-addTopic('math', 'Euclidean Geometry', '')
-addTopic('math', 'Linear Equations - Geometry', '')
-addTopic('math', 'Radicals', '')
-addTopic('math', 'Real World Functions', '')
-addTopic('math', 'Sets', '')
-addTopic('math', 'Sequences and Series', '')
-addTopic('math', 'Function Transformations', '')
-addTopic('math', 'Logarithms', '')
-addTopic('math', 'Number Theory', '')
-addTopic('math', 'Hyperbolas', '')
-addTopic('math', 'Quadratic Equations - Geometry', '')
-addTopic('math', 'Vectors', '')
-addTopic('math', 'Absolute Value', '')
-addTopic('math', 'Distributing', '')
-addTopic('math', 'Fractions', '')
-addTopic('math', 'Geometry Fundamentals', '')
-
-addTopic('reading', 'Ambiguous Pronouns', '')
-addTopic('reading', 'Phrase Interpretation', '')
-addTopic('reading', 'Multiple Word Definition', '')
-addTopic('reading', 'Essay', '')
-addTopic('reading', 'Paragraph', '')
-addTopic('reading', 'Point of View', '')
-addTopic('reading', 'Findable answer', '')
-addTopic('reading', 'Direct inference', '')
-
-addTopic('science', 'Graph Reading', '')
-addTopic('science', 'Variable Relationships', '')
-addTopic('science', 'Extrapolation', '')
-addTopic('science', 'Reasoned Answer', '')
-addTopic('science', 'Variable Types', '')
-addTopic('science', 'Experimental Design', '')
-addTopic('science', 'Conflicting Viewpoints', '')
-addTopic('science', 'Modify the experiment', '')
-*/
-
-
-
-function initializeQuestionList(section) {
-	let count = 40
-
-	if (section.toLowerCase() == 'english') {
-		count = 75;
-	}
-	else if (section.toLowerCase() == 'math') {
-		count = 60;
-	}
-
-	// Delete the current list of questions
-	while (dom_questionList.firstChild) {
-		dom_questionList.removeChild(dom_questionList.firstChild)
-	}
-
-	// Add the needed questions
-	for (let i = 0; i < count; i++) {
-		dom_questionList.appendChild(createElement('option', [], ['value'], [i + 1], (i + 1).toString()))
-	}
-}
-
-function initializeTopicList(section) {
-  	$('.ui.dropdown').dropdown();
-
-	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('type', '==', 'topic')
-
-	// Delete the current list of topics
-	while (dom_topic.firstChild) {
-		dom_topic.removeChild(dom_topic.firstChild)
-	}
-
-	let topics = []
-	ref.get()
-	.then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			topics.push(doc.data().topic)
-		})
-
-		topics.sort()
-		dom_topic.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
-		for (let i = 0; i < topics.length; i++) {
-			dom_topic.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
+	// Create the filename from the information passed in
+	let filename = test.toUpperCase() + '-' + section.toLowerCase() + '-P' + passage.toString()
+	if (question != undefined) {
+		filename += '-Q' + question.toString()
+		if (answer != undefined) {
+			filename += '-A' + answer.toString()
 		}
-	})
+	}
 
-	initializeModifierList(section);
+	// Add the image number and '.png' to the filename
+	filename += '-I' + imageNumber.toString() + '.png'
+
+	// Grab and return the image url from firebase storage
+	return await storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename).getDownloadURL()
 }
 
-function initializeModifierList(section) {
-	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('type', '==', 'modifier')
-
-	// Delete the current list of topics
-	while (dom_topic.firstChild) {
-		dom_modifier.removeChild(dom_topic.firstChild)
+/**
+ * This will toggle the onclick of the HTML element whose id was passed in
+ * 
+ * @param {string} id The id of the HTML element to click
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function clickInput(section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'toggleImageInput()', {'section' : section})
 	}
 
-	let topics = []
-	ref.get()
-	.then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			topics.push(doc.data().topic)
-		})
-
-		topics.sort()
-		dom_modifier.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
-		for (let i = 0; i < topics.length; i++) {
-			dom_modifier.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
-		}
-	})
-}
-
-/*function initializeSubTopicList(section, topic) {
-	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('topic', '==', topic)
-
-	// Delete the current list of topics
-	while (dom_subTopic.firstChild) {
-		dom_subTopic.removeChild(dom_subTopic.firstChild)
-	}
-
-	let topics = []
-	ref.get()
-	.then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			topics = doc.data().subTopics
-		})
-
-		topics.sort()
-		dom_subTopic.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
-		for (let i = 0; i < topics.length; i++) {
-			dom_subTopic.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
-		}
-	})
-
-}*/
-
-function initializeTestList() {
-	// Delete the current list of tests
-	while (testList.firstChild) {
-		testList.removeChild(testList.firstChild)
-	}
-
-	// Add 'New Test'
-	testList.appendChild(createElement('option', [], ['value'], ['newTest'], "New Test"))
-
-	// Set the max year to the current year
-	let testYear = document.getElementById('testYear')
-	testYear.setAttribute('max', date.getFullYear())
-	testYear.setAttribute('value', date.getFullYear())
-
-	// Get the list of tests from firebase and update the HTML with the list (only add new values)
-	return getTests()
-	.then(() => {
-		// Sort the tests
-		tests.sort()
-
-		// Add the remaining tests
-		for (let i = 0; i < tests.length; i++) {
-			testList.appendChild(createElement('option', [], ['value'], [tests[i]], tests[i]))
-		}
-	})
-
-}
-
-initializeTestList()
-
-function addTest() {
-	const ref = firebase.firestore().collection('ACT-Tests').doc()
-
-	let test = document.getElementById('test')
-	const numInts = test.value.replace(/\D/g, '').length
-	let year = document.getElementById('testYear')
-	let month = document.getElementById('testMonth')
-	const data = {
-		'test': test.value.toUpperCase(),
-		'type': 'test',
-		'year': parseInt(year.value),
-		'month': month.value
-	}
-
-	if (test.value.length = 3 && parseInt(year.value) <= date.getFullYear() && parseInt(year.value) >= 1959 && (numInts == 1 || numInts == 2)) {
-		checkThatTestExists(test.value)
-			.then((testExists) => {
-				if (testExists == false) {
-					ref.set(data)
-						.then(() => {
-							initializeTestList()
-								.then(() => {
-									testList.selectedIndex = tests.indexOf(test.value.toUpperCase()) + 1
-									testList.value = test.value.toUpperCase()
-								})
-							formDisplay('passage')
-						})
-						.catch((error) => {
-							console.log(error)
-						})
-				}
-			})
+	// verify there is a location to place the image then click the input to find the file
+	if (!document.getElementById(section + 'PassageText').value.includes('<image')) {
+		console.log('Please type "<image>" where you want the image to be placed in the text first')
+		return;
 	}
 	else {
-		console.log("The test must have exactly 3 characters: B05, 76C, A10, etc. (1 - 2 letters and 1 - 2 numbers)")
+		document.getElementById(section + 'Image').click()
 	}
 }
 
-function setPassageText(passageText, passageTitle = undefined, passageNumber = undefined) {
-
-	let passageDiv = document.getElementById('pText')
-
-	// Delete the current passage text
-	while (passageDiv.firstChild) {
-		passageDiv.removeChild(passageDiv.firstChild)
+/**
+ * 
+ * @param {string} type Possible values are passage, question, and answer
+ * @param {string} section ACT Section (Possible Values are english, math, reading, and science)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function addImage(type, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'addImage()', {
+			'type': type,
+			'section' : section
+		});
 	}
 
-	// Add the passage Number
-	if (passageNumber != undefined) {
-		const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
-		passageDiv.appendChild(createElement('p', ['bold'], [], [], 'Passage ' + romanNumerals[passageNumber - 1]))
+	// Get the image
+	let image = undefined
+	let imageNumber = document.querySelectorAll("img[id^='image']").length + 1
+
+	// Construct the filename for firebase
+	let filename = undefined
+	if (type == 'passage') {
+		image = document.getElementById(section + 'Image').files[0]
+		filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
 	}
-
-	// Add the passage title
-	if (passageTitle != undefined && passageTitle != '') {
-		let titleText = passageTitle.split(" ")
-		for (let i = 0; i < titleText.length; i++) {
-			passageDiv.appendChild(createElement('span', ['bold'], [], [], titleText[i]))
-			passageDiv.appendChild(createElement('span', [], [], [], ' '))
-		}
-
-		passageDiv.appendChild(createElement('p', [], [], [], ''))
-
+	else if (type == 'question') {
+		console.log('Not working right now')
+		//filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
+		//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
 	}
-
-	// Add the passage Text
-	let text = passageText.split(" ")
-	for (let i = 0; i < text.length; i++) {
-		passageDiv.appendChild(createElement('span', ['highlight'], ['onclick'], ['toggleParagraph(this)'], text[i]))
-		passageDiv.appendChild(createElement('span', [], [], [], ' '))
+	else if (type == 'answer') {
+		console.log('Not working right now')
+		//const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
+		//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber).toString() + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+		//console.log(passageNumber.value)
+		//console.log(filename)
 	}
-}
-
-function submitPassageText() {
-	// Get the ref location
-	const ref = firebase.firestore().collection('ACT-Tests')
 	
-	// Prepare the data
-	let section = document.getElementById('sectionList')
-	let text = document.getElementById('passageText')
-	data = {
-		'test' : testList.value.toUpperCase(),
-		'section' : section.value,
-		'type' : 'passage',
-		'title' : title.value,
-		'passageText' : text.value.replaceAll('\n', ' '),
-		'passageNumber' : parseInt(passageNumber.value),
-		'passageImages' : [],
-		'shouldLabelParagraphs': false,
-	}
+	// Finalize the firebase reference
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
 
-	// Validate then set the data
-	if (title.value.length > 0 && text.value.length > 0) {
-	checkThatTestExists(testList.value)
-		.then((testExists) => {
-			if (testExists == true) {
-				checkThatPassageExists(testList.value, section.value, parseInt(passageNumber.value))
-					.then((passageExists) => {
-						if (passageExists == false) {
-							ref.doc().set(data)
-							.then(() => {console.log("Set")})
-						}
-						else {
-							ref.doc(passageExists).set(data)
-							.then(() => {
-								console.log("Updated")
-								setPassageText(text.value, title.value, parseInt(passageNumber.value))
-							})
-						}
-					})
+	// Save the image in firebase
+	let thisref = ref.put(image)
+
+	// Increment the image number for reference
+	thisref.on('state_changed', function (snapshot) {
+	}, function (error) {
+		console.log(error)
+	}, function () {
+		// Uploaded completed successfully, now we can get the download URL
+		thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+
+			// Setting image
+			if (type == 'passage') {
+				document.getElementById(section + 'PassageText').value = document.getElementById(section + 'PassageText').value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
+				setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
+								'passageText' : document.getElementById(section + 'PassageText').value,
+								'reference' : document.getElementById(section + 'PassageReference').value}, spacing + spaceSize)
+				//document.getElementById(section + 'ImageCount').innerHTML = (imageNumber + 1).toString()
+				//passageImages.push(downloadURL)
+				//maxPassageImageNumber += 1
+				//updateWorkingText(selectedWord, action)
 			}
-			else {
-				console.log('How did you get here?!')
+			else if (type == 'question') {
+				console.log('Not Working')
+				//maxQuestionImageNumber += 1
+				//updateQuestionText(selectedWord, action)
 			}
-		})
-	}
+			else if (type == 'answer') {
+				console.log('Not Working')
+				//const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
+				//maxAnswerImageNumber[answerNumber - 1] += 1
+				//updateAnswerText(selectedWord, action, maxAnswerImageNumber[answerNumber - 1])
+			}
+
+			document.getElementById(section + 'Image').value = null
+		});
+	});
+
 }
 
-function formDisplay(event) {
-	editorState = event
-
-	if (event == 'test') {
-		document.getElementById('test').classList.remove('hidden')
-		document.getElementById('testYear').classList.remove('hidden')
-		document.getElementById('testMonth').classList.remove('hidden')
-		document.getElementById('testLabel').classList.remove('hidden')
-		document.getElementById('testYearLabel').classList.remove('hidden')
-		document.getElementById('testMonthLabel').classList.remove('hidden')
-		document.getElementById('testAdd').classList.remove('hidden')
-
-		document.getElementById('sectionList').classList.add('hidden')
-		document.getElementById('sectionListLabel').classList.add('hidden')
-
-		document.getElementById('passageList').classList.add('hidden')
-		document.getElementById('passageListLabel').classList.add('hidden')
-		document.getElementById('passageText').classList.add('hidden')
-		document.getElementById('passageTextLabel').classList.add('hidden')
-		document.getElementById('passageTitle').classList.add('hidden')
-		document.getElementById('passageTitleLabel').classList.add('hidden')
-		document.getElementById('passageAdd').classList.add('hidden')
-		document.getElementById('passageShow').classList.add('hidden')
-
-		document.getElementById('questionAdd').classList.add('hidden')
-		document.getElementById('questionShow').classList.add('hidden')
-		document.getElementById('questionList').classList.add('hidden')
-		document.getElementById('questionListLabel').classList.add('hidden')
-		document.getElementById('topic').classList.add('hidden')
-		document.getElementById('topic').parentNode.style = 'display:none'
-		document.getElementById('topicLabel').classList.add('hidden')
-		//document.getElementById('subTopic').classList.add('hidden')
-		//document.getElementById('subTopicLabel').classList.add('hidden')
-		document.getElementById('modifier').classList.add('hidden')
-		document.getElementById('modifier').parentNode.style = 'display:none'
-		document.getElementById('modifierLabel').classList.add('hidden')
-
-		document.getElementById('questionText').classList.add('hidden')
-		document.getElementById('questionTextLabel').classList.add('hidden')
-		document.getElementById('answer1').classList.add('hidden')
-		document.getElementById('answer1Label').classList.add('hidden')
-		document.getElementById('answer2').classList.add('hidden')
-		document.getElementById('answer2Label').classList.add('hidden')
-		document.getElementById('answer3').classList.add('hidden')
-		document.getElementById('answer3Label').classList.add('hidden')
-		document.getElementById('answer4').classList.add('hidden')
-		document.getElementById('answer4Label').classList.add('hidden')
-		document.getElementById('answer5').classList.add('hidden')
-		document.getElementById('answer5Label').classList.add('hidden')
+/**
+ * This will hide all display divs (id ends in 'Display') except for the one with the id
+ * that was passed in
+ * 
+ * @param {*} id The id of the display type that is desired to be displayed (ie. testDisplay)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function selectDisplay(id, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'selectDisplay()', {'id' : id})
 	}
-	else if (event == 'passage') {
-		document.getElementById('test').classList.add('hidden')
-		document.getElementById('testYear').classList.add('hidden')
-		document.getElementById('testMonth').classList.add('hidden')
-		document.getElementById('testLabel').classList.add('hidden')
-		document.getElementById('testYearLabel').classList.add('hidden')
-		document.getElementById('testMonthLabel').classList.add('hidden')
-		document.getElementById('testAdd').classList.add('hidden')
-
-		document.getElementById('sectionList').classList.remove('hidden')
-		document.getElementById('sectionListLabel').classList.remove('hidden')
-
-		document.getElementById('passageList').classList.remove('hidden')
-		document.getElementById('passageListLabel').classList.remove('hidden')
-		document.getElementById('passageText').classList.remove('hidden')
-		document.getElementById('passageTextLabel').classList.remove('hidden')
-		document.getElementById('passageTitle').classList.remove('hidden')
-		document.getElementById('passageTitleLabel').classList.remove('hidden')
-		document.getElementById('passageAdd').classList.remove('hidden')
-		document.getElementById('passageShow').classList.add('hidden')
-
-		document.getElementById('questionShow').classList.remove('hidden')
-		document.getElementById('questionAdd').classList.add('hidden')
-		document.getElementById('questionList').classList.add('hidden')
-		document.getElementById('questionListLabel').classList.add('hidden')
-		document.getElementById('topic').classList.add('hidden')
-		document.getElementById('topic').parentNode.style = 'display:none'
-		document.getElementById('topicLabel').classList.add('hidden')
-		//document.getElementById('subTopic').classList.add('hidden')
-		//document.getElementById('subTopicLabel').classList.add('hidden')
-		document.getElementById('modifier').classList.add('hidden')
-		document.getElementById('modifier').parentNode.style = 'display:none'
-		document.getElementById('modifierLabel').classList.add('hidden')
-
-		document.getElementById('questionText').classList.add('hidden')
-		document.getElementById('questionTextLabel').classList.add('hidden')
-		document.getElementById('answer1').classList.add('hidden')
-		document.getElementById('answer1Label').classList.add('hidden')
-		document.getElementById('answer2').classList.add('hidden')
-		document.getElementById('answer2Label').classList.add('hidden')
-		document.getElementById('answer3').classList.add('hidden')
-		document.getElementById('answer3Label').classList.add('hidden')
-		document.getElementById('answer4').classList.add('hidden')
-		document.getElementById('answer4Label').classList.add('hidden')
-		document.getElementById('answer5').classList.add('hidden')
-		document.getElementById('answer5Label').classList.add('hidden')
-
-		removeChildren('qNumbers')
-		removeChildren('qList')
-	}
-	else if (event == 'question') {
-
-		document.getElementById('test').classList.add('hidden')
-		document.getElementById('testYear').classList.add('hidden')
-		document.getElementById('testMonth').classList.add('hidden')
-		document.getElementById('testLabel').classList.add('hidden')
-		document.getElementById('testYearLabel').classList.add('hidden')
-		document.getElementById('testMonthLabel').classList.add('hidden')
-		document.getElementById('testAdd').classList.add('hidden')
-
-		document.getElementById('sectionList').classList.remove('hidden')
-		document.getElementById('sectionListLabel').classList.remove('hidden')
-
-		document.getElementById('passageList').classList.remove('hidden')
-		document.getElementById('passageListLabel').classList.remove('hidden')
-		document.getElementById('passageText').classList.add('hidden')
-		document.getElementById('passageTextLabel').classList.add('hidden')
-		document.getElementById('passageTitle').classList.add('hidden')
-		document.getElementById('passageTitleLabel').classList.add('hidden')
-		document.getElementById('passageAdd').classList.add('hidden')
-		document.getElementById('passageShow').classList.remove('hidden')
-
-		document.getElementById('questionAdd').classList.remove('hidden')
-		document.getElementById('questionShow').classList.add('hidden')
-		document.getElementById('questionList').classList.remove('hidden')
-		document.getElementById('questionListLabel').classList.remove('hidden')
-		document.getElementById('topic').classList.remove('hidden')
-		document.getElementById('topic').parentNode.style = ''
-		document.getElementById('topicLabel').classList.remove('hidden')
-		//document.getElementById('subTopic').classList.remove('hidden')
-		//document.getElementById('subTopicLabel').classList.remove('hidden')
-		document.getElementById('modifier').classList.remove('hidden')
-		document.getElementById('modifier').parentNode.style = ''
-		document.getElementById('modifierLabel').classList.remove('hidden')
-
-		document.getElementById('questionText').classList.remove('hidden')
-		document.getElementById('questionTextLabel').classList.remove('hidden')
-		document.getElementById('answer1').classList.remove('hidden')
-		document.getElementById('answer1Label').classList.remove('hidden')
-		document.getElementById('answer2').classList.remove('hidden')
-		document.getElementById('answer2Label').classList.remove('hidden')
-		document.getElementById('answer3').classList.remove('hidden')
-		document.getElementById('answer3Label').classList.remove('hidden')
-		document.getElementById('answer4').classList.remove('hidden')
-		document.getElementById('answer4Label').classList.remove('hidden')
-
-		// Display the 5th answer if on the math section
-		let section = document.getElementById('sectionList').value
-		if (section == 'math') {
-			document.getElementById('answer5').classList.remove('hidden')
-			document.getElementById('answer5Label').classList.remove('hidden')
+	// Grab all display divs
+	let displays = document.querySelectorAll('*[id$="Display"]')
+	
+	// Hide all display divs except for the one passed in
+	for (let i = 0; i < displays.length; i++) {
+		if (displays[i].id != id) {
+			displays[i].classList.add('hidden')
 		}
-
-		initializeQuestionList(section)
-		initializeTopicList(section)
-		initializeFinishedQuestions(testList.value, section)
-
-		let questionNumber = parseInt(dom_questionList.value)
-		initializeQuestion(questionNumber)
-
+		else {
+			displays[i].classList.remove('hidden')
+		}
 	}
+
+	// Initialize, if needed
+	if (id == 'testDisplay') {
+		initializeTestDisplay(spacing + spaceSize)
+	}
+	else if (id == 'answersDisplay') {
+		initializeAnswersDisplay(spacing + spaceSize)
+	}
+	else if (id == 'passageDisplay') {
+		initializePassageDisplay(undefined, undefined, 1, spacing + spaceSize)
+	}
+
 }
 
-function removeChildren(id) {
+/**
+ * This will remove ALL children from a given HTML element
+ * 
+ * @param {string} id Id of the parent element
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function removeChildren(id, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'removeChildren()', {'id' : id})
+	}
+	// Find the HTML element
 	let dom_parent = document.getElementById(id)
+
+	// Continue to remove the first child until there are no more children
 	while(dom_parent.children.length > 0) {
 		dom_parent.firstChild.remove()
 	}
 
 }
 
-function initializeFinishedQuestions(test, section) {
+/**
+ * This will grab a test document from firebase
+ * 
+ * @param {string} test Test Code (ie. B05)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object | boolean} Object (firebase doc object [doc not doc.data()]) or false if it doesn't exist
+ */
+async function getTestDocument(test, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getTestDocument()', {'test' : test})
+	}
 
-	removeChildren('qNumbers')
-	let dom_finishedQuestions = document.getElementById('qNumbers')
+	// remove case sensitivity
+	test = test.toUpperCase()
 
+	// Set the firebase reference
 	const ref = firebase.firestore().collection('ACT-Tests')
-	.where('type', '==', 'question')
-	.where('test', '==', test)
-	.where('section', '==', section)
+	.where('type', '==', 'test')
+	.where('test', '==', test.toUpperCase())
 
-	let list = []
-	ref.get()
-	.then((querySnapshot) => {
-		if (querySnapshot.size > 0) {
-			querySnapshot.forEach((doc) => {
-				list.push(doc.data().problem)
-			})
+	// Grab the data from firebase
+	let querySnapshot = await ref.get()
 
-			list.sort(function(a, b) {return a - b;})
-			for (let i = 0; i < list.length; i++) {
-				dom_finishedQuestions.appendChild(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + (list[i]).toString() + ")"], list[i].toString()))
-			}
+	// Return the test document
+	if (querySnapshot.size > 0) {
+		return querySnapshot.docs[0]
+	}
+	else {
+		return false
+	}
+}
+
+/**
+ * This will grab a list of all tests that have been added to firebase
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Array} List of all test codes in firebase
+ */
+async function getTests(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getTests()')
+	}
+	// Set the firebase reference
+	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'test')
+
+	// Grab the data from firebase
+	let querySnapshot = await ref.get()
+
+	// Pull out the test code from the pulled data
+	let tests = []
+	querySnapshot.forEach((doc) => {
+		let data = doc.data();
+		if (!tests.includes(data['test'])) {
+			tests.push(data['test'])
 		}
 	})
+
+	// Return the list of tests
+	return tests
 }
 
-function resetQuestion(number) {
-	// Make sure that the questions have their correct value
-	if (number % 2 == 1) {
-		document.getElementById('answer1Label').innerHTML = 'A'
-		document.getElementById('answer2Label').innerHTML = 'B'
-		document.getElementById('answer3Label').innerHTML = 'C'
-		document.getElementById('answer4Label').innerHTML = 'D'
-		document.getElementById('answer5Label').innerHTML = 'E'
+/**
+ * This will save / update the test information
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function saveTest(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'saveTest()')
+	}
+	// Set the firebase reference
+	const ref = firebase.firestore().collection('ACT-Tests')
+
+	// set / grab needed values
+	let testCode = document.getElementById('testCode')
+	const numInts = testCode.value.replace(/\D/g, '').length
+	let year = document.getElementById('testYear')
+	let month = document.getElementById('testMonth')
+
+	// Set the data to define
+	const data = {
+		'test': testCode.value.toUpperCase(),
+		'type': 'test',
+		'year': parseInt(year.value),
+		'month': month.value
+	}
+
+	// Validate, set data, and re-initialize the test list
+	if (testCode.value.length = 3 && parseInt(year.value) <= date.getFullYear() && parseInt(year.value) >= 1959 && (numInts == 1 || numInts == 2)) {
+		// Check to see if the test exists
+		const response = await getTestDocument(document.getElementById('testList').value != 'newTest' ? document.getElementById('testList').value : testCode.value, spacing + spaceSize)
+
+		// Set the data
+		if (response == false) {
+			await ref.doc().set(data)
+		}
+		else {
+			console.log(response.id)
+			await ref.doc(response.id).set(data)
+		}
+
+		// Re-initialize the display
+		initializeTestDisplay(spacing + spaceSize)
 	}
 	else {
-		document.getElementById('answer1Label').innerHTML = 'F'
-		document.getElementById('answer2Label').innerHTML = 'G'
-		document.getElementById('answer3Label').innerHTML = 'H'
-		document.getElementById('answer4Label').innerHTML = 'J'
-		document.getElementById('answer5Label').innerHTML = 'K'
-	}
-
-	// Reset the Topics
-    $('#topic').closest(".ui.dropdown").dropdown('clear')
-
-	// Reset the Modifiers
-    $('#modifier').closest(".ui.dropdown").dropdown('clear')
-
-	// Reset the answers
-	selectAnswer()
-
-	// Set the answers
-	const section = document.getElementById('sectionList').value
-	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
-		document.getElementById('answer' + (i + 1).toString()).value = ''
-	}
-
-	// Set the question text
-	document.getElementById('questionText').value = ''
-
-	// Highlight the Text
-	removeHighlight()
-
-	// Remove the passage References
-	passageReferences = []
-
-	// Set the question
-	document.getElementById('questionList').value = number
-
-}
-
-function initializeQuestionPreview(question, answers, number) {
-	let dom_qList = document.getElementById('qList')
-	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
-
-	removeChildren('qList')
-
-	if (question != undefined && question != '') {
-		dom_qList.appendChild(createElement('div', ['questionText'], [], [], question))
-	}
-
-	for (let i = 0; i < answers.length; i++) {
-		dom_qList.appendChild(createElement('p', ['answerText'], [], [], answerLetters[i + (number % 2) * 5] + '. ' + answers[i]))
+		console.log("The test must have exactly 3 characters: B05, 76C, A10, etc. (1 - 2 letters and 1 - 2 numbers)")
 	}
 }
 
-function initializeQuestion(number) {
+/**
+ * This will setup the tests display
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeTestDisplay(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeTestDisplay()')
+	}
 
-	resetQuestion(number)
+	// Initialize the test list from the firebase tests
+	await initializeTests('testList', spacing + spaceSize)
 
-	// Grab the data
-	const section = document.getElementById('sectionList').value
-	getQuestion(testList.value, section, number)
-		.then((data) => {
-			if (data[0] != -1) {
-				const questionLocations = {
-					'A': '1',
-					'B': '2',
-					'C': '3',
-					'D': '4',
-					'E': '5',
-					'F': '1',
-					'G': '2',
-					'H': '3',
-					'J': '4',
-					'K': '5'
-				}
+	// Set the max year to the current year
+	let testYear = document.getElementById('testYear')
+	testYear.setAttribute('max', date.getFullYear())
+	testYear.setAttribute('value', date.getFullYear())
 
-				// Set the Topics
-    			$('#topic').closest(".ui.dropdown").dropdown('set selected', data[0]['topic']);
+	// Set the Month to the current Month
+	document.getElementById('testMonth').value = convertFromDateInt(date.getTime())['monthString']
 
-				// Set the Modifiers
-    			$('#modifier').closest(".ui.dropdown").dropdown('set selected', data[0]['modifier']);
+	// Reset the test code
+	document.getElementById('testCode').value = ''
 
-				// Set the correct answer
-				selectAnswer(document.getElementById('answer' + questionLocations[data[0]['correctAnswer']] + 'Label'))
+}
 
-				// Set the answers
-				for (let i = 0; i < data[0]['answers'].length; i++) {
-					document.getElementById('answer' + (i + 1).toString()).value = data[0]['answers'][i]
-				}
-
-				// Set the question text
-				document.getElementById('questionText').value = data[0]['questionText']
-
-				// Highlight the Text
-				highlightText(data[0]['passageText'], true)
-
-				// Initialize the Question Preview
-				initializeQuestionPreview(data[0]['questionText'], data[0]['answers'], data[0]['problem'])
-			}
+/**
+ * This will grab a question document from firebase
+ * 
+ * @param {string} test Test ID (ie. B05)
+ * @param {string} section Section (Possible Values: english, math, reading, science)
+ * @param {number} question Question Number
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object | boolean} Object (firebase doc object [doc not doc.data()]) or false if it doesn't exist
+ */
+async function getQuestionDocument(test, section, question, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getQuestionDocument()', {
+			'test' : test,
+			'section' : section,
+			'question' : question
 		})
+	}
 
-}
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
+	question = parseInt(question)
 
-async function getQuestion(test, section, number) {
+	// Set the firebase reference
 	const ref = firebase.firestore().collection('ACT-Tests')
 	.where('type', '==', 'question')
 	.where('test', '==', test)
 	.where('section', '==', section)
-	.where('problem', '==', number)
+	.where('problem', '==', question)
 
-	try {
-		const querySnapshot = await ref.get()
-		if (querySnapshot.size == 1) {
-			return [querySnapshot.docs[0].data(), querySnapshot.docs[0].id]
-		}
-		else {
-			return [-1]
-		}
+	// Grab the question, if it exists
+	const querySnapshot = await ref.get()
+	if (querySnapshot.size == 1) {
+		return querySnapshot.docs[0]
 	}
-	catch (error) {
-		throw error
+	else {
+		return false
 	}
 }
 
-function addQuestion() {
-	let ref = firebase.firestore().collection('ACT-Tests')
-
-	const test = testList.value
-	const section = document.getElementById('sectionList').value
-	const number = parseInt(document.getElementById('questionList').value)
-
-	let answer = document.getElementsByClassName('correctAnswer')
-	if (answer.length > 0) {
-		answer = answer[0].innerHTML
-	}
-	else {
-		console.log("Please select the correct answer by clicking on its letter")
-		return
+/**
+ * This will setup the answers display
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeAnswersDisplay(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeAnswersDisplay()')
 	}
 
-	const passageText = getReferenceText()
-	let attempts = 0;
-	let correctAttempts = 0
+	// Initialize the test list from the firebase tests
+	await initializeTests('answersTest', spacing + spaceSize)
 
-	let answers = []
-	if (section != 'math') {
-		for (let i = 0; i < 4; i++) {
-			answers.push(document.getElementById('answer' + (i + 1).toString()).value)
-		}
-	}
+	// Display the answers
+	displayAnswerKey(document.getElementById('answersTest').value, document.getElementById('answersSection').value, spacing + spaceSize)
 
-	getQuestion(test, section, number)
-		.then((info) => {
-			if (info[0] != -1) {
-				attempts = info[0]['numberOfAttempts']
-				correctAttempts = info[0]['correctAttempts']
-				ref = ref.doc(info[1])
-			}
-			else {
-				ref = ref.doc()
-			}
+}
 
-			const topics = getDropdownValues('topic')
-			const modifiers = getDropdownValues('modifier')
-			if (topics.length > 0 && answers.length == (section != 'math' ? 4 : 5)) {
-				const data = {
-					'test': test,
-					'section': section,
-					'passage': parseInt(passageNumber.value),
-					'type': 'question',
-					'topic': topics,
-					'subTopics': 'None',
-					'modifier': modifiers,
-					'problem': parseInt(number),
-					'questionText': document.getElementById('questionText').value,
-					'answers': answers,
-					'questionImages': [],
-					'answerImages': [],
-					'correctAnswer': answer,
-					'passageText': passageText,
-					'numberOfAttempts': attempts,
-					'correctAttempts': correctAttempts
-				}
-
-				ref.set(data)
-					.then(() => {
-						//formDisplay('question')
-						let dom_qNumbers = document.getElementById('qNumbers')
-						const children = dom_qNumbers.children
-						for (let i = 0; i < children.length; i++) {
-							if (parseInt(children[i].innerHTML) == number) {
-								break;
-							}
-							if (parseInt(children[i].innerHTML) > number) {
-								dom_qNumbers.insertBefore(createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString()), children[i])
-								break;
-							}
-						}
-						console.log('It is done')
-					})
-			}
+/**
+ * 
+ * @param {string} test The test ID (ie. B05)
+ * @param {string} section The section (Possible Values: english, math, reading, science)
+ * @param {number} passage The passage number
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object | boolean} Object (firebase doc object [doc not doc.data()]) or false if it doesn't exist
+ */
+async function getPassageDocument(test, section, passage, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getPassageDocument()', {
+			'test' : test,
+			'section' : section,
+			'passage' : passage
 		})
-}
+	}
 
-function checkForPassage(test, section, passage) {
-	if (test ?? section ?? passage) {
-		const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'passage').where('test', '==', test.toUpperCase()).where('section', '==', section.toLowerCase()).where('passageNumber', '==', parseInt(passage))
-		ref.get()
-			.then((querySnapshot) => {
-				if (querySnapshot.size == 1) {
-					querySnapshot.forEach((doc) => {
-						let text = document.getElementById('passageText')
-						title.value = doc.data().title
-						text.value = doc.data().passageText
-						setPassageText(doc.data().passageText, title.value, parseInt(passage))
-					})
-				}
-			})
+	// Generate the firebase reference
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'passage')
+	.where('test', '==', test.toUpperCase())
+	.where('section', '==', section.toLowerCase())
+	.where('passageNumber', '==', parseInt(passage))
+
+	// Grab the data from firebase
+	const querySnapshot = await ref.get()
+
+	// Either return the data or false
+	if (querySnapshot.size > 0) {
+		return querySnapshot.docs[0]
 	}
 	else {
-		console.log('Totally failed!!', test, section, passage)
+		return false
 	}
 }
 
-function prepend(value, array) {
-  var newArray = array.slice();
-  newArray.unshift(value);
-  return newArray;
+/**
+ * This will save the passage and all of its information to firebase
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function savePassage(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'savePassage()')
+	}
+
+	// Get the ref location
+	const ref = firebase.firestore().collection('ACT-Tests')
+	
+	// Prepare the data
+	let test = document.getElementById('passageTest').value.toUpperCase()
+	let section = document.getElementById('passageSection').value
+	let passageNumber = parseInt(document.getElementById('passageNumber').value)
+	let text = document.getElementById(section + 'PassageText')
+	let dom_reference = document.getElementById(section + 'PassageReference') ?? 'N/A'
+	data = {
+		'test' : test,
+		'section' : section,
+		'type' : 'passage',
+		'title' : document.getElementById(section + 'PassageTitle').value,
+		'passageText' : text.value,
+		'passageNumber' : passageNumber,
+		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 0) ? false : true),
+		'reference' : dom_reference.value ?? 'N/A'
+	}
+
+	console.log(data)
+
+	// Validate then set the data
+	if (text.value.length > 0) {
+		let testResults = await getTestDocument(test, spacing + spaceSize)
+		if (testResults != false) {
+			let passageResults = await getPassageDocument(test, section, passageNumber, spacing + spaceSize)
+			if (passageResults == false) {
+				ref.doc().set(data)
+				.then(() => {console.log("Set")})
+			}
+			else {
+				ref.doc(passageResults.id).set(data)
+				.then(() => {
+					console.log("Updated")
+				})
+			}
+		}
+		else {
+			console.log('How did you get here?!')
+		}
+	}
 }
 
-function selectAnswer(element = undefined) {
-	let answers = document.getElementById('questionsPart2').querySelectorAll('label')
+/**
+ * This will setup the display to edit passages
+ * 
+ * @param {?string} test ACT test ID (ie. B05)
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ * @param {?number} passageNumber This is the passage number
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializePassageDisplay(test = undefined, section = undefined, passageNumber = 1, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializePassageDisplay()', {
+			'test' : test,
+			'section' : section,
+			'passageNumber' : passageNumber
+		})
+	}
 
+	// Delete any images that may remain in the DOM
+	let images = document.querySelectorAll("img[id^='image']")
+	for (let i = 0; i < images.length; i++ ) {
+		images[images.length - i - 1].remove()
+	}
+
+	// Find the HTML elements
+	let dom_test = document.getElementById('passageTest')
+	let dom_section = document.getElementById('passageSection')
+	let dom_passages = document.getElementById('passageNumber')
+
+	// Display the correct section
+	let passageDivs = document.querySelectorAll('div[id$="Passage"]')
+	for (let i = 0; i < passageDivs.length; i++) {
+		if (passageDivs[i].id != (section ?? dom_section.value) + 'Passage') {
+			passageDivs[i].classList.add('hidden')
+		}
+		else {
+			passageDivs[i].classList.remove('hidden')
+		}
+	}
+
+	// Get a list of all available tests from firebase
+	await initializeTests('passageTest', spacing + spaceSize)
+	if (test != undefined) {
+		dom_test.value = test
+	}
+
+	// Reset passage numbers
+	removeChildren('passageNumber', spacing + spaceSize)
+
+	// Identify how many passages there should be
+	let passageCount = 0;
+	switch(section ?? dom_section.value) {
+		case 'english':
+			passageCount = 5;
+			break;
+		case 'math':
+			passageCount = 3;
+			break;
+		case 'reading':
+			passageCount = 4;
+			break
+		case 'science':
+			passageCount = 7;
+			break;
+		default:
+			console.log('check your section spelling')
+			return;
+	}
+
+	// Populate the passage list and set its value
+	for (let i = 0; i < passageCount; i++) {
+		dom_passages.appendChild(createElement('option', [], [], [], (i + 1).toString()))
+	}
+	dom_passages.value = passageNumber
+
+	// Grab the passage from firebase
+	let passageData = await getPassageDocument(test ?? dom_test.value, section ?? dom_section.value, passageNumber, spacing + spaceSize)
+	if (passageData != false) {
+		passageData = passageData.data()
+	}
+
+	// Display the title
+	document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
+
+	// Display the passage
+	document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
+
+	// Display the reference
+	document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
+
+	// Set the 'Label Paragraphs' tag
+	if ((section ?? dom_section.value) == 'english') {
+		document.getElementById((section ?? dom_section.value) + 'LabelParagraphs').value = (passageData['shouldLabelParagraphs'] ?? false) ? 1 : 0
+	}
+
+	// Display the info below
+	setPassageText(passageData, spacing + spaceSize)
+}
+
+/**
+ * This will remove all tests from the testList with the given id, get a list of all tests from firebase,
+ * then repopulate the list with the current list of tests
+ * 
+ * @param {string} id The id of the HTML element to populate
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeTests(id, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeTests()', {'id' : id})
+	}
+
+	// Delete the current list of tests
+	removeChildren(id, spacing + spaceSize)
+
+	// Find the HTML elements
+	let dom_test = document.getElementById(id)
+
+	// Add 'New Test', if applicable
+	if (id == 'testList') {
+		dom_test.appendChild(createElement('option', [], ['value'], ['newTest'], "New Test"))
+	}
+
+	// Get the list of tests from firebase and update the HTML with the list (only add new values)
+	let tests = await getTests(spacing + spaceSize)
+
+	// Sort the tests
+	tests.sort()
+
+	// Add the remaining tests
+	for (let i = 0; i < tests.length; i++) {
+		dom_test.appendChild(createElement('option', [], ['value'], [tests[i]], tests[i]))
+	}
+
+}
+
+/**
+ * This will grab the answer key from firebase
+ * 
+ * @param {string} test Test ID (ie. B05)
+ * @param {string} section Section (possible values = english, math, reading, or science)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object} Object of answers for the given test ( { 1 : 'A', 2 : 'F', ...} )
+ */
+async function getAnswers(test, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getAnswers()', {
+			'test' : test,
+			'section' : section
+		})
+	}
+
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
+
+	// Set the firebase reference
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.where('test', '==', test)
+	.where('section', '==', section)
+
+	// The object that will be return
+	let data = {}
+
+	// Grab all answers and add them to the answers object
+	const snapshot = await ref.get()
+	if (snapshot.size > 0) {
+		snapshot.forEach((doc) => {
+			data[doc.data()['problem']] = doc.data()['correctAnswer']
+		})
+	}
+
+	// Return the answers object
+	return data
+}
+
+/**
+ * This will create and display the answer key
+ * 
+ * @param {string} test Test ID (ie. B05)
+ * @param {string} section Section (Possible Values: english, math, reading, or science)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function displayAnswerKey(test, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'displayAnswerKey()', {
+			'test' : test,
+			'section' : section
+		})
+	}
+
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
+
+	// Find the HTML elements
+	let dom_answers = document.getElementById('answers')
+
+	// Remove the current answer key
+	removeChildren('answers', spacing + spaceSize)
+
+	// Get the answer key from firebase
+	let answers = await getAnswers(test, section, spacing + spaceSize)
+
+	// Set the number of questions
+	let count = 40;
+	if (section == 'english') {
+		count = 75;
+	}
+	else if (section == 'math') {
+		count = 60;
+	}
+
+	// Display the answer key (columns of 10 questions at a time)
+	for (let i = 0; i < Math.floor((count + 6) / 10); i++) {
+
+		// Set the labels (10 at a time)
+		let labelDiv = createElement('div', ['rows'], [], [], '')
+		for (let j = 0; j < 10; j++) {
+			if (i * 10 + j < count) {
+				labelDiv.appendChild(createElement('label', [], ['id', 'for'], ['q' + (i * 10 + j + 1).toString() + 'Label', 'q' + (i * 10 + j + 1).toString()], (i * 10 + j + 1)));
+			}
+		}
+
+		// Add the set of 10 labels
+		dom_answers.appendChild(labelDiv)
+
+		// Set the inputs (10 at a time)
+		let inputDiv = createElement('div', ['rows'], [], [], '')
+		for (let j = 0; j < 10; j++) {
+			if (i * 10 + j < count) {
+				if (answers[i * 10 + j + 1]) {
+					inputDiv.appendChild(createElement('input', [], ['id', 'value'], ['q' + (i * 10 + j + 1).toString(), answers[i * 10 + j + 1]], ''));
+				}
+				else {
+					inputDiv.appendChild(createElement('input', [], ['id'], ['q' + (i * 10 + j + 1).toString()], ''));
+				}
+			}
+		}
+
+		// Add the set of 10 inputs
+		dom_answers.appendChild(inputDiv)
+	}
+}
+
+/**
+ * This will set / update all answers if they are all valid. Otherwise, it will
+ * reset the answers that aren't valid
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function saveAnswers(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'saveAnswers()')
+	}
+
+	// Grab all answers from the DOM and find other HTML elements
+	const answers = document.querySelectorAll("input[id^='q']")
+	let dom_section = document.getElementById('answersSection')
+	let dom_test = document.getElementById('answersTest')
+
+	// Specify the possible answer values
+	const odds  = ['A', 'B', 'C', 'D']
+	const evens = ['F', 'G', 'H', 'J']
+
+	// Validate that all answers inputted are valid
+	// If any are not valid, reset its value
+	let isValidated = true
 	for (let i = 0; i < answers.length; i++) {
-		answers[i].classList.remove('correctAnswer')
-	}
-
-	if (element != undefined) {
-		element.classList.add('correctAnswer')
-	}
-}
-
-function getReferenceText() {
-	if (passageReferences.length == 2) {
-		let text = ''
-
-		const index1 = Array.prototype.indexOf.call(passageReferences[0].parentNode.children, passageReferences[0])
-		const index2 = Array.prototype.indexOf.call(passageReferences[1].parentNode.children, passageReferences[1])
-
-		if (index1 < index2) {
-			let dom_iter = passageReferences[0]
-			for (let i = 0; i <= (index2 - index1); i++) {
-				text += dom_iter.innerHTML
-				dom_iter = dom_iter.nextSibling
+		if (dom_section.value != 'math') {
+			if (i % 2 == 0) {
+				if (!odds.includes(answers[i].value.toUpperCase())) {
+					answers[i].value = ''
+					isValidated = false
+				}
 			}
-			return text
+			else {
+				if (!evens.includes(answers[i].value.toUpperCase())) {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
 		}
 		else {
-			let dom_iter = passageReferences[1]
-			for (let i = 0; i <= (index1 - index2); i++) {
-				text += dom_iter.innerHTML
-				dom_iter = dom_iter.nextSibling
+			if (i % 2 == 0) {
+				if (!odds.includes(answers[i].value.toUpperCase()) && answers[i].value.toUpperCase() != 'E') {
+					answers[i].value = ''
+					isValidated = false
+				}
 			}
-			return text
+			else {
+				if (!evens.includes(answers[i].value.toUpperCase()) && answers[i].value.toUpperCase() != 'K') {
+					answers[i].value = ''
+					isValidated = false
+				}
+			}
 		}
 	}
-	else if (passageReferences.length == 1) {
-		return passageReferences[0].innerHTML
+
+	// If all the answers have been validated, then set / update their document in firebase
+	if (isValidated == true) {
+		for (let i = 0; i < answers.length; i++) {
+			if (answers[i].value != '') {
+				getQuestionDocument(dom_test.value, dom_section.value, (i + 1), spacing + spaceSize)
+					.then((results) => {
+
+						// Preset passage numbers, to the best of my ability
+						let pNumber = -1
+						if (dom_section.value == 'english') {
+							pNumber = Math.floor(i / 15) + 1
+						}
+						else if (dom_section.value == 'reading') {
+							pNumber = Math.floor(i / 10) + 1
+						}
+
+						// Doc doesn't exist yet - set
+						if (results == false) {
+							const data = {
+								'test': dom_test.value,
+								'section': dom_section.value,
+								'passage': pNumber,
+								'type': 'question',
+								'topic': [],
+								'subTopics': 'None',
+								'modifier': [],
+								'problem': (i + 1),
+								'questionText': '',
+								'answers': [],
+								'questionImages': [],
+								'answerImages': [],
+								'correctAnswer': answers[i].value.toUpperCase(),
+								'passageText': '',
+								'passageTextLocation': -1,
+								'numberOfAttempts': 0,
+								'correctAttempts': 0
+							}
+
+							firebase.firestore().collection('ACT-Tests').doc().set(data)
+						}
+						// Doc exists - update
+						else {
+							firebase.firestore().collection('ACT-Tests').doc(results.id).update({
+								['correctAnswer']: answers[i].value.toUpperCase()
+							})
+						}
+					})
+			}
+			else {
+				console.log("'" + answers[i].value + "'")
+			}
+		}
+		console.log("Finished Setting / Updating Answers")
 	}
 	else {
-		return -1
+		console.log("Please correct your issues")
 	}
-
+	
 }
 
-function highlightText(text, setReferences = false) {
-	removeHighlight()
-	if (text != -1) {
+// DELETE THIS FUNCTION - POSSIBLY
+/**
+ * This will take a string in and split it by spaces and '&mdash;' and return an array with each word
+ * 
+ * @param {string} text The text that will be split by spaces and '&mdash;'
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Array} An array with each word or Mdash
+ */
+function prepText(text, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'prepText()', {'text' : text})
+	}
 
-		text = text.replace('<p><p>', '<p></p><p></p>')
-		const textArray = text.split(' ')
-		let passageDiv = document.getElementById('pText')
+	// This is the array that will be returned
+	let newText = text.split(' ')
 
-		// Find the child index for the start of the text
-		let children = passageDiv.children
-		let foundLocation = false
-		let location = -1
-		for (let i = 0; i < children.length; i++) {
-			if (children[i].innerHTML == [textArray[0]]) {
-				foundLocation = true
-				for (let j = 0; j < textArray.length; j++) {
-					if (children[i + (2 * j)].innerHTML != textArray[j]) {
-						foundLocation = false
-						break
-					}
+	// Go through each word (split by a space) and check to see if it has an MDash (--) in it
+	for (let i = 0; i < newText.length; i++) {
+		if (newText[i].includes('&mdash;')) {
+			const splitText = newText[i].split('&mdash;')
+			if (splitText[0] != '') {
+				newText[i] = splitText[0]
+				newText.splice(i + 1, 0, '&mdash;')
+				if (splitText[1] != '') {
+					newText.splice(i + 2, 0, splitText[1])
 				}
-				if (foundLocation == true) {
-					location = i;
-					break
-				}
 			}
-		}
-
-		// Highlight the text
-		for (let i = 0; i < (2 * textArray.length) - 1; i++) {
-			children[location + i].classList.add('highlight-yellow')
-		}
-
-		// Set the passage References if needed
-		if (setReferences == true) {
-			passageReferences = [children[location], children[location + (2 * textArray.length) - 2]]
-		}
-	}
-}
-
-function removeHighlight() {
-	let children = document.getElementById('pText').children
-	for (let i = 0; i < children.length; i++) {
-		children[i].classList.remove('highlight-yellow')
-	}
-}
-
-function toggleParagraph(element) {
-	if (editorState == 'passage') {
-		let text = [element.innerHTML]
-		const textCount = 7
-
-		// They pressed the first word
-		if (element.previousSibling.innerHTML == '') {
-			return
-		}
-
-		// Grab a few elements before the selected word
-		let childIter = element
-		let previousCount = 0;
-		for (let i = 0; i < textCount; i++) {
-			if (childIter.nextSibling) {
-				childIter = childIter.previousSibling
-				text = prepend(childIter.innerHTML, text)
-				previousCount += 1
+			else if (splitText[1] != '') {
+				newText[i] = '&mdash;'
+				newText.splice(i + 1, 0, splitText[1])
 			}
 			else {
-				break
-			}
-		}
-
-		// Grab a few elements after the selected word
-		childIter = element
-		for (let i = 0; i < textCount; i++) {
-			if (childIter.nextSibling) {
-				childIter = childIter.nextSibling
-				text.push(childIter.innerHTML)
-			}
-			else {
-				break
-			}
-		}
-
-		// Update the working text and reset the passage
-		if (previousCount > 1) {
-			if (text[previousCount - 2] == '<p></p><p></p>') {
-				workingText.value = workingText.value.replace(text.join('').replace('<p></p><p></p>', '<p><p>'), text.join('').replace('<p></p><p></p> ', ''))
-				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
-			}
-			else {
-				let newText = [...text]
-				newText[previousCount] = '<p><p> ' + text[previousCount]
-				workingText.value = workingText.value.replace(text.join(''), newText.join(''))
-				setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+				newText[i] = '&mdash;'
 			}
 		}
 	}
-	else if (editorState == 'question') {
-		if (passageReferences.includes(element)) {
 
-			if (passageReferences[0] == element) {
-				passageReferences.splice(0, 1)
-			}
-			else {
-				passageReferences.splice(1, 1)
-			}
+	// Return the parsed string
+	return newText
+}
 
-			highlightText(getReferenceText())
-		}
-		else {
-			if (passageReferences.length == 0) {
-				passageReferences.push(element)
-				element.classList.add('highlight-yellow')
-			}
-			else if (passageReferences.length == 1) {
-				passageReferences.push(element)
-				highlightText(getReferenceText())
-			}
-		}
+/**
+ * This will display the passage information
+ * 
+ * @param {Object} data This will contain all of the information to display
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function setPassageText(data, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'setPassageText()', data)
 	}
+
+	// Remove the current elements
+	removeChildren('pText', spacing + spaceSize)
+
+	// Find the HTML elements
+	let dom_passage = document.getElementById('pText')
+
+	// Set the title
+	if (data['title'] != undefined && data['title'] != '') {
+		dom_passage.appendChild(createElement('p', [], [], [], data['title']))
+	}
+
+	// Set the passage text
+	if (data['passageText'] != undefined && data['passageText'] != '') {
+		dom_passage.appendChild(createElement('p', [], [], [], data['passageText']))
+	}
+
+	// Set the passage text
+	if (data['reference'] != undefined && data['reference'] != '') {
+		dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
+	}
+
+	// Reset the MathJax
+	resetMathJax(spacing + spaceSize)
 }
 
-function getDropdownValues(dropdownId) {
-  const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
-  
-  let values = []
-  inputs.forEach((input) => {
-    values.push(input.dataset.value)
-  })
-
-  return values;
-}
 
 /*********************************************************
  *                    Event Listeners                    *
  *********************************************************/
-testList.addEventListener('change', function () {
-	if (testList.value == 'newTest') {
-		formDisplay('test')
+let dom_test = document.getElementById('testList')
+dom_test.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "testList")', {
+			'value' : dom_test.value
+		})
+	}
+	if (dom_test.value == 'newTest') {
+		// Reset the year to the current year
+		document.getElementById('testYear').value = date.getFullYear()
+		
+		// Reset the Month to the current Month
+		document.getElementById('testMonth').value = convertFromDateInt(date.getTime())['monthString']
+
+		// Reset the test code
+		document.getElementById('testCode').value = ''
+
 	}
 	else {
-		formDisplay('passage')
+		// Get the test document data
+		let data = await getTestDocument(dom_test.value, spaceSize)
 
-		let section = document.getElementById('sectionList')
-		let pNumber = document.getElementById('passageList')
-		checkForPassage(testList.value, section.value, pNumber.value)
+		// Display the year and month of the test
+		let year = document.getElementById('testYear')
+		let month = document.getElementById('testMonth')
+		let code = document.getElementById('testCode')
+
+		year.value = data.data()['year']
+		month.value = data.data()['month']
+		code.value = data.data()['test']
+
 	}
 })
 
+let dom_answersTest = document.getElementById('answersTest')
+dom_answersTest.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "answersTest")', {
+			'value' : dom_answersTest.value
+		})
+	}
 
-workingText.addEventListener('input', function () {
-	setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+	// Display the answer key for the newly selected test
+	displayAnswerKey(dom_answersTest.value, dom_answersSection.value, spaceSize)
 })
 
-title.addEventListener('input', function () {
-	setPassageText(workingText.value, title.value, parseInt(passageNumber.value))
+let dom_answersSection = document.getElementById('answersSection')
+dom_answersSection.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "answersSection")', {
+			'value' : dom_answersSection.value
+		})
+	}
+
+	// Display the answer key for the newly selected section
+	displayAnswerKey(dom_answersTest.value, dom_answersSection.value, spaceSize)
 })
 
-dom_questionList.addEventListener('change', function () {
-	initializeQuestion(parseInt(dom_questionList.value))
+let dom_titles = document.querySelectorAll('*[id$="PassageTitle"]')
+for (let i = 0; i < dom_titles.length; i++) {
+	dom_titles[i].addEventListener('input', function () {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + dom_titles[i].id + '")')
+		}
+
+		// Display the newly adjusted text
+		const section = document.getElementById('passageSection').value
+		dom_titles[i].value = dom_titles[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		setPassageText({'title' : dom_titles[i].value,
+						'passageText' : document.getElementById(section + 'PassageText').value,
+						'reference' : document.getElementById(section + 'PassageReference').value}
+						, spaceSize)
+	})
+}
+
+let dom_passages = document.querySelectorAll('*[id$="PassageText"]')
+for (let i = 0; i < dom_passages.length; i++) {
+	dom_passages[i].addEventListener('input', function () {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + dom_passages[i].id + '")')
+		}
+
+		// Display the newly adjusted text
+		const section = document.getElementById('passageSection').value
+		dom_passages[i].value = dom_passages[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
+						'passageText' : dom_passages[i].value,
+						'reference' : document.getElementById(section + 'PassageReference').value}
+						, spaceSize)
+	})
+}
+
+let dom_references = document.querySelectorAll('*[id$="PassageReference"]')
+for (let i = 0; i < dom_references.length; i++) {
+	dom_references[i].addEventListener('input', function () {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + dom_references[i].id + '")')
+		}
+
+		// Display the newly adjusted text
+		const section = document.getElementById('passageSection').value
+		dom_references[i].value = dom_references[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
+						'passageText' : document.getElementById(section + 'PassageText').value,
+						'reference' : dom_references[i].value}
+						, spaceSize)
+	})
+}
+
+let dom_passageTest = document.getElementById('passageTest')
+dom_passageTest.addEventListener('change', function() {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "passageTest")')
+	}
+
+	// Re-initialize the display
+	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
 })
 
-//dom_section.addEventListener('change', function () {
-//})
+let dom_passageSection = document.getElementById('passageSection')
+dom_passageSection.addEventListener('change', function() {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "passageSection")')
+	}
+
+	// Re-initialize the display
+	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
+})
+
+let dom_passageNumber = document.getElementById('passageNumber')
+dom_passageNumber.addEventListener('change', function() {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "passageNumber")')
+	}
+
+	// Re-initialize the display
+	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
+})
+
+
+
+
+
+

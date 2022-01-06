@@ -6,8 +6,17 @@
 	background-color: var(--mainColor)
 }
 
-.hidden {
-	display: none;
+#firstHalf {
+	height: 40vh;
+}
+
+#secondHalf {
+	border-top-style: solid;
+	border-top-width: 2px;
+	border-top-color: black;
+	height: 60vh;
+	display: flex;
+	flex-direction: row;
 }
 
 .finalProductDiv {
@@ -16,72 +25,27 @@
 	border-width: 1px;
 	border-color: black;
 	margin-right: 5vw;
-	width: 10vw;
+	width: 45vw;
 	height: 80%;
 	margin-top: calc(.10 * 70vh);
 	padding: 1em;
 }
 
-.finalProductDiv:last-child {
-	margin-right: 0vw;
-	width: 20vw;
-}
-
 .finalProductDiv:first-child {
 	margin-left: 5vw;
+	width: 10vw;
 	text-align: center;
+	overflow: auto;
+}
+
+.finalProductDiv:last-child {
+	margin-right: 0vw;
+	width: 25vw;
+	overflow: auto;
 }
 
 .bold {
 	font-weight: bold;
-}
-
-#firstHalf {
-	width: 20vw;
-}
-
-#secondHalf {
-	width: 80vw;
-}
-
-#form {
-	display: flex;
-	flex-direction: row;
-	height: 30vh;
-}
-
-#finalProduct {
-	border-top-style: solid;
-	border-top-width: 2px;
-	border-top-color: black;
-	height: 68vh;
-	display: flex;
-	flex-direction: row;
-}
-
-#pText {
-	width: 45vw;
-	overflow: auto;
-	line-height: 1.5;
-}
-
-.highlight:hover {
-	background-color: yellow;
-	cursor: pointer;
-}
-
-#questions {
-	width: 20vw;
-}
-
-#passageText {
-	width: 90%;
-	height: 65%;
-}
-
-#passageTitle {
-	width: 90%;
-	height: 15%;
 }
 
 .columns {
@@ -94,44 +58,68 @@
 	flex-direction: column;
 }
 
-#questionsPart1 {
-	width: 50%;
-	height: 25vh;
-}
-
-#questionsPart1 textarea {
+.centerSpread {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
 	height: 100%;
+	width: 100%;
 }
 
-#questionsPart2 {
-	width: 40%;
-	height: 25vh;
-	margin-left: 5%;
+.centerSpread button {
+	height: 25%;
+	width: 15%;
 }
 
-#questionsPart2 label {
-	cursor: pointer;
+.mainLabel {
+	margin-top: 5px;
+	height: 1.5em;
+	margin-right: 10px;
 }
 
-.highlight-yellow {
-	background-color: yellow;
+.mainInput {
+	margin-top: 5px;
+	height: 1.5em;
 }
 
-.correctAnswer {
-	color:white;
-	font-weight: bold;
-	background-color: green;
+#answers .rows input{
+	height: 20px;
+	width: 50px;
+	margin-top: 2px;
+	margin-left: 5px;
 }
 
-.problem {
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 10px;
-	background-color: rgb(230, 231, 232);
-	margin: 2px;
-	cursor: pointer;
+#answers .rows label{
+	height: 20px;
+	margin-top: 2px;
+	margin-left: 20px;
 }
 
-.answerText {
-	margin: 0em 0em 0em 2em;
+#englishPassage {
+	margin-left: 10px;
+}
+
+.title {
+	height: 5vh;
+	width: 50vw;
+}
+
+.textArea {
+	height: 20vh;
+	width: 50vw;
+}
+
+.reference {
+	height: 5vh;
+	width: 50vw;
+}
+
+#pText {
+	overflow: auto;
+	line-height: 1.5;
+}
+
+.hidden {
+	display: none;
 }
