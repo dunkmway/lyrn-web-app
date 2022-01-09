@@ -7,14 +7,14 @@
 }
 
 #firstHalf {
-	height: 40vh;
+	height: 45vh;
 }
 
 #secondHalf {
 	border-top-style: solid;
 	border-top-width: 2px;
 	border-top-color: black;
-	height: 60vh;
+	height: 55vh;
 	display: flex;
 	flex-direction: row;
 }
@@ -96,23 +96,28 @@
 	margin-left: 20px;
 }
 
-#englishPassage {
+.sectionPassage {
 	margin-left: 10px;
 }
 
 .title {
 	height: 5vh;
-	width: 50vw;
+	width: 40vw;
 }
 
 .textArea {
-	height: 20vh;
-	width: 50vw;
+	height: 17vh;
+	width: 40vw;
 }
 
 .reference {
 	height: 5vh;
-	width: 50vw;
+	width: 40vw;
+}
+
+.preText {
+	height: 5vh;
+	width: 40vw;
 }
 
 #pText {
