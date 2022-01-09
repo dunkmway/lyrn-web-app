@@ -106,12 +106,27 @@ function addImage(type, section, spacing = '') {
 		});
 	}
 
-	// Get the image
-	let image = undefined
-	let imageNumber = document.querySelectorAll("img[id^='image']").length + 1
+	// Get the next image number
+	let images = document.querySelectorAll("img[id^='image']")
 
-	// Construct the filename for firebase
+	let imageIds = []
+	for (let i = 0; i < images.length; i++) {
+		imageIds.push(images[i].id.split('image')[1])
+	}
+
+	imageIds.sort()
+
+	let imageNumber = 1
+	for (let i = 0; i < imageIds.length + 1; i++) {
+		if (!imageIds.includes((i + 1).toString())) {
+			imageNumber = i + 1
+			break
+		}
+	}
+
+	// Construct the filename for firebase and grab the image
 	let filename = undefined
+	let image = undefined
 	if (type == 'passage') {
 		image = document.getElementById(section + 'Image').files[0]
 		filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
@@ -146,9 +161,7 @@ function addImage(type, section, spacing = '') {
 			// Setting image
 			if (type == 'passage') {
 				document.getElementById(section + 'PassageText').value = document.getElementById(section + 'PassageText').value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
-				setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-								'passageText' : document.getElementById(section + 'PassageText').value,
-								'reference' : document.getElementById(section + 'PassageReference').value}, spacing + spaceSize)
+				setPassageTextHelper(spacing + spaceSize)
 				//document.getElementById(section + 'ImageCount').innerHTML = (imageNumber + 1).toString()
 				//passageImages.push(downloadURL)
 				//maxPassageImageNumber += 1
@@ -183,6 +196,12 @@ function selectDisplay(id, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'selectDisplay()', {'id' : id})
 	}
+
+	// Reset the bottom half
+	removeChildren('pText', spacing + spaceSize)
+	removeChildren('qNumbers', spacing + spaceSize)
+	removeChildren('qList', spacing + spaceSize)
+
 	// Grab all display divs
 	let displays = document.querySelectorAll('*[id$="Display"]')
 	
@@ -476,7 +495,16 @@ async function savePassage(spacing = '') {
 	let section = document.getElementById('passageSection').value
 	let passageNumber = parseInt(document.getElementById('passageNumber').value)
 	let text = document.getElementById(section + 'PassageText')
-	let dom_reference = document.getElementById(section + 'PassageReference') ?? 'N/A'
+	let dom_reference = document.getElementById(section + 'PassageReference') ?? ''
+	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
+	let ABData = {}
+
+	if (section == 'reading' && dom_AB.value == 1) {
+		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['passageText'] = document.getElementById('readingPassageTextB').value
+		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
+	}
+
 	data = {
 		'test' : test,
 		'section' : section,
@@ -484,11 +512,11 @@ async function savePassage(spacing = '') {
 		'title' : document.getElementById(section + 'PassageTitle').value,
 		'passageText' : text.value,
 		'passageNumber' : passageNumber,
+		'preText' : preText,
 		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 0) ? false : true),
-		'reference' : dom_reference.value ?? 'N/A'
+		'reference' : dom_reference.value ?? '',
+		'ABData' : ABData
 	}
-
-	console.log(data)
 
 	// Validate then set the data
 	if (text.value.length > 0) {
@@ -593,13 +621,68 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	}
 
 	// Display the title
-	document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
+	}
+
+	// Display the preText
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassagePreText').value = passageData['preText'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassagePreText')
+	}
 
 	// Display the passage
-	document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageText')
+	}
 
 	// Display the reference
-	document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
+	}
+
+	// Display the title - B
+	if (passageData['ABData']?.['title'] != undefined && passageData['ABData']?.['title'] != '') {
+		document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = passageData['ABData']['title']
+	}
+	else {
+		document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = ''
+	}
+
+	// Display the passageText - B
+	if (passageData['ABData']?.['passageText'] != undefined && passageData['ABData']?.['passageText'] != '') {
+		document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = passageData['ABData']['passageText']
+	}
+	else {
+		document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = ''
+	}
+
+	// Display the reference - B
+	if (passageData['ABData']?.['reference'] != undefined && passageData['ABData']?.['reference'] != '') {
+		document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = passageData['ABData']['reference']
+	}
+	else {
+		document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = ''
+	}
+
+	// Set the 'hasABPassges' toggle - B
+	if (passageData['ABData'] != undefined && passageData['ABData'] != {}) {
+		document.getElementById('hasABPassages').value = 1
+	}
+	else {
+		document.getElementById('hasABPassages').value = 0
+	}
 
 	// Set the 'Label Paragraphs' tag
 	if ((section ?? dom_section.value) == 'english') {
@@ -912,6 +995,40 @@ function prepText(text, spacing = '') {
 }
 
 /**
+ * This will set the passage text without any parameters passed it. (It will grab them from the DOM)
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function setPassageTextHelper(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'setPassageTextHelper()')
+	}
+
+	// Identify the section
+	const section = document.getElementById('passageSection').value
+
+	// Add the extra reading data (for A/B passages)
+	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
+	let ABData = {}
+
+	if (section == 'reading' && dom_AB.value == 1) {
+		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['passageText'] = document.getElementById('readingPassageTextB').value
+		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
+	}
+
+	// Display the newly adjusted text
+	setPassageText({
+		'title': document.getElementById(section + 'PassageTitle').value,
+		'passageText': document.getElementById(section + 'PassageText').value,
+		'preText' : preText,
+		'reference': document.getElementById('readingPassageReference').value,
+		'ABData' : ABData
+	}
+		, spacing + spaceSize)
+}
+
+/**
  * This will display the passage information
  * 
  * @param {Object} data This will contain all of the information to display
@@ -933,6 +1050,11 @@ function setPassageText(data, spacing = '') {
 		dom_passage.appendChild(createElement('p', [], [], [], data['title']))
 	}
 
+	// Set the pre-passage text (only applicable to reading I think (1/8/22))
+	if (data['preText'] != undefined && data['preText'] != '') {
+		dom_passage.appendChild(createElement('p', [], [], [], data['preText']))
+	}
+
 	// Set the passage text
 	if (data['passageText'] != undefined && data['passageText'] != '') {
 		dom_passage.appendChild(createElement('p', [], [], [], data['passageText']))
@@ -941,6 +1063,21 @@ function setPassageText(data, spacing = '') {
 	// Set the passage text
 	if (data['reference'] != undefined && data['reference'] != '') {
 		dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
+	}
+
+	// Set passage B
+	if (data['ABData'] != undefined && data['ABData'] != {}) {
+		if (data['ABData']?.['title'] != undefined && data['ABData']?.['title'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['title']))
+		}
+
+		if (data['ABData']?.['passageText'] != undefined && data['ABData']?.['passageText'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['passageText']))
+		}
+
+		if (data['ABData']?.['reference'] != undefined && data['ABData']?.['reference'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['reference']))
+		}
 	}
 
 	// Reset the MathJax
@@ -1009,57 +1146,6 @@ dom_answersSection.addEventListener('change', async function () {
 	displayAnswerKey(dom_answersTest.value, dom_answersSection.value, spaceSize)
 })
 
-let dom_titles = document.querySelectorAll('*[id$="PassageTitle"]')
-for (let i = 0; i < dom_titles.length; i++) {
-	dom_titles[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_titles[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_titles[i].value = dom_titles[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : dom_titles[i].value,
-						'passageText' : document.getElementById(section + 'PassageText').value,
-						'reference' : document.getElementById(section + 'PassageReference').value}
-						, spaceSize)
-	})
-}
-
-let dom_passages = document.querySelectorAll('*[id$="PassageText"]')
-for (let i = 0; i < dom_passages.length; i++) {
-	dom_passages[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_passages[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_passages[i].value = dom_passages[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-						'passageText' : dom_passages[i].value,
-						'reference' : document.getElementById(section + 'PassageReference').value}
-						, spaceSize)
-	})
-}
-
-let dom_references = document.querySelectorAll('*[id$="PassageReference"]')
-for (let i = 0; i < dom_references.length; i++) {
-	dom_references[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_references[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_references[i].value = dom_references[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-						'passageText' : document.getElementById(section + 'PassageText').value,
-						'reference' : dom_references[i].value}
-						, spaceSize)
-	})
-}
-
 let dom_passageTest = document.getElementById('passageTest')
 dom_passageTest.addEventListener('change', function() {
 	if (debug == true) {
@@ -1090,8 +1176,35 @@ dom_passageNumber.addEventListener('change', function() {
 	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
 })
 
+let dom_AB = document.getElementById('hasABPassages')
+dom_AB.addEventListener('change', function() {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "hasABPassages")')
+	}
+
+	// Add / Remove Passage B
+	if (dom_AB.value == 0) {
+		document.getElementById('passageB').classList.add('hidden')
+	}
+	else if (dom_AB.value == 1) {
+		document.getElementById('passageB').classList.remove('hidden')
+	}
+})
 
 
+let dom_passageSections = document.querySelectorAll('div[id$="Passage"]')
+for (let i = 0; i < dom_passageSections.length; i++) {
+	dom_passageSections[i].addEventListener('input', function (event) {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+		}
 
+		// Correct text
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+
+		// Update the bottom display
+		setPassageTextHelper(spaceSize);
+	})
+}
 
 
