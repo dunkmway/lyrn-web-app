@@ -51,6 +51,7 @@
         <button onclick = 'selectDisplay("testDisplay")'>Add Test</button>
         <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
+        <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
         <button>Add Question</button>
       </div>
 
@@ -193,11 +194,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="mathLabelParagraphs" id='mathLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="mathLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput("math")' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'mathImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'math')" style = 'display: none;'>
@@ -268,11 +264,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="scienceLabelParagraphs" id='scienceLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="scienceLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput("science")' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'scienceImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'science')" style = 'display: none;'>
@@ -330,6 +321,47 @@
         <!-- Answer Key -->
         <div id = 'answers' class = 'columns'>
         </div>
+      </div>
+
+
+      <!-- Scaled Scores -->
+      <div id = 'scaledScoresDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <label for="scaledScoresTest" class = 'mainLabel'>Test</label>
+
+          <!-- Section -->
+          <label for="scaledScoresSection" class = 'mainLabel'>Section</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
+      
+
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <select id="scaledScoresTest" class = 'mainInput'>
+          </select>
+
+          <!-- Section -->
+          <select id="scaledScoresSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="saveScaledScores()" class = 'mainInput'>Save Scaled Scores</button>
+        </div>
+
+        <!-- Answer Key -->
+        <div id = 'scaledScores' class = 'columns'>
+        </div>
+
       </div>
 
     </div>
