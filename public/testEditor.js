@@ -106,12 +106,27 @@ function addImage(type, section, spacing = '') {
 		});
 	}
 
-	// Get the image
-	let image = undefined
-	let imageNumber = document.querySelectorAll("img[id^='image']").length + 1
+	// Get the next image number
+	let images = document.querySelectorAll("img[id^='image']")
 
-	// Construct the filename for firebase
+	let imageIds = []
+	for (let i = 0; i < images.length; i++) {
+		imageIds.push(images[i].id.split('image')[1])
+	}
+
+	imageIds.sort()
+
+	let imageNumber = 1
+	for (let i = 0; i < imageIds.length + 1; i++) {
+		if (!imageIds.includes((i + 1).toString())) {
+			imageNumber = i + 1
+			break
+		}
+	}
+
+	// Construct the filename for firebase and grab the image
 	let filename = undefined
+	let image = undefined
 	if (type == 'passage') {
 		image = document.getElementById(section + 'Image').files[0]
 		filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
@@ -146,9 +161,7 @@ function addImage(type, section, spacing = '') {
 			// Setting image
 			if (type == 'passage') {
 				document.getElementById(section + 'PassageText').value = document.getElementById(section + 'PassageText').value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
-				setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-								'passageText' : document.getElementById(section + 'PassageText').value,
-								'reference' : document.getElementById(section + 'PassageReference').value}, spacing + spaceSize)
+				setPassageTextHelper(spacing + spaceSize)
 				//document.getElementById(section + 'ImageCount').innerHTML = (imageNumber + 1).toString()
 				//passageImages.push(downloadURL)
 				//maxPassageImageNumber += 1
@@ -183,6 +196,12 @@ function selectDisplay(id, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'selectDisplay()', {'id' : id})
 	}
+
+	// Reset the bottom half
+	removeChildren('pText', spacing + spaceSize)
+	removeChildren('qNumbers', spacing + spaceSize)
+	removeChildren('qList', spacing + spaceSize)
+
 	// Grab all display divs
 	let displays = document.querySelectorAll('*[id$="Display"]')
 	
@@ -205,6 +224,9 @@ function selectDisplay(id, spacing = '') {
 	}
 	else if (id == 'passageDisplay') {
 		initializePassageDisplay(undefined, undefined, 1, spacing + spaceSize)
+	}
+	else if (id == 'scaledScoresDisplay') {
+		initializeScaledScoresDisplay(spacing + spaceSize)
 	}
 
 }
@@ -423,6 +445,76 @@ async function initializeAnswersDisplay(spacing = '') {
 }
 
 /**
+ * This will setup the scaled scores display
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeScaledScoresDisplay(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeScaledScoresDisplay()')
+	}
+
+	// initialize tests by grabbing them from firebase
+	await initializeTests('scaledScoresTest', spacing + spaceSize)
+
+	// Display the scaled scores
+	displayScaledScores(document.getElementById('scaledScoresTest').value, document.getElementById('scaledScoresSection').value, spacing + spaceSize)
+}
+
+/**
+ * This will create and display the scaled scores key
+ * 
+ * @param {string} test Test ID (ie. B05)
+ * @param {string} section Section (Possible Values: english, math, reading, or science)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function displayScaledScores(test, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'displayScaledScores()', {
+			'test' : test,
+			'section' : section
+		})
+	}
+
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
+
+	// Find the HTML elements
+	let dom_scaledScores = document.getElementById('scaledScores')
+
+	// Remove the current answer key
+	removeChildren('scaledScores', spacing + spaceSize)
+
+	// Get the answer key from firebase
+	let scaledScores = await getScaledScoresDocument(test, section, spacing + spaceSize)
+
+	// Add the scaled scores in columns of 12 each
+	for (let i = 0; i < 3; i++) {
+		dom_labels = createElement('div', ['rows'], ['style'], ['margin-left: 50px; align-items: center;'], '')
+		dom_labels.appendChild(createElement('label', [], [], [], 'Scaled Score'))
+		dom_scores = createElement('div', ['rows'], ['style'], ['margin-left: 10px; align-items: center;'], '')
+		dom_scores.appendChild(createElement('label', [], [], [], 'Min Score'))
+
+		// Create the labels and inputs (12)
+		for (let j = 0; j < 12; j++) {
+			dom_labels.appendChild(createElement('label', [], ['for'], ['ss' + (36 - (i * 12) - j).toString()], (36 - (i * 12) - j).toString()))
+			if (scaledScores != false) {
+				dom_scores.appendChild(createElement('input', [], ['id', 'value'], ['ss' + (36 - (i * 12) - j).toString(), (scaledScores.data()['scaledScores'][(36 - (i * 12) - j)] != -1) ? scaledScores.data()['scaledScores'][(36 - (i * 12) - j)].toString() : '-'], ''))
+			}
+			else {
+				dom_scores.appendChild(createElement('input', [], ['id'], ['ss' + (36 - (i * 12) - j).toString()], ''))
+			}
+		}
+
+		// Add the columns created (labels and inputs) to the dom
+		dom_scaledScores.appendChild(dom_labels)
+		dom_scaledScores.appendChild(dom_scores)
+	}
+
+}
+
+/**
  * 
  * @param {string} test The test ID (ie. B05)
  * @param {string} section The section (Possible Values: english, math, reading, science)
@@ -476,7 +568,16 @@ async function savePassage(spacing = '') {
 	let section = document.getElementById('passageSection').value
 	let passageNumber = parseInt(document.getElementById('passageNumber').value)
 	let text = document.getElementById(section + 'PassageText')
-	let dom_reference = document.getElementById(section + 'PassageReference') ?? 'N/A'
+	let dom_reference = document.getElementById(section + 'PassageReference') ?? ''
+	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
+	let ABData = {}
+
+	if (section == 'reading' && dom_AB.value == 1) {
+		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['passageText'] = document.getElementById('readingPassageTextB').value
+		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
+	}
+
 	data = {
 		'test' : test,
 		'section' : section,
@@ -484,11 +585,11 @@ async function savePassage(spacing = '') {
 		'title' : document.getElementById(section + 'PassageTitle').value,
 		'passageText' : text.value,
 		'passageNumber' : passageNumber,
+		'preText' : preText,
 		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 0) ? false : true),
-		'reference' : dom_reference.value ?? 'N/A'
+		'reference' : dom_reference.value ?? '',
+		'ABData' : ABData
 	}
-
-	console.log(data)
 
 	// Validate then set the data
 	if (text.value.length > 0) {
@@ -592,14 +693,79 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		passageData = passageData.data()
 	}
 
+	// Display the preText
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassagePreText').value = passageData['preText'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassagePreText')
+	}
+
 	// Display the title
-	document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
+	}
 
 	// Display the passage
-	document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageText')
+	}
 
 	// Display the reference
-	document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
+	try {
+		document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
+	}
+	catch {
+		console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
+	}
+
+	// Hide Passage B by default, will be un-hidden later if needed
+	//document.getElementById('passageB').classList.add('hidden')
+
+	// Extra displays for reading
+	if ((section ?? dom_section.value) == 'reading') {
+
+		// Display the title - B
+		if (passageData['ABData']?.['title'] != undefined && passageData['ABData']?.['title'] != '') {
+			document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = passageData['ABData']['title']
+		}
+		else {
+			document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = ''
+		}
+
+		// Display the passageText - B
+		if (passageData['ABData']?.['passageText'] != undefined && passageData['ABData']?.['passageText'] != '') {
+			document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = passageData['ABData']['passageText']
+		}
+		else {
+			document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = ''
+		}
+
+		// Display the reference - B
+		if (passageData['ABData']?.['reference'] != undefined && passageData['ABData']?.['reference'] != '') {
+			document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = passageData['ABData']['reference']
+		}
+		else {
+			document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = ''
+		}
+
+		// Set the 'hasABPassges' toggle - B
+		if (passageData['ABData'] != undefined && Object.keys(passageData['ABData']).length > 0) {
+			document.getElementById('hasABPassages').value = 1
+			document.getElementById('passageB').classList.remove('hidden')
+		}
+		else {
+			document.getElementById('hasABPassages').value = 0
+			document.getElementById('passageB').classList.add('hidden')
+		}
+
+	}
 
 	// Set the 'Label Paragraphs' tag
 	if ((section ?? dom_section.value) == 'english') {
@@ -685,6 +851,46 @@ async function getAnswers(test, section, spacing = '') {
 
 	// Return the answers object
 	return data
+}
+
+/**
+ * This will grab the scaled scores from firebase
+ * 
+ * @param {string} test Test ID (ie. B05)
+ * @param {string} section Section (possible values = english, math, reading, or science)
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object} Firebase object with the scaled scores data
+ */
+async function getScaledScoresDocument(test, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getScaledScoresDocument()', {
+			'test' : test,
+			'section' : section
+		})
+	}
+
+	// remove case sensitivity
+	test = test.toUpperCase()
+	section = section.toLowerCase()
+
+	// Set the firebase reference
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'scaledScores')
+	.where('test', '==', test)
+	.where('section', '==', section)
+
+	// Return the false for no documents found, the data if only one document was found, or -1 for multiple documents found (should never happen)
+	const snapshot = await ref.get()
+	if (snapshot.size == 0) {
+		return false
+	}
+	else if (snapshot.size == 1) {
+		return snapshot.docs[0]
+	}
+	else {
+		return -1
+	}
+
 }
 
 /**
@@ -870,6 +1076,84 @@ function saveAnswers(spacing = '') {
 	
 }
 
+/**
+ * This will set / update all scaled scores if they are all valid. Otherwise, it will
+ * reset the scores that aren't valid
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function saveScaledScores(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'saveScaledScores()')
+	}
+
+	// Grab all answers from the DOM and find other HTML elements
+	const scores = document.querySelectorAll("input[id^='ss']")
+	let dom_section = document.getElementById('scaledScoresSection')
+	let dom_test = document.getElementById('scaledScoresTest')
+
+	// Identify the max value
+	let maxValue = 40;
+	if (dom_section.value == 'english') {
+		maxValue = 75;
+	}
+	else if (dom_section.value == 'math') {
+		maxValue = 60
+	}
+
+	// Validate that all scaled scores inputted are valid
+	// If any are not valid, reset its value
+	let isValidated = true
+	let scaledScores = {}
+	for (let i = 0; i < scores.length; i++) {
+		scaledScores[parseInt(scores[i].id.split('ss')[1])] = (scores[i].value == '' || scores[i].value == '-' ? -1 : parseInt(scores[i].value))
+		if (!(scores[i].value == '' || scores[i].value == '-' || (parseInt(scores[i].value) <= maxValue && parseInt(scores[i].value) >= 0))) {
+			console.log(scores[i].value)
+			scores[i].value = ''
+			isValidated = false
+		}
+	}
+
+	// Make sure the values get larger from a scaled score of 1 to 36
+	let value = scaledScores[1]
+	for (let i = 0; i < scores.length - 1; i++) {
+		if (scaledScores[i + 2] > value) {
+			value = scaledScores[i + 2]
+		}
+		else if (scaledScores[i + 2] != -1) {
+			document.getElementById('ss' + (i + 2).toString()).value = ''
+			isValidated = false
+		}
+	}
+
+	// If all the answers have been validated, then set / update their document in firebase
+	if (isValidated == true) {
+		let response = await getScaledScoresDocument(dom_test.value, dom_section.value, spacing + spaceSize)
+
+		const data = {
+			'test': dom_test.value,
+			'section': dom_section.value,
+			'type': 'scaledScores',
+			'scaledScores': scaledScores
+		}
+
+		// Doc doesn't exist yet - set
+		if (response == false) {
+			firebase.firestore().collection('ACT-Tests').doc().set(data)
+		}
+		// Doc exists - update
+		else {
+			firebase.firestore().collection('ACT-Tests').doc(response.id).set(data)
+		}
+
+		console.log("Finished Setting / Updating Answers")
+	}
+	else {
+		console.log("Please correct your issues")
+	}
+	
+}
+
 // DELETE THIS FUNCTION - POSSIBLY
 /**
  * This will take a string in and split it by spaces and '&mdash;' and return an array with each word
@@ -912,6 +1196,40 @@ function prepText(text, spacing = '') {
 }
 
 /**
+ * This will set the passage text without any parameters passed it. (It will grab them from the DOM)
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function setPassageTextHelper(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'setPassageTextHelper()')
+	}
+
+	// Identify the section
+	const section = document.getElementById('passageSection').value
+
+	// Add the extra reading data (for A/B passages)
+	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
+	let ABData = {}
+
+	if (section == 'reading' && dom_AB.value == 1) {
+		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['passageText'] = document.getElementById('readingPassageTextB').value
+		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
+	}
+
+	// Display the newly adjusted text
+	setPassageText({
+		'title': document.getElementById(section + 'PassageTitle').value,
+		'passageText': document.getElementById(section + 'PassageText').value,
+		'preText' : preText,
+		'reference': document.getElementById(section + 'PassageReference').value,
+		'ABData' : ABData
+	}
+		, spacing + spaceSize)
+}
+
+/**
  * This will display the passage information
  * 
  * @param {Object} data This will contain all of the information to display
@@ -928,6 +1246,11 @@ function setPassageText(data, spacing = '') {
 	// Find the HTML elements
 	let dom_passage = document.getElementById('pText')
 
+	// Set the pre-passage text (only applicable to reading I think (1/8/22))
+	if (data['preText'] != undefined && data['preText'] != '') {
+		dom_passage.appendChild(createElement('p', [], [], [], data['preText']))
+	}
+
 	// Set the title
 	if (data['title'] != undefined && data['title'] != '') {
 		dom_passage.appendChild(createElement('p', [], [], [], data['title']))
@@ -941,6 +1264,21 @@ function setPassageText(data, spacing = '') {
 	// Set the passage text
 	if (data['reference'] != undefined && data['reference'] != '') {
 		dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
+	}
+
+	// Set passage B
+	if (data['ABData'] != undefined && data['ABData'] != {}) {
+		if (data['ABData']?.['title'] != undefined && data['ABData']?.['title'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['title']))
+		}
+
+		if (data['ABData']?.['passageText'] != undefined && data['ABData']?.['passageText'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['passageText']))
+		}
+
+		if (data['ABData']?.['reference'] != undefined && data['ABData']?.['reference'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['reference']))
+		}
 	}
 
 	// Reset the MathJax
@@ -1009,57 +1347,6 @@ dom_answersSection.addEventListener('change', async function () {
 	displayAnswerKey(dom_answersTest.value, dom_answersSection.value, spaceSize)
 })
 
-let dom_titles = document.querySelectorAll('*[id$="PassageTitle"]')
-for (let i = 0; i < dom_titles.length; i++) {
-	dom_titles[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_titles[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_titles[i].value = dom_titles[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : dom_titles[i].value,
-						'passageText' : document.getElementById(section + 'PassageText').value,
-						'reference' : document.getElementById(section + 'PassageReference').value}
-						, spaceSize)
-	})
-}
-
-let dom_passages = document.querySelectorAll('*[id$="PassageText"]')
-for (let i = 0; i < dom_passages.length; i++) {
-	dom_passages[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_passages[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_passages[i].value = dom_passages[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-						'passageText' : dom_passages[i].value,
-						'reference' : document.getElementById(section + 'PassageReference').value}
-						, spaceSize)
-	})
-}
-
-let dom_references = document.querySelectorAll('*[id$="PassageReference"]')
-for (let i = 0; i < dom_references.length; i++) {
-	dom_references[i].addEventListener('input', function () {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + dom_references[i].id + '")')
-		}
-
-		// Display the newly adjusted text
-		const section = document.getElementById('passageSection').value
-		dom_references[i].value = dom_references[i].value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		setPassageText({'title' : document.getElementById(section + 'PassageTitle').value,
-						'passageText' : document.getElementById(section + 'PassageText').value,
-						'reference' : dom_references[i].value}
-						, spaceSize)
-	})
-}
-
 let dom_passageTest = document.getElementById('passageTest')
 dom_passageTest.addEventListener('change', function() {
 	if (debug == true) {
@@ -1090,8 +1377,57 @@ dom_passageNumber.addEventListener('change', function() {
 	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
 })
 
+let dom_AB = document.getElementById('hasABPassages')
+dom_AB.addEventListener('change', function() {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "hasABPassages")')
+	}
+
+	// Add / Remove Passage B
+	if (dom_AB.value == 0) {
+		document.getElementById('passageB').classList.add('hidden')
+	}
+	else if (dom_AB.value == 1) {
+		document.getElementById('passageB').classList.remove('hidden')
+	}
+})
 
 
+let dom_passageSections = document.querySelectorAll('div[id$="Passage"]')
+for (let i = 0; i < dom_passageSections.length; i++) {
+	dom_passageSections[i].addEventListener('input', function (event) {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+		}
 
+		// Correct text
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
 
+		// Update the bottom display
+		setPassageTextHelper(spaceSize);
+	})
+}
 
+let dom_scaledScoresTest = document.getElementById('scaledScoresTest')
+dom_scaledScoresTest.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "scaledScoresTest")', {
+			'value' : dom_scaledScoresTest.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	displayScaledScores(dom_scaledScoresTest.value, dom_scaledScoresSection.value, spaceSize)
+})
+
+let dom_scaledScoresSection = document.getElementById('scaledScoresSection')
+dom_scaledScoresSection.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "scaledScoresSection")', {
+			'value' : dom_scaledScoresSection.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	displayScaledScores(dom_scaledScoresTest.value, dom_scaledScoresSection.value, spaceSize)
+})

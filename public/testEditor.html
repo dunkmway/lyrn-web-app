@@ -51,6 +51,7 @@
         <button onclick = 'selectDisplay("testDisplay")'>Add Test</button>
         <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
+        <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
         <button>Add Question</button>
       </div>
 
@@ -156,7 +157,7 @@
         </div>
 
         <!-- Passage Info -->
-        <div id = 'englishPassage'>
+        <div id = 'englishPassage' class = 'sectionPassage'>
           <div class='columns'>
             <div class='rows'>
               <div>
@@ -183,7 +184,7 @@
           <textarea class = 'textArea' placeholder="Copy passage text here" id='englishPassageText'></textarea>
         </div>
 
-        <div id = 'mathPassage'>
+        <div id = 'mathPassage' class = 'sectionPassage'>
           <div class='columns'>
             <div class='rows'>
               <div>
@@ -193,11 +194,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="mathLabelParagraphs" id='mathLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="mathLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput("math")' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'mathImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'math')" style = 'display: none;'>
@@ -210,34 +206,55 @@
           <textarea class = 'textArea' placeholder="Copy passage text here" id='mathPassageText'></textarea>
         </div>
 
-        <div id = 'readingPassage'>
+        <div id = 'readingPassage' class = 'sectionPassage'>
           <div class='columns'>
-            <div class='rows'>
-              <div>
-                <label for="readingPassageTitle" id='readingPassageTitleLabel'>Title</label>
-              </div>
-              <textarea class = 'title' placeholder="Copy passage title here" id='readingPassageTitle'></textarea>
+            <div id = 'passageA' class = 'rows'>
+
+              <label for="readingPassageTitle" id='readingPassageTitleLabel'>Title</label>
+              <textarea class='title' placeholder="Copy passage title here" id='readingPassageTitle'></textarea>
+          
+              <label for="readingPassagePreText" id='readingPassagePreTextLabel'>Pre-Passage</label>
+              <textarea class='preText' placeholder="Copy pre-passage text here" id='readingPassagePreText'></textarea>
+          
+              <label for="readingPassageText" id='readingPassageTextLabel'>Passage</label>
+              <textarea class='textArea' placeholder="Copy passage text here" id='readingPassageText'></textarea>
+          
+              <label for="readingPassageReference" id='readingPassageReferenceLabel'>Reference</label>
+              <textarea id='readingPassageReference' class='reference'></textarea>
+
             </div>
-        
-            <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="readingLabelParagraphs" id='readingLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="readingLabelParagraphs">
+
+            <div id = 'passageB' class = 'rows hidden' style = 'margin-left: 10px;'>
+
+              <label for="readingPassageTitleB" id='readingPassageTitleLabelB'>Title - B</label>
+              <textarea class='title' placeholder="Copy passage title here" id='readingPassageTitleB'></textarea>
+          
+              <label for="readingPassageText" id='readingPassageTextLabelB'>Passage - B</label>
+              <textarea class='textArea' placeholder="Copy passage text here" id='readingPassageTextB'></textarea>
+          
+              <label for="readingPassageReferenceB" id='readingPassageReferenceLabelB'>Reference - B</label>
+              <textarea id='readingPassageReferenceB' class='reference'></textarea>
+
+            </div>
+
+            <div class='rows' style='margin-left:10px;'>
+
+              <label>Is A/B Passage</label>
+              <select id="hasABPassages" style = 'margin-bottom: 5px;'>
                 <option value=0>No</option>
                 <option value=1>Yes</option>
-              </select>-->
+              </select>
 
-              <button onclick = 'clickInput("reading")' style = 'margin-top: 5px;'>Add Image</button>
-              <input id = 'readingImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'reading')" style = 'display: none;'>
+              <button onclick='clickInput("reading")' style='margin-top: 5px;'>Add Image</button>
+              <input id='readingImage' type='file' accept="image/png" onchange="addImage('passage', 'reading')"
+                style='display: none;'>
             </div>
-          </div>
-        
-          <div>
-            <label for="readingPassageText" id='readingPassageTextLabel'>Passage</label>
-          </div>
-          <textarea class = 'textArea' placeholder="Copy passage text here" id='readingPassageText'></textarea>
-        </div>
 
-        <div id = 'sciencePassage'>
+          </div>
+
+        </div>
+          
+        <div id = 'sciencePassage' class = 'sectionPassage'>
           <div class='columns'>
             <div class='rows'>
               <div>
@@ -247,11 +264,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="scienceLabelParagraphs" id='scienceLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="scienceLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput("science")' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'scienceImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'science')" style = 'display: none;'>
@@ -309,6 +321,47 @@
         <!-- Answer Key -->
         <div id = 'answers' class = 'columns'>
         </div>
+      </div>
+
+
+      <!-- Scaled Scores -->
+      <div id = 'scaledScoresDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <label for="scaledScoresTest" class = 'mainLabel'>Test</label>
+
+          <!-- Section -->
+          <label for="scaledScoresSection" class = 'mainLabel'>Section</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
+      
+
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <select id="scaledScoresTest" class = 'mainInput'>
+          </select>
+
+          <!-- Section -->
+          <select id="scaledScoresSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="saveScaledScores()" class = 'mainInput'>Save Scaled Scores</button>
+        </div>
+
+        <!-- Answer Key -->
+        <div id = 'scaledScores' class = 'columns'>
+        </div>
+
       </div>
 
     </div>
