@@ -5,7 +5,7 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
 //check for events happening the next day and place a charge on the parent account whose student is attending the event.
-exports.chargeAccounts = functions.pubsub.schedule('5 21 * * *').timeZone('America/Denver').onRun(async (context) => {
+exports.chargeAccounts = functions.pubsub.schedule('5 22 * * *').timeZone('America/Denver').onRun(async (context) => {
   //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
   const SALTLAKE_TIME_OFFSET = 7;
   const UTC_TO_SALTLAKE = new Date().setHours(new Date().getHours() - SALTLAKE_TIME_OFFSET);

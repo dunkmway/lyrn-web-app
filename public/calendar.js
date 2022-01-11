@@ -13,7 +13,7 @@ let current_location = null;
 let current_filter = {};
 let current_availability_filter = {};
 let current_opening_qualification_filter = null;
-let current_opening_event_length = 60;
+let current_opening_event_length = 30;
 let current_opening_recurring_weeks = 1;
 
 const PRACTICE_TEST_COLOR = "#CDF7F4";
@@ -22,8 +22,6 @@ const GENRAL_INFO_COLOR = "#B3B3B3";
 const TEACHER_MEETING_COLOR = "#B3B3B3";
 const AVAILABILITY_COLOR = "#F09C99";
 const TEST_COLOR = "#A985F7";
-
-let event_glance_timeout_id = null;
 
 const STAFF_ROLES = ['tutor', 'secretary', 'admin'];
 const LESSON_TYPES = ['act', 'subjectTutoring', 'apExam'];
@@ -191,7 +189,7 @@ function initialSetup() {
       addDropdownOptions(document.getElementById('calendarType'), ['availability', 'event', 'opening'], ['Availability', 'Event', 'Opening'], typeChange);
 
       //select the event calendar by default and the first location
-      document.querySelector('#calendarType .dropdown-content>div[data-value="event"]').dispatchEvent(new Event('click'));
+      document.querySelector('#calendarType .dropdown-content>div[data-value="opening"]').dispatchEvent(new Event('click'));
       document.querySelector('#calendarLocation .dropdown-content>div').dispatchEvent(new Event('click'));
     })
     .catch((error) =>{
@@ -235,6 +233,15 @@ function setupNavLists(locationUID) {
   staffAvailabilityDefaultOption.value = "";
   staffAvailabilityDefaultOption.textContent = 'select a staff';
   document.getElementById('staffAvailabilityContent').appendChild(staffAvailabilityDefaultOption);
+
+  //qualification list
+  for (let i = document.getElementById('qualificationOpeningContent').options.length; i > 0; i--) {
+    document.getElementById('qualificationOpeningContent').options[i-1].remove();
+  }
+  let qualificationDefaultOption = document.createElement('option');
+  qualificationDefaultOption.value = "";
+  qualificationDefaultOption.textContent = 'select a qualifcation';
+  document.getElementById('qualificationOpeningContent').appendChild(qualificationDefaultOption);
 
   //add in the options for the given location
   getUserListByRole(locationUID, ['student'])
@@ -451,22 +458,29 @@ function locationChange(location) {
   closeCalendarSidebar();
   clearFilter();
   clearAvailabilityFilter();
+  clearOpeningQualificationFilter();
   setupNavLists(location);
-
-  //change the eventGlance grid
-  setupEventGlanceGrid();
 
   //change the calendar
   getCurrentCalendarTypeContent();
 }
 
 function typeChange(type) {
+  console.log('changing type')
   current_type = type;
   closeCalendarSidebar();
+  console.log('close calendar sidebar')
   clearFilter();
+  console.log('clear filter')
   clearAvailabilityFilter();
+  console.log('clear availability filter')
+
+  clearOpeningQualificationFilter();
 
   hideAllTypeNav();
+  console.log('hide nav items')
+
+  console.log('everything is hidden or closed')
 
   switch(type) {
     case 'availability':
@@ -488,6 +502,7 @@ function typeChange(type) {
 
   }
 
+  console.log('about to get current content')
   //change the calendar
   getCurrentCalendarTypeContent()
 }
@@ -515,6 +530,7 @@ function getCurrentCalendarTypeContent() {
           })
           
           main_calendar.addEventSource(events)
+          calendarNotWorking();
         })
         .catch((error) =>{
           console.log(error);
@@ -597,8 +613,6 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
     initialView: 'timeGridWeek',
     initialDate:  initialDate,
     hiddenDays: [0],
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
@@ -620,6 +634,7 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
           })
           
           main_calendar.addEventSource(events)
+          calendarNotWorking();
         })
         .catch((error) =>{
           calendarNotWorking();
@@ -680,8 +695,6 @@ function initializeAvailabilityCalendar(events, initialDate = new Date()) {
     initialView: 'timeGridWeek',
     initialDate:  initialDate,
     hiddenDays: [0],
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
@@ -732,8 +745,6 @@ function initializeWeeklyScheduleCalendar(events) {
     initialView: 'timeGridWeek',
     hiddenDays: [0],
     allDaySlot: false,
-    slotMinTime: "7:00:00",
-    slotMaxTime: "23:00:00",
     headerToolbar: {
       start:   '',
       center: '',
@@ -779,7 +790,7 @@ function initializeWeeklyScheduleCalendar(events) {
   main_calendar.render();
 }
 
-function initializepMonthScheduleCalendar(events) {
+function initializeMonthScheduleCalendar(events) {
   if (main_calendar) {
     main_calendar.destroy();
   }
@@ -811,8 +822,6 @@ function initializepMonthScheduleCalendar(events) {
     },
     hiddenDays: [],
     allDaySlot: false,
-    slotMinTime: "7:00:00",
-    slotMaxTime: "23:00:00",
     slotDuration: "01:00:00",
     headerToolbar: {
       start:   'prev,next',
@@ -864,9 +873,10 @@ function initializepMonthScheduleCalendar(events) {
       else {
         //unrestrict valid time
         main_calendar.setOption('validRange', function(nowDate) {
+          //select based on the events that are passed in
           return {
-            start: nowDate,
-          };
+            start : nowDate.setDate(nowDate.getDate() + 1)
+          }
         })
 
         //any more events reset the events
@@ -901,8 +911,6 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
     initialView: 'timeGridWeek',
     initialDate:  initialDate,
     hiddenDays: [0],
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
     scrollTime: '09:00:00',
     nowIndicator: true,
     headerToolbar: {
@@ -1181,6 +1189,12 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
     filter.type = [null];
   }
 
+  //don't show anything unless a filter is active
+  if (!filter.staff[0] && !filter.student[0] && !filter.type[0]) {
+    console.log('no filter. do not show events')
+    return Promise.resolve([]);
+  }
+
   //get the cartesian product of the arrays to get all of the AND queries we need to make
   const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
   const filterList = cartesian(filter.staff, filter.student, filter.type);
@@ -1427,109 +1441,114 @@ function changeRecurringWeeksOpenings(target) {
   }
 }
 
-function getOpeningLocation(location, start, end, eventLength, recurringWeeks, qualification) {
+async function getOpeningLocation(location, start, end, eventLength, recurringWeeks, qualification) {
   calendarWorking();
   if (eventLength) {
 
     const viewableEnd = end;
     const recurringEnd = new Date(end).setDate(new Date(end).getDate() + ((recurringWeeks - 1) * 7));
 
-    // the view is a week view so end should be extended by recurring weeks - 1
+    // get all of the dates we need from Calendar-Openings
+    let dateStart = new Date(start).setUTCHours(0,0,0,0);
+    const dateEnd = new Date(recurringEnd).setUTCHours(24,0,0,0);
+    let openingDates = [];
+    while (dateStart <= dateEnd) {
+      openingDates.push(dateStart);
+      dateStart = new Date(dateStart).setUTCDate(new Date(dateStart).getUTCDate() + 1);
+    }
 
-    // get all events and availabilities within the timeframe
-    return Promise.all([getEventsLocationForDocs(location, start, recurringEnd), getAvailabilityLocationForDocs(location, start, recurringEnd), getUserDocsByRole(location, ['tutor'])])
-    .then((locationContent) => {
-      let events = locationContent[0];
-      let availabilities = locationContent[1];
-      let tutors = locationContent[2];
+    console.log(openingDates)
 
-      console.log('size', tutors.size)
-      console.log('qual', qualification)
+    // get all of the opening docs we need
+    let openingDocs = [];
+    for (let i = 0; i < openingDates.length; i++) {
+      const openingDoc = await firebase.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(openingDates[i].toString()).get();
+      openingDocs.push(openingDoc);
+    }
 
-      //generate all of the events that need to be checked
-      //these are all events that are eventLength long from 12am to 12am from start to end
+    console.log(openingDocs)
 
-      //adjust start to start at 12 am
-      // start = new Date(start).setHours(0, 0, 0, 0);
-      let checkEvents = [];
-      let viewableCheckEvents = [];
+    //convert the opening docs to an object where the key is the doc id and the value is the doc data
+    const openings = openingDocs.reduce((obj, item) => Object.assign(obj, { [item.id]: item.data() ?? {} }), {});
+    const qualifiedTutorDocs = qualification ? await getTutorDocsByQualification(location, qualification) : await getUserDocsByRole(location, ['tutor']);
+    console.log(qualifiedTutorDocs.docs)
+    const qualifiedTutors = qualifiedTutorDocs.docs.map(doc => doc.id);
 
-      while (new Date(start).setMinutes(new Date(start).getMinutes() + eventLength) < recurringEnd) {
-        let tempStart = start;
-        let tempEnd = new Date(start).setMinutes(new Date(start).getMinutes() + eventLength);
+    console.log(openings)
 
-        let tutorsOpen = [];
-        tutors.forEach(tutor => {
-          //check if the tutor is available during this time
-          const isAvailable = (availability) => availability.data().staff.includes(tutor.id) && availability.data().start <= tempStart && availability.data().end >= tempEnd;
-          const hasConflict = (event) => {
-            return (event.data()?.staff?.includes(tutor.id) && event.data().start <= tempStart && event.data().end >= tempEnd) ||
-            (event.data()?.staff?.includes(tutor.id) && event.data().start >= tempStart && event.data().start < tempEnd) ||
-            (event.data()?.staff?.includes(tutor.id) && event.data().end > tempStart && event.data().end <= tempEnd) ||
-            (event.data()?.staff?.includes(tutor.id) && event.data().start >= tempStart && event.data().end <= tempEnd)
-          }
-          const isQualified = (tutorData) => tutorData?.qualifications?.includes(qualification);
-          if (availabilities.some(isAvailable) && !events.some(hasConflict) && (qualification ? isQualified(tutor.data()) : true)) {tutorsOpen.push(tutor)}
-        })
+    let checkEvents = [];
+    let viewableCheckEvents = [];
 
-        const eventData = {
-          title: tutorsOpen.length,
-          start: tempStart,
-          end: tempEnd,
-          tutors: tutorsOpen,
-        }
-        //push everything to our check array
-        checkEvents.push(eventData)
-        //only push the viewable days to this array
-        if (tempEnd <= viewableEnd) {viewableCheckEvents.push(eventData)}
-        
-        //increment the start to the next time slot
-        start = tempEnd
+    while (new Date(start).setMinutes(new Date(start).getMinutes() + eventLength) < recurringEnd) {
+      let tempDate = new Date(start).setUTCHours(0,0,0,0);
+      let tempStart = start;
+      let tempEnd = new Date(start).setMinutes(new Date(start).getMinutes() + eventLength);
+
+      let availabilities = openings[tempDate].availabilities;
+      let events = openings[tempDate].events;
+      
+      let openTutors = qualifiedTutors
+      .filter(tutor =>  availabilities?.[tempStart]?.includes(tutor) ?? false)
+      .filter(tutor => !events?.[tempStart]?.includes(tutor) ?? true);
+
+      const eventData = {
+        title: openTutors.length,
+        start: tempStart,
+        end: tempEnd,
+        tutors: openTutors,
       }
+      //push everything to our check array
+      checkEvents.push(eventData)
+      //only push the viewable days to this array
+      if (tempEnd <= viewableEnd) {viewableCheckEvents.push(eventData)}
+      
+      //increment the start to the next time slot
+      start = tempEnd
+    }
 
-      //we don't want to see the check events that don't have any tutor available (do it here first to get rid of the first week zeros - this is for optimizations)
-      viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
+    //we don't want to see the check events that don't have any tutor available (do it here first to get rid of the first week zeros - this is for optimizations)
+    viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
 
-      //check for the recurring weeks to filter out the times for this week down to the min of all fo the days at the given times
-      viewableCheckEvents.forEach((viewableEvent) => {
-        //find all of the check events that line up with this event (checking to the hour should be good for now. Must be changed if we make this more granular)
-        let matchedEvents = checkEvents.filter(checkEvent => {
-          return (new Date(checkEvent.start).getDay() == new Date(viewableEvent.start).getDay()) && 
-          (new Date(checkEvent.start).getHours() == new Date(viewableEvent.start).getHours()) &&
-          (new Date(checkEvent.start).getMinutes() == new Date(viewableEvent.start).getMinutes())
-        });
+    //check for the recurring weeks to filter out the times for this week down to the min of all fo the days at the given times
+    viewableCheckEvents.forEach((viewableEvent) => {
+      //find all of the check events that line up with this event (checking to the minute should be good for now. Must be changed if we make this more granular)
+      let matchedEvents = checkEvents.filter(checkEvent => {
+        return (new Date(checkEvent.start).getDay() == new Date(viewableEvent.start).getDay()) && 
+        (new Date(checkEvent.start).getHours() == new Date(viewableEvent.start).getHours()) &&
+        (new Date(checkEvent.start).getMinutes() == new Date(viewableEvent.start).getMinutes())
+      });
 
-        // console.log(viewableEvent)
-        // console.log(matchedEvents)
+      // console.log(viewableEvent)
+      // console.log(matchedEvents)
 
-        //find the lowest number of tutors avaiable to teach on any of these times
-        let min = Infinity;
-        matchedEvents.forEach(matchedEvent => {
-          if (matchedEvent.title < min) {
-            min = matchedEvent.title;
-          }
-        })
-
-        //TODO: maybe keep track of which tutors are available as well
-        //this doesn't make sense now because we aren't caring about keeping tutors consistent only if we have anyone
-
-        //adjust the viewable event to match this min as well as the color
-        viewableEvent.title = min;
-        viewableEvent.color = "hsl(" + (Math.round((min - 1) * (240 / (tutors.size - 1)))) + ", 100%, 50%)";
-        viewableEvent.textColor = tinycolor.mostReadable(viewableEvent.color, ["#FFFFFF", "000000"]).toHexString()
-
-        ///make sure to convert the start and end so that fullCalendar can usnertand it
-        viewableEvent.start = convertFromDateInt(viewableEvent.start).fullCalendar;
-        viewableEvent.end = convertFromDateInt(viewableEvent.end).fullCalendar;
+      //find the lowest number of tutors avaiable to teach on any of these times
+      let min = Infinity;
+      matchedEvents.forEach(matchedEvent => {
+        if (matchedEvent.title < min) {
+          min = matchedEvent.title;
+        }
       })
 
-      //we don't want to see the check events that don't have any tutor available (do it again to remove the zeros that came from the future weeks)
-      viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
+      //TODO: maybe keep track of which tutors are available as well
+      //this doesn't make sense now because we aren't caring about keeping tutors consistent only if we have anyone
 
-      calendarNotWorking();
-      return viewableCheckEvents;
+      //adjust the viewable event to match this min as well as the color
+      viewableEvent.title = min;
+      viewableEvent.color = "hsl(" + (Math.round((min - 1) * (240 / (qualifiedTutors.length - 1)))) + ", 100%, 50%)";
+      viewableEvent.textColor = tinycolor.mostReadable(viewableEvent.color, ["#FFFFFF", "000000"]).toHexString()
 
-    })
+      ///make sure to convert the start and end so that fullCalendar can usnertand it
+      viewableEvent.start = convertFromDateInt(viewableEvent.start).fullCalendar;
+      viewableEvent.end = convertFromDateInt(viewableEvent.end).fullCalendar;
+
+    });
+
+    //we don't want to see the check events that don't have any tutor available (do it again to remove the zeros that came from the future weeks)
+    viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
+
+    calendarNotWorking();
+    return viewableCheckEvents;
+
   }
   else {
     calendarNotWorking();
@@ -1552,8 +1571,10 @@ function openCalendarSidebar() {
  * close the calendar sidebar
  */
 function closeCalendarSidebar(force = false) {
+  console.log('closing calendar sidebar')
   sidebarNotWorking();
-  const calendarType = document.getElementById('calendarType').dataset.value;
+  // const calendarType = document.getElementById('calendarType').dataset.value;
+  const calendarType = current_type;
   
   //call the cancel function on the open sidebar
   if (!force) {
@@ -1586,12 +1607,15 @@ function closeCalendarSidebar(force = false) {
   else if (calendarType == 'event' && calendar_view != 'event') {
     initializeDefaultCalendar([], pending_recurring_start.start);
   }
+  else if (calendarType == 'opening' && calendar_view != 'opening') {
+    initializeOpeningCalendar([], pending_recurring_start.start);
+  }
 
   main_calendar.setOption('selectable', false);
   main_calendar.unselect();
-  main_calendar.getEvents().forEach((event) => {
-    event.setProp('editable', false);
-  })
+  // main_calendar.getEvents().forEach((event) => {
+  //   event.setProp('editable', false);
+  // })
   calendar_mode = "default";
 
   for (let key in pending_calendar_event) {
@@ -2327,7 +2351,7 @@ function setupEditLesson(data, id) {
     document.getElementById('editLessonType').textContent = lessonTypeReadable;
     document.getElementById('editLessonDescription').textContent = data.description;
     document.getElementById('editLessonStudent').textContent = data.studentName;
-    document.getElementById('editLessonStaff').textContent = data.staffNames;
+    document.getElementById('editLessonStaff').textContent = data.staffNames ?? 'No tutor assigned';
     document.getElementById('editLessonPrice').value = data.price;
   
     // //add back the default option (staff)
@@ -3388,7 +3412,7 @@ function updateEditTestReview() {
   })
 }
 
-function submitAddLesson() {
+async function submitAddLesson() {
   sidebarWorking();
   ///decide if it is a single event or a recurring event
   let scheduleType = '';
@@ -3424,9 +3448,8 @@ function submitAddLesson() {
     }
 
     if (confirm("Are you sure you want to submit this event?")) {
-      //check for conflicts
-      checkStudentConflicts(student, start, end)
-      .then((studentConflict) => {
+      try {
+        const studentConflict = await checkStudentConflicts(student, start, end)
         if (studentConflict) {
           sidebarNotWorking();
           return alert('This student has a conflict with a(n) ' + 
@@ -3436,47 +3459,39 @@ function submitAddLesson() {
           )
         }
 
-        //get the list of all tutors and randomly assign a tutor to this event
-        //check if there is a conflict or they are not available
-        //if the tutor is not open then remove them from the list and try again
-        //return if no one is open.
-
-        // getRandomOpenTutor(start, end, staff, staffNames)
-        return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
-        .then(tutor => {
-          if (tutor) {
-            eventInfo = {
-              type: type,
-              subtype: subtype,
-              description: description,
-              start: start,
-              end: end,
-              allDay, allDay,
-              location: location,
-              student: student,
-              staff: [tutor.id],
-              staffNames: [tutor.name],
-              price: price
-            }
-
-            saveLesson(eventInfo)
-            .then((event) => {
-              //FIXME: This should automatically update for the client and put it in a pending status
-              main_calendar.addEventSource([event]);
-              closeCalendarSidebar(true);
-            })
+        const tutors = await getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
+        console.log(tutors)
+        if (tutors.length > 0) {
+          eventInfo = {
+            type: type,
+            subtype: subtype,
+            description: description,
+            start: start,
+            end: end,
+            allDay, allDay,
+            location: location,
+            student: student,
+            staff: [tutors[0].tutor], // choose the first tutor since this tutor has been with the student the most or random
+            price: price
           }
-          else {
-            sidebarNotWorking();
-            return alert('None of the tutors given are open at this time. Try adding more tutors to the options or change the time of this lesson.')
-          }
-        })
-      })
-      .catch((error) => {
+
+          const event = await saveLesson(eventInfo)
+          // //FIXME: This should automatically update for the client and put it in a pending status
+          // main_calendar.addEventSource([event]);
+          closeCalendarSidebar(true);
+          //since the defualt is to show no lesson just reload the entire calendar
+          getCurrentCalendarTypeContent();
+        }
+        else {
+          sidebarNotWorking();
+          return alert("We don't have any tutors open at this time. Check the openings page for more options.")
+        }
+      }
+      catch(error) {
         sidebarNotWorking();
         console.log(error);
         alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
-      })
+      }
     }
     else {
       sidebarNotWorking();
@@ -3495,12 +3510,14 @@ function submitAddLesson() {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
-    if (start < new Date().getTime()) {
+    if (pending_recurring_start.start < new Date().getTime()) {
       sidebarNotWorking();
       return alert("You can't create a lesson in the past");
     }
     if (confirm("Are you sure you want to submit these events?")) {
       //figure out all of the events that must be added based on recurring start, end, and times.
+
+      console.time('recurring')
 
       pending_recurring_times.forEach(weekTime => {
         let start = weekTime.start.getTime();
@@ -3516,22 +3533,24 @@ function submitAddLesson() {
         while (end < pending_recurring_end.end.getTime()) {
           let passThruTimes = (start, end) => {
             //check for conflicts
+            console.log('start checking a lesson at', start)
             recurringPendingEventsFulfilled.push(
               checkStudentConflicts(student, start, end)
               .then((studentConflict) => {
+                console.log('done checking student conflicts for', start)
+                console.timeLog('recurring')
                 if (studentConflict) {
                   studentConflicts.push(studentConflict);
-                  // alert('This student has a conflict with a(n) ' + 
-                  //   eventTypeReadable(studentConflict.data().type) + ' event from ' +
-                  //   convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
-                  //   convertFromDateInt(studentConflict.data().end).longReadable
-                  // )
+                  return; // since we have a student conflict just return so we don't check tutor
                 }
 
                 // return getRandomOpenTutor(start, end, staff, staffNames)
-                return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
-                .then(tutor => {
-                  if (tutor) {
+                // return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
+                return getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
+                .then(tutors => {
+                  console.log('done getting tutors for', start)
+                  console.timeLog('recurring')
+                  if (tutors.length > 0) {
                     eventInfo = {
                       type: type,
                       subtype: subtype,
@@ -3540,19 +3559,17 @@ function submitAddLesson() {
                       end: end,
                       location: location,
                       student: student,
-                      staff: [tutor.id],
-                      staffNames: [tutor.name],
+                      pendingStaff: tutors,
                       price: price
                     }
                     pendingEvents.push(eventInfo);
                   }
                   else {
-                    sidebarNotWorking();
                     staffConflicts.push({
                       start : start,
                       end : end
                     })
-                    // alert('None of the tutors given are open from ' + convertFromDateInt(start).longReadable + ' to ' + convertFromDateInt(end).longReadable + '. Try adding more tutors to the options or change the time of this lesson.')
+                    return;
                   }
                 })
               })
@@ -3564,26 +3581,48 @@ function submitAddLesson() {
         }
       })
 
-      Promise.all(recurringPendingEventsFulfilled)
-      .then(() => {
+      try {
+        await Promise.all(recurringPendingEventsFulfilled)
+        console.log('done with prepping all events')
+        console.timeLog('recurring')
         if (studentConflicts.length == 0 && staffConflicts.length == 0) {
           console.log(pendingEvents);
+          // get a new array with only one copy of each tutor for all lesson with their new scores
+          // convert the events just to their pending tutors and flatten so the arrays are all on the same level
+          let allTutors = pendingEvents.flatMap(event => event.pendingStaff) 
+          // filter out the duplicates and at the same time calculate how many times the tutor appears in the list
+          .filter((tutor, index, tutors) => {
+            let firstTutorIndex = tutors.findIndex(findTutor => findTutor.tutor === tutor.tutor)
+            tutors[firstTutorIndex].num++;
+            return firstTutorIndex === index;
+          })
+          // sort based on num
+          .sort((a,b) => b.num - a.num);
+
+          // go through each pending event and choose the tutor from that list that appears first in allTutors
+          let batch = firebase.firestore().batch();
           pendingEvents.forEach(event => {
-            recurringEventsFulfilled.push(saveLesson(event));
+            for (let i = 0; i < allTutors.length; i++) {
+              if (event.pendingStaff.find(pendingTutor => pendingTutor.tutor === allTutors[i].tutor)) {
+                event.staff = [allTutors[i].tutor];
+                recurringEventsFulfilled.push(batchSaveLesson(event, batch));
+                break;
+              }
+            }
           })
 
-          Promise.all(recurringEventsFulfilled)
-          .then(events => {
-            events.forEach(event => {
-              main_calendar.addEventSource([event]);
-            })
-            closeCalendarSidebar(true);
-          })
-          .catch((error) => {
-            sidebarNotWorking();
-            console.log(error);
-            alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
-          })
+          console.log('done with setting all events')
+          console.timeLog('recurring')
+
+          const events = await Promise.all(recurringEventsFulfilled)
+          console.log('done with saving all events')
+          console.timeLog('recurring')
+          await batch.commit()
+          // main_calendar.addEventSource(events)
+          closeCalendarSidebar(true);
+          console.log('done with rendering all events')
+          console.timeEnd('recurring')
+          getCurrentCalendarTypeContent();
         }
         else {
           sidebarNotWorking();
@@ -3613,7 +3652,12 @@ function submitAddLesson() {
           `
           customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
         }
-      })
+      }
+      catch(error) {
+        sidebarNotWorking();
+        console.log(error);
+        alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+      }
     }
     else {
       sidebarNotWorking();
@@ -3635,6 +3679,9 @@ function getRandomOpenTutor(start, end, tutorList, tutorNameList) {
   //make deep copies so that the original array that are being worked on by the other functions
   let newTutorList = JSON.parse(JSON.stringify(tutorList));
   let newTutorNameList = JSON.parse(JSON.stringify(tutorNameList));
+
+  console.log(newTutorList)
+  console.log(newTutorNameList);
 
   if (newTutorList.length > 0) {
     let randomIndex = Math.floor(Math.random() * newTutorList.length);
@@ -3701,12 +3748,15 @@ async function getQualifiedOpenTutor(start, end, qualification, studentUID) {
   for (let i = 0; i < previousTutorList.length; i++) {
     //get the tutor's name from their doc
     const tutorDoc = await firebase.firestore().collection('Users').doc(previousTutorList[i].tutor).get();
-    const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName
-    //if we get a tutor that is available then return
-    const availableTutor = await getRandomOpenTutor(start, end, [tutorDoc.id], [tutorName]);
-    if (availableTutor) {
-      console.log('returning previous tutor')
-      return availableTutor;
+    //check if the tutor is qualified
+    if (tutorDoc.data().qualifications.includes(qualification)) {
+      const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName
+      //if we get a tutor that is available then return
+      const availableTutor = await getRandomOpenTutor(start, end, [tutorDoc.id], [tutorName]);
+      if (availableTutor) {
+        console.log('returning previous tutor')
+        return availableTutor;
+      }
     }
   }  
 
@@ -3724,6 +3774,95 @@ async function getQualifiedOpenTutor(start, end, qualification, studentUID) {
   console.log('returning random tutor')
   return await getRandomOpenTutor(start, end, tutorUIDs, tutorNames);
 
+}
+
+async function getTutorsOpenByQualification(start, end, qualification, studentUID) {
+  // get the blackisted tutors
+  const studentDoc = await firebase.firestore().collection('Users').doc(studentUID).get();
+  const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
+
+  // get the qualified tutors
+  const qualifiedTutorDocs = await getTutorDocsByQualification(current_location, qualification);
+  let qualifiedTutors = qualifiedTutorDocs.docs.map(doc => doc.id); 
+  console.log({qualifiedTutors})
+
+  // remove the blacklisted tutors
+  qualifiedTutors = qualifiedTutors.filter(tutor => !blacklistTutors.includes(tutor));
+  // no one is qualified so immediately fail
+  if (qualifiedTutors.length == 0) {
+    return [];
+  }
+
+  let openTutors = await getOpenTutors(current_location, start, end, qualifiedTutors);
+  console.log({openTutors})
+
+  // no need to do the following work if no tutors are open
+  if (openTutors.length == 0) {
+    return openTutors;
+  }
+
+  // now choose a tutor based on the studet's previous tutors or random
+  const previousTutors = studentDoc.data().previousTutors ?? {};
+
+  // sort the previous tutors
+  const previousTutorList = Object.keys(previousTutors).map(tutorUID => {
+    return {
+      tutor: tutorUID,
+      num: previousTutors[tutorUID] 
+    }
+  })
+
+  // go through the list of open tutors and add in the details for the number of time the tutor has taught this student
+  openTutors = openTutors.map(openTutor => {
+    const previousTutor = previousTutorList.find(previousTutor => previousTutor.tutor == openTutor)
+    if (previousTutor) {
+      return previousTutor
+    }
+    else {
+      return {
+        tutor: openTutor,
+        num: 0
+      }
+    }
+  }).sort((a,b) => b.num - a.num);
+
+  return openTutors;
+}
+
+async function getOpenTutors(location, start, end, tutorUIDs) {
+  let dates = {};
+  let tempStart = new Date(start).getTime();
+
+  // get the intervals and the dates they are a part of that we need to check
+  while (tempStart < end) {
+    const date = new Date(tempStart).setUTCHours(0,0,0,0);
+    if (!dates[date]) {
+      dates[date] = [];
+    }
+    dates[date].push(tempStart);
+    tempStart = new Date(tempStart).setMinutes(new Date(tempStart).getMinutes() + 30);
+  }
+
+  // run through the dates
+  let tutorsOpen = [...tutorUIDs];
+  for (const date in dates) {
+    const totalRef = firebase.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(date.toString());
+    const totalDoc = await totalRef.get();
+    if (!totalDoc.exists) {
+      return [];
+    }
+    let totalData = totalDoc.data();
+    // run through the intervals
+    for (let i = 0; i < dates[date].length; i++) {
+      // check if at least one of the provided tutors are open
+      const availabilities = totalData.availabilities?.[dates[date][i]] ?? [];
+      const events = totalData.events?.[dates[date][i]] ?? [];
+
+      const openings = tutorUIDs.filter(tutor => !events.includes(tutor) && availabilities.includes(tutor));
+      tutorsOpen = tutorsOpen.filter(tutor => openings.includes(tutor));
+    }
+  }
+  return tutorsOpen;
 }
 
 function getTutorDocsByQualification(location, qualification) {
@@ -3894,10 +4033,7 @@ function submitAddAvailability() {
       //then finish the availability process
       Promise.all(recurringEventsFulfilled)
       .then(events => {
-        events.forEach(event => {
-          main_calendar.addEventSource([event]);
-        })
-        closeCalendarSidebar(true);
+        main_calendar.addEventSource(events);
         
         //try and correct the conflicts created by the change in availability
         fixAvailabilityChangeConflicts(staff, pending_recurring_start.start.getTime(), pending_recurring_end.end.getTime())
@@ -3920,6 +4056,7 @@ function submitAddAvailability() {
             `
             customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
           }
+          closeCalendarSidebar(true);
         })
       })
     })
@@ -4357,65 +4494,136 @@ function saveTestReview(eventInfo) {
   })
 }
 
-function saveLesson(eventInfo) {
+async function batchSaveLesson(eventInfo, batch) {
+  let staffNames = [];
   let studentData = {};
-  let staffData = {};
+  let lessonTypeReadable = "";
+  let promises = [];
+
+  // get the staff names
+  eventInfo.staff.forEach(async (tutorUID) => {
+    promises.push(firebase.firestore().collection('Users').doc(tutorUID).get()
+    .then(tutorDoc => {
+      staffNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+    }))
+  })
 
   //get the student doc for name and parent
-  return firebase.firestore().collection("Users").doc(eventInfo.student).get()
-  .then((studentDoc) => {
+  promises.push(firebase.firestore().collection("Users").doc(eventInfo.student).get()
+  .then(studentDoc => {
     studentData = studentDoc.data();
+  }))
+  
+  promises.push(convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
+  .then(res => {
+    lessonTypeReadable = res;
+  }))
+
+  await Promise.all(promises);
+  
+
+  const studentName = studentData.firstName + ' ' + studentData.lastName;
+  const studentParents = studentData.parents;
+
+  const eventRef = firebase.firestore().collection("Events").doc()
+  let eventData = {
+    type: eventInfo.type,
+    subtype: eventInfo.subtype,
+    description: eventInfo.description,
+    title: studentName + " - " + lessonTypeReadable,
+    start: parseInt(eventInfo.start),
+    end: parseInt(eventInfo.end),
+    location: eventInfo.location,
+
+    student: eventInfo.student,
+    studentName: studentName,
     
-    //get first staff name for color
-    return firebase.firestore().collection("Users").doc(eventInfo.staff[0]).get()
+    parents: studentParents,
+
+    staff: eventInfo.staff,
+    staffNames,
+
+    attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
+
+    price: eventInfo.price
+  }
+
+  batch.set(eventRef, eventData)
+  return {
+    id: eventRef.id,
+    title: eventData.title,
+    start: convertFromDateInt(eventData.start).fullCalendar,
+    end: convertFromDateInt(eventData.end).fullCalendar,
+    allDay: eventData.allDay,
+    color: eventData.color,
+    textColor: eventData.textColor,
+  }
+}
+
+async function saveLesson(eventInfo) {
+  let staffNames = [];
+  let studentData = {};
+  let lessonTypeReadable = "";
+  let promises = [];
+
+  // get the staff names
+  eventInfo.staff.forEach(async (tutorUID) => {
+    promises.push(firebase.firestore().collection('Users').doc(tutorUID).get()
+    .then(tutorDoc => {
+      staffNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+    }))
   })
-  .then((staffDoc) => {
-    staffData = staffDoc.data();
 
-    return convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
-  })
-  .then((lessonTypeReadable) => {
-    const studentName = studentData.firstName + ' ' + studentData.lastName;
-    const studentParents = studentData.parents;
-    const staffColor = staffData?.color;
+  //get the student doc for name and parent
+  promises.push(firebase.firestore().collection("Users").doc(eventInfo.student).get()
+  .then(studentDoc => {
+    studentData = studentDoc.data();
+  }))
+  
+  promises.push(convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
+  .then(res => {
+    lessonTypeReadable = res;
+  }))
 
-    const eventRef = firebase.firestore().collection("Events").doc()
-    let eventData = {
-      type: eventInfo.type,
-      subtype: eventInfo.subtype,
-      description: eventInfo.description,
-      title: studentName + " - " + lessonTypeReadable,
-      start: parseInt(eventInfo.start),
-      end: parseInt(eventInfo.end),
-      location: eventInfo.location,
-      color: staffColor ?? null,
-      textColor: tinycolor.mostReadable(staffColor, ["#FFFFFF", "000000"]).toHexString() ?? null,
+  await Promise.all(promises);
+  
 
-      student: eventInfo.student,
-      studentName: studentName,
-      
-      parents: studentParents,
+  const studentName = studentData.firstName + ' ' + studentData.lastName;
+  const studentParents = studentData.parents;
 
-      staff: eventInfo.staff,
-      staffNames: eventInfo.staffNames,
+  const eventRef = firebase.firestore().collection("Events").doc()
+  let eventData = {
+    type: eventInfo.type,
+    subtype: eventInfo.subtype,
+    description: eventInfo.description,
+    title: studentName + " - " + lessonTypeReadable,
+    start: parseInt(eventInfo.start),
+    end: parseInt(eventInfo.end),
+    location: eventInfo.location,
 
-      attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
+    student: eventInfo.student,
+    studentName: studentName,
+    
+    parents: studentParents,
 
-      price: eventInfo.price
-    }
-    return eventRef.set(eventData)
-    .then(() => {
-      return {
-        id: eventRef.id,
-        title: eventData.title,
-        start: convertFromDateInt(eventData.start).fullCalendar,
-        end: convertFromDateInt(eventData.end).fullCalendar,
-        allDay: eventData.allDay,
-        color: eventData.color,
-        textColor: eventData.textColor,
-      }
-    })
-  });
+    staff: eventInfo.staff,
+    staffNames,
+
+    attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
+
+    price: eventInfo.price
+  }
+
+  await eventRef.set(eventData)
+  return {
+    id: eventRef.id,
+    title: eventData.title,
+    start: convertFromDateInt(eventData.start).fullCalendar,
+    end: convertFromDateInt(eventData.end).fullCalendar,
+    allDay: eventData.allDay,
+    color: eventData.color,
+    textColor: eventData.textColor,
+  }
 }
 
 function saveAvailability(eventInfo) {
@@ -4705,7 +4913,7 @@ function recurringEventStartEndClickCallback(target) {
   unselectSiblings(target);
   target.classList.add('selected');
 
-  initializepMonthScheduleCalendar([pending_recurring_start, pending_recurring_end]);
+  initializeMonthScheduleCalendar([pending_recurring_start, pending_recurring_end]);
 }
 
 //FIXME: are the assumptions good?
@@ -4865,118 +5073,6 @@ function checkStaffAvailability(staffUID, start, end) {
   })
 }
 
-/**
- * get a snapshot of event documents that will start at the next hour
- * @param {String} location UID for the location to pull the upcoming events
- * @returns promise that resolves with a firebase snapshot collection
- */
-function getNextHourEvents(location) {
-  const nextHour = new Date().setHours(new Date().getHours() + 1, 0, 0, 0);
-  return firebase.firestore().collection('Events')
-  .where('location', '==', location)
-  .where('start', '==', nextHour)
-  .get();
-}
-
-//FIXME: Assuming that current events started at most the beginning of the day
-function getCurrentEvents(location) {
-  const currentTime = new Date().getTime();
-  const beginningOfDay = new Date().setHours(0, 0, 0, 0);
-  return firebase.firestore().collection('Events')
-  .where('location', '==', location)
-  .where('start', '<=', currentTime)
-  .where('start', '>=', beginningOfDay)
-  .get()
-  .then(eventSnapshot => {
-    let currentEvents = []
-
-    eventSnapshot.forEach(eventDoc => {
-      if (eventDoc.data().end > currentTime) {
-        currentEvents.push(eventDoc)
-      }
-    })
-
-    return currentEvents;
-  })
-}
-
-function setupEventGlanceGrid() {
-  if (!current_location) {
-    return
-  }
-  //clear the grid
-  document.getElementById('eventGlance').querySelectorAll('.gridItem').forEach(item => {
-    item.remove()
-  })
-
-  //set this function to run at the next hour
-  const nextHour = new Date().setHours(new Date().getHours(), 10, 0, 0);
-  let diff = nextHour - new Date().getTime();
-  diff = diff <= 0 ? diff + 3600000 : diff;
-  console.log(diff)
-
-  //FIXME: If the user navigates away the browser will clear the timeout for performance reasons. 
-  //We might need to run an interval every second to see if we are in a different hour and then call this function again
-  clearTimeout(event_glance_timeout_id);
-  event_glance_timeout_id = setTimeout(setupEventGlanceGrid, diff);
-
-  getNextHourEvents(current_location)
-  .then(eventSnapshot => {
-    eventSnapshot.forEach(eventDoc => {
-      const id = eventDoc.id;
-      const data = eventDoc.data()
-      const upcomingDivider = document.getElementById('upcomingDivider');
-
-      //get the srudent's image
-      let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + data.student)
-      ref.getDownloadURL()
-      .then((url) => {
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], ''))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
-        upcomingDivider.after(createElement('img', ['gridItem'], ['src'], [url], ""))
-      })
-      .catch((error) => {
-        console.log("No image found")
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], ''))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
-        upcomingDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
-        upcomingDivider.after(createElement('img', ['gridItem'], ['src'], ["Images/blank-profile-picture.png"], ""))
-      })
-    })
-  })
-
-  getCurrentEvents(current_location)
-  .then(events => {
-    events.forEach(eventDoc => {
-      const id = eventDoc.id;
-      const data = eventDoc.data()
-      const currentDivider = document.getElementById('currentDivider');
-
-      //get the srudent's image
-      let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Programs/ACT/Images/' + data.student)
-      ref.getDownloadURL()
-      .then((url) => {
-        currentDivider.after(createElement('div', ['gridItem'], ['onclick'], [`reconcileEvent(${id})`], 'reconcile'))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
-        currentDivider.after(createElement('img', ['gridItem'], ['src'], [url], ""))
-      })
-      .catch((error) => {
-        console.log("No image found")
-        currentDivider.after(createElement('div', ['gridItem'], ['onclick'], [`reconcileEvent(${id})`], 'reconcile'))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], data.staffNames ? data.staffNames.join(" and ") : ""))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], eventTypeReadable(data.type)))
-        currentDivider.after(createElement('div', ['gridItem'], [], [], data.studentName ?? ""))
-        currentDivider.after(createElement('img', ['gridItem'], ['src'], ["Images/blank-profile-picture.png"], ""))
-      })
-    })
-  })
-}
-
 function eventTypeReadable(type) {
   switch(type) {
     case 'conference':
@@ -5002,16 +5098,4 @@ function eventTypeReadable(type) {
     default:
       return type;
   }
-}
-
-function reconcileEvent(eventID) {
-  firebase.firestore().collection('Events').doc(eventID).update({
-    isReconciled: true
-  })
-}
-
-function unreconcileEvent(eventID) {
-  firebase.firestore().collection('Events').doc(eventID).update({
-    isReconciled: false
-  })
 }

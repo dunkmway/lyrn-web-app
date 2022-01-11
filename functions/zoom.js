@@ -56,48 +56,7 @@ exports.createZoomUser = functions.firestore
   return;
 });
 
-/**
- * triggered when an event is created in the Event collection
- */
-exports.createZoomMeeting = functions.firestore
-.document('/Events/{eventID}')
-.onCreate(async (snap, context) => {
-  const payload = {
-    iss: functions.config().zoom.key,
-    exp: Math.round(((new Date()).getTime() + 5000) / 1000)
-  };
-
-  const eventData = snap.data();
-  
-  const token = jwt.sign(payload, functions.config().zoom.secret);
-
-  //get the zoomID of the tutor who is assigned to this meeting
-  let tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get()
-
-  var config = {
-    method: 'post',
-    url: `/users/${tutorDoc.data().zoomID}/meetings`,
-    baseURL: zoomBaseURL,
-    data: {
-      topic: eventData.title,
-      type: 2,
-      start_time: convertMilliToZoomDateFormat(eventData.start),
-      duration: (eventData.end - eventData.start) / 60000,
-    },
-    headers: {
-      Authorization: 'Bearer ' + token
-    }
-  }
-
-  let response = await axios(config);
-  console.log(convertAxiosResponseToJSON(response))
-  await snap.ref.update({
-    staffZoomURL: response.data.start_url,
-    studentZoomURL: response.data.join_url,
-    zoomMeetingID: response.data.id
-  })
-  return;
-});
+// zoom meeting creation is handled when sedning out the lesson-link email
 
 /**
  * triggered when an event is updated in the Event collection
@@ -108,6 +67,9 @@ exports.createZoomMeeting = functions.firestore
   .onUpdate(async (change, context) => {
     const newValues = change.after.data();
     const oldValues = change.before.data();
+
+    // if the old values didn't have a zoom meeting id then there is nothing to update
+    if (!oldValues.zoomMeetingID) return;
 
     // if the values that should be updated have actually changed then continue. if not return 
     // with zoom we can't change the tutor without paying so we will just restrict the admin from changing the tutor
@@ -136,8 +98,7 @@ exports.createZoomMeeting = functions.firestore
     }
 
     try {
-      let response = await axios(config);
-      console.log(convertAxiosResponseToJSON(response))
+      await axios(config);
      }
      catch (error) {
       console.log(error)
@@ -152,6 +113,9 @@ exports.createZoomMeeting = functions.firestore
   .document('/Events/{eventID}')
   .onDelete(async (snap, context) => {
     const deletedValues = snap.data();
+
+    // if the delete doc didn't have a zoom meeting id then there is nothing to delete
+    if (!deletedValues.zoomMeetingID) return;
 
     const payload = {
       iss: functions.config().zoom.key,
@@ -171,8 +135,7 @@ exports.createZoomMeeting = functions.firestore
    }
  
    try {
-    let response = await axios(config);
-    console.log(convertAxiosResponseToJSON(response))
+    await axios(config);
    }
    catch (error) {
     console.log(error)

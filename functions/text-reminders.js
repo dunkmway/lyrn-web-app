@@ -85,8 +85,8 @@ exports.text_reminder_test = functions.https.onRequest(async (request, response)
 });
 
 function eventReminderText(to, from, studentName) {
-  const body = `We're excited to see you tomorrow for your lesson with ${studentName}.
-    We will send you an email with the zoom link to the meeting an hour before your lesson.`
+  const body = `We're excited to see you tomorrow for your lesson with ${studentName}. 
+  We will send you an email with the zoom link to the meeting an hour before your lesson.`
   return client.messages.create({body: body, from: from, to: to})
 }
 

@@ -8,6 +8,7 @@ exports.billing = require('./billing');
 exports.text_reminders = require('./text-reminders');
 exports.previous_tutors = require('./previous-tutors');
 exports.lesson_link = require('./lesson-link');
+exports.calendar_openings = require('./calendar-openings');
 exports.zoom = require('./zoom');
 admin.initializeApp();
 
