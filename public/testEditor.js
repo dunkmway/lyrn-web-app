@@ -1223,7 +1223,7 @@ function setPassageTextHelper(spacing = '') {
 		'title': document.getElementById(section + 'PassageTitle').value,
 		'passageText': document.getElementById(section + 'PassageText').value,
 		'preText' : preText,
-		'reference': document.getElementById(section + 'PassageReference').value,
+		'reference': (section == 'reading' || section == 'science') ? document.getElementById(section + 'PassageReference').value : '',
 		'ABData' : ABData
 	}
 		, spacing + spaceSize)
