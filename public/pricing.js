@@ -1,6 +1,6 @@
 function initialSetup() {
   let queryCourse = queryStrings()['course'];
-  if (queryCourse) {
+  if (queryCourse && queryCourse != 'act') {
     openCourse(queryCourse)
   }
 }

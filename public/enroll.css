@@ -440,6 +440,17 @@ nav a:hover {
   transform: rotateZ(45deg);
 }
 
+.contact-form input[type='submit'] {
+  background-color: var(--color-accent-2-deep);
+  color: white;
+  cursor: pointer;
+}
+
+.contact-form p {
+  margin-top: 1em;
+  font-size: 1.1rem;
+}
+
 @media screen and (min-width: 800px) {
   .contact {
     flex-direction: column;
@@ -467,7 +478,7 @@ nav a:hover {
   color: var(--color-primary);
   text-align: center;
 
-  padding-top: 27rem;
+  padding-top: 30rem;
 }
 
 .courses a {
@@ -503,6 +514,25 @@ nav a:hover {
 .course-card:hover {
   background-position: right;
   transform: scale(1.02);
+}
+
+.course-card.coming-soon {
+  position: relative;
+  overflow: hidden;
+}
+
+.course-card.coming-soon::after {
+  content: 'Coming Soon';
+  background-color: var(--color-accent-5-light);
+  color: white;
+  font-weight: 900;
+  padding: .5em 3em;
+  position: absolute;
+  top: 2.5em;
+  right: 2.5em;
+  transform: translate(50%, -50%) rotate(45deg);
+  transform-origin: center;
+  border-radius: 1em;
 }
 
 .course-card h2 {

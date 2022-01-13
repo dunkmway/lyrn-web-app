@@ -1,5 +1,5 @@
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
 let currentUser = {};
 let customerData = {};
 let parentData = {};
@@ -112,7 +112,6 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          const payment = doc.data();
          payment.docId = doc.id;
          payments.push(payment);
-         console.log(payment)
        })
 
        payments.sort((a,b) => b.created - a.created);
@@ -129,7 +128,6 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            payment.status === 'new' ||
            payment.status === 'requires_confirmation'
          ) {
-           console.log('new payment')
            content = `Creating Payment of ${formatAmount(
              payment.amount,
              payment.currency
@@ -207,19 +205,11 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
       payoffAmount += (price * 100);
     })
 
-    console.log('payoff before dicount')
-    console.log(payoffAmount);
-
     //apply discount
     payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
 
     payoffAmount -= balance;
     togglePayoffAmount();
-
-    console.log('payoff after dicount')
-    console.log(payoffAmount);
-    console.log('time remaining')
-    console.log(remainingTime);
   })
 }
 
@@ -238,19 +228,11 @@ function updatePayoffAmount() {
       payoffAmount += (price * 100);
     })
 
-    console.log('payoff before dicount')
-    console.log(payoffAmount);
-
     //if the remaining time is less than 20 hours then discount the payoff by 10%
     payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
 
     payoffAmount -= balance;
     togglePayoffAmount();
-
-    console.log('payoff after dicount')
-    console.log(payoffAmount);
-    console.log('time remaining')
-    console.log(remainingTime);
   })
 }
 

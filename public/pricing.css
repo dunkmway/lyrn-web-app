@@ -44,6 +44,7 @@ section {
 
 a {
   cursor: pointer;
+  text-decoration: none;
 }
 
 img {
@@ -399,6 +400,25 @@ nav a:hover {
 .course-card:hover {
   background-position: right;
   transform: scale(1.02);
+}
+
+.course-card.coming-soon {
+  position: relative;
+  overflow: hidden;
+}
+
+.course-card.coming-soon::after {
+  content: 'Coming Soon';
+  background-color: var(--color-accent-5-light);
+  color: white;
+  font-weight: 900;
+  padding: .5em 3em;
+  position: absolute;
+  top: 2.5em;
+  right: 2.5em;
+  transform: translate(50%, -50%) rotate(45deg);
+  transform-origin: center;
+  border-radius: 1em;
 }
 
 .course-card h2 {

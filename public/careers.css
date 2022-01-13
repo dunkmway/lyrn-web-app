@@ -446,9 +446,14 @@ nav a:hover {
   transform: translateX(-1em);
 }
 
+.content p.ul-header {
+  margin: 0;
+}
+
 .content ul {
   padding: 0em 2em;
   list-style: none;
+  margin-bottom: 4em
 }
 
 @media screen and (min-width: 800px) {

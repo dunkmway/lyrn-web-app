@@ -346,10 +346,8 @@ function paymentSuccessfulBalanceNonNegativeEmail(parentEmail, paymentAmount, pa
     to: parentEmail, // Change to your recipient
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Lesson Payment',
-    text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    For more details about your account please review your payment portal. www.lyrnwithus.com`,
-    html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+    text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!`,
+    html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!`,
   }
   return sgMail.send(msg)
 }
@@ -360,11 +358,9 @@ function paymentSuccessfulBalanceNegativeEmail(parentEmail, paymentAmount, payme
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Lesson Payment',
     text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.
-    For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.`,
     html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.
-    For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.`,
   }
   return sgMail.send(msg)
 }
@@ -376,10 +372,10 @@ function paymentFailedBalanceNegativeEmail(parentEmail, paymentAmount, paymentCu
     subject: 'Lyrn Lesson Payment',
     text: `We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
     Your current balance is negative and due to this we have placed your account on probation. We will be in contact
-    in the coming days to discuss your balance. For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    in the coming days to discuss your balance.`,
     html: `<strong>We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
     Your current balance is negative and due to this we have placed your account on probation. We will be in contact
-    in the coming days to discuss your balance. For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+    in the coming days to discuss your balance.`,
   }
   return sgMail.send(msg)
 }
@@ -391,10 +387,10 @@ function paymentFailedBalanceNonNegativeEmail(parentEmail, paymentAmount, paymen
     subject: 'Lyrn Lesson Payment',
     text: `We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
     Your current balance is still positive so you will not be placed on probation. We recommend seeing what payment failed and contacting
-    us if you think there was a mistake. For more details about your account please review your payment portal. www.lyrnwithus.com`,
+    us if you think there was a mistake.`,
     html: `<strong>We were unable to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}. 
     Your current balance is still positive so you will not be placed on probation. We recommend seeing what payment failed and contacting
-    us if you think there was a mistake. For more details about your account please review your payment portal. www.lyrnwithus.com</strong>`,
+    us if you think there was a mistake.`,
   }
   return sgMail.send(msg)
 }
