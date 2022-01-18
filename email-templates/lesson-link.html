@@ -1,0 +1,103 @@
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+
+    body {
+      font-family: "proxima-nova", sans-serif;
+      font-size: 1rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .head {
+      height: 70px;
+      background-color: #111A43;
+      color: white;
+      align-content: center;
+    }
+
+    .main {
+      padding: 1rem 1rem 0rem 1rem;
+    }
+
+    .main .content {
+      background-color: #F9F9F9;
+      border-radius: 2em 2em 0em 0em;
+      padding: 2rem;
+    }
+
+    .content p {
+      margin-bottom: 0;
+    }
+
+    .content h1 {
+      color: #111A43;
+      margin-bottom: 0;
+      margin-top: .5rem;
+      font-size: 3em;
+    }
+
+    .content h2 {
+      color: #64C13D;
+      margin-bottom: 2rem;
+      margin-top: .5rem;
+    }
+
+    .content .link {
+      background-color: #64C13D;
+      color: white;
+      padding: .75em;
+      border-radius: 1em 0em 0em 1em;
+      align-self: center;
+      width: max-content;
+      margin-bottom: 4em;
+    }
+
+    .content .link a {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .content .bottom {
+      align-self: center;
+    }
+
+    .foot {
+      background-color: #111A43;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 50px;
+    }
+
+    .foot .divider {
+      width: 2px;
+      height: 30px;
+      background-color: white;
+      margin: 0px 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div class="logo">
+     Lyrn
+    </div>
+  </div>
+  <div class="main">
+    <div class="content">
+      <p>Hey ${name},</p>
+      <h1>WE'RE EXCITED TO SEE YOU TODAY!</h1>
+      <h2>${date} @ ${time}</h2>
+      <div class="link"><a href=${zoomLink}>CLICK HERE FOR YOUR ZOOM LINK</a></div>
+      <p class="bottom">If you have any difficulties, call or text</p>
+    </div>
+  </div>
+  <div class="foot">
+    <p>(877)-400-1641</p>
+    <div class="divider"></div>
+    <p>lyrnwithus.com</p>
+  </div>
+</body>

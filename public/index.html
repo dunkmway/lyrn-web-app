@@ -3,7 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. Data driven success for your student in any class or upcoming test.">
+    <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. A simple and transparent tutoring experience driven by data to bring about success for your student in any class or upcoming test.">
+    
+    <meta property="og:url" content="https://www.lyrnwithus.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lyrn Tutoring" />
+    <meta property="og:description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. A simple and transparent tutoring experience driven by data to bring about success for your student in any class or upcoming test." />
+    <meta property="og:image" content="https://lyrnwithus.com/Images/Lyrn_About_2.png" />
     <title>Lyrn | Data Driven Tutoring through Adaptive Learning</title>
 
     <!-- Firebase -->
@@ -25,7 +31,7 @@
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
   </head>
 
-  <body>
+  <body onload="aboutSetup()">
     <header class="nav-start">
       <a href="#" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
       <label for="nav-toggle" class="nav-toggle-label">
@@ -104,9 +110,9 @@
           <div class="background-main noselect">College Consultation</div>
         </div>
         <div class="hero__intro">
-          <h1>Data-Driven Tutoring</h1>
+          <h1>Simple and Transparent Tutoring</h1>
           <h4>Subject Tutoring and ACT Prep with <a href="why.html">Adaptive Learning Intelligence</a></h4>
-          <div><a class="enroll" href="enroll.html">Get Started</a></div>
+          <div><a class="enroll" href="pricing.html">See our pricing</a></div>
         </div>
         <!-- <div class="hero__body">
             <img src="Images/Lyrn_hero_section_image.png" alt="Adaptive Learning in action">
@@ -117,7 +123,7 @@
         <h2>How can we help?</h2>
         <div class="about-details">
           <div class="details">
-            <input type="checkbox" name="about_1" id="about_1" class="about_toggle" checked>
+            <input type="checkbox" name="about_1" id="about_1" class="about_toggle" checked disabled>
             <label for="about_1" class="summary"><h3>Math is a struggle</h3></label>
             <div class="content">
               <p>Math is always voted the worst subject in school, and we think it's because students aren't 
@@ -130,7 +136,7 @@
             </div>
           </div>
           <div class="details">
-            <input type="checkbox" name="about_2" id="about_2" class="about_toggle">
+            <input type="checkbox" name="about_2" id="about_2" class="about_toggle" disabled>
             <label for="about_2" class="summary"><h3>Need homework help</h3></label>
             <div class="content">
               <p>We have you covered! Our professional tutors are outstanding students working towards degrees
@@ -143,7 +149,7 @@
             </div>
           </div>
           <div class="details">
-            <input type="checkbox" name="about_3" id="about_3" class="about_toggle">
+            <input type="checkbox" name="about_3" id="about_3" class="about_toggle" disabled>
             <label for="about_3" class="summary"><h3>Meet your ACT goals</h3></label>
             <div class="content">
               <p>Whether you need just a few more points to get into the college of your dreams or want a 4+ 

@@ -18,11 +18,13 @@ appCheck.activate(
   true
 )
 
+let aboutAnimations = [];
+
 //navbar section
 
 const header = document.querySelector('header');
 const heroSection = document.querySelector('.hero');
-const aboutSection = document.querySelector('.about')
+const aboutSection = document.querySelector('.about');
 
 const heroSectionOptions = {
   rootMargin: "-80% 0px 0px 0px"
@@ -51,7 +53,6 @@ const animationOptions = {
 const heroAnimationObserver = new IntersectionObserver((entries, animationObserver) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) {
-      console.log('hero out of view')
       document.getAnimations().forEach(animation => {
         if (entry.target.contains(animation.effect.target)) {
           animation.pause()
@@ -59,7 +60,6 @@ const heroAnimationObserver = new IntersectionObserver((entries, animationObserv
       })
     }
     else {
-      console.log('hero in view')
       document.getAnimations().forEach(animation => {
         if (entry.target.contains(animation.effect.target)) {
           animation.play()
@@ -74,7 +74,6 @@ heroAnimationObserver.observe(heroSection)
 const aboutAnimationObserver = new IntersectionObserver((entries, animationObserver) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) {
-      console.log('about out of view')
       document.getAnimations().forEach(animation => {
         if (entry.target.contains(animation.effect.target)) {
           animation.pause()
@@ -82,7 +81,6 @@ const aboutAnimationObserver = new IntersectionObserver((entries, animationObser
       })
     }
     else {
-      console.log('about in view')
       document.getAnimations().forEach(animation => {
         if (entry.target.contains(animation.effect.target) && animation.effect.target.parentNode.querySelector('.about_toggle').checked) {
           animation.play()
@@ -94,66 +92,50 @@ const aboutAnimationObserver = new IntersectionObserver((entries, animationObser
 aboutAnimationObserver.observe(aboutSection)
 
 //work with the about section animations
-function setAboutAnimations() {
-  document.getAnimations().forEach(async (animation) => {
-    const animationElem = animation.effect.target;
-    //make sure we have the about section animations and the details is the current open details
-    if (animationElem.matches('.about-details .content') && animationElem.parentNode.querySelector('.about_toggle').checked) {
-      //this is the animation we want for the about section
-      try {
-        await animation.finished;
-        animationElem.parentElement.querySelector('.about-details .about_toggle').checked = false;
-        animationElem.classList.add('remove');
-        //get the index of this detail to open the next one
-        let index = Array.from(animationElem.closest('.about-details').children).indexOf(animationElem.closest('.about-details > .details'));
-        animationElem.closest('.about-details').children[(index + 1) % 3].querySelector('.about-details .about_toggle').checked = true;
 
-        //make sure we have enough time for the new details to be toggled
-        setTimeout(() => {
-          animationElem.classList.remove('remove');
-          setAboutAnimations();
-        }, 2000)
-      }
-      catch (error) {
-        // console.log(error)
-      }
+function aboutSetup() {
+  aboutAnimations = document.getAnimations().filter(animation => animation.effect.target.matches('.about-details .content'))
+  aboutAnimations.forEach((animation, index, animationList) => {
+    animation.onfinish = () => {
+      animation.pause();
+      animation.effect.target.parentElement.querySelector('.about-details .about_toggle').checked = false;
+
+      let nextIndex = (index + 1) % animationList.length;
+      let nextAnimation = animationList[nextIndex];
+      nextAnimation.play();
+      nextAnimation.effect.target.parentElement.querySelector('.about-details .about_toggle').checked = true;
     }
   })
 }
 
-//wait for the animations to load
-setTimeout(setAboutAnimations, 500)
+// //listen for the about checkboxes to be changed by the user
+// document.querySelectorAll('.about-details .about_toggle').forEach(toggle => {
+//   toggle.addEventListener('change', (event) => {
+//     console.log('changed')
+//     let target = event.target;
 
-//listen for the about checkboxes to be changed by the user
-document.querySelectorAll('.about-details .about_toggle').forEach(toggle => {
-  toggle.addEventListener('change', (event) => {
-    let target = event.target;
+//     //prevent the user from unselecting the current toggle
+//     if (!target.checked) {
+//       target.checked = true;
+//       return;
+//     }
 
-    //prevent the user from unselecting the current toggle
-    if (!target.checked) {
-      target.checked = true;
-    }
+//     //reactivate the target animation
+//     let animation = document.getAnimations().find(animation => animation.effect.target == target.parentNode.querySelector('.content'))
+//     console.log(animation.effect.target)
+//     animation.play();
 
-    //reactivate the target animation
-    target.parentNode.querySelector('.content').classList.remove('remove');
-
-    //uncheck all of the toggles and remove their animation
-    document.querySelectorAll('.about-details .about_toggle').forEach(checkbox => {
-      if (checkbox != target) {
-        checkbox.checked = false;
-        checkbox.parentNode.querySelector('.content').classList.add('remove');
-
-        //wait a moment to reactivate the animation
-        setTimeout(() => {
-          checkbox.parentNode.querySelector('.content').classList.remove('remove');
-        }, 500)
-      }
-    })
-
-    //restart the whole animation loop
-    setTimeout(setAboutAnimations, 1000)
-  })
-})
+//     //uncheck all of the toggles and remove their animation
+//     document.querySelectorAll('.about-details .about_toggle').forEach(checkbox => {
+//       if (checkbox != target) {
+//         checkbox.checked = false;
+//         // reset the animation
+//         let animation = document.getAnimations().find(animation => animation.effect.target == checkbox.parentNode.querySelector('.content'))
+//         animation.pause();
+//       }
+//     })
+//   })
+// })
 
 document.querySelector('#contactForm').addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -182,7 +164,7 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
 
 //fix the height of the about section
 //fix it on load
-adjustAboutHeight();
+setTimeout(adjustAboutHeight, 500);
 
 //do it again as the screen size changes
 window.addEventListener('resize', adjustAboutHeight)

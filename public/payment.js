@@ -205,9 +205,6 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
       payoffAmount += (price * 100);
     })
 
-    //apply discount
-    payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
-
     payoffAmount -= balance;
     togglePayoffAmount();
   })
@@ -227,9 +224,6 @@ function updatePayoffAmount() {
       remainingTime += (end - start);
       payoffAmount += (price * 100);
     })
-
-    //if the remaining time is less than 20 hours then discount the payoff by 10%
-    payoffAmount = remainingTime >= (3600000 * HOURS_TO_GET_DISCOUNT) ? payoffAmount * DISCOUNT : payoffAmount;
 
     payoffAmount -= balance;
     togglePayoffAmount();
@@ -437,6 +431,26 @@ document
   .querySelectorAll('button')
   .forEach((button) => (button.disabled = false));
 
+});
+
+//send the payment-link
+document
+.querySelector('#payment-link-button')
+.addEventListener('click', async (event) => {
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = true));
+
+  await firebase
+  .firestore()
+  .collection('Invoices')
+  .add({ parent: parentUID })
+
+  event.target.textContent = "Payment link sent!";
+
+  document
+  .querySelectorAll('button')
+  .forEach((button) => (button.disabled = false));
 });
 
 //delete the saved card

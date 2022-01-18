@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Portal</title>
+  <!-- Jquery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <!-- General -->
+  <!-- <script src="Site Templates/site-wide.js" defer></script> -->
+  <script src="Site Templates/generalFunctions.js" defer></script>
+
+  <!-- Stripe's JS library -->
+  <script src="https://js.stripe.com/v3/" defer></script>
+
+  <link rel="stylesheet" href="payment-link.css">
+  <script src="Site Templates/site-wide.js"></script>
+  <script src="Site Templates/generalFunctions.js"></script>
+  <script src="payment-link.js" defer></script>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle">
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="story.html">Our Story</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <!-- <li><a href="#">Sign In</a></li> -->
+        <li><a class="enroll" href="contact.html">Get Started</a></li>
+      </ul>
+    </nav>
+    <label for="nav-toggle" class="nav-toggle-label">
+      <span></span>
+    </label>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <h2 class="date">Saturday, Dec 11</h2>
+      <h3 id="parent-name">Welcome back</h3>
+      <h3>What would you like to do?</h3>
+      <button>Pay for all of my lessons now</button>
+      <button>Pay for my lessons the night before</button>
+      <button>View my payment history</button>
+    </section>
+    <section class="pay-all"></section>
+    <section class="subscription"></section>
+    <section class="payment-history">
+      <div class="transactions">
+        <h4>Payment History</h4>
+        <div class="table-wrapper">
+          <table id="payments-table">
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>STATUS</th>
+                <th>AMOUNT</th>
+                <th>CARD</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="balance-wrapper">
+          <h4>Balance:</h4>
+          <h2 id="balance"></h2>
+        </div>
+      </div>
+    </section>
+
+
+
+    <div class="page-nav">
+      <h1>Payment Portal</h1>
+      <div class="log-out button" onclick="signOut()">Log Out</div>
+    </div>
+    <section class="welcome">
+      <h2 class="date">Saturday, Dec 11</h2>
+      <h3 id="parent-name">Welcome back</h3>
+    </section>
+
+    <section class="payments">
+      <h3>Time to make a payment!</h3>
+      <div class="make-payment">
+        <h4>Make Payment</h4>
+        <input type="radio" name="payment_method" id="newCard" checked>
+        <label for="newCard">Enter a new credit or debit card</label>
+        <div class="new-card-wrapper">
+          <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
+          <label for="carholderName"></label>
+          <div id="card-element"></div>
+          <div class="save-card button" tabindex="0">Save Card</div>
+        </div>
+        <div class="delete-card button" tabindex="0">Delete Card</div>
+        <div class="pay-wrapper">
+          <p id="error-message" class="error"></p>
+          <input type="text" name="amount" id="amount" pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" value="" data-type="currency" placeholder="$0.00">
+          <div class="pay button" tabindex="0">Pay</div>
+          <p>All payments are encrypted and secure</p>
+        </div>
+      </div>
+      <div class="transactions">
+        <h4>Payment History</h4>
+        <!-- <p>Payments</p>
+        <ul id="payments-list"></ul>
+        <p>Charges</p>
+        <ul id="charges-list"></ul> -->
+        <div class="table-wrapper">
+          <table id="payments-table">
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>STATUS</th>
+                <th>AMOUNT</th>
+                <th>CARD</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="balance-wrapper">
+          <h4>Balance:</h4>
+          <h2 id="balance"></h2>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="links">
+      <div>
+        <div class="logo-box">
+          <img src="Images/Lyrn_Logo.png" alt="Lyrn Logo">
+        </div>
+      </div>
+      <div>
+        <h1>Site Map</h1>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="story.html">About Lyrn</a></li>
+          <li><a href="enroll.html">Enrollment</a></li>
+          <li><a href="#">Parent Portal</a></li>
+          <li><a href="">Pricing</a></li>
+          <li><a href="sign-in.html">Log In</a></li>
+        </ul>
+      </div>
+      <div>
+        <h1>Social</h1>
+        <ul>
+          <li><a href="">Instagram</a></li>
+          <li><a href="">Facebook</a></li>
+          <li><a href="">LinkedIn</a></li>
+          <li><a href="">TikTok</a></li>
+        </ul>
+      </div>
+      <div>
+        <h1>Contact Us</h1>
+        <ul>
+          <li><a href="mailto:contact@lyrnwithus.com">contact@lyrnwithus.com</a></li>
+            <li><a href="tel:+18774001641">(877) 400-1641</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="copyright">Copyright © 2021 Advanced Education Solutions LLC. All rights reserved.</p>
+  </footer>
+  
+</body>
+</html>

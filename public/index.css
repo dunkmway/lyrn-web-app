@@ -1128,7 +1128,7 @@ nav a:hover {
   animation-play-state: running;
 }
 
-.about-details .details:hover .content::after {
+.about-details .details:hover .about_toggle:checked~.content::after {
   animation-play-state: paused;
 }
 

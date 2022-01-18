@@ -170,7 +170,7 @@ function getUserBalance(userUID) {
 
 async function setProbation(userUID) {
   //first check that the parent isn't already on probation
-  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID);
+  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID).get();
   if (userStripeDoc.exists) {
     const probation = userStripeDoc.data().probation;
 

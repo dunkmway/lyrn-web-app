@@ -32,6 +32,7 @@ function checkPermissions() {
     const publicPages = [
         "/sign-in",
         "/sign-up",
+        "/payment-link",
     ]
     
     const studentPages = [
@@ -68,7 +69,10 @@ function checkPermissions() {
         ...parentPages,
         ...studentPages,
         "/Dashboard/Admin",
-        "/staff-registration"
+        "/staff-registration",
+        "/new-tutor",
+        "/new-parent",
+        "/new-student"
     ]
     
     
