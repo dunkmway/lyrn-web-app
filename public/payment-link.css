@@ -400,13 +400,21 @@ main {
   display: none;
 }
 
-.payments .make-payment #newCard:checked ~ .new-card-wrapper {
+.payments .make-payment #payNow:checked ~ .pay-wrapper {
   display: block;
 } 
 
-.payments .make-payment #newCard:checked ~ .delete-card {
-  display: none;
+.payments .make-payment #paySchedule:checked ~ .save-wrapper {
+  display: block;
 } 
+
+.pay-wrapper {
+  display: none;
+}
+
+.save-wrapper {
+  display: none;
+}
 
 .payments .make-payment label {
   display: block;
@@ -436,13 +444,12 @@ main {
 }
 
 .payments .make-payment .save-card {
-  padding: 1em 1.5em;
-  height: 3em;
-  width: min-content;
-  white-space: nowrap;
-  background-image: linear-gradient(45deg, var(--color-accent-5-light), var(--color-accent-1-light), var(--color-accent-5-light));
   color: white;
   border-radius: .5em;
+  text-align: center;
+  padding: 1em;
+  font-size: 1.25em;
+  background-image: linear-gradient(45deg, var(--color-accent-5-light), var(--color-accent-1-light), var(--color-accent-5-light));
 }
 
 .payments .make-payment .delete-card {
@@ -462,7 +469,12 @@ main {
 .pay-wrapper #amount {
   color: black;
   border-radius: .5em;
-  font-size: 1.5em;
+  font-size: 2em;
+  border: 2px solid var(--color-secondary);
+  height: 2em;
+  padding: .375em;
+  margin-bottom: .5em;
+  width: 100%;
 }
 
 .pay-wrapper .pay {
@@ -474,7 +486,7 @@ main {
   background-image: linear-gradient(45deg, var(--color-accent-4-light), var(--color-accent-3-light), var(--color-accent-4-light));
 }
 
-.pay-wrapper p {
+.encrypted {
   color: var(--color-secondary);
   text-align: center;
   margin-top: 1em;
@@ -491,8 +503,6 @@ main {
 
 @media screen and (min-width: 800px) {
   .payments {
-    display: grid;
-    grid-template-columns: 55% 45%;
     padding: 2em;
     width: 100%;
   }
@@ -520,39 +530,45 @@ main {
   margin: 1em 0em 1em 1em;
 }
 
-.table-wrapper {
-  flex: 1;
-  overflow-x: auto;
-  border-bottom: 2px solid #E7E8E9;
+.lesson-list {
+  background-color: var(--color-primary);
+  border-radius: 1em;
+  box-shadow: .5em .5em 10px #00000034;
+  margin-bottom: 2em;
 }
 
-#payments-table {
+.table-wrapper {
+  flex: 1;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  /* border-bottom: 2px solid #E7E8E9; */
+}
+
+#lesson-table {
   width: 100%;
   height: 100%;
   border-spacing: 0px;
   border-collapse: separate;
 }
 
-#payments-table tr {
+#lesson-table tr {
   color: #A3A3A3;
   font-size: 1rem;
   text-align: center;
 }
 
-#payments-table th {
+#lesson-table th {
   padding: 0;
   color: #A3A3A3;
   font-size: 1rem;
   text-align: center;
-  padding: 0em 0em 1em;
+  padding: 0em .5em 1em;
   background-color: var(--color-primary);
-
-  /* position: sticky;
-  top: 0px;
-  z-index: 1; */
+  border-bottom: 2px solid #E7E8E9;
 }
 
-#payments-table td {
+#lesson-table td {
   padding: 2em 0em;
   color: #000;
   font-size: .9rem;
@@ -560,30 +576,15 @@ main {
   border-bottom: 2px solid #E7E8E9;
 }
 
-#payments-table td .status {
-  border-radius: .25em;
-  text-align: center;
-  padding: .25em 0em;
-  width: 70%;
-  transform: translateX(22.5%);
+.total-wrapper {
+  padding: 1em 0em;
+  display: flex;
+  justify-content: flex-end;
+  text-align: right;
 }
 
-#payments-table td .status.green {
-  color: #67C857;
-  background-color: #CAF9D0;
-  border: 2px solid #67C857;
-}
-
-#payments-table td .status.yellow {
-  color: #F5B433;
-  background-color: #FDEDCE;
-  border: 2px solid #F5B433;
-}
-
-#payments-table td .status.red {
-  color: #E87271;
-  background-color: #F8D8D8;
-  border: 2px solid #E87271;
+.total-wrapper h2{
+  margin-right: 1em;
 }
 
 #payments-list {

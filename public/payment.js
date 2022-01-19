@@ -444,7 +444,10 @@ document
   await firebase
   .firestore()
   .collection('Invoices')
-  .add({ parent: parentUID })
+  .add({
+    parent: parentUID,
+    parentName: parentData.firstName + ' ' + parentData.lastName
+  })
 
   event.target.textContent = "Payment link sent!";
 

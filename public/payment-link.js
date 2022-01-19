@@ -1,268 +1,76 @@
 
 const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
-let currentUser =  {
-  uid: queryStrings().customer
-};
 let customerData = {};
-let parentData = {};
+let invoiceData = {};
 
-let payments = [];
-let charges = [];
+// get the invoice data
+async function intialSetup() {
+  //set the date
+  document.querySelector('.date').textContent = convertFromDateInt(new Date().getTime())['dayAndDate'];
 
-//set the date
-document.querySelector('.date').textContent = convertFromDateInt(new Date().getTime())['dayAndDate'];
- 
-firebase.firestore().collection('stripe_customers').doc(currentUser.uid).onSnapshot((snapshot) => {
-  if (snapshot.data()) {
-    customerData = snapshot.data();
-    startDataListeners();
-  } else {
-    console.warn(
-      `No Stripe customer found in Firestore for user: ${currentUser.uid}`
-    );
+  // get the invoice data
+  let invoice = await firebase.firestore().collection('Invoices').doc(queryStrings().invoice).get();
+  invoiceData = invoice.data();
+
+  //set the parent name
+  document.getElementById('parent-name').textContent = 'Welcome back ' + invoiceData.parentName;
+
+  // get the customer data
+  let customer = await firebase.firestore().collection('stripe_customers').doc(invoiceData.parent).get();
+  customerData = customer.data();
+
+  // set up the lesson list
+  const lessonTableBody = document.querySelector('#lesson-table tbody')
+  invoiceData.events.forEach(event => {
+    const startStr = convertFromDateInt(event.start).longReadable;
+    const hourDuration = (event.end - event.start) / 3600000;
+    const price = event.price * hourDuration;
+
+    let lessonRow = document.createElement('tr');
+    lessonRow.id = `lesson-${event.id}`;
+    lessonRow.innerHTML = `
+      <td class='title'>${event.title}</td>
+      <td class='start'>${startStr}</td>
+      <td class='duration'>${hourDuration} ${hourDuration == 1 ? 'hour' : 'hours'}</td>
+      <td class='price'>$${price}</td>
+    `
+    lessonTableBody.append(lessonRow);
+  })
+  // add in the existing balance due
+  if (invoiceData.existingBalanceDue > 0) {
+    let existingBalanceRow = document.createElement('tr');
+    existingBalanceRow.id = 'existing-balance';
+    existingBalanceRow.innerHTML = `
+      <td class='title'>Existing Balance Due</td>
+      <td class='start'></td>
+      <td class='duration'></td>
+      <td class='price'>$${invoiceData.existingBalanceDue}</td>
+    `
+    lessonTableBody.append(existingBalanceRow);
   }
-});
 
-firebase.firestore().collection('Users').doc(currentUser.uid).onSnapshot((snapshot) => {
-  if (snapshot.data()) {
-    parentData = snapshot.data();
-    //set up the parent name in the title
-    const {firstName, lastName} = parentData;
-    document.getElementById('parent-name').textContent = "Welcome back, " +  firstName;
-  } else {
-    console.warn(
-      `No Lyrn User found in Firestore for user: ${currentUser.uid}`
-    );
-  }
-});
- 
- /**
-  * Set up Stripe Elements
-  */
- const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
- const elements = stripe.elements();
- const cardElement = elements.create('card');
- cardElement.mount('#card-element');
- cardElement.on('change', ({ error }) => {
-   const displayError = document.getElementById('error-message');
-   if (error) {
-     displayError.textContent = error.message;
-   } else {
-     displayError.textContent = '';
-   }
- });
- 
- /**
-  * Set up Firestore data listeners
-  */
- function startDataListeners() {
-   /**
-    * Get all payment methods for the logged in customer
-    */
-   firebase
-     .firestore()
-     .collection('stripe_customers')
-     .doc(currentUser.uid)
-     .collection('payment_methods')
-     .onSnapshot((snapshot) => {
-       snapshot.forEach(function (doc) {
-         const paymentMethod = doc.data();
-         if (!paymentMethod.card) {
-           return;
-         }
-         
-         const paymentMethodId = `card-${doc.id}`;
-         let radioElement = document.getElementById(paymentMethodId);
-         let labelElement = document.querySelector(`label[for="${paymentMethodId}"]`);
- 
-         // Add a new option if one doesn't exist yet.
-         if (!radioElement) {
-            radioElement = document.createElement('input');
-            radioElement.setAttribute('type', 'radio');
-            radioElement.setAttribute('name', 'payment_method')
-            radioElement.id = paymentMethodId;
-            document.querySelector('.make-payment').insertBefore(radioElement, document.querySelector('#newCard'));
-
-            labelElement = document.createElement('label');
-            labelElement.setAttribute('for', paymentMethodId)
-            document.querySelector('.make-payment').insertBefore(labelElement, document.querySelector('#newCard'));
-         }
- 
-         radioElement.value = paymentMethod.id;
-         labelElement.textContent = `${paymentMethod.card.brand} •••• ${paymentMethod.card.last4} | Expires ${paymentMethod.card.exp_month}/${paymentMethod.card.exp_year}`;
-       });
-     });
- 
-   /**
-    * Get all payments for the logged in customer
-    */
-   firebase
-     .firestore()
-     .collection('stripe_customers')
-     .doc(currentUser.uid)
-     .collection('payments')
-     .onSnapshot((snapshot) => {
-      payments = [];
-      snapshot.forEach((doc) => {
-        const payment = doc.data();
-        payment.docId = doc.id;
-        payments.push(payment);
-      })
-
-      payments.sort((a,b) => a.created - b.created);
-      payments.forEach(payment => {
-        //see if this payment row already exists
-        let paymentRow = document.getElementById(`payment-${payment.docId}`);
-
-        let date = convertFromDateInt(payment.created * 1000)['shortDate'];
-        let status = payment.status;
-        let statusColor = null;
-        let statusWord = null;
-        switch (status) {
-          case 'new':
-          case 'requires_confirmation':
-            statusColor = 'yellow';
-            statusWord = 'PENDING';
-            break;
-          case 'succeeded':
-            statusColor = 'green';
-            statusWord = 'PAID';
-            break;
-          default:
-            statusColor = 'red';
-            statusWord = 'DECLINED';
-        }
-        let amount = formatAmount(payment.amount, payment.currency);
-        let card = payment?.charges?.data[0]?.payment_method_details?.card;
-        let cardDetails = card ? `${card.brand} •••• ${card.last4}` : "••••";
-
-        //if it does then update the table data
-        if (paymentRow) {
-          paymentRow.querySelector('.date').textContent = date;
-          paymentRow.querySelector('.status').innerHTML = `<div class='status ${statusColor}'>${statusWord}</div>`;
-          paymentRow.querySelector('.amount').textContent = amount;
-          paymentRow.querySelector('.card').textContent = cardDetails;
-        }
-        //if not create it
-        else {
-          paymentRow = document.createElement('tr');
-          paymentRow.id = `payment-${payment.docId}`;
-          paymentRow.innerHTML = `
-            <td class='date'>${date}</td>
-            <td class='status'>
-              <div class='status ${statusColor}'>${statusWord}</div>
-            </td>
-            <td class='amount'>${amount}</td>
-            <td class='card'>${cardDetails}</td>
-          `
-          document.querySelector('#payments-table tbody').prepend(paymentRow);
-          //only scroll after the first load in
-          if (document.timeline.currentTime > 5000) {
-            paymentRow.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
-          }
-        }
-
-
-
-
-
-
-
-      //    let liElement = document.getElementById(`payment-${payment.docId}`);
-      //    if (!liElement) {
-      //      liElement = document.createElement('li');
-      //      liElement.id = `payment-${payment.docId}`;
-      //    }
- 
-      //    console.log('got new payment')
-      //    console.log(payment.status)
-      //    let content = '';
-      //    if (
-      //      payment.status === 'new' ||
-      //      payment.status === 'requires_confirmation'
-      //    ) {
-      //      console.log('new payment')
-      //      content = `Creating Payment of ${formatAmount(
-      //        payment.amount,
-      //        payment.currency
-      //      )} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-      //    } else if (payment.status === 'succeeded') {
-      //      const card = payment.charges.data[0].payment_method_details.card;
-      //      content = `✅ ${formatAmount(
-      //        payment.amount,
-      //        payment.currency
-      //      )} with ${card.brand} card •••• ${card.last4} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-      //    } else if (payment.status === 'requires_action') {
-      //      content = `🚨 ${formatAmount(
-      //        payment.amount,
-      //        payment.currency
-      //      )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-      //      handleCardAction(payment, doc.id);
-      //    } else {
-      //      content = `⚠️ ${formatAmount(
-      //        payment.amount,
-      //        payment.currency
-      //      )} ${payment.error} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-      //    }
-      //    liElement.innerText = content;
-      //    document.querySelector('#payments-list').appendChild(liElement);
-       });
-       updateBalance();
-     });
+  //set up the balance due
+  document.getElementById('balance-due').textContent = `$${invoiceData.existingBalanceDue + invoiceData.newBalanceDue}`
+  document.getElementById('amount').textContent = `$${invoiceData.existingBalanceDue + invoiceData.newBalanceDue}`
 
   /**
-    * Get all charges for the logged in customer
-    */
-   firebase
-     .firestore()
-     .collection('stripe_customers')
-     .doc(currentUser.uid)
-     .collection('charges')
-     .orderBy('created', 'desc')
-     .onSnapshot((snapshot) => {
-       charges = [];
-       snapshot.forEach((doc) => {
-         const charge = doc.data();
-         charges.push(charge);
- 
-        //  let liElement = document.getElementById(`charge-${doc.id}`);
-        //  if (!liElement) {
-        //    liElement = document.createElement('li');
-        //    liElement.id = `charge-${doc.id}`;
-        //  }
- 
-        //  let content = `⚠️ ${convertFromDateInt(charge.created)['longDate']}: ${formatAmount(charge.amount, charge.currency)} for ${charge.title}.`;
-        //  if (charge.eventStart && charge.eventEnd) {
-        //    //remove period
-        //    content = content.substring(0, content.length - 1);
-        //    content += ` from ${convertFromDateInt(charge.eventStart)['longDate']} to ${convertFromDateInt(charge.eventEnd)['time']}.`
-        //  }
-        //  liElement.innerText = content;
-        //  document.querySelector('#charges-list').appendChild(liElement);
-       });
-       updateBalance();
-     });
- }
-
-function updateBalance() {
-  let totalPaymentAmount = 0;
-  let totalChargeAmount = 0;
-
-  payments.forEach(payment => {
-    if (payment.status === 'succeeded') {
-      totalPaymentAmount += payment.amount;
+  * Set up Stripe Elements
+  */
+  const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+  const elements = stripe.elements();
+  const cardElement = elements.create('card');
+  cardElement.mount('#card-element');
+  cardElement.on('change', ({ error }) => {
+    const displayError = document.getElementById('error-message');
+    if (error) {
+      displayError.textContent = error.message;
+    } else {
+      displayError.textContent = '';
     }
-  })
-  charges.forEach(charge => {
-  totalChargeAmount += charge.amount;
-  })
-
-  const balance = totalPaymentAmount - totalChargeAmount;
-  document.querySelector('#amount').value = balance < 0 ? '$' + (balance / -100).toString() : '';
-  const color = balance < 0 ? '#E87271' : '#67C857';
-  document.querySelector('#balance').textContent = `${formatAmount(balance, 'USD')}`;
-  document.querySelector('#balance').style.color = color;
+  });
 }
+ 
+
  
  /**
   * Event listeners
@@ -278,7 +86,7 @@ document
 
   const cardholderName = document.querySelector('#cardholderName');
 
-  const amount = Number(document.querySelector('#amount').value.replace('$', ''));
+  const amount = invoiceData.existingBalanceDue + invoiceData.newBalanceDue;
   const currency = 'usd';
 
   if (amount == 0) {
@@ -293,47 +101,31 @@ document
     return;
   }
 
-  //get the current selected card
-  let paymentType;
-  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-    if (radio.checked) {
-      paymentType = radio;
-      return;
-    }
+  if (!cardholderName) {
+    document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
+    document
+      .querySelectorAll('.button')
+      .forEach((button) => (button.disabled = false));
+    return;
+  }
+
+  const { paymentMethod, error } = await stripe.createPaymentMethod({
+    type: 'card',
+    card: cardElement,
+    billing_details: {
+      name: cardholderName,
+    },
   })
-  let savedCardLabel = paymentType.nextElementSibling;
 
-  let paymentMethodID = null;
-  if (paymentType.id == 'newCard') {
-    if (!cardholderName) {
-      document.querySelector('#error-message').textContent = 'Please add a cardholder name.';
-      document
-        .querySelectorAll('.button')
-        .forEach((button) => (button.disabled = false));
-      return;
-    }
-
-    const { paymentMethod, error } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-      billing_details: {
-        name: cardholderName,
-      },
-    })
-
-    if (error) {
-      document.querySelector('#error-message').textContent = error.message;
-      document
-        .querySelectorAll('.button')
-        .forEach((button) => (button.disabled = false));
-      return;
-    }
-
-    paymentMethodID = paymentMethod.id;
+  if (error) {
+    document.querySelector('#error-message').textContent = error.message;
+    document
+      .querySelectorAll('.button')
+      .forEach((button) => (button.disabled = false));
+    return;
   }
-  else {
-    paymentMethodID = paymentType.value;
-  }
+
+  const paymentMethodID = paymentMethod.id;
 
   const data = {
     payment_method: paymentMethodID,
@@ -346,7 +138,7 @@ document
   await firebase
     .firestore()
     .collection('stripe_customers')
-    .doc(currentUser.uid)
+    .doc(invoiceData.parent)
     .collection('payments')
     .add(data);
 
@@ -402,7 +194,7 @@ document
   await firebase
   .firestore()
   .collection('stripe_customers')
-  .doc(currentUser.uid)
+  .doc(invoiceData.parent)
   .collection('payment_methods')
   .add({ id: setupIntent.payment_method });
 
@@ -411,48 +203,6 @@ document
   .forEach((button) => (button.disabled = false));
 
 });
-
-//delete the saved card
-document
-.querySelector('.delete-card')
-.addEventListener('click', async (event) => {
-  event.preventDefault();
-  document
-  .querySelectorAll('.button')
-  .forEach((button) => (button.disabled = true));
-
-  //get the current selected card
-  let savedCardElem;
-  document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-    if (radio.checked) {
-      savedCardElem = radio;
-      return;
-    }
-  })
-  let savedCardLabel = savedCardElem.nextElementSibling;
-  const cardDocId = savedCardElem.id.substring(5, savedCardElem.id.length);
-
-  if (!confirm("If you delete this card it may interrupt your subscription with us. This could possibly place your account on probation if your balance is ever negative. " + 'Are you sure you want to delete ' + savedCardLabel.textContent + '.')) {
-    document
-    .querySelectorAll('.button')
-    .forEach((button) => (button.disabled = false));
-    return;
-  }
-
-  //delete the firebase doc that holds this payment method
-  await firebase.firestore().collection('stripe_customers').doc(currentUser.uid).collection('payment_methods').doc(cardDocId).delete();
-  
-  //remove the card option from the select
-  savedCardElem.remove();
-  savedCardLabel.remove();
-
-  //reselect the new card input
-  document.querySelector('#newCard').checked = true;
-
-  document
-  .querySelectorAll('.button')
-  .forEach((button) => (button.disabled = false));
-})
 
  
  /**
@@ -510,42 +260,11 @@ document
    await firebase
      .firestore()
      .collection('stripe_customers')
-     .doc(currentUser.uid)
+     .doc(invoiceData.parent)
      .collection('payments')
      .doc(docId)
      .set(payment, { merge: true });
  }
-
- function resetPassword() {
-  let confirmation = confirm("Are you sure you want to reset your password?");
-  if (confirmation) {
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        var auth = firebase.auth();
-        var emailAddress = user.email;
-
-        auth.sendPasswordResetEmail(emailAddress)
-        .then(function() {
-          // Email sent.
-          alert("An email has been sent to your email to continue with your password reset.");
-        })
-        .catch(function(error) {
-          // An error happened.
-          alert("There was an issue with your password reset. \nPlease try again later.");
-          handleFirebaseErrors(error, window.location.href);
-        });
-      } else {
-        // No user is signed in.
-        alert("Oops! No one is signed in to change the password");
-      }
-    });
-  }
-}
-
-
-
-
-
 
 
 
