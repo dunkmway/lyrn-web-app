@@ -44,6 +44,12 @@
 
   <main>
 
+    <div id = 'imageRemovalPopup' class = 'hidden imagePopup'>
+      <div>
+        <span id = 'remove' onclick="removeImage()">Remove image</span>
+      </div>
+    </div>
+
     <div id='firstHalf'>
 
       <!-- Opening Screen -->
@@ -52,7 +58,7 @@
         <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
         <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
-        <button>Add Question</button>
+        <button onclick = 'selectDisplay("questionsDisplay")'>Add Question</button>
       </div>
 
 
@@ -173,8 +179,8 @@
                 <option value=1>Yes</option>
               </select>
 
-              <button onclick = 'clickInput("english")' style = 'margin-top: 5px;'>Add Image</button>
-              <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'english')" style = 'display: none;'>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
             </div>
           </div>
         
@@ -195,8 +201,8 @@
         
             <div class='rows' style = 'margin-left:10px;'>
 
-              <button onclick = 'clickInput("math")' style = 'margin-top: 5px;'>Add Image</button>
-              <input id = 'mathImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'math')" style = 'display: none;'>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'mathImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
             </div>
           </div>
         
@@ -245,8 +251,8 @@
                 <option value=1>Yes</option>
               </select>
 
-              <button onclick='clickInput("reading")' style='margin-top: 5px;'>Add Image</button>
-              <input id='readingImage' type='file' accept="image/png" onchange="addImage('passage', 'reading')"
+              <button onclick='clickInput()' style='margin-top: 5px;'>Add Image</button>
+              <input id='readingImage' type='file' accept="image/png" onchange="addImage()"
                 style='display: none;'>
             </div>
 
@@ -265,8 +271,8 @@
         
             <div class='rows' style = 'margin-left:10px;'>
 
-              <button onclick = 'clickInput("science")' style = 'margin-top: 5px;'>Add Image</button>
-              <input id = 'scienceImage' type = 'file' accept = "image/png" onchange="addImage('passage', 'science')" style = 'display: none;'>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'scienceImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
             </div>
           </div>
         
@@ -364,6 +370,109 @@
 
       </div>
 
+
+      <!-- Questions -->
+      <div id = 'questionsDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <label for="questionsTest" class = 'mainLabel'>Test</label>
+
+          <!-- Section -->
+          <label for="questionsSection" class = 'mainLabel'>Section</label>
+
+          <!-- Passage -->
+          <label for="questionsNumber" class = 'mainLabel'>Passage</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
+      
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Test -->
+          <select id="questionsTest" class = 'mainInput'>
+          </select>
+
+          <!-- Section -->
+          <select id="questionsSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Passage -->
+          <select id="questionsPassageNumber" class = 'mainInput'>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="saveQuestion()" class = 'mainInput'>Save Question</button>
+        </div>
+
+        <!-- Question / Answer Elements -->
+        <div class = 'rows'>
+
+          <div>
+            <label  for="questionList" id='questionListLabel'>Problem</label>
+            <select id="questionList">
+            </select>
+
+            <label for="topic" id='topicLabel'>Topic(s)</label>
+            <select class='ui dropdown search multiple' id="topic" style = 'display:none'>
+            </select>
+
+            <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
+            <select class='hidden' id="subTopic">
+            </select>-->
+
+            <label for="modifier" id='modifierLabel'>Modifier(s)</label>
+            <select class='ui dropdown search multiple' id="modifier" style = 'display:none'>
+            </select>
+
+          </div>
+
+          <div class = 'columns'>
+
+            <div class = 'rows' id = 'questionsPart1'>
+              <label for="questionText" id='questionTextLabel'>Question Text</label>
+              <textarea placeholder="Copy question here" id = 'questionText'></textarea>
+            </div>
+
+            <div id = 'questionsPart2' class = 'rows'>
+
+              <label for="answer1" id='answer1Label'>A</label>
+              <textarea id = 'answer1'></textarea>
+
+              <label for="answer2" id='answer2Label'>B</label>
+              <textarea id = 'answer2'></textarea>
+
+              <label for="answer3" id='answer3Label'>C</label>
+              <textarea id = 'answer3'></textarea>
+
+              <label for="answer4" id='answer4Label'>D</label>
+              <textarea id = 'answer4'></textarea>
+
+              <label class = 'hidden' for="answer5" id='answer5Label'>E</label>
+              <textarea class = 'hidden' id = 'answer5'></textarea>
+
+            </div>
+
+
+            <div>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'questionsImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
+            </div>
+
+          </div>
+
+
+
+        </div>
+
+      </div>
+          
     </div>
       
     <div id='secondHalf'>
