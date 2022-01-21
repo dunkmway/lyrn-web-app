@@ -197,6 +197,48 @@ table tr:nth-child(odd) td {
 	border-color: black;
 }
 
+.spotlight {
+	background-color: yellow;
+}
+
+.box {
+	border-style: solid;
+	border-width: 1px;
+}
+
+.problem {
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 10px;
+	background-color: rgb(230, 231, 232);
+	margin: 2px;
+	cursor: pointer;
+}
+
+.stage1 {
+	background-color: rgb(230, 231, 232);
+}
+
+.stage2 {
+	background-color: yellowgreen;
+}
+
+.stage3 {
+	background-color: green;
+}
+
+.imagePopup {
+	position: absolute;
+	background-color: rgb(230, 230, 230);
+	border-style: solid;
+	border-width: 2px;
+}
+
+.imagePopup div:hover {
+	background-color: rgb(180, 180, 180);
+	cursor:pointer;
+}
+
 .hidden {
 	display: none;
 }
