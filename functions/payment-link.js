@@ -10,6 +10,13 @@ exports.generateInvoice = functions.firestore
   const { parent } = snap.data();
   const now = new Date();
 
+  // if there is already an invoice that is pending then don't send another and remove this one
+  let pendingInvoice = await admin.firestore().collection('Invoices').where('parent', '==', parent).where('status', '==', 'pending').limit(1).get();
+  if (pendingInvoice.size > 0) {
+    await snap.ref.delete();
+    return;
+  }
+
   // get all of the future events that this parent is connected to
   let events = await admin.firestore().collection('Events')
   .where('parents', "array-contains", parent)
@@ -36,24 +43,26 @@ exports.generateInvoice = functions.firestore
   const expTime = defaultExpTime < earliestLessonTime ? defaultExpTime : earliestLessonTime;
 
   // get the current balance of the parent and if they have a payment method
-  let payments = await admin.firestore()
+  let paymentsProm = admin.firestore()
   .collection('stripe_customers')
   .doc(parent)
   .collection('payments')
   .get();
 
-  let charges = await admin.firestore()
+  let chargesProm = admin.firestore()
   .collection('stripe_customers')
   .doc(parent)
   .collection('charges')
   .get();
 
-  let paymentMethod = await admin.firestore()
+  let paymentMethodProm = admin.firestore()
   .collection('stripe_customers')
   .doc(parent)
   .collection('payment_methods')
   .limit(1)
   .get();
+
+  let [ payments, charges, paymentMethod ] = await Promise.all([paymentsProm, chargesProm, paymentMethodProm])
 
   const hasPaymentMethod = paymentMethod.size > 0;
 
@@ -72,7 +81,8 @@ exports.generateInvoice = functions.firestore
     newBalanceDue: eventDue,
     expiration: expTime, 
     status: hasPaymentMethod ? 'success' : 'pending',
-    createdAt: new Date().getTime()
+    createdAt: new Date().getTime(),
+    processedAt: hasPaymentMethod ? new Date().getTime() : null
   })
 
   hasPaymentMethod ? await sendLessonsLinkEmail(parent, context.params.invoiceID) : await sendPaymentLinkEmail(parent, context.params.invoiceID);

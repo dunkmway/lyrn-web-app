@@ -155,7 +155,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          document.querySelector('#payments-list').appendChild(liElement);
        });
        updateBalance();
-       updatePayoffAmount();
+      //  updatePayoffAmount();
      });
 
   /**
@@ -189,7 +189,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          document.querySelector('#charges-list').appendChild(liElement);
        });
        updateBalance();
-       updatePayoffAmount();
+      //  updatePayoffAmount();
      });
   
   /**
@@ -208,6 +208,15 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
        })
 
        invoices.sort((a,b) => b.createdAt - a.createdAt);
+
+       //remove any liElement that is no longer in the list
+       let existingInvoices = document.querySelectorAll('#invoices-list li');
+       existingInvoices.forEach(existingInvoice => {
+         if (!invoices.find(invoice => invoice.docId == existingInvoice.id.split('-')[1])) {
+           existingInvoice.remove();
+         }
+       })
+
        invoices.forEach(invoice => {
  
          let liElement = document.getElementById(`invoice-${invoice.docId}`);
@@ -227,6 +236,8 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            content = `✅ Invoice processed on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
          } else if (invoice.status === 'failed') {
            content = `🚨 Invoice expired on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+         } else {
+           content = `Generating invoice.`;
          }
          liElement.innerText = content;
          document.querySelector('#invoices-list').appendChild(liElement);
@@ -248,29 +259,29 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
     })
 
     payoffAmount -= balance;
-    togglePayoffAmount();
+    // togglePayoffAmount();
   })
 }
 
-function updatePayoffAmount() {
-  firebase.firestore()
-  .collection('Events')
-  .where('parents', 'array-contains', parentUID)
-  .where('start', '>', new Date().setHours(24))
-  .get()
-  .then((snapshot) => {
-    remainingTime = 0;
-    payoffAmount = 0;
-    snapshot.forEach(doc => {
-      const { start, end, price } = doc.data();
-      remainingTime += (end - start);
-      payoffAmount += (price * 100 * (end - start) / 3600000);
-    })
+// function updatePayoffAmount() {
+//   firebase.firestore()
+//   .collection('Events')
+//   .where('parents', 'array-contains', parentUID)
+//   .where('start', '>', new Date().setHours(24))
+//   .get()
+//   .then((snapshot) => {
+//     remainingTime = 0;
+//     payoffAmount = 0;
+//     snapshot.forEach(doc => {
+//       const { start, end, price } = doc.data();
+//       remainingTime += (end - start);
+//       payoffAmount += (price * 100 * (end - start) / 3600000);
+//     })
 
-    payoffAmount -= balance;
-    togglePayoffAmount();
-  })
-}
+//     payoffAmount -= balance;
+//     togglePayoffAmount();
+//   })
+// }
 
 function updateBalance() {
   let totalPaymentAmount = 0;
@@ -286,7 +297,7 @@ function updateBalance() {
   })
 
   balance = totalPaymentAmount - totalChargeAmount;
-  document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
+  // document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
 }
@@ -316,28 +327,28 @@ document
 })
 
 //payoff checkbox
-document
-.querySelector('#payoff')
-.addEventListener('change', togglePayoffAmount);
+// document
+// .querySelector('#payoff')
+// .addEventListener('change', togglePayoffAmount);
 
-function togglePayoffAmount() {
-  const payoffElement = document.querySelector('#payoff');
-  const amountElement = document.querySelector('#payment-amount');
+// function togglePayoffAmount() {
+//   const payoffElement = document.querySelector('#payoff');
+//   const amountElement = document.querySelector('#payment-amount');
 
-  if (payoffElement.checked) {
-    //place the payoff amount into the amount field
-    amountElement.value = payoffAmount / 100;
-  }
-  else {
-    //return the amount field to the default value;
-    updateBalance()
-  }
-}
+//   if (payoffElement.checked) {
+//     //place the payoff amount into the amount field
+//     amountElement.value = payoffAmount / 100;
+//   }
+//   else {
+//     //return the amount field to the default value;
+//     updateBalance()
+//   }
+// }
 
 //remove payoff check if the amount is modified
-document.querySelector('#payment-amount').addEventListener('input', () => {
-  document.querySelector('#payoff').checked = false;
-})
+// document.querySelector('#payment-amount').addEventListener('input', () => {
+//   document.querySelector('#payoff').checked = false;
+// })
  
  // Create payment form
 document
@@ -488,10 +499,9 @@ document
   .collection('Invoices')
   .add({
     parent: parentUID,
-    parentName: parentData.firstName + ' ' + parentData.lastName
+    parentName: parentData.firstName + ' ' + parentData.lastName,
+    createdAt: new Date().getTime()
   })
-
-  event.target.textContent = "Payment link sent!";
 
   document
   .querySelectorAll('button')
