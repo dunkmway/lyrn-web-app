@@ -1011,8 +1011,7 @@ nav a:hover {
   justify-content: flex-start;
   align-items: flex-start;
   position: relative;
-  /* min-height: 80vh; */
-  height: auto;
+  /* height: 100vh; */
   padding: 2em 1em 2em 3em;
   background-color: var(--color-primary);
 }

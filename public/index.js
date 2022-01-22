@@ -89,7 +89,7 @@ const aboutAnimationObserver = new IntersectionObserver((entries, animationObser
     }
   })
 }, animationOptions)
-aboutAnimationObserver.observe(aboutSection)
+// aboutAnimationObserver.observe(aboutSection)
 
 //work with the about section animations
 
@@ -155,7 +155,7 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
     submitBtn.value = 'We got it!'
   })
   .catch(error => {
-    console.log(error)
+    // console.log(error)
     alert('We had an issue receiving your contact info. Please try again.')
     submitBtn.disabled = false;
     submitBtn.value = 'Enroll'
@@ -165,6 +165,7 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
 //fix the height of the about section
 //fix it on load
 setTimeout(adjustAboutHeight, 500);
+setTimeout(adjustAboutHeight, 1000);
 
 //do it again as the screen size changes
 window.addEventListener('resize', adjustAboutHeight)
@@ -185,7 +186,7 @@ async function adjustAboutHeight() {
 
 async function heightIsChanging(element) {
   const firstHeight = element.clientHeight;
-  await sleep(50);
+  await sleep(100);
   const secondHeight = element.clientHeight;
   return firstHeight != secondHeight;
 }
