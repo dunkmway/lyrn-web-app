@@ -72,53 +72,143 @@ async function getImage(test, section, passage, imageNumber, question = undefine
 }
 
 /**
- * This will toggle the onclick of the HTML element whose id was passed in
+ * This is the 'addImage' helper function. It will grab all of the needed information from the DOM
  * 
- * @param {string} id The id of the HTML element to click
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Object} the object containing all of the information needed from the DOM
  */
-function clickInput(section, spacing = '') {
-	if (debug == true) {
-		console.log(spacing + 'toggleImageInput()', {'section' : section})
+function getImageDomInfo(text = undefined, spacing = '') {
+
+	// Find the element to add the image to
+	let elements = document.querySelectorAll('textarea')
+	let element = undefined
+	if (text == undefined || text == '') {
+		for (let i = 0; i < elements.length; i++) {
+			if (elements[i].value.includes('<image')) {
+				element = elements[i]
+				break
+			}
+		}
+	}
+	else {
+		for (let i = 0; i < elements.length; i++) {
+			if (elements[i].value.includes(text)) {
+				element = elements[i]
+				break
+			}
+		}
 	}
 
+	// Verify that '<image' can be found
+	if (element == undefined) {
+		return false
+	}
+
+	// Identify the displayType
+	let type = undefined
+	if (element.id.toLowerCase().includes('passage')) {
+		type = 'passage'
+	}
+	else if (element.id.toLowerCase().includes('question')) {
+		type = 'question'
+	}
+	else if (element.id.toLowerCase().includes('answer')) {
+		type = 'answer'
+	}
+
+	// Identify the test
+	const test = document.getElementById((type == 'passage' ? 'passage' : 'questions') + 'Test').value
+
+	// Identify the section
+	const section = document.getElementById((type == 'passage' ? 'passage' : 'questions') + 'Section').value
+
+	// Identify the passage
+	const passage = parseInt(document.getElementById((type == 'passage' ? 'passageNumber' : 'questionsPassageNumber')).value)
+
+	// Identify the question, if applicable
+	let question = undefined
+	if (type != 'passage') {
+		question = parseInt(document.getElementById('questionList').value)
+	}
+
+	// Identify the answer, if applicable
+	let answer = undefined
+	if (type == 'answer') {
+		answer = parseInt(element.id.split(type)[1])
+	}
+
+
+	// Return the needed data
+	return {
+		'element' : element,
+		'type' : type,
+		'test' : test,
+		'section' : section,
+		'passage' : passage,
+		'question' : question,
+		'answer' : answer
+	}
+
+}
+
+/**
+ * This will toggle the onclick of the HTML element whose id was passed in
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function clickInput(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'clickInput()')
+	}
+
+	const data = getImageDomInfo(undefined, spacing + spaceSize)
 	// verify there is a location to place the image then click the input to find the file
-	if (!document.getElementById(section + 'PassageText').value.includes('<image')) {
+	if (data == false) {
 		console.log('Please type "<image>" where you want the image to be placed in the text first')
 		return;
 	}
 	else {
-		document.getElementById(section + 'Image').click()
+		document.getElementById((data['type'] == 'passage' ? data['section'] : 'questions') + 'Image').click()
 	}
 }
 
 /**
  * 
- * @param {string} type Possible values are passage, question, and answer
- * @param {string} section ACT Section (Possible Values are english, math, reading, and science)
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  */
-function addImage(type, section, spacing = '') {
+function addImage(spacing = '') {
 	if (debug == true) {
-		console.log(spacing + 'addImage()', {
-			'type': type,
-			'section' : section
-		});
+		console.log(spacing + 'addImage()')
 	}
 
-	// Get the next image number
-	let images = document.querySelectorAll("img[id^='image']")
-
+	// Get the DOM info
+	const data = getImageDomInfo(undefined, spacing + spaceSize)
+	
+	// Get a list of all the image ids
+	let imageTextarea = data['element'].value.split('<img')
 	let imageIds = []
-	for (let i = 0; i < images.length; i++) {
-		imageIds.push(images[i].id.split('image')[1])
+
+	for (let i = 1; i < imageTextarea.length; i++) {
+		let idSplit = imageTextarea[i].split('id')[1].split('image')[1]
+		number = ''
+		for (let j = 0; j<idSplit.length; j++) {
+			if (idSplit[j] != '"') {
+				number += idSplit[j]
+			}
+			else {
+				break
+			}
+		}
+		imageIds.push(parseInt(number))
 	}
 
-	imageIds.sort()
+	// Sort the image IDs
+	imageIds.sort((a, b) => a - b)
 
+	// Grab the next image id
 	let imageNumber = 1
 	for (let i = 0; i < imageIds.length + 1; i++) {
-		if (!imageIds.includes((i + 1).toString())) {
+		if ((i + 1) != imageIds[i]) {
 			imageNumber = i + 1
 			break
 		}
@@ -127,23 +217,19 @@ function addImage(type, section, spacing = '') {
 	// Construct the filename for firebase and grab the image
 	let filename = undefined
 	let image = undefined
-	if (type == 'passage') {
-		image = document.getElementById(section + 'Image').files[0]
-		filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
+	if (data['type'] == 'passage') {
+		image = document.getElementById(data['section'] + 'Image').files[0]
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + '.png'
 	}
-	else if (type == 'question') {
-		console.log('Not working right now')
-		//filename = document.getElementById('passageTest').value + '-' + section.toLowerCase() + '-P' + document.getElementById('passageNumber').value + '-I' + (imageNumber).toString() + '.png'
-		//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
+	else if (data['type'] == 'question') {
+		image = document.getElementById('questionsImage').files[0]
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + '.png'
 	}
-	else if (type == 'answer') {
-		console.log('Not working right now')
-		//const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
-		//filename = testList.value + '-' + dom_section.value + '-P' + passageNumber.value + '-Q' + dom_questionList.value + '-A' + (answerNumber).toString() + '-I' + (maxPassageImageNumber + 1).toString() + '.png'
-		//console.log(passageNumber.value)
-		//console.log(filename)
+	else if (data['type'] == 'answer') {
+		image = document.getElementById('questionsImage').files[0]
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + '.png'
 	}
-	
+
 	// Finalize the firebase reference
 	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
 
@@ -158,31 +244,149 @@ function addImage(type, section, spacing = '') {
 		// Uploaded completed successfully, now we can get the download URL
 		thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
 
-			// Setting image
-			if (type == 'passage') {
-				document.getElementById(section + 'PassageText').value = document.getElementById(section + 'PassageText').value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
+			// Setting image into text
+			console.log(data['element'])
+			console.log(data['element'].value)
+			console.log(data['element'].value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>'))
+			data['element'].value = data['element'].value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
+
+			// Reset the display
+			if (data['type'] == 'passage') {
+				document.getElementById(data['section'] + 'Image').value = null
 				setPassageTextHelper(spacing + spaceSize)
-				//document.getElementById(section + 'ImageCount').innerHTML = (imageNumber + 1).toString()
-				//passageImages.push(downloadURL)
-				//maxPassageImageNumber += 1
-				//updateWorkingText(selectedWord, action)
 			}
-			else if (type == 'question') {
-				console.log('Not Working')
-				//maxQuestionImageNumber += 1
-				//updateQuestionText(selectedWord, action)
-			}
-			else if (type == 'answer') {
-				console.log('Not Working')
-				//const answerNumber = Array.prototype.indexOf.call(selectedWord.parentNode.parentNode.children, selectedWord.parentNode) + 1
-				//maxAnswerImageNumber[answerNumber - 1] += 1
-				//updateAnswerText(selectedWord, action, maxAnswerImageNumber[answerNumber - 1])
+			else {
+				document.getElementById('questionsImage').value = null
+				saveQuestion(false, spacing + spaceSize)
 			}
 
-			document.getElementById(section + 'Image').value = null
 		});
 	});
 
+}
+
+/**
+ * 
+ * @param {string} action action to take: toggle, remove, and add
+ * @param {number} x x-coordinate for the menu
+ * @param {number} y y-coordinate for the menu
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function displayRemovalMenu(action = 'toggle', x = 0, y = 0, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'displayRemovalMenu()', {
+			'action' : action,
+			'x' : x,
+			'y' : y
+		})
+	}
+
+	// Find the HTML element
+	let dom_menu = document.getElementById('imageRemovalPopup')
+
+	// Take the action specified
+	if (action == 'toggle') {
+		dom_menu.classList.toggle('hidden')
+	}
+	else if (action == 'remove') {
+		dom_menu.classList.add('hidden')
+	}
+	else if (action == 'add') {
+		dom_menu.classList.remove('hidden')
+	}
+
+	// Position the menu
+	dom_menu.style.left = (parseInt(x) + 30).toString() + 'px'
+	dom_menu.style.top = y + 'px'
+}
+
+/**
+ * 
+ * @param {element} element textarea DOM element where the image to be deleted is found
+ * @param {number} number Integer representing the id of the image to be deleted
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {string} the text between '<br><img' and '><br>'
+ */
+function getImageString(element, number, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getImageString()', {
+			'element' : element,
+			'number' : number
+		})
+	}
+
+	// Needed variables
+	let finalString = '<br><img'
+	const workingText = element.value.split('<img')
+
+	// Find the image and read the text in between '<img' and '>'
+	for (let i = 1; i < workingText.length; i++) {
+
+		if (parseInt(workingText[i].split('id')[1].split('"')[1].replace('image', '')) == number) {
+
+			let j = 0;
+			while (workingText[i][j] != '>') {
+				finalString += workingText[i][j]
+				j += 1
+			}
+			finalString += '><br>'
+			break
+		}
+	}
+
+	// Return the image string
+	return finalString
+}
+
+function removeImage(spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'removeImage()')
+	}
+
+	// Get the image number for the selected image
+	const imageNumber = parseInt(selectedImage.id.replace('image', ''))
+
+	// Find the element that needs the text removed
+	let elements = document.querySelectorAll('textarea')
+	let element = undefined
+	let data = getImageDomInfo(selectedImage.src, spacing + spaceSize)
+	const imageString = getImageString(data['element'], imageNumber, spacing + spaceSize)
+	for (let i = 0; i < elements.length; i++) {
+		if (elements[i].value.includes(imageString)) {
+			element = elements[i]
+			break
+		}
+	}
+
+	// Remove the image from the text
+	element.value = element.value.replace(imageString, '');
+
+	let filename = undefined
+	if (data['type'] == 'passage') {
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + '.png'
+	}
+	else if (data['type'] == 'question') {
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + '.png'
+	}
+	else if (data['type'] == 'answer') {
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + '.png'
+	}
+
+	let ref = storage.refFromURL('gs://lyrn-web-app.appspot.com/Images/Tests/' + filename)
+	ref.delete()
+		.then(() => {
+			if (data['type'] == 'passage') {
+				initializePassageDisplay(data['test'], data['section'], data['passage'], spacing + spaceSize)
+				savePassage(spacing + spaceSize)
+			}
+			else {
+				saveQuestion(false, spacing + spaceSize)
+			}
+			displayRemovalMenu('remove')
+		})
+		.catch((err) => {
+			console.log(err)
+		})
 }
 
 /**
@@ -214,6 +418,10 @@ function selectDisplay(id, spacing = '') {
 			displays[i].classList.remove('hidden')
 		}
 	}
+	
+	// Hide the semantics UI stuff manually as it's finicky
+	document.getElementById('topic').parentNode.style = 'display:none'
+	document.getElementById('modifier').parentNode.style = 'display:none'
 
 	// Initialize, if needed
 	if (id == 'testDisplay') {
@@ -227,6 +435,11 @@ function selectDisplay(id, spacing = '') {
 	}
 	else if (id == 'scaledScoresDisplay') {
 		initializeScaledScoresDisplay(spacing + spaceSize)
+	}
+	else if (id == 'questionsDisplay') {
+		document.getElementById('topic').parentNode.style = ''
+		document.getElementById('modifier').parentNode.style = ''
+		initializeQuestionsDisplay(undefined, undefined, undefined, undefined, spacing + spaceSize)
 	}
 
 }
@@ -384,6 +597,501 @@ async function initializeTestDisplay(spacing = '') {
 	// Reset the test code
 	document.getElementById('testCode').value = ''
 
+}
+
+/**
+ * This will initialize the dropdown of questions
+ * 
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ */
+function initializeQuestionList(section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeQuestionList()', {'section' : section})
+	}
+
+	// Identify the total number of questions
+	let count = 40
+
+	if (section.toLowerCase() == 'english') {
+		count = 75;
+	}
+	else if (section.toLowerCase() == 'math') {
+		count = 60;
+	}
+
+	// Delete the current list of questions
+	let dom_questionList = document.getElementById('questionList')
+	while (dom_questionList.firstChild) {
+		dom_questionList.removeChild(dom_questionList.firstChild)
+	}
+
+	// Add the needed questions
+	for (let i = 0; i < count; i++) {
+		dom_questionList.appendChild(createElement('option', [], ['value'], [i + 1], (i + 1).toString()))
+	}
+}
+
+function selectAnswer(element = undefined, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'selectAnswer()', {'element' : element})
+	}
+	let answers = document.getElementById('questionsPart2').querySelectorAll('label')
+
+	for (let i = 0; i < answers.length; i++) {
+		answers[i].classList.remove('correctAnswer')
+	}
+
+	if (element != undefined) {
+		element.classList.add('correctAnswer')
+	}
+}
+
+function resetQuestion(number) {
+	// Make sure that the questions have their correct value
+	if (number % 2 == 1) {
+		document.getElementById('answer1Label').innerHTML = 'A'
+		document.getElementById('answer2Label').innerHTML = 'B'
+		document.getElementById('answer3Label').innerHTML = 'C'
+		document.getElementById('answer4Label').innerHTML = 'D'
+		document.getElementById('answer5Label').innerHTML = 'E'
+	}
+	else {
+		document.getElementById('answer1Label').innerHTML = 'F'
+		document.getElementById('answer2Label').innerHTML = 'G'
+		document.getElementById('answer3Label').innerHTML = 'H'
+		document.getElementById('answer4Label').innerHTML = 'J'
+		document.getElementById('answer5Label').innerHTML = 'K'
+	}
+
+	// Reset the Topics
+    $('#topic').closest(".ui.dropdown").dropdown('clear')
+
+	// Reset the Modifiers
+    $('#modifier').closest(".ui.dropdown").dropdown('clear')
+
+	// Reset the answers
+	selectAnswer()
+
+	// Set the answers
+	const section = document.getElementById('questionsSection').value
+	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
+		document.getElementById('answer' + (i + 1).toString()).value = ''
+	}
+
+	// Set the question text
+	document.getElementById('questionText').value = ''
+
+	// Highlight the Text
+	//removeHighlight()
+
+	// Remove the passage References
+	//passageReferences = []
+
+	// Set the question
+	document.getElementById('questionList').value = number
+
+}
+
+async function initializeTopicList(section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeTopicList()', {'section' : section})
+	}
+
+  	$('.ui.dropdown').dropdown();
+
+	// Grab the data from firebase
+	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics')
+	.where('section', '==', section)
+	.where('type', '==', 'topic')
+
+	// Get the HTML element
+	let dom_topic = document.getElementById('topic')
+
+	// Delete the current list of topics
+	removeChildren('topic')
+
+	let topics = []
+	let querySnapshot = await ref.get()
+	querySnapshot.forEach((doc) => {
+		topics.push(doc.data().topic)
+	})
+
+	topics.sort()
+	dom_topic.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
+	for (let i = 0; i < topics.length; i++) {
+		dom_topic.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
+	}
+
+	await initializeModifierList(section);
+}
+
+async function initializeModifierList(section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeModifierList()', {'section' : section})
+	}
+
+	// Grab the data from firebase
+	const ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('section', '==', section).where('type', '==', 'modifier')
+
+	// Get the HTML element
+	let dom_modifier = document.getElementById('modifier')
+
+	// Delete the current list of topics
+	removeChildren('modifier')
+
+	let topics = []
+	let querySnapshot = await ref.get()
+	querySnapshot.forEach((doc) => {
+		topics.push(doc.data().topic)
+	})
+
+	topics.sort()
+	dom_modifier.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
+	for (let i = 0; i < topics.length; i++) {
+		dom_modifier.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
+	}
+}
+
+/**
+ * This will setup the display to edit questions
+ * 
+ * @param {?string} test ACT test ID (ie. B05)
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ * @param {?number} passageNumber This is the passage number
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeQuestionsDisplay(test = undefined, section = undefined, passage = undefined, question = undefined, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeQuestionsDisplay()', {
+			'test' : test,
+			'section' : section,
+			'passage' : passage,
+			'question' : question
+		})
+	}
+
+	// Find the HTML elements
+	let dom_test = document.getElementById('questionsTest')
+	let dom_section = document.getElementById('questionsSection')
+	let dom_passages = document.getElementById('questionsPassageNumber')
+	let dom_questionList = document.getElementById('questionList')
+
+	// Display the 5th question if it's the math section
+	if (dom_section.value == 'math') {
+		document.getElementById('answer5').classList.remove('hidden')
+		document.getElementById('answer5Label').classList.remove('hidden')
+	}
+	else {
+		document.getElementById('answer5').classList.add('hidden')
+		document.getElementById('answer5Label').classList.add('hidden')
+	}
+
+	// Set the test
+	await initializeTests('questionsTest', spacing + spaceSize)
+	if (test != undefined) {
+		dom_test.value = test.toUpperCase()
+	}
+
+	// Reset passage numbers
+	removeChildren('questionsPassageNumber', spacing + spaceSize)
+
+	// Identify how many passages there should be
+	let passageCount = 0;
+	switch(dom_section.value) {
+		case 'english':
+			passageCount = 5;
+			break;
+		case 'math':
+			passageCount = 3;
+			break;
+		case 'reading':
+			passageCount = 4;
+			break
+		case 'science':
+			passageCount = 7;
+			break;
+		default:
+			console.log('check your section spelling')
+			return;
+	}
+
+	if (section != undefined) {
+		dom_section.value = section.toLowerCase()
+	}
+
+	// Populate the question numbers dropdown and set its value
+	if (dom_section.value == 'math') {
+		dom_passages.appendChild(createElement('option', [], ['value'], [-1], '-1'))
+	}
+
+	for (let i = 0; i < passageCount; i++) {
+		dom_passages.appendChild(createElement('option', [], ['value'], [(i + 1)], (i + 1).toString()))
+	}
+	if (passage != undefined && parseInt(passage) <= passageCount) {
+		dom_passages.value = parseInt(passage)
+	}
+
+	// Initialize the topic and modifier lists
+	initializeTopicList(dom_section.value)
+
+	// Initialize the number of questions
+	initializeQuestionList(dom_section.value, spacing + spaceSize)
+
+	// Reset the Question
+	resetQuestion(question ?? 1)
+
+	// Grab the data place it into the DOM
+	let data = await getQuestionDocument(dom_test.value, dom_section.value, dom_questionList.value)
+	if (data != false) {
+		data = data.data()
+		const questionLocations = {
+			'A': '1',
+			'B': '2',
+			'C': '3',
+			'D': '4',
+			'E': '5',
+			'F': '1',
+			'G': '2',
+			'H': '3',
+			'J': '4',
+			'K': '5'
+		}
+
+		// Set the Topics
+    	$('#topic').closest(".ui.dropdown").dropdown('set selected', data['topic']);
+
+		// Set the Modifiers
+    	$('#modifier').closest(".ui.dropdown").dropdown('set selected', data['modifier']);
+
+		// Set the Passage Number
+		if (dom_passages.value != data['passage']) {
+			dom_passages.value = data['passage']
+			/*checkForPassage(testList.value, dom_section.value, data['passage'])
+			.then(() => {
+				// Highlight the Text
+				shouldMakeBox = data[0]['makeBox'] ?? false
+				if (data[0]['passageText'] != '') {
+					highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
+				}
+			})*/
+		}
+		/*else {
+			// Highlight the Text
+			shouldMakeBox = data[0]['makeBox'] ?? false
+			if (data[0]['passageText'] != '') {
+				highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
+			}
+		}*/
+
+		// Set the bottom half - passage
+		setPassageText(await getPassageDocument(dom_test.value, dom_section.value, dom_passages.value, spacing + spaceSize), spacing + spaceSize)
+
+		// Set the correct answer
+		selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']] + 'Label'), spacing + spaceSize)
+
+		// Set the answers
+		for (let i = 0; i < data['answers'].length; i++) {
+			document.getElementById('answer' + (i + 1).toString()).value = data['answers'][i]
+		}
+
+		// Set the question text
+		document.getElementById('questionText').value = data['questionText']
+
+		// Initialize the Question Preview
+		//initializeQuestionPreview(data['questionText'], data['answers'], data['problem'])
+		initializeQuestionPreview(data['questionText'], data['answers'])
+
+	}
+
+}
+
+async function initializeQuestionPreview(question, answers) {
+	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
+
+	removeChildren('qList')
+
+	// Get the HTML elements
+	const dom_qList = document.getElementById('qList')
+
+	// Display the question
+	if (question != undefined && question != '') {
+		dom_qList.appendChild(createElement('p', ['questionText'], [], [], question))
+	}
+
+	// Display the answers
+	let answerDiv = createElement('div', ['answerText'], [], [], '')
+	for (let i = 0; i < answers.length; i++) {
+		answerDiv.appendChild(createElement('p', [], [], [], (i + 1).toString() + ') ' + answers[i]))
+	}
+	dom_qList.appendChild(answerDiv)
+}
+
+/**
+ * 
+ * @param {string} dropdownId The id of the semantics UI dropdown (multiple) that you want the values from
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns {Array} Array containing all selected values
+ */
+function getDropdownValues(dropdownId, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getDropdownValues()', {'dropdownId' : dropdownId})
+	}
+
+	// Get the HTML element
+  	const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
+  
+	// Grab the values
+  	let values = []
+  	inputs.forEach((input) => {
+    	values.push(input.dataset.value)
+  	})
+
+	// Return the values
+  	return values;
+}
+
+
+
+/**
+ * 
+ * @param {boolean} goToNext Specify whether to display the next question after saving or not
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ * @returns 
+ */
+async function saveQuestion(goToNext = true, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'saveQuetion()', {'goToNext' : goToNext})
+	}
+
+	// Set the Firebase reference
+	let ref = firebase.firestore().collection('ACT-Tests')
+
+	// Find the HTML elements
+	const test = document.getElementById('questionsTest').value
+	const section = document.getElementById('questionsSection').value
+	const passage = parseInt(document.getElementById('questionsPassageNumber').value)
+	const number = parseInt(document.getElementById('questionList').value)
+
+	// Get the correct Answer
+	let answer = document.getElementsByClassName('correctAnswer')
+	if (answer.length > 0) {
+		answer = answer[0].innerHTML
+	}
+	else {
+		console.log("Please select the correct answer by clicking on its letter")
+		return
+	}
+
+	// Validate the passage Number
+	console.log(passage, section)
+	console.log(passage > 7)
+	console.log((passage < 1 && section != 'math'))
+	if ((passage < 1 && section != 'math') || (passage > 7)) {
+		console.log("Check the Passage Number")
+		return
+	}
+
+	// Initialize the attempts
+	let attempts = 0;
+	let correctAttempts = 0
+
+	// Get the possible answers' text
+	let answers = []
+	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
+		answers.push(document.getElementById('answer' + (i + 1).toString()).value)
+	}
+
+	// Check to see if the questions exists already or not; if so, grab the id and attempts
+	// Otherwise, finalize the Firebase Reference
+	let info = await getQuestionDocument(test, section, number, spacing + spaceSize)
+	if (info != false) {
+		attempts = info.data()['numberOfAttempts']
+		correctAttempts = info.data()['correctAttempts']
+		ref = ref.doc(info.id)
+	}
+	else {
+		ref = ref.doc()
+	}
+
+	// Grab the topics and modifiers
+	const topics = getDropdownValues('topic')
+	const modifiers = getDropdownValues('modifier')
+
+	// Create the data that will be sent to Firebase
+	if (answers.length == (section != 'math' ? 4 : 5)) {
+		const data = {
+			'test': test,
+			'section': section,
+			'passage': passage,
+			'type': 'question',
+			'topic': topics,
+			'subTopics': 'None',
+			'modifier': modifiers,
+			'problem': number,
+			'questionText': document.getElementById('questionText').value,
+			'answers': answers,
+			'correctAnswer': answer,
+			'numberOfAttempts': attempts,
+			'correctAttempts': correctAttempts,
+			'shouldHighlight' : false
+		}
+
+		// Set the data
+		await ref.set(data)
+
+		// Add the question to the list of questions if it isn't there already
+		let dom_qNumbers = document.getElementById('qNumbers')
+		const children = dom_qNumbers.children
+		let insertedElement = false;
+		let ele = undefined;
+		for (let i = 0; i < children.length; i++) {
+			if (parseInt(children[i].innerHTML) == number) {
+				ele = children[i]
+				insertedElement = true
+				break;
+			}
+			if (parseInt(children[i].innerHTML) > number) {
+				ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
+				dom_qNumbers.insertBefore(ele, children[i])
+				insertedElement = true
+				break;
+			}
+		}
+		if (insertedElement == false) {
+			ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
+			dom_qNumbers.appendChild(ele)
+		}
+
+		// Assign the set question a color
+		ele.classList.remove('stage1')
+		ele.classList.remove('stage2')
+		ele.classList.remove('stage3')
+		if (answers.length == (section != 'math' ? 4 : 5) && answers[0] != "") {
+			if (topics.length > 0) {
+				ele.classList.add('stage3')
+			}
+			else {
+				ele.classList.add('stage2')
+			}
+		}
+		else {
+			ele.classList.add('stage1')
+		}
+
+		// Reset the question display
+		if (goToNext == true) {
+			const counts = {'english' : 75, 'math' : 60, 'reading' : 40, 'science' : 40}
+			if (number != counts[section]) {
+				initializeQuestionsDisplay(test, section, passage, number + 1, spacing + spaceSize)
+			}
+		}
+		else {
+			initializeQuestionsDisplay(test, section, passage, number, spacing + spaceSize)
+		}
+
+		// Finished!!
+		console.log('It is done')
+	}
 }
 
 /**
@@ -683,7 +1391,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 
 	// Populate the passage list and set its value
 	for (let i = 0; i < passageCount; i++) {
-		dom_passages.appendChild(createElement('option', [], [], [], (i + 1).toString()))
+		dom_passages.appendChild(createElement('option', [], ['value'], [(i + 1)], (i + 1).toString()))
 	}
 	dom_passages.value = passageNumber
 
@@ -1240,6 +1948,12 @@ function setPassageText(data, spacing = '') {
 		console.log(spacing + 'setPassageText()', data)
 	}
 
+	try {
+		data = data.data()
+	}
+	catch {
+	}
+
 	// Remove the current elements
 	removeChildren('pText', spacing + spaceSize)
 
@@ -1285,10 +1999,51 @@ function setPassageText(data, spacing = '') {
 	resetMathJax(spacing + spaceSize)
 }
 
+/**
+ * This will return the text that has been selected
+ * 
+ * @returns {string} the selected text
+ */
+function getSelectionText() {
+    var text = "";
+    var activeEl = document.activeElement;
+    var activeElTagName = activeEl ? activeEl.tagName.toLowerCase() : null;
+    if (
+      (activeElTagName == "textarea") || (activeElTagName == "input" &&
+      /^(?:text|search|password|tel|url)$/i.test(activeEl.type)) &&
+      (typeof activeEl.selectionStart == "number")
+    ) {
+        text = activeEl.value.slice(activeEl.selectionStart, activeEl.selectionEnd);
+    } else if (window.getSelection) {
+        text = window.getSelection().toString();
+    }
+    return text.trim();
+}
 
 /*********************************************************
  *                    Event Listeners                    *
  *********************************************************/
+let selectedImage = undefined
+document.getElementsByTagName('main')[0].addEventListener('contextmenu', function(event) {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "main")')
+	}
+
+	if (event.target.id.toLowerCase().includes('image')) {
+		event.preventDefault()
+		selectedImage = event.target
+		displayRemovalMenu('toggle', event.clientX, event.clientY)
+	}
+})
+
+document.getElementsByTagName('main')[0].addEventListener('click', function(event) {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "main")')
+	}
+
+	displayRemovalMenu('remove')
+})
+
 let dom_test = document.getElementById('testList')
 dom_test.addEventListener('change', async function () {
 	if (debug == true) {
@@ -1401,7 +2156,9 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 		}
 
 		// Correct text
-		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		if (!event.target.id.toLowerCase().includes('image')) {
+			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		}
 
 		// Update the bottom display
 		setPassageTextHelper(spaceSize);
@@ -1430,4 +2187,52 @@ dom_scaledScoresSection.addEventListener('change', async function () {
 
 	// Display the answer key for the newly selected test
 	displayScaledScores(dom_scaledScoresTest.value, dom_scaledScoresSection.value, spaceSize)
+})
+
+let dom_questionsTest = document.getElementById('questionsTest')
+dom_questionsTest.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "questionsTest")', {
+			'value' : dom_questionsTest.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
+})
+
+let dom_questionsSection = document.getElementById('questionsSection')
+dom_questionsSection.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "questionsSection")', {
+			'value' : dom_questionsSection.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
+})
+
+let dom_questionsPassageNumber = document.getElementById('questionsPassageNumber')
+dom_questionsPassageNumber.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "questionsPassageNumber")', {
+			'value' : dom_questionsPassageNumber.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
+})
+
+let dom_questionList = document.getElementById('questionList')
+dom_questionList.addEventListener('change', async function () {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "questionList")', {
+			'value' : dom_questionList.value
+		})
+	}
+
+	// Display the answer key for the newly selected test
+	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
 })
