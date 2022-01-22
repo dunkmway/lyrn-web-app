@@ -27,7 +27,7 @@ exports.textReminder = functions.pubsub.schedule('30 17 * * *').timeZone('Americ
     let attendees = eventData.attendees;
     let start = new Date(eventData.start).setHours(new Date(eventData.start).getHours(eventData.start) - SALTLAKE_TIME_OFFSET);
     let title = eventData.title;
-    let studentName = eventData.studentName.split(', ')[1] + " " + eventData.studentName.split(', ')[0];
+    let studentName = eventData.studentName;
 
     //for all attendees send them a reminder text
     attendees.forEach(async (attendee) => {
@@ -85,8 +85,7 @@ exports.text_reminder_test = functions.https.onRequest(async (request, response)
 });
 
 function eventReminderText(to, from, studentName) {
-  const body = `We're excited to see you tomorrow for your lesson with ${studentName}. 
-  We will send you an email with the zoom link to the meeting an hour before your lesson.`
+  const body = `We're excited to see you tomorrow for your lesson with ${studentName}. We will send you an email with the zoom link to the meeting an hour before your lesson.`
   return client.messages.create({body: body, from: from, to: to})
 }
 

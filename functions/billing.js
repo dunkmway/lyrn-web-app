@@ -5,16 +5,14 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
 //check for events happening the next day and place a charge on the parent account whose student is attending the event.
-exports.chargeAccounts = functions.pubsub.schedule('5 22 * * *').timeZone('America/Denver').onRun(async (context) => {
+exports.chargeAccounts = functions.pubsub.schedule('5 6 * * *').timeZone('America/Denver').onRun(async (context) => {
   //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
-  const SALTLAKE_TIME_OFFSET = 7;
-  const UTC_TO_SALTLAKE = new Date().setHours(new Date().getHours() - SALTLAKE_TIME_OFFSET);
-  const tomorrowStart = new Date(UTC_TO_SALTLAKE).setHours(24 + SALTLAKE_TIME_OFFSET,0,0,0);
-  const tomorrowEnd = new Date(UTC_TO_SALTLAKE).setHours(48 + SALTLAKE_TIME_OFFSET,0,0,0);
+  const startToday = new Date().setMinutes(0,0,0);
+  const startTomorrow = new Date(startToday).setDate(new Date(startToday).getDate() + 1);
 
   let eventQuery = await admin.firestore().collection('Events')
-  .where('start', '>=', tomorrowStart)
-  .where('start', '<', tomorrowEnd)
+  .where('start', '>=', startToday)
+  .where('start', '<', startTomorrow)
   .orderBy('start')
   .get()
 
@@ -95,10 +93,10 @@ exports.chargeAccounts = functions.pubsub.schedule('5 22 * * *').timeZone('Ameri
             from: 'support@lyrnwithus.com', // Change to your verified sender
             subject: 'Lyrn Lesson Payment Issue',
             text: `We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-            on probabtion until your balance is resolved. Feel free to contact our office with any concerns and view the payment portal for more detail.
+            on probabtion until your balance is resolved. Feel free to contact us with any concerns.
             www.lyrnwithus.com`,
             html: `<strong>We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
-            on probabtion until your balance is resolved. Feel free to contact our office with any concerns and view the payment portal for more detail.
+            on probabtion until your balance is resolved. Feel free to contact us with any concerns.
             www.lyrnwithus.com</strong>`,
           }
           await sgMail.send(msg)

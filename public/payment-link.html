@@ -25,7 +25,7 @@
   <script src="payment-link.js" defer></script>
 </head>
 
-<body onload="intialSetup()">
+<body onload="initialSetup()">
   <header>
     <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle">
@@ -45,10 +45,12 @@
 
   <main>
     <section class="welcome">
-      <h2 class="date">Saturday, Dec 11</h2>
-      <h3 id="parent-name">Welcome back</h3>
-      <h4>Here are the lessons that we are paying for today</h4>
+      <h3 id="parent-name">Welcome</h3>
+      <h4>Generated on</h4>
+      <h2 class="date"></h2>
+      <h4 id="welcome-message"></h4>
     </section>
+
     <section class="lesson-list">
       <div class="table-wrapper">
         <table id="lesson-table">
@@ -63,28 +65,31 @@
           <tbody></tbody>
         </table>
       </div>
-      <div class="total-wrapper">
-        <h2>Balance Due</h2>
+      <!-- <div class="total-wrapper">
+        <h2>Total</h2>
         <h2 id="balance-due"></h2>
-      </div>
+      </div> -->
+      <p id="expiration-message"></p>
     </section>
-    <section class="payments">
+
+    <section class="payments" style="display: none;">
+      <h2>Start Lyrning</h2>
       <div class="make-payment">
-        <input type="radio" name="paymentType" id="payNow" checked>
+        <!-- <input type="radio" name="paymentType" id="payNow" checked>
         <label for="payNow">Pay for all of your lessons now</label>
         <p style="margin: 0em 0em 0em 2em;">OR</p>
         <input type="radio" name="paymentType" id="paySchedule">
-        <label for="paySchedule">Automatically pay for each lesson the night before</label>
+        <label for="paySchedule">Automatically pay for each lesson the night before</label> -->
 
         <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
         <label for="carholderName"></label>
         <div id="card-element"></div>
         <p id="error-message" class="error"></p>
 
-        <div class="pay-wrapper">
+        <!-- <div class="pay-wrapper">
           <div id="amount" data-type="currency"></div>
-          <div class="pay button" tabindex="0">Pay</div>
-        </div>
+          <div class="pay button" tabindex="0">Pay Now</div>
+        </div> -->
         <div class="save-wrapper">
           <div class="save-card button" tabindex="0">Save Card</div>
         </div>

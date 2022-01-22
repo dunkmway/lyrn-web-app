@@ -66,8 +66,9 @@ async function forgotPassword() {
           email: email
         })
         .then((result) => {
+          console.log(result.data)
           customConfirm(
-            result,
+            result.data,
             'Ok',
             '',
             () => {},

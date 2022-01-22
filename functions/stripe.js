@@ -55,7 +55,19 @@ exports.createStripeCustomerAuto = functions.auth.user().onCreate(async (user) =
      const paymentMethod = await stripe.paymentMethods.retrieve(
        paymentMethodId
      );
+
      await snap.ref.set(paymentMethod);
+
+     // now that we have a payment method all pending invoices are now successful
+     // query all pending invoices and change the status to succes
+     let pendingInvoices = await admin.firestore().collection('Invoices').where('status', '==', 'pending').where('parent', '==', context.params.userId).get();
+     pendingInvoices.forEach(async (invoice) => {
+       await invoice.ref.update({
+        status: 'success',
+        processedAt: new Date().getTime()
+       })
+     })
+
      // Create a new SetupIntent so the customer can add a new method next time.
      const intent = await stripe.setupIntents.create({
        customer: `${paymentMethod.customer}`,
@@ -107,9 +119,14 @@ exports.createStripePayment = functions.firestore
     );
     // If the result is successful, write it back to the database.
     await snap.ref.set(payment);
-    //FIXME!!!
-    //need to check if the parent should be removed from probation after each successful payment.
-    //also email them about the status of their payment and place them on probabtion if applicable
+
+    // if the payment was connected to an invoice update the invoice
+    if (snap.data().invoice) {
+      await admin.firestore().collection('Invoices').doc(snap.data().invoice).update({
+        status: 'success',
+        processedAt: new Date().getTime() 
+      })
+    }
 
     //remove the parent from probation if their balance is now >= 0
     if (await getUserBalance(parentRecord.uid) >= 0) {
@@ -317,7 +334,7 @@ function getUserBalance(userUID) {
 
 async function setProbation(userUID) {
   //first check that the parent isn't already on probation
-  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID);
+  const userStripeDoc = await admin.firestore().collection('stripe_customers').doc(userUID).get();
   const probation = userStripeDoc.data().probationDate;
 
   if (probation) {

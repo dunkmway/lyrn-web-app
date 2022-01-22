@@ -9,6 +9,7 @@ let remainingTime = 0;
 
 let payments = [];
 let charges = [];
+let invoices = [];
 let balance = 0;
 
 const HOURS_TO_GET_DISCOUNT = 20;
@@ -190,6 +191,47 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
        updateBalance();
        updatePayoffAmount();
      });
+  
+  /**
+    * Get all payments for the logged in customer
+    */
+   firebase
+     .firestore()
+     .collection('Invoices')
+     .where('parent', '==', parentUID)
+     .onSnapshot((snapshot) => {
+      invoices = [];
+       snapshot.forEach((doc) => {
+         const invoice = doc.data();
+         invoice.docId = doc.id;
+         invoices.push(invoice);
+       })
+
+       invoices.sort((a,b) => b.createdAt - a.createdAt);
+       invoices.forEach(invoice => {
+ 
+         let liElement = document.getElementById(`invoice-${invoice.docId}`);
+         if (!liElement) {
+           liElement = document.createElement('li');
+           liElement.id = `invoice-${invoice.docId}`;
+           liElement.style.cursor = 'pointer';
+           liElement.addEventListener('click', () => {
+            window.open(`payment-link?invoice=${invoice.docId}`, "_blank");
+          })
+         }
+ 
+         let content = '';
+         if (invoice.status === 'pending') {
+           content = `⚠️ Pending invoice created on ${convertFromDateInt(invoice.createdAt)['longDate']}.`;
+         } else if (invoice.status === 'success') {
+           content = `✅ Invoice processed on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+         } else if (invoice.status === 'failed') {
+           content = `🚨 Invoice expired on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+         }
+         liElement.innerText = content;
+         document.querySelector('#invoices-list').appendChild(liElement);
+       });
+     });
 
   //get all of the remaining events that this parent is connected to
   firebase.firestore()
@@ -202,7 +244,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
     snapshot.forEach(doc => {
       const { start, end, price } = doc.data();
       remainingTime += (end - start);
-      payoffAmount += (price * 100);
+      payoffAmount += (price * 100 * (end - start) / 3600000);
     })
 
     payoffAmount -= balance;
@@ -222,7 +264,7 @@ function updatePayoffAmount() {
     snapshot.forEach(doc => {
       const { start, end, price } = doc.data();
       remainingTime += (end - start);
-      payoffAmount += (price * 100);
+      payoffAmount += (price * 100 * (end - start) / 3600000);
     })
 
     payoffAmount -= balance;
@@ -507,11 +549,21 @@ document
     created: new Date().getTime()
   }
 
-  if (!confirm(`Are you sure you want to add a charge to this parent of ${formatAmount(formatAmountForStripe(amount, currency), currency)}`)) {
-    document
-    .querySelectorAll('button')
-    .forEach((button) => (button.disabled = false));
-    return;
+  if (amount < 0) {
+    if (!confirm(`Are you sure you want to add ${formatAmount(formatAmountForStripe(-1 * amount, currency), currency)} to this parent's balance?`)) {
+      document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
+      return;
+    }
+  }
+  else {
+    if (!confirm(`Are you sure you want to add a charge to this parent of ${formatAmount(formatAmountForStripe(amount, currency), currency)}?`)) {
+      document
+      .querySelectorAll('button')
+      .forEach((button) => (button.disabled = false));
+      return;
+    }
   }
 
   await firebase
