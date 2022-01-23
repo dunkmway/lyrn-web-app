@@ -1,4 +1,4 @@
-const debug = true
+const debug = false
 const spaceSize = '   '
 
 /*********************************************************
@@ -74,10 +74,16 @@ async function getImage(test, section, passage, imageNumber, question = undefine
 /**
  * This is the 'addImage' helper function. It will grab all of the needed information from the DOM
  * 
+ * @param {?string} text text to search for within the textareas
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  * @returns {Object} the object containing all of the information needed from the DOM
  */
 function getImageDomInfo(text = undefined, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'getImageDomInfo()', {
+			'text' : text
+		})
+	}
 
 	// Find the element to add the image to
 	let elements = document.querySelectorAll('textarea')
@@ -245,9 +251,6 @@ function addImage(spacing = '') {
 		thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
 
 			// Setting image into text
-			console.log(data['element'])
-			console.log(data['element'].value)
-			console.log(data['element'].value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>'))
 			data['element'].value = data['element'].value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
 
 			// Reset the display
@@ -338,6 +341,11 @@ function getImageString(element, number, spacing = '') {
 	return finalString
 }
 
+/**
+ * This will remove the image selected
+ * 
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
 function removeImage(spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'removeImage()')
@@ -382,7 +390,7 @@ function removeImage(spacing = '') {
 			else {
 				saveQuestion(false, spacing + spaceSize)
 			}
-			displayRemovalMenu('remove')
+			displayRemovalMenu('remove', spacing + spaceSize)
 		})
 		.catch((err) => {
 			console.log(err)
@@ -631,22 +639,40 @@ function initializeQuestionList(section, spacing = '') {
 	}
 }
 
+/**
+ * 
+ * @param {element} element The ACT answer element to mark as correct
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ */
 function selectAnswer(element = undefined, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'selectAnswer()', {'element' : element})
 	}
+
+	// Find the HTML elements
 	let answers = document.getElementById('questionsPart2').querySelectorAll('label')
 
+	// De-select all answers
 	for (let i = 0; i < answers.length; i++) {
 		answers[i].classList.remove('correctAnswer')
 	}
 
+	// select the correct answer, if applicable
 	if (element != undefined) {
 		element.classList.add('correctAnswer')
 	}
 }
 
-function resetQuestion(number) {
+/**
+ * 
+ * @param {number} number The question to reset
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ */
+function resetQuestion(number, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'resetQuestion()', {'number' : number})
+	}
+
 	// Make sure that the questions have their correct value
 	if (number % 2 == 1) {
 		document.getElementById('answer1Label').innerHTML = 'A'
@@ -670,7 +696,7 @@ function resetQuestion(number) {
     $('#modifier').closest(".ui.dropdown").dropdown('clear')
 
 	// Reset the answers
-	selectAnswer()
+	selectAnswer(undefined, spacing + spaceSize)
 
 	// Set the answers
 	const section = document.getElementById('questionsSection').value
@@ -681,17 +707,16 @@ function resetQuestion(number) {
 	// Set the question text
 	document.getElementById('questionText').value = ''
 
-	// Highlight the Text
-	//removeHighlight()
-
-	// Remove the passage References
-	//passageReferences = []
-
 	// Set the question
 	document.getElementById('questionList').value = number
 
 }
 
+/**
+ * 
+ * @param {string} section The section for which the topics should be initialized
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ */
 async function initializeTopicList(section, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'initializeTopicList()', {'section' : section})
@@ -708,23 +733,33 @@ async function initializeTopicList(section, spacing = '') {
 	let dom_topic = document.getElementById('topic')
 
 	// Delete the current list of topics
-	removeChildren('topic')
+	removeChildren('topic', spacing + spaceSize)
 
+	// Get the topics from firebase
 	let topics = []
 	let querySnapshot = await ref.get()
 	querySnapshot.forEach((doc) => {
 		topics.push(doc.data().topic)
 	})
 
+	// Sort the topics alphabetically
 	topics.sort()
+
+	// Add the topics to the dom
 	dom_topic.appendChild(createElement('option', [], ['value'], [''], 'None Selected'))
 	for (let i = 0; i < topics.length; i++) {
 		dom_topic.appendChild(createElement('option', [], ['value'], [topics[i]], topics[i]))
 	}
 
+	// initialize the modifier list
 	await initializeModifierList(section);
 }
 
+/**
+ * 
+ * @param {string} section The section for which the modifiers should be initialized
+ * @param {?string} section ACT section (possible values are english, math, reading, and science)
+ */
 async function initializeModifierList(section, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'initializeModifierList()', {'section' : section})
@@ -737,7 +772,7 @@ async function initializeModifierList(section, spacing = '') {
 	let dom_modifier = document.getElementById('modifier')
 
 	// Delete the current list of topics
-	removeChildren('modifier')
+	removeChildren('modifier', spacing + spaceSize)
 
 	let topics = []
 	let querySnapshot = await ref.get()
@@ -773,11 +808,23 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	// Find the HTML elements
 	let dom_test = document.getElementById('questionsTest')
 	let dom_section = document.getElementById('questionsSection')
-	let dom_passages = document.getElementById('questionsPassageNumber')
+	let dom_passage = document.getElementById('questionsPassageNumber')
 	let dom_questionList = document.getElementById('questionList')
 
+	if (test == undefined || test == '') {
+		test = dom_test.value
+	}
+
+	if (section == undefined || section == '') {
+		section = dom_section.value
+	}
+
+	if (passage == undefined || passage == '') {
+		passage = dom_passage.value
+	}
+
 	// Display the 5th question if it's the math section
-	if (dom_section.value == 'math') {
+	if (section == 'math') {
 		document.getElementById('answer5').classList.remove('hidden')
 		document.getElementById('answer5Label').classList.remove('hidden')
 	}
@@ -786,9 +833,19 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 		document.getElementById('answer5Label').classList.add('hidden')
 	}
 
+	// Display the 'should highlight text' toggle if it's the reading section
+	if (section == 'reading') {
+		document.getElementById('shouldHighlightText').classList.remove('hidden')
+		document.getElementById('shouldHighlightTextLabel').classList.remove('hidden')
+	}
+	else {
+		document.getElementById('shouldHighlightText').classList.add('hidden')
+		document.getElementById('shouldHighlightTextLabel').classList.add('hidden')
+	}
+
 	// Set the test
 	await initializeTests('questionsTest', spacing + spaceSize)
-	if (test != undefined) {
+	if (test != undefined && test != '') {
 		dom_test.value = test.toUpperCase()
 	}
 
@@ -815,33 +872,33 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 			return;
 	}
 
-	if (section != undefined) {
+	if (section != undefined && section != '') {
 		dom_section.value = section.toLowerCase()
 	}
 
 	// Populate the question numbers dropdown and set its value
 	if (dom_section.value == 'math') {
-		dom_passages.appendChild(createElement('option', [], ['value'], [-1], '-1'))
+		dom_passage.appendChild(createElement('option', [], ['value'], [-1], '-1'))
 	}
 
 	for (let i = 0; i < passageCount; i++) {
-		dom_passages.appendChild(createElement('option', [], ['value'], [(i + 1)], (i + 1).toString()))
+		dom_passage.appendChild(createElement('option', [], ['value'], [(i + 1)], (i + 1).toString()))
 	}
-	if (passage != undefined && parseInt(passage) <= passageCount) {
-		dom_passages.value = parseInt(passage)
+	if (passage != undefined && passage != '' && parseInt(passage) <= passageCount) {
+		dom_passage.value = parseInt(passage)
 	}
 
 	// Initialize the topic and modifier lists
-	initializeTopicList(dom_section.value)
+	initializeTopicList(dom_section.value, spacing + spaceSize)
 
 	// Initialize the number of questions
 	initializeQuestionList(dom_section.value, spacing + spaceSize)
 
 	// Reset the Question
-	resetQuestion(question ?? 1)
+	resetQuestion(question ?? 1, spacing + spaceSize)
 
-	// Grab the data place it into the DOM
-	let data = await getQuestionDocument(dom_test.value, dom_section.value, dom_questionList.value)
+	// Grab the data and place it into the DOM
+	let data = await getQuestionDocument(dom_test.value, dom_section.value, dom_questionList.value, spacing + spaceSize)
 	if (data != false) {
 		data = data.data()
 		const questionLocations = {
@@ -864,30 +921,15 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
     	$('#modifier').closest(".ui.dropdown").dropdown('set selected', data['modifier']);
 
 		// Set the Passage Number
-		if (dom_passages.value != data['passage']) {
-			dom_passages.value = data['passage']
-			/*checkForPassage(testList.value, dom_section.value, data['passage'])
-			.then(() => {
-				// Highlight the Text
-				shouldMakeBox = data[0]['makeBox'] ?? false
-				if (data[0]['passageText'] != '') {
-					highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
-				}
-			})*/
+		if (dom_passage.value != data['passage']) {
+			dom_passage.value = data['passage']
 		}
-		/*else {
-			// Highlight the Text
-			shouldMakeBox = data[0]['makeBox'] ?? false
-			if (data[0]['passageText'] != '') {
-				highlightText(data[0]['passageText'], data[0]['passageTextLocation'], true)
-			}
-		}*/
 
 		// Set the bottom half - passage
-		setPassageText(await getPassageDocument(dom_test.value, dom_section.value, dom_passages.value, spacing + spaceSize), spacing + spaceSize)
+		setPassageText(await getPassageDocument(dom_test.value, dom_section.value, dom_passage.value, spacing + spaceSize), spacing + spaceSize)
 
 		// Set the correct answer
-		selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']] + 'Label'), spacing + spaceSize)
+		selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']].toString() + 'Label'), spacing + spaceSize)
 
 		// Set the answers
 		for (let i = 0; i < data['answers'].length; i++) {
@@ -898,17 +940,59 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 		document.getElementById('questionText').value = data['questionText']
 
 		// Initialize the Question Preview
-		//initializeQuestionPreview(data['questionText'], data['answers'], data['problem'])
-		initializeQuestionPreview(data['questionText'], data['answers'])
+		initializeQuestionPreview(data['questionText'], data['answers'], data['problem'], spacing + spaceSize)
 
+		// Initialize the Question Numbers list
+		initializeQuestionNumbersList(data['test'], data['section'], spacing + spaceSize)
+
+		// Initialize whether the text should be highlighted or not
+		document.getElementById('shouldHighlightText').value = data['shouldHighlightText'] == true ? 1 : 0
+
+		// Remove text highlighting
+		let elements = document.getElementById('pText').querySelectorAll('span')
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].classList.remove('spotlight')
+			elements[i].classList.remove('box')
+		}
+
+		// Highlight the text, if necessary
+		if (data['section'] == 'english' || (data['section'] == 'reading' && data['shouldHighlightText'] == true)) {
+			let ele = document.querySelector('span[id="' + data['problem'].toString() + '"]')
+			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+				ele.classList.add('box')
+			}
+			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+				ele.classList.add('spotlight')
+			}
+		}
 	}
+
+	// Reset Math Jax
+	resetMathJax()
 
 }
 
-async function initializeQuestionPreview(question, answers) {
+/**
+ * 
+ * @param {string} question The question text to display
+ * @param {string} answers The answers to display
+ * @param {number} number The question at hand
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+async function initializeQuestionPreview(question, answers, number, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeQuestionPreview()', {
+			'question' : question,
+			'answers' : answers,
+			'number' : number
+		})
+	}
+
+	// Define the possible answers
 	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
 
-	removeChildren('qList')
+	// Reset the list
+	removeChildren('qList', spacing + spaceSize)
 
 	// Get the HTML elements
 	const dom_qList = document.getElementById('qList')
@@ -921,9 +1005,60 @@ async function initializeQuestionPreview(question, answers) {
 	// Display the answers
 	let answerDiv = createElement('div', ['answerText'], [], [], '')
 	for (let i = 0; i < answers.length; i++) {
-		answerDiv.appendChild(createElement('p', [], [], [], (i + 1).toString() + ') ' + answers[i]))
+		answerDiv.appendChild(createElement('p', [], [], [], answerLetters[i + ((number % 2) * 5)] + ') ' + answers[i]))
 	}
 	dom_qList.appendChild(answerDiv)
+}
+
+/**
+ * 
+ * @param {string} test The ACT test
+ * @param {string} section The ACT section
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+function initializeQuestionNumbersList(test, section, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeQuestionNumbersList()', {
+			'test' : test,
+			'section' : section
+		})
+	}
+
+	removeChildren('qNumbers', spacing + spaceSize)
+	let dom_finishedQuestions = document.getElementById('qNumbers')
+
+	const ref = firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.where('test', '==', test)
+	.where('section', '==', section)
+
+	let list = []
+	let data = {}
+	ref.get()
+	.then((querySnapshot) => {
+		if (querySnapshot.size > 0) {
+			querySnapshot.forEach((doc) => {
+				const problem = doc.data().problem
+				list.push(problem)
+				if (doc.data().answers.length == (section != 'math' ? 4 : 5) && doc.data().answers[0] != "") {
+					if (doc.data().topic.length != 0) {
+						data[problem] = 'stage3'
+					}
+					else {
+						data[problem] = 'stage2'
+					}
+				}
+				else {
+					data[problem] = 'stage1'
+				}
+			})
+
+			list.sort(function(a, b) {return a - b;})
+			for (let i = 0; i < list.length; i++) {
+				dom_finishedQuestions.appendChild(createElement('div', ['problem', data[(i + 1)]], ['onclick'], ["initializeQuestionsDisplay('', '', '', " + (list[i]).toString() + ")"], list[i].toString()))
+			}
+		}
+	})
 }
 
 /**
@@ -983,9 +1118,6 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Validate the passage Number
-	console.log(passage, section)
-	console.log(passage > 7)
-	console.log((passage < 1 && section != 'math'))
 	if ((passage < 1 && section != 'math') || (passage > 7)) {
 		console.log("Check the Passage Number")
 		return
@@ -1014,8 +1146,14 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Grab the topics and modifiers
-	const topics = getDropdownValues('topic')
-	const modifiers = getDropdownValues('modifier')
+	const topics = getDropdownValues('topic', spacing + spaceSize)
+	const modifiers = getDropdownValues('modifier', spacing + spaceSize)
+
+	// Identify whether the answer should be highlighted or not
+	let shouldHighlightText = false
+	if (section == 'reading' && document.getElementById('shouldHighlightText').value == 1) {
+		shouldHighlightText = true
+	}
 
 	// Create the data that will be sent to Firebase
 	if (answers.length == (section != 'math' ? 4 : 5)) {
@@ -1033,7 +1171,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 			'correctAnswer': answer,
 			'numberOfAttempts': attempts,
 			'correctAttempts': correctAttempts,
-			'shouldHighlight' : false
+			'shouldHighlightText' : shouldHighlightText
 		}
 
 		// Set the data
@@ -1280,6 +1418,12 @@ async function savePassage(spacing = '') {
 	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
 	let ABData = {}
 
+	// Remove the paragraph labels, if needed
+	for (let i = 0; i < 5; i++) {
+		text.value = text.value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
+	}
+
+	// Add the A/B passage information if needed
 	if (section == 'reading' && dom_AB.value == 1) {
 		ABData['title'] = document.getElementById('readingPassageTitleB').value
 		ABData['passageText'] = document.getElementById('readingPassageTextB').value
@@ -1294,7 +1438,7 @@ async function savePassage(spacing = '') {
 		'passageText' : text.value,
 		'passageNumber' : passageNumber,
 		'preText' : preText,
-		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 0) ? false : true),
+		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 1) ? true : false),
 		'reference' : dom_reference.value ?? '',
 		'ABData' : ABData
 	}
@@ -1417,6 +1561,17 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
 	}
 
+	// Add the paragraph labels, if needed
+	if (passageData['shouldLabelParagraphs'] == true && passageData['section'] == 'english' && passageData['passageText'] != undefined && passageData['passageText'] != '' && !passageData['passageText'].includes('<b>1</b>')) {
+		let splitText = passageData['passageText'].split('<br><br>')
+		
+		for (let i = 0; i < splitText.length; i++) {
+			splitText[i] = '<b>' + (i + 1).toString() + '</b><br> ' + splitText[i]
+		}
+
+		passageData['passageText'] = splitText.join('<br><br>')
+	}
+
 	// Display the passage
 	try {
 		document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
@@ -1432,9 +1587,6 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	catch {
 		console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
 	}
-
-	// Hide Passage B by default, will be un-hidden later if needed
-	//document.getElementById('passageB').classList.add('hidden')
 
 	// Extra displays for reading
 	if ((section ?? dom_section.value) == 'reading') {
@@ -1862,47 +2014,6 @@ async function saveScaledScores(spacing = '') {
 	
 }
 
-// DELETE THIS FUNCTION - POSSIBLY
-/**
- * This will take a string in and split it by spaces and '&mdash;' and return an array with each word
- * 
- * @param {string} text The text that will be split by spaces and '&mdash;'
- * @param {?string} spacing The spacing for debug purposes (ie. '  ')
- * @returns {Array} An array with each word or Mdash
- */
-function prepText(text, spacing = '') {
-	if (debug == true) {
-		console.log(spacing + 'prepText()', {'text' : text})
-	}
-
-	// This is the array that will be returned
-	let newText = text.split(' ')
-
-	// Go through each word (split by a space) and check to see if it has an MDash (--) in it
-	for (let i = 0; i < newText.length; i++) {
-		if (newText[i].includes('&mdash;')) {
-			const splitText = newText[i].split('&mdash;')
-			if (splitText[0] != '') {
-				newText[i] = splitText[0]
-				newText.splice(i + 1, 0, '&mdash;')
-				if (splitText[1] != '') {
-					newText.splice(i + 2, 0, splitText[1])
-				}
-			}
-			else if (splitText[1] != '') {
-				newText[i] = '&mdash;'
-				newText.splice(i + 1, 0, splitText[1])
-			}
-			else {
-				newText[i] = '&mdash;'
-			}
-		}
-	}
-
-	// Return the parsed string
-	return newText
-}
-
 /**
  * This will set the passage text without any parameters passed it. (It will grab them from the DOM)
  * 
@@ -1976,8 +2087,10 @@ function setPassageText(data, spacing = '') {
 	}
 
 	// Set the passage text
-	if (data['reference'] != undefined && data['reference'] != '') {
-		dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
+	if (data['ABData'] == undefined || data['ABData'] == {}) {
+		if (data['reference'] != undefined && data['reference'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
+		}
 	}
 
 	// Set passage B
@@ -1988,6 +2101,10 @@ function setPassageText(data, spacing = '') {
 
 		if (data['ABData']?.['passageText'] != undefined && data['ABData']?.['passageText'] != '') {
 			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['passageText']))
+		}
+
+		if (data['reference'] != undefined && data['reference'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
 		}
 
 		if (data['ABData']?.['reference'] != undefined && data['ABData']?.['reference'] != '') {
@@ -2025,23 +2142,23 @@ function getSelectionText() {
  *********************************************************/
 let selectedImage = undefined
 document.getElementsByTagName('main')[0].addEventListener('contextmenu', function(event) {
-	if (debug == true) {
-		console.log('EVENT LISTENER (id = "main")')
-	}
+	//if (debug == true) {
+		//console.log('EVENT LISTENER (id = "main")')
+	//}
 
 	if (event.target.id.toLowerCase().includes('image')) {
 		event.preventDefault()
 		selectedImage = event.target
-		displayRemovalMenu('toggle', event.clientX, event.clientY)
+		displayRemovalMenu('toggle', event.clientX, event.clientY, spaceSize)
 	}
 })
 
 document.getElementsByTagName('main')[0].addEventListener('click', function(event) {
-	if (debug == true) {
-		console.log('EVENT LISTENER (id = "main")')
-	}
+	//if (debug == true) {
+		//console.log('EVENT LISTENER (id = "main")')
+	//}
 
-	displayRemovalMenu('remove')
+	displayRemovalMenu('remove', spaceSize)
 })
 
 let dom_test = document.getElementById('testList')
@@ -2155,6 +2272,35 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
 		}
 
+		if (event.target.id == 'englishLabelParagraphs') {
+			let dom_labelParagraphs = document.getElementById('englishLabelParagraphs')
+
+			// Grab the text
+			let text = document.getElementById('englishPassageText').value
+			console.log(dom_labelParagraphs.value)
+
+			// Remove the paragraph labels, if needed
+			if (dom_labelParagraphs.value == 0) {
+				console.log('here')
+				for (let i = 0; i < 5; i++) {
+					document.getElementById('englishPassageText').value = document.getElementById('englishPassageText').value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
+				}
+			}
+
+			// Add the paragraph labels, if needed
+			else if (dom_labelParagraphs.value == 1 && text != undefined && text != '' && !text.includes('<b>1</b>')) {
+				let splitText = text.split('<br><br>')
+
+				for (let i = 0; i < splitText.length; i++) {
+					splitText[i] = '<b>' + (i + 1).toString() + '</b><br> ' + splitText[i]
+				}
+
+				document.getElementById('englishPassageText').value = splitText.join('<br><br>')
+			}
+
+		}
+
+
 		// Correct text
 		if (!event.target.id.toLowerCase().includes('image')) {
 			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
@@ -2214,7 +2360,7 @@ dom_questionsSection.addEventListener('change', async function () {
 })
 
 let dom_questionsPassageNumber = document.getElementById('questionsPassageNumber')
-dom_questionsPassageNumber.addEventListener('change', async function () {
+/*dom_questionsPassageNumber.addEventListener('change', async function () {
 	if (debug == true) {
 		console.log('EVENT LISTENER (id = "questionsPassageNumber")', {
 			'value' : dom_questionsPassageNumber.value
@@ -2223,7 +2369,7 @@ dom_questionsPassageNumber.addEventListener('change', async function () {
 
 	// Display the answer key for the newly selected test
 	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
-})
+})*/
 
 let dom_questionList = document.getElementById('questionList')
 dom_questionList.addEventListener('change', async function () {
@@ -2235,4 +2381,56 @@ dom_questionList.addEventListener('change', async function () {
 
 	// Display the answer key for the newly selected test
 	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
+})
+
+let dom_questions = document.getElementById('questions')
+dom_questions.addEventListener('input', async function(event) {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = ' + event.target.id)
+	}
+
+	// Clean up the textarea
+	if (event.target.tagName.toLowerCase() == 'textarea') {
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+	}
+
+	// Remove text highlighting
+	if (event.target.id == 'shouldHighlightText' && event.target.value == 0) {
+		let elements = document.getElementById('pText').querySelectorAll('span')
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].classList.remove('spotlight')
+			elements[i].classList.remove('box')
+		}
+	}
+	else if (event.target.id == 'shouldHighlightText' && event.target.value == 1) {
+		// Highlight the text, if necessary
+		if (dom_questionsSection.value == 'english' || dom_questionsSection.value == 'reading') {
+			let ele = document.querySelector('span[id="' + dom_questionList.value.toString() + '"]')
+			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+				ele.classList.add('box')
+			}
+			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+				ele.classList.add('spotlight')
+			}
+		}
+	}
+
+	// Get the answers
+	let answers = []
+	let answerElements = document.querySelectorAll('textarea[id^="answer"]')
+	for (let i = 0; i < answerElements.length; i++) {
+		answers.push(answerElements[i].value)
+	}
+
+	// Remove the last answer, if needed
+	if (dom_questionsSection.value != 'math') {
+		answers.splice(answers.length - 1, 1)
+	}
+
+	// Initialize the Question Preview
+	await initializeQuestionPreview(document.getElementById('questionText').value, answers, dom_questionList.value, spaceSize)
+
+	// Reset Math Jax
+	resetMathJax()
+
 })
