@@ -143,7 +143,7 @@ exports.checkInvoices = functions.pubsub.schedule('0 0 * * *').timeZone('America
     // need to double check that the parent does not have any payment methods. if they do then just set this invoice to success
     let paymentMethod = await admin.firestore()
     .collection('stripe_customers')
-    .doc(parent)
+    .doc(invoiceDoc.data().parent)
     .collection('payment_methods')
     .limit(1)
     .get();
@@ -168,7 +168,10 @@ exports.checkInvoices = functions.pubsub.schedule('0 0 * * *').timeZone('America
     let { events } = invoiceDoc.data()
     let eventDeletePromises = [];
     events.forEach(event => {
-      eventDeletePromises.push(admin.firestore().collection('Events').doc(event.id).delete());
+      // only remove future events just in case 
+      if (event.start >= new Date().getTime()) {
+        eventDeletePromises.push(admin.firestore().collection('Events').doc(event.id).delete());
+      }
     })
     await Promise.all(eventDeletePromises);
 
