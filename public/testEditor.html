@@ -412,7 +412,7 @@
         </div>
 
         <!-- Question / Answer Elements -->
-        <div class = 'rows'>
+        <div class = 'rows' style = 'margin-left: 3%;'>
 
           <div>
             <label  for="questionList" id='questionListLabel'>Problem</label>
@@ -433,7 +433,7 @@
 
           </div>
 
-          <div class = 'columns'>
+          <div id = 'questions' class = 'columns'>
 
             <div class = 'rows' id = 'questionsPart1'>
               <label for="questionText" id='questionTextLabel'>Question Text</label>
@@ -460,9 +460,16 @@
             </div>
 
 
-            <div>
-              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+            <div class = 'rows'>
+              <button onclick = 'clickInput()' style = 'margin-top: 1.45em; margin-left: 10px'>Add Image</button>
               <input id = 'questionsImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
+
+              <label for="shouldHighlightText" id = 'shouldHighlightTextLabel' class = 'hidden'>Highlight Text</label>
+              <select id="shouldHighlightText" class = 'hidden'>
+                <option value = 0>No</option>
+                <option value = 1>Yes</option>
+              </select>
+
             </div>
 
           </div>

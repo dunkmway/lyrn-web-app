@@ -239,6 +239,31 @@ table tr:nth-child(odd) td {
 	cursor:pointer;
 }
 
+#questionsPart1 {
+	width: 45vw;
+	height: 35vh;
+}
+
+#questionsPart1 textarea {
+	height: 100%;
+}
+
+#questionsPart2 {
+	width: 30vw;
+	height: 35vh;
+	margin-left: 5%;
+}
+
+#questionsPart2 textarea {
+	height: 100%;
+}
+
+.correctAnswer {
+	color:white;
+	font-weight: bold;
+	background-color: green;
+}
+
 .hidden {
 	display: none;
 }
