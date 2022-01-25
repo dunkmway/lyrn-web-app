@@ -1,4 +1,4 @@
-const debug = false
+const debug = true
 const spaceSize = '   '
 
 /*********************************************************
@@ -1430,6 +1430,11 @@ async function savePassage(spacing = '') {
 		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
 	}
 
+	// Remove extra spaces
+	while (text.value.includes('  ')) {
+		text.value = text.value.replaceAll('  ', ' ')
+	}
+
 	data = {
 		'test' : test,
 		'section' : section,
@@ -1797,7 +1802,7 @@ async function displayAnswerKey(test, section, spacing = '') {
 		let labelDiv = createElement('div', ['rows'], [], [], '')
 		for (let j = 0; j < 10; j++) {
 			if (i * 10 + j < count) {
-				labelDiv.appendChild(createElement('label', [], ['id', 'for'], ['q' + (i * 10 + j + 1).toString() + 'Label', 'q' + (i * 10 + j + 1).toString()], (i * 10 + j + 1)));
+				labelDiv.appendChild(createElement('label', [], ['id', 'for'], ['qq' + (i * 10 + j + 1).toString() + 'Label', 'qq' + (i * 10 + j + 1).toString()], (i * 10 + j + 1)));
 			}
 		}
 
@@ -1809,10 +1814,10 @@ async function displayAnswerKey(test, section, spacing = '') {
 		for (let j = 0; j < 10; j++) {
 			if (i * 10 + j < count) {
 				if (answers[i * 10 + j + 1]) {
-					inputDiv.appendChild(createElement('input', [], ['id', 'value'], ['q' + (i * 10 + j + 1).toString(), answers[i * 10 + j + 1]], ''));
+					inputDiv.appendChild(createElement('input', [], ['id', 'value'], ['qq' + (i * 10 + j + 1).toString(), answers[i * 10 + j + 1]], ''));
 				}
 				else {
-					inputDiv.appendChild(createElement('input', [], ['id'], ['q' + (i * 10 + j + 1).toString()], ''));
+					inputDiv.appendChild(createElement('input', [], ['id'], ['qq' + (i * 10 + j + 1).toString()], ''));
 				}
 			}
 		}
@@ -1834,7 +1839,7 @@ function saveAnswers(spacing = '') {
 	}
 
 	// Grab all answers from the DOM and find other HTML elements
-	const answers = document.querySelectorAll("input[id^='q']")
+	const answers = document.querySelectorAll("input[id^='qq']")
 	let dom_section = document.getElementById('answersSection')
 	let dom_test = document.getElementById('answersTest')
 
@@ -2303,7 +2308,12 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 
 		// Correct text
 		if (!event.target.id.toLowerCase().includes('image')) {
-			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+			if (event.target.id.includes('PassageText')) {
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+			}
+			else {
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+			}
 		}
 
 		// Update the bottom display
