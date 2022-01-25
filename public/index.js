@@ -97,45 +97,27 @@ function aboutSetup() {
   aboutAnimations = document.getAnimations().filter(animation => animation.effect.target.matches('.about-details .content'))
   aboutAnimations.forEach((animation, index, animationList) => {
     animation.onfinish = () => {
-      animation.pause();
-      animation.effect.target.parentElement.querySelector('.about-details .about_toggle').checked = false;
+      //restart the current aniamtion
+      animation.currentTime = 0;
 
+      // get the next animation and restart it
       let nextIndex = (index + 1) % animationList.length;
       let nextAnimation = animationList[nextIndex];
-      nextAnimation.play();
+      nextAnimation.currentTime = 0;
       nextAnimation.effect.target.parentElement.querySelector('.about-details .about_toggle').checked = true;
     }
   })
 }
 
-// //listen for the about checkboxes to be changed by the user
-// document.querySelectorAll('.about-details .about_toggle').forEach(toggle => {
-//   toggle.addEventListener('change', (event) => {
-//     console.log('changed')
-//     let target = event.target;
-
-//     //prevent the user from unselecting the current toggle
-//     if (!target.checked) {
-//       target.checked = true;
-//       return;
-//     }
-
-//     //reactivate the target animation
-//     let animation = document.getAnimations().find(animation => animation.effect.target == target.parentNode.querySelector('.content'))
-//     console.log(animation.effect.target)
-//     animation.play();
-
-//     //uncheck all of the toggles and remove their animation
-//     document.querySelectorAll('.about-details .about_toggle').forEach(checkbox => {
-//       if (checkbox != target) {
-//         checkbox.checked = false;
-//         // reset the animation
-//         let animation = document.getAnimations().find(animation => animation.effect.target == checkbox.parentNode.querySelector('.content'))
-//         animation.pause();
-//       }
-//     })
-//   })
-// })
+//listen for the about checkboxes to be changed by the user
+document.querySelectorAll('.about-details .about_toggle').forEach(toggle => {
+  toggle.addEventListener('change', () => {
+    //restart all of the animations
+    aboutAnimations.forEach(animation => {
+      animation.currentTime = 0;
+    })
+  })
+})
 
 document.querySelector('#contactForm').addEventListener('submit', async (event) => {
   event.preventDefault();

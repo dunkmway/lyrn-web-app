@@ -45,6 +45,11 @@ section {
 a {
   cursor: pointer;
   text-decoration: none;
+  color: var(--color-accent-4-deep);
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 img {
@@ -952,7 +957,7 @@ nav a:hover {
   background-color: #68D3A3;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 45vh;
+  height: 25vh;
 }
 
 /* footer */
@@ -961,6 +966,7 @@ footer {
   padding: 2em;
   color: #000;
   background-color: var(--color-secondary);
+  border-top: 2px solid #C1C1C1;
 }
 
 footer .links {

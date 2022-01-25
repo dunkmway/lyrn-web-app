@@ -49,7 +49,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-accent-3-light);
+  text-decoration: underline;
 }
 
 img {
@@ -1118,12 +1118,7 @@ nav a:hover {
   animation-play-state: paused;
 }
 
-.about-details .content.remove::after {
-  content: none;
-}
-
-
-.about-details .about_toggle:checked~.content::after {
+.about-details .details .about_toggle:checked~.content::after {
   animation-play-state: running;
 }
 
@@ -1518,7 +1513,7 @@ nav a:hover {
   background-color: #68D3A3;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 45vh;
+  height: 25vh;
 }
 
 /* footer */

@@ -44,6 +44,12 @@ section {
 
 a {
   cursor: pointer;
+  text-decoration: none;
+  color: var(--color-accent-4-deep);
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 img {
@@ -339,6 +345,10 @@ nav a:hover {
   padding-bottom: 15rem;
 }
 
+.contact__intro {
+  text-align: center;
+}
+
 .contact *:not(.filter) {
   z-index: 1;
 }
@@ -571,7 +581,7 @@ nav a:hover {
   background-color: #68D3A3;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 45vh;
+  height: 25vh;
 }
 
 /* footer */

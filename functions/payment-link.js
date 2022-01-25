@@ -188,11 +188,11 @@ async function sendFailedInvoiceEmail(userUID, invoiceID) {
     to: userRecord.email, // Change to your recipient
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Invoice Not Recieved',
-    text: `It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have remove those lessons from the schedule.
-    You can review which lesson were removed at this link: https://lyrnwithus.com/payment-link?invoice=${invoiceID}
+    text: `It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have removed those lessons from the schedule.
+    You can review which lessons were removed at this link: https://lyrnwithus.com/payment-link?invoice=${invoiceID}
     If you have an question or concerns please let us know. You can call or text us at 877-400-1641 or send us an email at contact@lyrnwithus.com `,
     html: `
-      <p>It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have remove those lessons from the schedule.<p>
+      <p>It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have removed those lessons from the schedule.<p>
       <p>You can review which lesson were removed <a href="https://lyrnwithus.com/payment-link?invoice=${invoiceID}">Here</a></p>
       <p>If you have an question or concerns please let us know. You can call or text us at 877-400-1641 or send us an email at contact@lyrnwithus.com </p>
     `
