@@ -1639,6 +1639,23 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 
 	// Display the info below
 	setPassageText(passageData, spacing + spaceSize)
+
+	// Highlight all spans
+	let elements = document.getElementById('pText').querySelectorAll('span')
+	for (let i = 0; i < elements.length; i++) {
+
+		const ele = elements[i]
+		console.log(ele)
+		if ((section ?? dom_section.value) == 'english' || (section ?? dom_section.value) == 'reading') {
+			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+				ele.classList.add('box')
+			}
+			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+				ele.classList.add('spotlight')
+			}
+		}
+
+	}
 }
 
 /**
@@ -2352,6 +2369,11 @@ dom_questionsTest.addEventListener('change', async function () {
 			'value' : dom_questionsTest.value
 		})
 	}
+
+	// Reset the bottom display
+	removeChildren('qNumbers')
+	removeChildren('pText')
+	removeChildren('qList')
 
 	// Display the answer key for the newly selected test
 	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)

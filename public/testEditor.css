@@ -200,6 +200,18 @@ table tr:nth-child(odd) td {
 
 .spotlight {
 	background-color: yellow;
+	position: relative;
+}
+
+.spotlight:hover:after {
+	position: absolute;
+	left: 100%;
+	background-color: gray;
+	content:attr(id);
+	color: white;
+	font-size: 16px;
+	padding: 0.5em;
+	z-index: 1;
 }
 
 .box {
