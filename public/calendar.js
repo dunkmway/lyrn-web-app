@@ -2331,6 +2331,16 @@ function setupAddLesson() {
   openCalendarSidebar();
 }
 
+function copyToClipboard(element, updateText = false) {
+  if (element.dataset.clipboard != 'null') {
+    navigator.clipboard.writeText(element.dataset.clipboard);
+
+    if (updateText) {
+      element.textContent = 'Copied to clipboard!'
+    }
+  }
+}
+
 function setupEditLesson(data, id) {
   //close the sidebar just in case another tab is open.
   if (!closeCalendarSidebar()) {
@@ -2353,6 +2363,11 @@ function setupEditLesson(data, id) {
     document.getElementById('editLessonStudent').textContent = data.studentName;
     document.getElementById('editLessonStaff').textContent = data.staffNames ?? 'No tutor assigned';
     document.getElementById('editLessonPrice').value = data.price;
+
+    document.getElementById('editLessonStaffLink').textContent = data.staffZoomURL ? 'Copy link to clipboard' : 'No link set yet';
+    document.getElementById('editLessonStudentLink').textContent = data.studentZoomURL ? 'Copy link to clipboard' : 'No link set yet';
+    document.getElementById('editLessonStaffLink').setAttribute('data-clipboard', data.staffZoomURL ? data.staffZoomURL : null);
+    document.getElementById('editLessonStudentLink').setAttribute('data-clipboard', data.studentZoomURL ? data.studentZoomURL : null);
   
     // //add back the default option (staff)
     // const defaultOptionStaff = document.createElement('option');

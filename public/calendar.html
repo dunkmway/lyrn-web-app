@@ -660,6 +660,18 @@
         </div>
         <input id="editLessonPrice" name="editLessonPrice" class="input">
 
+        <!--zoom links -->
+        <div class="inputRow">
+          <div class="more-info " data-more-info="The link for the tutor to join the lesson">?</div>
+          <label for="editLessonStaffLink" class="label">Tutor Zoom Link</label>
+        </div>
+        <div id="editLessonStaffLink" name="editLessonStaffLink" class="input nonEditable" onclick="copyToClipboard(this, true)"></div>
+        <div class="inputRow">
+          <div class="more-info " data-more-info="The link for the student to join the lesson">?</div>
+          <label for="editLessonStudentLink" class="label">Student Zoom Link</label>
+        </div>
+        <div id="editLessonStudentLink" name="editLessonStudentLink" class="input nonEditable" onclick="copyToClipboard(this, true)"></div>
+
         <!-- reconciled -->
         <div class="ui checkbox">
           <input type="checkbox" id="editLessonReconciled">

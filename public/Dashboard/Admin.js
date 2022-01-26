@@ -231,7 +231,7 @@ function getActiveStudentData() {
             studentTypesTable: studentTypesTable,
             location: locationName,
             parentUID: parentData.parentUID,
-            parentName: (parentData.probationDate ? (new Date(parentData.probationDate).setDate(new Date(parentData.probationDate).getDate() + 7) < new Date().getTime() ? '🚨 ' : '⚠️ ' ) : '✅ ') + parentData.lastName + ", " + parentData.firstName, 
+            parentName: (parentData.probationExpiredDate ? '🚨 ' : parentData.probationDate ?  '⚠️ ' : '✅ ') + parentData.lastName + ", " + parentData.firstName, 
           }
           return tableDataActive.push(student);
         }));

@@ -179,7 +179,8 @@ async function setProbation(userUID) {
     else {
       //place the user on probation from the current timestamp
       await admin.firestore().collection('stripe_customers').doc(userUID).update({
-        probationDate: new Date().getTime()
+        probationDate: new Date().getTime(),
+        probationHistory: admin.firestore.FieldValue.arrayUnion(new Date().getTime())
       })
       return;
     }
@@ -193,5 +194,58 @@ async function unsetProbation(userUID) {
   await admin.firestore().collection('stripe_customers').doc(userUID).update({
     probationDate: null
   })
+  return;
+}
+
+exports.checkProbation = functions.pubsub.schedule('30 0 * * *').timeZone('America/Denver').onRun(async (context) => {
+  // get all of the parents that are probation
+  let probationUsers = await admin.firestore().collection('stripe_customers').where('probationDate', '!=', null).get();
+
+  // go through each user that is on probabtion
+  probationUsers.forEach(async (userStripeDoc) => {
+    //check which ones are past their probation date
+    const probationExpires = new Date(userStripeDoc.data().probationDate).setDate(new Date(userStripeDoc.data().probationDate).getDate() + 2);
+    if (probationExpires <= new Date().getTime()) {
+      // set their expired probation and reset probation to null
+      await userStripeDoc.ref.update({
+        probationDate: null,
+        probationExpiredDate: new Date().getTime(),
+        probationExpiredHistory: admin.firestore.FieldValue.arrayUnion(new Date().getTime())
+      });
+
+      // remove all future lessons where this user is one of the parents
+      let futureEvents = await admin.firestore().collection('Events').where('parents', 'array-contains', userStripeDoc.id).where('start', '>=', new Date().getTime()).get();
+      let eventDeletetions = [];
+      futureEvents.forEach(eventDoc => {
+        eventDeletetions.push(eventDoc.ref.delete());
+      })
+
+      await Promise.all(eventDeletetions);
+
+      // send the parent an email informing them that their lessons were deleted
+      await sendExpiredProbationEmail(userStripeDoc.id);
+    }
+  })
+});
+
+async function sendExpiredProbationEmail(userUID) {
+  // first get the user UID
+  const userRecord = await admin.auth().getUser(userUID);
+
+  const msg = {
+    to: userRecord.email, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn Payment Not Recieved',
+    text: `It looks like we didn't recieve a payment for a previous lesson we scheduled for you and your probation period has expired.
+    Due to this we have removed all future lessons from the schedule.
+    If you have an question or concerns please let us know. You can call or text us at 877-400-1641 or send us an email at contact@lyrnwithus.com `,
+    html: `
+      <p>It looks like we didn't recieve a payment for a previous lesson we scheduled for you and your probation period has expired.<p>
+      <p>Due to this we have removed all future lessons from the schedule.</p>
+      <p>If you have an question or concerns please let us know. You can call or text us at 877-400-1641 or send us an email at contact@lyrnwithus.com </p>
+    `
+  }
+
+  await sgMail.send(msg);   
   return;
 }

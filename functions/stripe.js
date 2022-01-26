@@ -344,7 +344,8 @@ async function setProbation(userUID) {
   else {
     //place the user on probation from the current timestamp
     await admin.firestore().collection('stripe_customers').doc(userUID).update({
-      probationDate: new Date().getTime()
+      probationDate: new Date().getTime(),
+      probationHistory: admin.firestore.FieldValue.arrayUnion(new Date().getTime())
     })
     return;
   }
@@ -375,9 +376,9 @@ function paymentSuccessfulBalanceNegativeEmail(parentEmail, paymentAmount, payme
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Lesson Payment',
     text: `Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.`,
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do so in the coming days.`,
     html: `<strong>Great news!!! We were able to process your payment of ${formatAmount(paymentAmount, paymentCurrency)}!
-    Your current balance with us is negative. If we have not already contacted you about this balance we will do some in the coming days.`,
+    Your current balance with us is negative. If we have not already contacted you about this balance we will do so in the coming days.`,
   }
   return sgMail.send(msg)
 }
