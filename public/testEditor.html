@@ -8,18 +8,25 @@
   <title>Test Editor</title>
 
   <!-- Firebase -->
-  <script>
-    //this is so reCaptcha will trust local host
-    if (window.location.hostname == 'localhost') {
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-    }
-  </script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
+  
+
+  <!-- MathJax -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
