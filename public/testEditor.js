@@ -1,4 +1,4 @@
-const debug = true
+const debug = false
 const spaceSize = '   '
 
 /*********************************************************
@@ -2392,16 +2392,37 @@ dom_questionsSection.addEventListener('change', async function () {
 })
 
 let dom_questionsPassageNumber = document.getElementById('questionsPassageNumber')
-/*dom_questionsPassageNumber.addEventListener('change', async function () {
+dom_questionsPassageNumber.addEventListener('change', async function () {
 	if (debug == true) {
 		console.log('EVENT LISTENER (id = "questionsPassageNumber")', {
 			'value' : dom_questionsPassageNumber.value
 		})
 	}
 
+	// Get the question Number
+	const number = parseInt(document.getElementById('questionList').value)
+
+	// Set the bottom half - passage
+	setPassageText(await getPassageDocument(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, spaceSize))
+
+	// Get the possible answers' text
+	let answers = []
+	for (let i = 0; i < (dom_questionsSection.value != 'math' ? 4 : 5); i++) {
+		answers.push(document.getElementById('answer' + (i + 1).toString()).value)
+	}
+
+	// Get the question test
+	const questionText = document.getElementById('questionText').value
+
+	// Initialize the Question Preview
+	initializeQuestionPreview(questionText, answers, number, spaceSize)
+
+	// Initialize the Question Numbers list
+	initializeQuestionNumbersList(dom_questionsTest.value, dom_questionsSection.value, spaceSize)
+
 	// Display the answer key for the newly selected test
-	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
-})*/
+	//initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
+})
 
 let dom_questionList = document.getElementById('questionList')
 dom_questionList.addEventListener('change', async function () {
