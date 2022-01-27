@@ -140,7 +140,7 @@
 }
 
 .border-none {
-	border-width: 0px 0px 0px 0px;
+	border: inherit;
 }
 
 table {
@@ -176,27 +176,19 @@ table tr:nth-child(odd) td {
 }
 
 .border-top {
-	border-style: solid;
-	border-width: 2px 0px 0px 0px;
-	border-color: black;
+	border-top: 2px solid black;
 }
 
 .border-right {
-	border-style: solid;
-	border-width: 0px 2px 0px 0px;
-	border-color: black;
+	border-right: 2px solid black;
 }
 
 .border-bottom {
-	border-style: solid;
-	border-width: 0px 0px 2px 0px;
-	border-color: black;
+	border-bottom: 2px solid black;
 }
 
 .border-left {
-	border-style: solid;
-	border-width: 0px 0px 0px 2px;
-	border-color: black;
+	border-left: 2px solid black;
 }
 
 .spotlight {
