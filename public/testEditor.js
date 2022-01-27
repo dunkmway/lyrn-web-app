@@ -1232,6 +1232,57 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 }
 
+/*async function updateTestStatus(test, section = undefined, passage = undefined) {
+	
+
+	if (passage == undefined) {
+	}
+
+	if (section == undefined) {
+	}
+
+	const num_questions = (section == 'english') ? 75 : ((section == 'math') ? 60 : 40)
+
+	const stage2Count = document.getElementById('qNumbers').querySelectorAll('.stage2').length
+	const stage3Count = document.getElementById('qNumbers').querySelectorAll('.stage3').length
+
+	console.log(stage2Count)
+	console.log(stage3Count)
+*/
+	/*let stage_counts = [0, 0, 0]
+	let question_promises = []
+	for (let i = 0 ; i < num_questions; i++) {
+		question_promises.push(getQuestionDocument(test, section, i + 1)
+		.then((doc) => {
+			if (doc.data().answers.length == (section != 'math' ? 4 : 5) && doc.data().answers[0] != "") {
+				if (doc.data().topic.length != 0) {
+					stage_counts[2] += 1
+				}
+				else {
+					stage_counts[1] += 1
+				}
+			}
+			else {
+				stage_counts[0] += 1
+			}
+		})
+		)
+	}
+
+	let question_results = await Promise.all(question_promises)*/
+/*
+	if (stage3Count == num_questions) {
+		let passageResults = await getPassageDocument(test, section, passageNumber, spacing + spaceSize)
+		if (passageResults != false) {
+			ref.doc(passageResults.id).update({
+				'passageStatus' : 'Needs Topics'
+		})
+	}
+	elif (stage2Count == num_questions) {
+	}
+	}
+}*/
+
 /**
  * This will grab a question document from firebase
  * 
@@ -2487,3 +2538,138 @@ dom_questions.addEventListener('input', async function(event) {
 	resetMathJax()
 
 })
+
+
+
+
+
+/*
+function addTopic(section, topic, subTopics = undefined, type = 'topic') {
+
+	if (section != undefined && topic != undefined && subTopics != undefined) {
+
+		if (subTopics != '') {
+			data = {
+				'section' : section,
+				'topic' : topic,
+				'subTopics' : subTopics.split(', '),
+				'type' : type
+			}
+		}
+		else {
+			data = {
+				'section' : section,
+				'topic' : topic,
+				'subTopics' : [],
+				'type' : type
+			}
+		}
+
+		ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').doc()
+		ref.set(data)
+		.then(() => {
+			console.log('Set', section, ':', topic, ':', subTopics.split(', '))
+		})
+	}
+}
+*/
+
+/*
+addTopic('english', 'Redundancy', '')
+addTopic('english', 'Simplicity', '')
+addTopic('english', 'Pronoun Ambiguity', '')
+addTopic('english', 'Adding / Deleting / Revising Sentences', '')
+addTopic('english', 'Main Idea', '')
+addTopic('english', 'Subject-Verb Agreement', '')
+addTopic('english', 'Tense', '')
+addTopic('english', 'Noun-Pronoun Agreement', '')
+addTopic('english', 'Adding Sentence', '')
+addTopic('english', 'Transition Phrases', '')
+addTopic('english', 'Ordering', '')
+addTopic('english', 'Phrase Placement', '')
+addTopic('english', 'Splitting a paragraph', '')
+addTopic('english', 'IC, DC, Phrases', '')
+addTopic('english', 'Parts of Speech', '')
+addTopic('english', 'Subject, Verb, Object', '')
+addTopic('english', 'Vocab and Expressions', '', 'modifier')
+addTopic('english', 'Vocab and Expressions', '')
+addTopic('english', 'Connotation', '')
+addTopic('english', 'Active and Passive Voice', '')
+addTopic('english', 'Tone and Emphasis', '')
+addTopic('english', 'Commas', '')
+addTopic('english', 'Apostrophes', '')
+addTopic('english', 'Citing Quotations', '')
+addTopic('english', 'Semicolon', '')
+addTopic('english', 'Sentence Composition', '')
+addTopic('english', 'Identify IC, DC, Phrases', '')
+addTopic('english', 'Transition words', '')
+addTopic('english', 'Homophones', '')
+addTopic('english', 'Preposition', '')
+addTopic('english', 'Parallelism', '')
+addTopic('english', 'Transitive vs Intransitive', '')
+addTopic('english', 'Concrete vs Abstract adjectives', '')
+addTopic('english', 'Identify Parts of Speech', '')
+addTopic('english', 'Conjunctions', '')
+addTopic('english', 'NOT', '', 'modifier')
+
+addTopic('math', 'Word Problems', '', 'modifier')
+addTopic('math', 'Arithmetic', '')
+addTopic('math', 'Functions', '')
+addTopic('math', 'Polygons', '')
+addTopic('math', 'Trigonometry', '')
+addTopic('math', 'Units', '')
+addTopic('math', 'Probability', '')
+addTopic('math', 'Logic', '')
+addTopic('math', 'Mean', '')
+addTopic('math', 'Percentages', '')
+addTopic('math', 'Statistics', '')
+addTopic('math', 'Proportions', '')
+addTopic('math', 'Exponents', '')
+addTopic('math', 'Transformations', '')
+addTopic('math', 'Linear Equations - Algebra', '')
+addTopic('math', 'Quadratic Equations - Algebra', '')
+addTopic('math', 'Rational Functions', '')
+addTopic('math', 'Midpoint', '')
+addTopic('math', 'Triangles', '')
+addTopic('math', 'Ellipses', '')
+addTopic('math', 'Circles', '')
+addTopic('math', 'Complex Numbers', '')
+addTopic('math', 'Inequalities', '')
+addTopic('math', 'Matrices', '')
+addTopic('math', 'System of Equations', '')
+addTopic('math', 'Combinatorics', '')
+addTopic('math', 'Euclidean Geometry', '')
+addTopic('math', 'Linear Equations - Geometry', '')
+addTopic('math', 'Radicals', '')
+addTopic('math', 'Real World Functions', '')
+addTopic('math', 'Sets', '')
+addTopic('math', 'Sequences and Series', '')
+addTopic('math', 'Function Transformations', '')
+addTopic('math', 'Logarithms', '')
+addTopic('math', 'Number Theory', '')
+addTopic('math', 'Hyperbolas', '')
+addTopic('math', 'Quadratic Equations - Geometry', '')
+addTopic('math', 'Vectors', '')
+addTopic('math', 'Absolute Value', '')
+addTopic('math', 'Distributing', '')
+addTopic('math', 'Fractions', '')
+addTopic('math', 'Geometry Fundamentals', '')
+
+addTopic('reading', 'Ambiguous Pronouns', '')
+addTopic('reading', 'Phrase Interpretation', '')
+addTopic('reading', 'Multiple Word Definition', '')
+addTopic('reading', 'Essay', '')
+addTopic('reading', 'Paragraph', '')
+addTopic('reading', 'Point of View', '')
+addTopic('reading', 'Findable answer', '')
+addTopic('reading', 'Direct inference', '')
+
+addTopic('science', 'Graph Reading', '')
+addTopic('science', 'Variable Relationships', '')
+addTopic('science', 'Extrapolation', '')
+addTopic('science', 'Reasoned Answer', '')
+addTopic('science', 'Variable Types', '')
+addTopic('science', 'Experimental Design', '')
+addTopic('science', 'Conflicting Viewpoints', '')
+addTopic('science', 'Modify the experiment', '')
+*/
