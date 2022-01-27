@@ -161,6 +161,7 @@ table th {
 table td {
 	text-align: center;
 	border: 1px solid #e3e3e3;
+  border-right: 2px solid black;
 	padding: 4px 8px;
 }
 
