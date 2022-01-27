@@ -1,4 +1,4 @@
-const debug = true
+const debug = false
 const spaceSize = '   '
 
 /*********************************************************
@@ -2392,7 +2392,7 @@ dom_questionsSection.addEventListener('change', async function () {
 })
 
 let dom_questionsPassageNumber = document.getElementById('questionsPassageNumber')
-/*dom_questionsPassageNumber.addEventListener('change', async function () {
+dom_questionsPassageNumber.addEventListener('change', async function () {
 	if (debug == true) {
 		console.log('EVENT LISTENER (id = "questionsPassageNumber")', {
 			'value' : dom_questionsPassageNumber.value
@@ -2401,7 +2401,7 @@ let dom_questionsPassageNumber = document.getElementById('questionsPassageNumber
 
 	// Display the answer key for the newly selected test
 	initializeQuestionsDisplay(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, dom_questionList.value, spaceSize)
-})*/
+})
 
 let dom_questionList = document.getElementById('questionList')
 dom_questionList.addEventListener('change', async function () {
