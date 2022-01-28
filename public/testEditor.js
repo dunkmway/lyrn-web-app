@@ -1,5 +1,6 @@
-const debug = false
+const debug = true
 const spaceSize = '   '
+let mathJaxTimer = undefined
 
 /*********************************************************
  *                   Global Variables                    *
@@ -23,8 +24,8 @@ function resetMathJax(spacing = '') {
 		console.log(spacing + 'resetMathJax()')
 	}
 
-	// Re-process the HTML text on the page
-	MathJax.typeset()
+    clearTimeout(mathJaxTimer);
+    mathJaxTimer = setTimeout(() => { MathJax.typeset() }, 250);
 }
 
 /**
@@ -986,7 +987,9 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 			'answers' : answers,
 			'number' : number
 		})
+
 	}
+	console.time('start')
 
 	// Define the possible answers
 	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
@@ -1008,6 +1011,8 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 		answerDiv.appendChild(createElement('p', [], [], [], answerLetters[i + ((number % 2) * 5)] + ') ' + answers[i]))
 	}
 	dom_qList.appendChild(answerDiv)
+
+	console.timeEnd('start')
 }
 
 /**
