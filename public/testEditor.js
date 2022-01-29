@@ -1488,6 +1488,15 @@ async function savePassage(spacing = '') {
 		text.value = text.value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
 	}
 
+	// Remove extra spaces
+	let dom_abText = document.getElementById('readingPassageTextB').value
+	if (dom_abText.value != undefined) {
+		while (dom_abText.value.includes('  ')) {
+			dom_abText.value = dom_abText.value.replaceAll('  ', ' ')
+		}
+	}
+
+
 	// Add the A/B passage information if needed
 	if (section == 'reading' && dom_AB.value == 1) {
 		ABData['title'] = document.getElementById('readingPassageTitleB').value
@@ -2549,7 +2558,6 @@ dom_questions.addEventListener('input', async function(event) {
 	// Get the answers
 	let answers = []
 	let answerElements = document.querySelectorAll('textarea[id^="answer"]')
-	console.log(answerElements)
 	for (let i = 0; i < answerElements.length; i++) {
 		answers.push(answerElements[i].value)
 	}
