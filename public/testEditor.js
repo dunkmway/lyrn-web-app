@@ -988,7 +988,6 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 		})
 
 	}
-	console.time('start')
 
 	// Define the possible answers
 	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
@@ -1011,7 +1010,6 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 	}
 	dom_qList.appendChild(answerDiv)
 
-	console.timeEnd('start')
 }
 
 /**
@@ -1159,6 +1157,18 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		shouldHighlightText = true
 	}*/
 
+	// Remove extra spaces
+	let dom_text = document.getElementById('questionText')
+	while (dom_text.value.includes('  ')) {
+		dom_text.value = dom_text.value.replaceAll('  ', ' ')
+	}
+
+	for (let i = 0; i < answers.length; i++) {
+		while (answers[i].includes('  ')) {
+			answers[i] = answers[i].replaceAll('  ', ' ')
+		}
+	}
+
 	// Create the data that will be sent to Firebase
 	if (answers.length == (section != 'math' ? 4 : 5)) {
 		const data = {
@@ -1170,7 +1180,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 			'subTopics': 'None',
 			'modifier': modifiers,
 			'problem': number,
-			'questionText': document.getElementById('questionText').value,
+			'questionText': dom_text.value,
 			'answers': answers,
 			'correctAnswer': answer,
 			'numberOfAttempts': attempts,
@@ -2511,7 +2521,8 @@ dom_questions.addEventListener('input', async function(event) {
 
 	// Clean up the textarea
 	if (event.target.tagName.toLowerCase() == 'textarea') {
-		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		//event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
 	}
 
 	// Remove text highlighting
@@ -2538,6 +2549,7 @@ dom_questions.addEventListener('input', async function(event) {
 	// Get the answers
 	let answers = []
 	let answerElements = document.querySelectorAll('textarea[id^="answer"]')
+	console.log(answerElements)
 	for (let i = 0; i < answerElements.length; i++) {
 		answers.push(answerElements[i].value)
 	}
