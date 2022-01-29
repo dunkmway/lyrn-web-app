@@ -1,12 +1,12 @@
-const debug = true
+const debug = false
 const spaceSize = '   '
-let mathJaxTimer = undefined
 
 /*********************************************************
  *                   Global Variables                    *
  *********************************************************/
 const date = new Date()
 let storage = firebase.storage();
+let mathJaxTimer = undefined
 
 
 
@@ -570,7 +570,6 @@ async function saveTest(spacing = '') {
 			await ref.doc().set(data)
 		}
 		else {
-			console.log(response.id)
 			await ref.doc(response.id).set(data)
 		}
 
@@ -835,14 +834,14 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	}
 
 	// Display the 'should highlight text' toggle if it's the reading section
-	if (section == 'reading') {
+	/*if (section == 'reading') {
 		document.getElementById('shouldHighlightText').classList.remove('hidden')
 		document.getElementById('shouldHighlightTextLabel').classList.remove('hidden')
 	}
 	else {
 		document.getElementById('shouldHighlightText').classList.add('hidden')
 		document.getElementById('shouldHighlightTextLabel').classList.add('hidden')
-	}
+	}*/
 
 	// Set the test
 	await initializeTests('questionsTest', spacing + spaceSize)
@@ -947,7 +946,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 		initializeQuestionNumbersList(data['test'], data['section'], spacing + spaceSize)
 
 		// Initialize whether the text should be highlighted or not
-		document.getElementById('shouldHighlightText').value = data['shouldHighlightText'] == true ? 1 : 0
+		//document.getElementById('shouldHighlightText').value = data['shouldHighlightText'] == true ? 1 : 0
 
 		// Remove text highlighting
 		let elements = document.getElementById('pText').querySelectorAll('span')
@@ -957,7 +956,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 		}
 
 		// Highlight the text, if necessary
-		if (data['section'] == 'english' || (data['section'] == 'reading' && data['shouldHighlightText'] == true)) {
+		if (data['section'] == 'english' || data['section'] == 'reading') {
 			let ele = document.querySelector('span[id="' + data['problem'].toString() + '"]')
 			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
 				ele.classList.add('box')
@@ -989,7 +988,6 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 		})
 
 	}
-	console.time('start')
 
 	// Define the possible answers
 	const answerLetters = ['F', 'G', 'H', 'J', 'K', 'A', 'B', 'C', 'D', 'E']
@@ -1012,7 +1010,6 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 	}
 	dom_qList.appendChild(answerDiv)
 
-	console.timeEnd('start')
 }
 
 /**
@@ -1155,9 +1152,21 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	const modifiers = getDropdownValues('modifier', spacing + spaceSize)
 
 	// Identify whether the answer should be highlighted or not
-	let shouldHighlightText = false
+	/*let shouldHighlightText = false
 	if (section == 'reading' && document.getElementById('shouldHighlightText').value == 1) {
 		shouldHighlightText = true
+	}*/
+
+	// Remove extra spaces
+	let dom_text = document.getElementById('questionText')
+	while (dom_text.value.includes('  ')) {
+		dom_text.value = dom_text.value.replaceAll('  ', ' ')
+	}
+
+	for (let i = 0; i < answers.length; i++) {
+		while (answers[i].includes('  ')) {
+			answers[i] = answers[i].replaceAll('  ', ' ')
+		}
 	}
 
 	// Create the data that will be sent to Firebase
@@ -1171,12 +1180,12 @@ async function saveQuestion(goToNext = true, spacing = '') {
 			'subTopics': 'None',
 			'modifier': modifiers,
 			'problem': number,
-			'questionText': document.getElementById('questionText').value,
+			'questionText': dom_text.value,
 			'answers': answers,
 			'correctAnswer': answer,
 			'numberOfAttempts': attempts,
-			'correctAttempts': correctAttempts,
-			'shouldHighlightText' : shouldHighlightText
+			'correctAttempts': correctAttempts
+			//'shouldHighlightText' : shouldHighlightText
 		}
 
 		// Set the data
@@ -1701,7 +1710,6 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	for (let i = 0; i < elements.length; i++) {
 
 		const ele = elements[i]
-		console.log(ele)
 		if ((section ?? dom_section.value) == 'english' || (section ?? dom_section.value) == 'reading') {
 			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
 				ele.classList.add('box')
@@ -2046,7 +2054,6 @@ async function saveScaledScores(spacing = '') {
 	for (let i = 0; i < scores.length; i++) {
 		scaledScores[parseInt(scores[i].id.split('ss')[1])] = (scores[i].value == '' || scores[i].value == '-' ? -1 : parseInt(scores[i].value))
 		if (!(scores[i].value == '' || scores[i].value == '-' || (parseInt(scores[i].value) <= maxValue && parseInt(scores[i].value) >= 0))) {
-			console.log(scores[i].value)
 			scores[i].value = ''
 			isValidated = false
 		}
@@ -2121,7 +2128,8 @@ function setPassageTextHelper(spacing = '') {
 		'passageText': document.getElementById(section + 'PassageText').value,
 		'preText' : preText,
 		'reference': (section == 'reading' || section == 'science') ? document.getElementById(section + 'PassageReference').value : '',
-		'ABData' : ABData
+		'ABData' : ABData,
+		'section' : section
 	}
 		, spacing + spaceSize)
 }
@@ -2189,6 +2197,21 @@ function setPassageText(data, spacing = '') {
 			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['reference']))
 		}
 	}
+
+	// Highlight the text, if necessary
+	if (data['section'] == 'english' || data['section'] == 'reading') {
+		let elements = document.getElementById('pText').querySelectorAll('span')
+		for (let i = 0; i < elements.length; i++) {
+			let ele = elements[i]
+			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+				ele.classList.add('box')
+			}
+			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+				ele.classList.add('spotlight')
+			}
+		}
+	}
+
 
 	// Reset the MathJax
 	resetMathJax(spacing + spaceSize)
@@ -2355,11 +2378,9 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 
 			// Grab the text
 			let text = document.getElementById('englishPassageText').value
-			console.log(dom_labelParagraphs.value)
 
 			// Remove the paragraph labels, if needed
 			if (dom_labelParagraphs.value == 0) {
-				console.log('here')
 				for (let i = 0; i < 5; i++) {
 					document.getElementById('englishPassageText').value = document.getElementById('englishPassageText').value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
 				}
@@ -2500,11 +2521,12 @@ dom_questions.addEventListener('input', async function(event) {
 
 	// Clean up the textarea
 	if (event.target.tagName.toLowerCase() == 'textarea') {
-		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		//event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
 	}
 
 	// Remove text highlighting
-	if (event.target.id == 'shouldHighlightText' && event.target.value == 0) {
+	/*if (event.target.id == 'shouldHighlightText' && event.target.value == 0) {
 		let elements = document.getElementById('pText').querySelectorAll('span')
 		for (let i = 0; i < elements.length; i++) {
 			elements[i].classList.remove('spotlight')
@@ -2522,11 +2544,12 @@ dom_questions.addEventListener('input', async function(event) {
 				ele.classList.add('spotlight')
 			}
 		}
-	}
+	}*/
 
 	// Get the answers
 	let answers = []
 	let answerElements = document.querySelectorAll('textarea[id^="answer"]')
+	console.log(answerElements)
 	for (let i = 0; i < answerElements.length; i++) {
 		answers.push(answerElements[i].value)
 	}
