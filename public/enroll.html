@@ -17,6 +17,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+
+    <!-- Global site tag (gtag.js) - Google Ads: 10828068158 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-10828068158"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-10828068158');
+    </script>
+
     <script src="enroll.js" defer></script>
 
     <script src="Site Templates/formatting.js" defer></script>
@@ -151,5 +162,21 @@
 
       <p class="copyright">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>
     </footer>
+
+    <script>
+ 
+      window.addEventListener('load', function(){
+      
+         if(window.location.pathname.indexOf('/') != -1){
+          document.querySelector('#contactForm').addEventListener('submit', function(){
+       
+          gtag('event', 'conversion', {'send_to': 'AW-10828068158/rlueCNiX4JIDEL7qnKso'});
+       
+        });
+        }
+       
+      });
+    </script>
+    
   </body>
 </html>

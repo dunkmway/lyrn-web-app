@@ -23,6 +23,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+
+    <!-- Global site tag (gtag.js) - Google Ads: 10828068158 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-10828068158"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-10828068158');
+    </script>
+
     <script src="index.js" defer></script>
 
     <script src="Site Templates/formatting.js" defer></script>
@@ -119,49 +130,17 @@
         </div> -->
       </section>
 
-      <section class="about">
-        <h2>How can we help?</h2>
-        <div class="about-details">
-          <div class="details">
-            <input type="radio" name="about_radio" id="about_1" class="about_toggle" checked>
-            <label for="about_1" class="summary"><h3>Math is a struggle</h3></label>
-            <div class="content">
-              <p>Math is always voted the worst subject in school, and we think it's because students aren't 
-                getting the help they need to succeed. Enroll in subject tutoring now to schedule a lesson as 
-                soon as tomorrow! Our specialized tutors have been handpicked for their ability to simplify 
-                difficult and complex concepts.
-              </p>
-              <a href="pricing.html?course=subjectTutoring">Learn more about Subject Tutoring</a>
-              <img src="Images/Lyrn_About_1.png" alt="General Tutoring">
-            </div>
-          </div>
-          <div class="details">
-            <input type="radio" name="about_radio" id="about_2" class="about_toggle">
-            <label for="about_2" class="summary"><h3>Need homework help</h3></label>
-            <div class="content">
-              <p>We have you covered! Our professional tutors are outstanding students working towards degrees
-                 in the very subjects your student needs help in. They know what it is like to struggling
-                  with classes because they are doing the same thing right now. Get started now by enrolling
-                   and we will get you scheduled as soon as tomorrow with a qualified tutor.
-              </p>
-              <a href="pricing.html?course=subjectTutoring">Learn more about Subject Tutoring</a>
-              <img src="Images/Lyrn_About_2.png" alt="Math Tutoring Plan">
-            </div>
-          </div>
-          <div class="details">
-            <input type="radio" name="about_radio" id="about_3" class="about_toggle">
-            <label for="about_3" class="summary"><h3>Meet your ACT goals</h3></label>
-            <div class="content">
-              <p>Whether you need just a few more points to get into the college of your dreams or want a 4+ 
-                increase to guarantee scholarships, our adaptive ACT programs are what you have been looking for! 
-                We track every question your student is given to truly create a personalized curriculum. Our 
-                data-driven approach is leading the way in bringing education into the 21st century. Enroll now 
-                to get started with your own personalized program.
-              </p>
-              <a href="pricing.html?course=act">Learn more about ACT Prep</a>
-              <img src="Images/Lyrn_About_3.png" alt="English Tutoring Plan">
-            </div>
-          </div>
+      <section class="help">
+        <h2 class="title">I need help with</h2>
+        <div class="course-grid">
+          <a href="pricing.html?course=act" class="course-item"><h4>ACT Test Prep</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Physics Homework</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Math Homework</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Reading Homework</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>English Homework</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>AP Test Prep</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Chemistry Homework</h4></a>
+          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Other Homework</h4></a>
         </div>
       </section>
   
@@ -242,17 +221,49 @@
         </div>
       </section> -->
 
-      <section class="help">
-        <h2 class="title">I need help with</h2>
-        <div class="course-grid">
-          <a href="pricing.html?course=act" class="course-item"><h4>ACT Test Prep</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Physics Homework</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Math Homework</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Reading Homework</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>English Homework</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>AP Test Prep</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Chemistry Homework</h4></a>
-          <a href="pricing.html?course=subjectTutoring" class="course-item"><h4>Other Homework</h4></a>
+      <section class="about">
+        <h2>How can we help?</h2>
+        <div class="about-details">
+          <div class="details">
+            <input type="radio" name="about_radio" id="about_1" class="about_toggle" checked>
+            <label for="about_1" class="summary"><h3>Math is a struggle</h3></label>
+            <div class="content">
+              <p>Math is always voted the worst subject in school, and we think it's because students aren't 
+                getting the help they need to succeed. Enroll in subject tutoring now to schedule a lesson as 
+                soon as tomorrow! Our specialized tutors have been handpicked for their ability to simplify 
+                difficult and complex concepts.
+              </p>
+              <a href="pricing.html?course=subjectTutoring">Learn more about Subject Tutoring</a>
+              <img src="Images/Lyrn_About_1.png" alt="General Tutoring">
+            </div>
+          </div>
+          <div class="details">
+            <input type="radio" name="about_radio" id="about_2" class="about_toggle">
+            <label for="about_2" class="summary"><h3>Need homework help</h3></label>
+            <div class="content">
+              <p>We have you covered! Our professional tutors are outstanding students working towards degrees
+                 in the very subjects your student needs help in. They know what it is like to struggling
+                  with classes because they are doing the same thing right now. Get started now by enrolling
+                   and we will get you scheduled as soon as tomorrow with a qualified tutor.
+              </p>
+              <a href="pricing.html?course=subjectTutoring">Learn more about Subject Tutoring</a>
+              <img src="Images/Lyrn_About_2.png" alt="Math Tutoring Plan">
+            </div>
+          </div>
+          <div class="details">
+            <input type="radio" name="about_radio" id="about_3" class="about_toggle">
+            <label for="about_3" class="summary"><h3>Meet your ACT goals</h3></label>
+            <div class="content">
+              <p>Whether you need just a few more points to get into the college of your dreams or want a 4+ 
+                increase to guarantee scholarships, our adaptive ACT programs are what you have been looking for! 
+                We track every question your student is given to truly create a personalized curriculum. Our 
+                data-driven approach is leading the way in bringing education into the 21st century. Enroll now 
+                to get started with your own personalized program.
+              </p>
+              <a href="pricing.html?course=act">Learn more about ACT Prep</a>
+              <img src="Images/Lyrn_About_3.png" alt="English Tutoring Plan">
+            </div>
+          </div>
         </div>
       </section>
    
@@ -336,4 +347,19 @@
 
       <p class="copyright">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>
     </footer>
+
+    <script>
+ 
+      window.addEventListener('load', function(){
+      
+         if(window.location.pathname.indexOf('/') != -1){
+          document.querySelector('#contactForm').addEventListener('submit', function(){
+       
+          gtag('event', 'conversion', {'send_to': 'AW-10828068158/rlueCNiX4JIDEL7qnKso'});
+       
+        });
+        }
+       
+      });
+    </script>
   </body>
