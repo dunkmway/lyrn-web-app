@@ -200,7 +200,7 @@ table tr:nth-child(odd) td {
 	position: absolute;
 	left: 100%;
 	background-color: gray;
-	content:attr(id);
+	content:attr(data-question);
 	color: white;
 	font-size: 16px;
 	padding: 0.5em;
