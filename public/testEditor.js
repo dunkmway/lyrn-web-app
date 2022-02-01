@@ -957,13 +957,23 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 
 		// Highlight the text, if necessary
 		if (data['section'] == 'english' || data['section'] == 'reading') {
-			let ele = document.querySelector('span[id="' + data['problem'].toString() + '"]')
+			/*let ele = document.querySelector('span[id="' + data['problem'].toString() + '"]')
+			let ele = document.querySelector('span[data-question="' + data['problem'].toString() + '"]')
 			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
 				ele.classList.add('box')
 			}
 			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
 				ele.classList.add('spotlight')
-			}
+			}*/
+			let elements = document.querySelectorAll('span[data-question="' + data['problem'].toString() + '"]')
+			elements.forEach(ele => {
+				if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+					ele.classList.add('box')
+				}
+				else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+					ele.classList.add('spotlight')
+				}
+			})
 		}
 	}
 
@@ -1629,7 +1639,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		document.getElementById((section ?? dom_section.value) + 'PassagePreText').value = passageData['preText'] ?? ''
 	}
 	catch {
-		console.log('Missing ' + (section ?? dom_section.value) + 'PassagePreText')
+		//console.log('Missing ' + (section ?? dom_section.value) + 'PassagePreText')
 	}
 
 	// Display the title
@@ -1637,7 +1647,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
 	}
 	catch {
-		console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
+		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
 	}
 
 	// Add the paragraph labels, if needed
@@ -1656,7 +1666,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
 	}
 	catch {
-		console.log('Missing ' + (section ?? dom_section.value) + 'PassageText')
+		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageText')
 	}
 
 	// Display the reference
@@ -1664,7 +1674,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
 	}
 	catch {
-		console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
+		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
 	}
 
 	// Extra displays for reading
