@@ -10,6 +10,7 @@ exports.previous_tutors = require('./previous-tutors');
 exports.lesson_link = require('./lesson-link');
 exports.payment_link = require('./payment-link');
 exports.calendar_openings = require('./calendar-openings');
+exports.frontline = require('./frontline');
 exports.zoom = require('./zoom');
 admin.initializeApp();
 
