@@ -483,6 +483,20 @@ nav a:hover {
   padding: 2em 2em 0em;
 }
 
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-primary);
+  border-radius: 2em;
+  overflow: hidden;
+  padding: 1em;
+}
+
+.content-wrapper > * {
+  margin: 0;
+}
+
 .intro-wrapper .title {
   width: 100%;
   display: flex;
