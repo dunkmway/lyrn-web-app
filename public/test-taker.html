@@ -1,0 +1,98 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+  <link rel="stylesheet" href="Site templates/site-wide.css">
+  <link rel="stylesheet" href="test-taker.css">
+
+  <title>Test Taker</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
+
+  <!-- MathJax -->
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      chtml: {
+        scale: 1.1
+      },
+      options: {
+        enableMenu: false,
+        menuOptions: {
+          settings: {
+            inTabOrder: false,
+          }
+        },
+        skipHtmlTags: [
+          'script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'
+        ],
+      }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script src="Site Templates/generalFunctions.js"></script>
+  <script src="test-taker.js"></script>
+
+</head>
+<body>
+  <!-- Landing Page -->
+
+  <!-- Main Test Taker -->
+  <section class="main">
+    <div class="header">
+      <div class="container"><h1><span class="color-accent">ACT</span> PRACTICE TEST</h1></div>
+      <div class="container"><img class="logo" src="Images/Lyrn_Logo.png" alt="Logo"></div>
+    </div>
+    <div class="panels">
+      <div class="selector">
+        <div class="background-accent box">Time</div>
+      </div>
+      <div class="passage">
+        <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div>
+        <div class="passage-container">
+          <h2 id="passageTitle-A"></h2>
+          <div id="passagePreText-A"></div>
+          <div id="passageText-A"></div>
+
+          <h2 id="passageTitle-B"></h2>
+          <div id="passagePreText-B"></div>
+          <div id="passageText-B"></div>
+
+          <div id="passageReference-A"></div>
+          <div id="passageReference-B"></div>
+        </div>
+      </div>
+      <div class="question">
+        <div class="background-accent box">Question <span id="questionNumber"></span></div>
+        <p id="questionText"></p>
+        <div id="questionChoices">
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="nav" id="previousBtn">
+        <div class="circle"><div class="left-arrow"></div></div>
+        <h1>Previous</h1>
+      </div>
+      <div class="nav" id="nextBtn">
+        <h1>Next</h1>
+        <div class="circle"><div class="right-arrow"></div></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

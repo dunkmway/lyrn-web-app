@@ -32,10 +32,10 @@
 }
 
 :focus {
-  outline: none;
-  border-style: solid;
+  outline: rgb(135, 168, 247) solid 2px;
+  /* border-style: solid;
   border-width: 2px;
-  border-color: rgb(135, 168, 247);
+  border-color: rgb(135, 168, 247); */
 }
 
 .noselect {

@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url(Fonts/CrimsonPro-VariableFont_wght.ttf);
+}
+@font-face {
+  font-family: 'Crimson Pro';
+  src: url(Fonts/CrimsonPro-Italic-VariableFont_wght.ttf);
+  font-style: italic;
+}
+
+:root {
+  --main-background: white;
+  --secondary-background: #111A43;
+
+  --english-color: #EA5A59;
+  --math-color: #54C6FB;
+  --reading-color: #8786FC;
+  --science-color: #64C13D;
+  --writing-color: #F5B233;
+
+  --default-color: rgb(122, 122, 122);
+
+  --accent-color: var(--default-color);
+
+  --english-passage-columns: 2;
+  --math-passage-columns: 1;
+  --reading-passage-columns: 2;
+  --science-passage-columns: 1;
+
+  --defualt-passage-columns: 1;
+
+  --passage-columns: var(--defualt-passage-columns)
+}
+
+@media screen and (max-width: 800px) {
+  :root {
+    --english-passage-columns: 1;
+    --math-passage-columns: 1;
+    --reading-passage-columns: 1;
+    --science-passage-columns: 1;
+  }
+}
+
+/* general styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-size: 1rem;
+  overflow-x: hidden;
+  width: 100vw;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* fix position of mathjax */
+#bimg {
+  position: relative;
+  z-index: 1;
+}
+
+/* remove focus on mathjax */
+.MathJax:focus {
+  outline: none;
+  border: none;
+}
+
+.color-accent {
+  color: var(--accent-color);
+}
+
+.background-accent {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.box {
+  border-radius: .5em;
+  padding: .5em 2em;
+  font-weight: 900;
+}
+
+.main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main .header {
+  background-color: var(--secondary-background);
+  color: white;
+  display: flex; 
+  flex-direction: row; 
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+}
+
+.main .header > .container {
+  /* flex: 1; */
+  display: flex;
+  justify-content: center;
+}
+
+.main .header h1 {
+  margin: 0;
+}
+
+.main .header .logo {
+  height: 2rem;
+  background-color: white;
+}
+
+.main .panels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+.main .panels > div {
+  padding: 2em;
+  /* height: 100%; */
+  overflow-y: auto;
+}
+
+.main .panels > div:not(:last-child) {
+  border-right: 4px solid black;
+}
+
+.main .panels .selector {
+  position: absolute;
+  left: 0;
+  background-color: white;
+  height: 100%;
+  transform: translateX(-100%);
+  transition: transform 250ms ease-in;
+  z-index: 10;
+}
+
+.main .panels .selector.open {
+  transform: translateX(0%);
+}
+
+.main .panels .passage {
+  flex: 1.25;
+}
+
+.main .panels .passage-container {
+  margin-top: 1em;
+  column-count: var(--passage-columns);
+}
+
+#passageTitle-A, #passageTitle-B {
+  margin-top: 0;
+}
+
+#passagePreText-A, #passageReference-A,
+#passagePreText-B, #passageReference-B {
+  font-size: .8em;
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Firefox */
+  break-inside: avoid; /* IE 10+ */
+} 
+
+#passageText-A p, #passageText-B p {
+  margin-top: 0;
+  text-indent: 1em;
+  line-height: 1.8;
+}
+
+#passageText-A p.paragraphLabel, #passageText-B p.paragraphLabel {
+  text-align: center;
+}
+
+/* force the second passage to the new column */
+/* #passageText-A {
+  break-after: column;
+} */
+
+.main .panels .passage-container span[data-question].box {
+  border-radius: 0;
+  padding: 0;
+  font-weight: 300;
+  width: 1.6em;
+  height: 1.6em;
+  text-indent: 0;
+  text-align: center;
+  outline: black solid 1px;
+  display: none;
+}
+
+.main .panels .passage-container span[data-question].box.highlighted {
+  display: inline-block;
+  background-color: var(--accent-color);
+}
+
+.main .panels .passage span.highlighted {
+  /* background-color: #FFE659; */
+
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.main .panels .question {
+  flex: .5;
+}
+
+.main .panels .question .choice {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  margin-bottom: .5em;
+}
+
+.main .panels .question .choice > * {
+  margin: 0;
+}
+
+.main .panels .question .choice .choice-letter {
+  width: 1.5em;
+  display: inline-block;
+  margin: 0;
+}
+
+.main .panels .question .choice > input {
+  margin-right: 1em;
+  position: relative;
+}
+
+.main .panels .question .choice > input::after {
+  content: '';
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border-radius: 50%;
+  background-color: var(--main-background);
+  border: 2px solid black;
+  position: absolute;
+  top: -2px;
+  left: -2px;
+}
+
+.main .panels .question .choice > input:checked::after {
+  background-color: var(--accent-color);
+  border: none;
+}
+
+
+.main .footer {
+  background-color: var(--secondary-background);
+  color: white;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 1em;
+}
+
+.main .footer .nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+}
+
+.main .footer .nav h1 {
+  margin: 0;
+}
+
+.main .footer .circle {
+  border: 4px solid white;
+  border-radius: 50%;
+  width: min-content;
+  height: min-content;
+  padding: .5em;
+}
+
+.main .footer .circle:first-child {
+  margin-right: 1em;
+}
+
+
+.main .footer .circle:last-child {
+  margin-left: 1em;
+}
+
+
+.main .footer .circle .right-arrow {
+  width: .7em;
+  height: .7em;
+  border-top: 3px solid white;
+  border-right: 3px solid white;
+  transform: translateX(-15%) rotate(45deg);
+}
+
+.main .footer .circle .left-arrow {
+  width: .7em;
+  height: .7em;
+  border-bottom: 3px solid white;
+  border-left: 3px solid white;
+  transform: translateX(15%) rotate(45deg);
+}
+
+table {
+	border-collapse: collapse;
+	border-style: solid;
+	border-color: black;
+	border-width: 2px;
+
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Firefox */
+  break-inside: avoid; /* IE 10+ */
+}
+
+table th {
+	text-align: center;
+	background-color: #3a6070;
+	color: #FFF;
+	padding: 4px 8px 4px 8px;
+	border: 2px solid black;
+}
+
+table td {
+	text-align: center;
+	border: 1px solid #e3e3e3;
+  border-right: 2px solid black;
+	padding: 4px 8px;
+}
+
+table tr:nth-child(odd) td {
+	background-color: #e7edf0;
+}
+
+.border-top {
+	border-top: 2px solid black;
+}
+
+.border-right {
+	border-right: 2px solid black;
+}
+
+.border-bottom {
+	border-bottom: 2px solid black;
+}
+
+.border-left {
+	border-left: 2px solid black;
+}
