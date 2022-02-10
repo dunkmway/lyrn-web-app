@@ -240,6 +240,10 @@ img {
   position: relative;
 }
 
+.main .panels .question .choice > input:focus {
+  outline: none;
+}
+
 .main .panels .question .choice > input::after {
   content: '';
   width: calc(100% + 4px);
