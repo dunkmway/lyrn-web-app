@@ -180,11 +180,11 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <label for="englishLabelParagraphs" id='englishLabelParagraphsLabel'>Label Paragraphs</label>
+              <!--<label for="englishLabelParagraphs" id='englishLabelParagraphsLabel'>Label Paragraphs</label>
               <select id="englishLabelParagraphs">
                 <option value=0>No</option>
                 <option value=1>Yes</option>
-              </select>
+              </select>-->
 
               <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
@@ -241,6 +241,9 @@
 
               <label for="readingPassageTitleB" id='readingPassageTitleLabelB'>Title - B</label>
               <textarea class='title' placeholder="Copy passage title here" id='readingPassageTitleB'></textarea>
+
+              <label for="readingPassagePreTextB" id='readingPassagePreTextLabelB'>Pre-Passage</label>
+              <textarea class='preText' placeholder="Copy pre-passage text here" id='readingPassagePreTextB'></textarea>
           
               <label for="readingPassageText" id='readingPassageTextLabelB'>Passage - B</label>
               <textarea class='textArea' placeholder="Copy passage text here" id='readingPassageTextB'></textarea>

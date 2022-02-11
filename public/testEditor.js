@@ -252,7 +252,7 @@ function addImage(spacing = '') {
 		thisref.snapshot.ref.getDownloadURL().then(function (downloadURL) {
 
 			// Setting image into text
-			data['element'].value = data['element'].value.replaceAll('<image>', '<br><img id = "image' + imageNumber + '" src="' + downloadURL + '"><br>')
+			data['element'].value = data['element'].value.replaceAll('<image>', '<img id = "image' + imageNumber + '" src="' + downloadURL + '">')
 
 			// Reset the display
 			if (data['type'] == 'passage') {
@@ -320,7 +320,7 @@ function getImageString(element, number, spacing = '') {
 	}
 
 	// Needed variables
-	let finalString = '<br><img'
+	let finalString = '<img'
 	const workingText = element.value.split('<img')
 
 	// Find the image and read the text in between '<img' and '>'
@@ -333,7 +333,7 @@ function getImageString(element, number, spacing = '') {
 				finalString += workingText[i][j]
 				j += 1
 			}
-			finalString += '><br>'
+			finalString += '>'
 			break
 		}
 	}
@@ -1494,9 +1494,9 @@ async function savePassage(spacing = '') {
 	let ABData = {}
 
 	// Remove the paragraph labels, if needed
-	for (let i = 0; i < 5; i++) {
+	/*for (let i = 0; i < 5; i++) {
 		text.value = text.value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
-	}
+	}*/
 
 	// Remove extra spaces
 	let dom_abText = document.getElementById('readingPassageTextB').value
@@ -1510,6 +1510,7 @@ async function savePassage(spacing = '') {
 	// Add the A/B passage information if needed
 	if (section == 'reading' && dom_AB.value == 1) {
 		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['preText'] = document.getElementById('readingPassagePreTextB').value
 		ABData['passageText'] = document.getElementById('readingPassageTextB').value
 		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
 	}
@@ -1527,7 +1528,7 @@ async function savePassage(spacing = '') {
 		'passageText' : text.value,
 		'passageNumber' : passageNumber,
 		'preText' : preText,
-		'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 1) ? true : false),
+		//'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 1) ? true : false),
 		'reference' : dom_reference.value ?? '',
 		'ABData' : ABData
 	}
@@ -1651,7 +1652,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	}
 
 	// Add the paragraph labels, if needed
-	if (passageData['shouldLabelParagraphs'] == true && passageData['section'] == 'english' && passageData['passageText'] != undefined && passageData['passageText'] != '' && !passageData['passageText'].includes('<b>1</b>')) {
+	/*if (passageData['shouldLabelParagraphs'] == true && passageData['section'] == 'english' && passageData['passageText'] != undefined && passageData['passageText'] != '' && !passageData['passageText'].includes('<b>1</b>')) {
 		let splitText = passageData['passageText'].split('<br><br>')
 		
 		for (let i = 0; i < splitText.length; i++) {
@@ -1659,7 +1660,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		}
 
 		passageData['passageText'] = splitText.join('<br><br>')
-	}
+	}*/
 
 	// Display the passage
 	try {
@@ -1686,6 +1687,14 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		}
 		else {
 			document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = ''
+		}
+
+		// Display the title - B
+		if (passageData['ABData']?.['preText'] != undefined && passageData['ABData']?.['preText'] != '') {
+			document.getElementById((section ?? dom_section.value) + 'PassagePreTextB').value = passageData['ABData']['preText']
+		}
+		else {
+			document.getElementById((section ?? dom_section.value) + 'PassagePreTextB').value = ''
 		}
 
 		// Display the passageText - B
@@ -1717,9 +1726,9 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	}
 
 	// Set the 'Label Paragraphs' tag
-	if ((section ?? dom_section.value) == 'english') {
-		document.getElementById((section ?? dom_section.value) + 'LabelParagraphs').value = (passageData['shouldLabelParagraphs'] ?? false) ? 1 : 0
-	}
+	//if ((section ?? dom_section.value) == 'english') {
+		//document.getElementById((section ?? dom_section.value) + 'LabelParagraphs').value = (passageData['shouldLabelParagraphs'] ?? false) ? 1 : 0
+	//}
 
 	// Display the info below
 	setPassageText(passageData, spacing + spaceSize)
@@ -2137,6 +2146,7 @@ function setPassageTextHelper(spacing = '') {
 
 	if (section == 'reading' && dom_AB.value == 1) {
 		ABData['title'] = document.getElementById('readingPassageTitleB').value
+		ABData['preText'] = document.getElementById('readingPassagePreTextB').value
 		ABData['passageText'] = document.getElementById('readingPassageTextB').value
 		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
 	}
@@ -2202,6 +2212,10 @@ function setPassageText(data, spacing = '') {
 	if (data['ABData'] != undefined && data['ABData'] != {}) {
 		if (data['ABData']?.['title'] != undefined && data['ABData']?.['title'] != '') {
 			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['title']))
+		}
+
+		if (data['ABData']?.['preText'] != undefined && data['ABData']?.['preText'] != '') {
+			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['preText']))
 		}
 
 		if (data['ABData']?.['passageText'] != undefined && data['ABData']?.['passageText'] != '') {
@@ -2392,21 +2406,21 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
 		}
 
-		if (event.target.id == 'englishLabelParagraphs') {
-			let dom_labelParagraphs = document.getElementById('englishLabelParagraphs')
+		//if (event.target.id == 'englishLabelParagraphs') {
+			//let dom_labelParagraphs = document.getElementById('englishLabelParagraphs')
 
 			// Grab the text
-			let text = document.getElementById('englishPassageText').value
+			//let text = document.getElementById('englishPassageText').value
 
 			// Remove the paragraph labels, if needed
-			if (dom_labelParagraphs.value == 0) {
+			/*if (dom_labelParagraphs.value == 0) {
 				for (let i = 0; i < 5; i++) {
 					document.getElementById('englishPassageText').value = document.getElementById('englishPassageText').value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
 				}
-			}
+			}*/
 
 			// Add the paragraph labels, if needed
-			else if (dom_labelParagraphs.value == 1 && text != undefined && text != '' && !text.includes('<b>1</b>')) {
+			/*else if (dom_labelParagraphs.value == 1 && text != undefined && text != '' && !text.includes('<b>1</b>')) {
 				let splitText = text.split('<br><br>')
 
 				for (let i = 0; i < splitText.length; i++) {
@@ -2414,9 +2428,9 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 				}
 
 				document.getElementById('englishPassageText').value = splitText.join('<br><br>')
-			}
+			}*/
 
-		}
+		//}
 
 
 		// Correct text
