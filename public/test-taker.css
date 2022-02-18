@@ -56,6 +56,7 @@ body {
   font-family: "proxima-nova", sans-serif;
   font-size: 1rem;
   overflow-x: hidden;
+  overflow-y: hidden;
   width: 100vw;
   margin: 0;
 }
@@ -91,14 +92,11 @@ img {
   font-weight: 900;
 }
 
-.main {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+section.hide {
+  display: none;
 }
 
-.main .header {
+.header {
   background-color: var(--secondary-background);
   color: white;
   display: flex; 
@@ -108,19 +106,73 @@ img {
   padding: 1em;
 }
 
-.main .header > .container {
+.header > .container {
   /* flex: 1; */
   display: flex;
   justify-content: center;
 }
 
-.main .header h1 {
+.header h1 {
   margin: 0;
 }
 
-.main .header .logo {
+.header .logo {
   height: 2rem;
-  background-color: white;
+  fill: white;
+}
+
+/* Landing screen */
+
+.landing{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing .content {
+  padding: 4em 4em 0em 4em;
+  display: grid;
+  height: 100%;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 2em;
+  overflow-y: auto;
+}
+
+@media screen and (max-width: 800px) {
+  .landing .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing .content .next-lesson-wrapper {
+  grid-column: 1 / -1;
+  background-color: var(--default-color);
+  color: white;
+}
+
+.landing .content .assignment {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: white;
+  padding: 1em;
+  margin-bottom: 1em;
+  cursor: pointer;
+}
+
+.landing .content .assignment > * {
+  margin: 0;
+}
+
+/* Main screen */
+
+.main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .main .panels {
@@ -131,10 +183,19 @@ img {
   position: relative;
 }
 
+.main .panels > .hide {
+  display: none;
+}
+
 .main .panels > div {
   padding: 2em;
   /* height: 100%; */
   overflow-y: auto;
+}
+
+.main .panels p.longQuote {
+  text-indent: 0 !important;
+  padding: 0em .75em;
 }
 
 .main .panels > div:not(:last-child) {
@@ -142,6 +203,7 @@ img {
 }
 
 .main .panels .selector {
+  padding: 0;
   position: absolute;
   left: 0;
   background-color: white;
@@ -149,10 +211,123 @@ img {
   transform: translateX(-100%);
   transition: transform 250ms ease-in;
   z-index: 10;
+  overflow: visible;
 }
 
 .main .panels .selector.open {
   transform: translateX(0%);
+}
+
+.main .panels .selector .selector-scroll {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.main .panels .selector .time-container {
+  position: sticky;
+  background-color: var(--main-background);
+  top: 0;
+  width: 100%;
+  padding: 1em 1em;
+  border-bottom: 2px solid rgb(197, 197, 197);
+}
+
+.main .panels .selector input[type=radio] {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: -1;
+}
+
+.main .panels .selector .selector-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: .5em 1em;
+  cursor: pointer;
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper {
+  background-color: var(--accent-color);
+  color: var(--main-background);
+}
+
+.main .panels .selector .selector-wrapper:hover {
+  background-color: var(--accent-color);
+  color: var(--main-background);
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover {
+  background-color: var(--main-background);
+  color: var(--accent-color);
+  outline: 2px solid var(--accent-color);
+}
+
+.main .panels .selector .selector-wrapper span {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  padding: .1em;
+  border-radius: 50%;
+  margin-right: 1em;
+}
+
+.main .panels .selector .selector-wrapper span {
+  border: 2px solid var(--accent-color);
+  background-color: var(--main-background);
+}
+
+.main .panels .selector .selector-wrapper span .flag {
+  fill:var(--main-background);
+}
+
+.main .panels .selector .selector-wrapper span.flagged .flag {
+  fill:var(--accent-color);
+}
+
+.main .panels .selector .selector-wrapper span.answered {
+  border: 2px solid var(--main-background);
+  background-color: var(--accent-color);
+}
+
+.main .panels .selector .selector-wrapper span.answered .flag {
+  fill:var(--accent-color);
+}
+
+.main .panels .selector .selector-wrapper span.answered.flagged .flag {
+  fill:var(--main-background);
+}
+
+.main .panels .selector .submit {
+  margin: .5em 1em;
+}
+
+.main .panels .selector .pull-tab {
+  position: absolute;
+  top: 25%;
+  left: calc(100% + 4px);
+  background-color: var(--accent-color);
+  width: 1.5em;
+  height: 4.5em;
+  z-index: 2;
+  transform: translateY(-50%);
+  border-radius: 0em .75em .75em 0em;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.main .panels .selector .pull-tab div {
+  width: 2px;
+  height: 2em;
+  background-color: white;
+  margin-right: .3em;
+}
+
+.main .panels .selector .pull-tab div:last-child {
+  margin-right: .1em;
 }
 
 .main .panels .passage {
@@ -178,12 +353,24 @@ img {
 
 #passageText-A p, #passageText-B p {
   margin-top: 0;
-  text-indent: 1em;
+  text-indent: 1.5em;
   line-height: 1.8;
+}
+
+#passageText-A table, #passageText-B table {
+  margin-bottom: 1em;
+}
+
+#passageText-A img, #passageText-B img {
+  display: block;
 }
 
 #passageText-A p.paragraphLabel, #passageText-B p.paragraphLabel {
   text-align: center;
+}
+
+#passageText-A p.experimentLabel, #passageText-B p.experimentLabel {
+  text-indent: 0;
 }
 
 /* force the second passage to the new column */
@@ -244,7 +431,37 @@ img {
   outline: none;
 }
 
-.main .panels .question .choice > input::after {
+.main .panels .question .choice > input[type="checkbox"] {
+  margin-right: 1.5em;
+  position: relative;
+  visibility: hidden;
+}
+
+.main .panels .question .choice:hover > input[type="checkbox"] {
+  visibility: visible;
+}
+
+.main .panels .question .choice > input[type="checkbox"]::after {
+  content: '-';
+  font-size: 2.5em;
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  background-color: var(--main-background);
+  top: -13px;
+  left: -2px;
+  text-align: top;
+}
+
+.main .panels .question .choice > input[type="checkbox"]:checked::after {
+  content: '+';
+}
+
+.main .panels .question .choice > input[type="checkbox"]:checked~label {
+  text-decoration: line-through;
+}
+
+.main .panels .question .choice > input[type="radio"]::after {
   content: '';
   width: calc(100% + 4px);
   height: calc(100% + 4px);
@@ -256,7 +473,11 @@ img {
   left: -2px;
 }
 
-.main .panels .question .choice > input:checked::after {
+.main .panels .question .choice:hover > input[type="radio"]::after {
+  border-color: var(--accent-color);
+}
+
+.main .panels .question .choice > input[type="radio"]:checked::after {
   background-color: var(--accent-color);
   border: none;
 }
@@ -276,6 +497,10 @@ img {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
+}
+
+.main .footer .nav.hide {
+  visibility: hidden;
 }
 
 .main .footer .nav h1 {
@@ -298,7 +523,6 @@ img {
 .main .footer .circle:last-child {
   margin-left: 1em;
 }
-
 
 .main .footer .circle .right-arrow {
   width: .7em;

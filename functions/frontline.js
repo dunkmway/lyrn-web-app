@@ -107,7 +107,7 @@ app.get('/customers/:id', async (req, res) => {
       .limit(1)
       .get();
 
-      invoiceDocs.forEach(async (doc) => {
+      invoiceDocs.forEach((doc) => {
         const link = {
           type: 'invoice',
           value: `https://lyrnwithus.com/payment-link?invoice=${doc.id}`,
