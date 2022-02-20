@@ -410,6 +410,7 @@ section.hide {
   flex-direction: row;
   align-items: baseline;
   margin-bottom: .5em;
+  cursor: pointer;
 }
 
 .main .panels .question .choice > * {

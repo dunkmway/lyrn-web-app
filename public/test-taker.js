@@ -50,22 +50,22 @@ let current_data = {
 
 
 async function testing() {
-  changeMode('section')
-  try {
-    await setSection('D03', 'english')
-  }
-  catch(error) {
-    console.log(error)
-  }
-
-
-  // changeMode('default');
+  // changeMode('section')
   // try {
-  //   await setLandingPage('uwrnhMAL2ibBjgS0KppI');
+  //   await setSection('D03', 'math')
   // }
-  // catch (error) {
+  // catch(error) {
   //   console.log(error)
   // }
+
+
+  changeMode('default');
+  try {
+    await setLandingPage('uwrnhMAL2ibBjgS0KppI');
+  }
+  catch (error) {
+    console.log(error)
+  }
 }
 
 testing();
