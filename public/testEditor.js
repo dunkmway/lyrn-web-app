@@ -1130,7 +1130,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Validate the passage Number
-	if ((passage < 1 && section != 'math') || (passage > 7)) {
+	if ((passage < 1 && section != 'math') || (passage > 7) ||  ((passage || undefined) == undefined)) {
 		console.log("Check the Passage Number")
 		return
 	}
