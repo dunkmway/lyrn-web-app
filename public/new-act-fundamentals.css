@@ -87,3 +87,38 @@ button:disabled {
   right: -2.5em;
   top: 0%;
 }
+
+#testList {
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr);
+  margin-top: 1em;
+  gap: .5em;
+}
+
+#testList > div[data-test] {
+  position: relative;
+}
+
+#testList > div[data-test] > .remove-btn {
+  position: absolute;
+  right: .5em;
+  top: .5em;
+  visibility: hidden;
+}
+
+#testList > div[data-test]:hover > .remove-btn {
+  visibility: visible;
+}
+
+#testList > * {
+  padding: .5em .5em;
+  margin: 0em;
+  border-radius: .5em;
+  font-size: 1rem;
+  min-width: 0;
+  border: 1px solid #DEDEDF;
+}
+
+#testList > .highlight {
+  border-color: red;
+}

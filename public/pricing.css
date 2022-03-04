@@ -19,6 +19,13 @@
   --color-accent-3-light: #02c6ff;
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
+
+  /* --color-green: #3cdd58;
+  --color-blue: #02c6ff; */
+  --color-green: #27c03a;
+  --color-blue: #101b42;
+  /* --color-blue: #1D3C5D; */
+
 }
 
 *, *::before, *::after {
@@ -35,7 +42,7 @@ body {
   overflow-x: hidden;
   width: 100vw;
   margin: 0;
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
 }
 
 section {
@@ -155,14 +162,15 @@ li::before {
 /* navigation styles start here */
 
 header {
-  background: var(--nav-background);
-  color: var(--nav-color);
+  background: var(--color-blue);
+  color: var(--color-primary);
   text-align: center;
   position: sticky;
   top: 0px;
   z-index: 999;
   width: 100%;
-  box-shadow: #00000041 0em .5em 20px;
+  padding: 1em 0em;
+  /* box-shadow: #00000041 0em .5em 20px; */
   transition: background-color 200ms ease-in;
 }
 
@@ -175,24 +183,33 @@ header li::before {
 }
 
 .logo {
+  margin-left: .5em;
   width: 5em;
-  padding: 1em 0px;
   display: block;
+  margin-top: 2px;
+  fill: white;
+}
+
+.phone {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .phone a {
   display: flex;
-  background-image: linear-gradient(45deg, var(--color-accent-5-light), 10%, var(--color-accent-1-light), 90%, var(--color-accent-5-light));
-  color: black;
+  background-color: var(--color-green);
+  color: white;
   padding: .5em 1.5em;
-  width: 100%;
-  height: 100%;
   align-items: center;
   justify-content: center;
+  border-radius: .5em;
 }
 
 .phone a svg {
   margin-right: .5em;
+  fill: white;
 }
 
 /* changed this from the tutorial video to
@@ -221,7 +238,7 @@ header li::before {
 .nav-toggle-label span::before,
 .nav-toggle-label span::after {
   display: block;
-  background: var(--nav-color);
+  background: var(--color-primary);
   height: 2px;
   width: 2em;
   border-radius: 2px;
@@ -247,7 +264,7 @@ nav {
   text-align: right;
   top: 100%;
   right: 0;
-  background: var(--nav-background);
+  background: var(--color-blue);
   box-shadow: #00000041 0em .5em 20px;
   width: 100%;
   transform: scale(1, 0);
@@ -290,7 +307,7 @@ nav .enroll {
 }
 
 nav a:hover {
-  color: #000;
+  text-decoration: none;
 }
 
 .nav-toggle:checked ~ nav {
@@ -310,27 +327,19 @@ nav a:hover {
   header {
     display: grid;
     grid-template-columns: .2fr auto minmax(600px, 3fr) auto .2fr;
-    border-radius: 0px 0px 2rem 2rem;
+    /* border-radius: 0px 0px 2rem 2rem; */
     position: fixed;
   }
   
   .logo {
     grid-column: 2 / 3;
+    margin-left: 0;
   }
 
   .phone {
     grid-column: 4 / 5;
-    display: flex;
-    flex-direction: row;
     justify-content: flex-end;
-    align-items: center;
     margin-left: 1em;
-  }
-  
-  .phone a {
-    border-radius: .5em;
-    width: auto;
-    height: auto;
   }
   
   nav {
@@ -370,7 +379,7 @@ nav a:hover {
     content: '';
     display: block;
     height: 5px;
-    background: black;
+    background: var(--color-primary);
     position: absolute;
     top: -.75em;
     left: 0;
@@ -390,7 +399,11 @@ nav a:hover {
   justify-content: center;
   align-items: center;
   padding: 10em 2em;
-  color: var(--color-tertiary);
+  color: var(--color-blue);
+}
+
+.intro h1, .intro h2 {
+  text-align: center;
 }
 
 .intro h2 {
@@ -399,9 +412,10 @@ nav a:hover {
 }
 
 .courses {
-  background-color: var(--color-tertiary);
+  background-color: var(--color-blue);
   color: var(--color-primary);
   text-align: center;
+  /* border: 4px solid var(--color-blue); */
 }
 
 .courses a {
@@ -432,6 +446,10 @@ nav a:hover {
   background-position: left;
   transition: background-position 200ms ease-in;
   cursor: pointer;
+
+  color: var(--color-primary);
+  background-color: var(--color-green);
+  /* border: 4px solid var(--color-green); */
 }
 
 .course-card:hover {
@@ -486,11 +504,11 @@ nav a:hover {
 
 .course-section h1 {
   margin-bottom: 0px;
-  color: var(--color-tertiary);
+  color: var(--color-blue);
 }
 
 .course-section h2 {
-  color: #AAAAAA;
+  color: var(--color-green);
   font-size: 2.5em;
   margin-top: .5em;
   text-align: center;
@@ -498,7 +516,7 @@ nav a:hover {
 
 .course-section h3 {
   font-size: 2.25em;
-  color: var(--color-tertiary);
+  color: var(--color-blue);
 }
 
 .course-section h4 {
@@ -638,19 +656,16 @@ nav a:hover {
 .plan-wrapper {
   background-color: var(--color-primary);
   border-radius: 2em;
-  border: 7px solid #C1C1C1;
+  border: 7px solid var(--color-blue);
   padding: 2em;
   margin-top: 3em;
   position: relative;
   width: 100%;
-}
-
-#subjectTutoring .plan-wrapper {
-  margin: 0px;
+  max-width: 720px;
 }
 
 .plan-wrapper .title {
-  text-align: right;
+  text-align: center;
 }
 
 .plan-wrapper .title h4 {
@@ -661,13 +676,13 @@ nav a:hover {
 
 .plan-wrapper .length {
   text-align: center;
-  border-top: 2px solid #C2C2C2;
-  border-bottom: 2px solid #C2C2C2;
+  border-top: 2px solid var(--color-blue);
+  border-bottom: 2px solid var(--color-blue);
   padding: 1em 0em;
 }
 
 .plan-wrapper .length h4{
-  color: #C2C2C2;
+  color: var(--color-blue);
   font-size: 1.5em;
   font-weight: 900;
   font-style: italic;
@@ -676,6 +691,10 @@ nav a:hover {
 .plan-wrapper .length h5{
   font-size: 1.5em;
   font-weight: 900;
+}
+
+.plan-wrapper > ul > li::before {
+  background-color: var(--color-green);
 }
 
 .plan-wrapper .discount-wrapper {
@@ -696,19 +715,21 @@ nav a:hover {
   color: white;
 }
 
+.plan-wrapper .start {
+  text-align: center;
+  color: var(--color-blue);
+  margin: 0;
+  font-weight: 900;
+}
+
 .plan-wrapper .select {
   color: white;
-  background-color: var(--color-tertiary);
+  background-color: var(--color-green);
   text-align: center;
   padding: 1em;
   border-radius: 1em;
   cursor: pointer;
-  margin-top: 2em;
-}
-
-#subjectTutoring .plan-wrapper .select {
-  margin: 0px;
-  background-image: linear-gradient(90deg, var(--color-accent-5-light), var(--color-accent-1-light));
+  margin-top: .75em;
 }
 
 .plan-wrapper .select * {
@@ -716,13 +737,13 @@ nav a:hover {
   margin: 0px;
 }
 
-#act .plan-wrapper.comprehensive {
-  border: none;
+/* #act .plan-wrapper.comprehensive {
+  border-color: var(--color-green);
   width: calc(100% - 14px);
   margin: calc(3em + 7px) 7px 7px 7px;
-}
+} */
 
-#act .plan-wrapper.comprehensive::after {
+/* #act .plan-wrapper.comprehensive::after {
   position: absolute;
   top: -7px; bottom: -7px;
   left: -7px; right: -7px;
@@ -730,9 +751,9 @@ nav a:hover {
   content: '';
   z-index: -1;
   border-radius: calc(2em + 7px);
-}
+} */
 
-#act .plan-wrapper.comprehensive .title h3 {
+/* #act .plan-wrapper.comprehensive .title h3 {
   color: var(--color-accent-3-light);
 }
 
@@ -746,7 +767,7 @@ nav a:hover {
 
 #act .plan-wrapper.comprehensive .select {
   background-image: linear-gradient(45deg, var(--color-accent-3-light), 70%, var(--color-accent-4-light));
-}
+} */
 
 .steps {
   margin-top: 2em;
@@ -833,7 +854,7 @@ nav a:hover {
     position: relative;
   }
 
-  #act .plans::before {
+  /* #act .plans::before {
     content: '';
     position: absolute;
     height: calc(100% - 3em);
@@ -842,7 +863,7 @@ nav a:hover {
     top: 3em;
     z-index: 2;
     background-color: #AAAAAA;
-  }
+  } */
 
   .plan-wrapper {
     margin: 3em 0em;
@@ -852,9 +873,9 @@ nav a:hover {
     margin-right: 6em;
   }
 
-  #act .plan-wrapper.fundamentals {
+  /* #act .plan-wrapper.fundamentals {
     transform: translateY(-7px);
-  }
+  } */
 
   .plan-wrapper ul {
     margin: 1.5em;
@@ -1010,9 +1031,8 @@ nav a:hover {
 
 footer {
   padding: 2em;
-  color: #000;
-  background-color: var(--color-secondary);
-  border-top: 2px solid #C1C1C1;
+  color: var(--color-primary);
+  background-color: var(--color-blue);
 }
 
 footer .links {
@@ -1023,12 +1043,16 @@ footer .links {
 footer .logo-box {
   max-width: 100px;
   height: 100px;
-  border: 1px solid var(--color-tertiary);
+  border: 1px solid var(--color-blue);
   border-radius: .75em;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 1em;
+}
+
+footer .links .site-map > ul {
+  column-count: 2;
 }
 
 footer ul {

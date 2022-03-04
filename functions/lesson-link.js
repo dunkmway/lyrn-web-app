@@ -22,7 +22,7 @@ exports.sendLessonLink = functions.pubsub.schedule('*/30 * * * *').timeZone('Ame
   .where('start', '==', hourFromMark)
   .get();
 
-  eventQuery.forEach(async (eventDoc) => {
+  await Promise.all(eventQuery.docs.map(async (eventDoc) => {
     // get all of the info needed to send the link off
     const eventData = eventDoc.data();
 
@@ -68,8 +68,69 @@ exports.sendLessonLink = functions.pubsub.schedule('*/30 * * * *').timeZone('Ame
       await sendLessonLinkEmail(studentDoc.data().email, lessonData);
     }
     await sendLessonLinkEmail(parentDoc.data().email, lessonData);
-  })
+  }));
   return
+});
+
+exports.test_sendLessonLink = functions.https.onRequest(async (req, res) => {
+  // assume the current time is at a 30 minute mark in the given timezone
+  let now = new Date()
+  let thirtyMinuteMark = roundToNearestHalfHour(now.getTime());
+  let hourFromMark = new Date(thirtyMinuteMark).setHours(new Date(thirtyMinuteMark).getHours() + 1);
+
+  //get all the events an hour from the last thirty minute mark
+  let eventQuery = await admin.firestore().collection('Events')
+  .where('start', '==', hourFromMark)
+  .get();
+
+  await Promise.all(eventQuery.docs.map(async (eventDoc) => {
+    // get all of the info needed to send the link off
+    const eventData = eventDoc.data();
+
+    //get the student, parent, and tutor info
+    const studentDoc = await admin.firestore().collection('Users').doc(eventData.student).get();
+    const parentDoc = await admin.firestore().collection('Users').doc(eventData.parents[0]).get();
+    const tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get();
+
+    //create the zoom meeting
+    const payload = {
+      iss: functions.config().zoom.key,
+      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+    };
+    const token = jwt.sign(payload, functions.config().zoom.secret);
+    const config = {
+      method: 'post',
+      url: `/users/${tutorDoc.data().zoomID}/meetings`,
+      baseURL: zoomBaseURL,
+      data: {
+        topic: eventData.title,
+        type: 2,
+        start_time: convertMilliToZoomDateFormat(eventData.start),
+        duration: (eventData.end - eventData.start) / 60000,
+      },
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    }
+    const response = await axios(config);
+    await eventDoc.ref.update({
+      staffZoomURL: response.data.start_url,
+      studentZoomURL: response.data.join_url,
+      zoomMeetingID: response.data.id
+    })
+
+    // send off the emails
+    const lessonData = {
+      title: eventData.title,
+      zoomLink: response.data.join_url
+    }
+
+    if (studentDoc.data().email) {
+      await sendLessonLinkEmail(studentDoc.data().email, lessonData);
+    }
+    await sendLessonLinkEmail(parentDoc.data().email, lessonData);
+  }));
+  res.send('all done')
 });
 
 function sendLessonLinkEmail(email, lessonData) {

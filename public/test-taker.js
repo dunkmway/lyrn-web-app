@@ -30,6 +30,13 @@ const QUESTION_COUNT = {
   reading: 40,
   science: 40
 }
+const SECTION_TIME = {
+  english: 45,
+  math: 60,
+  reading: 35,
+  science: 35
+}
+const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be started before the required time to take (35 minute section + buffer before lesson starts)
 const MODE_VIEWS = {
   default: 'landing',
   section: 'main',
@@ -37,13 +44,15 @@ const MODE_VIEWS = {
   daily: 'main'
 }
 
+const CURRENT_STUDENT_UID = queryStrings().student;
 
 let current_data = {
   mode: 'default',
   test: null,
   section: null,
   passage: null,
-  question: null
+  question: null,
+  assignment: null
 }
 
 
@@ -52,16 +61,15 @@ let current_data = {
 async function testing() {
   // changeMode('section')
   // try {
-  //   await setSection('D03', 'math')
+  //   await setSection('D06', 'science')
   // }
   // catch(error) {
   //   console.log(error)
   // }
 
-
   changeMode('default');
   try {
-    await setLandingPage('uwrnhMAL2ibBjgS0KppI');
+    await setLandingPage(CURRENT_STUDENT_UID);
   }
   catch (error) {
     console.log(error)
@@ -93,6 +101,9 @@ function changeMode(mode) {
   document.querySelector(`section.${MODE_VIEWS[current_data.mode]}`).classList.add('hide')
   //show the corresponding view
   document.querySelector(`section.${MODE_VIEWS[mode]}`).classList.remove('hide')
+
+  //change the current_data.mode
+  current_data.mode = mode;
 }
 
 
@@ -123,8 +134,8 @@ function renderSectionAssignment(assignmentData) {
 
   const assignmentElement = document.createElement('div');
   assignmentElement.classList.add('assignment', 'box');
-  assignmentElement.addEventListener('click', () => sectionAssignmentClickCallback(assignmentData))
   if (assignmentData) {
+    assignmentElement.addEventListener('click', () => sectionAssignmentClickCallback(assignmentData))
     assignmentElement.style.backgroundColor = `var(--${assignmentData.section}-color)`
     assignmentElement.innerHTML = `
       <h4>${assignmentData.section.toUpperCase()}</h4>
@@ -146,8 +157,8 @@ function renderDailyAssignment(assignmentData) {
 
   const assignmentElement = document.createElement('div');
   assignmentElement.classList.add('assignment', 'box');
-  assignmentElement.addEventListener('click', () => dailyAssignmentClickCallback(assignmentData))
   if (assignmentData) {
+    assignmentElement.addEventListener('click', () => dailyAssignmentClickCallback(assignmentData))
     assignmentElement.style.backgroundColor = `var(--${assignmentData.section}-color)`
     assignmentElement.innerHTML = `
       <h4>${assignmentData.section.toUpperCase()}</h4>
@@ -165,7 +176,76 @@ function renderDailyAssignment(assignmentData) {
 }
 
 function sectionAssignmentClickCallback(assignmentData) {
-  console.log(assignmentData)
+  switch (assignmentData.status) {
+    case 'new':
+      customConfirm(
+        `You are about to start your ${assignmentData.section} assignment. This assignment will take <b>${SECTION_TIME[assignmentData.section]} minutes</b> to complete. Are you ready to start this assignment?`,
+        'NO',
+        'YES',
+        () => {},
+        () => { beginSectionAssignment(assignmentData) }
+      )
+      break;
+    case 'pending':
+      resumeSectionAssigment(assignmentData);
+      break;
+    default:
+      alert('We are having issues with this assigment. Please try again and if the issue continues please contact us.')
+  }
+
+}
+
+async function beginSectionAssignment(assignmentData) {
+  // decide which section should be assigned
+  const overviewDoc = await getStudentProgramOverview(assignmentData.student);
+  const overview = overviewDoc.data();
+  const completedTests = overview.completedSectionTests?.[assignmentData.section];
+  const sectionTests = overview.sectionTests;
+
+  //find the oldest section test that hasn't been completed yet
+  let nextTestID;
+  if (completedTests) {
+    for (let i = sectionTests.length - 1; i >= 0; i--) {
+      if (!completedTests.includes(sectionTests[i])) {
+        nextTestID = sectionTests[i];
+        break;
+      }
+    }
+  }
+  else {
+    nextTestID = sectionTests[sectionTests.length - 1];
+  }
+
+  // create the assignment doc
+  let assignmentID = await addSectionAssignment({
+    status: 'pending',
+    program: 'fundamentals',
+    lesson: assignmentData.lesson,
+    section: assignmentData.section,
+    student: assignmentData.student,
+    test: nextTestID,
+    startedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  current_data.assignment = assignmentID;
+
+  assignmentData.assignment = assignmentID;
+  assignmentData.status = 'pending';
+  assignmentData.program = 'fundamentals';
+  assignmentData.test = nextTestID;
+  assignmentData.startedAt = null;
+
+  // start the section
+  changeMode('section');
+  await setSection(assignmentData)
+}
+
+async function resumeSectionAssigment(assignmentData) {
+  current_data.assignment = assignmentData.assignment;
+
+  // start the section
+  changeMode('section');
+  await setSection(assignmentData)
 }
 
 function dailyAssignmentClickCallback(assignmentData) {
@@ -174,8 +254,17 @@ function dailyAssignmentClickCallback(assignmentData) {
 
 async function getStudentDoc(studentUID) {
   const studentDoc = await firebase.firestore().collection('Users').doc(studentUID).get();
-
   return studentDoc;
+}
+
+async function getStudentProgramOverview(studentUID) {
+  const overviewDoc = await firebase.firestore().collection('Users').doc(studentUID).collection('ACT-Fundamentals').doc('overview').get();
+  return overviewDoc;
+}
+
+async function getTestDoc(testID) {
+  const testDoc = await firebase.firestore().collection('ACT-Tests').doc(testID).get();
+  return testDoc;
 }
 
 async function getNextLesson(studentUID) {
@@ -227,6 +316,17 @@ async function getLessonSectionAssignment(lessonID) {
   return sectionAssignmentQuery.docs[0];
 }
 
+async function addSectionAssignment(assignmentData) {
+  const assignmentRef = firebase.firestore().collection('Section-Assignments').doc();
+  await assignmentRef.set(assignmentData);
+  return assignmentRef.id;
+}
+
+async function submitSectionAssignment(assignmentID) {
+  const assignmentDoc = await firebase.firestore().collection('Section-Assignments').doc(assignmentID).update({ status: 'submitted' });
+  return assignmentDoc;
+}
+
 async function getLessonDailyAssignment(lessonID) {
   const dailyAssignmentQuery = await firebase.firestore().collection('Daily-Assignments')
   .where('lesson', '==', lessonID)
@@ -257,22 +357,22 @@ async function getDailyAssignments(studentUID) {
 
   // check if the student has already done a daily for these lessons
   await Promise.all(allLessonDocs.map(async (lesson) => {
-    const lessonDailyAssigment = await getLessonDailyAssignment(lesson.id);
+    const lessonDailyAssignment = await getLessonDailyAssignment(lesson.id);
     
-    if (lessonDailyAssigment) {
-      dailyAssignments.push({
-        status: lessonDailyAssigment.data().status,
-        lessonID: lesson.id,
-        assignmentID: lessonDailyAssigment.id,
-        section: lesson.data().subtype
-      })
+    if (lessonDailyAssignment) {
+      if (lessonDailyAssignment.data().status == 'pending') {
+        let data = lessonDailyAssignment.data()
+        data.assignment = lessonDailyAssignment.id;
+        dailyAssignments.push(data);
+      }
     }
     else {
       dailyAssignments.push({
         status: 'new',
-        lessonID: lesson.id,
-        assignmentID: null,
-        section: lesson.data().subtype
+        lesson: lesson.id,
+        assignment: null,
+        section: lesson.data().subtype,
+        student: studentUID
       })
     }
   }))
@@ -286,31 +386,67 @@ async function getSectionAssignment(studentUID) {
 
   // get the next lesson
   const nextLessonDoc = await getNextLesson(studentUID);
+  if (!nextLessonDoc) { return null }
   
   // check if there is a section assignment already connected to the next lesson
   const nextLessonSectionAssignment = await getLessonSectionAssignment(nextLessonDoc.id);
 
   //there is an section assignment already attached to the next lesson
   if (nextLessonSectionAssignment) {
-    return {
-      status: nextLessonSectionAssignment.data().status,
-      lessonID: nextLessonDoc.id,
-      assignmentID: nextLessonSectionAssignment.id,
-      section: nextLessonDoc.data().subtype
+    if (nextLessonSectionAssignment.data().status != 'pending') { return null }
+    // check if the homework should be submitted
+    const assignmentSection = nextLessonSectionAssignment.data().section;
+    const assignmentStart = nextLessonSectionAssignment.data().startedAt.toDate();
+    const assignmentEnd = new Date(assignmentStart.setMinutes(assignmentStart.getMinutes() + SECTION_TIME[assignmentSection]));
+
+    if (assignmentEnd.getTime() <= new Date().getTime()) {
+      await submitSectionAssignment(nextLessonSectionAssignment.id);
+      return null;
     }
+    let data = nextLessonSectionAssignment.data()
+    data.assignment = nextLessonSectionAssignment.id;
+    return data;
   }
   // no section assignemnt has been assigned to this lesson yet
   else {
+    // check if the student has enough time to start this assignment before their lesson starts
+    const assignmentSection = nextLessonDoc.data().subtype;
+    const lessonStart = new Date(nextLessonDoc.data().start);
+    const minimumStart = new Date(lessonStart.setMinutes(lessonStart.getMinutes() - (SECTION_TIME[assignmentSection] + MINIMUM_START_BUFFER)))
+    if (minimumStart.getTime() <= new Date().getTime()) {
+      // create the assignment in a incomplete state
+      await addSectionAssignment({
+        status: 'omitted',
+        program: 'fundamentals',
+        lesson: nextLessonDoc.id,
+        section: assignmentSection,
+        student: studentUID,
+        test: null,
+        startedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      return null;
+    }
     return {
       status: 'new',
-      lessonID: nextLessonDoc.id,
-      assignmentID: null,
-      section: nextLessonDoc.data().subtype
+      lesson: nextLessonDoc.id,
+      assignment: null,
+      section: nextLessonDoc.data().subtype,
+      student: studentUID
     }
   }
 }
 
 async function setLandingPage(studentUID) {
+  changeAccentColor('default');
+  current_data.assignment = null;
+  current_data.test = null;
+  current_data.section = null;
+  current_data.passage = null;
+  current_data.question = null;
+
+  // remove all the assignments
+  removeAllChildNodes(document.getElementById('sectionAssignmentList'));
+  removeAllChildNodes(document.getElementById('dailyAssignmentList'));
   await Promise.all([
     // // get the student doc
     // getStudentDoc(studentUID)
@@ -401,7 +537,7 @@ async function setLandingPage(studentUID) {
   return questionQuery.docs[0];
 }
 
-function renderSelector(test, section) {
+function renderSelector(test, section, questionStates) {
   for (let i = 1; i <= QUESTION_COUNT[section]; i++) {
     const questionRadio = document.createElement('input');
     questionRadio.setAttribute('id', 'selectorRadio-' + i);
@@ -418,6 +554,10 @@ function renderSelector(test, section) {
     `
     document.querySelector('.main .panels .selector .selector-container').appendChild(questionRadio);
     document.querySelector('.main .panels .selector .selector-container').appendChild(questionSelector);
+
+    if (questionStates[i]?.answered) {
+      addSelectorAnsweredCallback(i);
+    }
   }
 }
 
@@ -440,7 +580,7 @@ function renderPassage(passageData) {
   resetMathJax();
 }
 
-function renderQuestion(questionData) {
+function renderQuestion(questionData, answerData = null) {
   // document.querySelector('.main .panels .question').classList.remove('hide');
 
   document.getElementById('questionNumber').textContent = questionData.problem;
@@ -467,7 +607,7 @@ function renderQuestion(questionData) {
     //   <label for="choice_${index}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
     // `
     choiceElem.innerHTML = `
-      <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" onclick="addSelectorAnsweredCallback(${questionData.problem})">
+      <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" ${isChoiceSelected(choiceLetter, answerData) ? 'checked' : ''} onclick="choiceSelectedCallback(${questionData.problem}, '${choiceLetter}')">
       <label for="choice_${index}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
     `
 
@@ -475,6 +615,34 @@ function renderQuestion(questionData) {
   })
 
   resetMathJax();
+}
+
+function isChoiceSelected(choiceLetter, answerData) {
+  if (answerData == null) { return false };
+  return choiceLetter == lastSelectedChoice(answerData.timeline)
+}
+
+function lastSelectedChoice(answerTimeline) {
+  //go through the timeline backwards and find the first answer event
+  for (let i = answerTimeline.length - 1; i >= 0; i--) {
+    if (answerTimeline[i].event == 'answer') {
+      return answerTimeline[i].answer;
+    }
+  }
+  return null;
+}
+
+async function choiceSelectedCallback(question, choiceLetter) {
+  addSelectorAnsweredCallback(question);
+  await recordAnswerEvent(
+    current_data.answer,
+    {
+      time: new Date().getTime(),
+      event: 'answer',
+      answer: choiceLetter
+    }
+  );
+  await updateSectionAssignmentAnswer(current_data.assignment, question, true);
 }
 
 function renderNextPrevious(section, question) {
@@ -515,12 +683,11 @@ function renderError(errorMsg) {
 
 async function setQuestion(test, section, question) {
   changeAccentColor(section);
-  changePassageColumns(section);
 
   if (question != current_data.question) {
     try {
       const questionDoc = await getQuestionDocument(test, section, question);
-      const questionData = questionDoc?.data();
+      const questionData = questionDoc?.data()
   
       if (!questionData) {
         renderError('We are having an issue getting this question.');
@@ -537,9 +704,27 @@ async function setQuestion(test, section, question) {
       else {
         showPassage();
       }
-  
+
+      const answerDoc = await getAnswerDoc(current_data.assignment, test, section, question);
+      const answerData = answerDoc?.data()
+      // if there already exists an answer for this question on this assignment
+      if (answerData) {
+        current_data.answer = answerDoc.id;
+        await recordAnswerEvent(
+          answerDoc.id,
+          {
+            time: new Date().getTime(),
+            event: 'restart'
+          }  
+        )
+        renderQuestion(questionData, answerData)
+      }
+      else {
+        current_data.answer = await setAnswerDoc(current_data.assignment, test, section, question);
+        renderQuestion(questionData);
+      }
+
       renderNextPrevious(section, question);
-      renderQuestion(questionData);
   
       current_data.test = test;
       current_data.section = section;
@@ -573,12 +758,59 @@ async function setPassage(test, section, passage) {
   }
 }
 
-async function setSection(test, section) {
-  current_data.test = test;
-  current_data.section = section;
+async function setSection(assignmentData) {
+  const testDoc = await getTestDoc(assignmentData.test);
+  const testCode = testDoc.data().test;
 
-  renderSelector(test, section)
-  await setQuestion(test, section, 1)
+  current_data.test = testCode;
+  current_data.section = assignmentData.section;
+
+  const start = assignmentData.startAt?.toDate() ?? new Date(); 
+  const end = new Date(start.setMinutes(start.getMinutes() + SECTION_TIME[assignmentData.section]));
+  current_data.timeout = setTimeout(submitSection, end.getTime() - new Date().getTime());
+  current_data.timer = setInterval(() => setTimer(end), 1000);
+
+  renderSelector(testCode, assignmentData.section, assignmentData.questions)
+  await setQuestion(testCode, assignmentData.section, 1)
+}
+
+// async function setSection(test, section, start = new Date()) {
+//   current_data.test = test;
+//   current_data.section = section;
+
+//   const end = new Date(start.setMinutes(start.getMinutes() + SECTION_TIME[section]));
+//   current_data.timeout = setTimeout(submitSection, end.getTime() - new Date().getTime());
+//   current_data.timer = setInterval(() => setTimer(end), 1000);
+
+//   const assignmentDoc
+
+//   renderSelector(test, section)
+//   await setQuestion(test, section, 1)
+// }
+
+function setTimer(end) {
+  const distance = end.getTime() - new Date().getTime();
+  if (distance < 0) {
+    // remove the counter and return
+    clearInterval(current_data.timer);
+    return;
+  }
+  // const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+  const minutes = Math.floor(distance / (1000 * 60)).toString().padStart(2, '0');
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+
+  document.getElementById('sectionTime').textContent = `${minutes}:${seconds}`;
+}
+
+async function submitSection() {
+  console.log('submit section');
+  clearTimeout(current_data.timeout);
+
+  // submit the current assignment 
+  await submitSectionAssignment(current_data.assignment);
+  changeMode('default');
+  setLandingPage(CURRENT_STUDENT_UID);
+  console.log(current_data)
 }
 
 function nextQuestionCallback() {
@@ -594,7 +826,56 @@ function toggleSelectorCallback() {
 }
 
 function addSelectorAnsweredCallback(question) {
+  // set the question in the selector as answered
   document.querySelector(`label[for="selectorRadio-${question}"] > span`).classList.add('answered')
+}
+
+async function setAnswerDoc(assignment, test, section, question) {
+  const answerRef = firebase.firestore().collection('ACT-Answers').doc();
+  await answerRef.set({
+    assignment,
+    test,
+    section,
+    question,
+    timeline: [
+      {
+        time: new Date().getTime(),
+        event: 'start'
+      }
+    ]
+  })
+  return answerRef.id;
+}
+
+async function getAnswerDoc(assignment, test, section, question) {
+  const answerQuery = await firebase.firestore().collection('ACT-Answers')
+  .where('assignment', '==', assignment)
+  .where('test', '==', test)
+  .where('section', '==', section)
+  .where('question', '==', question)
+  .limit(1)
+  .get();
+
+  return answerQuery.docs[0];
+}
+
+async function recordAnswerEvent(answerID, eventData) {
+  await firebase.firestore().collection('ACT-Answers').doc(answerID).update({
+    timeline: firebase.firestore.FieldValue.arrayUnion(eventData)
+  })
+  return;
+}
+
+async function updateSectionAssignmentAnswer(assignment, question, isAnswered) {
+  await firebase.firestore().collection('Section-Assignments').doc(assignment).update({
+    [`questions.${question}.answered`]: isAnswered 
+  })
+}
+
+async function updateSectionAssignmentFlag(assignment, question, isFlagged) {
+  await firebase.firestore().collection('Section-Assignments').doc(assignment).update({
+    [`questions.${question}.flagged`]: isFlagged 
+  })
 }
 
 function toggleSelectorFlagCallback(question) {

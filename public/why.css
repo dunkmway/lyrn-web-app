@@ -19,6 +19,9 @@
   --color-accent-3-light: #02c6ff;
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
+
+  --color-green: #27c03a;
+  --color-blue: #101b42;
 }
 
 *, *::before, *::after {
@@ -41,7 +44,7 @@ body {
 a {
   cursor: pointer;
   text-decoration: none;
-  color: var(--color-accent-4-deep);
+  color: var(--color-green);
 }
 
 a:hover {
@@ -96,7 +99,7 @@ h5 {
   font-weight: 300;
 }
 
-p, li:not(nav li) {
+.content p, .why p, .hero p, .content li {
   font-size: 1.5rem;
   color: rgb(80, 80, 80);
   line-height: 1.5em;
@@ -132,7 +135,7 @@ p {
     font-weight: 300;
   }
 
-  p, li:not(nav li) {
+  .content p, .why p, .hero p, .content li {
     font-size: 1.5rem;
     font-weight: 100;
   }
@@ -141,14 +144,15 @@ p {
 /* navigation styles start here */
 
 header {
-  background: var(--nav-background);
-  color: var(--nav-color);
+  background: var(--color-blue);
+  color: var(--color-primary);
   text-align: center;
   position: sticky;
   top: 0px;
   z-index: 999;
   width: 100%;
-  box-shadow: #00000041 0em .5em 20px;
+  padding: 1em 0em;
+  /* box-shadow: #00000041 0em .5em 20px; */
   transition: background-color 200ms ease-in;
 }
 
@@ -161,24 +165,33 @@ header li::before {
 }
 
 .logo {
+  margin-left: .5em;
   width: 5em;
-  padding: 1em 0px;
   display: block;
+  margin-top: 2px;
+  fill: white;
 }
 
-.phone a {
+.phone {
   display: flex;
-  background-image: linear-gradient(45deg, var(--color-accent-5-light), 10%, var(--color-accent-1-light), 90%, var(--color-accent-5-light));
-  color: black;
-  padding: .5em 1.5em;
-  width: 100%;
-  height: 100%;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 
+.phone a {
+  display: flex;
+  background-color: var(--color-green);
+  color: white;
+  padding: .5em 1.5em;
+  align-items: center;
+  justify-content: center;
+  border-radius: .5em;
+}
+
 .phone a svg {
   margin-right: .5em;
+  fill: white;
 }
 
 /* changed this from the tutorial video to
@@ -207,7 +220,7 @@ header li::before {
 .nav-toggle-label span::before,
 .nav-toggle-label span::after {
   display: block;
-  background: var(--nav-color);
+  background: var(--color-primary);
   height: 2px;
   width: 2em;
   border-radius: 2px;
@@ -233,7 +246,7 @@ nav {
   text-align: right;
   top: 100%;
   right: 0;
-  background: var(--nav-background);
+  background: var(--color-blue);
   box-shadow: #00000041 0em .5em 20px;
   width: 100%;
   transform: scale(1, 0);
@@ -276,7 +289,7 @@ nav .enroll {
 }
 
 nav a:hover {
-  color: #000;
+  text-decoration: none;
 }
 
 .nav-toggle:checked ~ nav {
@@ -296,27 +309,19 @@ nav a:hover {
   header {
     display: grid;
     grid-template-columns: .2fr auto minmax(600px, 3fr) auto .2fr;
-    border-radius: 0px 0px 2rem 2rem;
+    /* border-radius: 0px 0px 2rem 2rem; */
     position: fixed;
   }
   
   .logo {
     grid-column: 2 / 3;
+    margin-left: 0;
   }
 
   .phone {
     grid-column: 4 / 5;
-    display: flex;
-    flex-direction: row;
     justify-content: flex-end;
-    align-items: center;
     margin-left: 1em;
-  }
-  
-  .phone a {
-    border-radius: .5em;
-    width: auto;
-    height: auto;
   }
   
   nav {
@@ -356,7 +361,7 @@ nav a:hover {
     content: '';
     display: block;
     height: 5px;
-    background: black;
+    background: var(--color-primary);
     position: absolute;
     top: -.75em;
     left: 0;
@@ -376,10 +381,12 @@ nav a:hover {
   justify-content: center;
   align-items: center;
   padding: 10em 3em;
-  background-position: left;
-  background-size: 525%;
-  background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light));
-  animation: gradient-background 60s ease-in-out infinite alternate;
+  /* background-position: left; */
+  /* background-size: 525%; */
+  /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light)); */
+  /* animation: gradient-background 60s ease-in-out infinite alternate; */
+
+  background-color: var(--color-primary);
 }
 
 @keyframes gradient-background {
@@ -393,7 +400,8 @@ nav a:hover {
 
 .hero .intro {
   padding: 2em;
-  background-color: var(--color-primary);
+  background-color: var(--color-blue);
+  color: var(--color-primary);
   border-radius: 1em;
   box-shadow: 12px 12px 20px rgba(0, 0, 0, 0.36);
   position: relative;
@@ -406,16 +414,19 @@ nav a:hover {
   width: 100%;
   position: absolute;
   bottom: 0;
-  background-image: linear-gradient(90deg, var(--color-accent-1-light), var(--color-accent-5-light));
+  /* background-image: linear-gradient(90deg, var(--color-accent-1-light), var(--color-accent-5-light)); */
+  background-color: var(--color-green);
   transform: translateX(-2em);
 }
 
 .hero h1 {
   margin: 0;
+  color: inherit;
 } 
 
 .hero .intro p {
   margin: .25em 0em 2em;
+  color: inherit;
 }
 
 .hero .founder-card {
@@ -468,7 +479,8 @@ nav a:hover {
   width: 100%;
   position: absolute;
   bottom: 0;
-  background-image: linear-gradient(90deg, var(--color-accent-3-light), var(--color-accent-4-light));
+  /* background-image: linear-gradient(90deg, var(--color-accent-3-light), var(--color-accent-4-light)); */
+  background-color: var(--color-green);
   transform: translateX(-1em);
 }
 
@@ -547,13 +559,8 @@ nav a:hover {
 
 footer {
   padding: 2em;
-  color: #000;
-  background-color: var(--color-secondary);
-}
-
-footer p, footer li {
-  font-size: 1em;
-  color: black;
+  color: var(--color-primary);
+  background-color: var(--color-blue);
 }
 
 footer .links {
@@ -564,7 +571,7 @@ footer .links {
 footer .logo-box {
   max-width: 100px;
   height: 100px;
-  border: 1px solid var(--color-tertiary);
+  border: 1px solid var(--color-blue);
   border-radius: .75em;
   display: flex;
   justify-content: center;
@@ -572,9 +579,21 @@ footer .logo-box {
   margin-bottom: 1em;
 }
 
+footer .links .site-map > ul {
+  column-count: 2;
+}
+
 footer ul {
   list-style: none;
   padding: 0;
+}
+
+footer li {
+  margin: 0px;
+}
+
+footer li::before {
+  content: none;
 }
 
 footer a {

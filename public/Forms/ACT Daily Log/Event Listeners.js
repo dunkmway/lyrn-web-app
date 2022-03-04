@@ -11,8 +11,19 @@ printTest.addEventListener('keydown', (event) => {
   if (event.repeat) {return};
   if (!event.ctrlKey && event.key == "Enter") {
     event.preventDefault();
-    console.log(printTest.value)
-    openTest(printTest.value)
+
+    //separate the test from the section
+    const value = printTest.value;
+    if (!value) { return }
+    const test = value.split(' ')[0].toUpperCase();
+    const section = value.split(' ')[1];
+    if (section) {
+      section.toLowerCase();
+      openTest(test, section)
+    }
+    else {
+      openTest(test);
+    }
     printTest.value = ''
   }
 });

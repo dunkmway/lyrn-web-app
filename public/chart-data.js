@@ -19,11 +19,11 @@ let sectionData = {
 }
 
 const sectionColors = {
-  'composite': "#595959",
-  'english': "#5600F7",
-  'math': "#F70056",
-  'reading': "#00E6BC",
-  'science': "#C00BE0"
+  'composite': "#7a7a7a",
+  'english': "#EA5A59",
+  'math': "#54C6FB",
+  'reading': "#8786FC",
+  'science': "#64C13D"
 }
 
 const sections = ['english', 'math', 'reading', 'science']

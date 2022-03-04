@@ -24,7 +24,7 @@ function setChartData(studentUID) {
             })
 
             if (student_tests[sections[i]][tests[j]]['status'] != 'assigned') {
-              colorTestBox(sections[i], tests[j], 'green'); // REMOVE
+              
             }
 
           }
@@ -49,7 +49,7 @@ function setChartData(studentUID) {
       //tempData.push(combined_and_ordered_data.filter(function(val) { return val.date == dates[i]})[0])
     }
     combined_and_ordered_data = tempData
-    assignTeachingOrder(combined_and_ordered_data)
+    // assignTeachingOrder(combined_and_ordered_data)
 
     // Get the initial scores
     initialScores = {}

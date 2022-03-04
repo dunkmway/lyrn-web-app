@@ -14,18 +14,26 @@ firebase.analytics();
 
 function initialSetup() {
   let queryCourse = queryStrings()['course'];
-  if (queryCourse && queryCourse != 'act') {
+  // if (queryCourse && queryCourse != 'act') {
+  //   openCourse(queryCourse)
+  // }
+  if (queryCourse) {
     openCourse(queryCourse)
+  }
+  else {
+    openCourse('act', false)
   }
 }
 
-function openCourse(sectionID) {
+function openCourse(sectionID, scroll = true) {
   document.querySelectorAll('.course-section').forEach(card => {
     card.style.display = 'none';
   })
-
   document.getElementById(sectionID).style.display = 'flex';
-  document.getElementById(sectionID).scrollIntoView({behavior: "smooth", block: "start"});
+  
+  if (scroll) {
+    document.getElementById(sectionID).scrollIntoView({behavior: "smooth", block: "start"});
+  }
 }
 
 initialSetup();
