@@ -24,6 +24,7 @@
   position: relative;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
   white-space: pre-wrap;
+  color: white;
 }
 
 .studentMessage .delete {
@@ -35,7 +36,7 @@
   top: 5px;
   right: 5px;
   background-color: white;
-  color: #C4CCE8;
+  color: var(--accent-color);
   font-family: 'Helvetica', 'Arial', sans-serif;
   font-size: 10px;
   font-weight: bold;
@@ -51,9 +52,9 @@
   right: 5px;
   width: 8px;
   height: 8px;
-  animation: spin 2s linear infinite;
-  border: 2px solid white;
-  border-top: 2px solid #110D65;
+  animation: spin 1s linear infinite;
+  border: 2px solid var(--accent-color);
+  border-top: 2px solid white;
   border-radius: 50%;
 }
 
@@ -73,7 +74,9 @@
 }
 
 .studentMessages .right .studentMessage{
-  background-color: #80CBC4;
+  border: transparent 2px solid;
+  background-color: var(--accent-color);
+  color: white;
 }
 
 .studentMessages .left {
@@ -82,7 +85,9 @@
 }
 
 .studentMessages .left .studentMessage{
-  background-color: #979CB5;
+  border: var(--accent-color) 2px solid;
+  background-color: white;
+  color: var(--accent-color);
 }
 
 .studentMessage.important {

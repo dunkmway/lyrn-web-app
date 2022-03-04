@@ -41,7 +41,7 @@ const heroSectionObserver = new IntersectionObserver((entries, heroSectionObserv
   })
 }, heroSectionOptions)
 
-heroSectionObserver.observe(heroSection)
+// heroSectionObserver.observe(heroSection)
 
 
 //turn off animation if not in view

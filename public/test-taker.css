@@ -232,6 +232,10 @@ section.hide {
   border-bottom: 2px solid rgb(197, 197, 197);
 }
 
+#sectionTime {
+  text-align: center;
+}
+
 .main .panels .selector input[type=radio] {
   position: absolute;
   top: -9999px;

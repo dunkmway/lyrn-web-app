@@ -1,9 +1,32 @@
+:root {
+  --main-background: white;
+  --secondary-background: #111A43;
+
+  --default-color: #7a7a7a;
+
+  --english-color: #EA5A59;
+  --math-color: #54C6FB;
+  --reading-color: #8786FC;
+  --science-color: #64C13D;
+  --writing-color: #F5B233;
+  --composite-color: var(--default-color);
+
+  --accent-color: var(--default-color);
+}
+
 body {
     background-color: white;
     font-family: Roboto, sans-serif;
     font-weight: 200;
     margin: 0;
     padding: 0;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+button {
+  outline: none;
+  border: none;
 }
 
 .testList {
@@ -44,10 +67,6 @@ div p {
     margin-bottom: 0px;
 }
 
-::-webkit-scrollbar {
-    width: 0%;
-}
-
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
@@ -66,6 +85,7 @@ div p {
     height: 75vh;
     z-index: 3;
     border-radius: 15px;
+    border: 2px solid black;
     margin-right: 3%;
     position: relative;
 }
@@ -96,7 +116,7 @@ div p {
     align-items: center;
     height: 100%;
     width: 100%;
-    background-color: #110D65;
+    background-color: var(--accent-color);
     font-size: 14px;
     color: white;
     text-align: center;
@@ -161,9 +181,9 @@ div p {
 }
 
 .lessonHeaders {
-    height: 4%;
+    /* height: 4%; */
     display: grid;
-    grid-template-columns: 65% 15% 20%;
+    grid-template-columns: 80% 20%;
     grid-template-rows: 100%;
     text-align: center;
     border-style: solid;
@@ -171,14 +191,12 @@ div p {
 }
 
 .lessonBody {
-    height: 89%;
+    /* height: 89%; */
     display: grid;
-    grid-template-columns: 65% 15% 20%;
-    grid-auto-rows: auto;
+    grid-template-columns: 80% 20%;
+    /* grid-auto-rows: auto; */
     text-align: center;
     overflow-y: auto;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
 }
 
 .cursor {
@@ -198,14 +216,18 @@ div p {
     min-height: 35px;
 }
 
-.gridBox3:nth-child(-n+3) {
+.gridBox3:nth-child(-n+2) {
     border-top-width: 0px;
 }
 
-.gridBox3:nth-child(3n) {
+.gridBox3:nth-child(2n) {
     border-right-width: 0px;
     position: relative;
 }
+
+.gridBox3:nth-last-child(1), .gridBox3:nth-last-child(2) {
+  border-bottom-width: 3px;
+} 
 
 .visibleBlock {
     display: block;
@@ -227,12 +249,12 @@ div p {
 
 #topNavigationBanner {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: flex-start;
     position: relative;
     height: 9vh;
-    width: 99vw;
-    background-color: rgb(210, 210, 210);
+    width: 100vw;
+    background-color: var(--secondary-background);
     z-index: 1;
     padding-left: 1vw;
 }
@@ -243,7 +265,7 @@ div p {
     position: relative;
     height: 81vh;
     width: 100vw;
-    background-color: #5662A9;
+    background-color: var(--main-background);
     z-index: 1;
 }
 
@@ -270,26 +292,6 @@ div p {
     border-color : rgb(135, 168, 247);
     background-color: rgb(135, 168, 247, 0.2);
     color: black;
-}
-
-.englishColor {
-    background-color: #5600F7;
-    color: white;
-}
-
-.mathColor {
-    background-color: #F70056;
-    color: white;
-}
-
-.readingColor {
-    background-color: #00E6BC;
-    color: white;
-}
-
-.scienceColor {
-    background-color: #C00BE0;
-    color: white;
 }
 
 .yellow {
@@ -333,7 +335,7 @@ div p {
 }
 
 .tab3 {
-    background-color: rgb(0, 0, 91, 0.6);
+    background-color: var(--accent-color);
 }
 
 .Qred {
@@ -344,9 +346,45 @@ div p {
     background-color: rgb(255, 0, 0, 0.7);
 }
 
-.activeTab{
-    background-color: white;
-    color: black;
+.englishColor {
+  background-color: var(--english-color);
+  color: white;
+}
+
+.mathColor {
+  background-color: var(--math-color);
+  color: white;
+}
+
+.readingColor {
+  background-color: var(--reading-color);
+  color: white;
+}
+
+.scienceColor {
+  background-color: var(--science-color);
+  color: white;
+}
+
+.activeTab {
+  background-color: white;
+  color: var(--accent-color);
+}
+.activeTab.englishColor {
+  background-color: white;
+  color: var(--english-color);
+}
+.activeTab.mathColor {
+  background-color: white;
+  color: var(--math-color);
+}
+.activeTab.readingColor {
+  background-color: white;
+  color: var(--reading-color);
+}
+.activeTab.scienceColor {
+  background-color: white;
+  color: var(--science-color);
 }
 
 .buttonToggleOn {
@@ -592,16 +630,53 @@ MASTER */
 }
 
 .popupAnswer.correct{
-  color: green;
+  /* color: green; */
+  color: var(--accent-color);
   font-weight: bold;
+}
+.popupAnswer.correct.english {
+  color: var(--english-color);
+}
+.popupAnswer.correct.math {
+  color: var(--math-color);
+}
+.popupAnswer.correct.reading {
+  color: var(--reading-color);
+}
+.popupAnswer.correct.science {
+  color: var(--science-color);
 }
 
 .popupAnswer.selected{
-  border-color: black;
+  border-color: var(--accent-color);
+}
+.popupAnswer.selected.english{
+  border-color: var(--english-color);
+}
+.popupAnswer.selected.math{
+  border-color: var(--math-color);
+}
+.popupAnswer.selected.reading{
+  border-color: var(--reading-color);
+}
+.popupAnswer.selected.science{
+  border-color: var(--science-color);
 }
 
 .popupValue.selected{
-  border-color: blue;
+  border-color: var(--accent-color);
+}
+.popupValue.selected.english{
+  border-color: var(--english-color);
+}
+.popupValue.selected.math{
+  border-color: var(--math-color);
+}
+.popupValue.selected.reading{
+  border-color: var(--reading-color);
+}
+.popupValue.selected.science{
+  border-color: var(--science-color);
 }
 
 .smallerText {
@@ -610,7 +685,8 @@ MASTER */
 }
 
 .item {
-    background-color: white;
+    background-color: var(--accent-color);
+    color: white;
     font-size: 24px;
     font-weight: bold;
     border-radius: 14px;
@@ -662,6 +738,7 @@ MASTER */
 
 .graph {
     width: 67vw;
+    height: 100%;
     flex: 1;
     margin-right: 3%;
     margin-left: 3%;
@@ -686,13 +763,28 @@ MASTER */
 #sectionTitle {
     font-size: 3em;
     font-weight: bold;
-    color: white;
+    color: var(--accent-color);
+    background-color: white;
+    margin: 0;
+    width: 6em;
+}
+
+#sectionTitle.dropbtn {
+  padding: 0;
 }
 
 #studentName {
     font-size: 2em;
     cursor: pointer;
-    color: white;
+    color: var(--accent-color);
+}
+
+#printTest {
+  outline: none;
+  border: 2px solid var(--accent-color);
+  font-size: 12px;
+  height: 2em;
+  padding: .5em;
 }
 
 .hidden {
@@ -705,11 +797,20 @@ MASTER */
     cursor: pointer;
 }
 
+.logo {
+  margin-left: .5em;
+  width: 5em;
+  display: block;
+  margin-top: 2px;
+  fill: white;
+}
+
 #nameSection {
     height: 10vh;
     width: 100%;
     align-items: center;
-    background-color: #5662A9;
+    background-color: var(--main-background);
+    color: black;
 }
 
 .generalInfo {
@@ -721,7 +822,9 @@ MASTER */
     background-color: white;
     max-width: 67vw;
     max-height: 60vh;
+    height: 100%;
     border-radius: 14px;
+    border: 2px solid black;
 }
 
 .leftArrow {
@@ -1285,6 +1388,57 @@ span:hover + .wrap a, .wrap:hover a{
   width: 100px;
 }
 
+#topicQuestionSection {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgb(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+#topicQuestionContainer {
+  background-color: var(--accent-color);
+  color: white;
+  padding: 24px;
+  width: auto;
+  height: 70%;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+#topicQuestionContainer h1 {
+  text-decoration: underline;
+}
+
+#topicQuestionContainer .test-container {
+  border: 2px solid white;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+#topicQuestionContainer h2 {
+  margin-top: 0;
+}
+
+#topicQuestionContainer .input-label {
+  display: flex;
+  flex-direction: row;
+  padding: 1em 0em;
+}
+
+#topicQuestionContainer .input-label input {
+  margin-right: 1em;
+}
+
+#topicQuestionContainer .input-label label {
+  font-size: 1.125em;
+}
+
+
 /* flatpickr */
 .flatpickr-current-month .flatpickr-monthDropdown-months {
   appearance: none !important;
@@ -1328,7 +1482,7 @@ span:hover + .wrap a, .wrap:hover a{
 
 .dropbtn {
   /*background-color: var(--primary-color);*/
-  background-color: #5662A9;
+  background-color: var(--accent-color);
   color: white;
   padding: 8px 16px 8px 16px;
   font-size: 16px;
@@ -1351,6 +1505,7 @@ span:hover + .wrap a, .wrap:hover a{
 
 .dropdown {
   margin-right: 50px;
+  position: relative;
 }
 
 .dropdown-content {
@@ -1360,13 +1515,59 @@ span:hover + .wrap a, .wrap:hover a{
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   box-sizing: content-box;
+  width: 100%;
+}
+
+.dropdown-content.right {
+  right: 0;
 }
 
 .dropdown-content>div {
-  color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
+}
+
+.dropdown-content>div.composite {
+  color: white;
+  background-color: var(--composite-color);
+}
+.dropdown-content>div.english {
+  color: white;
+  background-color: var(--english-color);
+}
+.dropdown-content>div.math {
+  color: white;
+  background-color: var(--math-color);
+}
+.dropdown-content>div.reading {
+  color: white;
+  background-color: var(--reading-color);
+}
+.dropdown-content>div.science {
+  color: white;
+  background-color: var(--science-color);
+}
+
+.dropdown-content>div.composite:hover {
+  color: var(--composite-color);
+  background-color: white;
+}
+.dropdown-content>div.english:hover {
+  color: var(--english-color);
+  background-color: white;
+}
+.dropdown-content>div.math:hover {
+  color: var(--math-color);
+  background-color: white;
+}
+.dropdown-content>div.reading:hover {
+  color: var(--reading-color);
+  background-color: white;
+}
+.dropdown-content>div.science:hover {
+  color: var(--science-color);
+  background-color: white;
 }
 
 .dropdown-content>div.danger {
@@ -1389,7 +1590,7 @@ span:hover + .wrap a, .wrap:hover a{
 
 .dropdown:hover .dropbtn {
   background-color: white;
-  color: var(--primary-color);
+  color: var(--accent-color);
 }
 
 /*.bottom .dropdown:hover .dropdown-content {

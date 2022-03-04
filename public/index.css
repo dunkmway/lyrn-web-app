@@ -19,6 +19,9 @@
   --color-accent-3-light: #02c6ff;
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
+
+  --color-green: #27c03a;
+  --color-blue: #101b42;
 }
 
 *, *::before, *::after {
@@ -45,7 +48,7 @@ section {
 a {
   cursor: pointer;
   text-decoration: none;
-  color: var(--color-accent-4-deep);
+  color: var(--color-green);
 }
 
 a:hover {
@@ -136,36 +139,54 @@ p {
 /* navigation styles start here */
 
 header {
-  background: var(--nav-background);
-  color: var(--nav-color);
+  background: var(--color-blue);
+  color: var(--color-primary);
   text-align: center;
   position: sticky;
   top: 0px;
   z-index: 999;
   width: 100%;
-  box-shadow: #00000041 0em .5em 20px;
+  padding: 1em 0em;
+  /* box-shadow: #00000041 0em .5em 20px; */
   transition: background-color 200ms ease-in;
 }
 
-.logo {
-  width: 5em;
-  padding: 1em 0px;
-  display: block;
+header li {
+  margin: 0px;
 }
 
-.phone a {
+header li::before {
+  content: none;
+}
+
+.logo {
+  margin-left: .5em;
+  width: 5em;
+  display: block;
+  margin-top: 2px;
+  fill: white;
+}
+
+.phone {
   display: flex;
-  background-image: linear-gradient(45deg, var(--color-accent-5-light), 10%, var(--color-accent-1-light), 90%, var(--color-accent-5-light));
-  color: black;
-  padding: .5em 1.5em;
-  width: 100%;
-  height: 100%;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 
+.phone a {
+  display: flex;
+  background-color: var(--color-green);
+  color: white;
+  padding: .5em 1.5em;
+  align-items: center;
+  justify-content: center;
+  border-radius: .5em;
+}
+
 .phone a svg {
   margin-right: .5em;
+  fill: white;
 }
 
 /* changed this from the tutorial video to
@@ -194,7 +215,7 @@ header {
 .nav-toggle-label span::before,
 .nav-toggle-label span::after {
   display: block;
-  background: var(--nav-color);
+  background: var(--color-primary);
   height: 2px;
   width: 2em;
   border-radius: 2px;
@@ -220,7 +241,7 @@ nav {
   text-align: right;
   top: 100%;
   right: 0;
-  background: var(--nav-background);
+  background: var(--color-blue);
   box-shadow: #00000041 0em .5em 20px;
   width: 100%;
   transform: scale(1, 0);
@@ -248,30 +269,22 @@ nav a {
 }
 
 nav .enroll {
-  font-size: 1em;
+  font-size: 1rem;
 }
 
 .enroll {
-  padding: .5em 1.8em;
+  padding: .7em 1.8em;
   border-radius: .4em;
-  background-image: linear-gradient(45deg, var(--color-accent-5-light), 10%, var(--color-accent-1-light), 90%, var(--color-accent-5-light));
+  background-image: linear-gradient(45deg, #ffca02, 65%, #ea5a5a);
   font-weight: bold;
-  font-size: 1.25em;
-  color: black;
+  font-size: 1em;
+  color: inherit;
   text-decoration: none;
   cursor: pointer;
-  background-size: 200%;
-  background-position: left;
-  transition: background-position 200ms ease-in;
-}
-
-.enroll:hover {
-  color: inherit;
-  background-position: right;
 }
 
 nav a:hover {
-  color: #000;
+  text-decoration: none;
 }
 
 .nav-toggle:checked ~ nav {
@@ -291,37 +304,19 @@ nav a:hover {
   header {
     display: grid;
     grid-template-columns: .2fr auto minmax(600px, 3fr) auto .2fr;
-    border-radius: 0px 0px 2rem 2rem;
+    /* border-radius: 0px 0px 2rem 2rem; */
     position: fixed;
-  }
-
-  header.nav-start {
-    background-color: transparent;
-    box-shadow: none;
-  }
-
-  header.nav-start:hover {
-    background-color: var(--color-primary);
-    box-shadow: #00000041 0em .5em 20px;
   }
   
   .logo {
     grid-column: 2 / 3;
+    margin-left: 0;
   }
 
   .phone {
     grid-column: 4 / 5;
-    display: flex;
-    flex-direction: row;
     justify-content: flex-end;
-    align-items: center;
     margin-left: 1em;
-  }
-  
-  .phone a {
-    border-radius: .5em;
-    width: auto;
-    height: auto;
   }
   
   nav {
@@ -361,7 +356,7 @@ nav a:hover {
     content: '';
     display: block;
     height: 5px;
-    background: black;
+    background: var(--color-primary);
     position: absolute;
     top: -.75em;
     left: 0;
@@ -380,10 +375,14 @@ nav a:hover {
 .hero {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   color: var(--color-tertiary);
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
   min-height: calc(100vh - 60px);
-  background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light));
+  /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light)); */
+  background-image: url(Images/postcard-background.jpg);
+  background-size: cover;
+  background-position: 80%;
   overflow: hidden;
 
 
@@ -404,18 +403,19 @@ nav a:hover {
 
 .hero__intro {
   z-index: 2;
-  backdrop-filter: blur(5px);
+  /* backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  background-color: rgba(255, 255, 255, 0.76);
+  background-color: rgba(255, 255, 255, 0.76); */
+  background-color: var(--color-blue);
   padding: 2em;
   border-radius: 1em;
-  color: var(--color-tertiary);
+  color: var(--color-primary);
 }
 
 .hero__intro .hero__button {
   width: 100%;
   text-align: center;
-  background-color: var(--color-accent-4-light);
+  background-color: var(--color-green);
   color: white;
   font-size: 1.5em;
   border-radius: .5em;
@@ -434,7 +434,7 @@ nav a:hover {
 }
 
 .hero__background .background-main.mobile {
-  visibility: visible;
+  visibility: hidden;
 }
 
 .hero__background .background-main {
@@ -515,11 +515,12 @@ nav a:hover {
     justify-content: flex-start;
     position: relative;
     min-height: 100vh;
-    background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light));
+    background-position: top;
+    /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light)); */
   }
 
   .hero__intro {
-    max-width: 50em;
+    max-width: 45em;
     margin-left: 10%;
   }
 
@@ -612,6 +613,10 @@ nav a:hover {
     left: 1em;
     padding: .1em;
     background-color: white;
+  }
+
+  .hero__background .background-main.mobile {
+    visibility: visible;
   }
 
   .hero__background .background-item:nth-child(n+1):nth-child(-n+17) {
@@ -1016,7 +1021,12 @@ nav a:hover {
 }
 
 .method .title {
-  color: var(--color-accent-1-deep);
+  color: var(--color-green);
+}
+
+.method .description {
+  font-size: 1.2em;
+  line-height: 1.25em;
 }
 
 .method img {
@@ -1297,7 +1307,8 @@ nav a:hover {
 }
 
 .contact-form {
-  background-color: var(--color-primary);
+  background-color: var(--color-blue);
+  color: var(--color-primary);
   padding: 1em;
   margin: 1em;
   border-radius: 1em;
@@ -1308,7 +1319,7 @@ nav a:hover {
 .contact-form form {
   text-align: left;
   display: block;
-  color: black;
+  color: var(--color-primary);
 }
 
 .contact-form label {
@@ -1317,7 +1328,7 @@ nav a:hover {
 }
 
 .contact-form input, .contact-form textarea {
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
   height: 2.5em;
   font-size: 1em;
   border: none;
@@ -1326,7 +1337,7 @@ nav a:hover {
   -webkit-appearance:none;
   appearance:none;
   padding: 0 0.5em;
-  color: var(--color-tertiary);
+  color: var(--color-blue);
   margin: 0;
   width: 100%;
 }
@@ -1567,8 +1578,8 @@ nav a:hover {
 
 footer {
   padding: 2em;
-  color: #000;
-  background-color: var(--color-secondary);
+  color: var(--color-primary);
+  background-color: var(--color-blue);
 }
 
 footer .links {
@@ -1579,7 +1590,7 @@ footer .links {
 footer .logo-box {
   max-width: 100px;
   height: 100px;
-  border: 1px solid var(--color-tertiary);
+  border: 1px solid var(--color-blue);
   border-radius: .75em;
   display: flex;
   justify-content: center;
@@ -1587,9 +1598,21 @@ footer .logo-box {
   margin-bottom: 1em;
 }
 
+footer .links .site-map > ul {
+  column-count: 2;
+}
+
 footer ul {
   list-style: none;
   padding: 0;
+}
+
+footer li {
+  margin: 0px;
+}
+
+footer li::before {
+  content: none;
 }
 
 footer a {

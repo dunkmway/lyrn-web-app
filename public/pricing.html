@@ -18,7 +18,20 @@
 
   <body>
     <header class="nav-start">
-      <a href="index.html" class="logo"><img src="Images/Lyrn_Logo.png" alt="lyrn logo"></a>
+      <a href="index.html" class="logo">
+        <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
+          <g>
+            <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
+            <polygon points="417.34,494.64 471.25,609.28 450.18,662.57 496.66,658.85 564.21,472.95 516.49,478.52 493.56,549.79 466.29,486.58 	"/>
+            <path d="M577.22,471.09v125.8l45.24-4.34l-1.24-69.41c0,0,13.63-16.73,38.35-16.73v-47.85c0,0-24.19,3.15-37.33,19.98v-12.62L577.22,471.09z"/>
+            <path d="M675.34,459.54v124.14c0,1.41,1.23,2.51,2.63,2.34l40.5-4.71c1.19-0.14,2.09-1.15,2.09-2.34v-76.8
+              c0-0.34,0.18-0.64,0.21-0.98c0.27-2.93,7.07-13.36,21.72-10.05c0.11,0.02,0.2,0.03,0.31,0.05c1.21,0.27,8.78,2.38,8.78,12.06
+              l0.51,72.12c0.01,1.37,1.18,2.45,2.55,2.34l40.52-3.3c1.23-0.1,2.17-1.12,2.17-2.35v-84.58c0-18.63-11.12-38.81-30.05-43.75
+              c-14.4-3.76-32.48-0.04-42.64,11.23c-1.43,1.59-4.07,0.53-4.07-1.61l0,0c0-1.45-1.29-2.55-2.72-2.33l-40.5,6.19
+              C676.19,457.38,675.34,458.37,675.34,459.54z"/>
+          </g>
+        </svg>
+      </a>
       <label for="nav-toggle" class="nav-toggle-label">
         <span></span>
       </label>
@@ -30,7 +43,7 @@
           <li><a href="#">Pricing</a></li>
           <!-- <li><a href="sign-in.html">Sign In</a></li> -->
           <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
-          <li><a href="enroll.html">Enroll</a></li>
+          <!-- <li><a href="enroll.html">Enroll</a></li> -->
         </ul>
       </nav>
       <div class="phone"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div>
@@ -42,12 +55,12 @@
         <h2>Select the perfect course and see our pricing</h2>
       </section>
       <section class="courses">
-        <h2>Our Courses</h2>
+        <h2>OUR COURSES</h2>
         <div class="course-wrapper">
           <div class="course-block">
             <!-- <div class="course-card blueish" onclick="openCourse('act')"> -->
-              <div class="course-card blueish coming-soon">
-              <h2>ACT Prep</h2>
+              <div class="course-card" onclick="openCourse('act')">
+              <h2>ACT PREP</h2>
             </div>
             <h3>Score your ACT Goal</h3>
             <!-- <p>Sign up to get one on one tutoring from Lyrn's ACT certified tutors. Students recieve a full length ACT preliminary package, which includes the official ACT test,
@@ -56,8 +69,8 @@
             </p> -->
           </div>
           <div class="course-block">
-            <div class="course-card redish" onclick="openCourse('subjectTutoring')">
-              <h2>Subject Tutoring</h2>
+            <div class="course-card" onclick="openCourse('subjectTutoring')">
+              <h2>SUBJECT TUTORING</h2>
             </div>
             <h3>Any homework, we can help</h3>
             <!-- <p>Whether you're in a rut and can't seem to get that biology assignment finished or you feel like you're falling behind in math, Lyrn Tutoring can help you finish your homework feeling
@@ -69,7 +82,7 @@
 
       <section class="course-section" id="act">
         <h1>ACT Prep Course</h1>
-        <h2>1. Consultation</h2>
+        <!-- <h2>1. Consultation</h2>
         <div class="intro-wrapper">
           <div class="title">
             <h3>Initial Consultation</h3>
@@ -91,11 +104,11 @@
           </div>
           <div class="bottom"></div>
         </div>
-        <div class="node"></div>
-        <h2>2. Choose Your Plan</h2>
-        <input type="checkbox" name="act-plans" id="act-plans">
-        <label class="hint" for="act-plans">Why the difference?</label>
-        <div class="actPlansHint">
+        <div class="node"></div> -->
+        <!-- <h2>College Readiness</h2> -->
+        <!-- <input type="checkbox" name="act-plans" id="act-plans"> -->
+        <!-- <label class="hint" for="act-plans">Why the difference?</label> -->
+        <!-- <div class="actPlansHint">
           <label for="act-plans" class="exit-hint">X</label>
           <p><strong>TL;DR</strong></p>
           <p>Each program is designed to achieve the desired score increase within the time given. <strong>One is not better than the other.</strong> It all depends on what your student needs.</p>
@@ -126,48 +139,61 @@
             That is why we highly reccomend going through our <strong>Initial Consultation</strong> first. There we can undersatnd where your student is and set realistic goals based on what colleges your student
             is interested in. It's also an opportunity for you to try us out before scheduling out a program.
           </p>
-        </div>
+        </div> -->
         <div class="plans">
           <div class="plan-wrapper fundamentals">
             <div class="title">
-              <h3>ACT Fundamentals</h3>
-              <h4>2-4 point increase</h4>
-              <h4>$70/hr</h4>
+              <h3>ACT BASICS</h3>
+              <h4>1-3 point ACT increase</h4>
+              <h4>$50/hr</h4>
             </div>
             <div class="length">
               <h4>Suggested Program Length</h4>
-              <h5>12 sessions</h5>
-              <p>18 hours of instruction</p>
+              <h5>16 sessions (1 hour long sessions)</h5>
+              <p>16 hours of instruction (4 hours in each ACT section)</p>
             </div>
             <ul>
-              <li>Adaptive Learning Technology</li>
+              <!-- <li>Adaptive Learning Technology</li>
               <li>1:1 Personalized Tutoring</li>
               <li>ACT tests and practice problems</li>
               <li>Focus on the topics your student needs</li>
               <li>Time management skills</li>
               <li>Test tips and strategies</li>
-              <li>Full section homework</li>
+              <li>Full section homework</li> -->
+
+              <li><strong>One-on-One</strong> Personalized Tutoring</li>
+              <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+              <li>2000+ ACT test questions</li>
+              <li>Flexible program (all four ACT sections or just one)</li>
+              <li>Philosphy of practice makes perfect</li>
+              <li>Full length practice tests</li>
+              <li>Time management skills</li>
+              <li>Test tips and strategies</li>
             </ul>
+            <h4 class="start">GET STARTED TODAY!</h4>
             <div class="select">
-              <h3>Select</h3>
+              <a href="tel:+13853000906">
+                <h3>CALL US</h3>
+                <p>(385) 300-0906</p>
+              </a>
             </div>
-            <div class="discount-wrapper">
+            <!-- <div class="discount-wrapper">
               <p>10% off When you pay up-front</p>
-            </div>
+            </div> -->
           </div>
           <div class="plan-wrapper comprehensive">
             <div class="title">
-              <h3>Comprehensive ACT</h3>
-              <h4>5+ point increase</h4>
-              <h4>$90/hr</h4>
+              <h3>GUIDED ACT</h3>
+              <h4>3-5 point ACT increase</h4>
+              <h4>$75/hr</h4>
             </div>
             <div class="length">
               <h4>Suggested Program Length</h4>
-              <h5>24 sessions</h5>
-              <p>36 hours of instruction</p>
+              <h5>16 sessions (2 hour long sessions)</h5>
+              <p>32 hours of instruction (8 hours in each ACT section)</p>
             </div>
             <ul>
-              <li>Adaptive Learning Technology</li>
+              <!-- <li>Adaptive Learning Technology</li>
               <li>1:1 Personalized Tutoring</li>
               <li>ACT tests and practice problems</li>
               <li>Focus on the topics your student needs</li>
@@ -178,17 +204,33 @@
               <li>Question bank for every topic</li>
               <li>Custom at-home homework review</li>
               <li>1 Full-length mid-program test</li>
-              <li>In-depth Subject Reviews</li>
+              <li>In-depth Subject Reviews</li> -->
+
+              <li><strong>One-on-One</strong> Personalized Tutoring</li>
+              <li>All tutors have <strong>perfect scores</strong> (36)</li>
+              <li>Lessons on the topics that appear the most</li>
+              <li>2000+ ACT test questions</li>
+              <li>Flexible program (all four ACT sections or just one)</li>
+              <li>Question bank for all topics in our custom curriculum</li>
+              <li>Philosphy of learn, practice, and review</li>
+              <li>Full length practice tests</li>
+              <li>Time management skills</li>
+              <li>Test tips and strategies</li>
+              
             </ul>
+            <h4 class="start">GET STARTED TODAY!</h4>
             <div class="select">
-              <h3>Select</h3>
+              <a href="tel:+13853000906">
+                <h3>CALL US</h3>
+                <p>(385) 300-0906</p>
+              </a>
             </div>
-            <div class="discount-wrapper">
+            <!-- <div class="discount-wrapper">
               <p>10% off When you pay up-front</p>
-            </div>
+            </div> -->
           </div>
         </div>
-        <div class="node"></div>
+        <!-- <div class="node"></div>
         <h2>3. Start Your Journey</h2>
         <div class="steps">
           <div class="title one">
@@ -232,46 +274,45 @@
             <h1>Ace your test!</h1>
           </div>
           <p>Take the actual thing! Your student is totally prepared to take the official ACT and get the score that they deserve.</p>
-        </div>
+        </div> -->
       </section>
 
       <section class="course-section" id="subjectTutoring">
         <h1>Subject Tutoring</h1>
-        <h2>Homework Help</h2>
-        <div class="intro-wrapper">
-          <div class="title">
-            <h3>Subject Tutoring</h3>
-            <h3 class="price">$25/hr</h3>
-          </div>
-          <h4>Personal 1 on 1 tutoring in any subject. No contracts; 30 minute minimum lesson length.</h4>
-          <div class="feature-wrapper">
+        <!-- <h2>Homework Help</h2> -->
+        <div class="plans">
+          <div class="plan-wrapper">
+            <div class="title">
+              <h3>HOMEWORK HELP</h3>
+              <h4>Every subject, any assignment</h4>
+              <h4>$25/hr</h4>
+            </div>
+            <div class="length">
+              <h4>Completely flexible</h4>
+              <h5>Schedule anytime, for as long as you need</h5>
+              <p>30 minute minimum session length</p>
+            </div>
             <ul>
+              <li>One-on-One Personalized Tutoring</li>
+              <li>No contracts or hidden fees</li>
               <li>Math, Physics, Chemistry, Biology, Stats, English, History, Geography <strong>and more!</strong></li>
               <li>Call anytime to set up a lesson</li>
+              <li>Cancel up to 24 hours in advance</li>
               <li>Homework help and coaching</li>
-            </ul>
-            <ul>
               <li>Class projects and assignments</li>
               <li>Test Prep</li>
               <li>Flexible scheduling</li>
             </ul>
-          </div>
-          <div class="bottom"></div>
-        </div>
-        <div class="node"></div>
-        <div class="plan-wrapper">
-          <h5>All of our tutors are qualified and trained to guarantee that your student gets the <strong>best tutoring</strong> with one <strong>simple price</strong>.
-            
-          </h5>
-        </div>
-        <div class="node"></div>
-        <div class="plans">
-          <div class="plan-wrapper">
-            <h2 style="margin-top: 0;">Get started today!</h2>
+            <h4 class="start">GET STARTED TODAY!</h4>
             <div class="select">
-              <a href="tel:+13853000906"><h3>Call Us</h3></a>
-              <p>(385) 300-0906</p>
+              <a href="tel:+13853000906">
+                <h3>CALL US</h3>
+                <p>(385) 300-0906</p>
+              </a>
             </div>
+            <!-- <div class="discount-wrapper">
+              <p>10% off When you pay up-front</p>
+            </div> -->
           </div>
         </div>
         <!-- <div class="steps">
@@ -308,11 +349,22 @@
     <footer>
       <div class="links">
         <div>
-          <div class="logo-box">
-            <img src="Images/Lyrn_Logo.png" alt="Lyrn Logo">
+          <div>
+            <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
+              <g>
+                <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
+                <polygon points="417.34,494.64 471.25,609.28 450.18,662.57 496.66,658.85 564.21,472.95 516.49,478.52 493.56,549.79 466.29,486.58 	"/>
+                <path d="M577.22,471.09v125.8l45.24-4.34l-1.24-69.41c0,0,13.63-16.73,38.35-16.73v-47.85c0,0-24.19,3.15-37.33,19.98v-12.62L577.22,471.09z"/>
+                <path d="M675.34,459.54v124.14c0,1.41,1.23,2.51,2.63,2.34l40.5-4.71c1.19-0.14,2.09-1.15,2.09-2.34v-76.8
+                  c0-0.34,0.18-0.64,0.21-0.98c0.27-2.93,7.07-13.36,21.72-10.05c0.11,0.02,0.2,0.03,0.31,0.05c1.21,0.27,8.78,2.38,8.78,12.06
+                  l0.51,72.12c0.01,1.37,1.18,2.45,2.55,2.34l40.52-3.3c1.23-0.1,2.17-1.12,2.17-2.35v-84.58c0-18.63-11.12-38.81-30.05-43.75
+                  c-14.4-3.76-32.48-0.04-42.64,11.23c-1.43,1.59-4.07,0.53-4.07-1.61l0,0c0-1.45-1.29-2.55-2.72-2.33l-40.5,6.19
+                  C676.19,457.38,675.34,458.37,675.34,459.54z"/>
+              </g>
+            </svg>
           </div>
         </div>
-        <div>
+        <div class="site-map">
           <h3>Site Map</h3>
           <ul>
             <li><a href="index.html">Home</a></li>

@@ -836,10 +836,10 @@ function setupNavigationModal(studentUID, parentUID) {
   let studentQueryStr = "?student=" + studentUID;
   let parentQueryStr = parentUID ? "?parent=" + parentUID : '';
 
-  // document.getElementById("actNav").onclick = () => {
-  //   modal.style.display = 'none';
-  //   window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
-  // };
+  document.getElementById("actNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
+  };
   // document.getElementById("subjectTutoringNav").onclick = () => {
   //   modal.style.display = 'none';
   //   window.location.href = "../subject-tutoring-dash.html" + studentQueryStr

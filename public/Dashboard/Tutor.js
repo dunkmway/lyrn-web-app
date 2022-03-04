@@ -158,14 +158,18 @@ function eventClickHandler(info) {
     console.log(data.type)
     switch(data.type) {
       case 'act':
+      case 'actBasics':
+        data.staffZoomURL && window.open(data.staffZoomURL)
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+        break;
+      case 'actGuided':
+        data.staffZoomURL && window.open(data.staffZoomURL)
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+        break;
       case 'actFundamentals':
       case 'actComprehensive':
-        // window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
-        window.open(data.staffZoomURL)
-        break;
       case 'subjectTutoring':
-        // window.location.href = "../subject-tutoring-dash.html" + queryStr;
-        window.open(data.staffZoomURL)
+        data.staffZoomURL && window.open(data.staffZoomURL)
         break;
       case 'mathProgram':
         window.location.href = "../math-program.html" + queryStr;

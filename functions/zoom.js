@@ -3,6 +3,15 @@ const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
 const axios = require("axios").default;
 
+const express = require('express');
+
+const app = express();
+
+// Automatically allow cross-origin requests
+// app.use(cors({ origin: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 const zoomBaseURL = 'https://api.zoom.us/v2'
 
 function convertAxiosResponseToJSON(axiosResponse) {
@@ -154,3 +163,39 @@ function convertMilliToZoomDateFormat(timeMilli) {
 
   return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
 }
+
+
+
+
+app.get('/', (req, res) => res.status(200).send('Zoom webhook is online!'))
+
+app.post('/meeting/join-leave', async (req, res) => {
+  console.log('POST /meeting/join-leave called')
+  try {
+    // append the event to the lesson that is connected to this meeting
+    const body = req.body;
+    const zoomMeetingID = Number(body.payload.object.id);
+
+    const lessonQuery = await admin.firestore().collection('Events').where('zoomMeetingID', '==', zoomMeetingID).limit(1).get();
+    if (lessonQuery.size != 1) {
+      // the zoom meeting is not connected to a lesson in our database so we can ignore this request
+      console.log('no lesson is associated with this zoom meeting with an id of', zoomMeetingID);
+      return res.status(200).end();
+    }
+    else {
+      console.log('the lesson connected to this zoom meeeting has an id of', lessonQuery.docs[0].id)
+      await lessonQuery.docs[0].ref.update({
+        timeline: admin.firestore.FieldValue.arrayUnion(body)
+      });
+
+      return res.status(200).end()
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).end();
+  }
+})
+
+
+
+exports.webhook = functions.https.onRequest(app);

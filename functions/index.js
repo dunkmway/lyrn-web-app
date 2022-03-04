@@ -12,6 +12,8 @@ exports.payment_link = require('./payment-link');
 exports.calendar_openings = require('./calendar-openings');
 exports.frontline = require('./frontline');
 exports.zoom = require('./zoom');
+exports.act_tests = require('./act-tests');
+exports.daily_log = require('./daily-log');
 admin.initializeApp();
 
 //don't let this request go public becuase it could really mess things up!!!

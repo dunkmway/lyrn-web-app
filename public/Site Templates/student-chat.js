@@ -192,10 +192,11 @@ function reloadStudentMessage(event) {
 }
 
 function submitStudentMessage(event, studentUID, studentType, conversationType) {
-  if (event.repeat) {return};
-  if (!event.ctrlKey && event.key == "Enter") {
+  if (event.repeat) { return };
+  if ((!event.ctrlKey && !event.shiftKey) && event.key == "Enter") {
     event.preventDefault();
     const message = document.getElementById(conversationType + 'StudentMessagesInput').value;
+    if (!message) { return }
     const time = new Date().getTime();
     sendStudentMessage(studentUID, studentType, conversationType, message, time);
   }

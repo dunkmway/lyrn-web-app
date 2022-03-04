@@ -98,6 +98,13 @@
         </div>
     </section>
 
+    <section id="topicQuestionSection" onclick="closeModal(event, 'topicQuestionSection')">
+        <div id="topicQuestionContainer">
+            
+        </div>
+    </section>
+
+
     <!-- <section id="customConfirmationSection">
         <div class="confirmationContainer">
             <div id="customConfirmationMessage"></div>
@@ -109,7 +116,18 @@
     </section> -->
 
     <section id = 'topNavigationBanner'>
-        <img id = 'logo' src='../../Images/Lyrn_Logo.png' onclick="goToDashboard()">
+        <svg class="logo" onclick="goToDashboard()" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
+            <g>
+                <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
+                <polygon points="417.34,494.64 471.25,609.28 450.18,662.57 496.66,658.85 564.21,472.95 516.49,478.52 493.56,549.79 466.29,486.58 	"/>
+                <path d="M577.22,471.09v125.8l45.24-4.34l-1.24-69.41c0,0,13.63-16.73,38.35-16.73v-47.85c0,0-24.19,3.15-37.33,19.98v-12.62L577.22,471.09z"/>
+                <path d="M675.34,459.54v124.14c0,1.41,1.23,2.51,2.63,2.34l40.5-4.71c1.19-0.14,2.09-1.15,2.09-2.34v-76.8
+                    c0-0.34,0.18-0.64,0.21-0.98c0.27-2.93,7.07-13.36,21.72-10.05c0.11,0.02,0.2,0.03,0.31,0.05c1.21,0.27,8.78,2.38,8.78,12.06
+                    l0.51,72.12c0.01,1.37,1.18,2.45,2.55,2.34l40.52-3.3c1.23-0.1,2.17-1.12,2.17-2.35v-84.58c0-18.63-11.12-38.81-30.05-43.75
+                    c-14.4-3.76-32.48-0.04-42.64,11.23c-1.43,1.59-4.07,0.53-4.07-1.61l0,0c0-1.45-1.29-2.55-2.72-2.33l-40.5,6.19
+                    C676.19,457.38,675.34,458.37,675.34,459.54z"/>
+            </g>
+        </svg>
     </section>
 
     <div id = 'testPopup' style = 'display:none;' onmouseover = "showTestPopup()" onmouseout = "hideTestPopup()">
@@ -131,8 +149,18 @@
     <div id='nameSection' class = 'input-row spaced'>
         <h2 id = 'studentName' onclick="document.getElementById('studentGeneralInfoSection').style.display = 'flex'"></h2>
         <!--<h1 id = 'sectionTitle'>Composite</h1>-->
-        <span id = 'sectionTitle'>Composite</span>
-        <div id = 'wheel' class="wrap" onmouseover = "hideTitle()" onmouseout = "showTitle()">
+        <!-- <span id = 'sectionTitle'>Composite</span> -->
+        <div class="dropdown">
+            <button id="sectionTitle" class="dropbtn">Composite</button>
+            <div class="dropdown-content">
+                <div class="composite" onclick="changeSection('composite')">Composite</div>
+                <div class="english" onclick="changeSection('english')">English</div>
+                <div class="math" onclick="changeSection('math')">Math</div>
+                <div class="reading" onclick="changeSection('reading')">Reading</div>
+                <div class="science" onclick="changeSection('science')">Science</div>
+            </div>
+        </div>
+        <!-- <div id = 'wheel' class="wrap" onmouseover = "hideTitle()" onmouseout = "showTitle()">
             <a class="a" href="#"><div id = 'englishImage' onmouseover = "squareUp(this, 'english')" onmouseout = "squareDown(this, 'english')" onclick="changeSection('english')"></div></a>
             <a class="a" href="#"><div id = 'mathImage' onmouseover = "squareUp(this, 'math')" onmouseout = "squareDown(this, 'math')" onclick="changeSection('math')"></div></a>
             <a class="a" href="#"><div id = 'readingImage' onmouseover = "squareUp(this, 'reading')" onmouseout = "squareDown(this, 'reading')" onclick="changeSection('reading')"></div></a>
@@ -142,16 +170,16 @@
             <p id = 'mathText' style='display:none'></p>
             <p id = 'readingText' style='display:none'></p>
             <p id = 'scienceText' style='display:none'></p>
-        </div>
+        </div> -->
 
         <div class="dropdown">
             <button class="dropbtn">Print Outs</button>
-            <div class="dropdown-content">
-                <div onclick = "openCramSession('1')" style = 'z-index: 3;'>1-Session Cram</div>
+            <div class="dropdown-content right">
+                <!-- <div onclick = "openCramSession('1')" style = 'z-index: 3;'>1-Session Cram</div>
                 <div onclick = "openCramSession('2')" style = 'z-index: 3;'>2-Session Cram</div>
                 <div onclick = "openCramSession('3')" style = 'z-index: 3;'>3-Session Cram</div>
                 <div onclick = "openCramSession('4')" style = 'z-index: 3;'>4-Session Cram</div>
-                <div onclick = "openLastSession()" style = 'z-index: 3;'>Last Session</div>
+                <div onclick = "openLastSession()" style = 'z-index: 3;'>Last Session</div> -->
                 <input id = 'printTest' placeholder = "Print Full Test" style = 'z-index: 3;'></input>
             </div>
         </div>
@@ -161,12 +189,12 @@
     <div id = "lessonPopup" onmouseover = "openLessonPopup()" onmouseout = "closeLessonPopup()" class = 'input-column-center hidden'>
         <button class = "squareButton green white" onclick = "submitLesson('mastered')">Mastered</button>
         <button class = "squareButton yellow" onclick = "submitLesson('proficient')">Proficient</button>
-        <button class = "squareButton red white" onclick = "submitLesson('review')">Review</button>
+        <!-- <button class = "squareButton red white" onclick = "submitLesson('review')">Review</button> -->
         <button class = "squareButton" onclick = "submitLesson('remove')">Remove</button>
     </div>
 
     <!--REMOVE-->
-    <div id='englishTestList' class='testList' style='display: none;' onmouseover="openTestList('english')"
+    <!-- <div id='englishTestList' class='testList' style='display: none;' onmouseover="openTestList('english')"
         onmouseout="closeTestList('english')">
         <div class='input-row-center'>
             <div class='input-column-center'>
@@ -198,9 +226,9 @@
                 <button class='testButton' onclick="assignHomework('english', '72F')">72F</button>
             </div>
         </div>
-    </div>
+    </div> -->
     
-    <div id='mathTestList' class='testList' style='display: none;' onmouseover="openTestList('math')"
+    <!-- <div id='mathTestList' class='testList' style='display: none;' onmouseover="openTestList('math')"
         onmouseout="closeTestList('math')">
         <div class='input-row-center'>
             <div class='input-column-center'>
@@ -232,9 +260,9 @@
                 <button class='testButton' onclick="assignHomework('math', '72F')">72F</button>
             </div>
         </div>
-    </div>
+    </div> -->
     
-    <div id='readingTestList' class='testList' style='display: none;' onmouseover="openTestList('reading')"
+    <!-- <div id='readingTestList' class='testList' style='display: none;' onmouseover="openTestList('reading')"
         onmouseout="closeTestList('reading')">
         <div class='input-row-center'>
             <div class='input-column-center'>
@@ -266,9 +294,9 @@
                 <button class='testButton' onclick="assignHomework('reading', '72F')">72F</button>
             </div>
         </div>
-    </div>
+    </div> -->
     
-    <div id='scienceTestList' class='testList' style='display: none;' onmouseover="openTestList('science')"
+    <!-- <div id='scienceTestList' class='testList' style='display: none;' onmouseover="openTestList('science')"
         onmouseout="closeTestList('science')">
         <div class='input-row-center'>
             <div class='input-column-center'>
@@ -300,7 +328,7 @@
                 <button class='testButton' onclick="assignHomework('science', '72F')">72F</button>
             </div>
         </div>
-    </div>
+    </div> -->
 
 
 
@@ -320,14 +348,20 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <button class='item itemB1 input-row' style = 'background-color: transparent; border-color: transparent;'>
+                    <!-- <button class='item itemB1 input-row' style = 'background-color: transparent; border-color: transparent;'>
                         <div id = 'box0' class = 'sectionBox'></div>
                         <div id = 'box1' class = 'sectionBox'></div>
                         <div id = 'box2' class = 'sectionBox'></div>
                         <div id = 'box3' class = 'sectionBox'></div>
-                    </button>
-                    <button id = 'submitSession' onclick = "submitSession()" class='item itemB2 cursor'>
+                    </button> -->
+                    <button id = 'submitSession' onclick = "submitSession()" class='item itemB2 cursor' style="display: none;">
                         Submit Session
+                    </button>
+                    <button id = 'assign' onclick = "assignHomework()" class='item itemB2 cursor'>
+                        Assign homework
+                    </button>
+                    <button id = 'unassign' onclick = "unassignHomework()" class = 'item itemB2 cursor hidden'>
+                        Unassign homework
                     </button>
                 </div>
             </div>
@@ -336,7 +370,7 @@
     
                 <div id='answersPopupHeader' class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swapTestForm('Chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
                 </div>
     
@@ -368,8 +402,11 @@
                 </div>
     
                 <div id="popupButtons" class="input-row-center spacedEvenly popupButtons">
-                    <button id = 'resetHomework' class="smallButton button" onclick="resetAnswers()">
+                    <!-- <button id = 'resetHomework' class="smallButton button" onclick="resetAnswers()">
                         Reset
+                    </button> -->
+                    <button id = 'openHomeworkTest' class="smallButton button" onclick="openCurrentHomeworkTest()">
+                        Open
                     </button>
                     <button id = 'submitHomework' class="smallButton button" onclick="toggleHomeworkPopup()">
                         Submit
@@ -380,10 +417,11 @@
                         <p id='gradeFirst' style="color: white; display:none;">Entire test must be graded first</p>
     
                         <button class="green testSubmitButton" onclick="gradeHomework('in-time')">
-                            Completed <span class="smallerText"><br>(in-time)</span>
+                            <!-- Completed <span class="smallerText"><br>(in-time)</span> -->
+                            Completed
                         </button>
     
-                        <button class="orange testSubmitButton" onclick="gradeHomework('forgot')">
+                        <!-- <button class="orange testSubmitButton" onclick="gradeHomework('forgot')">
                             Completed <span class="smallerText"><br>(forgotten)</span>
                         </button>
     
@@ -401,9 +439,9 @@
     
                         <button class="red testSubmitButton" onclick="gradeHomework('in-center')">
                             Completed <span class="smallerText"><br>(in-center)</span>
-                        </button>
+                        </button> -->
     
-                        <button class="gray testSubmitButton" onclick="gradeHomework('did not do')">
+                        <button class="red testSubmitButton" onclick="gradeHomework('did not do')">
                             Didn't do
                         </button>
                     </div>
@@ -416,7 +454,7 @@
     
                 <div id='generalHeader' class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swapTestForm('Chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
                 </div>
     
@@ -513,22 +551,28 @@
                 </div>
     
                 <div class='bigButtons'>
-                    <button id = 'englishNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('english')">
+                    <!-- <button id = 'englishNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('english')">
                         Not Assigning
-                    </button>
-                    <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
+                    </button> -->
+                    <!-- <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
                         Assign
                     </button>
                     <button id = 'unassignEnglish' onclick = "unassignHomework('english')" class = 'item itemB2 cursor hidden' onmouseover = "openTestList('english')" onmouseout = "closeTestList('english')">
                         Unassign
+                    </button> -->
+                    <!-- <button id = 'assignEnglish' onclick = "assignHomework('english')" class='item itemB2 cursor'>
+                        Assign
                     </button>
+                    <button id = 'unassignEnglish' onclick = "unassignHomework('english')" class = 'item itemB2 cursor hidden'>
+                        Unassign
+                    </button> -->
                 </div>
             </div>
     
             <div id="englishLessonsForm" class="metaForm noselect hidden">
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('english', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'lessons')">
@@ -546,9 +590,9 @@
                         Lesson
                     </div>
     
-                    <div class="gridBox3">
+                    <!-- <div class="gridBox3">
                         Rank
-                    </div>
+                    </div> -->
     
                     <div class="gridBox3">
                         Date
@@ -566,7 +610,7 @@
     
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('english', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor" onclick="swap('english', 'lessons')">
@@ -587,7 +631,7 @@
     
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('english', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor tab3" onclick="swap('english', 'lessons')">
@@ -626,9 +670,9 @@
                 </div>
     
                 <div id="englishPopupButtons" class="input-row-center spacedEvenly popupButtons">
-                    <button id = 'englishResetPractice' class="smallButton button" onclick="resetPractice()">
+                    <!-- <button id = 'englishResetPractice' class="smallButton button" onclick="resetPractice()">
                         Reset
-                    </button>
+                    </button> -->
                     <button id = 'englishSubmitPractice' class="smallButton button" onclick="togglePracticePopup('english')">
                         Submit
                     </button>
@@ -638,13 +682,13 @@
                             Grade Passage
                         </button>
     
-                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                        <!-- <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
                             Worked Together
                         </button>
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
                             Popcorned Problems
-                        </button>
+                        </button> -->
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
                             Prior Completion
@@ -676,22 +720,28 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button id = 'mathNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('math')">
+                    <!-- <button id = 'mathNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('math')">
                         Not Assigning
-                    </button>
-                    <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
+                    </button> -->
+                    <!-- <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
                         Assign
                     </button>
                     <button id='unassignMath' onclick="unassignHomework('math')" class='item itemB2 cursor hidden' onmouseover = "openTestList('math')" onmouseout = "closeTestList('math')">
                         Unassign
+                    </button> -->
+                    <!-- <button id='assignMath' onclick="assignHomework('math')" class='item itemB2 cursor'>
+                        Assign
                     </button>
+                    <button id='unassignMath' onclick="unassignHomework('math')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button> -->
                 </div>
             </div>
         
             <div id="mathLessonsForm" class="metaForm noselect hidden">
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('math', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('math', 'lessons')">
@@ -710,9 +760,9 @@
                         Lesson
                     </div>
         
-                    <div class="gridBox3">
+                    <!-- <div class="gridBox3">
                         Rank
-                    </div>
+                    </div> -->
         
                     <div class="gridBox3">
                         Date
@@ -729,7 +779,7 @@
         
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('math', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor" onclick="swap('math', 'lessons')">
@@ -750,7 +800,7 @@
     
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('math', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor tab3" onclick="swap('math', 'lessons')">
@@ -789,9 +839,9 @@
                 </div>
     
                 <div id="mathPopupButtons" class="input-row-center spacedEvenly popupButtons">
-                    <button id = 'mathResetPractice' class="smallButton button" onclick="resetPractice()">
+                    <!-- <button id = 'mathResetPractice' class="smallButton button" onclick="resetPractice()">
                         Reset
-                    </button>
+                    </button> -->
                     <button id = 'mathSubmitPractice' class="smallButton button" onclick="togglePracticePopup('math')">
                         Submit
                     </button>
@@ -801,13 +851,13 @@
                             Grade Passage
                         </button>
     
-                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                        <!-- <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
                             Worked Together
                         </button>
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
                             Popcorned Problems
-                        </button>
+                        </button> -->
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
                             Prior Completion
@@ -838,22 +888,28 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button id = 'readingNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('reading')">
+                    <!-- <button id = 'readingNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('reading')">
                         Not Assigning
-                    </button>
-                    <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
+                    </button> -->
+                    <!-- <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
                         Assign
                     </button>
                     <button id='unassignReading' onclick="unassignHomework('reading')" class='item itemB2 cursor hidden' onmouseover = "openTestList('reading')" onmouseout = "closeTestList('reading')">
                         Unassign
+                    </button> -->
+                    <!-- <button id='assignReading' onclick="assignHomework('reading')" class='item itemB2 cursor'>
+                        Assign
                     </button>
+                    <button id='unassignReading' onclick="unassignHomework('reading')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button> -->
                 </div>
             </div>
         
             <div id="readingLessonsForm" class="metaForm noselect hidden">
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('reading', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('reading', 'lessons')">
@@ -872,9 +928,9 @@
                         Lesson
                     </div>
         
-                    <div class="gridBox3">
+                    <!-- <div class="gridBox3">
                         Rank
-                    </div>
+                    </div> -->
         
                     <div class="gridBox3">
                         Date
@@ -891,7 +947,7 @@
         
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('reading', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor" onclick="swap('reading', 'lessons')">
@@ -911,7 +967,7 @@
     
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('reading', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor tab3" onclick="swap('reading', 'lessons')">
@@ -950,9 +1006,9 @@
                 </div>
     
                 <div id="readingPopupButtons" class="input-row-center spacedEvenly popupButtons">
-                    <button id = 'readingResetPractice' class="smallButton button" onclick="resetPractice()">
+                    <!-- <button id = 'readingResetPractice' class="smallButton button" onclick="resetPractice()">
                         Reset
-                    </button>
+                    </button> -->
                     <button id = 'readingSubmitPractice' class="smallButton button" onclick="togglePracticePopup('reading')">
                         Submit
                     </button>
@@ -962,13 +1018,13 @@
                             Grade Passage
                         </button>
     
-                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                        <!-- <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
                             Worked Together
                         </button>
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
                             Popcorned Problems
-                        </button>
+                        </button> -->
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
                             Prior Completion
@@ -1000,22 +1056,28 @@
                 </div>
         
                 <div class='bigButtons'>
-                    <button id = 'scienceNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('science')">
+                    <!-- <button id = 'scienceNotAssigning' class='item itemB1 cursor' onclick = "notAssigningHomework('science')">
                         Not Assigning
-                    </button>
-                    <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
+                    </button> -->
+                    <!-- <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
                         Assign
                     </button>
                     <button id='unassignScience' onclick="unassignHomework('science')" class='item itemB2 cursor hidden' onmouseover = "openTestList('science')" onmouseout = "closeTestList('science')">
                         Unassign
+                    </button> -->
+                    <!-- <button id='assignScience' onclick="assignHomework('science')" class='item itemB2 cursor'>
+                        Assign
                     </button>
+                    <button id='unassignScience' onclick="unassignHomework('science')" class='item itemB2 cursor hidden'>
+                        Unassign
+                    </button> -->
                 </div>
             </div>
         
             <div id="scienceLessonsForm" class="metaForm noselect hidden">
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('science', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('science', 'lessons')">
@@ -1034,9 +1096,9 @@
                         Lesson
                     </div>
         
-                    <div class="gridBox3">
+                    <!-- <div class="gridBox3">
                         Rank
-                    </div>
+                    </div> -->
         
                     <div class="gridBox3">
                         Date
@@ -1053,7 +1115,7 @@
         
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor activeTab" onclick="swap('science', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
         
                     <div class="headingBlock noselect cursor" onclick="swap('science', 'lessons')">
@@ -1073,7 +1135,7 @@
     
                 <div class='formTab'>
                     <div class="headingBlock noselect cursor" onclick="swap('science', 'chat')">
-                        <h2>Chat</h2>
+                        <h2>Notes</h2>
                     </div>
     
                     <div class="headingBlock noselect cursor tab3" onclick="swap('science', 'lessons')">
@@ -1112,9 +1174,9 @@
                 </div>
     
                 <div id="sciencePopupButtons" class="input-row-center spacedEvenly popupButtons">
-                    <button id = 'scienceResetPractice' class="smallButton button" onclick="resetPractice()">
+                    <!-- <button id = 'scienceResetPractice' class="smallButton button" onclick="resetPractice()">
                         Reset
-                    </button>
+                    </button> -->
                     <button id = 'scienceSubmitPractice' class="smallButton button" onclick="togglePracticePopup('science')">
                         Submit
                     </button>
@@ -1124,13 +1186,13 @@
                             Grade Passage
                         </button>
     
-                        <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
+                        <!-- <button class="testSubmitButton greenShade" onclick="gradePractice('together')">
                             Worked Together
                         </button>
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('popcorn')">
                             Popcorned Problems
-                        </button>
+                        </button> -->
     
                         <button class="testSubmitButton greenShade" onclick="gradePractice('prior')">
                             Prior Completion
