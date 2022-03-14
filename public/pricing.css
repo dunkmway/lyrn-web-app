@@ -664,6 +664,10 @@ nav a:hover {
   max-width: 720px;
 }
 
+.plan-wrapper.custom {
+  max-width: none;
+}
+
 .plan-wrapper .title {
   text-align: center;
 }

@@ -1466,13 +1466,11 @@ async function getOpeningLocation(location, start, end, eventLength, recurringWe
       openingDocs.push(openingDoc);
     }
 
-    console.log(openingDocs)
-
     //convert the opening docs to an object where the key is the doc id and the value is the doc data
     const openings = openingDocs.reduce((obj, item) => Object.assign(obj, { [item.id]: item.data() ?? {} }), {});
     const qualifiedTutorDocs = qualification ? await getTutorDocsByQualification(location, qualification) : await getUserDocsByRole(location, ['tutor']);
-    console.log(qualifiedTutorDocs.docs)
     const qualifiedTutors = qualifiedTutorDocs.docs.map(doc => doc.id);
+    console.log('qualified tutors', qualifiedTutors)
 
     console.log(openings)
 
@@ -1484,12 +1482,20 @@ async function getOpeningLocation(location, start, end, eventLength, recurringWe
       let tempStart = start;
       let tempEnd = new Date(start).setMinutes(new Date(start).getMinutes() + eventLength);
 
-      let availabilities = openings[tempDate].availabilities;
-      let events = openings[tempDate].events;
+      let availabilities = {};
+      let events = {};
+
+      // get the availability and events from the doc for each time
+      for (const time in openings[tempDate]) {
+        availabilities[time] = openings[tempDate][time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
+        events[time] = openings[tempDate][time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
+      }
       
       let openTutors = qualifiedTutors
       .filter(tutor =>  availabilities?.[tempStart]?.includes(tutor) ?? false)
       .filter(tutor => !events?.[tempStart]?.includes(tutor) ?? true);
+
+      console.log(openTutors)
 
       const eventData = {
         title: openTutors.length,
@@ -1505,6 +1511,8 @@ async function getOpeningLocation(location, start, end, eventLength, recurringWe
       //increment the start to the next time slot
       start = tempEnd
     }
+
+    console.log({checkEvents})
 
     //we don't want to see the check events that don't have any tutor available (do it here first to get rid of the first week zeros - this is for optimizations)
     viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
@@ -3869,9 +3877,15 @@ async function getOpenTutors(location, start, end, tutorUIDs) {
     let totalData = totalDoc.data();
     // run through the intervals
     for (let i = 0; i < dates[date].length; i++) {
+      // get the availability and events from the doc for each time
+      const availabilities = totalData[dates[date][i]].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
+      const events = totalData[dates[date][i]].filter(opening => opening.type == 'event').map(opening => opening.tutor);
+
+      console.log({ availabilities, events })
+
       // check if at least one of the provided tutors are open
-      const availabilities = totalData.availabilities?.[dates[date][i]] ?? [];
-      const events = totalData.events?.[dates[date][i]] ?? [];
+      // const availabilities = totalData.availabilities?.[dates[date][i]] ?? [];
+      // const events = totalData.events?.[dates[date][i]] ?? [];
 
       const openings = tutorUIDs.filter(tutor => !events.includes(tutor) && availabilities.includes(tutor));
       tutorsOpen = tutorsOpen.filter(tutor => openings.includes(tutor));

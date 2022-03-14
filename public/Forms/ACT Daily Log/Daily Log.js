@@ -20,7 +20,7 @@ let initialScores = {};
                   //'71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
                   //'66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
 // REMOVE - revert to test lists above
-const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', 'D03', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
+const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
 const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // Other needed info
@@ -814,7 +814,6 @@ function resetAnswers() {
   const tempStatus = test_answers_grading[test]?.[section]?.['status']
 
   // Disable the button until everything is done
-  document.getElementById('resetHomework').disabled = true;
   document.getElementById('submitHomework').disabled = true;
 
   // Remove the answers
@@ -870,7 +869,6 @@ function resetAnswers() {
 
   // Successfully reset the test
   .then(() => {
-    document.getElementById('resetHomework').disabled = false;
     document.getElementById('submitHomework').disabled = false;
 
     // Remove the green bar status if it's there
@@ -923,7 +921,6 @@ function resetAnswers() {
   // Wasn't able to reset the test
   .catch((error) => {
     console.log(error)
-    document.getElementById('resetHomework').disabled = false;
     document.getElementById('submitHomework').disabled = false;
   })
 
@@ -960,7 +957,6 @@ function gradeHomework(status) {
   hidePopups()
 
   // Disable the buttons until it this function has done its job
-  document.getElementById('resetHomework').disabled = true;
   document.getElementById('submitHomework').disabled = true;
 
   // Record the status
@@ -977,7 +973,6 @@ function gradeHomework(status) {
   for (let i = 1; i <= numPassages; i++) {
     if (test_answers_grading[test][section][i.toString()] == undefined) {
       alert("Make sure you are on the last passage before you submit this homework.")
-      document.getElementById('resetHomework').disabled = false;
       document.getElementById('submitHomework').disabled = false;
       return;
     }
@@ -1038,7 +1033,6 @@ function gradeHomework(status) {
     ref.delete()
     .then(() => {
       // Re-enable the buttons
-      document.getElementById('resetHomework').disabled = false;
       document.getElementById('submitHomework').disabled = false;
 
       // Update the status bar to mark the test as completed
@@ -1064,7 +1058,6 @@ function gradeHomework(status) {
     })
     .then(() => {
       // Re-enable the buttons
-      document.getElementById('resetHomework').disabled = false;
       document.getElementById('submitHomework').disabled = false;
 
       // Update the status bar to mark the test as completed
@@ -1099,7 +1092,6 @@ function gradeHomework(status) {
     })
     .catch((error) => {
       // Re-enable the buttons
-      document.getElementById('resetHomework').disabled = false;
       document.getElementById('submitHomework').disabled = false;
 
       // Update the status bar to mark the test as completed
@@ -1118,11 +1110,9 @@ function togglePracticePopup(section) {
 
 function toggleGradeButtons(disable = true) {
   submitButtons = document.querySelectorAll("button[id$='SubmitPractice']")
-  resetButtons = document.querySelectorAll("button[id$='ResetPractice']")
 
   for (let i = 0; i < submitButtons.length; i++) {
     submitButtons[i].disabled = disable;
-    resetButtons[i].disabled = disable;
   }
 }
 

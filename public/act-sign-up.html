@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="SIgn up for our ACT programs">
+    <title>ACT Sign Up</title>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- semantic UI -->
+    <link async rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
+    <script async src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- Toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- flatpickr (date picker)-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Stripe's JS library -->
+    <script src="https://js.stripe.com/v3/" defer></script>
+
+      <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
+
+    <script src="Site Templates/site-wide.js" defer></script>
+    <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="Site Templates/formatting.js" defer></script>
+    <script src="act-sign-up.js" defer></script>
+
+    <link href="act-sign-up.css" rel="stylesheet">
+    <link rel="stylesheet" href="Site Templates/site-wide.css">
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+  </head>
+
+  <body onload="initialSetup()">
+    <section class="heading accent-background">
+      <h1 id="title">ACT Basics / Guided</h1>
+      <div id="pageLoading"></div>
+    </section>
+    <section class="programs">
+      <label for="startAfterDate">Start after date</label>
+      <input id="startAfterDate"></input>
+      <div id="programWrapper"></div>
+      <div id="customProgramWrapper">
+        <label>Custom Program</label>
+        <div class="program" id="customProgram">
+          <div class="split">
+            <div class="manual">
+              <div class="detail-wrapper">
+                <label for="customProgram-programLength">Program Length</label>
+                <div class="input-unit">
+                  <input type="number" id="customProgram-programLength" min="0" max="999" oninput="customProgram_programLengthChange(event)">
+                  <span>weeks</span>
+                </div>
+              </div>
+              <div class="detail-wrapper">
+                <label for="customProgram-name">Program</label>
+                <select id="customProgram-name"  oninput="customProgram_nameChange(event)">
+                  <option value="" disabled selected>select a program</option>
+                  <option value="actBasics">ACT Basics</option>
+                  <option value="actGuided">Guided ACT</option>
+                </select>
+              </div>
+              <div class="detail-wrapper">
+                <label for="customProgram-sessionsPerWeek">Session per Week</label>
+                <input type="number" id="customProgram-sessionsPerWeek"  min="0" max="6" oninput="customProgram_sessionsPerWeekChange(event)">
+              </div>
+              <div class="detail-wrapper">
+                <label for="customProgram-pricePerHour">Price per Hour</label>
+                <div class="input-unit">
+                  <span>$</span>
+                  <input type="number" id="customProgram-pricePerHour"  min="0" max="999" oninput="customProgram_pricePerHourChange(event)">
+                </div>
+              </div>
+              <div class="detail-wrapper">
+                <label for="customProgram-sections">Section to be taught</label>
+                <div class="ui dropdown multiple selection" id="customProgram-sections">
+                  <input type="hidden">
+                  <i class="dropdown icon"></i>
+                  <div class="default text">sections</div>
+                  <div class="menu">
+                    <div class="item" data-value="english">English</div>
+                    <div class="item" data-value="math">Math</div>
+                    <div class="item" data-value="reading">Reading</div>
+                    <div class="item" data-value="science">Science</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="automatic">
+              <div class="detail-wrapper">
+                <p>Score</p>
+                <p id="customProgram-score"></p>
+              </div>
+              <div class="detail-wrapper">
+                <p>Start</p>
+                <p id="customProgram-start"></p>
+              </div>
+              <div class="detail-wrapper">
+                <p>End</p>
+                <p id="customProgram-end"></p>
+              </div>
+              <div class="detail-wrapper">
+                <p>Session Length</p>
+                <p id="customProgram-sessionLength"></p>
+              </div>
+              <div class="detail-wrapper">
+                <p>Program Price</p>
+                <p id="customProgram-programPrice"></p>
+              </div>
+            </div>
+          </div>
+          <button tabindex="1" onclick="customProgramSelected()">Select</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Parent and Student Info -->
+    <section class="contact-info">
+      <h3>Parent and Student Contact Info</h3>
+      <div class="contact-form">
+        <div class="parent">
+          <label for="parent-firstName">Parent First Name</label>
+          <input id="parent-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+          <label for="parent-lastName">Parent Last Name</label>
+          <input id="parent-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+          <label for="parent-email">Parent Email</label>
+          <input id="parent-email" type="email" onfocusout="contactInfoFocusOutCallback(event)" required>
+          <label for="parent-phoneNumber">Parent Phone Number</label>
+          <input id="parent-phoneNumber" type="tel" onfocusout="contactInfoFocusOutCallback(event)">
+        </div>
+        <div class="student">
+          <label for="student-firstName">Student First Name</label>
+          <input id="student-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+          <label for="student-lastName">Student Last Name</label>
+          <input id="student-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+          <label for="student-email">Student Email</label>
+          <input id="student-email" type="email" onfocusout="contactInfoFocusOutCallback(event)">
+          <label for="student-phoneNumber">Student Phone Number</label>
+          <input id="student-phoneNumber" type="tel" onfocusout="contactInfoFocusOutCallback(event)">
+        </div>
+      </div>
+    </section>
+
+    <!-- date and time section -->
+    <section class="date-time">
+      <h3>Day and Time of Sessions</h3>
+      <div class="selection-wrapper">
+        <input type="checkbox" id="monday" onchange="daySelectedCallback(event)">
+        <label for="monday" class="day-item">M</label>
+        <input type="checkbox" id="tuesday" onchange="daySelectedCallback(event)">
+        <label for="tuesday" class="day-item">T</label>
+        <input type="checkbox" id="wednesday" onchange="daySelectedCallback(event)">
+        <label for="wednesday" class="day-item">W</label>
+        <input type="checkbox" id="thursday" onchange="daySelectedCallback(event)">
+        <label for="thursday" class="day-item">T</label>
+        <input type="checkbox" id="friday" onchange="daySelectedCallback(event)">
+        <label for="friday" class="day-item">F</label>
+        <input type="checkbox" id="saturday" onchange="daySelectedCallback(event)">
+        <label for="saturday" class="day-item">S</label>
+        <div class="ui dropdown selection disabled" id="timeSelection">
+          <input type="hidden">
+          <i class="dropdown icon"></i>
+          <div class="default text">time of day</div>
+          <div class="menu">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- confirmation section -->
+    <!-- <section class="confirm">
+      <button id="confirmationBtn" onclick="confirm()">Confirm</button>
+      <p id="confirmationMsg"></p>
+    </section> -->
+
+    <!-- payment section -->
+    <section class="payment">
+      <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
+      <label for="carholderName"></label>
+      <div id="card-element"></div>
+      <p id="error-message" class="error"></p>
+    </section>
+    
+    <p class="error">error message</p>
+  </body>
+</html>

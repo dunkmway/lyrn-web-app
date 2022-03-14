@@ -104,6 +104,20 @@ const formatToInt = (event) => {
 
 }
 
+const formatToMoney = (event) => {
+	formatToInt(event);
+
+	const target = event.target;
+	const input = event.target.value;
+
+	if (input) {
+		target.value = '$' + input;
+	}
+	else {
+		target.value = '';
+	}
+}
+
 document.querySelectorAll('input[type="tel"]').forEach(telInput => {
 	telInput.addEventListener('keydown',enforceNumericFormat);
 	telInput.addEventListener('keyup',formatToPhone);

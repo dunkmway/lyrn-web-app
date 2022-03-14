@@ -57,7 +57,7 @@ exports.updateAvailabilityToOpenings = functions.firestore
   if (
     oldAvailData.start == newAvailData.start &&
     oldAvailData.end == newAvailData.end &&
-    compareArrays(oldAvailData.staff, newAvailData.staff)
+    oldAvailData.staff == newAvailData.staff
   ) {return}
 
   let removeBatch = admin.firestore().batch();
@@ -112,7 +112,7 @@ async function batchAddEventOpening(location, start, end, staff, batch) {
       dates[date][tempStart] = staff;
     }
     else {
-      dates[date][tempStart] = ['pendingTutor'];
+      dates[date][tempStart] = [];
     }
     tempStart = new Date(tempStart).setMinutes(new Date(tempStart).getMinutes() + 30);
   }
@@ -120,29 +120,14 @@ async function batchAddEventOpening(location, start, end, staff, batch) {
   for (const date in dates) {
     //see if the totals doc that we want to update exists
     const totalRef = admin.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(date.toString());
-    const totalDoc = await totalRef.get();
-    if (totalDoc.exists && totalDoc.data().events) {
-      let totalData = totalDoc.data();
-      for (const interval in dates[date]) {
-        totalData.events[interval] = totalData.events[interval] ? dates[date][interval].concat(totalData.events[interval]) : dates[date][interval];
-      }
-     batch.update(totalRef, {
-        events: totalData.events
-      })
-    }
-    else if (totalDoc.exists) {
-      let totalData = totalDoc.data();
-      totalData.events = {};
-      for (const interval in dates[date]) {
-        totalData.events[interval] = totalData.events[interval] ? dates[date][interval].concat(totalData.events[interval]) : dates[date][interval];
-      }
-     batch.update(totalRef, {
-        events: totalData.events
-      })
-    }
-    else {
-      batch.set(totalRef, {
-        events: dates[date]
+    for (const interval in dates[date]) {
+      dates[date][interval].forEach(tutor => {
+        batch.set(totalRef, {
+          [interval]: admin.firestore.FieldValue.arrayUnion({
+            tutor,
+            type: 'event'
+          })
+        }, { merge: true })
       })
     }
   }
@@ -169,26 +154,23 @@ async function batchRemoveEventOpening(location, start, end, staff, batch) {
       dates[date][tempStart] = staff;
     }
     else {
-      dates[date][tempStart] = ['pendingTutor'];
+      dates[date][tempStart] = [];
     }
     tempStart = new Date(tempStart).setMinutes(new Date(tempStart).getMinutes() + 30);
   }
 
   for (const date in dates) {
     const totalRef = admin.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(date.toString());
-    const totalDoc = await totalRef.get();
-    let totalData = totalDoc.data();
     for (const interval in dates[date]) {
       dates[date][interval].forEach(tutor => {
-        const tutorIndex = totalData.events[interval].indexOf(tutor);
-        if (tutorIndex != -1) {
-          totalData.events[interval].splice(tutorIndex, 1);
-        }
+        batch.update(totalRef, {
+          [interval]: admin.firestore.FieldValue.arrayRemove({
+            tutor,
+            type: 'event'
+          })
+        })
       })
     }
-    batch.update(totalRef, {
-      events: totalData.events
-    })
   }
 
   return;
@@ -217,31 +199,17 @@ async function batchAddAvailabilityOpening(location, start, end, staff, batch) {
   for (const date in dates) {
     //see if the totals doc that we want to update exists
     const totalRef = admin.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(date.toString());
-    const totalDoc = await totalRef.get();
-    if (totalDoc.exists && totalDoc.data().availabilities) {
-      let totalData = totalDoc.data();
-      for (const interval in dates[date]) {
-        totalData.availabilities[interval] = totalData.availabilities[interval] ? dates[date][interval].concat(totalData.availabilities[interval]) : dates[date][interval];
-      }
-     batch.update(totalRef, {
-        availabilities: totalData.availabilities
+    for (const interval in dates[date]) {
+      dates[date][interval].forEach(tutor => {
+        batch.set(totalRef, {
+          [interval]: admin.firestore.FieldValue.arrayUnion({
+            tutor,
+            type: 'availability'
+          })
+        }, { merge: true })
       })
     }
-    else if (totalDoc.exists) {
-      let totalData = totalDoc.data();
-      totalData.availabilities = {};
-      for (const interval in dates[date]) {
-        totalData.availabilities[interval] = totalData.availabilities[interval] ? dates[date][interval].concat(totalData.availabilities[interval]) : dates[date][interval];
-      }
-     batch.update(totalRef, {
-        availabilities: totalData.availabilities
-      })
-    }
-    else {
-      batch.set(totalRef, {
-        availabilities: dates[date]
-      })
-    }
+
   }
 
   return;
@@ -269,19 +237,16 @@ async function batchRemoveAvailabilityOpening(location, start, end, staff, batch
 
   for (const date in dates) {
     const totalRef = admin.firestore().collection('Locations').doc(location).collection('Calendar-Openings').doc(date.toString());
-    const totalDoc = await totalRef.get();
-    let totalData = totalDoc.data();
     for (const interval in dates[date]) {
       dates[date][interval].forEach(tutor => {
-        const tutorIndex = totalData.availabilities[interval].indexOf(tutor);
-        if (tutorIndex != -1) {
-          totalData.availabilities[interval].splice(tutorIndex, 1);
-        }
+        batch.update(totalRef, {
+          [interval]: admin.firestore.FieldValue.arrayRemove({
+            tutor,
+            type: 'availability'
+          })
+        })
       })
     }
-    batch.update(totalRef, {
-      availabilities: totalData.availabilities
-    })
   }
 
   return;
@@ -300,3 +265,29 @@ function compareArrays(array1, array2) {
 
   return true;
 }
+
+exports.redoAllAvailability = functions.https.onRequest(async (req, res) => {
+  // get all of the availability documents
+  const allAvailabilityQuery = await admin.firestore().collection('Availabilities').get();
+  console.log('query size -', allAvailabilityQuery.size)
+
+  const batch = admin.firestore().batch();
+  await Promise.all(allAvailabilityQuery.docs.map(doc => batchAddAvailabilityOpening(doc.data().location, doc.data().start, doc.data().end, doc.data().staff, batch)));
+  await batch.commit();
+
+  res.send('availability opening redone');
+
+});
+
+exports.redoAllEvent = functions.https.onRequest(async (req, res) => {
+  // get all of the availability documents
+  const allEventQuery = await admin.firestore().collection('Events').get();
+  console.log('query size -', allEventQuery.size)
+
+  const batch = admin.firestore().batch();
+  await Promise.all(allEventQuery.docs.map(doc => batchAddEventOpening(doc.data().location, doc.data().start, doc.data().end, doc.data().staff, batch)));
+  await batch.commit();
+
+  res.send('event opening redone');
+
+});

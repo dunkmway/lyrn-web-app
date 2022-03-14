@@ -33,6 +33,7 @@ function checkPermissions() {
         "/sign-in",
         "/sign-up",
         "/payment-link",
+        "/act-sign-up"
     ]
     
     const studentPages = [

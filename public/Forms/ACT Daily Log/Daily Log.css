@@ -779,12 +779,19 @@ MASTER */
     color: var(--accent-color);
 }
 
+.print-outs label {
+  display: block;
+  font-size: 1em;
+  color: var(--accent-color);
+}
+
 #printTest {
   outline: none;
   border: 2px solid var(--accent-color);
   font-size: 12px;
   height: 2em;
   padding: .5em;
+  margin: 0;
 }
 
 .hidden {
@@ -806,9 +813,11 @@ MASTER */
 }
 
 #nameSection {
+  box-sizing: border-box;
     height: 10vh;
     width: 100%;
     align-items: center;
+    padding: .5em 1em;
     background-color: var(--main-background);
     color: black;
 }

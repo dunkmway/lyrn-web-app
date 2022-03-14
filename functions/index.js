@@ -14,6 +14,7 @@ exports.frontline = require('./frontline');
 exports.zoom = require('./zoom');
 exports.act_tests = require('./act-tests');
 exports.daily_log = require('./daily-log');
+exports.act_sign_up = require('./act-sign-up');
 admin.initializeApp();
 
 //don't let this request go public becuase it could really mess things up!!!

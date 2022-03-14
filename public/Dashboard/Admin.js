@@ -504,7 +504,7 @@ function recalculateTimesheet(start, end) {
   tableDataStaff.forEach((staff, index) => {
     staffPromises.push(getStaffHoursWorked(staff.staffUID, start, end)
     .then(hoursWorked => {
-      tableDataStaff[index].staffPay = '$' + (hoursWorked * staff.staffWage).toString()
+      tableDataStaff[index].staffPay = hoursWorked + ' hrs - ' + '$' + (hoursWorked * staff.staffWage).toString()
     }))
   });
 
