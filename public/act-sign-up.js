@@ -1,7 +1,14 @@
 const CURRENT_LOCATION = 'WIZWBumUoo7Ywkc3pl2G'; // id for the online location (this is hard coded for the foreseeable future)
 const LESSON_ORDER = ['english', 'math', 'reading', 'science'];
-const MAX_EXPECTED_SCORE = 6;
-const TIME_SLOT_FREQUENCY = 60;
+const MAX_EXPECTED_SCORE = 6; // highest score possble for student to get (for each 4 sections)
+const TIME_SLOT_FREQUENCY = 60; // minute difference for seeing openings
+const INVOICE_EXPIRATION_TIME = 24; // hours until invoice expires
+const SECTION_SCORE_WEIGHTS = { // FIXME: not implemented yet (goal is to affect how much each section contributes to the score while calculating the custom program)
+  english: 1,
+  math: 1,
+  reading: 1,
+  science: 1,
+}
 
 let BASICS_SIX = {
   score: 1, // number of points we guarantee with this program
@@ -66,12 +73,17 @@ const SET_PROGRAMS = [
   GUIDED_EIGHT
 ]
 
+let openings_master = null // local version of all of the calendar openings docs that we need for the given start and end dates
+let qualifiedTutors_master = null // local version of all tutors that qualify for eitehr ACT Basics or Guided ACT
+let blacklistTutors_master = null // local version of all tutors who are blacklisted by this student
+
 /**
  * current program details definition
  * @typedef {Object} Program
  * @property {Date} startAfterDate
  * @property {String} name
  * @property {String} value
+ * @property {Number} score
  * @property {Number} programLength
  * @property {Date} start
  * @property {Date} end
@@ -83,6 +95,9 @@ const SET_PROGRAMS = [
  * @property {Number[]} dayIndexes
  * @property {String} sessionStartTime hh:mm
  * @property {Object} contact all of the details about the student and parent
+ * @property {Object[]} openings all of the details about the which tutors are open at which times
+ * @property {Object} weeklyOpenings all of the details about the which tutors are open at which times
+ * @property {boolean} isFirstSessionsFree
  */
 
 /**
@@ -92,6 +107,7 @@ let currentProgramDetails = {
   startAfterDate: new Date(),
   name: null,
   value: null,
+  score: null,
   programLength: null,
   start: null,
   end: null,
@@ -103,9 +119,24 @@ let currentProgramDetails = {
   dayIndexes: [],
   sessionStartTime: null,
   contact: {
-    parent: {},
-    student: {}
-  }
+    parent: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      uid: null
+    },
+    student: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      uid: null
+    }
+  },
+  openings: [],
+  weeklyOpenings: {},
+  isFirstSessionsFree: false
 }
 
 /**
@@ -115,6 +146,7 @@ let currentProgramDetails = {
   startAfterDate: new Date(),
   name: 'Custom',
   value: null,
+  score: null,
   programLength: null,
   start: null,
   end: null,
@@ -128,19 +160,19 @@ let currentProgramDetails = {
 /**
 * Set up Stripe Elements
 */
-const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
-const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-const elements = stripe.elements();
-const cardElement = elements.create('card');
-cardElement.mount('#card-element');
-cardElement.on('change', ({ error }) => {
-  const displayError = document.getElementById('error-message');
-  if (error) {
-    displayError.textContent = error.message;
-  } else {
-    displayError.textContent = '';
-  }
-});
+// const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
+// const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+// const elements = stripe.elements();
+// const cardElement = elements.create('card');
+// cardElement.mount('#card-element');
+// cardElement.on('change', ({ error }) => {
+//   const displayError = document.getElementById('error-message');
+//   if (error) {
+//     displayError.textContent = error.message;
+//   } else {
+//     displayError.textContent = '';
+//   }
+// });
 
 async function initialSetup() {
   toggleWorking();
@@ -152,7 +184,7 @@ async function initialSetup() {
   //semantic ui dropdowns
   $('#customProgram-sections').dropdown({
     onChange: ((value, text) => {
-      currentCustomProgramDetails.sections = value.split(',');
+      customProgram_sectionsChange(value ? value.split(',') : []);
     }) 
   });
 
@@ -174,7 +206,14 @@ async function initialSetup() {
   renderLoadingSetPrograms();
 
   //calculate the program cards
-  await updateSetPrograms()
+  await updateSetPrograms();
+
+  // initialize the openings with the longest program first calculated
+  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime()));
+  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime()));
+  calculateOpeningsMaster(earliestStart, latestEnd);
+  // initialize qualified tutors for all programs. this will not change
+  calculateQualifiedTutors(CURRENT_LOCATION);
 
   toggleWorking();
 }
@@ -188,7 +227,7 @@ function chooseRandomAccentSection() {
     'writing',
   ]
 
-  const randomIndex = Math.floor(Math.random() * (colors.length));
+  let randomIndex = Math.floor(Math.random() * (colors.length));
   //small chance of the index being equal to the length
   randomIndex == colors.length ? randomIndex-- : randomIndex;
 
@@ -234,11 +273,18 @@ async function startAfterDateChangeCallback(selectedDates, dateStr, instance) {
     // we need to recalculate the programs to update the start and end
     updateSetPrograms(),
 
-    // we need to recalculate the stat and end of the custom program as well
+    // we need to recalculate the start and end of the custom program as well
     // this function will do this and we trick the function that is looking for an event by passing in
     // an object with the target key since this is all we use
     customProgram_programLengthChange({target: document.getElementById('customProgram-programLength')})
   ])
+
+  // we need to know which start time is the oldest and which end time is the newest and calculate openings_master based on these times
+  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime(), currentCustomProgramDetails?.start?.getTime() ?? Infinity));
+  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime(), currentCustomProgramDetails?.end?.getTime() ?? -Infinity));
+  // place the openingsMaster into a loading state
+  openings_master = false;
+  calculateOpeningsMaster(earliestStart, latestEnd);
 
   toggleWorking();
 }
@@ -340,6 +386,51 @@ function renderSetPrograms() {
   })
 }
 
+async function calculateOpeningsMaster(startDate, endDate) {
+  const start = beginningOfDate(startDate);
+  const end = endOfDate(endDate);
+
+  const openDocIDs = [];
+  let current = new Date(start);
+  // get all of the times for the beginnning UTC dates for all days inclusive of start and end
+  while (current.getTime() < end.getTime()) {
+    openDocIDs.push(beginningOfUTCDate(current).getTime());
+    current = new Date(new Date(current).setDate(current.getDate() + 1));
+  }
+  // tack on one extra for the end of date (will be different)
+  openDocIDs.push(beginningOfUTCDate(end).getTime())
+
+  // get all of these documents from firebase
+  const openDocs = await Promise.all(openDocIDs.map(openDocID => firebase.firestore().collection('Locations').doc(CURRENT_LOCATION).collection('Calendar-Openings').doc(openDocID.toString()).get()));
+
+  // go through the docs and save them to openings_master
+  openings_master = {};
+  openDocs.forEach(doc => {
+    if (doc.exists) {
+      for (const time in doc.data()) {
+        openings_master[time] = doc.data()[time];
+      }
+    }
+  })
+}
+
+async function calculateQualifiedTutors(location) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-getQualifiedTutors')({
+    location,
+    qualifications: ['actBasics-english', 'actBasics-math', 'actBasics-reading', 'actBasics-science', 'actGuided-english', 'actGuided-math', 'actGuided-reading', 'actGuided-science']
+  });
+
+  qualifiedTutors_master = response.data;
+}
+
+async function calculateBlacklistedTutors(studentUID) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-getBlacklistedTutors')({
+    studentUID
+  });
+
+  blacklistTutors_master = response.data;
+}
+
 function setProgramSelected(setProgramIndex) {
   // get the program details that was selected
   const selectedProgram = SET_PROGRAMS[setProgramIndex];
@@ -363,7 +454,7 @@ function setProgramSelected(setProgramIndex) {
 function customProgramSelected() {
   // first confirm that the current custom programs details is complete
   for (const key in currentCustomProgramDetails) {
-    if (currentCustomProgramDetails[key] == null) {
+    if (currentCustomProgramDetails[key] == null || currentCustomProgramDetails[key].length == 0) {
       customConfirm('Please fill in all fields for the custom program before selecting it.', '', 'OK', () => {}, () => {});
       return;
     }
@@ -400,10 +491,11 @@ async function customProgram_programLengthChange(event) {
   const programName = document.getElementById('customProgram-name').value;
   const sessionsPerWeek = Number(document.getElementById('customProgram-sessionsPerWeek').value);
   const pricePerHour = Number(document.getElementById('customProgram-pricePerHour').value);
+  const sections = $('#customProgram-sections').dropdown('get value') ? $('#customProgram-sections').dropdown('get value').split(',') : [];
 
   // required values for score
-  if (programName && programLength && sessionsPerWeek) {
-    const score = getCustomScore(programName, programLength, sessionsPerWeek);
+  if (programName && programLength && sessionsPerWeek && sections) {
+    const score = getCustomScore(programName, programLength, sessionsPerWeek, sections);
     customScore.textContent = score;
     currentCustomProgramDetails.score = score;
   }
@@ -411,7 +503,6 @@ async function customProgram_programLengthChange(event) {
   if (programName && programLength && sessionsPerWeek && pricePerHour) {
     const price = getCustomProgramPrice(programLength, programName, sessionsPerWeek, pricePerHour);
     customPrice.textContent = price;
-    currentCustomProgramDetails.price = price;
   }
   // required for start and end
   if (programLength && currentCustomProgramDetails.startAfterDate) {
@@ -449,10 +540,11 @@ function customProgram_nameChange(event) {
   const programLength = Number(document.getElementById('customProgram-programLength').value);
   const sessionsPerWeek = Number(document.getElementById('customProgram-sessionsPerWeek').value);
   const pricePerHour = Number(document.getElementById('customProgram-pricePerHour').value);
+  const sections = $('#customProgram-sections').dropdown('get value') ? $('#customProgram-sections').dropdown('get value').split(',') : [];
 
   // required values for score
-  if (programName && programLength && sessionsPerWeek) {
-    const score = getCustomScore(programName, programLength, sessionsPerWeek);
+  if (programName && programLength && sessionsPerWeek && sections) {
+    const score = getCustomScore(programName, programLength, sessionsPerWeek, sections);
     customScore.textContent = score;
     currentCustomProgramDetails.score = score;
   }
@@ -460,7 +552,6 @@ function customProgram_nameChange(event) {
   if (programName && programLength && sessionsPerWeek && pricePerHour) {
     const price = getCustomProgramPrice(programLength, programName, sessionsPerWeek, pricePerHour);
     customPrice.textContent = '$' + price;
-    currentCustomProgramDetails.price = price;
   }
   //required values for sessionLength
   if (programName) {
@@ -483,10 +574,11 @@ function customProgram_sessionsPerWeekChange(event) {
   const programLength = Number(document.getElementById('customProgram-programLength').value);
   const pricePerHour = Number(document.getElementById('customProgram-pricePerHour').value);
   const programName = document.getElementById('customProgram-name').value
+  const sections = $('#customProgram-sections').dropdown('get value') ? $('#customProgram-sections').dropdown('get value').split(',') : [];
 
   // required values for score
-  if (programName && programLength && sessionsPerWeek) {
-    const score = getCustomScore(programName, programLength, sessionsPerWeek);
+  if (programName && programLength && sessionsPerWeek && sections) {
+    const score = getCustomScore(programName, programLength, sessionsPerWeek, sections);
     customScore.textContent = score;
     currentCustomProgramDetails.score = score;
   }
@@ -494,14 +586,13 @@ function customProgram_sessionsPerWeekChange(event) {
   if (programName && programLength && sessionsPerWeek && pricePerHour) {
     const price = getCustomProgramPrice(programLength, programName, sessionsPerWeek, pricePerHour);
     customPrice.textContent = '$' + price;
-    currentCustomProgramDetails.price = price;
   }
 }
 
 function customProgram_pricePerHourChange(event) {
   const target = event.target
   const pricePerHour = Number(target.value);
-  currentCustomProgramDetails.pricePerHour = pricePerHour;
+  currentCustomProgramDetails.price = pricePerHour;
 
   // elements that will change
   const customScore = document.getElementById('customProgram-score');
@@ -511,10 +602,11 @@ function customProgram_pricePerHourChange(event) {
   const programLength = Number(document.getElementById('customProgram-programLength').value);
   const sessionsPerWeek = Number(document.getElementById('customProgram-sessionsPerWeek').value);
   const programName = document.getElementById('customProgram-name').value
+  const sections = $('#customProgram-sections').dropdown('get value') ? $('#customProgram-sections').dropdown('get value').split(',') : [];
 
   // required values for score
-  if (programName && programLength && sessionsPerWeek) {
-    const score = getCustomScore(programName, programLength, sessionsPerWeek);
+  if (programName && programLength && sessionsPerWeek && sections) {
+    const score = getCustomScore(programName, programLength, sessionsPerWeek, sections);
     customScore.textContent = score;
     currentCustomProgramDetails.score = score;
   }
@@ -522,11 +614,29 @@ function customProgram_pricePerHourChange(event) {
   if (programName && programLength && sessionsPerWeek && pricePerHour) {
     const price = getCustomProgramPrice(programLength, programName, sessionsPerWeek, pricePerHour);
     customPrice.textContent = '$' + price;
-    currentCustomProgramDetails.price = price;
   }
 }
 
-function getCustomScore(programName, programLength, sessionsPerWeek) {
+function customProgram_sectionsChange(sections) {
+  currentCustomProgramDetails.sections = sections;
+
+  // elements that will change
+  const customScore = document.getElementById('customProgram-score');
+
+  //values needed to calculate the above elements
+  const programLength = Number(document.getElementById('customProgram-programLength').value);
+  const sessionsPerWeek = Number(document.getElementById('customProgram-sessionsPerWeek').value);
+  const programName = document.getElementById('customProgram-name').value
+
+  // required values for score
+  if (programName && programLength && sessionsPerWeek && sections) {
+    const score = getCustomScore(programName, programLength, sessionsPerWeek, sections);
+    customScore.textContent = score;
+    currentCustomProgramDetails.score = score;
+  }
+}
+
+function getCustomScore(programName, programLength, sessionsPerWeek, sections) {
   if (programName == 'actBasics') {
     const numSessions = programLength * sessionsPerWeek;
     const basicsScoreCurve = findLinearEquation(
@@ -539,7 +649,7 @@ function getCustomScore(programName, programLength, sessionsPerWeek) {
         y: BASICS_EIGHT.score,
       },
     )
-    return Math.min(Math.max(Math.floor(basicsScoreCurve(numSessions)), 0), MAX_EXPECTED_SCORE);
+    return Math.floor(Math.min(Math.max(Math.floor(basicsScoreCurve(numSessions)), 0), MAX_EXPECTED_SCORE) * (sections.length / LESSON_ORDER.length));
   }
   if (programName == 'actGuided') {
     const numSessions = programLength * sessionsPerWeek;
@@ -553,7 +663,7 @@ function getCustomScore(programName, programLength, sessionsPerWeek) {
         y: GUIDED_EIGHT.score,
       },
     )
-    return Math.min(Math.max(Math.floor(guidedScoreCurve(numSessions)), 0), MAX_EXPECTED_SCORE);
+    return Math.floor(Math.min(Math.max(Math.floor(guidedScoreCurve(numSessions)), 0), MAX_EXPECTED_SCORE) * (sections.length / LESSON_ORDER.length));
   }
 }
 
@@ -599,6 +709,13 @@ function daySelectedCallback(event) {
   // if we don't have the number of sessions per week, start, nor end then return
   if (!currentProgramDetails.sessionsPerWeek || !currentProgramDetails.start || !currentProgramDetails.end) {
     customConfirm('Please select a program before setting the days.', '', 'OK', () => {}, () => {});
+    target.checked = false;
+    return;
+  }
+
+  // if we don't have the master lists return
+  if (!qualifiedTutors_master || !openings_master || !blacklistTutors_master) {
+    customConfirm('We are still calculating the openings for tutors. Please make sure all data above has been inputted then try again.', '', 'OK', () => {}, () => {});
     target.checked = false;
     return;
   }
@@ -679,6 +796,8 @@ function clearDayAndTime() {
   //unset the current program
   currentProgramDetails.dayIndexes = [];
   currentProgramDetails.sessionStartTime = null;
+  currentProgramDetails.openings = null;
+  currentProgramDetails.weeklyOpenings = null;
 
   // deactivate the days
   document.querySelectorAll('.date-time .selection-wrapper input').forEach(input => {
@@ -702,6 +821,10 @@ function modulos(number, modulo) {
   return remainder;
 }
 
+function firstSessionFreeCallback(event) {
+  currentProgramDetails.isFirstSessionsFree = event.target.checked;
+}
+
 async function generateOpenTimes() {
   document.getElementById('timeSelection').classList.add('loading', 'disabled');
   //disable all of the inputs
@@ -710,20 +833,46 @@ async function generateOpenTimes() {
   // we want to give the parent the most possible options for when to have their porgram
   // not the most efficient way of doing this but for completion we have to check all possible lesson orders
   // in total that is 24 iteration of getting the open program times
+  // go through each and save the open times along with the permutation that produces them
+  let programAllOpenTimes = [];
+  const permutations = arrayRandomOrder(arrayPermutations(currentProgramDetails.sections));
 
-  const programOpenTimes = await getOpenProgramTimes(
-    currentProgramDetails.value,
-    currentProgramDetails.sections,
-    currentProgramDetails.start,
-    currentProgramDetails.end,
-    currentProgramDetails.sessionLength,
-    currentProgramDetails.dayIndexes,
-    TIME_SLOT_FREQUENCY
-  );
+  permutations.forEach(permutation => {
+    const programOpenTimes = getOpenProgramTimes(
+      currentProgramDetails.value,
+      permutation,
+      currentProgramDetails.start,
+      currentProgramDetails.end,
+      currentProgramDetails.sessionLength,
+      currentProgramDetails.dayIndexes,
+      TIME_SLOT_FREQUENCY
+    );
+    programAllOpenTimes.push({
+      lessonOrder: permutation,
+      programOpenTimes
+    });
+  })
 
-  console.log(programOpenTimes)
+  currentProgramDetails.openings = programAllOpenTimes;
 
-  const weeklyOpenTimes = getWeeklyOpenTimes(programOpenTimes);
+  let weeklyOpenTimes = {};
+  // go through all program open times and find the first permutation that sets the time key to true and store it. do this until all time slots are filled
+  for (let i = 0; i < programAllOpenTimes.length; i++) {
+    setWeeklyOpenTimes(weeklyOpenTimes, programAllOpenTimes[i].programOpenTimes, programAllOpenTimes[i].lessonOrder);
+    // check if all of the keys are set to true, if so break out
+    let allTrue = true;
+    for (const time in weeklyOpenTimes) {
+      if (!time.isOpen) {
+        allTrue = false;
+        break;
+      }
+    }
+    if (allTrue == true) {
+      break;
+    }
+  }
+
+  currentProgramDetails.weeklyOpenings = weeklyOpenTimes;
   renderWeeklyOpenTimes(weeklyOpenTimes);
 
   document.getElementById('timeSelection').classList.remove('loading', 'disabled');
@@ -742,7 +891,7 @@ function renderWeeklyOpenTimes(times) {
     const item = document.createElement('div');
     item.classList.add('item');
     //check if the time is unavailable
-    if (!times[time]) {
+    if (!times[time].isOpen) {
       item.classList.add('disabled');
     }
     item.setAttribute('data-value', time)
@@ -771,7 +920,175 @@ function translateMilitaryHourStr(militaryHours) {
   return `${hours}:${minutes} ${suffix}`;
 }
 
-function confirm() {
+function verifyContact() {
+  const contact = currentProgramDetails.contact;
+  let isValid = true;
+  let missing = [];
+
+  const contactSection = document.querySelector('.contact-info');
+  const contactForm = document.querySelector('.contact-form');
+  const contactErrorMsg = contactSection.querySelector('label.message.error');
+  const contactButton = contactSection.querySelector('button');
+
+  toggleWorking()
+  contactButton.classList.add('loading');
+  contactErrorMsg.textContent = '';
+  contactForm.querySelectorAll('label').forEach(label => label.classList.remove('error'));
+
+  //parent data
+  const parentData = contact.parent;
+  if (!parentData.firstName) {
+    isValid = false;
+    missing.push('parent-firstName');
+    contactForm.querySelector('label[for="parent-firstName"]').classList.add('error');
+  }
+  if (!parentData.lastName) {
+    isValid = false;
+    missing.push('parent-lastName');
+    contactForm.querySelector('label[for="parent-lastName"]').classList.add('error');
+  }
+  if (!parentData.email) {
+    isValid = false;
+    missing.push('parent-email');
+    contactForm.querySelector('label[for="parent-email"]').classList.add('error');
+  }
+  else if (!isEmailValid(parentData.email)) {
+    isValid = false;
+    missing.push('parent-email');
+    contactForm.querySelector('label[for="parent-email"]').classList.add('error');
+  }
+  if (parentData.phoneNumber && !isPhoneNumberValid(parentData.phoneNumber)) {
+    isValid = false;
+    missing.push('parent-phoneNumber');
+    contactForm.querySelector('label[for="parent-phoneNumber"]').classList.add('error');
+  }
+
+  //student data
+  const studentData = contact.student;
+  if (!studentData.firstName) {
+    isValid = false;
+    missing.push('student-firstName');
+    contactForm.querySelector('label[for="student-firstName"]').classList.add('error');
+  }
+  if (!studentData.lastName) {
+    isValid = false;
+    missing.push('student-lastName');
+    contactForm.querySelector('label[for="student-lastName"]').classList.add('error');
+  }
+  if (studentData.email == parentData.email || (studentData.email && !isEmailValid(studentData.email))) {
+    isValid = false;
+    missing.push('student-email');
+    contactForm.querySelector('label[for="student-email"]').classList.add('error');
+  }
+  if (studentData.phoneNumber && !isPhoneNumberValid(studentData.phoneNumber)) {
+    isValid = false;
+    missing.push('student-phoneNumber');
+    contactForm.querySelector('label[for="student-phoneNumber"]').classList.add('error');
+  }
+
+  if (!isValid) {
+    toggleWorking()
+    contactButton.classList.remove('loading');
+    contactErrorMsg.textContent = 'Please check the selected fields'
+  }
+  else {
+    submitContact();
+  }
+
+}
+
+function isEmailValid(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isPhoneNumberValid(phoneNumber) {
+  return /^\([0-9]{3}\)\s[0-9]{3}\-[0-9]{4}$/.test(phoneNumber);
+}
+
+async function submitContact() {
+  const contactSection = document.querySelector('.contact-info');
+  const contactButton = contactSection.querySelector('button');
+
+  // create the parent or get their uid
+  const { user: parent, newUser: isParentNew } = await addParentWithEmail(currentProgramDetails.contact.parent.email);
+  if (isParentNew) {
+    await setUserDoc(parent.uid, {
+      email: currentProgramDetails.contact.parent.email,
+      firstName: currentProgramDetails.contact.parent.firstName,
+      lastName: currentProgramDetails.contact.parent.lastName,
+      location: CURRENT_LOCATION,
+      phoneNumber: currentProgramDetails.contact.parent.phoneNumber,
+      role: 'parent'
+    });
+  }
+
+  // create the student or get their uid
+  let student = null;
+  let isStudentNew = null;
+  // we have the email so we will either find the user or create them
+  if (currentProgramDetails.contact.student.email) {
+    const studentResponse = await addStudentWithEmail(currentProgramDetails.contact.student.email);
+    student = studentResponse.user;
+    isStudentNew = studentResponse.isStudentNew;
+    // if the student is new then set their user doc
+    if (studentResponse.isStudentNew) {
+      await setUserDoc(student.uid, {
+        email: currentProgramDetails.contact.student.email,
+        firstName: currentProgramDetails.contact.student.firstName,
+        lastName: currentProgramDetails.contact.student.lastName,
+        location: CURRENT_LOCATION,
+        phoneNumber: currentProgramDetails.contact.student.phoneNumber,
+        role: 'student'
+      });
+    }
+  }
+  // the student has no email so we try and find them by their parent, first name, and last name 
+  else {
+    const studentResponse = await addStudentWithoutEmail(currentProgramDetails.contact.student.firstName, currentProgramDetails.contact.student.lastName, parent.uid)
+    student = studentResponse.user;
+    isStudentNew = studentResponse.isStudentNew;
+    // if the student is new then set their user doc
+    if (studentResponse.isStudentNew) {
+      await setUserDoc(student.uid, {
+        email: currentProgramDetails.contact.student.email,
+        firstName: currentProgramDetails.contact.student.firstName,
+        lastName: currentProgramDetails.contact.student.lastName,
+        location: CURRENT_LOCATION,
+        phoneNumber: currentProgramDetails.contact.student.phoneNumber,
+        role: 'student'
+      });
+    }
+  }
+
+  // save the uid to each user respectively
+  currentProgramDetails.contact.parent.uid = parent.uid;
+  currentProgramDetails.contact.student.uid = student.uid;
+
+  // begin to calculate the blacklistTutors_master
+  calculateBlacklistedTutors(student.uid)
+
+  toggleWorking()
+  contactButton.classList.remove('loading');
+
+  // tell the user when the process is over and if they users were new
+  customConfirm(
+    `The parent and student have been submitted successfully.
+    Just so that you know this parent is a${isParentNew ? ' new' : 'n old'} customer and
+    this student is a${isStudentNew ? ' new' : 'n old'} customer.`,
+    '',
+    'OK',
+    () => {},
+    () => {}
+  )
+}
+
+function verify() {
+  const submitSection = document.querySelector('.submit-section');
+  const submitButton = submitSection.querySelector('button');
+
+  toggleWorking()
+  submitButton.classList.add('loading');
+
   // verify that we have all of the data that we need
   let isValid = true;
   let missing = [];
@@ -779,91 +1096,281 @@ function confirm() {
     if (currentProgramDetails[key] == null) {
       isValid = false;
       missing.push(key);
+
     }
-    // verify all arrays have some elements
-    if (currentProgramDetails[key].length) {
-      if (currentProgramDetails[key].length == 0) {
-        isValid = false;
-        missing.push(key)
+    else {
+      // verify all arrays have some elements
+      if (currentProgramDetails[key].length) {
+        if (currentProgramDetails[key].length == 0) {
+          isValid = false;
+          missing.push(key)
+        }
       }
     }
 
     //special case for contact
     if (key == 'contact') {
       //parent data
-      const parentData = currentProgramDetails[key].parent;
-      if (!parentData.firstName || !parentData.last || !parentData.email) {
+      if (!currentProgramDetails[key].parent.uid) {
         isValid = false;
-        missing.push('parent-firstName');
+        missing.push('parent')
+      }
+
+      //student data
+      if (!currentProgramDetails[key].student.uid) {
+        isValid = false;
+        missing.push('student')
       }
     }
   }
+
+  if (!isValid) {
+    let missingList = '';
+    missing.forEach(item => {
+      missingList = missingList + `<li>${item}</li>`;
+    })
+    customConfirm(
+      `<p>You seem to be missing some data. Complain to Duncan if this message sucks... anyway here are the things you are missing:<p>
+      <ul>${missingList}</ul>`,
+      '',
+      'OK',
+      () => {},
+      () => {}
+    )
+    toggleWorking()
+    submitButton.classList.remove('loading');
+  }
+  else {
+    submit();
+  }
+  
 }
 
-// testing()
+async function submit() {
+  const submitSection = document.querySelector('.submit-section');
+  const submitButton = submitSection.querySelector('button');
+  console.log('about to submit', currentProgramDetails)
 
-// document.body.addEventListener('keypress', (ev) => {
-//   if (ev.key == 'Enter') {
-//     console.log(currentCustomProgramDetails)
-//   }
-// })
+  // set the calendar events
+  const eventIDs = await setCalendarEvents(currentProgramDetails.contact.student.uid, currentProgramDetails.contact.parent.uid);
 
-async function testing() {
-  try {
-    console.time('main');
-    const [
-      sixWeekProgram,
-      eightWeekProgram
-    ] = await Promise.all([
-      await getProgramStartEnd(6, new Date()),
-      await getProgramStartEnd(8, new Date())
-    ])
+  // send out the invoice
+  const invoice = await generateInvoice(eventIDs);
+  await sendInvoiceEmail(currentProgramDetails.contact.parent.email, invoice);
 
-    console.timeLog('main', 'done calculating program start and end')
-    console.log({
-      sixWeekProgram,
-      eightWeekProgram
-    })
+  // save the program to the student's act profile
+  await saveStudentProgram();
 
-    const [ 
-      basicSixWeekProgramOpenTimes,
-      basicEightWeekProgramOpenTimes,
-      guidedSixWeekProgramOpenTimes,
-      guidedEightWeekProgramOpenTimes
-    ] = await Promise.all([
-      getOpenProgramTimes('actBasics', LESSON_ORDER, sixWeekProgram.startDate, sixWeekProgram.endDate, 60, [3, 2], 60),
-      getOpenProgramTimes('actBasics', LESSON_ORDER, eightWeekProgram.startDate, eightWeekProgram.endDate, 60, [3, 2], 60),
-      getOpenProgramTimes('actGuided', LESSON_ORDER, sixWeekProgram.startDate, sixWeekProgram.endDate, 120, [3, 2], 60),
-      getOpenProgramTimes('actGuided', LESSON_ORDER, eightWeekProgram.startDate, eightWeekProgram.endDate, 120, [3, 2], 60)
-    ])
+  // everything should be all done
+  customConfirm('Lessons have been set and the invoice is being emailed right now!', '', 'OK', () => {}, () => {});
 
-    console.timeLog('main', 'done calculating program openings');
-    console.log({
-      basicSixWeekProgramOpenTimes,
-      basicEightWeekProgramOpenTimes,
-      guidedSixWeekProgramOpenTimes,
-      guidedEightWeekProgramOpenTimes,
-    })
+  toggleWorking()
+  submitButton.classList.remove('loading');
+}
 
-    const basicSixWeeklyOpenTimes = getWeeklyOpenTimes(basicSixWeekProgramOpenTimes);
-    const basicEightWeeklyOpenTimes = getWeeklyOpenTimes(basicEightWeekProgramOpenTimes);
-    const guidedSixWeeklyOpenTimes = getWeeklyOpenTimes(guidedSixWeekProgramOpenTimes);
-    const guidedEightWeeklyOpenTimes = getWeeklyOpenTimes(guidedEightWeekProgramOpenTimes);
+async function setCalendarEvents(studentUID, parentUID) {
+  // determine which lesson order to use that allows for the time slot selected
+  const finalLessonOrder = currentProgramDetails.weeklyOpenings[currentProgramDetails.sessionStartTime].lessonOrder;
+  console.log(finalLessonOrder)
 
-    console.timeLog('main', 'done calculating weekly times')
-    console.log({
-      basicSixWeeklyOpenTimes,
-      basicEightWeeklyOpenTimes,
-      guidedSixWeeklyOpenTimes,
-      guidedEightWeeklyOpenTimes
-    })
-    
-    
-    console.timeEnd('main')
+  // filter the currentProgramDetails.openings to only includes the sessionStartTime that were selected and the permutation that was selected
+  const lessonTimes = currentProgramDetails.openings
+  .find(opening => arrayEquality(opening.lessonOrder, finalLessonOrder)) // find the opening that is the final opening
+  .programOpenTimes // focus in on just the open times
+  .filter(opening => opening.date.getHours().toString().padStart(2, '0') == currentProgramDetails.sessionStartTime.split(':')[0] && opening.date.getMinutes().toString().padStart(2, '0') == currentProgramDetails.sessionStartTime.split(':')[1]) // filter down to only the time that has been selected
+
+  console.log(lessonTimes);
+
+  // determine the tutors to teach each lesson
+  const assignedLessons = determineTutorToAssign([], lessonTimes)
+  console.log(assignedLessons)
+
+  // create the final form of the event
+  const calendarEvents = assignedLessons.map(lesson => {
+    return {
+      attendees: [studentUID, parentUID, lesson.tutor],
+      description: "",
+      end: new Date(lesson.date).setMinutes(lesson.date.getMinutes() + currentProgramDetails.sessionLength),
+      location: CURRENT_LOCATION,
+      parents: [parentUID],
+      price: currentProgramDetails.price,
+      staff: [lesson.tutor],
+      staffNames: [qualifiedTutors_master.find(tutor => tutor.id == lesson.tutor).name],
+      start: lesson.date.getTime(),
+      student: studentUID,
+      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+      subType: lesson.lessonType,
+      title: `${currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName} - ${currentProgramDetails.name} ${lesson.lessonType.charAt(0).toUpperCase() + lesson.lessonType.slice(1)}`,
+      type: currentProgramDetails.value
+    }
+  })
+
+  console.log(calendarEvents);
+
+  // save the events to firebase
+  const eventRefs = [];
+  const eventBatch = firebase.firestore().batch();
+  calendarEvents.forEach(event => {
+    const ref = firebase.firestore().collection('Events').doc();
+    eventRefs.push(ref);
+    return eventBatch.set(ref, event);
+  });
+
+  await eventBatch.commit();
+
+  // schedule the homework email to be sent
+  // get the test to print
+  const testURL = await getTestURL('C02', calendarEvents[0].subType);
+  const homeworkText = `Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do. ${testURL} If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com`;
+  const homeworkHtml = `
+    <h1>Ready for some homework!</h1>
+    <p>Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do.<p>
+    <a href="${testURL}">Test Link</a>
+    <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+  `
+  await setScheduledEmail(currentProgramDetails.contact.parent.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() + 7));
+  if (currentProgramDetails.contact.student.email) {
+    await setScheduledEmail(currentProgramDetails.contact.student.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() + 7));
   }
-  catch (error) {
-    console.error(error)
+  
+  return eventRefs.map(ref => ref.id);
+}
+
+async function setScheduledEmail(to, subject, text, html, when) {
+  return await firebase.firestore().collection('Scheduled-Emails').doc().set({
+    to,
+    subject,
+    text,
+    html,
+    when,
+    createdAt: new Date().getTime()
+  })
+}
+
+async function getTestURL(test, section = undefined) {
+  let path = test + (section != undefined ? (" - " + section.charAt(0).toUpperCase() + section.slice(1)) : "");
+  let ref = firebase.storage().refFromURL('gs://lyrn-web-app.appspot.com/Tests/' + path + '.pdf');
+  return await  ref.getDownloadURL();
+}
+
+function determineTutorToAssign(assignedLessons, lessonTimes) {
+  if (lessonTimes.length == 0) {
+    // in the process of determining tutors to assign we flipepd the order of lesson so out them back into time order
+    return assignedLessons.sort((a, b) => a.date.getTime() - b.date.getTime());
   }
+
+  // give each available tutor a score based on how many lessons they could teach in each section
+  let scores = {
+    english: {},
+    math: {},
+    reading: {},
+    science: {},
+  };
+  lessonTimes.forEach(lesson => {
+    lesson.tutors.forEach(tutor => {
+      if (scores[lesson.lessonType][tutor]) {
+        scores[lesson.lessonType][tutor]++
+      }
+      else {
+        scores[lesson.lessonType][tutor] = 1;
+      }
+    })
+  })
+  console.log(scores)
+
+  let winners = {
+    english: [],
+    math: [],
+    reading: [],
+    science: [],
+  }
+
+  let winningScores = {
+    english: 0,
+    math: 0,
+    reading: 0,
+    science: 0,
+  } 
+
+  for (const section in scores) {
+    for (const tutor in scores[section]) {
+      if (winningScores[section] < scores[section][tutor]) {
+        winners[section] = [];
+        winners[section].push(tutor);
+        winningScores[section] = scores[section][tutor];
+      }
+      else if (winningScores[section] == scores[section][tutor]) {
+        winners[section].push(tutor);
+      }
+    }
+  }
+
+  // randomly get a tutor from the winners array
+  for (const section in winners) {
+    winners[section] = arrayRandomElement(winners[section]);
+  }
+
+  console.log(winners);
+
+  // go through the lessons again and choose the highest tutors is applicable and then remove them from lessonTimes
+  for (let i = lessonTimes.length - 1; i >= 0; i--) {
+    // the winner can teach
+    if (lessonTimes[i].tutors.includes(winners[lessonTimes[i].lessonType])) {
+      // transfer the data
+      assignedLessons.push({
+        date: lessonTimes[i].date,
+        tutor: winners[lessonTimes[i].lessonType],
+        lessonType: lessonTimes[i].lessonType
+      })
+
+      // remove this event from lessonTimes
+      lessonTimes.splice(i, 1);
+    }
+  }
+
+  return determineTutorToAssign(assignedLessons, lessonTimes);
+}
+
+async function generateInvoice(eventIDs) {
+  const invoiceData = {
+    parent: currentProgramDetails.contact.parent.uid,
+    parentName: currentProgramDetails.contact.parent.firstName + ' ' + currentProgramDetails.contact.parent.lastName,
+    student: currentProgramDetails.contact.student.uid,
+    studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+    program: currentProgramDetails.value,
+    programName: currentProgramDetails.name,
+    programLength: currentProgramDetails.programLength,
+    programPrice: currentProgramDetails.price * currentProgramDetails.sessionLength * currentProgramDetails.sessionsPerWeek * currentProgramDetails.programLength,
+    sessionLength: currentProgramDetails.sessionLength,
+    sessionPrice: currentProgramDetails.price * currentProgramDetails.sessionLength,
+    pricePerHour: currentProgramDetails.price,
+    events: eventIDs,
+    isFirstSessionsFree: currentProgramDetails.isFirstSessionsFree,
+    createdAt: new Date().getTime(),
+    expiration: new Date().setHours(new Date().getHours() + INVOICE_EXPIRATION_TIME),
+    status: 'pending'
+  }
+
+  const ref = firebase.firestore().collection('ACT-Invoices').doc();
+  await ref.set(invoiceData)
+
+  return ref.id;
+}
+
+async function saveStudentProgram() {
+  // save relevant info to the student's ACT/profile doc
+  await firebase.firestore().collection('Users').doc(currentProgramDetails.contact.student.uid).collection('ACT').doc('profile').set({
+    programDetails: {
+      program: currentProgramDetails.value,
+      programName: currentProgramDetails.name,
+      score: currentProgramDetails.score,
+      programLength: currentProgramDetails.programLength,
+      start: currentProgramDetails.start.getTime(),
+      end: currentProgramDetails.end.getTime(),
+      sections: currentProgramDetails.sections,
+      createdAt: new Date().getTime()
+    }
+  }, {merge: true})
 }
 
 /**
@@ -985,7 +1492,7 @@ function endOfDate(date) {
   return new Date(new Date(date).setHours(23,59,59,999))
 }
 
-async function getOpenProgramTimes(programType, lessonOrder, startDate, endDate, sessionLength, dayIndexes, timeFrequency, student = null) {
+function getOpenProgramTimes(programType, lessonOrder, startDate, endDate, sessionLength, dayIndexes, timeFrequency) {
   // get all of the days that match the dayIndexes from the startDate to the endDate
 
   // order the dayIndexes
@@ -1055,16 +1562,9 @@ async function getOpenProgramTimes(programType, lessonOrder, startDate, endDate,
   // go through the open tutor times and remove the ones that aren't qualified on those days
   // first determine which program days will be assigned which lesson types
   const programLessonTypes = getProgramLessonTypes(programDates, lessonOrder)
-
-  const [
-    programOpenTutors, // go through the program dates and find the times that we are open (at least one tutor is available and doesn't have an event)
-    programQualifiedTutors, // get all of the tutors that are quailifed in all section for this program
-    blacklistTutors // get all of the tutors that are blacklisted by this student
-  ] = await Promise.all([
-    getOpenTutors(programTimes, sessionLength),
-    getQualifiedTutors(CURRENT_LOCATION, lessonOrder.map(lessonType => programType + '-' + lessonType)),
-    getBlacklistedTutors(student)
-  ])
+  const programOpenTutors = getOpenTutors(programTimes, sessionLength);
+  const programQualifiedTutors = getQualifiedTutors(lessonOrder.map(lessonType => programType + '-' + lessonType));
+  const blacklistTutors = getBlacklistedTutors();
 
   // get the intersection of the the open tutors and the qualified tutors for each time of the open tutors
   const programQualifiedOpenTutors = programOpenTutors.map(openTutors => {
@@ -1087,42 +1587,59 @@ async function getOpenProgramTimes(programType, lessonOrder, startDate, endDate,
   return programQualifiedOpenTutors;
 }
 
-async function getOpenTutors(openTimes, eventLength) {
+function getOpenTutors(openTimes, eventLength) {
   // figure out all of the docs to get from firebase given the openTimes
   // this involves getting the beginning timestamp for the openTimes in UTC time
 
-  let openDocIDs = [];
+  // let openDocIDs = [];
 
-  openTimes.forEach(time => {
-    const midnightUTC = beginningOfUTCDate(time);
-    if (!openDocIDs.includes(midnightUTC.getTime().toString())) {
-      openDocIDs.push(midnightUTC.getTime().toString());
-    }
-  })
+  // openTimes.forEach(time => {
+  //   const midnightUTC = beginningOfUTCDate(time);
+  //   if (!openDocIDs.includes(midnightUTC.getTime().toString())) {
+  //     openDocIDs.push(midnightUTC.getTime().toString());
+  //   }
+  // })
 
   // get the open docs from firebase
-  const openDocs = await Promise.all(openDocIDs.map(openDocID => firebase.firestore().collection('Locations').doc(CURRENT_LOCATION).collection('Calendar-Openings').doc(openDocID).get()));
+  // const openDocs = await Promise.all(openDocIDs.map(openDocID => firebase.firestore().collection('Locations').doc(CURRENT_LOCATION).collection('Calendar-Openings').doc(openDocID).get()));
   const openTutorMaster = {}; // object whose keys are timestamps and the value an array that is an array of the tutor UID's who are open
 
-  
-  openDocs.forEach(doc => {
-    if (doc.exists) {
-      // go through each time and filter out the tutors that have events
-      // we should check here if the tutor has an event but isn't available
-      // it shouldn't be possible but tell teh user to contact the devs in the case
-      const data = doc.data()
-      for (const time in data) {
-        const events = data[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
-        const availabilities = data[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
+  // copy over the openings master and use for calculating openings
+  if (!openings_master) {
+    alert('We are still calculating the openings for tutors please wait and try again.')
+    return;
+  }
+  const openingsMaster_copy =  JSON.parse(JSON.stringify(openings_master));
 
-        if (events.length > availabilities ) {
-          alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
-        }
+  for (const time in openingsMaster_copy) {
+    const events = openingsMaster_copy[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
+    const availabilities = openingsMaster_copy[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
 
-        openTutorMaster[time] = arraySubtraction(availabilities, events);
-      }
+    if (events.length > availabilities ) {
+      alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
     }
-  })
+
+    openTutorMaster[time] = arraySubtraction(availabilities, events);
+  }
+  
+  // openDocs.forEach(doc => {
+  //   if (doc.exists) {
+  //     // go through each time and filter out the tutors that have events
+  //     // we should check here if the tutor has an event but isn't available
+  //     // it shouldn't be possible but tell teh user to contact the devs in the case
+  //     const data = doc.data()
+  //     for (const time in data) {
+  //       const events = data[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
+  //       const availabilities = data[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
+
+  //       if (events.length > availabilities ) {
+  //         alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
+  //       }
+
+  //       openTutorMaster[time] = arraySubtraction(availabilities, events);
+  //     }
+  //   }
+  // })
 
   // go through all of the times given the eventLength and determine which tutors are available
   const openTutors = openTimes.map(time => {
@@ -1163,16 +1680,50 @@ function getProgramLessonTypes(programDates, lessonTypeOrder) {
   });
 }
 
-function getWeeklyOpenTimes(programTimes) {
+/**
+ * Modify the weeklyOpenTimes object with the times that are open and which lesson order allows for it.
+ * @param {Object} weeklyOpenTimes this object will be modified and will store time keys that corsspond to if the time is open and which permutation first made that time available
+ * @param {Object} programTimes the full list of times that the lesson could be at
+ * @param {String[]} lessonOrder the specific permutation that this program time has come from
+ */
+function setWeeklyOpenTimes(weeklyOpenTimes, programTimes, lessonOrder) {
   let timeIsOpen = {};
 
   programTimes.forEach(openDate => {
     const isTutorOpen = openDate.tutors.length > 0;
     const timeKey = openDate.date.getHours().toString().padStart(2, '0') + ':' + openDate.date.getMinutes().toString().padStart(2, '0');
-    timeIsOpen[timeKey] = ( timeIsOpen[timeKey] == true || timeIsOpen[timeKey] == undefined ) ? isTutorOpen : false;
-  })
+    // initialize the time
+    if (!weeklyOpenTimes[timeKey]) { 
+      weeklyOpenTimes[timeKey] = {};
+    }
 
-  return timeIsOpen;
+    // only check the time keys that are set to false (or undefined) in weeklyOpenTimes
+    if (!weeklyOpenTimes[timeKey].isOpen) {
+      timeIsOpen[timeKey] = ( timeIsOpen[timeKey] == true || timeIsOpen[timeKey] == undefined ) ? isTutorOpen : false;
+    }
+  })
+  
+  // run through the timeIsOpen and transfer its data to weeklyOpenTimes
+  for (const time in timeIsOpen) {
+    weeklyOpenTimes[time] = {
+      isOpen: timeIsOpen[time],
+      lessonOrder: timeIsOpen[time] ? lessonOrder : []
+    }
+  }
+}
+
+function arrayEquality(array1, array2) {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < array1.length; i++) {
+    if (array1[i] !== array2[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function arrayUnion(array1, array2) {
@@ -1205,19 +1756,104 @@ function arraySubtraction(arrayMinuend, arraySubtrahend) {
   return arrayMinuend.filter(element => !arraySubtrahend.includes(element))
 }
 
-async function getQualifiedTutors(location, qualifications) {
-  let response = await firebase.functions().httpsCallable('act_sign_up-getQualifiedTutors')({
-    location,
-    qualifications
+function arrayRandomOrder(array) {
+  let tmpArray = [...array];
+  let randomArray = [];
+
+  // go through the array and choose a random index then push it to the random array
+  for (let i = 0; i < array.length; i++) {
+    let randomIndex = Math.floor(Math.random() * (tmpArray.length));
+    randomIndex == tmpArray.length ? randomIndex-- : randomIndex;
+
+    randomArray.push(tmpArray[randomIndex]);
+    tmpArray.splice(randomIndex, 1);
+  }
+
+  return randomArray;
+}
+
+function arrayRandomElement(array) {
+  const length = array.length;
+  let randomIndex = Math.floor(Math.random() * (length))
+  // small chance of random index == array.length
+  if (randomIndex == length) {
+    // I could just round down to length - 1 but that's not fun. This distribution is more uniform
+    return arrayRandomElement(array)
+  }
+
+  return array[randomIndex];
+}
+
+function arrayPermutations(array) {
+  var results = [];
+
+  function permute(arr, memo) {
+    var cur, memo = memo || [];
+
+    for (var i = 0; i < arr.length; i++) {
+      cur = arr.splice(i, 1);
+      if (arr.length === 0) {
+        results.push(memo.concat(cur));
+      }
+      permute(arr.slice(), memo.concat(cur));
+      arr.splice(i, 0, cur[0]);
+    }
+
+    return results;
+  }
+
+  return permute(array);
+}
+
+function getQualifiedTutors(qualifications) {
+  if (!qualifiedTutors_master) {
+    alert('We are still calculating the openings for tutors please wait and try again.')
+    return;
+  }
+  return qualifiedTutors_master.filter(tutor => tutor.qualifications.some(qualification => qualifications.includes(qualification)));
+}
+
+function getBlacklistedTutors() {
+  return blacklistTutors_master
+}
+
+
+async function addParentWithEmail(email) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-addParentWithEmail')({
+    email
   });
 
   return response.data
 }
 
-async function getBlacklistedTutors(studentUID) {
-  let response = await firebase.functions().httpsCallable('act_sign_up-getBlacklistedTutors')({
-    studentUID
+async function addStudentWithEmail(email) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-addStudentWithEmail')({
+    email
   });
 
   return response.data
+}
+
+async function addStudentWithoutEmail(firstName, lastName, parentUID) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-addStudentWithoutEmail')({
+    firstName,
+    lastName,
+    parentUID
+  });
+
+  return response.data
+}
+
+async function sendInvoiceEmail(email, invoice) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-sendInvoiceEmail')({
+    email,
+    invoice
+  });
+
+  return response.data
+}
+
+async function setUserDoc(id, data) {
+  await firebase.firestore().collection('Users').doc(id).set(data)
+  return;
 }

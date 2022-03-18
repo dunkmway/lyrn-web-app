@@ -127,6 +127,18 @@ button:disabled {
   border-color: var(--disabled-accent-color);
 }
 
+button.loading::after {
+  content: '';
+  height: 1em;
+  width: 1em;
+  display: inline-block;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: white;
+  animation: spin .5s linear infinite;
+  margin-left: 1em;
+}
+
 .accent-color {
   color: var(--accent-color);
 }
@@ -141,11 +153,23 @@ button:disabled {
 }
 
 #programWrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  row-gap: 2em;
   margin: 1em 0em;
-  height: 361px;
+  /* height: 361px; */
+}
+
+@media screen and (max-width: 1400px) {
+  #programWrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 750px) {
+  #programWrapper {
+    grid-template-columns: 1fr;
+  }
 }
 
 #customProgramWrapper > label {
@@ -174,6 +198,16 @@ button:disabled {
 
 .program > .split > div {
   width: 49%;
+}
+
+@media screen and (max-width: 750px) {
+  .program > .split {
+    flex-direction: column;
+  }
+  
+  .program > .split > div {
+    width: 100%;
+  }
 }
 
 .program label {
@@ -240,12 +274,25 @@ button:disabled {
   display: inline;
 }
 
+.contact-info label.error {
+  color: var(--accent-color);
+}
 
+.contact-info label.message {
+  font-size: 1em;
+  min-height: 1.5em;
+}
 
 .contact-form {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+@media screen and (max-width: 750px) {
+  .contact-form {
+    flex-direction: column;
+  }
 }
 
 .contact-form > * {
@@ -255,14 +302,18 @@ button:disabled {
 .selection-wrapper {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .selection-wrapper input[type=checkbox] {
   visibility: hidden;
+  position: absolute;
+  z-index: -1;
 }
 
 .selection-wrapper .day-item {
   margin: 0;
+  margin-right: .5em;
   padding: .35em;
   height: 2em;
   width: 2em;
@@ -282,6 +333,40 @@ button:disabled {
 .selection-wrapper input[type=checkbox]:checked + .day-item {
   background-color: var(--accent-color);
   color: white;
+}
+
+.discount-wrapper {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.discount-wrapper > label {
+  margin: 0;
+  margin-right: 1em;
+}
+
+#firstSessionDiscount {
+  visibility: hidden;
+}
+
+#firstSessionDiscount::after {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  top: -4px;
+  left: -4px;
+  position: relative;
+  background-color: white;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  border: 2px solid var(--accent-color);
+}
+
+#firstSessionDiscount:checked::after {
+  background-color: var(--accent-color);
 }
 
 #timeSelection {

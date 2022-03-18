@@ -29,6 +29,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-storage.js"></script>
 
     <script src="Site Templates/site-wide.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
@@ -148,6 +149,8 @@
           <input id="student-phoneNumber" type="tel" onfocusout="contactInfoFocusOutCallback(event)">
         </div>
       </div>
+      <label class="message error"></label>
+      <button class="submit" onclick="verifyContact()">Submit Parent and Student</button>
     </section>
 
     <!-- date and time section -->
@@ -174,6 +177,27 @@
           </div>
         </div>
       </div>
+      <div class="discount-wrapper">
+        <label for="firstSessionDiscount">First Session Free?</label>
+        <input type="checkbox" id="firstSessionDiscount" onchange="firstSessionFreeCallback(event)">
+      </div>
+    </section>
+
+    <section class="info">
+      <h2>ACT Info</h2>
+      <h3>General Details</h3>
+      <ul>
+        <li></li>
+      </ul>
+      <h3>Guarantee Details</h3>
+      <ul>
+        <li>Must attend all sessions. Any missed lessons can be rescheduled within the range it was already scheduled (after previous, before next).</li>
+        <li>Can miss up to one homework assignment.</li>
+        <li>Must be on time to every lesson within 5 minutes and not leave early more than 5 minutes.</li>
+        <li>Custom program must be twice a week.</li>
+        <li>Lessons must have a day gap between them (Sunday exclusive).</li>
+        <li>The test that has been scheduled for you take is the only test whose score will count towards the guarantee.</li>
+      </ul>
     </section>
 
     <!-- confirmation section -->
@@ -183,13 +207,15 @@
     </section> -->
 
     <!-- payment section -->
-    <section class="payment">
+    <!-- <section class="payment">
       <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
       <label for="carholderName"></label>
       <div id="card-element"></div>
       <p id="error-message" class="error"></p>
+    </section> -->
+    <section class="submit-section">
+      <button class="submit" onclick="verify()">Submit</button>
     </section>
     
-    <p class="error">error message</p>
   </body>
 </html>

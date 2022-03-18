@@ -128,6 +128,15 @@ exports.createStripePayment = functions.firestore
       })
     }
 
+    // if the payment was connected to an act invoice update the invoice
+    if (snap.data().act_invoice) {
+      await admin.firestore().collection('ACT-Invoices').doc(snap.data().act_invoice).update({
+        status: 'success',
+        processedAt: new Date().getTime(),
+        paymentType: snap.data().paymentType
+      })
+    }
+
     //remove the parent from probation if their balance is now >= 0
     if (await getUserBalance(parentRecord.uid) >= 0) {
       await unsetProbation(parentRecord.uid);

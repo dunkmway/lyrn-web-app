@@ -244,6 +244,55 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
        });
      });
 
+     firebase
+     .firestore()
+     .collection('ACT-Invoices')
+     .where('parent', '==', parentUID)
+     .onSnapshot((snapshot) => {
+      invoices = [];
+       snapshot.forEach((doc) => {
+         const invoice = doc.data();
+         invoice.docId = doc.id;
+         invoices.push(invoice);
+       })
+
+       invoices.sort((a,b) => b.createdAt - a.createdAt);
+
+       //remove any liElement that is no longer in the list
+       let existingInvoices = document.querySelectorAll('#act-invoices-list li');
+       existingInvoices.forEach(existingInvoice => {
+         if (!invoices.find(invoice => invoice.docId == existingInvoice.id.split('-')[1])) {
+           existingInvoice.remove();
+         }
+       })
+
+       invoices.forEach(invoice => {
+ 
+         let liElement = document.getElementById(`invoice-${invoice.docId}`);
+         if (!liElement) {
+           liElement = document.createElement('li');
+           liElement.id = `invoice-${invoice.docId}`;
+           liElement.style.cursor = 'pointer';
+           liElement.addEventListener('click', () => {
+            window.open(`act-invoice?invoice=${invoice.docId}`, "_blank");
+          })
+         }
+ 
+         let content = '';
+         if (invoice.status === 'pending') {
+           content = `⚠️ Pending ACT invoice created on ${convertFromDateInt(invoice.createdAt)['longDate']}.`;
+         } else if (invoice.status === 'success') {
+           content = `✅ ACT Invoice processed on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+         } else if (invoice.status === 'failed') {
+           content = `🚨 ACT Invoice expired on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+         } else {
+           content = `Generating ACT invoice.`;
+         }
+         liElement.innerText = content;
+         document.querySelector('#act-invoices-list').appendChild(liElement);
+       });
+     });
+
   //get all of the remaining events that this parent is connected to
   firebase.firestore()
   .collection('Events')

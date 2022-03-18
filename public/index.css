@@ -304,8 +304,6 @@ nav a:hover {
   header {
     display: grid;
     grid-template-columns: .2fr auto minmax(600px, 3fr) auto .2fr;
-    /* border-radius: 0px 0px 2rem 2rem; */
-    position: fixed;
   }
   
   .logo {

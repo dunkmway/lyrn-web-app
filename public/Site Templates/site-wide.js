@@ -19,7 +19,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-firebase.analytics();
+// firebase.analytics();
 
 
 window.onerror = sendErrorReport;
@@ -33,7 +33,8 @@ function checkPermissions() {
         "/sign-in",
         "/sign-up",
         "/payment-link",
-        "/act-sign-up"
+        "/act-sign-up",
+        "/act-invoice"
     ]
     
     const studentPages = [
