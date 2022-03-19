@@ -44,3 +44,65 @@ exports.sendContactRequest = functions.https.onCall(async (data, context) => {
 
   return;
 });
+
+exports.unsubscribe = functions.https.onCall(async (data, context) => {
+  // context.app will be undefined if the request doesn't include a valid
+  // App Check token.
+  if (context.app == undefined) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called from an App Check verified app.'
+    )
+  }
+
+  if (!data.q) { return };
+  const leadDoc = await admin.firestore().collection('Leads')
+  .doc(data.q)
+  .get();
+
+  const email = leadDoc.data().email;
+  const query = await admin.firestore().collection('Leads')
+  .where('email', '==', email)
+  .get();
+
+  await Promise.all(query.docs.map(doc => doc.ref.delete()));
+
+  return;
+});
+
+exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
+  // context.app will be undefined if the request doesn't include a valid
+  // App Check token.
+  if (context.app == undefined) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called from an App Check verified app.'
+    )
+  }
+
+  //save the contact data to firebase first
+  const ref = admin.firestore().collection('Leads').doc();
+  await ref.set(data);
+
+  //then send an email to the admin account with the data
+  const msg = {
+    to: data.email,
+    from: 'contact@lyrnwithus.com',
+    subject: 'Start Lyrning with a free sessions!',
+    text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
+    To help you get started use this promo code to get your first session free when signing up for an ACT program. FIRST_ACT
+    Call or text to get started (385) 300-0906 or respond to this email.`,
+    html: `
+      <h1>Thank you for choosing Lyrn Tutoring!</h1>
+      <h2>Please let us know if you have any questions and we would love to help you reach your academic goals.</h2>
+      <p>To help you get started use this promo code to get your first session free when signing up for an ACT program.</p>
+      <h2>FIRST_ACT</h2>
+      <p>Call or text to get started (385) 300-0906 or respond to this email.</p>
+      <h3>Lyrn Tutoring</h3>
+      <a href="lyrnwithus.com/unsubscribe?q=${ref.id}">Unsubscribe</a>
+    `,
+  }
+  await sgMail.send(msg)
+
+  return;
+});

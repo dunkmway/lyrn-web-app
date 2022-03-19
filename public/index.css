@@ -144,7 +144,7 @@ header {
   text-align: center;
   position: sticky;
   top: 0px;
-  z-index: 999;
+  z-index: 10;
   width: 100%;
   padding: 1em 0em;
   /* box-shadow: #00000041 0em .5em 20px; */
@@ -368,6 +368,138 @@ nav a:hover {
   }
 }
 
+/* banner and modal section */
+
+.banner {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  text-align: center;
+  background-color: var(--color-green);
+  color: white;
+  z-index: 999;
+  padding: 1em;
+  cursor: pointer;
+  transform: translateY(100%);
+  animation: .5s ease-in 4s slidein;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slidein {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.banner > p {
+  margin: 0;
+  font-size: 1.25em;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  background-color: rgb(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-blue);
+  color: white;
+  padding: 2em 3em;
+  position: relative;
+  border-radius: 1em;
+  margin: .5em;
+  text-align: center;
+}
+
+.modal-body .accent {
+  color: var(--color-green);
+}
+
+.modal-body .error { 
+  color: red;
+}
+
+.modal-body > .close {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  width: 32px;
+  height: 32px;
+}
+
+.modal-body > .close svg {
+  color: rgb(218, 218, 218);
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.modal-body > .close:hover svg {
+  color: white;
+}
+
+.modal-body input {
+  font-size: 1em;
+  width: 100%;
+  max-width: 25em;
+  padding: .5em;
+  border-radius: .5em;
+  outline: none;
+  border: none;
+}
+
+.modal-body button {
+  margin-top: 1em;
+  background-color: var(--color-green);
+  border: none;
+  outline: none;
+  padding: .5em 1.5em;
+  text-align: center;
+  font-size: 1em;
+  color: white;
+  border-radius: .5em;
+  cursor: pointer;
+}
+
+.modal-body button.loading::after {
+  content: '';
+  margin-left: .5em;
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  animation: spin .5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-body button:hover {
+  transform: scale(1.1);
+}
+
 /* hero section */
 
 .hero {
@@ -376,7 +508,7 @@ nav a:hover {
   justify-content: center;
   color: var(--color-tertiary);
   background-color: var(--color-primary);
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 110px);
   /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light)); */
   background-image: url(Images/postcard-background.jpg);
   background-size: cover;
@@ -512,7 +644,7 @@ nav a:hover {
     align-items: center;
     justify-content: flex-start;
     position: relative;
-    min-height: 100vh;
+    min-height: calc(100vh - 72px);
     background-position: top;
     /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light)); */
   }
@@ -1575,7 +1707,7 @@ nav a:hover {
 /* footer */
 
 footer {
-  padding: 2em;
+  padding: 2em 2em 3em 2em;
   color: var(--color-primary);
   background-color: var(--color-blue);
 }

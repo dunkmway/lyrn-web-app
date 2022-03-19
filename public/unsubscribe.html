@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sign up for our ACT programs">
+    <title>Unsubscribe</title>
+
+    <!-- Firebase -->
+    <script>
+      //this is so reCaptcha will trust local host
+      if (window.location.hostname == 'localhost') {
+        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+
+    <script src="Site Templates/generalFunctions.js" defer></script>
+    <script defer>
+      async function unsubscribe() {
+        const firebaseConfig = {
+          apiKey: "AIzaSyD8GSMZzjbubQ7AGcQKIV-enpDYpz_07mo",
+          authDomain: "lyrn-web-app.firebaseapp.com",
+          projectId: "lyrn-web-app",
+          storageBucket: "lyrn-web-app.appspot.com",
+          messagingSenderId: "80732012862",
+          appId: "1:80732012862:web:22ffb978c80a1d2a0f2c6f",
+          measurementId: "G-F2QZT3W2CX"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+        const appCheck = firebase.appCheck();
+        appCheck.activate(
+          '6LejnxEdAAAAAE01TS3gbg8dFJHw6dPgWv3YJBnK',
+          true
+        )
+
+        try {
+          await firebase.functions().httpsCallable('home-unsubscribe')({
+            q: queryStrings().q
+          });
+
+          document.querySelector('p').textContent = `You will no longer receive marketing communications from Lyrn.`;
+        }
+        catch (error) {
+          document.querySelector('p').textContent = `We're having issues. Please try again.`;
+        }
+      }
+    </script>
+  </head>
+  <body onload="unsubscribe()">
+    <p>We're removing you now...</p>
+  </body>
+</html>
