@@ -273,15 +273,12 @@ document
 
   //charge full amount
   try {
-    await chargeCard(amount, currency, 'one-time', cardholderName);
-    await setDepositCharge((invoiceData.sessionPrice * 2) * 0.9, currency);
+    await chargeCard(amount, currency, 'one-time', cardholderName, event, (invoiceData.sessionPrice * 2) * 0.9);
   }
   catch (error) {
     handleError(error.message, event);
     return;
   }
-
-  endWorking(event);
 });
 
 //save the new card
@@ -318,15 +315,12 @@ document
   // save the card and charge it
   try {
     await saveCard(cardholderName);
-    await chargeCard(amount, currency, 'recurring', cardholderName);
-    await setDepositCharge(invoiceData.sessionPrice * 2, currency);
+    await chargeCard(amount, currency, 'recurring', cardholderName, event, (invoiceData.sessionPrice * 2));
   }
   catch (error) {
     handleError(error.message, event);
     return;
   }
-
-  endWorking(event);
 });
 
 function handleError(message, event) {
@@ -353,7 +347,7 @@ function endWorking(event) {
   document.querySelector('#cardholderName').value = "";
 }
 
-async function chargeCard(amount, currency, paymentType, cardholderName) {
+async function chargeCard(amount, currency, paymentType, cardholderName, event, depositAmount) {
   const { paymentMethod, error } = await stripe.createPaymentMethod({
     type: 'card',
     card: cardElement,
@@ -378,12 +372,40 @@ async function chargeCard(amount, currency, paymentType, cardholderName) {
     paymentType
   };
 
-  await firebase
+  const paymentRef = firebase
   .firestore()
   .collection('stripe_customers')
   .doc(invoiceData.parent)
   .collection('payments')
-  .add(data);
+  .doc();
+
+  const paymentSubscription = paymentRef.onSnapshot(async (payment) => {
+    switch (payment.data().status) {
+      case 'error':
+        handleError(payment.data().error, event);
+        paymentSubscription();
+        break;
+      case 'requires_action':
+        handleCardAction(payment.data(), payment.id)
+      case 'succeeded':
+        try {
+          await setDepositCharge(depositAmount, currency);
+        }
+        catch (error) {
+          handleError(error.message, event);
+          return;
+        }
+        endWorking(event);
+        paymentSubscription();
+        break;
+      default:
+        break;
+    }
+  }, (error) => {
+    handleError(error, event);
+  })
+
+  await paymentRef.set(data);
 
   return;
 }
