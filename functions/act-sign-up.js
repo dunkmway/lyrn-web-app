@@ -283,7 +283,7 @@ exports.checkInvoices = functions.pubsub.schedule('55 11 * * *').timeZone('Ameri
   const now = new Date();
   let expiredInvoices = await admin.firestore().collection('ACT-Invoices').where('status', '==', 'pending').where('expiration', '<=', now.getTime()).get();
 
-  await Promise.all(expiredInvoices.map(async (invoiceDoc) => {
+  await Promise.all(expiredInvoices.docs.map(async (invoiceDoc) => {
     // set the status to failed
     await invoiceDoc.ref.update({
       status: 'failed',
