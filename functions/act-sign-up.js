@@ -278,7 +278,7 @@ exports.updateInvoiceEvents = functions.firestore
   return;
 });
 
-exports.checkInvoices = functions.pubsub.schedule('55 11 * * *').timeZone('America/Denver').onRun(async (context) => {
+exports.checkInvoices = functions.pubsub.schedule('55 23 * * *').timeZone('America/Denver').onRun(async (context) => {
   // get all of the invoices that expired before this point and are still pending
   const now = new Date();
   let expiredInvoices = await admin.firestore().collection('ACT-Invoices').where('status', '==', 'pending').where('expiration', '<=', now.getTime()).get();
