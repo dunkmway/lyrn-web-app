@@ -51,8 +51,9 @@ section {
 
 a {
   cursor: pointer;
-  text-decoration: none;
-  color: var(--color-accent-4-deep);
+  text-decoration: underline;
+  color: inherit;
+  /* color: var(--color-accent-4-deep); */
 }
 
 a:hover {
@@ -118,8 +119,8 @@ li {
 li::before {
   content: '✓';
   text-align: center;
-  width: 1.25em;
-  height: 1.25em;
+  width: 1.5em;
+  height: 1.5em;
   border-radius: 50%;
   position: absolute;
   right: calc(100% + 1em);
@@ -166,11 +167,10 @@ header {
   color: var(--color-primary);
   text-align: center;
   position: sticky;
-  top: -1px;
+  top: 0px;
   z-index: 999;
   width: 100%;
   padding: 1em 0em;
-  /* box-shadow: #00000041 0em .5em 20px; */
   transition: background-color 200ms ease-in;
 }
 
@@ -205,6 +205,7 @@ header li::before {
   align-items: center;
   justify-content: center;
   border-radius: .5em;
+  text-decoration: none;
 }
 
 .phone a svg {
@@ -637,6 +638,44 @@ nav a:hover {
   background-image: linear-gradient(45deg, var(--color-accent-5-light), var(--color-accent-1-light), var(--color-accent-5-light));
 }
 
+section.nav {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+}
+
+section.nav > label {
+  flex: 1;
+  padding: .5em 1em;
+  background-color: var(--color-green);
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+input[name="course-selection"] {
+  position: absolute;
+  visibility: hidden;
+}
+
+input#act-section:checked ~ section.nav > label[for="act-section"] {
+  background-color: white;
+  color: var(--color-green);
+}
+
+input#act-section:checked ~ #act {
+  display: flex;
+}
+
+input#subjectTutoring-section:checked ~ section.nav > label[for="subjectTutoring-section"] {
+  background-color: white;
+  color: var(--color-green);
+}
+
+input#subjectTutoring-section:checked ~ #subjectTutoring {
+  display: flex;
+}
+
 /* ACT section */
 
 .course-section {
@@ -763,38 +802,93 @@ nav a:hover {
   visibility: hidden;
 }
 
-.actPlansHint {
-  display: none;
-  padding: 3em;
-  border: 2px solid #AAAAAA;
+.payment-type {
+  /* display: flex;
+  flex-direction: row;
+  align-items: baseline; */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.payment-type p {
+  margin: 0;
+}
+
+.payment-type p:first-child {
+  text-align: right;
+}
+
+.payment-type p:last-child {
+  text-align: left;
+}
+
+input#paymentType  {
+  margin: 0;
+  position: absolute;
+  visibility: hidden;
+}
+
+.payment-type label {
+  height: 1em;
+  width: 2em;
+  border-radius: calc(.5em + 2px);
+  border: 2px solid var(--color-secondary);
   position: relative;
+  padding: 2px;
+  box-sizing: content-box;
+  margin: 0 .25em;
 }
 
-#act .hint {
-  color: #AAAAAA;
-  text-decoration: underline;
-  cursor: pointer;
+.payment-type  label::after {
+  content: '';
+  position: absolute;
+  display: block;
+  height: 1em;
+  width: 1em;
+  border-radius: .5em;
+  background-color: var(--color-green);
+  top: 2px;
+  right: calc(1em + 2px);
+  transition: right 250ms ease;
 }
 
-#act-plans:checked~.actPlansHint {
+input#paymentType:checked + .payment-type label::after {
+  right: 2px;
+}
+
+input#paymentType:not(:checked) + .payment-type p.scheduled {
+  color: var(--color-green);
+}
+
+input#paymentType:checked + .payment-type p.one-time {
+  color: var(--color-green);
+}
+
+.plans .recurring,
+.plans .one-time {
+  display: none;
+}
+
+input#paymentType:not(:checked) ~ .plans .plan-wrapper .recurring {
   display: block;
 }
 
-#act .actPlansHint .exit-hint {
-  position: absolute;
-  top: 0em;
-  right: .25em;
-  cursor: pointer;
-  color: #AAAAAA;
-  font-size: 2em;
+input#paymentType:checked ~ .plans .plan-wrapper .one-time {
+  display: block;
 }
 
 .plans {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  column-gap: 1em;
   width: 100%;
-  z-index: 2;
+}
+
+#act .plans {
+  grid-template-columns: 1fr
+}
+
+#subjectTutoring .plans {
+  grid-template-columns: 1fr;
 }
 
 .plan-wrapper {
@@ -805,7 +899,8 @@ nav a:hover {
   margin-top: 3em;
   position: relative;
   width: 100%;
-  max-width: 720px;
+  height: min-content;
+  /* max-width: 720px; */
 }
 
 .plan-wrapper.custom {
@@ -884,6 +979,11 @@ nav a:hover {
 .plan-wrapper .select * {
   color: white;
   margin: 0px;
+  text-decoration: none;
+}
+
+.plan-wrapper .select > a > :first-child {
+  font-weight: 900;
 }
 
 /* #act .plan-wrapper.comprehensive {
@@ -960,6 +1060,14 @@ nav a:hover {
   background-color: #939393;
 }
 
+.footnotes {
+  color: #A3A3A3;
+}
+
+.footnotes > p {
+  font-size: 1em;
+}
+
 
 @media screen and (min-width: 800px) {
   .course-wrapper {
@@ -995,12 +1103,9 @@ nav a:hover {
   .intro-wrapper .feature-wrapper ul {
     margin: 0px 3em;
   }
-
-  .plans {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    position: relative;
+  
+  #act .plans {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   /* #act .plans::before {
@@ -1018,16 +1123,16 @@ nav a:hover {
     margin: 3em 0em;
   }
 
-  #act .plan-wrapper:first-child {
+  /* #act .plan-wrapper:first-child {
     margin-right: 6em;
-  }
+  } */
 
   /* #act .plan-wrapper.fundamentals {
     transform: translateY(-7px);
   } */
 
   .plan-wrapper ul {
-    margin: 1.5em;
+    margin: 1.5em 0em;
   }
 
   .steps {
@@ -1161,6 +1266,12 @@ nav a:hover {
   
   .steps div+p {
     padding: 1em 0em 1em 3em;
+  }
+}
+
+@media screen and (min-width: 1112px) {
+  #act .plans {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 

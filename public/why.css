@@ -148,7 +148,7 @@ header {
   color: var(--color-primary);
   text-align: center;
   position: sticky;
-  top: -1px;
+  top: 0px;
   z-index: 999;
   width: 100%;
   padding: 1em 0em;

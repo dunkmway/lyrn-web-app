@@ -21,26 +21,14 @@ appCheck.activate(
 function initialSetup() {
   bannerSetup();
   let queryCourse = queryStrings()['course'];
-  // if (queryCourse && queryCourse != 'act') {
-  //   openCourse(queryCourse)
-  // }
+
   if (queryCourse) {
     openCourse(queryCourse)
   }
-  else {
-    openCourse('act', false)
-  }
 }
 
-function openCourse(sectionID, scroll = true) {
-  document.querySelectorAll('.course-section').forEach(card => {
-    card.style.display = 'none';
-  })
-  document.getElementById(sectionID).style.display = 'flex';
-  
-  if (scroll) {
-    document.getElementById(sectionID).scrollIntoView({behavior: "smooth", block: "start"});
-  }
+function openCourse(sectionID) {
+  document.getElementById(sectionID + '-section').checked = true;
 }
 
 initialSetup();
