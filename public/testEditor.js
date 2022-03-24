@@ -1992,7 +1992,9 @@ function saveAnswers(spacing = '') {
 
 	// If all the answers have been validated, then set / update their document in firebase
 	if (isValidated == true) {
+		let answersObject = {}
 		for (let i = 0; i < answers.length; i++) {
+			answersObject[i + 1] = answers[i].value
 			if (answers[i].value != '') {
 				getQuestionDocument(dom_test.value, dom_section.value, (i + 1), spacing + spaceSize)
 					.then((results) => {
@@ -2042,12 +2044,38 @@ function saveAnswers(spacing = '') {
 				console.log("'" + answers[i].value + "'")
 			}
 		}
+		saveAnswersToTest(dom_test.value, dom_section.value, answersObject)
 		console.log("Finished Setting / Updating Answers")
 	}
 	else {
 		console.log("Please correct your issues")
 	}
 	
+}
+
+async function saveAnswersToTest(test, section, answers) {
+	console.log('saving answers')
+	let doc = await getTestDocument(test, spaceSize)
+	const id = doc.id
+	let data = doc.data()
+
+	setObjectValue(['answers', section], answers, data)
+
+	const ref = firebase.firestore().collection('ACT-Tests').doc(id)
+	ref.set(data)
+}
+
+
+async function saveScaledScoresToTest(test, section, scores) {
+	console.log('saving scores')
+	let doc = await getTestDocument(test, spaceSize)
+	const id = doc.id
+	let data = doc.data()
+
+	setObjectValue(['scaledScores', section], scores, data)
+
+	const ref = firebase.firestore().collection('ACT-Tests').doc(id)
+	ref.set(data)
 }
 
 /**
@@ -2118,6 +2146,9 @@ async function saveScaledScores(spacing = '') {
 		else {
 			firebase.firestore().collection('ACT-Tests').doc(response.id).set(data)
 		}
+
+		// Save the scores to the test document as well
+		saveScaledScoresToTest(dom_test.value, dom_section.value, scaledScores)
 
 		console.log("Finished Setting / Updating Answers")
 	}
