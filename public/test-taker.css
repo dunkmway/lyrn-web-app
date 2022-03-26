@@ -12,13 +12,15 @@
 
 :root {
   --main-background: white;
-  --secondary-background: #111A43;
+  --secondary-background: #111a43;
 
   --english-color: #EA5A59;
   --math-color: #54C6FB;
+  --break-color: #F5B233;
   --reading-color: #8786FC;
   --science-color: #64C13D;
   --writing-color: #F5B233;
+  --all-color: var(--secondary-background);
 
   --default-color: rgb(122, 122, 122);
 
@@ -41,6 +43,31 @@
     --reading-passage-columns: 1;
     --science-passage-columns: 1;
   }
+}
+
+.english-color {
+  color: var(--english-color);
+}
+.english-background {
+  background-color: var(--english-color);
+}
+.math-color {
+  color: var(--math-color);
+}
+.math-background {
+  background-color: var(--math-color);
+}
+.reading-color {
+  color: var(--reading-color);
+}
+.reading-background {
+  background-color: var(--reading-color);
+}
+.science-color {
+  color: var(--science-color);
+}
+.science-background {
+  background-color: var(--science-color);
 }
 
 /* general styles */
@@ -154,6 +181,7 @@ section.hide {
 
 .landing .content .assignment {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   justify-content: space-between;
   color: white;
@@ -164,6 +192,20 @@ section.hide {
 
 .landing .content .assignment > * {
   margin: 0;
+}
+
+.landing .content .previous-assignment-wrapper .subsections {
+  flex-basis: 100%;
+  display: flex;
+  margin-top: .5em;
+  border-radius: .5em;
+  overflow: hidden;
+}
+
+.landing .content .previous-assignment-wrapper .subsections > * {
+  flex: 1;
+  padding: .5em;
+  text-align: center;
 }
 
 /* Main screen */
@@ -183,7 +225,7 @@ section.hide {
   position: relative;
 }
 
-.main .panels > .hide {
+.main .panels .hide {
   display: none;
 }
 
@@ -409,6 +451,27 @@ section.hide {
   flex: .5;
 }
 
+#questionFlag {
+  float: right;
+  position: absolute;
+  visibility: hidden;
+}
+
+.main .panels .question label.flag {
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  padding: .25em;
+  border-radius: 50%;
+  float: right;
+  background-color: white;
+  fill: white;
+}
+
+#questionFlag:checked + label.flag {
+  fill: var(--accent-color);
+}
+
 .main .panels .question .choice {
   display: flex;
   flex-direction: row;
@@ -487,6 +550,9 @@ section.hide {
   border: none;
 }
 
+.main .panels .directions {
+  flex: 1;
+}
 
 .main .footer {
   background-color: var(--secondary-background);

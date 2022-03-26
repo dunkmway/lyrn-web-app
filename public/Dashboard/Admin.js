@@ -840,6 +840,10 @@ function setupNavigationModal(studentUID, parentUID) {
     modal.style.display = 'none';
     window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
   };
+  document.getElementById("testTakerNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../test-taker.html" + studentQueryStr
+  };
   // document.getElementById("subjectTutoringNav").onclick = () => {
   //   modal.style.display = 'none';
   //   window.location.href = "../subject-tutoring-dash.html" + studentQueryStr

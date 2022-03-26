@@ -4,6 +4,17 @@ const admin = require("firebase-admin");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
+const ACT_PROGRAMS = ['actBasics', 'actGuided', 'actFundamentals', 'actComprehensive'];
+const SECTION_TIME = {
+  english: 45,
+  math: 60,
+  reading: 35,
+  science: 35
+}
+const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be started before the required time to take (35 minute section + buffer before lesson starts)
+
+const INITIAL_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
+
 // returns the list of UIDs for tutors that are qualified in the given array of qualifications and the array qualifications thay have that are applicable
 exports.getQualifiedTutors = functions.https.onCall(async (data, context) => {
 
@@ -260,6 +271,31 @@ exports.updateInvoiceEvents = functions.firestore
     else {
       throw new functions.https.HttpsError('invalid-argument', 'the payment type for this invoice in invalid')
     }
+
+    // we want to send the test link to parents and student if they haven't already take the practice test
+    // query for the practice test
+    const practiceTestQuery = await admin.firestore().collection('Section-Assignments')
+    .where('student', '==', newValues.student)
+    .where('test', '==', INITIAL_PRACTICE_TEST_ID)
+    .where('section', '==', 'all')
+    .limit(1)
+    .get();
+
+    // if the assignment does not exist send off the link
+    if (practiceTestQuery.size == 0) {
+      // set the assignment
+      await setPracticeTestAssignments(newValues.student, newValues.program, newValues.programStart)
+      // get the student and parent email
+      const [parentDoc, studentDoc] = await Promise.all([
+        admin.firestore().collection('Users').doc(newValues.parent).get(),
+        admin.firestore().collection('Users').doc(newValues.student).get()
+      ])
+
+      await sendPracticeTestEmail(parentDoc.data().email, newValues.student);
+      if (studentDoc.data().email) {
+        await sendPracticeTestEmail(studentDoc.data().email, newValues.student);
+      }
+    }
   }
   // the invoice has not been paid for
   else if (newValues.status == 'failed') {
@@ -333,5 +369,41 @@ async function sendInvoiceEmail(email, invoiceID) {
   }
 
   await sgMail.send(msg);
+  return;
+}
+
+async function sendPracticeTestEmail(email, studentUID) {
+  const msg = {
+    to: email, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Lyrn ACT Program Initial Test',
+    text: `In preperation for you ACT program, you'll need to take a full length ACT test so that we can know where you are starting at. Here is the link to take this test. This test will take just over 3 hours to complete.
+    https://lyrnwithus.com/test-taker?student=${studentUID}`,
+    html: `
+    <p>In preperation for you ACT program, you'll need to take a full length ACT test so that we can know where you are starting at.</p>
+    <p>Here is the link to take this test. This test will take just over 3 hours to complete.</p>
+    <a href="https://lyrnwithus.com/test-taker?student=${studentUID}">Test Link</a>
+    `
+  }
+
+  await sgMail.send(msg);
+  return;
+}
+
+async function setPracticeTestAssignments(studentUID, program, programStart) {
+  // there is the initial test at the beginning of the program
+  const initialTestData = {
+    section: 'all',
+    status: 'new',
+    student: studentUID,
+    test: INITIAL_PRACTICE_TEST_ID,
+    program: program,
+    open: new Date(),
+    close: programStart
+  }
+
+  const assignmentRef = firebase.firestore().collection('Section-Assignments').doc()
+  await assignmentRef.set(initialTestData);
+
   return;
 }

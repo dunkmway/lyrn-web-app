@@ -1029,16 +1029,17 @@ async function submitContact() {
   if (currentProgramDetails.contact.student.email) {
     const studentResponse = await addStudentWithEmail(currentProgramDetails.contact.student.email);
     student = studentResponse.user;
-    isStudentNew = studentResponse.isStudentNew;
+    isStudentNew = studentResponse.newUser;
     // if the student is new then set their user doc
-    if (studentResponse.isStudentNew) {
+    if (isStudentNew) {
       await setUserDoc(student.uid, {
         email: currentProgramDetails.contact.student.email,
         firstName: currentProgramDetails.contact.student.firstName,
         lastName: currentProgramDetails.contact.student.lastName,
         location: CURRENT_LOCATION,
         phoneNumber: currentProgramDetails.contact.student.phoneNumber,
-        role: 'student'
+        role: 'student',
+        parents: [parent.uid]
       });
     }
   }
@@ -1046,16 +1047,17 @@ async function submitContact() {
   else {
     const studentResponse = await addStudentWithoutEmail(currentProgramDetails.contact.student.firstName, currentProgramDetails.contact.student.lastName, parent.uid)
     student = studentResponse.user;
-    isStudentNew = studentResponse.isStudentNew;
+    isStudentNew = studentResponse.newUser;
     // if the student is new then set their user doc
-    if (studentResponse.isStudentNew) {
+    if (isStudentNew) {
       await setUserDoc(student.uid, {
         email: currentProgramDetails.contact.student.email,
         firstName: currentProgramDetails.contact.student.firstName,
         lastName: currentProgramDetails.contact.student.lastName,
         location: CURRENT_LOCATION,
         phoneNumber: currentProgramDetails.contact.student.phoneNumber,
-        role: 'student'
+        role: 'student',
+        parents: [parent.uid]
       });
     }
   }
@@ -1155,7 +1157,7 @@ async function submit() {
   const eventIDs = await setCalendarEvents(currentProgramDetails.contact.student.uid, currentProgramDetails.contact.parent.uid);
 
   // send out the invoice
-  const invoice = await generateInvoice(eventIDs);
+  const invoice = await generateInvoice(eventIDs, currentProgramDetails.start);
   await sendInvoiceEmail(currentProgramDetails.contact.parent.email, invoice);
 
   // save the program to the student's act profile
@@ -1199,7 +1201,7 @@ async function setCalendarEvents(studentUID, parentUID) {
       start: lesson.date.getTime(),
       student: studentUID,
       studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
-      subType: lesson.lessonType,
+      subtype: lesson.lessonType,
       title: `${currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName} - ${currentProgramDetails.name} ${lesson.lessonType.charAt(0).toUpperCase() + lesson.lessonType.slice(1)}`,
       type: currentProgramDetails.value
     }
@@ -1331,7 +1333,7 @@ function determineTutorToAssign(assignedLessons, lessonTimes) {
   return determineTutorToAssign(assignedLessons, lessonTimes);
 }
 
-async function generateInvoice(eventIDs) {
+async function generateInvoice(eventIDs, programStart) {
   const invoiceData = {
     parent: currentProgramDetails.contact.parent.uid,
     parentName: currentProgramDetails.contact.parent.firstName + ' ' + currentProgramDetails.contact.parent.lastName,
@@ -1340,6 +1342,7 @@ async function generateInvoice(eventIDs) {
     program: currentProgramDetails.value,
     programName: currentProgramDetails.name,
     programLength: currentProgramDetails.programLength,
+    programStart,
     programPrice: currentProgramDetails.price * currentProgramDetails.sessionLength * currentProgramDetails.sessionsPerWeek * currentProgramDetails.programLength,
     sessionLength: currentProgramDetails.sessionLength,
     sessionPrice: currentProgramDetails.price * currentProgramDetails.sessionLength,

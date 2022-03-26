@@ -52,7 +52,7 @@
   <!-- Landing Page -->
   <section class="landing hide">
     <div class="header">
-      <div class="container"><h1><span class="color-accent">ACT</span> Fundamentals</h1></div>
+      <div class="container"><h1><span class="color-accent">ACT</span> Test Taker</h1></div>
       <div class="container">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
@@ -77,10 +77,14 @@
         <h3>Homework Assignment</h3>
         <div id="sectionAssignmentList"></div>
       </div>
-      <div class="daily-assignment-wrapper">
+      <div class="previous-assignment-wrapper">
+        <h3>Previous Assignments</h3>
+        <div id="previousAssignmentList"></div>
+      </div>
+      <!-- <div class="daily-assignment-wrapper">
         <h3>Daily Assignments</h3>
         <div id="dailyAssignmentList"></div>
-      </div>
+      </div> -->
     </div>
   </section>
 
@@ -110,7 +114,7 @@
             <div id="sectionTime" class="background-accent box">Time</div>
           </div>
           <div class="selector-container"></div>
-          <div class="background-accent box submit">Submit Test</div>
+          <!-- <div class="background-accent box submit">Submit Test</div> -->
         </div>
         <div class="pull-tab" onclick="toggleSelectorCallback()">
           <div></div>
@@ -133,8 +137,89 @@
           <div id="passageReference-B"></div>
         </div>
       </div>
+      <div class="directions hide">
+        <div id="englishDirections" class="hide">
+          <h1>ENGLISH TEST</h1>
+          <h2>45 Minutes—75 Questions</h2>
+          <p>
+            DIRECTIONS: In the five passages that follow, certain words and phrases are underlined and numbered. 
+            In the right-hand column, you will find alternatives for the underlined part. 
+            In most cases, you are to choose the one that best expresses the idea, makes the statement appropriate for standard written English, 
+            or is worded most consistently with the style and tone of the passage as a whole. 
+            If you think the original version is best, choose “NO CHANGE.” 
+            In some cases, you will find in the right-hand column a question about the underlined part. 
+            You are to choose the best answer to the question.
+          </p>
+          <p>
+            You will also find questions about a section of the passage, or about the passage as a whole. 
+            These questions do not refer to an underlined portion of the passage, but rather are identified by a number or numbers in a box. 
+          </p>
+          <p>
+            For each question, choose the alternative you consider best and fill in the corresponding oval on your answer document. 
+            Read each passage through once before you begin to answer the questions that accompany it. 
+            For many of the questions, you must read several sentences beyond the question to determine the answer. 
+            Be sure that you have read far enough ahead each time you choose an alternative.
+          </p>
+        </div>
+        <div id="mathDirections" class="hide">
+          <h1>MATH TEST</h1>
+          <h2>60 Minutes—60 Questions</h2>
+          <p>DIRECTIONS: Solve each problem, choose the correct answer, and then fill in the corresponding oval on your answer document.</p>
+          <p>Do not linger over problems that take too much time. Solve as many as you can; then return to the others in the time you have left for this test.</p>
+          <p>You are permitted to use a calculator on this test. You may use your calculator for any problems you choose, but some of the problems may best be done without using a calculator.</p>
+          <p>Note: Unless otherwise stated, all of the following should be assumed.</p>
+          <ol>
+            <li>Illustrative figures are NOT necessarily drawn to scale.</li>
+            <li>Geometric figures lie in a plane.</li>
+            <li>The word line indicates a straight line.</li>
+            <li>The word average indicates arithmetic mean.</li>
+          </ol>
+        </div>
+        <div id="breakDirections" class="hide">
+          <h1>Break</h1>
+          <h2>10 Minutes</h2>
+          <p>
+            You now have a break. The test will resume in 10 minutes automatically (see the timer in the question select tab). We reccomend using the restroom and eating a snack.
+          </p>
+        </div>
+        <div id="readingDirections" class="hide">
+          <h1>READING TEST</h1>
+          <h2>35 Minutes—40 Questions</h2>
+          <p>
+            DIRECTIONS: There are several passages in this test. 
+            Each passage is accompanied by several questions. 
+            After reading a passage, choose the best answer to each question and fill in the corresponding oval on your answer document.  
+            You may refer to the passages as often as necessary.
+          </p>
+        </div>
+        <div id="scienceDirections" class="hide">
+          <h1>SCIENCE TEST</h1>
+          <h2>35 Minutes—40 Questions</h2>
+          <p>
+            DIRECTIONS: There are several passages in this test. 
+            Each passage is followed by several questions. 
+            After reading a passage, choose the best answer to each question and fill in the corresponding oval on your answer document. 
+            You may refer to the passages as often as necessary.
+          </p>
+          <p>
+            You are NOT permitted to use a calculator on this test.
+          </p>
+        </div>
+      </div>
       <div class="question">
-        <div class="background-accent box">Question <span id="questionNumber"></span></div>
+        <div class="background-accent box">Question <span id="questionNumber"></span>
+          <input type="checkbox" id="questionFlag" onchange="questionFlagChangeCallback(event)">
+          <label for="questionFlag" class="flag">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+            <g id="XMLID_1_">
+            <path id="XMLID_4_" class="flag" d="M378.3,35.7c0,0-84.9,40.9-170.6,11C114.9,14.5,73.2,27,33.1,75.8c-7.1-3.9-15.7-3.9-22.8,0
+             C0.1,82.1-3.1,96.2,3.2,106.5l225.7,366.4c3.9,7.1,11.8,10.2,18.9,10.2c3.9,0,7.9-0.8,11.8-3.1c10.2-6.3,13.4-20.4,7.1-30.7
+             l-99.1-162c39.3-48,81.8-61.3,173.8-29.1c84.9,29.9,170.6-11,170.6-11L378.3,35.7z"/>
+            </g>
+            </svg>
+          </label>
+        </div>
         <p id="questionText"></p>
         <div id="questionChoices">
         </div>

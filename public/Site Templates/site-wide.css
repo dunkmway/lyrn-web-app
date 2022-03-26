@@ -70,6 +70,8 @@
   background-color: #FFFFFF;
   min-width: 400px;
   border-radius: 10px;
+  max-height: 90vh;
+  max-width: 90vw;
   overflow-y: auto;
 }
 
@@ -79,7 +81,6 @@
   text-align: left;
   border-bottom: #D5D5D5 solid 1px;
   font-size: 14px;
-  max-height: 100px;
   overflow-y: auto;
 }
 
