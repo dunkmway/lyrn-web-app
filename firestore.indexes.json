@@ -395,6 +395,24 @@
       ]
     },
     {
+      "collectionGroup": "Section-Assignments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "student",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "open",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "Student-Chats",
       "queryScope": "COLLECTION",
       "fields": [
