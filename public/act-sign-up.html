@@ -181,6 +181,10 @@
         <label for="firstSessionDiscount">First Session Free?</label>
         <input type="checkbox" id="firstSessionDiscount" onchange="firstSessionFreeCallback(event)">
       </div>
+      <div class="discount-wrapper">
+        <label for="percentageOffDiscount">Percentage off?</label>
+        <input type="number" id="percentageOffDiscount" onfocusout="percentageOffCallback(event)">
+      </div>
     </section>
 
     <section class="info">

@@ -1,5 +1,5 @@
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr';
 let currentUser = {};
 let customerData = {};
 let parentData = {};
@@ -144,7 +144,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
              payment.amount,
              payment.currency
            )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-           handleCardAction(payment, doc.id);
+           handleCardAction(payment, payment.docId);
          } else {
            content = `⚠️ Payment of ${formatAmount(
              payment.amount,

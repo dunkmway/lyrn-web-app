@@ -130,12 +130,48 @@ function createLocation() {
         {
           name: 'Comprehensive ACT',
           price: 90,
-          value: 'actComprehensive'
+          value: 'actComprehensive',
+          subtypes: [
+            {
+              name: 'English',
+              value: 'english'
+            },
+            {
+              name: 'Math',
+              value: 'math'
+            },
+            {
+              name: 'Reading',
+              value: 'reading'
+            },
+            {
+              name: 'Science',
+              value: 'science'
+            },
+          ]
         },
         {
           name: 'ACT Fundamentals',
           price: 70,
-          value: 'actFundamentals'
+          value: 'actFundamentals',
+          subtypes: [
+            {
+              name: 'English',
+              value: 'english'
+            },
+            {
+              name: 'Math',
+              value: 'math'
+            },
+            {
+              name: 'Reading',
+              value: 'reading'
+            },
+            {
+              name: 'Science',
+              value: 'science'
+            },
+          ]
         },
         {
           name: 'AP Exam',
@@ -144,9 +180,89 @@ function createLocation() {
         },
         {
           name: 'Subject Tutoring',
-          price: 50,
-          value: 'subjectTutoring'
-        }
+          price: 30,
+          value: 'subjectTutoring',
+          subtypes: [
+            {
+              name: 'English',
+              value: 'english'
+            },
+            {
+              name: 'Math',
+              value: 'math'
+            },
+            {
+              name: 'Physics',
+              value: 'physics'
+            },
+            {
+              name: 'Chemistry',
+              value: 'chemistry'
+            },
+            {
+              name: 'Biology',
+              value: 'biology'
+            },
+            {
+              name: 'History',
+              value: 'history'
+            },
+            {
+              name: 'Spanish',
+              value: 'spanish'
+            },
+            {
+              name: 'French',
+              value: 'french'
+            },
+          ]
+        },
+        {
+          name: 'ACT Basics',
+          price: 75,
+          value: 'actBasics',
+          subtypes: [
+            {
+              name: 'English',
+              value: 'english'
+            },
+            {
+              name: 'Math',
+              value: 'math'
+            },
+            {
+              name: 'Reading',
+              value: 'reading'
+            },
+            {
+              name: 'Science',
+              value: 'science'
+            },
+          ]
+        },
+        {
+          name: 'Guided ACT',
+          price: 75,
+          value: 'actGuided',
+          subtypes: [
+            {
+              name: 'English',
+              value: 'english'
+            },
+            {
+              name: 'Math',
+              value: 'math'
+            },
+            {
+              name: 'Reading',
+              value: 'reading'
+            },
+            {
+              name: 'Science',
+              value: 'science'
+            },
+          ]
+        },
       ]
     })
     .then(() => {

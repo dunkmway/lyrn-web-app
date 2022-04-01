@@ -8,14 +8,13 @@
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyD8GSMZzjbubQ7AGcQKIV-enpDYpz_07mo",
-    authDomain: "lyrn-web-app.firebaseapp.com",
-    projectId: "lyrn-web-app",
-    storageBucket: "lyrn-web-app.appspot.com",
-    messagingSenderId: "80732012862",
-    appId: "1:80732012862:web:22ffb978c80a1d2a0f2c6f",
-    measurementId: "G-F2QZT3W2CX"
-};
+    apiKey: "AIzaSyBNyeS-IW0rfFEkrEolUR2FWEa3YRmubd8",
+    authDomain: "lyrn-web-app-dev.firebaseapp.com",
+    projectId: "lyrn-web-app-dev",
+    storageBucket: "lyrn-web-app-dev.appspot.com",
+    messagingSenderId: "853388631859",
+    appId: "1:853388631859:web:0ddd83360863618cd3e846"
+  };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -35,7 +34,8 @@ function checkPermissions() {
         "/payment-link",
         "/act-sign-up",
         "/act-invoice",
-        "/unsubscribe"
+        "/unsubscribe",
+        "/test-taker"
     ]
     
     const studentPages = [
