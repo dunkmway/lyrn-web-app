@@ -15,7 +15,7 @@ const firebaseConfig = {
     messagingSenderId: "80732012862",
     appId: "1:80732012862:web:22ffb978c80a1d2a0f2c6f",
     measurementId: "G-F2QZT3W2CX"
-};
+  };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -35,7 +35,8 @@ function checkPermissions() {
         "/payment-link",
         "/act-sign-up",
         "/act-invoice",
-        "/unsubscribe"
+        "/unsubscribe",
+        "/test-taker"
     ]
     
     const studentPages = [

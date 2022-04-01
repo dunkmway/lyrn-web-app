@@ -98,7 +98,6 @@ exports.createStripePayment = functions.firestore
 .document('stripe_customers/{userId}/payments/{pushId}')
 .onCreate(async (snap, context) => {
   const { amount, currency, payment_method } = snap.data();
-  const parentRecord = await admin.auth().getUser(context.params.userId);
   try {
     // Look up the Stripe customer id.
     const customer = (await snap.ref.parent.parent.get()).data().customer_id;
@@ -118,60 +117,14 @@ exports.createStripePayment = functions.firestore
       { idempotencyKey }
     );
     // If the result is successful, write it back to the database.
-    await snap.ref.set(payment);
+    await snap.ref.update(payment);
+    console.log(payment.status)
+    if (payment.status != 'succeeded') { return }
 
-    // if the payment was connected to an invoice update the invoice
-    if (snap.data().invoice) {
-      await admin.firestore().collection('Invoices').doc(snap.data().invoice).update({
-        status: 'success',
-        processedAt: new Date().getTime() 
-      })
-    }
-
-    // if the payment was connected to an act invoice update the invoice
-    if (snap.data().act_invoice) {
-      await admin.firestore().collection('ACT-Invoices').doc(snap.data().act_invoice).update({
-        status: 'success',
-        processedAt: new Date().getTime(),
-        paymentType: snap.data().paymentType
-      })
-    }
-
-    //remove the parent from probation if their balance is now >= 0
-    if (await getUserBalance(parentRecord.uid) >= 0) {
-      await unsetProbation(parentRecord.uid);
-      await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, amount, currency);
-    }
-    //payment was successful but the account of the parent is still negative
-    else {
-      await setProbation(parentRecord.uid)
-      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, amount, currency)
-    }
-
-    return;
+    await paymentSucceeded(snap.data(), context.params.userId);
   } 
   catch (error) {
-    //remove the parent from probation if their balance is now >= 0
-    if (await getUserBalance(parentRecord.uid) >= 0) {
-      await unsetProbation(parentRecord.uid);
-      await paymentFailedBalanceNonNegativeEmail(parentRecord.email, amount, currency);
-    }
-    //payment was unsuccessful but the account of the parent is still negative
-    else {
-      await setProbation(parentRecord.uid)
-      await paymentFailedBalanceNegativeEmail(parentRecord.email, amount, currency)
-    }
-
-    // We want to capture errors and render them in a user-friendly way, while
-    // still logging an exception with StackDriver
-    functions.logger.log(error);
-    await snap.ref.set({ 
-        error: userFacingMessage(error),
-        status: 'error'
-      }, { merge: true });
-    await reportError(error, { user: context.params.userId });
-
-    return;
+    paymentError(error, snap.ref, snap.data(), context.params.userId);
   }
 });
 
@@ -186,13 +139,78 @@ exports.createStripePayment = functions.firestore
 exports.confirmStripePayment = functions.firestore
  .document('stripe_customers/{userId}/payments/{pushId}')
  .onUpdate(async (change, context) => {
+  console.log(change.after.data().status)
+
    if (change.after.data().status === 'requires_confirmation') {
      const payment = await stripe.paymentIntents.confirm(
        change.after.data().id
      );
-     change.after.ref.set(payment);
+     change.after.ref.update(payment);
+   }
+   else if (change.after.data().status === 'succeeded') {
+     paymentSucceeded(change.after.data(), context.params.userId)
    }
  });
+
+async function paymentSucceeded(paymentData, parentUID) {
+  const parentRecord = await admin.auth().getUser(parentUID);
+
+  // if the payment was connected to an invoice update the invoice
+  if (paymentData.invoice) {
+    await admin.firestore().collection('Invoices').doc(paymentData.invoice).update({
+      status: 'success',
+      processedAt: new Date().getTime() 
+    })
+  }
+
+  // if the payment was connected to an act invoice update the invoice
+  if (paymentData.act_invoice) {
+    await admin.firestore().collection('ACT-Invoices').doc(paymentData.act_invoice).update({
+      status: 'success',
+      processedAt: new Date().getTime(),
+      paymentType: paymentData.paymentType
+    })
+  }
+
+  //remove the parent from probation if their balance is now >= 0
+  if (await getUserBalance(parentRecord.uid) >= 0) {
+    await unsetProbation(parentRecord.uid);
+    await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
+  }
+  //payment was successful but the account of the parent is still negative
+  else {
+    await setProbation(parentRecord.uid)
+    await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+  }
+
+  return;
+}
+
+async function paymentError(error, paymentRef, paymentData, parentUID) {
+  const parentRecord = await admin.auth().getUser(parentUID);
+
+  //remove the parent from probation if their balance is now >= 0
+  if (await getUserBalance(parentRecord.uid) >= 0) {
+    await unsetProbation(parentRecord.uid);
+    await paymentFailedBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
+  }
+  //payment was unsuccessful but the account of the parent is still negative
+  else {
+    await setProbation(parentRecord.uid)
+    await paymentFailedBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+  }
+
+  // We want to capture errors and render them in a user-friendly way, while
+  // still logging an exception with StackDriver
+  functions.logger.log(error);
+  await paymentRef.update({ 
+    error: userFacingMessage(error),
+    status: 'error'
+  });
+  await reportError(error, { user: context.params.userId });
+
+  return;
+}
 
 /**
 * When a user deletes their account, clean up after them

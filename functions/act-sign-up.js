@@ -207,6 +207,7 @@ exports.updateInvoiceEvents = functions.firestore
   if (newValues.status == 'success') {
     // check the payment type to determine what we need to do to the lessons
     if (newValues.paymentType == 'one-time') {
+      console.log('one-time')
       // these evetns should be in time order
       const events = newValues.events;
       let batch = admin.firestore().batch();
@@ -216,7 +217,7 @@ exports.updateInvoiceEvents = functions.firestore
         const ref = admin.firestore().collection('Events').doc(event);
 
         // check if first lesson should be free
-        if (index == 0 && newValues.isFirstSessionsFree) {
+        if (index == 0 && newValues.isFirstSessionFree) {
           // update the lesson's price
           batch.update(ref, {
             price: 0
@@ -231,9 +232,9 @@ exports.updateInvoiceEvents = functions.firestore
         }
         // all other lessons 
         else {
-          // discount the rest 90% to align with the 10% off
+          // discount the rest 90% to align with the 10% off as well as the percentage discount
           batch.update(ref, {
-            price: newValues.pricePerHour * 0.9
+            price: newValues.pricePerHour * (1 - 0.1 - (newValues.percentageOff / 100))
           })
         }
       })
@@ -242,28 +243,37 @@ exports.updateInvoiceEvents = functions.firestore
       await batch.commit();
     }
     else if (newValues.paymentType == 'recurring') {
+      console.log('recurring')
       // these evetns should be in time order
       const events = newValues.events;
       let batch = admin.firestore().batch();
 
-      // check the first lesson
-      if (newValues.isFirstSessionsFree) {
-        batch.update(admin.firestore().collection('Events').doc(events[0]), {
-          price: 0,
-        });
-      }
+      // go through all events and apply the discounts
+      events.forEach((event, index) => {
+        const ref = admin.firestore().collection('Events').doc(event);
 
-      // update the last two
-      if (events[events.length - 1]) {
-        batch.update(admin.firestore().collection('Events').doc(events[events.length - 1]), {
-          price: 0
-        });
-      }
-      if (events[events.length - 2]) {
-        batch.update(admin.firestore().collection('Events').doc(events[events.length - 2]), {
-          price: 0
-        });
-      }
+        // check if first lesson should be free
+        if (index == 0 && newValues.isFirstSessionFree) {
+          // update the lesson's price
+          batch.update(ref, {
+            price: 0
+          })
+        }
+        // last two lessons were already payed for
+        else if (index == (events.length - 1) || index == (events.length - 2)) {
+          // update the lesson's price
+          batch.update(ref, {
+            price: 0
+          })
+        }
+        // all other lessons 
+        else {
+          // discount the percentage off amount
+          batch.update(ref, {
+            price: newValues.pricePerHour * (1 - (newValues.percentageOff / 100))
+          })
+        }
+      })
 
       // commit the update operations
       await batch.commit();
@@ -299,6 +309,7 @@ exports.updateInvoiceEvents = functions.firestore
   }
   // the invoice has not been paid for
   else if (newValues.status == 'failed') {
+    console.log('failed')
     // since the invoice failed we need to remove all lessons associated with this invoice
     const events = newValues.events;
     let batch = admin.firestore().batch();
@@ -402,7 +413,7 @@ async function setPracticeTestAssignments(studentUID, program, programStart) {
     close: programStart
   }
 
-  const assignmentRef = firebase.firestore().collection('Section-Assignments').doc()
+  const assignmentRef = admin.firestore().collection('Section-Assignments').doc()
   await assignmentRef.set(initialTestData);
 
   return;

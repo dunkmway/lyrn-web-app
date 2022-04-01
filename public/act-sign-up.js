@@ -97,7 +97,8 @@ let blacklistTutors_master = null // local version of all tutors who are blackli
  * @property {Object} contact all of the details about the student and parent
  * @property {Object[]} openings all of the details about the which tutors are open at which times
  * @property {Object} weeklyOpenings all of the details about the which tutors are open at which times
- * @property {boolean} isFirstSessionsFree
+ * @property {boolean} isFirstSessionFree
+ * @property {Number} percentageOff
  */
 
 /**
@@ -136,7 +137,8 @@ let currentProgramDetails = {
   },
   openings: [],
   weeklyOpenings: {},
-  isFirstSessionsFree: false
+  isFirstSessionFree: false,
+  percentageOff: 0
 }
 
 /**
@@ -209,11 +211,13 @@ async function initialSetup() {
   await updateSetPrograms();
 
   // initialize the openings with the longest program first calculated
-  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime()));
-  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime()));
-  calculateOpeningsMaster(earliestStart, latestEnd);
-  // initialize qualified tutors for all programs. this will not change
-  calculateQualifiedTutors(CURRENT_LOCATION);
+  if (GUIDED_SIX.start || GUIDED_EIGHT.start) {
+    const earliestStart = new Date(Math.min(GUIDED_SIX?.start?.getTime(), GUIDED_EIGHT?.start?.getTime()));
+    const latestEnd = new Date(Math.max(GUIDED_SIX?.end?.getTime(), GUIDED_EIGHT?.end?.getTime()));
+    calculateOpeningsMaster(earliestStart, latestEnd);
+    // initialize qualified tutors for all programs. this will not change
+    calculateQualifiedTutors(CURRENT_LOCATION);
+  }
 
   toggleWorking();
 }
@@ -280,8 +284,8 @@ async function startAfterDateChangeCallback(selectedDates, dateStr, instance) {
   ])
 
   // we need to know which start time is the oldest and which end time is the newest and calculate openings_master based on these times
-  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime(), currentCustomProgramDetails?.start?.getTime() ?? Infinity));
-  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime(), currentCustomProgramDetails?.end?.getTime() ?? -Infinity));
+  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime(), currentCustomProgramDetails?.start?.getTime()));
+  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime(), currentCustomProgramDetails?.end?.getTime()));
   // place the openingsMaster into a loading state
   openings_master = false;
   calculateOpeningsMaster(earliestStart, latestEnd);
@@ -402,7 +406,6 @@ async function calculateOpeningsMaster(startDate, endDate) {
 
   // get all of these documents from firebase
   const openDocs = await Promise.all(openDocIDs.map(openDocID => firebase.firestore().collection('Locations').doc(CURRENT_LOCATION).collection('Calendar-Openings').doc(openDocID.toString()).get()));
-
   // go through the docs and save them to openings_master
   openings_master = {};
   openDocs.forEach(doc => {
@@ -822,7 +825,11 @@ function modulos(number, modulo) {
 }
 
 function firstSessionFreeCallback(event) {
-  currentProgramDetails.isFirstSessionsFree = event.target.checked;
+  currentProgramDetails.isFirstSessionFree = event.target.checked;
+}
+
+function percentageOffCallback(event) {
+  currentProgramDetails.percentageOff = Number(event.target.value);
 }
 
 async function generateOpenTimes() {
@@ -1192,7 +1199,7 @@ async function setCalendarEvents(studentUID, parentUID) {
     return {
       attendees: [studentUID, parentUID, lesson.tutor],
       description: "",
-      end: new Date(lesson.date).setMinutes(lesson.date.getMinutes() + currentProgramDetails.sessionLength),
+      end: new Date(lesson.date).setMinutes(lesson.date.getMinutes() + (currentProgramDetails.sessionLength * 60)),
       location: CURRENT_LOCATION,
       parents: [parentUID],
       price: currentProgramDetails.price,
@@ -1348,7 +1355,8 @@ async function generateInvoice(eventIDs, programStart) {
     sessionPrice: currentProgramDetails.price * currentProgramDetails.sessionLength,
     pricePerHour: currentProgramDetails.price,
     events: eventIDs,
-    isFirstSessionsFree: currentProgramDetails.isFirstSessionsFree,
+    isFirstSessionFree: currentProgramDetails.isFirstSessionFree,
+    percentageOff: currentProgramDetails.percentageOff,
     createdAt: new Date().getTime(),
     expiration: new Date().setHours(new Date().getHours() + INVOICE_EXPIRATION_TIME),
     status: 'pending'
@@ -1612,7 +1620,7 @@ function getOpenTutors(openTimes, eventLength) {
     alert('We are still calculating the openings for tutors please wait and try again.')
     return;
   }
-  const openingsMaster_copy =  JSON.parse(JSON.stringify(openings_master));
+  const openingsMaster_copy = JSON.parse(JSON.stringify(openings_master));
 
   for (const time in openingsMaster_copy) {
     const events = openingsMaster_copy[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);

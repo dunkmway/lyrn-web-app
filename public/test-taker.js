@@ -1,17 +1,3 @@
-// I do this here so that I don't have analytics
-const firebaseConfig = {
-  apiKey: "AIzaSyD8GSMZzjbubQ7AGcQKIV-enpDYpz_07mo",
-  authDomain: "lyrn-web-app.firebaseapp.com",
-  projectId: "lyrn-web-app",
-  storageBucket: "lyrn-web-app.appspot.com",
-  messagingSenderId: "80732012862",
-  appId: "1:80732012862:web:22ffb978c80a1d2a0f2c6f",
-  measurementId: "G-F2QZT3W2CX"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
 const FLAG_SVG = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
 <g id="XMLID_1_">

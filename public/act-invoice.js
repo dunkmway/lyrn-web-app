@@ -88,7 +88,8 @@ function setupPayInvoice() {
   programAmount.textContent = '$' + invoiceData.programPrice.toFixed(2);
   invoice.append(programDesc, programCost, programQty, programAmount)
 
-  if (invoiceData.isFirstSessionsFree) {
+  let firstSessionFreeAmount = 0;
+  if (invoiceData.isFirstSessionFree) {
     const discountDesc = document.createElement('div');
     discountDesc.classList.add('description-wrapper')
     discountDesc.innerHTML = `
@@ -101,6 +102,7 @@ function setupPayInvoice() {
     discountQty.textContent = '1';
     const discountAmount = document.createElement('p')
     discountAmount.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
+    firstSessionFreeAmount = invoiceData.sessionPrice;
     invoice.append(discountDesc, discountCost, discountQty, discountAmount)
   }
 
@@ -113,15 +115,28 @@ function setupPayInvoice() {
   subTotalTitle.textContent = 'Subtotal'
   const subTotalAmount = document.createElement('p');
   subTotalAmount.classList.add('begin-totals');
-  subTotalAmount.textContent = '$' + (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0)).toFixed(2);
+  subTotalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount).toFixed(2);
   invoice.append(subtotalDescFiller, subtotalCostFiller, subTotalTitle, subTotalAmount)
+
+  let percentageDiscountAmount = 0;
+  if (invoiceData.percentageOff > 0) {
+    const discountDescFiller = document.createElement('div');
+    const discountCostFiller = document.createElement('div');
+    const discountTitle = document.createElement('p')
+    discountTitle.textContent = `${invoiceData.percentageOff}% off`;
+    const discountAmount = document.createElement('p')
+    discountAmount.textContent = '-$' + ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
+    percentageDiscountAmount = ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount));
+    invoice.append(discountDescFiller, discountCostFiller, discountTitle, discountAmount)
+  }
 
   const percentageDescFiller = document.createElement('div');
   const percentageCostFiller = document.createElement('div');
   const percentageTitle = document.createElement('p');
   percentageTitle.textContent = '10% off'
   const percentageAmount = document.createElement('p');
-  percentageAmount.textContent = '-$' + (0.1 * (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0))).toFixed(2);
+  percentageAmount.textContent = '-$' + (0.1 * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
+  const oneTimeDiscountAmount = (0.1 * (invoiceData.programPrice - firstSessionFreeAmount));
   invoice.append(percentageDescFiller, percentageCostFiller, percentageTitle, percentageAmount)
 
   const totalDescFiller = document.createElement('div');
@@ -129,7 +144,7 @@ function setupPayInvoice() {
   const totalTitle = document.createElement('p');
   totalTitle.textContent = 'Total'
   const totalAmount = document.createElement('p');
-  totalAmount.textContent = '$' + (0.9 * (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0))).toFixed(2);
+  totalAmount.textContent = '$' + (invoiceData.programPrice - oneTimeDiscountAmount - percentageDiscountAmount - firstSessionFreeAmount).toFixed(2);
   invoice.append(totalDescFiller, totalCostFiller, totalTitle, totalAmount)
 
   const amountDueDescFiller = document.createElement('div');
@@ -141,7 +156,7 @@ function setupPayInvoice() {
   amountDueTitle.textContent = 'Amount Due'
   const amountDueAmount = document.createElement('p');
   amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + (0.9 * (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0))).toFixed(2);
+  amountDueAmount.textContent = '$' + (invoiceData.programPrice - oneTimeDiscountAmount - percentageDiscountAmount - firstSessionFreeAmount).toFixed(2);
   invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
 }
 
@@ -162,7 +177,8 @@ function setupSaveInvoice() {
   programAmount.textContent = '$' + invoiceData.programPrice.toFixed(2);
   invoice.append(programDesc, programCost, programQty, programAmount)
 
-  if (invoiceData.isFirstSessionsFree) {
+  let firstSessionFreeAmount = 0;
+  if (invoiceData.isFirstSessionFree) {
     const discountDesc = document.createElement('div');
     discountDesc.classList.add('description-wrapper')
     discountDesc.innerHTML = `
@@ -175,22 +191,44 @@ function setupSaveInvoice() {
     discountQty.textContent = '1';
     const discountAmount = document.createElement('p')
     discountAmount.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
+    firstSessionFreeAmount = invoiceData.sessionPrice;
     invoice.append(discountDesc, discountCost, discountQty, discountAmount)
   }
 
+  const subtotalDescFiller = document.createElement('div');
+  subtotalDescFiller.classList.add('begin-totals');
+  const subtotalCostFiller = document.createElement('div');
+  subtotalCostFiller.classList.add('begin-totals');
+  const subTotalTitle = document.createElement('p');
+  subTotalTitle.classList.add('begin-totals');
+  subTotalTitle.textContent = 'Subtotal'
+  const subTotalAmount = document.createElement('p');
+  subTotalAmount.classList.add('begin-totals');
+  subTotalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount).toFixed(2);
+  invoice.append(subtotalDescFiller, subtotalCostFiller, subTotalTitle, subTotalAmount)
+
+  let percentageDiscountAmount = 0;
+  if (invoiceData.percentageOff > 0) {
+    const discountDescFiller = document.createElement('div');
+    const discountCostFiller = document.createElement('div');
+    const discountTitle = document.createElement('p')
+    discountTitle.textContent = `${invoiceData.percentageOff}% off`;
+    const discountAmount = document.createElement('p')
+    discountAmount.textContent = '-$' + ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
+    percentageDiscountAmount = ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount));
+    invoice.append(discountDescFiller, discountCostFiller, discountTitle, discountAmount)
+  }
+
   const totalDescFiller = document.createElement('div');
-  totalDescFiller.classList.add('begin-totals')
   const totalCostFiller = document.createElement('div');
-  totalCostFiller.classList.add('begin-totals')
   const totalTitle = document.createElement('div');
-  totalTitle.classList.add('begin-totals', 'description-wrapper')
+  totalTitle.classList.add('description-wrapper')
   totalTitle.innerHTML = `
     <p>Total</p>
     <p>Amount due over the course of the program</p>
   `
   const totalAmount = document.createElement('p');
-  totalAmount.classList.add('begin-totals')
-  totalAmount.textContent = '$' + (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0)).toFixed(2);
+  totalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount - percentageDiscountAmount).toFixed(2);
   invoice.append(totalDescFiller, totalCostFiller, totalTitle, totalAmount)
 
   const amountDueDescFiller = document.createElement('div');
@@ -205,7 +243,7 @@ function setupSaveInvoice() {
   `
   const amountDueAmount = document.createElement('p');
   amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + (2 * invoiceData.sessionPrice).toFixed(2);
+  amountDueAmount.textContent = '$' + (2 * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100).toFixed(2);
   invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
 }
  
@@ -247,7 +285,11 @@ document
   startWorking(event);
 
   const cardholderName = document.querySelector('#cardholderName').value;
-  const amount = (0.9 * (invoiceData.programPrice - (invoiceData.isFirstSessionsFree ? invoiceData.sessionPrice : 0)));
+  const firstSessionFreeAmount = (invoiceData.isFirstSessionFree ? invoiceData.sessionPrice : 0);
+  const percentageDiscountAmount = (invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount);
+  const oneTimeDiscountAmount = 0.1 * (invoiceData.programPrice - firstSessionFreeAmount);
+  const amount = invoiceData.programPrice - firstSessionFreeAmount - percentageDiscountAmount - oneTimeDiscountAmount;
+  const depositAmount = (2 * invoiceData.sessionPrice * (90 - invoiceData.percentageOff) / 100);
   const currency = 'usd';
   const agreements = document.querySelectorAll('.agreements > input')
 
@@ -266,14 +308,14 @@ document
   }
 
   //confirm
-  if (!confirm(`By pressing ok you are agreeing to pay the full amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}.`)) {
+  if (!confirm(`By pressing ok you are agreeing to pay the full amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}. You also understand that ${formatAmount(formatAmountForStripe(depositAmount, currency), currency)} will be counted towards a nonrefundable deposit.`)) {
     handleError('', event);
     return;
   }
 
   //charge full amount
   try {
-    await chargeCard(amount, currency, 'one-time', cardholderName, event, (invoiceData.sessionPrice * 2) * 0.9);
+    await chargeCard(amount, currency, 'one-time', cardholderName, event, depositAmount);
   }
   catch (error) {
     handleError(error.message, event);
@@ -288,7 +330,8 @@ document
   startWorking(event);
 
   const cardholderName = document.getElementById('cardholderName').value;
-  const amount = invoiceData.sessionPrice * 2;
+  const amount = (2 * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100);
+  const depositAmount = amount;
   const currency = 'usd';
   const agreements = document.querySelectorAll('.agreements > input')
 
@@ -314,8 +357,7 @@ document
 
   // save the card and charge it
   try {
-    await saveCard(cardholderName);
-    await chargeCard(amount, currency, 'recurring', cardholderName, event, (invoiceData.sessionPrice * 2));
+    await chargeCard(amount, currency, 'recurring', cardholderName, event, depositAmount, true);
   }
   catch (error) {
     handleError(error.message, event);
@@ -347,7 +389,7 @@ function endWorking(event) {
   document.querySelector('#cardholderName').value = "";
 }
 
-async function chargeCard(amount, currency, paymentType, cardholderName, event, depositAmount) {
+async function chargeCard(amount, currency, paymentType, cardholderName, event, depositAmount, isSaveCard = false) {
   const { paymentMethod, error } = await stripe.createPaymentMethod({
     type: 'card',
     card: cardElement,
@@ -380,15 +422,24 @@ async function chargeCard(amount, currency, paymentType, cardholderName, event, 
   .doc();
 
   const paymentSubscription = paymentRef.onSnapshot(async (payment) => {
+    console.log(payment.data())
     switch (payment.data().status) {
       case 'error':
         handleError(payment.data().error, event);
         paymentSubscription();
         break;
       case 'requires_action':
-        handleCardAction(payment.data(), payment.id)
+        handleCardAction(payment.data(), payment.id);
+        break;
+      case 'requires_payment_method':
+        // the payment did not go through so we show an error
+        handleError('We could not process your payment.', event);
+        break;
       case 'succeeded':
         try {
+          if (isSaveCard) {
+            await saveCard(cardholderName);
+          }
           await setDepositCharge(depositAmount, currency);
         }
         catch (error) {

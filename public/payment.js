@@ -144,7 +144,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
              payment.amount,
              payment.currency
            )} ${payment.status} on ${convertFromDateInt(payment.created * 1000)['longDate']}.`;
-           handleCardAction(payment, doc.id);
+           handleCardAction(payment, payment.docId);
          } else {
            content = `⚠️ Payment of ${formatAmount(
              payment.amount,
