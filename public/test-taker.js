@@ -1,9 +1,17 @@
-const FLAG_SVG = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+const FLAG_SVG = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+viewBox="0 0 512 512" xml:space="preserve">
 <g id="XMLID_1_">
 <path id="XMLID_4_" class="flag" d="M378.3,35.7c0,0-84.9,40.9-170.6,11C114.9,14.5,73.2,27,33.1,75.8c-7.1-3.9-15.7-3.9-22.8,0
  C0.1,82.1-3.1,96.2,3.2,106.5l225.7,366.4c3.9,7.1,11.8,10.2,18.9,10.2c3.9,0,7.9-0.8,11.8-3.1c10.2-6.3,13.4-20.4,7.1-30.7
  l-99.1-162c39.3-48,81.8-61.3,173.8-29.1c84.9,29.9,170.6-11,170.6-11L378.3,35.7z"/>
+</g>
+</svg>`
+const CHECK_SVG = `<svg viewBox="0 0 12 12" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg">
+<polygon points="4.172 9.2 10.966 0 12 1.4 4.172 12 0 6.35 1.034 4.95" style=""/>
+</svg>`
+const CROSS_SVG = `<svg viewBox="0 0 12 12" width="10px" height="10px" xmlns="http://www.w3.org/2000/svg">
+<g transform="matrix(0.005703, 0, 0, 0.005876, -0.000137, 9.355989)" style="">
+  <polygon points="2104.135 -1434.151 1941.478 -1592.342 1052.117 -729.182 162.83 -1592.342 0.024 -1434.223 889.311 -571.172 0.024 291.879 162.83 449.998 1052.117 -413.239 1941.478 449.998 2104.135 291.807 1214.96 -571.172"/>
 </g>
 </svg>`
 
@@ -48,6 +56,7 @@ const MODE_VIEWS = {
   worksheet: 'main',
   daily: 'main',
   all: 'full-length-landing',
+  review: 'main',
 }
 const ACT_PROGRAMS = ['actBasics', 'actGuided', 'actFundamentals', 'actComprehensive'];
 
@@ -128,7 +137,7 @@ function renderNextLessonDetails(lessonData) {
   const nextLessonElement = document.getElementById('nextLessonDetails');
 
   if (!lessonData) {
-    nextLessonElement.textContent = "... oh wait you don't have any more lessons."
+    nextLessonElement.textContent = "starting soon. Give us a call or text if you want to increase your ACT score. (385) 300-0906"
     return;
   }
 
@@ -167,19 +176,27 @@ function renderPreviousAssignment(assignmentData) {
   if (assignmentData) {
     // assignmentElement.addEventListener('click', () => previousAssignmentClickCallback(assignmentData))
     assignmentElement.style.backgroundColor = `var(--${assignmentData.section}-color)`
+    if (assignmentData.section != 'all') {
+      assignmentElement.addEventListener('click', () => previousAssignmentClickCallback(assignmentData))
+    }
     assignmentElement.innerHTML = `
       <h4>${assignmentData.section.toUpperCase()}</h4>
       <div class="status">${assignmentData.scaledScore}</div>
     `
+
+    const sections = ['english', 'math', 'reading', 'science'];
     if (assignmentData.section == 'all' && assignmentData.scaledScore != 'Not yet graded') {
-      assignmentElement.innerHTML += ` 
-      <div class="subsections">
-        <div class="english-background">E : ${assignmentData.sectionAssignments.find(section => section.section == 'english').scaledScore}</div>
-        <div class="math-background">M : ${assignmentData.sectionAssignments.find(section => section.section == 'math').scaledScore}</div>
-        <div class="reading-background">R : ${assignmentData.sectionAssignments.find(section => section.section == 'reading').scaledScore}</div>
-        <div class="science-background">S : ${assignmentData.sectionAssignments.find(section => section.section == 'science').scaledScore}</div>
-      </div>
-      `
+      const subsection = document.createElement('div');
+      subsection.classList.add('subsections');
+
+      sections.forEach(sectionName => {
+        const sectionElem = document.createElement('div');
+        sectionElem.classList.add(`${sectionName}-background`)
+        sectionElem.textContent = `${sectionName.charAt(0).toUpperCase()} : ${assignmentData.sectionAssignments.find(section => section.section == sectionName).scaledScore}`;
+        sectionElem.addEventListener('click', () => previousAssignmentClickCallback(assignmentData.sectionAssignments.find(section => section.section == sectionName)));
+        subsection.appendChild(sectionElem);
+      })
+      assignmentElement.appendChild(subsection);
     }
   }
   else {
@@ -216,6 +233,7 @@ function renderDailyAssignment(assignmentData) {
 }
 
 function sectionAssignmentClickCallback(assignmentData) {
+  console.log(assignmentData)
   switch (assignmentData.status) {
     case 'new':
       customConfirm(
@@ -224,7 +242,7 @@ function sectionAssignmentClickCallback(assignmentData) {
         Once you start this test you will not be able to pause until the entire assignment is complete. 
         You can flag question for review by clicking the circle above the question. 
         You can see which questions have been answered or flagged by opening up the tab on the left side as well as see the time remaining for the current section. 
-        The test will automatically be submitted whne time runs out. 
+        The test will automatically be submitted when time runs out. 
         You will not have the ability to submit the test early. 
         We highly recommend using the entire time allotted even if you finish early. 
         Are you ready to start this assignment?`,
@@ -241,6 +259,32 @@ function sectionAssignmentClickCallback(assignmentData) {
       alert('We are having issues with this assigment. Please try again and if the issue continues please contact us.')
   }
 
+}
+
+function previousAssignmentClickCallback(assignmentData) {
+  console.log(assignmentData)
+  if (assignmentData.scaledScore == 'Not yet graded') {
+    customConfirm(
+      `This test hasn't finished being graded. Refresh your page to try again.
+      This should only take a few seconds after you submitted the assignment.`,
+      'NO',
+      'YES',
+      () => {},
+      () => { beginSectionAssignment(assignmentData) }
+    )
+  }
+  else if (assignmentData.section == 'all') {
+    // do nothing because we don't review 'all' sections;
+  }
+  else if (assignmentData.status == 'graded'){
+    current_data.assignment = assignmentData.assignment;
+    console.log(current_data)
+    changeMode('review');
+    setPreviousSection(assignmentData)
+  }
+  else {
+    alert('We are having issues with this assigment. Please try again and if the issue continues please contact us.')
+  }
 }
 
 async function beginSectionAssignment(assignmentData) {
@@ -681,7 +725,12 @@ async function setLandingPage(studentUID) {
           const allSectionDocs = await Promise.all(allSectionIDs.map(id => {
             return firebase.firestore().collection('Section-Assignments').doc(id).get();
           }))
-          const allSections = allSectionDocs.map(doc => doc.data());
+          const allSections = allSectionDocs.map(doc => {
+            return {
+              ...doc.data(),
+              assignment: doc.id
+            }
+          });
 
           // make sure all of the subsections have been graded
           let isAllGraded = true;
@@ -872,6 +921,8 @@ function renderQuestion(questionData, answerData = null) {
 
   //determine if the flag should be shown
   document.getElementById('questionFlag').checked = isFlagged(answerData);
+  // enable the flag
+  document.getElementById('questionFlag').disabled = false;
 
   resetMathJax();
 }
@@ -967,6 +1018,9 @@ async function setQuestion(test, section, question) {
 
   if (question != current_data.question || section != current_data.section) {
     try {
+      showQuestion();
+      renderNextPrevious(section, question);
+
       const questionDoc = await getQuestionDocument(test, section, question);
       const questionData = questionDoc?.data()
   
@@ -991,6 +1045,7 @@ async function setQuestion(test, section, question) {
       // if there already exists an answer for this question on this assignment
       if (answerData) {
         current_data.answer = answerDoc.id;
+        renderQuestion(questionData, answerData)
         await recordAnswerEvent(
           answerDoc.id,
           {
@@ -998,15 +1053,11 @@ async function setQuestion(test, section, question) {
             event: 'restart'
           }  
         )
-        renderQuestion(questionData, answerData)
       }
       else {
-        current_data.answer = await setAnswerDoc(current_data.assignment, test, section, question);
         renderQuestion(questionData);
+        current_data.answer = await setAnswerDoc(current_data.assignment, test, section, question);
       }
-
-      showQuestion();
-      renderNextPrevious(section, question);
   
       current_data.test = test;
       current_data.section = section;
@@ -1062,6 +1113,7 @@ async function setSection(assignmentData) {
 
   // display the section
   hideAllDirections();
+  hideExitReview();
   const testDoc = await getTestDoc(assignmentData.test);
   const testCode = testDoc.data().test;
 
@@ -1105,6 +1157,7 @@ function renderSectionDirections(section) {
   hidePassage();
   hideQuestion();
   hideAllDirections();
+  renderNextPrevious('directions', -1);
   console.log(section)
   showDirection(section);
 }
@@ -1161,11 +1214,34 @@ async function submitSection() {
 }
 
 function nextQuestionCallback() {
-  setQuestion(current_data.test, current_data.section, current_data.question + 1)
+  switch (current_data.mode) {
+    case 'section':
+      setQuestion(current_data.test, current_data.section, current_data.question + 1)
+      break;
+    case 'review':
+      setPreviousQuestion(current_data.test, current_data.section, current_data.question + 1)
+      break;
+    default:
+      alert('We are having issues. Please try again.')
+  }
+}
+
+function exitReviewCallback() {
+  changeMode('default')
+  setLandingPage(CURRENT_STUDENT_UID);
 }
 
 function previousQuestionCallback() {
-  setQuestion(current_data.test, current_data.section, current_data.question - 1)
+  switch (current_data.mode) {
+    case 'section':
+      setQuestion(current_data.test, current_data.section, current_data.question - 1)
+      break;
+    case 'review':
+      setPreviousQuestion(current_data.test, current_data.section, current_data.question - 1)
+      break;
+    default:
+      alert('We are having issues. Please try again.')
+  }
 }
 
 function toggleSelectorCallback() {
@@ -1247,4 +1323,153 @@ function questionFlagChangeCallback(event) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function setPreviousSection(assignmentData) {
+  // display the section
+  hideAllDirections();
+  showExitReview();
+  const testDoc = await getTestDoc(assignmentData.test);
+  const testData = testDoc.data();
+  const testCode = testData.test;
+
+  // go through the assignment questions and add in the correct answer
+
+  renderPreviousSelector(testData, assignmentData.section, assignmentData.questions)
+  await setPreviousQuestion(testCode, assignmentData.section, 1)
+}
+
+function showExitReview() {
+  document.getElementById('exitReview').classList.remove('hide');
+}
+
+function hideExitReview() {
+  document.getElementById('exitReview').classList.add('hide');
+}
+
+async function setPreviousQuestion(test, section, question) {
+  changeAccentColor(section);
+
+  if (question != current_data.question || section != current_data.section) {
+    try {
+      showQuestion();
+      renderNextPrevious(section, question);
+
+      const questionDoc = await getQuestionDocument(test, section, question);
+      const questionData = questionDoc?.data()
+  
+      if (!questionData) {
+        renderError('We are having an issue getting this question.');
+        return;
+      }
+  
+      // if the question does have a passage
+      if (questionData.passage != -1 && (questionData.passage != current_data.passage || section != current_data.section)) {
+        await setPassage(test, section, questionData.passage);
+      }
+      if (questionData.passage == -1) {
+        hidePassage();
+      }
+      else {
+        showPassage();
+      }
+
+      const answerDoc = await getAnswerDoc(current_data.assignment, test, section, question);
+      const answerData = answerDoc?.data()
+      // if there already exists an answer for this question on this assignment
+      if (answerData) {
+        current_data.answer = answerDoc.id;
+        renderPreviousQuestion(questionData, answerData)
+      }
+      else {
+        current_data.answer = null;
+        renderPreviousQuestion(questionData);
+      }
+  
+      current_data.test = test;
+      current_data.section = section;
+      current_data.question = question;
+    }
+    catch (error) {
+      console.log(error)
+    }
+  }
+}
+
+function renderPreviousQuestion(questionData, answerData = null) {
+  // document.querySelector('.main .panels .question').classList.remove('hide');
+
+  //render the question text
+  document.getElementById('questionNumber').textContent = questionData.problem;
+  document.getElementById('questionText').innerHTML = questionData.questionText;
+
+  // handle teh questions that have markers in the passage that need to be highlighted
+  document.querySelectorAll(`.passage-container span[data-question]`).forEach(question => { question.classList.remove('highlighted') });
+  document.querySelectorAll(`.passage-container span[data-question="${questionData.problem}"]`).forEach(question => { question.classList.add('highlighted'); });
+
+  // select the question in the selecotr panel
+  if (document.getElementById(`selectorRadio-${questionData.problem}`)) {
+    document.getElementById(`selectorRadio-${questionData.problem}`).checked = true;
+  }
+
+  // render all of the choices
+  const choiceWrapper = document.getElementById('questionChoices');
+  removeAllChildNodes(choiceWrapper);
+
+  questionData.answers.forEach((choice, index) => {
+    const choiceLetter = questionData.problem % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index];
+    const isCorrectChoice = questionData.correctAnswer == choiceLetter;
+
+    const choiceElem = document.createElement('div');
+    choiceElem.classList.add('choice');
+    // choiceElem.innerHTML = `
+    //   <input type="checkbox" name="strike" id="strike-${index}" value="${choiceLetter}">
+    //   <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" onclick="addSelectorAnsweredCallback(${questionData.problem})">
+    //   <label for="choice_${index}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
+    // `
+    if (answerData) {
+      console.log(answerData)
+    }
+    choiceElem.innerHTML = `
+      <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" ${isChoiceSelected(choiceLetter, answerData) ? 'checked' : ''} disabled>
+      <label for="choice_${index}" class="${isCorrectChoice ? 'correct' : ''}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
+    `
+    choiceWrapper.appendChild(choiceElem);
+  })
+
+  //determine if the flag should be shown
+  document.getElementById('questionFlag').checked = isFlagged(answerData);
+  // disable the flag
+  document.getElementById('questionFlag').disabled = true;
+
+  resetMathJax();
+}
+
+function renderPreviousSelector(testData, section, questionStates) {
+  removeAllChildNodes(document.querySelector('.main .panels .selector .selector-container'))
+  for (let i = 1; i <= QUESTION_COUNT[section]; i++) {
+    const questionRadio = document.createElement('input');
+    questionRadio.setAttribute('id', 'selectorRadio-' + i);
+    questionRadio.setAttribute('type', 'radio');
+    questionRadio.setAttribute('name', 'questionSelector');
+
+    const questionSelector = document.createElement('label');
+    questionSelector.setAttribute('for', 'selectorRadio-' + i);
+    questionSelector.classList.add('selector-wrapper');
+    questionSelector.addEventListener('click', () => { setPreviousQuestion(testData.test, section, i) })
+    questionSelector.innerHTML = `
+      <span>${FLAG_SVG}</span>
+      Question ${i}
+      <span>${testData.answers[section][i] == questionStates?.[i]?.answer ? CHECK_SVG : CROSS_SVG}</span>
+    `
+    document.querySelector('.main .panels .selector .selector-container').appendChild(questionRadio);
+    document.querySelector('.main .panels .selector .selector-container').appendChild(questionSelector);
+
+    if (questionStates?.[i]?.answer) {
+      addSelectorAnsweredCallback(i);
+    }
+    if (questionStates?.[i]?.flagged) {
+      addSelectorFlaggedCallback(i)
+    }
+  }
 }

@@ -79,7 +79,19 @@ async function gradeAssignment(assignmentID, assignmentData) {
   const sectionAnswers = testDoc.data().answers[assignmentData.section];
   for (const question in sectionAnswers) {
     const correctAnswer = sectionAnswers[question];
-    const studentAnswer = assignmentData.questions[question].answer
+    let studentAnswer = assignmentData.questions
+    if (studentAnswer) {
+      studentAnswer = studentAnswer[question]
+      if (studentAnswer) {
+        studentAnswer = studentAnswer.answer
+      }
+      else {
+        studentAnswer = null;
+      }
+    }
+    else {
+      studentAnswer = null;
+    }
 
     if (studentAnswer == correctAnswer) {
       numAnswersCorrect++;
@@ -129,7 +141,7 @@ exports.checkAssignments = functions.pubsub.schedule('59 23 * * *').timeZone('Am
     .get()
     .then((startedQuery) => {
       return Promise.all(startedQuery.docs.map(doc => {
-        if (doc.data().startedAt.toDate().getTime() + SECTION_TIME[doc.data().section] < new Date().getTime()) {
+        if (doc.data().startedAt.toDate().getTime() + (SECTION_TIME[doc.data().section] * 60000) < new Date().getTime()) {
           return doc.ref.update({ status: 'submitted' });
         }
       }))

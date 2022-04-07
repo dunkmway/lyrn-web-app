@@ -74,6 +74,33 @@ function bannerSetup() {
   })
 }
 
+// set up the practice test request
+document.querySelector('.practice-test-wrapper button').addEventListener('click', async (e) => {
+  // check if the email is valid
+  const email = document.querySelector('.practice-test-wrapper input');
+  const error = document.querySelector('.practice-test-wrapper .error')
+  const submit = e.target;
+
+  submit.disabled = true;
+  submit.classList.add('loading');
+  submit.textContent = 'Sending practice test...'
+  error.textContent = '';
+
+  if (!isEmailValid(email.value)) {
+    error.textContent = 'There seems to be something wrong with the email you entered.'; 
+    submit.disabled = false;
+    submit.classList.remove('loading');
+    submit.textContent = 'Submit'
+    return;
+  }
+
+  await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
+
+  submit.disabled = false;
+  submit.classList.remove('loading');
+  submit.textContent = 'Practice test sent!'
+})
+
 function isEmailValid(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -83,7 +110,18 @@ async function sendLeadRequest(email, type, page) {
     email,
     type,
     page,
-    timestamp: new Date().getTime()
+    timestamp: new Date()
+  });
+
+  return response.data
+}
+
+async function sendPracticeTestRequest(email, type, page) {
+  let response = await firebase.functions().httpsCallable('home-sendPracticeTestRequest')({
+    email,
+    type,
+    page,
+    timestamp: new Date()
   });
 
   return response.data

@@ -289,6 +289,7 @@ section.hide {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   padding: .5em 1em;
   cursor: pointer;
 }
@@ -313,14 +314,20 @@ section.hide {
   display: inline-block;
   width: 1.2em;
   height: 1.2em;
-  padding: .1em;
   border-radius: 50%;
-  margin-right: 1em;
-}
-
-.main .panels .selector .selector-wrapper span {
   border: 2px solid var(--accent-color);
   background-color: var(--main-background);
+}
+
+.main .panels .selector .selector-wrapper span:first-child {
+  margin-right: 1em;
+  padding: 1px;
+}
+
+.main .panels .selector .selector-wrapper span:last-child {
+  margin-left: 1em;
+  padding: 3px 1px 1px 3px;
+  fill: var(--accent-color);
 }
 
 .main .panels .selector .selector-wrapper span .flag {
@@ -434,6 +441,7 @@ section.hide {
   text-align: center;
   outline: black solid 1px;
   display: none;
+  margin: 0 .25em;
 }
 
 .main .panels .passage-container span[data-question].box.highlighted {
@@ -486,8 +494,16 @@ section.hide {
 
 .main .panels .question .choice .choice-letter {
   width: 1.5em;
+  height: 1.5em;
   display: inline-block;
   margin: 0;
+  margin-right: 4px;
+  text-align: center;
+}
+
+.main .panels .question .choice label.correct .choice-letter {
+  background-color: var(--accent-color);
+  border-radius: 50%;
 }
 
 .main .panels .question .choice > input {
@@ -541,7 +557,7 @@ section.hide {
   left: -2px;
 }
 
-.main .panels .question .choice:hover > input[type="radio"]::after {
+.main .panels .question .choice:hover > input[type="radio"]:not(:disabled)::after {
   border-color: var(--accent-color);
 }
 

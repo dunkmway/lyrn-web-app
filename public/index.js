@@ -232,7 +232,7 @@ async function sendLeadRequest(email, type, page) {
     email,
     type,
     page,
-    timestamp: new Date().getTime()
+    timestamp: new Date()
   });
 
   return response.data

@@ -682,7 +682,7 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   display: none;
   flex-direction: column;
   align-items: center;
-  padding: 5em 1em;
+  padding: 2em 1em;
 }
 
 .course-section h1 {
@@ -800,6 +800,78 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   position: absolute;
   z-index: -99;
   visibility: hidden;
+}
+
+.practice-test-wrapper {
+  /* border: 2px solid var(--color-green); */
+  background-color: var(--color-green);
+  color: white;
+  padding: 1em 2em;
+  margin-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  width: 100vw;
+  position: relative;
+  left: 0%;
+  right: 0%;
+}
+
+.practice-test-wrapper .flex-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 50ch;
+}
+
+.practice-test-wrapper > h2 {
+  color: white;
+  text-decoration: underline;
+}
+
+.practice-test-wrapper input {
+  padding: .5em 1em;
+  border: 2px solid var(--color-green);
+  border-radius: 1em;
+  font-size: 1rem;
+  /* width: 100%; */
+  flex: 1;
+  /* max-width: 40ch; */
+  margin-right: 1em;
+}
+
+.practice-test-wrapper p {
+  color: white;
+}
+
+.practice-test-wrapper button {
+  background-color: white;
+  color: var(--color-green);
+  border: none;
+  outline: none;
+  padding: .5em 1.5em;
+  text-align: center;
+  font-size: 1em;
+  border-radius: .5em;
+  cursor: pointer;
+}
+
+.practice-test-wrapper button.loading::after {
+  content: '';
+  margin-left: .5em;
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  animation: spin .5s linear infinite;
+}
+
+.practice-test-wrapper button:hover {
+  transform: scale(1.1);
 }
 
 .payment-type {
@@ -1082,7 +1154,7 @@ input#paymentType:checked ~ .plans .plan-wrapper .one-time {
   }
 
   .course-section {
-    padding: 5em 10%;
+    padding: 2em 10%;
   }
 
   .intro-wrapper {
