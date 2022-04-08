@@ -706,7 +706,7 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   border-radius: .5em;
   background-color: var(--color-blue);
   color: white;
-  width: auto;
+  width: max-content;
 }
 
 .course-section h1 {
@@ -1141,10 +1141,6 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
   .course-section .heading {
     padding: 8%;
     overflow: hidden;
-  }
-
-  .course-section .heading h1 {
-    width: max-content;
   }
 
   .intro-wrapper {
