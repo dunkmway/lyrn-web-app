@@ -326,7 +326,21 @@ section.hide {
 
 .main .panels .selector .selector-wrapper span:last-child {
   margin-left: 1em;
-  padding: 3px 1px 1px 3px;
+  padding: 5px 1px 1px 1px;
+  fill: var(--accent-color);
+  border: none;
+  background-color: transparent;
+}
+
+.main .panels .selector input[type=radio] + .selector-wrapper:hover > span:last-child {
+  fill: var(--main-background);
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper > span:last-child {
+  fill: var(--main-background);
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover > span:last-child {
   fill: var(--accent-color);
 }
 
@@ -486,6 +500,15 @@ section.hide {
   align-items: baseline;
   margin-bottom: .5em;
   cursor: pointer;
+  width: max-content;
+  max-width: 100%;
+  padding: 0 .5em;
+  border: 2px solid transparent;
+  border-radius: .5em;
+}
+
+.main .panels .question .choice.correct {
+  border-color: var(--accent-color)
 }
 
 .main .panels .question .choice > * {
@@ -499,11 +522,6 @@ section.hide {
   margin: 0;
   margin-right: 4px;
   text-align: center;
-}
-
-.main .panels .question .choice label.correct .choice-letter {
-  background-color: var(--accent-color);
-  border-radius: 50%;
 }
 
 .main .panels .question .choice > input {
@@ -584,6 +602,13 @@ section.hide {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
+}
+
+.main .footer .nav.button {
+  background-color: var(--main-background);
+  border-radius: .5em;
+  color: var(--secondary-background);
+  padding: .5em 1em;
 }
 
 .main .footer .nav.hide {

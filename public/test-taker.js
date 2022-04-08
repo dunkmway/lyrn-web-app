@@ -1422,6 +1422,9 @@ function renderPreviousQuestion(questionData, answerData = null) {
 
     const choiceElem = document.createElement('div');
     choiceElem.classList.add('choice');
+    if (isCorrectChoice) {
+      choiceElem.classList.add('correct');
+    }
     // choiceElem.innerHTML = `
     //   <input type="checkbox" name="strike" id="strike-${index}" value="${choiceLetter}">
     //   <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" onclick="addSelectorAnsweredCallback(${questionData.problem})">
@@ -1432,7 +1435,7 @@ function renderPreviousQuestion(questionData, answerData = null) {
     }
     choiceElem.innerHTML = `
       <input type="radio" name="choice" id="choice_${index}" value="${choiceLetter}" ${isChoiceSelected(choiceLetter, answerData) ? 'checked' : ''} disabled>
-      <label for="choice_${index}" class="${isCorrectChoice ? 'correct' : ''}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
+      <label for="choice_${index}"><p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}</label>
     `
     choiceWrapper.appendChild(choiceElem);
   })
@@ -1460,7 +1463,7 @@ function renderPreviousSelector(testData, section, questionStates) {
     questionSelector.innerHTML = `
       <span>${FLAG_SVG}</span>
       Question ${i}
-      <span>${testData.answers[section][i] == questionStates?.[i]?.answer ? CHECK_SVG : CROSS_SVG}</span>
+      <span>${testData.answers[section][i] != questionStates?.[i]?.answer ? CROSS_SVG : ''}</span>
     `
     document.querySelector('.main .panels .selector .selector-container').appendChild(questionRadio);
     document.querySelector('.main .panels .selector .selector-container').appendChild(questionSelector);
