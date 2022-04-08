@@ -523,10 +523,6 @@ nav a:hover {
   100% { transform: rotate(360deg); }
 }
 
-.modal-body button:hover {
-  transform: scale(1.1);
-}
-
 .hero {
   display: flex;
   flex-direction: column;
@@ -756,6 +752,11 @@ footer li {
 
 footer li::before {
   content: none;
+}
+
+footer img {
+  display: inline;
+  width: 2em;
 }
 
 footer a {

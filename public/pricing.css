@@ -520,10 +520,6 @@ nav a:hover {
   100% { transform: rotate(360deg); }
 }
 
-.modal-body button:hover {
-  transform: scale(1.1);
-}
-
 .intro {
   display: flex;
   flex-direction: column;
@@ -895,10 +891,6 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   border: 2px solid transparent;
   border-top: 2px solid var(--color-green);
   animation: spin .5s linear infinite;
-}
-
-.practice-test-wrapper button:hover {
-  transform: scale(1.1);
 }
 
 .payment-type {
@@ -1391,6 +1383,11 @@ footer li {
 
 footer li::before {
   content: none;
+}
+
+footer img {
+  display: inline;
+  width: 2em;
 }
 
 footer a {

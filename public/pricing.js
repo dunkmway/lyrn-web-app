@@ -55,7 +55,7 @@ function bannerSetup() {
 
     submit.disabled = true;
     submit.classList.add('loading');
-    submit.textContent = 'Sending promo...'
+    submit.textContent = 'Sending promo'
     error.textContent = '';
 
     if (!isEmailValid(email.value)) {
@@ -83,7 +83,7 @@ document.querySelector('.practice-test-wrapper button').addEventListener('click'
 
   submit.disabled = true;
   submit.classList.add('loading');
-  submit.textContent = 'Sending practice test...'
+  submit.textContent = 'Sending practice test'
   error.textContent = '';
 
   if (!isEmailValid(email.value)) {

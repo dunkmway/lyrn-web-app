@@ -84,6 +84,7 @@ exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
 
   //save the contact data to firebase first
   const ref = admin.firestore().collection('Leads').doc();
+  data.timestamp = new Date(data.timestamp)
   await ref.set(data);
 
   //then send an email to the admin account with the data
@@ -95,100 +96,76 @@ exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
     To help you get started use this promo code to get your first session free when signing up for an ACT program. FIRST ACT
     Call or text to get started (385) 300-0906 or respond to this email.`,
     html: `
+    <head>
       <style>
         @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
-      
-      
-        body {
-          font-family: "proxima-nova", sans-serif;
-        }
-      
-        .promo {
-          font-size: 2em;
-          color: #27c03a;
-        }
-      
-        .footer {
-          color: #99ACC2;
-        }
-      
-        .footer > a {
-          font-size: 12px;
-          color: #99ACC2;
-          margin-right: 1em;
-        }
-      
-        .footer > p {
-          font-size: 12px;
-          color: #99ACC2;
-        }
       </style>
+    </head>
+    <body style="font-family: 'proxima-nova', sans-serif;">
+      <div id="email" style="width:600px;margin: auto;background:white;">
+
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td bgcolor="#101b42" align="center" style="color: white;">
+              <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
+            </td>
+          </tr>
+        </table>
       
-      <body>
-        <div id="email" style="width:600px;margin: auto;background:white;">
-      
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td bgcolor="#101b42" align="center" style="color: white;">
-                <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-              </td>
-            </tr>
-          </table>
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td style="padding: 30px 30px 30px 60px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">Promo Code</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+                Please let us know if you have any questions and we would love to help you reach your academic goals.
+                To help you get started mention this promo code to get your first session free when signing up for an ACT program.
+              </p>
+            </td> 
+          </tr>
+          <tr>
+            <td align="center">
+              <h3 style="font-size: 2em; color: #27c03a;">FIRST ACT</h3>
+            </td>
+          </tr>
+        </table>
         
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td style="padding: 30px 30px 30px 60px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">ACT Practice Test</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
-                  Please let us know if you have any questions and we would love to help you reach your academic goals.
-                  To help you get started mention this promo code to get your first session free when signing up for an ACT program.
-                </p>
-              </td> 
-            </tr>
-            <tr>
-              <td align="center">
-                <h3 class="promo">FIRST ACT</h3>
-              </td>
-            </tr>
-          </table>
-          
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td style="vertical-align: top;padding: 30px 10px 30px 60px;"> 
-                <h2 style="font-size: 28px; margin:0 0 20px 0;"> ACT Prep Courses </h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Sometimes practice on your own just doesn't cut it. Our ACT programs are designed to help you get the score you want to get into college or get that scholarship just out of reach.</p>
-                <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course='act" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
-              </td>
-              <td style="vertical-align: top;padding: 30px 30px 30px 60px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">Subject Tutoring</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Need some help with your homework or preparing for a test. Subject tutoring is your perfect fit. We teach all topics K-12 and one of our expert tutors will gladly help you get that A+!</p>
-                <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course='subjectTutoring" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
-              </td>
-            </tr>       
-          </table>
-      
-          <table role="presentation" border="0" width="100%">
-            <tr>
-              <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about any of our programs. We can't wait to start Lyrning with you!</p>
-                <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
-              </td>
-            </tr>
-          </table>
-          
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
-                <a href="lyrnwithus.com/terms">Terms and Conditions</a>
-                <a href="lyrnwithus.com/privacy">Privacy Policy</a>
-                <a href="lyrnwithus.com/unsubscribe?q=${ref.id}"> Unsubscribe </a>
-                <p>Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
-              </td>
-            </tr>
-          </table> 
-        </div>
-      </body>
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td style="vertical-align: top;padding: 30px 10px 30px 60px;"> 
+              <h2 style="font-size: 28px; margin:0 0 20px 0;"> ACT Prep Courses </h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Sometimes practice on your own just doesn't cut it. Our ACT programs are designed to help you get the score you want to get into college or get that scholarship just out of reach.</p>
+              <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=act" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+            </td>
+            <td style="vertical-align: top;padding: 30px 30px 30px 60px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">Subject Tutoring</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Need some help with your homework or preparing for a test. Subject tutoring is your perfect fit. We teach all topics K-12 and one of our expert tutors will gladly help you get that A+!</p>
+              <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=subjectTutoring" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+            </td>
+          </tr>       
+        </table>
+
+        <table role="presentation" border="0" width="100%">
+          <tr>
+            <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about any of our programs. We can't wait to start Lyrning with you!</p>
+              <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+            </td>
+          </tr>
+        </table>
+        
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe?q=${ref.id}"> Unsubscribe </a>
+              <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+            </td>
+          </tr>
+        </table> 
+      </div>
+    </body>
     `,
   }
   await sgMail.send(msg)
@@ -208,6 +185,7 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
 
   //save the contact data to firebase first
   const ref = admin.firestore().collection('Leads').doc();
+  data.timestamp = new Date(data.timestamp)
   await ref.set(data);
 
   // set a new assignment for the lead
@@ -230,106 +208,86 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
     To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${ref.id}
     Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
     html: `
+    <head>
       <style>
         @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
-      
-      
-        body {
-          font-family: "proxima-nova", sans-serif;
-        }
-      
-        .button {
-          font-size: 1em;
-          text-decoration: none;
-          background-color: #27c03a;
-          color: white;
-          padding: .5em 1em;
-          border-radius: .5em;
-        }
-      
-        .footer {
-          color: #99ACC2;
-        }
-      
-        .footer > a {
-          font-size: 12px;
-          color: #99ACC2;
-          margin-right: 1em;
-        }
-      
-        .footer > p {
-          font-size: 12px;
-          color: #99ACC2;
-        }
       </style>
+    </head>
+    <body style="font-family: 'proxima-nova', sans-serif;">
+      <div id="email" style="width:600px;margin: auto;background:white;">
+
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td bgcolor="#101b42" align="center" style="color: white;">
+              <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
+            </td>
+          </tr>
+        </table>
       
-      <body>
-        <div id="email" style="width:600px;margin: auto;background:white;">
-      
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td bgcolor="#101b42" align="center" style="color: white;">
-                <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-              </td>
-            </tr>
-          </table>
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td style="padding: 30px 30px 30px 60px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">ACT Practice Test</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+                The best way to start preparing for the ACT is with a practice test. 
+                Knowing what your baseline score helps you set realistic goals. 
+                With our test taker you will be timed so it's like the real thing and when you're done you can review your score and answers all from the same place.
+                What are you waiting for? Get testing!
+              </p>
+            </td> 
+          </tr>
+        </table>
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td align="center">
+              <table role="presentation" align="center" border="0" cellspacing="0">
+                <tr>
+                  <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                    <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker?student=${ref.id}">Open Test Taker</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
         
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td style="padding: 30px 30px 30px 60px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">ACT Practice Test</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
-                  The best way to start preparing for the ACT is with a practice test. 
-                  Knowing what your baseline score helps you set realistic goals. 
-                  With our test taker you will be timed so it's like the real thing and when you're done you can review your score and answers all from the same place.
-                  What are you waiting for? Get testing!
-                </p>
-              </td> 
-            </tr>
-            <tr>
-              <td align="center">
-                <a class="button" href="https://lyrnwithus.com/test-taker?student=${ref.id}">Open Test Taker</a>
-              </td>
-            </tr>
-          </table>
-          
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td style="vertical-align: top;padding: 30px 10px 30px 60px;"> 
-                <h2 style="font-size: 28px; margin:0 0 20px 0;"> ACT Prep Courses </h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Sometimes practice on your own just doesn't cut it. Our ACT programs are designed to help you get the score you want to get into college or get that scholarship just out of reach.</p>
-                <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course='act" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
-              </td>
-              <td style="vertical-align: top;padding: 30px 30px 30px 60px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">Subject Tutoring</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Need some help with your homework or preparing for a test. Subject tutoring is your perfect fit. We teach all topics K-12 and one of our expert tutors will gladly help you get that A+!</p>
-                <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course='subjectTutoring" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
-              </td>
-            </tr>       
-          </table>
-      
-          <table role="presentation" border="0" width="100%">
-            <tr>
-              <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
-                <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
-                <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about any of our programs. We can't wait to start Lyrning with you!</p>
-                <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
-              </td>
-            </tr>
-          </table>
-          
-          <table role="presentation" border="0" width="100%" cellspacing="0">
-            <tr>
-              <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
-                <a href="lyrnwithus.com/terms">Terms and Conditions</a>
-                <a href="lyrnwithus.com/privacy">Privacy Policy</a>
-                <a href="lyrnwithus.com/unsubscribe?q=${ref.id}"> Unsubscribe </a>
-                <p>Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
-              </td>
-            </tr>
-          </table> 
-        </div>
-      </body>
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td style="vertical-align: top;padding: 30px 10px 30px 60px;"> 
+              <h2 style="font-size: 28px; margin:0 0 20px 0;"> ACT Prep Courses </h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Sometimes practice on your own just doesn't cut it. Our ACT programs are designed to help you get the score you want to get into college or get that scholarship just out of reach.</p>
+              <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=act" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+            </td>
+            <td style="vertical-align: top;padding: 30px 30px 30px 60px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">Subject Tutoring</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Need some help with your homework or preparing for a test. Subject tutoring is your perfect fit. We teach all topics K-12 and one of our expert tutors will gladly help you get that A+!</p>
+              <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=subjectTutoring" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+            </td>
+          </tr>       
+        </table>
+
+        <table role="presentation" border="0" width="100%">
+          <tr>
+            <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+              <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+              <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about any of our programs. We can't wait to start Lyrning with you!</p>
+              <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+            </td>
+          </tr>
+        </table>
+        
+        <table role="presentation" border="0" width="100%" cellspacing="0">
+          <tr>
+            <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+              <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe?q=${ref.id}"> Unsubscribe </a>
+              <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+            </td>
+          </tr>
+        </table> 
+      </div>
+    </body>
     `,
   }
   await sgMail.send(msg)

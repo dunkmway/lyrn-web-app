@@ -1,5 +1,59 @@
+setLeadsTable();
 setErrorTable();
 setFeedbackTable();
+
+function setLeadsTable() {
+  let tableData = [];
+  const leadsCollectionRef = firebase.firestore().collection("Leads");
+  leadsCollectionRef.get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      let errorData = {
+        docUID : doc.id,
+        Email : data.email,
+        Time : convertFromDateInt(data.timestamp.toDate().getTime()).longDate,
+        Page : data.page,
+        Type : data.type,
+      }
+      tableData.push(errorData);
+    });
+
+    let leadsTable = $('#leads-table').DataTable({
+      data: tableData,
+      columns: [
+        { data: 'Email' },
+        { data: 'Time' },
+        { data: 'Page'},
+        { data: 'Type' },
+      ],
+      "autoWidth": false,
+      "pageLength" : 10,
+    });
+
+    $('#leads-table tbody').on('dblclick', 'tr', (event) => {
+      const row = leadsTable.row(event.target).index();
+      let docUID = tableData[row].docUID;
+      let confirmation = confirm("Are you sure you want to delete this lead?\nThis action cannot be undone!");
+      if (confirmation) {
+        const leadsDocRef = firebase.firestore().collection("Leads").doc(docUID);
+        leadsDocRef.delete()
+        .then(() => {
+          //update the tableData array
+          tableData.splice(row, 1);
+          //remove the row (parent) that was clicked
+          leadsTable.row($(event.target).parents('tr')).remove().draw();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
 
 function setErrorTable() {
   let tableData = [];
