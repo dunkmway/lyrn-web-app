@@ -51,7 +51,7 @@ function bannerSetup() {
       return;
     }
 
-    await sendLeadRequest(email.value, 'ACT-firstSessionFree', 'why');
+    await sendLeadRequest(email.value, 'ACT-firstSessionFree', 'team');
 
     submit.disabled = false;
     submit.classList.remove('loading');
