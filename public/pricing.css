@@ -1115,6 +1115,7 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
 
 .footnotes {
   color: #A3A3A3;
+  margin-top: 3em;
 }
 
 .footnotes > p {
@@ -1331,6 +1332,94 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
   #act .plans {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+/* faq section */
+
+.faq {
+  color: var(--color-blue);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.faq .title {
+  text-align: center;
+  color: var(--color-blue);
+}
+
+.faq .details {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--color-secondary);
+  border-radius: .5em;
+  margin: 1em 0;
+  padding: 1em 2em 1em 1em;
+  position: relative;
+  overflow: hidden;
+}
+
+.faq .summary {
+  width: 100%;
+  cursor: pointer;
+}
+
+.faq .summary::after {
+  content: "";
+  border: 2px solid black;
+  border-top-style: none;
+  border-left-style: none;
+  height: .8em;
+  width: .8em;
+  display: block;
+  position: absolute;
+  right: 1em;
+  top: 1.3em;
+  pointer-events: none;
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform 250ms linear;
+}
+
+.faq .summary h3 {
+  margin: 0;
+}
+
+.faq .faq_toggle {
+  position: absolute;
+  z-index: -1;
+}
+
+.faq .content {
+  background-color: var(--color-secondary);
+  overflow: hidden;
+  max-height: 0px;
+}
+
+.faq .content * {
+  opacity: 0;
+  font-size: 1.25em;
+}
+
+.faq .content a {
+  font-size: 1em;
+  background-color: transparent;
+}
+
+.faq .faq_toggle:checked ~ .content {
+  margin-top: 1em;
+  max-height: 400px;
+  transition: max-height 800ms ease-in-out;
+}
+
+.faq .faq_toggle:checked ~ .content * {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out 200ms;
+}
+
+.faq .faq_toggle:checked ~ .summary::after {
+  transform: rotate(225deg);
 }
 
 
