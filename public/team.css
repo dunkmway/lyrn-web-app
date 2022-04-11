@@ -712,6 +712,12 @@ main {
   row-gap: 2em;
   background-color: transparent;
   justify-items: center;
+  opacity: 0;
+  transition: opacity 500ms ease-in;
+}
+
+.tutor-grid.ready {
+  opacity: 1;
 }
 
 @media screen and (min-width: 800px) {
@@ -811,14 +817,14 @@ main {
 }
 
 .corporate-grid h1 {
-  font-size: 1.5em;
+  font-size: 2.5em;
   color: var(--color-green);
   margin: .5em 0em;
 }
 
 .corporate-grid p {
   margin: 0;
-  font-size: 1em;
+  font-size: 1.25em;
   text-align: start;
 }
 

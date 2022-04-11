@@ -18,6 +18,11 @@ appCheck.activate(
   true
 )
 
+function initialSetup() {
+  bannerSetup();
+  randomizeTutors();
+}
+
 function bannerSetup() {
   document.querySelector('.banner').addEventListener('click', () => {
     document.querySelector('.modal').classList.add('show');
@@ -72,4 +77,33 @@ async function sendLeadRequest(email, type, page) {
   });
 
   return response.data
+}
+
+function randomizeTutors() {
+  const tutorGrid = document.querySelector('.tutor-grid')
+  const tutorCards = tutorGrid.querySelectorAll('.flip-card');
+
+  // remove all tutors cards
+  removeAllChildNodes(tutorGrid);
+
+  // append them back in a random order
+  arrayRandomOrder(Array.from(tutorCards)).forEach(card => tutorGrid.appendChild(card));
+
+  tutorGrid.classList.add('ready')
+}
+
+function arrayRandomOrder(array) {
+  let tmpArray = [...array];
+  let randomArray = [];
+
+  // go through the array and choose a random index then push it to the random array
+  for (let i = 0; i < array.length; i++) {
+    let randomIndex = Math.floor(Math.random() * (tmpArray.length));
+    randomIndex == tmpArray.length ? randomIndex-- : randomIndex;
+
+    randomArray.push(tmpArray[randomIndex]);
+    tmpArray.splice(randomIndex, 1);
+  }
+
+  return randomArray;
 }
