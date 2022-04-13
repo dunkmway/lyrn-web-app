@@ -1,0 +1,82 @@
+<head>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+  </style>
+</head>
+<body style="font-family: 'proxima-nova', sans-serif;">
+  <div id="email" style="width:600px;margin: auto;background:white;">
+
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td bgcolor="#101b42" align="center" style="color: white;">
+          <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
+        </td>
+      </tr>
+    </table>
+  
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td style="padding: 30px 30px 30px 60px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">Your program has been reserved</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+            You are reserving our ${programDetails.programLength} week ${programDetails.name} program which 
+            <a href="guarantee.html" target="_blank">guarantees</a> a 
+            ${programDetails.score} point increase on the ACT. This program will start ${convertFromDateInt(firstDay.getTime()).shortReadable}
+            and continue every ${days[programDetails.dayIndexes.sort()[0]]} and ${days[programDetails.dayIndexes.sort()[1]]}
+            until ${convertFromDateInt(lastDay.getTime()).shortReadable}. Lessons will start at 
+            ${translateMilitaryHourStr(programDetails.sessionStartTime)} and be ${programDetails.sessionLength} 
+            hour${programDetails.sessionLength == 1 ? '' : 's'} long.
+          </p>
+
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+            When you're ready to start reaching your ACT goals, follow the invoice link below to finalize your program. 
+            Be aware that this reservation will expire in 48 hours and you might not get the times that work best for you 
+            (see the invoice for the expiration time).
+          </p>
+        </td> 
+      </tr>
+    </table>
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" align="center" border="0" cellspacing="0">
+            <tr>
+              <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">ACT Program Invoice</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td>
+          <h2 style="font-size: 28px; margin:20px 0 20px 0;">Meet your tutors!</h2>
+        </td>
+      </tr>
+      ${tutorHTML}
+    </table>
+
+    <table role="presentation" border="0" width="100%">
+      <tr>
+        <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
+          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+          <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+        </td>
+      </tr>
+    </table> 
+  </div>
+</body>

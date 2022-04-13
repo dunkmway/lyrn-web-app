@@ -22,9 +22,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <link rel="stylesheet" href="Site Templates/site-wide.css">
     <script src="pricing.js" defer></script>
 
     <link href="pricing.css" rel="stylesheet">
@@ -73,7 +75,7 @@
     <div class="banner">
       <p>Get started today and recieve your <strong>first lesson free!</strong> Click for details.</p>
     </div>
-    <div class="modal">
+    <div class="modal" id="firstSessionFreeModal">
       <div class="modal-body">
         <div class="close">
           <svg viewbox="0 0 32 32">
@@ -87,6 +89,89 @@
         <input type="email" placeholder="tutoring@lyrn.com">
         <p class="error"></p>
         <button class="submit">Ready to Lyrn</button>
+      </div>
+    </div>
+
+    <div class="modal" id="checkProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h3>Check Program Availability</h3>
+        <p>Select 2 nonconsecutive days below to see our availability.</p>
+        <p class="start-end"></p>
+        <div class="date-time">
+          <div class="selection-wrapper">
+            <input type="checkbox" id="monday" onchange="daySelectedCallback(event)">
+            <label for="monday" class="day-item">M</label>
+            <input type="checkbox" id="tuesday" onchange="daySelectedCallback(event)">
+            <label for="tuesday" class="day-item">T</label>
+            <input type="checkbox" id="wednesday" onchange="daySelectedCallback(event)">
+            <label for="wednesday" class="day-item">W</label>
+            <input type="checkbox" id="thursday" onchange="daySelectedCallback(event)">
+            <label for="thursday" class="day-item">T</label>
+            <input type="checkbox" id="friday" onchange="daySelectedCallback(event)">
+            <label for="friday" class="day-item">F</label>
+            <input type="checkbox" id="saturday" onchange="daySelectedCallback(event)">
+            <label for="saturday" class="day-item">S</label>
+          </div>
+        </div>
+
+        <p id="lessonLength"></p>
+        <div id="openTimes"></div>
+
+        <div class="reserve-prompt hide">
+          <h3>Times are filling up quickly!</h3>
+          <h5>
+            We can reserve these days and time so that when you are ready to sign up, you get the times you want.
+          </h5>
+          <p>
+            Select a time above and then click "Reserve" below.
+          </p>
+          <button id="firstReserve" disabled onclick="moveToReserveProgram()">Reserve</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="reserveProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+
+        <div class="back" onclick="backToCheckProgram()">
+          <p>go back</p>
+        </div>
+        
+        <h3>Just a few more things to reserve your spot</h3>
+        <div class="contact-form">
+          <div class="parent">
+            <h5>Parent Info</h5>
+            <label for="parent-firstName" class="placeholder">Parent First Name*</label>
+            <input id="parent-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-lastName" class="placeholder">Parent Last Name*</label>
+            <input id="parent-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-email" class="placeholder">Parent Email*</label>
+            <input id="parent-email" type="email" onfocusout="contactInfoFocusOutCallback(event)" required>
+          </div>
+          <div class="student">
+            <h5>Student Info</h5>
+            <label for="student-firstName" class="placeholder">Student First Name*</label>
+            <input id="student-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-lastName" class="placeholder">Student Last Name*</label>
+            <input id="student-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-email" class="placeholder">Student Email</label>
+            <input id="student-email" type="email" onfocusout="contactInfoFocusOutCallback(event)">
+          </div>
+        </div>
+        <p class="program-summary">
+        </p>
+        <button id="submitProgram" onclick="verify()">Reserve my spot</button>
+        <p class="message error"></p>
       </div>
     </div>
 
@@ -214,12 +299,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(1)">
+              <p>Check Availability</p>
+            </button>
           </div>
 
           <!-- Guided 6 weeks -->
@@ -249,12 +331,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(2)">
+              <p>Check Availability</p>
+            </button>
           </div>
 
           <!-- Guided 8 weeks -->
@@ -284,12 +363,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(3)">
+              <p>Check Availability</p>
+            </button>
           </div>
         </div>
 

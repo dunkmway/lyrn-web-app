@@ -834,13 +834,9 @@ main {
 } */
 
 footer {
-  padding: 2em;
+  padding: 2em 2em 3em 2em;
   color: var(--color-primary);
   background-color: var(--color-blue);
-}
-
-footer h3 {
-  font-size: 2em;
 }
 
 footer .links {
@@ -874,6 +870,11 @@ footer li {
 
 footer li::before {
   content: none;
+}
+
+footer img {
+  display: inline;
+  width: 2em;
 }
 
 footer a {
