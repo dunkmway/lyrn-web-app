@@ -20,8 +20,62 @@ cardElement.on('change', ({ error }) => {
   }
 });
 
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}
+
+async function checkPromo() {
+  console.log('called check promo')
+
+  //place the promo into a loading state
+  document.querySelector('.promo').classList.add('loading');
+
+  //check the promo on the server
+  const promoCode = document.getElementById('promoCode').value.toLowerCase().trim();
+  const invoice = queryStrings().invoice
+  if (!invoice) {
+    return;
+  }
+
+  try {
+    let response = await firebase.functions().httpsCallable('act_sign_up-checkPromo')({
+      promoCode,
+      invoice
+    });
+
+    document.querySelector('.promo').classList.remove('loading');
+
+    // found the promo code
+    // effect should come through and rerender the invoice
+    if (response.data) {
+      document.querySelector('.promo label').classList.add('valid');
+      document.querySelector('.promo label').classList.remove('invalid');
+    }
+    // did not find promo code
+    // show error
+    else {
+      document.querySelector('.promo label').classList.remove('valid');
+      document.querySelector('.promo label').classList.add('invalid');
+    }
+  }
+  catch(error) {
+    console.log(error)
+    document.querySelector('.promo').classList.remove('loading');
+    document.querySelector('.promo label').classList.add('invalid');
+  }
+  
+}
+
 // get the invoice data
 async function initialSetup() {
+
+  // set up debounce on promo
+  const promoInput = debounce(() => checkPromo(), 500);
+  document.getElementById('promoCode').addEventListener('input', promoInput)
 
   if (!queryStrings().invoice) { 
     setupInvalid();
@@ -35,7 +89,7 @@ async function initialSetup() {
   // get the invoice data
   firebase.firestore().collection('ACT-Invoices').doc(queryStrings().invoice).onSnapshot((invoice) => {
     invoiceData = invoice.data();
-
+    console.log('snapshot called', invoiceData)
     // set up the page depending on what the status of the invoice is
 
     switch (invoiceData?.status) {
@@ -64,15 +118,11 @@ async function initialSetup() {
   // get the customer data
   let customer = await firebase.firestore().collection('stripe_customers').doc(invoiceData.parent).get();
   customerData = customer.data();
-
-  // set up each invoice details
-  setupPayInvoice();
-  setupSaveInvoice();
-  
 }
 
 function setupPayInvoice() {
   const invoice = document.querySelector('#pay-invoice-details');
+  removeAllChildNodes(invoice);
 
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')
@@ -162,6 +212,7 @@ function setupPayInvoice() {
 
 function setupSaveInvoice() {
   const invoice = document.querySelector('#save-invoice-details');
+  removeAllChildNodes(invoice);
 
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')
@@ -249,6 +300,10 @@ function setupSaveInvoice() {
  
 
 function setupPending() {
+  // set up each invoice details
+  setupPayInvoice();
+  setupSaveInvoice();
+
   document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ACT program. Just a reminder, this is for the ${invoiceData.programName} program and will be ${invoiceData.programLength} weeks long.`
   document.querySelector('#expiration-message').textContent = `This invoice will expire at 11:55 pm MDT on ${convertFromDateInt(invoiceData.expiration).dayAndDate}.
   A payment must be received before this time or all lessons for this program will be removed from our schedule.`

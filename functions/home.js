@@ -5,6 +5,7 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
 const PRACTICE_TEST_ID = 'DwhdhUl8ldRExlG5DxAc';
+const ALT_PRACTICE_TEST_ID = 'p6YFv9xLs142aI2rGYup';
 
 exports.sendContactRequest = functions.https.onCall(async (data, context) => {
   // context.app will be undefined if the request doesn't include a valid
@@ -189,21 +190,66 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
   await ref.set(data);
 
   // set a new assignment for the lead
-  await admin.firestore().collection('Section-Assignments').doc().set({
-    open: new Date(),
-    close: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-    program: 'practiceTest',
-    section: 'all',
-    status: 'new',
-    student: ref.id,
-    test: PRACTICE_TEST_ID
-  })
+  // this is so the assignments come in the proper order in the test taker
+  const now = new Date();
+  const time0 = new Date(now);
+  const time1 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 1));
+  const time2 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 2));
+  const time3 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 3));
+  const time4 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 4));
+  await Promise.all([
+    admin.firestore().collection('Section-Assignments').doc().set({
+      open: time0,
+      close: new Date(new Date(now).setFullYear(time0.getFullYear() + 1)),
+      program: 'practiceTest',
+      section: 'all',
+      status: 'new',
+      student: ref.id,
+      test: PRACTICE_TEST_ID
+    }),
+    admin.firestore().collection('Section-Assignments').doc().set({
+      open: time1,
+      close: new Date(new Date(time1).setFullYear(time1.getFullYear() + 1)),
+      program: 'practiceTest',
+      section: 'english',
+      status: 'new',
+      student: ref.id,
+      test: ALT_PRACTICE_TEST_ID
+    }),
+    admin.firestore().collection('Section-Assignments').doc().set({
+      open: time2,
+      close: new Date(new Date(time2).setFullYear(time2.getFullYear() + 1)),
+      program: 'practiceTest',
+      section: 'math',
+      status: 'new',
+      student: ref.id,
+      test: ALT_PRACTICE_TEST_ID
+    }),
+    admin.firestore().collection('Section-Assignments').doc().set({
+      open: time3,
+      close: new Date(new Date(time3).setFullYear(time3.getFullYear() + 1)),
+      program: 'practiceTest',
+      section: 'reading',
+      status: 'new',
+      student: ref.id,
+      test: ALT_PRACTICE_TEST_ID
+    }),
+    admin.firestore().collection('Section-Assignments').doc().set({
+      open: time4,
+      close: new Date(new Date(time4).setFullYear(time4.getFullYear() + 1)),
+      program: 'practiceTest',
+      section: 'science',
+      status: 'new',
+      student: ref.id,
+      test: ALT_PRACTICE_TEST_ID
+    }),
+  ])
 
   //then send an email to the admin account with the data
   const msg = {
     to: data.email,
     from: 'contact@lyrnwithus.com',
-    subject: 'Full Length ACT Test',
+    subject: 'Full Length ACT Tests',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
     To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${ref.id}
     Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,

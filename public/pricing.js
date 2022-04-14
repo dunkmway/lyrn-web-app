@@ -128,7 +128,7 @@ document.querySelector('.practice-test-wrapper button').addEventListener('click'
 
   submit.disabled = true;
   submit.classList.add('loading');
-  submit.textContent = 'Sending practice test'
+  submit.textContent = 'Sending practice tests'
   error.textContent = '';
 
   if (!isEmailValid(email.value)) {
@@ -143,7 +143,7 @@ document.querySelector('.practice-test-wrapper button').addEventListener('click'
 
   submit.disabled = false;
   submit.classList.remove('loading');
-  submit.textContent = 'Practice test sent!'
+  submit.textContent = 'Practice tests sent!'
 })
 
 function isEmailValid(email) {
@@ -179,7 +179,7 @@ async function sendPracticeTestRequest(email, type, page) {
 const CURRENT_LOCATION = 'WIZWBumUoo7Ywkc3pl2G'; // id for the online location (this is hard coded for the foreseeable future)
 const LESSON_ORDER = ['english', 'math', 'reading', 'science'];
 const TIME_SLOT_FREQUENCY = 60; // minute difference for seeing openings
-const INVOICE_EXPIRATION_TIME = 24; // hours until invoice expires
+const INVOICE_EXPIRATION_TIME = 48; // hours until invoice expires
 
 let blacklistTutors_master = [];
 
@@ -927,7 +927,7 @@ function contactInfoFocusOutCallback(event) {
   const id = target.id;
   const type = id.split('-')[0];
   const key = id.split('-')[1];
-  const value = target.value;
+  const value = key.includes('Name') ? captalizeFirstLetter(target.value.trim()) : target.value.trim();
 
   currentProgramDetails.contact[type][key] = value;
 
@@ -1220,6 +1220,10 @@ function isPhoneNumberValid(phoneNumber) {
   return /^\([0-9]{3}\)\s[0-9]{3}\-[0-9]{4}$/.test(phoneNumber);
 }
 
+function captalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 async function submitContact() {
   console.log('submitting users')
   // create the parent or get their uid
@@ -1385,6 +1389,7 @@ async function submit() {
 
   toggleWorking()
   submitButton.classList.remove('loading');
+  document.querySelector('#reserveProgram').classList.remove('show');
 }
 
 async function setCalendarEvents(studentUID, parentUID) {
@@ -1406,8 +1411,6 @@ async function setCalendarEvents(studentUID, parentUID) {
 
   // pull out the first tutors so we can show the student who they are
   currentProgramDetails.firstTutors = assignedLessons.reduce((prev, curr) => {
-    console.log('prev', prev)
-    console.log('curr', curr)
     if(!prev[curr.lessonType]) {
       prev[curr.lessonType] = curr.tutor;
     }
@@ -1506,7 +1509,7 @@ function determineTutorToAssign(assignedLessons, lessonTimes) {
       }
     })
   })
-  console.log(scores)
+  console.log('scores', scores)
 
   let winners = {
     english: [],
@@ -1535,12 +1538,14 @@ function determineTutorToAssign(assignedLessons, lessonTimes) {
     }
   }
 
+  console.log('winners before choosing', winners)
+
   // randomly get a tutor from the winners array
   for (const section in winners) {
     winners[section] = arrayRandomElement(winners[section]);
   }
 
-  console.log(winners);
+  console.log('winners after choosing', winners);
 
   // go through the lessons again and choose the highest tutors is applicable and then remove them from lessonTimes
   for (let i = lessonTimes.length - 1; i >= 0; i--) {

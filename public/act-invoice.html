@@ -12,6 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-functions.js"></script>
   <!-- General -->
   <!-- <script src="Site Templates/site-wide.js" defer></script> -->
   <script src="Site Templates/generalFunctions.js" defer></script>
@@ -88,6 +89,11 @@
           <h5 class="heading">Amount</h5>
         </div>
         <p id="expiration-message"></p>
+
+        <div class="promo">
+          <label for="promoCode">Promo Code</label>
+          <input type="text" name="promoCode" id="promoCode">
+        </div>
 
         <h2>Payment Info</h2>
         <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">

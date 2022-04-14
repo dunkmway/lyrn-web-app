@@ -71,19 +71,9 @@ let current_data = {
   assignment: null
 }
 
-
-
-
-async function testing() {
-  // changeMode('section')
-  // try {
-  //   await setSection('D06', 'science')
-  // }
-  // catch(error) {
-  //   console.log(error)
-  // }
-
+async function initialSetup() {
   changeMode('default');
+  initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
   try {
     await setLandingPage(CURRENT_STUDENT_UID);
   }
@@ -92,8 +82,7 @@ async function testing() {
   }
 }
 
-testing();
-
+initialSetup();
 
 
 /**
@@ -137,12 +126,12 @@ function renderNextLessonDetails(lessonData) {
   const nextLessonElement = document.getElementById('nextLessonDetails');
 
   if (!lessonData) {
-    nextLessonElement.textContent = "starting soon. Give us a call or text if you want to increase your ACT score. (385) 300-0906"
+    nextLessonElement.innerHTML = 'Need to increase you ACT score? Check out our <a href="/pricing" target="_blank">ACT programs.</a>'
     return;
   }
 
   nextLessonWrapper.style.backgroundColor = `var(--${lessonData.subtype}-color)`;
-  nextLessonElement.textContent = `${lessonData.subtype.toUpperCase()} - ${convertFromDateInt(lessonData.start).longReadable}`;
+  nextLessonElement.textContent = `Your next lesson is ${lessonData.subtype.toUpperCase()} - ${convertFromDateInt(lessonData.start).longReadable}`;
 }
 
 function renderSectionAssignment(assignmentData) {
@@ -160,6 +149,7 @@ function renderSectionAssignment(assignmentData) {
   }
   else {
     assignmentElement.style.backgroundColor = `var(--default-color)`
+    assignmentElement.style.cursor = 'default';
     assignmentElement.innerHTML = `
       <h4>Hooray, no homework!</h4>
     `
@@ -174,7 +164,6 @@ function renderPreviousAssignment(assignmentData) {
   const assignmentElement = document.createElement('div');
   assignmentElement.classList.add('assignment', 'box');
   if (assignmentData) {
-    // assignmentElement.addEventListener('click', () => previousAssignmentClickCallback(assignmentData))
     assignmentElement.style.backgroundColor = `var(--${assignmentData.section}-color)`
     if (assignmentData.section != 'all') {
       assignmentElement.addEventListener('click', () => previousAssignmentClickCallback(assignmentData))
@@ -201,6 +190,7 @@ function renderPreviousAssignment(assignmentData) {
   }
   else {
     assignmentElement.style.backgroundColor = `var(--default-color)`
+    assignmentElement.style.cursor = 'default';
     assignmentElement.innerHTML = `
       <h4>You haven't submitted any assignments yet</h4>
     `
@@ -237,15 +227,24 @@ function sectionAssignmentClickCallback(assignmentData) {
   switch (assignmentData.status) {
     case 'new':
       customConfirm(
-        `You are about to start your test. 
-        This test will take <b>${SECTION_TIME[assignmentData.section]} minutes</b> to complete. 
-        Once you start this test you will not be able to pause until the entire assignment is complete. 
-        You can flag question for review by clicking the circle above the question. 
-        You can see which questions have been answered or flagged by opening up the tab on the left side as well as see the time remaining for the current section. 
-        The test will automatically be submitted when time runs out. 
-        You will not have the ability to submit the test early. 
-        We highly recommend using the entire time allotted even if you finish early. 
-        Are you ready to start this assignment?`,
+        `
+        <h4>Important to know before starting</h4>
+        <p> 
+          This test will take <b>${SECTION_TIME[assignmentData.section]} minutes</b> to complete. 
+          Once you start this test, you will <b>not</b> be able to pause until the entire assignment is complete.
+          If you leave the page before the test is submitted, you may return to the test but the time will continue to count down while you are away.
+        </p>
+        <h4>Directions for the interface</h4>
+        <ul>
+          <li>You can flag question for review by clicking the circle above the question. </li>
+          <li>You can see which questions have been answered or flagged by opening up the tab on the left side as well as see the time remaining for the current section.</li>
+          <li>The test will automatically be submitted when time runs out.</li>
+          <li>You will not have the ability to submit the test early.</li>
+          <li>We highly recommend using the entire time allotted even if you finish early.</li>
+        </ul>
+        <p>
+          Are you ready to start this assignment?
+        </p>`,
         'NO',
         'YES',
         () => {},
@@ -648,6 +647,108 @@ async function getPreviousAssignments(studentUID) {
   return assignemntDocs.docs;
 }
 
+function initializeAssignmentsSnapshot(studentUID) {
+  console.log('setting assignment snapshot')
+  
+  // they query is coming from the oldest assignment based on the close
+  // this aligns with the current assignments
+  firebase.firestore().collection('Section-Assignments')
+  .where('status', 'in', ['new', 'started', 'submitted', 'graded'])
+  .where('student', '==', studentUID)
+  .orderBy('close')
+  .onSnapshot((querySnapshot) => {
+    // we need to separate the list into current and previous assignemnts
+    let currentAssignments = [];
+    let previousAssignments = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.status == 'new' || data.status == 'started') {
+        // filter out the current assignments that aren't open right now
+        if (
+          data.open.toDate().getTime() <= new Date().getTime() && 
+          data.close.toDate().getTime() > new Date().getTime()
+        ) {
+          currentAssignments.push({
+            ...data,
+            assignment: doc.id
+          });
+        }
+      }
+      else {
+        previousAssignments.push({
+          ...data,
+          assignment: doc.id
+        })
+      }
+    })
+
+    console.log({
+      currentAssignments,
+      previousAssignments
+    })
+
+    // we need to go through the previous assignments and connect the subsection assignments to the all assignemnt
+    for (let i = 0; i < previousAssignments.length; i++) {
+      // if the assignment is all we need to get the subsections as well
+      if (previousAssignments[i].section == 'all') {
+        const allSectionIDs = previousAssignments[i].sectionAssignments;
+
+        const allSections = allSectionIDs.map(assignment => {
+          return previousAssignments.find(assignmentData => assignmentData.assignment == assignment);
+        })
+
+        // make sure all of the subsections have been graded
+        let isAllGraded = true;
+        for (let j = 0; j < allSections.length; j++) {
+          if (allSections[j].status != 'graded') {
+            isAllGraded = false;
+            break;
+          }
+        }
+
+        let compositeSum = isAllGraded ? allSections.reduce((prev, curr) => prev + curr.scaledScore, 0) : 0;
+
+        previousAssignments[i].scaledScore = Math.round(compositeSum / 4) ?? 'Not yet graded';
+        previousAssignments[i].sectionAssignments = allSections;
+      }
+      else {
+        previousAssignments[i].scaledScore = previousAssignments[i].scaledScore ?? 'Not yet graded';
+      }
+    }
+
+    // we can now filter out the subsections
+    // also sort the previous to be in most recent started to oldest
+    previousAssignments = previousAssignments
+    .filter(assignment => !assignment.allAssignment)
+    .sort((a,b) => a.startedAt?.toDate()?.getTime() - b.startedAt?.toDate()?.getTime())
+
+    // remove all the assignments
+    removeAllChildNodes(document.getElementById('sectionAssignmentList'));
+    removeAllChildNodes(document.getElementById('previousAssignmentList'));
+
+    // render all of the assignments
+    if (currentAssignments.length == 0) {
+      renderSectionAssignment(null);
+    }
+    else {
+      currentAssignments.forEach(currentAssignment => {
+        renderSectionAssignment(currentAssignment);
+      })
+    }
+
+    if (previousAssignments.length == 0) {
+      renderPreviousAssignment(null);
+    }
+    else {
+      previousAssignments.forEach(previousAssignment => {
+        renderPreviousAssignment(previousAssignment);
+      })
+    }
+  });
+
+}
+
 async function setLandingPage(studentUID) {
   changeAccentColor('default');
   current_data.assignment = null;
@@ -658,123 +759,129 @@ async function setLandingPage(studentUID) {
   current_data.passage = null;
   current_data.question = null;
 
-  // remove all the assignments
-  removeAllChildNodes(document.getElementById('sectionAssignmentList'));
-  // removeAllChildNodes(document.getElementById('dailyAssignmentList'));
-  removeAllChildNodes(document.getElementById('previousAssignmentList'));
-  await Promise.all([
-    // // get the student doc
-    // getStudentDoc(studentUID)
-    // .then(studentDoc => {
-    //   renderStudentDetails(studentDoc.data())
-    // }),
-    // get the next lesson and render it
-    getNextLesson(studentUID)
-    .then(nextLessonDoc => {
-      console.log(nextLessonDoc?.data())
-      renderNextLessonDetails(nextLessonDoc?.data())
-    }),
+  // get the next lesson and render it
+  getNextLesson(studentUID)
+  .then(nextLessonDoc => {
+    renderNextLessonDetails(nextLessonDoc?.data())
+  })
 
-    // get all section assignments that are open
-    getSectionAssignments(studentUID)
-    .then(sectionAssignmentDocs => {
-      // filter to the events that are open right now
-      const sectionAssignments = sectionAssignmentDocs
-      .map(doc => {
-        return {
-          ...doc.data(),
-          assignment: doc.id
-        }
-      })
-      .filter(assignment => assignment.open.toDate().getTime() <= new Date().getTime());
+  // // remove all the assignments
+  // removeAllChildNodes(document.getElementById('sectionAssignmentList'));
+  // // removeAllChildNodes(document.getElementById('dailyAssignmentList'));
+  // removeAllChildNodes(document.getElementById('previousAssignmentList'));
+  // await Promise.all([
+  //   // // get the student doc
+  //   // getStudentDoc(studentUID)
+  //   // .then(studentDoc => {
+  //   //   renderStudentDetails(studentDoc.data())
+  //   // }),
+  //   // get the next lesson and render it
+  //   getNextLesson(studentUID)
+  //   .then(nextLessonDoc => {
+  //     console.log(nextLessonDoc?.data())
+  //     renderNextLessonDetails(nextLessonDoc?.data())
+  //   }),
 
-      console.log(sectionAssignments);
+  //   // get all section assignments that are open
+  //   getSectionAssignments(studentUID)
+  //   .then(sectionAssignmentDocs => {
+  //     // filter to the events that are open right now
+  //     const sectionAssignments = sectionAssignmentDocs
+  //     .map(doc => {
+  //       return {
+  //         ...doc.data(),
+  //         assignment: doc.id
+  //       }
+  //     })
+  //     .filter(assignment => assignment.open.toDate().getTime() <= new Date().getTime());
 
-      if (sectionAssignments.length == 0) {
-        renderSectionAssignment(null);
-      }
-      else {
-        sectionAssignments.forEach(sectionAssignment => {
-          renderSectionAssignment(sectionAssignment);
-        })
-      }
-    }),
+  //     console.log(sectionAssignments);
 
-    getPreviousAssignments(studentUID)
-    .then(async (previousAssignmentDocs) => {
-      const previousAssignments = previousAssignmentDocs
-      .map(doc => {
-        return {
-          ...doc.data(),
-          assignment: doc.id
-        }
-      })
-      .filter(assignment => !assignment.allAssignment) // filter out the subsections to an all assignment
+  //     if (sectionAssignments.length == 0) {
+  //       renderSectionAssignment(null);
+  //     }
+  //     else {
+  //       sectionAssignments.forEach(sectionAssignment => {
+  //         renderSectionAssignment(sectionAssignment);
+  //       })
+  //     }
+  //   }),
 
-      console.log(previousAssignments)
-      if (previousAssignments.length == 0) {
-        renderPreviousAssignment(null);
-        return;
-      }
+  //   getPreviousAssignments(studentUID)
+  //   .then(async (previousAssignmentDocs) => {
+  //     const previousAssignments = previousAssignmentDocs
+  //     .map(doc => {
+  //       return {
+  //         ...doc.data(),
+  //         assignment: doc.id
+  //       }
+  //     })
+  //     .filter(assignment => !assignment.allAssignment) // filter out the subsections to an all assignment
 
-      for (let i = 0; i < previousAssignments.length; i++) {
-        // if the assignment is all we need to get the subsections as well
-        if (previousAssignments[i].section == 'all') {
-          const allSectionIDs = previousAssignments[i].sectionAssignments;
+  //     console.log(previousAssignments)
+  //     if (previousAssignments.length == 0) {
+  //       renderPreviousAssignment(null);
+  //       return;
+  //     }
 
-          const allSectionDocs = await Promise.all(allSectionIDs.map(id => {
-            return firebase.firestore().collection('Section-Assignments').doc(id).get();
-          }))
-          const allSections = allSectionDocs.map(doc => {
-            return {
-              ...doc.data(),
-              assignment: doc.id
-            }
-          });
+  //     for (let i = 0; i < previousAssignments.length; i++) {
+  //       // if the assignment is all we need to get the subsections as well
+  //       if (previousAssignments[i].section == 'all') {
+  //         const allSectionIDs = previousAssignments[i].sectionAssignments;
 
-          // make sure all of the subsections have been graded
-          let isAllGraded = true;
-          for (let j = 0; j < allSections.length; j++) {
-            if (allSections[j].status != 'graded') {
-              isAllGraded = false;
-              break;
-            }
-          }
+  //         const allSectionDocs = await Promise.all(allSectionIDs.map(id => {
+  //           return firebase.firestore().collection('Section-Assignments').doc(id).get();
+  //         }))
+  //         const allSections = allSectionDocs.map(doc => {
+  //           return {
+  //             ...doc.data(),
+  //             assignment: doc.id
+  //           }
+  //         });
 
-          let compositeSum = isAllGraded ? allSections.reduce((prev, curr) => prev + curr.scaledScore, 0) : 'Not yet graded';
+  //         // make sure all of the subsections have been graded
+  //         let isAllGraded = true;
+  //         for (let j = 0; j < allSections.length; j++) {
+  //           if (allSections[j].status != 'graded') {
+  //             isAllGraded = false;
+  //             break;
+  //           }
+  //         }
 
-          previousAssignments[i].scaledScore = Math.round(compositeSum / 4);
-          previousAssignments[i].sectionAssignments = allSections;
-        }
-        else {
-          previousAssignments[i].scaledScore = previousAssignments[i].scaledScore ?? 'Not yet graded';
-        }
+  //         let compositeSum = isAllGraded ? allSections.reduce((prev, curr) => prev + curr.scaledScore, 0) : 'Not yet graded';
 
-        renderPreviousAssignment(previousAssignments[i]);
-      }
-    })
+  //         previousAssignments[i].scaledScore = Math.round(compositeSum / 4);
+  //         previousAssignments[i].sectionAssignments = allSections;
+  //       }
+  //       else {
+  //         previousAssignments[i].scaledScore = previousAssignments[i].scaledScore ?? 'Not yet graded';
+  //       }
+
+  //       renderPreviousAssignment(previousAssignments[i]);
+  //     }
+  //   })
 
 
-    //get the daily assignments and render them
-    //FIXME: put this functionality back eventually
-    // generateDailyAssignments(studentUID)
-    // .then(dailyAssignments => {
-    //   if (dailyAssignments.length == 0) {
-    //     renderDailyAssignment(null);
-    //   }
-    //   else {
-    //     dailyAssignments.forEach(dailyAssignment => {
-    //       renderDailyAssignment(dailyAssignment);
-    //     })
-    //   }
-    // }),
-    //get the section assignment and render it
-    //FIXME: put this functionality back eventually
-    // generateSectionAssignment(studentUID)
-    // .then(sectionAssignment => {
-    //   renderSectionAssignment(sectionAssignment)
-    // })
-  ])
+  //   //get the daily assignments and render them
+  //   //FIXME: put this functionality back eventually
+  //   // generateDailyAssignments(studentUID)
+  //   // .then(dailyAssignments => {
+  //   //   if (dailyAssignments.length == 0) {
+  //   //     renderDailyAssignment(null);
+  //   //   }
+  //   //   else {
+  //   //     dailyAssignments.forEach(dailyAssignment => {
+  //   //       renderDailyAssignment(dailyAssignment);
+  //   //     })
+  //   //   }
+  //   // }),
+  //   //get the section assignment and render it
+  //   //FIXME: put this functionality back eventually
+  //   // generateSectionAssignment(studentUID)
+  //   // .then(sectionAssignment => {
+  //   //   renderSectionAssignment(sectionAssignment)
+  //   // })
+  // ])
 }
 
 /*
@@ -1093,6 +1200,7 @@ async function setPassage(test, section, passage) {
 
 async function setSectionDirections(assignmentData) {
   changeAccentColor(assignmentData.section.split('_')[0]);
+  hideExitReview();
   // remove the selector questions
   removeAllChildNodes(document.querySelector('.main .panels .selector .selector-container'))
 

@@ -15,6 +15,11 @@ const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be start
 
 const INITIAL_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
 
+const PROMO_CODES = {
+  'first act': { isFirstSessionFree: true, percentageOff: 0 },
+  '50off': { percentageOff: 50, isFirstSessionFree: false }
+}
+
 // returns the list of UIDs for tutors that are qualified in the given array of qualifications and the array qualifications thay have that are applicable
 exports.getQualifiedTutors = functions.https.onCall(async (data, context) => {
 
@@ -111,6 +116,11 @@ exports.sendReserveEmail = functions.https.onCall(async (data, context) => {
   return await sendReserveEmail(data.programDetails, data.invoice);
 });
 
+exports.checkPromo = functions.https.onCall(async (data, context) => {
+  return await checkPromo(data.promoCode, data.invoice);
+});
+
+
 async function addUserWithEmail(email, password, role, uid = null) {
   //get the user by their email
   try {
@@ -189,6 +199,16 @@ async function addStudentWithoutEmail(firstName, lastName, parentUID) {
   }
 }
 
+// check promo codes
+async function checkPromo(promoCode, invoice) {
+  if (PROMO_CODES[promoCode]) {
+    await admin.firestore().collection('ACT-Invoices').doc(invoice).update(PROMO_CODES[promoCode]);
+    return true;
+  }
+  else {
+    return false;
+  }
+}
 
 // invoice logic
 exports.updateInvoiceEvents = functions.firestore
@@ -413,13 +433,14 @@ async function sendReserveEmail(programDetails, invoiceID) {
     const tutorDoc = await admin.firestore().collection('Users').doc(tutor).get();
     const bio = tutorDoc.data().bio;
     const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
+    const tutorURL = tutorDoc.data().firstName + '-' + tutorDoc.data().lastName;
     const tutorRow = `
       <tr>
-        <td style="vertical-align: top;padding: 30px 10px 30px 60px;">
-          <img src="https://lyrnwithus.com/Images/tutors/${tutorName}.jpg" alt="tutor" style="width: 200px; float: left; margin-right: 1em;">
+        <td style="vertical-align: top;padding: 30px 0px 30px 0px;">
+          <img src="https://lyrnwithus.com/Images/tutors/${tutorURL}.jpg" alt="tutor" style="width: 200px; float: left; margin-right: 1em;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;"> ${tutorName} </h2>
           <h3>Teaching ${tutorSectionStr[tutor]}</h3>
-          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${bio}</p>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${bio || ''}</p>
         </td>
       </tr>
     `
@@ -468,7 +489,7 @@ async function sendReserveEmail(programDetails, invoiceID) {
             <h2 style="font-size: 28px; margin:0 0 20px 0;">Your program has been reserved</h2>
             <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
               You are reserving our ${programDetails.programLength} week ${programDetails.name} program which 
-              <a href="guarantee.html" target="_blank">guarantees</a> a 
+              <a href="https://lyrnwithus.com/guarantee.html">guarantees</a> a 
               ${programDetails.score} point increase on the ACT. This program will start ${convertFromDateInt(firstDay.getTime()).shortReadable}
               and continue every ${days[programDetails.dayIndexes.sort()[0]]} and ${days[programDetails.dayIndexes.sort()[1]]}
               until ${convertFromDateInt(lastDay.getTime()).shortReadable}. Lessons will start at 

@@ -2,7 +2,7 @@ const CURRENT_LOCATION = 'WIZWBumUoo7Ywkc3pl2G'; // id for the online location (
 const LESSON_ORDER = ['english', 'math', 'reading', 'science'];
 const MAX_EXPECTED_SCORE = 6; // highest score possble for student to get (for each 4 sections)
 const TIME_SLOT_FREQUENCY = 60; // minute difference for seeing openings
-const INVOICE_EXPIRATION_TIME = 24; // hours until invoice expires
+const INVOICE_EXPIRATION_TIME = 48; // hours until invoice expires
 const SECTION_SCORE_WEIGHTS = { // FIXME: not implemented yet (goal is to affect how much each section contributes to the score while calculating the custom program)
   english: 1,
   math: 1,

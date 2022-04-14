@@ -821,6 +821,47 @@ main {
   color: #A5A5A5;
 }
 
+.promo {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1em;
+}
+
+.promo label {
+  margin-right: 1em;
+}
+
+.promo label.valid {
+  color: var(--color-green);
+}
+
+.promo label.invalid {
+  color: var(--color-accent-5-deep);
+}
+
+.promo.loading::before {
+  content: '';
+  margin-right: .5em;
+  height: 16px;
+  width: 16px;
+  border: 2px solid transparent;
+  border-top-color: black;
+  border-radius: 50%;
+  animation: spin .5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.payments .make-payment .promo > input {
+  width: 20ch;
+  margin: 0;
+}
+
 /* .balance-wrapper::before {
   content: '';
   height: 2px;

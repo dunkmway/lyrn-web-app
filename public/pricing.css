@@ -54,6 +54,7 @@ input, label, select, button {
 button:disabled {
   background-color: var(--greyed-out-color) !important;
   cursor: not-allowed !important;
+  color: white !important;
 }
 
 button.loading::after {
@@ -476,6 +477,7 @@ nav a:hover {
   text-align: center;
   max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .modal-body .accent {
@@ -911,7 +913,7 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   width: 16px;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top: 2px solid var(--color-green);
+  border-top: 2px solid white;
   animation: spin .5s linear infinite;
 }
 
@@ -1138,7 +1140,6 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
 
 .footnotes {
   color: #A3A3A3;
-  margin-top: 3em;
 }
 
 .footnotes > p {
@@ -1364,6 +1365,7 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 3em;
 }
 
 .faq .title {
