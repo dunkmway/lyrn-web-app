@@ -279,8 +279,6 @@ let currentProgramDetails = {
   },
   openings: [],
   weeklyOpenings: {},
-  isFirstSessionFree: false,
-  percentageOff: 0,
   firstTutors: {},
 }
 
@@ -421,8 +419,6 @@ function setProgramSelected(setProgramIndex) {
 
   // unselect all of the day and time inputs
   clearCheckModal();
-
-  console.log(currentProgramDetails);
 }
 
 function clearCheckModal() {
@@ -551,9 +547,6 @@ function daySelectedCallback(event) {
   if (currentProgramDetails.sessionsPerWeek == currentProgramDetails.dayIndexes.length) {
     generateOpenTimes();
   }
-
-  console.log(currentProgramDetails)
-
 }
 
 async function generateOpenTimes() {
@@ -930,8 +923,6 @@ function contactInfoFocusOutCallback(event) {
   const value = key.includes('Name') ? captalizeFirstLetter(target.value.trim()) : target.value.trim();
 
   currentProgramDetails.contact[type][key] = value;
-
-  console.log(currentProgramDetails)
 }
 
 /**
@@ -1138,7 +1129,6 @@ function arrayPermutations(array) {
 }
 
 async function verifyContact() {
-  console.log('verifying contact')
   const contact = currentProgramDetails.contact;
   let isValid = true;
   let missing = [];
@@ -1205,7 +1195,6 @@ async function verifyContact() {
     return false;
   }
   else {
-    console.log('verification passed')
     await submitContact();
     return true;
   }
@@ -1225,7 +1214,6 @@ function captalizeFirstLetter(str) {
 }
 
 async function submitContact() {
-  console.log('submitting users')
   // create the parent or get their uid
   const { user: parent, newUser: isParentNew } = await addParentWithEmail(currentProgramDetails.contact.parent.email);
   if (isParentNew) {
@@ -1238,7 +1226,6 @@ async function submitContact() {
       role: 'parent'
     });
   }
-  console.log('parent created')
 
   // create the student or get their uid
   let student = null;
@@ -1279,7 +1266,6 @@ async function submitContact() {
       });
     }
   }
-  console.log('student created')
 
   // save the uid to each user respectively
   currentProgramDetails.contact.parent.uid = parent.uid;
@@ -1297,10 +1283,6 @@ async function verify() {
     toggleWorking()
     return;
   }
-
-  console.log('done with contact')
-
-  
 
   // verify that we have all of the data that we need
   let isValid = true;
@@ -1349,7 +1331,6 @@ async function verify() {
     submitButton.classList.remove('loading');
   }
   else {
-    console.log('all verifications passed')
     await submit();
   }
   
@@ -1357,14 +1338,11 @@ async function verify() {
 
 async function submit() {
   const submitButton = document.querySelector('#submitProgram');
-  console.log('about to submit', currentProgramDetails)
 
   // set the calendar events
   const eventIDs = await setCalendarEvents(currentProgramDetails.contact.student.uid, currentProgramDetails.contact.parent.uid);
-  console.log('events generated')
   // send out the invoice
   const invoice = await generateInvoice(eventIDs, currentProgramDetails.start);
-  console.log('invoice generated')
   const adjustedProgram = {
     firstTutors: currentProgramDetails.firstTutors,
     parentEmail: currentProgramDetails.contact.parent.email,
@@ -1378,11 +1356,9 @@ async function submit() {
     end: currentProgramDetails.end.getTime()
   }
   await sendReserveEmail(adjustedProgram, invoice);
-  console.log('email sent')
 
   // save the program to the student's act profile
   await saveStudentProgram();
-  console.log('program saved')
 
   // everything should be all done
   customConfirm('We have successfully reserved your program! You should be receiving an email in a few moments.', '', 'OK', () => {}, () => {});
@@ -1395,7 +1371,6 @@ async function submit() {
 async function setCalendarEvents(studentUID, parentUID) {
   // determine which lesson order to use that allows for the time slot selected
   const finalLessonOrder = currentProgramDetails.weeklyOpenings[currentProgramDetails.sessionStartTime].lessonOrder;
-  console.log(finalLessonOrder)
 
   // filter the currentProgramDetails.openings to only includes the sessionStartTime that were selected and the permutation that was selected
   const lessonTimes = currentProgramDetails.openings
@@ -1403,11 +1378,8 @@ async function setCalendarEvents(studentUID, parentUID) {
   .programOpenTimes // focus in on just the open times
   .filter(opening => opening.date.getHours().toString().padStart(2, '0') == currentProgramDetails.sessionStartTime.split(':')[0] && opening.date.getMinutes().toString().padStart(2, '0') == currentProgramDetails.sessionStartTime.split(':')[1]) // filter down to only the time that has been selected
 
-  console.log(lessonTimes);
-
   // determine the tutors to teach each lesson
   const assignedLessons = determineTutorToAssign([], lessonTimes)
-  console.log(assignedLessons)
 
   // pull out the first tutors so we can show the student who they are
   currentProgramDetails.firstTutors = assignedLessons.reduce((prev, curr) => {
@@ -1416,7 +1388,6 @@ async function setCalendarEvents(studentUID, parentUID) {
     }
     return prev;
   }, {})
-  console.log('first tutors', currentProgramDetails.firstTutors)
 
   // create the final form of the event
   const calendarEvents = assignedLessons.map(lesson => {
@@ -1437,8 +1408,6 @@ async function setCalendarEvents(studentUID, parentUID) {
       type: currentProgramDetails.value
     }
   })
-
-  console.log(calendarEvents);
 
   // save the events to firebase
   const eventRefs = [];
@@ -1509,7 +1478,6 @@ function determineTutorToAssign(assignedLessons, lessonTimes) {
       }
     })
   })
-  console.log('scores', scores)
 
   let winners = {
     english: [],
@@ -1538,14 +1506,10 @@ function determineTutorToAssign(assignedLessons, lessonTimes) {
     }
   }
 
-  console.log('winners before choosing', winners)
-
   // randomly get a tutor from the winners array
   for (const section in winners) {
     winners[section] = arrayRandomElement(winners[section]);
   }
-
-  console.log('winners after choosing', winners);
 
   // go through the lessons again and choose the highest tutors is applicable and then remove them from lessonTimes
   for (let i = lessonTimes.length - 1; i >= 0; i--) {
@@ -1581,8 +1545,6 @@ async function generateInvoice(eventIDs, programStart) {
     sessionPrice: currentProgramDetails.price * currentProgramDetails.sessionLength,
     pricePerHour: currentProgramDetails.price,
     events: eventIDs,
-    isFirstSessionFree: currentProgramDetails.isFirstSessionFree,
-    percentageOff: currentProgramDetails.percentageOff,
     createdAt: new Date().getTime(),
     expiration: new Date().setHours(new Date().getHours() + INVOICE_EXPIRATION_TIME),
     status: 'pending'
