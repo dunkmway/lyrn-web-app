@@ -12,6 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-functions.js"></script>
   <!-- General -->
   <!-- <script src="Site Templates/site-wide.js" defer></script> -->
   <script src="Site Templates/generalFunctions.js" defer></script>
@@ -28,7 +29,7 @@
 
 <body onload="initialSetup()">
   <header class="nav-start">
-    <a href="#" class="logo">
+    <a href="index.html" class="logo">
       <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
         <g>
           <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -48,8 +49,9 @@
     <input type="checkbox" id="nav-toggle" class="nav-toggle">
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
+        <!-- <li><a href="index.html">Home</a></li> -->
         <li><a href="why.html">Why Lyrn</a></li>
+        <li><a href="team.html">Our Team</a></li>
         <li><a href="pricing.html">Pricing</a></li>
         <!-- <li><a href="sign-in.html">Sign In</a></li> -->
         <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
@@ -62,30 +64,8 @@
   <main>
     <section class="welcome">
       <h3 id="parent-name">Welcome</h3>
-      <!-- <h4>Generated on</h4>
-      <h2 class="date"></h2> -->
       <h4 id="welcome-message"></h4>
     </section>
-
-    <!-- <section class="lesson-list">
-      <div class="table-wrapper">
-        <table id="lesson-table">
-          <thead>
-            <tr>
-              <th>LESSON</th>
-              <th>LESSON TIME</th>
-              <th>DURATION</th>
-              <th>PRICE</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="total-wrapper">
-        <h2>Total</h2>
-        <h2 id="balance-due"></h2>
-      </div>
-    </section> -->
 
     <section class="payments" style="display: none;">
       <h2>Start Lyrning</h2>
@@ -109,6 +89,11 @@
           <h5 class="heading">Amount</h5>
         </div>
         <p id="expiration-message"></p>
+
+        <div class="promo">
+          <label for="promoCode">Promo Code</label>
+          <input type="text" name="promoCode" id="promoCode">
+        </div>
 
         <h2>Payment Info</h2>
         <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
@@ -160,10 +145,11 @@
       <div class="site-map">
         <h3>Site Map</h3>
         <ul>
-          <li><a href="#">Home</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="why.html">Why Lyrn</a></li>
+          <li><a href="team.html">Our Team</a></li>
           <li><a href="pricing.html">Pricing</a></li>
-          <li><a href="enroll.html">Contact Us</a></li>
+          <!-- <li><a href="enroll.html">Contact Us</a></li> -->
           <!-- <li><a href="sign-up.html">Sign up</a></li> -->
           <li><a href="sign-in.html">Log In</a></li>
           <li><a href="careers.html">Careers</a></li>
@@ -171,15 +157,11 @@
           <li><a href="terms.html">Terms and Conditions</a></li>
         </ul>
       </div>
-      <!-- <div>
+      <div>
         <h3>Social</h3>
-        <ul>
-          <li><a href="">Instagram</a></li>
-          <li><a href="">Facebook</a></li>
-          <li><a href="">LinkedIn</a></li>
-          <li><a href="">TikTok</a></li>
-        </ul>
-      </div> -->
+        <a href="https://www.instagram.com/lyrntutoring" target="_blank"><img src="Images/instagram.png" alt="instagram"></a></li>
+        <a href="https://www.facebook.com/LyrnTutoring" target="_blank"><img src="Images/facebook.png" alt="facebook"></a></li>
+      </div>
       <div>
         <h3>Contact Us</h3>
         <ul>

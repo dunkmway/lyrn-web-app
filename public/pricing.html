@@ -22,9 +22,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <link rel="stylesheet" href="Site Templates/site-wide.css">
     <script src="pricing.js" defer></script>
 
     <link href="pricing.css" rel="stylesheet">
@@ -73,7 +75,7 @@
     <div class="banner">
       <p>Get started today and recieve your <strong>first lesson free!</strong> Click for details.</p>
     </div>
-    <div class="modal">
+    <div class="modal" id="firstSessionFreeModal">
       <div class="modal-body">
         <div class="close">
           <svg viewbox="0 0 32 32">
@@ -90,37 +92,90 @@
       </div>
     </div>
 
-    <main>
-      <!-- <section class="intro">
-        <h1>Simple, easy pricing</h1>
-        <h2>Select the perfect course and see our pricing</h2>
-      </section>
-      <section class="courses">
-        <h2>OUR COURSES</h2>
-        <div class="course-wrapper">
-          <div class="course-block"> -->
-            <!-- <div class="course-card blueish" onclick="openCourse('act')"> -->
-              <!-- <div class="course-card" onclick="openCourse('act')">
-              <h2>ACT PREP</h2>
-            </div>
-            <h3>Score your ACT Goal</h3> -->
-            <!-- <p>Sign up to get one on one tutoring from Lyrn's ACT certified tutors. Students recieve a full length ACT preliminary package, which includes the official ACT test,
-              1 hour post test review, and a college readiness conference. Tutors and student will set a goal together and over the course of our custom courses, will use Lyrn's Adaptive Learning 
-              Technology to meet the goal.
-            </p> -->
-          <!-- </div>
-          <div class="course-block">
-            <div class="course-card" onclick="openCourse('subjectTutoring')">
-              <h2>SUBJECT TUTORING</h2>
-            </div>
-            <h3>Any homework, we can help</h3> -->
-            <!-- <p>Whether you're in a rut and can't seem to get that biology assignment finished or you feel like you're falling behind in math, Lyrn Tutoring can help you finish your homework feeling
-              confident. Tutors and students will make goals together and will help the student complete homework until grade or missing assignment goals are met.
-            </p> -->
-          <!-- </div>
+    <div class="modal" id="checkProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
         </div>
-      </section> -->
+        <h3>Check Program Availability</h3>
+        <p>Select 2 nonconsecutive days below to see our availability.</p>
+        <p class="start-end"></p>
+        <div class="date-time">
+          <div class="selection-wrapper">
+            <input type="checkbox" id="monday" onchange="daySelectedCallback(event)">
+            <label for="monday" class="day-item">M</label>
+            <input type="checkbox" id="tuesday" onchange="daySelectedCallback(event)">
+            <label for="tuesday" class="day-item">T</label>
+            <input type="checkbox" id="wednesday" onchange="daySelectedCallback(event)">
+            <label for="wednesday" class="day-item">W</label>
+            <input type="checkbox" id="thursday" onchange="daySelectedCallback(event)">
+            <label for="thursday" class="day-item">T</label>
+            <input type="checkbox" id="friday" onchange="daySelectedCallback(event)">
+            <label for="friday" class="day-item">F</label>
+            <input type="checkbox" id="saturday" onchange="daySelectedCallback(event)">
+            <label for="saturday" class="day-item">S</label>
+          </div>
+        </div>
 
+        <p id="lessonLength"></p>
+        <div id="openTimes"></div>
+
+        <div class="reserve-prompt hide">
+          <h3>Times are filling up quickly!</h3>
+          <h5>
+            We can reserve these days and time so that when you are ready to sign up, you get the times you want.
+          </h5>
+          <p>
+            Select a time above and then click "Reserve" below.
+          </p>
+          <button id="firstReserve" disabled onclick="moveToReserveProgram()">Reserve</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="reserveProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+
+        <div class="back" onclick="backToCheckProgram()">
+          <p>go back</p>
+        </div>
+        
+        <h3>Just a few more things to reserve your spot</h3>
+        <div class="contact-form">
+          <div class="parent">
+            <h5>Parent Info</h5>
+            <label for="parent-firstName" class="placeholder">Parent First Name</label>
+            <input id="parent-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-lastName" class="placeholder">Parent Last Name</label>
+            <input id="parent-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-email" class="placeholder">Parent Email</label>
+            <input id="parent-email" type="email" onfocusout="contactInfoFocusOutCallback(event)" required>
+          </div>
+          <div class="student">
+            <h5>Student Info</h5>
+            <label for="student-firstName" class="placeholder">Student First Name</label>
+            <input id="student-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-lastName" class="placeholder">Student Last Name</label>
+            <input id="student-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-email" class="placeholder">Student Email (optional)</label>
+            <input id="student-email" type="email" onfocusout="contactInfoFocusOutCallback(event)">
+          </div>
+        </div>
+        <p class="program-summary">
+        </p>
+        <button id="submitProgram" onclick="verify()">Reserve my spot</button>
+        <p class="message error"></p>
+      </div>
+    </div>
+
+    <main>
       <input type="radio" name="course-selection" id="act-section" checked>
       <input type="radio" name="course-selection" id="subjectTutoring-section">
       <section class="nav">
@@ -134,8 +189,8 @@
         </div>
 
         <div class="practice-test-wrapper">
-          <h2>Free full length ACT practice test</h2>
-          <p>Not sure how many points you need to go up? Take a <strong>free</strong> full length ACT test and get your results back immediately.</p>
+          <h2>2 free full length ACT practice tests</h2>
+          <p>Not sure how many points you need to go up? Take two <strong>free</strong> full length ACT test and get your results back immediately.</p>
           <div class="flex-row">
             <input type="email" placeholder="email">
             <button>Submit</button>
@@ -214,12 +269,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(1)">
+              <p>Check Availability</p>
+            </button>
           </div>
 
           <!-- Guided 6 weeks -->
@@ -249,12 +301,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(2)">
+              <p>Check Availability</p>
+            </button>
           </div>
 
           <!-- Guided 8 weeks -->
@@ -284,12 +333,9 @@
               <li>Test tips and strategies</li>
             </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
-            <div class="select">
-              <a href="tel:+13853000906">
-                <p>CALL OR TEXT</p>
-                <p>(385) 300-0906</p>
-              </a>
-            </div>
+            <button class="select" onclick="checkProgramCallback(3)">
+              <p>Check Availability</p>
+            </button>
           </div>
         </div>
 

@@ -15,6 +15,11 @@ const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be start
 
 const INITIAL_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
 
+const PROMO_CODES = {
+  'first act': { isFirstSessionFree: true, percentageOff: 0 },
+  '50off': { percentageOff: 50, isFirstSessionFree: false }
+}
+
 // returns the list of UIDs for tutors that are qualified in the given array of qualifications and the array qualifications thay have that are applicable
 exports.getQualifiedTutors = functions.https.onCall(async (data, context) => {
 
@@ -107,6 +112,15 @@ exports.sendInvoiceEmail = functions.https.onCall(async (data, context) => {
   return await sendInvoiceEmail(data.email, data.invoice);
 });
 
+exports.sendReserveEmail = functions.https.onCall(async (data, context) => {
+  return await sendReserveEmail(data.programDetails, data.invoice);
+});
+
+exports.checkPromo = functions.https.onCall(async (data, context) => {
+  return await checkPromo(data.promoCode, data.invoice);
+});
+
+
 async function addUserWithEmail(email, password, role, uid = null) {
   //get the user by their email
   try {
@@ -185,6 +199,16 @@ async function addStudentWithoutEmail(firstName, lastName, parentUID) {
   }
 }
 
+// check promo codes
+async function checkPromo(promoCode, invoice) {
+  if (PROMO_CODES[promoCode]) {
+    await admin.firestore().collection('ACT-Invoices').doc(invoice).update(PROMO_CODES[promoCode]);
+    return true;
+  }
+  else {
+    return false;
+  }
+}
 
 // invoice logic
 exports.updateInvoiceEvents = functions.firestore
@@ -381,6 +405,246 @@ async function sendInvoiceEmail(email, invoiceID) {
 
   await sgMail.send(msg);
   return;
+}
+
+async function sendReserveEmail(programDetails, invoiceID) {
+  // we need to determine any overlap for the firstTutors
+  const firstTutors = programDetails.firstTutors;
+  
+  // make the tutor the key and the value an array of sections they are teaching
+  let tutorSections = {};
+  for (const section in firstTutors) {
+    if (!tutorSections[firstTutors[section]]) {
+      tutorSections[firstTutors[section]] = [];
+    }
+    tutorSections[firstTutors[section]].push(section.charAt(0).toUpperCase() + section.slice(1));
+  }
+
+  // convert the tutor section arrays to their string equavalent grammatically correct
+  let tutorSectionStr = {};
+  for (const tutor in tutorSections) {
+    tutorSectionStr[tutor] = convertArrayToListString(tutorSections[tutor], 'and');
+  }
+
+  let tutorHTML = '';
+  for (const tutor in tutorSectionStr) {
+    // we need to get their user doc for their full name and bio
+    // their image can be found at /Images/tutor/{tutor full name hyphenated}.jpg
+    const tutorDoc = await admin.firestore().collection('Users').doc(tutor).get();
+    const bio = tutorDoc.data().bio;
+    const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
+    const tutorURL = tutorDoc.data().firstName + '-' + tutorDoc.data().lastName;
+    const tutorRow = `
+      <tr>
+        <td style="vertical-align: top;padding: 30px 0px 30px 0px;">
+          <img src="https://lyrnwithus.com/Images/tutors/${tutorURL}.jpg" alt="tutor" style="width: 200px; float: left; margin-right: 1em;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;"> ${tutorName} </h2>
+          <h3>Teaching ${tutorSectionStr[tutor]}</h3>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${bio || ''}</p>
+        </td>
+      </tr>
+    `
+    tutorHTML += tutorRow;
+  }
+
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const daySort = (a,b) => {
+    if (a == 6) {
+      return -1;
+    }
+    if (b == 6) {
+      return 1;
+    }
+    return a - b;
+  }
+  const firstDay = nextDay(new Date(programDetails.start), programDetails.dayIndexes.sort(daySort)[0]);
+  const lastDay = nextDay(new Date(programDetails.end), programDetails.dayIndexes.sort(daySort)[1], -1)
+
+  const msg = {
+    to: programDetails.parentEmail, // Change to your recipient
+    from: 'support@lyrnwithus.com', // Change to your verified sender
+    subject: 'Reserved Lyrn ACT Program',
+    text: `We're almost ready to start Lyrning! Go to this link to pay for your reserved ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
+    If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    html: `
+    <head>
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+    </style>
+  </head>
+  <body style="font-family: 'proxima-nova', sans-serif;">
+    <div id="email" style="width:600px;margin: auto;background:white;">
+  
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td bgcolor="#101b42" align="center" style="color: white;">
+            <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
+          </td>
+        </tr>
+      </table>
+    
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td style="padding: 30px 30px 30px 60px;">
+            <h2 style="font-size: 28px; margin:0 0 20px 0;">Your program has been reserved</h2>
+            <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+              You are reserving our ${programDetails.programLength} week ${programDetails.name} program which 
+              <a href="https://lyrnwithus.com/guarantee.html">guarantees</a> a 
+              ${programDetails.score} point increase on the ACT. This program will start ${convertFromDateInt(firstDay.getTime()).shortReadable}
+              and continue every ${days[programDetails.dayIndexes.sort()[0]]} and ${days[programDetails.dayIndexes.sort()[1]]}
+              until ${convertFromDateInt(lastDay.getTime()).shortReadable}. Lessons will start at 
+              ${translateMilitaryHourStr(programDetails.sessionStartTime)} and be ${programDetails.sessionLength} 
+              hour${programDetails.sessionLength == 1 ? '' : 's'} long.
+            </p>
+  
+            <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+              When you're ready to start reaching your ACT goals, follow the invoice link below to finalize your program. 
+              Be aware that this reservation will expire in 48 hours and you might not get the times that work best for you 
+              (see the invoice for the expiration time).
+            </p>
+          </td> 
+        </tr>
+      </table>
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td align="center">
+            <table role="presentation" align="center" border="0" cellspacing="0">
+              <tr>
+                <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                  <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">ACT Program Invoice</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td>
+            <h2 style="font-size: 28px; margin:20px 0 20px 0;">Meet your tutors!</h2>
+          </td>
+        </tr>
+        ${tutorHTML}
+      </table>
+  
+      <table role="presentation" border="0" width="100%">
+        <tr>
+          <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+            <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+            <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
+            <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          </td>
+        </tr>
+      </table>
+      
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+            <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+            <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+            <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+          </td>
+        </tr>
+      </table> 
+    </div>
+  </body>
+    `
+  }
+
+  await sgMail.send(msg);
+  return;
+}
+
+function nextDay(date, day, weekDiff = 0) {
+  if (!date) { return null }
+  const daysUntilNextDay = (day - new Date(date).getDay()) < 0 ? (day - new Date(date).getDay()) + (7 * (weekDiff + 1)) : (day - new Date(date).getDay() + (7 * weekDiff))
+  return new Date(new Date(date).setDate(new Date(date).getDate() + daysUntilNextDay));
+}
+
+function convertArrayToListString(array, conjunction) {
+  if (array.length == 2) {
+    return array[0].toString() + ' ' + conjunction + ' ' + array[1].toString();
+  }
+
+  let listStr = '';
+  array.forEach((element, index) => {
+    if (index == 0) {
+      listStr = element.toString();
+    }
+    else if (index == array.length - 1) {
+      listStr += ', ' + conjunction + ' ' + element.toString();
+    }
+    else {
+      listStr += ', ' + element.toString();
+    }
+  })
+  return listStr;
+}
+
+function convertFromDateInt(date) {
+
+  // Make sure an integer was passed in
+  if (typeof date !== "number") {
+      return undefined;
+  }
+
+  // Create the date object from the date as an integer
+  const current_date = new Date(date)
+
+  // create the variables that will be called more than once
+  const year = current_date.getFullYear();
+  const month = current_date.getMonth() + 1;
+  const dayOfMonth = current_date.getDate();
+  const dayOfWeek = current_date.getDay() + 1;
+  const hours = current_date.getHours();
+
+  // Needed to get the month and day string values
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Create and return the datetime object
+  return {
+      'year' : year,
+      'monthNumber' : month,
+      'monthString' : months[month - 1],
+      'dayOfMonth' : dayOfMonth,
+      'dayOfWeekNumber' : dayOfWeek,
+      'dayOfWeekString' : days[dayOfWeek - 1],
+      'hours' : hours > 12 ? hours - 12 : hours,
+      'militaryHours' : hours,
+      'minutes' : current_date.getMinutes(),
+      'seconds' : current_date.getSeconds(),
+      'milliseconds' : current_date.getMilliseconds(),
+      'integerValue' : date,
+      'shortDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
+      'time': (hours > 12 ? (hours - 12).toString() : hours.toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0') + (hours > 12 ? " pm" : " am"),
+      'longDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + (hours > 12 ? (hours - 12).toString() : hours.toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0') + (hours > 12 ? " pm" : " am"),
+      'longDateMilitary' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString() + ":" + current_date.getMinutes().toString().padStart(2,'0'),
+      'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0'),
+      'fullCalendar' : year.toString().padStart(4,'0') + "-" + month.toString().padStart(2, '0') + "-" + dayOfMonth.toString().padStart(2, '0') + "T" + hours.toString().padStart(2, '0') + ":" + current_date.getMinutes().toString().padStart(2, "0"),
+      'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
+      'startOfDayInt' : new Date(year, month - 1, dayOfMonth, 0, 0, 0, 0).getTime(),
+      'shortDateAndDay' : days[dayOfWeek - 1] + month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
+      'shortReadable': days[dayOfWeek - 1] + ' ' + months[month - 1] + " " + dayOfMonth.toString() + ", " + year.toString(),
+      'longReadable' : days[dayOfWeek - 1] + ' ' + months[month - 1] + " " + dayOfMonth.toString() + ", " + year.toString() + " at " + (hours > 12 ? (hours - 12).toString() : hours.toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0') + (hours >= 12 ? ' p' : ' a') + 'm',
+      'dayAndDate' : days[dayOfWeek - 1] + ', ' + shortMonths[month - 1] + ' ' + dayOfMonth.toString(),
+  };
+}
+
+function translateMilitaryHourStr(militaryHours) {
+  let hours = Number(militaryHours.split(':')[0]);
+  const minutes = militaryHours.split(':')[1];
+  const suffix = hours < 12 ? 'am' : 'pm';
+
+  // mod 12
+  hours = hours % 12;
+  // fix 0 to be 12
+  hours = hours == 0 ? hours + 12 : hours
+
+  return `${hours}:${minutes} ${suffix}`;
 }
 
 async function sendPracticeTestEmail(email, studentUID) {

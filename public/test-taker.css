@@ -155,6 +155,7 @@ section.hide {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .landing .content {
@@ -177,6 +178,10 @@ section.hide {
   grid-column: 1 / -1;
   background-color: var(--default-color);
   color: white;
+}
+
+.landing .content .next-lesson-wrapper a {
+  color: inherit;
 }
 
 .landing .content .assignment {
@@ -288,7 +293,7 @@ section.hide {
 .main .panels .selector .selector-wrapper {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   padding: .5em 1em;
   cursor: pointer;
@@ -312,8 +317,8 @@ section.hide {
 
 .main .panels .selector .selector-wrapper span {
   display: inline-block;
-  width: 1.2em;
-  height: 1.2em;
+  width: 21px;
+  height: 21px;
   border-radius: 50%;
   border: 2px solid var(--accent-color);
   background-color: var(--main-background);
@@ -321,26 +326,26 @@ section.hide {
 
 .main .panels .selector .selector-wrapper span:first-child {
   margin-right: 1em;
-  padding: 1px;
+  padding: 2px;
 }
 
-.main .panels .selector .selector-wrapper span:last-child {
+.main .panels .selector .selector-wrapper span:nth-child(2) {
   margin-left: 1em;
-  padding: 5px 1px 1px 1px;
+  padding: 1px;
   fill: var(--accent-color);
   border: none;
   background-color: transparent;
 }
 
-.main .panels .selector input[type=radio] + .selector-wrapper:hover > span:last-child {
+.main .panels .selector input[type=radio] + .selector-wrapper:hover > span:nth-child(2) {
   fill: var(--main-background);
 }
 
-.main .panels .selector input[type=radio]:checked + .selector-wrapper > span:last-child {
+.main .panels .selector input[type=radio]:checked + .selector-wrapper > span:nth-child(2) {
   fill: var(--main-background);
 }
 
-.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover > span:last-child {
+.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover > span:nth-child(2) {
   fill: var(--accent-color);
 }
 
