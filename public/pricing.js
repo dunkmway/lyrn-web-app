@@ -368,14 +368,43 @@ async function updateSetPrograms() {
   })
 }
 
+function createAnalyticsEvent(data) {
+  return firebase.firestore().collection('Analytics').doc().set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  })
+}
+
 function checkProgramCallback(programIndex) {
   document.querySelector('#checkProgram').classList.add('show');
+  createAnalyticsEvent({
+    eventID: 'pricing-checkAvailabilityClicked',
+    additionalData: {
+      programIndex
+    }
+  });
   setProgramSelected(programIndex);
 }
 
 function moveToReserveProgram() {
   document.querySelector('#checkProgram').classList.remove('show');
   document.querySelector('#reserveProgram').classList.add('show');
+
+  createAnalyticsEvent({
+    eventID: 'pricing-reserveClicked',
+    additionalData: {
+      programDetails: {
+        programLength: currentProgramDetails.programLength,
+        name: currentProgramDetails.name,
+        score: currentProgramDetails.score,
+        dayIndexes: currentProgramDetails.dayIndexes,
+        sessionStartTime: currentProgramDetails.sessionStartTime,
+        sessionLength: currentProgramDetails.sessionLength,
+        start: currentProgramDetails.start,
+        end: currentProgramDetails.end
+      }
+    }
+  });
 
   // udpate the program summary
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

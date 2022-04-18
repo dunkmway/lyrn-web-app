@@ -37,7 +37,7 @@
         </div>
         <div id="form-scroll-block">
           <div id="spinnyBoiLocation" class="loader"></div>
-          <form onsubmit="return false">
+          <form onsubmit="() => {return false}">
             <div class="input-row">
               <div class="input-block">
                   <label for="locationName" class="label">Location</label>
@@ -68,6 +68,7 @@
     </div>
 
     <div>
+      <h4>Leads</h4>
       <table id="leads-table" class="display compact cell-border">
         <thead>
           <tr>
@@ -81,6 +82,21 @@
     </div>
 
     <div>
+      <h4>Practice Tests</h4>
+      <table id="practice-table" class="display compact cell-border">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Time</th>
+            <th>Page</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div>
+      <h4>Errors</h4>
       <table id="error-table" class="display compact cell-border">
         <thead>
           <tr>
@@ -98,6 +114,7 @@
     </div>
 
     <div>
+      <h4>Feedback</h4>
       <table id="feedback-table" class="display compact cell-border">
         <thead>
           <tr>

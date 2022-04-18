@@ -1,4 +1,5 @@
 setLeadsTable();
+setPracticeTestTable();
 setErrorTable();
 setFeedbackTable();
 
@@ -48,6 +49,46 @@ function setLeadsTable() {
           console.log(error);
         });
       }
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
+
+function setPracticeTestTable() {
+  let tableData = [];
+  const leadsCollectionRef = firebase.firestore().collection("Leads").where('type', '==', 'ACT-practiceTest');
+  leadsCollectionRef.get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      let errorData = {
+        docUID : doc.id,
+        Email : data.email,
+        Time : convertFromDateInt(data.timestamp.toDate().getTime()).longDate,
+        Page : data.page,
+        Type : data.type,
+      }
+      tableData.push(errorData);
+    });
+
+    let leadsTable = $('#practice-table').DataTable({
+      data: tableData,
+      columns: [
+        { data: 'Email' },
+        { data: 'Time' },
+        { data: 'Page'},
+        { data: 'Type' },
+      ],
+      "autoWidth": false,
+      "pageLength" : 10,
+    });
+
+    $('#practice-table tbody').on('click', 'tr', (event) => {
+      const row = leadsTable.row(event.target).index();
+      let docUID = tableData[row].docUID;
+      window.open(`../test-taker?student=${docUID}`, '_blank')
     });
   })
   .catch((error) => {
