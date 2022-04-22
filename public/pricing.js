@@ -20,8 +20,12 @@ appCheck.activate(
 
 function initialSetup() {
   bannerSetup();
-  checkModalSetup();
-  reserveModalSetup();
+  // checkModalSetup();
+  // reserveModalSetup();
+  modalSetup('checkProgram', clearCheckModal);
+  modalSetup('reserveProgram', clearCheckModal);
+  modalSetup('availableClassesModal', () => {});
+  modalSetup('availableStudyGroupsModal', () => {});
   contactFormSetup();
   let queryCourse = queryStrings()['course'];
 
@@ -35,6 +39,15 @@ function initialSetup() {
 
 function openCourse(sectionID) {
   document.getElementById(sectionID + '-section').checked = true;
+}
+
+function openProgram(event) {
+  const program = event.target.id;
+  document.querySelectorAll('.program').forEach(element => {
+    element.classList.remove('open')
+  });
+
+  document.querySelector(`.program.${program}`).classList.add('open')
 }
 
 function checkModalSetup() {
@@ -60,6 +73,19 @@ function reserveModalSetup() {
     if (e.target !== e.currentTarget) return;
     document.querySelector('#reserveProgram').classList.remove('show');
     clearCheckModal();
+  })
+}
+
+function modalSetup(modalID, closeCallback) {
+  document.querySelector(`#${modalID} > .modal-body > .close`).addEventListener('click', () => {
+    document.querySelector(`#${modalID}`).classList.remove('show');
+    closeCallback();
+  })
+
+  document.querySelector(`#${modalID}`).addEventListener('click', (e) => {
+    if (e.target !== e.currentTarget) return;
+    document.querySelector(`#${modalID}`).classList.remove('show');
+    closeCallback();
   })
 }
 
@@ -373,6 +399,28 @@ function createAnalyticsEvent(data) {
     ...data,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   })
+}
+
+function availableClassesCallback(programIndex) {
+  document.querySelector('#availableClassesModal').classList.add('show');
+  createAnalyticsEvent({
+    eventID: 'pricing-availableClassesClicked',
+    additionalData: {
+      programIndex
+    }
+  });
+  // setClassesSelected(programIndex);
+}
+
+function availableStudyGroupsCallback(programIndex) {
+  document.querySelector('#availableStudyGroupsModal').classList.add('show');
+  createAnalyticsEvent({
+    eventID: 'pricing-availableStudyGroupsClicked',
+    additionalData: {
+      programIndex
+    }
+  });
+  // setStudyGroupsSelected(programIndex);
 }
 
 function checkProgramCallback(programIndex) {
@@ -799,8 +847,10 @@ function getOpenTutors(openTimes, eventLength) {
     const events = openingsMaster_copy[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
     const availabilities = openingsMaster_copy[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
 
-    if (events.length > availabilities ) {
-      alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
+    if (events.length > availabilities.length) {
+      // we found a major error in the openings
+      console.log('openings error')
+      // alert('There is a major issue with the calendar. Contact the Lyrn developers immediately.')
     }
 
     openTutorMaster[time] = arraySubtraction(availabilities, events);

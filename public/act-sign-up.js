@@ -1626,7 +1626,7 @@ function getOpenTutors(openTimes, eventLength) {
     const events = openingsMaster_copy[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
     const availabilities = openingsMaster_copy[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
 
-    if (events.length > availabilities ) {
+    if (events.length > availabilities.length) {
       alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
     }
 

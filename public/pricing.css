@@ -917,10 +917,54 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   animation: spin .5s linear infinite;
 }
 
+.program-selector > h3 {
+  text-align: center;
+}
+
+.program-selector > .selection-wrapper {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  justify-items: center;
+  width: 100%;
+  gap: 1em;
+}
+
+.program-selector > .selection-wrapper > input {
+  position: absolute;
+  z-index: -9999;
+  visibility: hidden;
+}
+
+.program-selector > .selection-wrapper > label {
+  padding: .5em 1em;
+  border: 2px solid var(--color-green);
+  color: var(--color-green);
+  border-radius: 1em;
+  font-size: 1.5em;
+  width: 100%;
+  text-align: center;
+}
+
+.program-selector > .selection-wrapper > p {
+  text-align: center;
+  padding: 0em 1em;
+}
+
+.program-selector > .selection-wrapper > input:checked + label {
+  background-color: var(--color-green);
+  color: white;
+}
+
+.program {
+  display: none;
+}
+
+.program.open {
+  display: block;
+}
+
 .payment-type {
-  /* display: flex;
-  flex-direction: row;
-  align-items: baseline; */
   display: grid;
   grid-template-columns: 1fr auto 1fr;
 }
@@ -937,7 +981,7 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   text-align: left;
 }
 
-input#paymentType  {
+input.payment-input {
   margin: 0;
   position: absolute;
   visibility: hidden;
@@ -967,36 +1011,36 @@ input#paymentType  {
   transition: right 250ms ease;
 }
 
-input#paymentType:checked + .payment-type label::after {
-  right: 2px;
-}
-
-input#paymentType:not(:checked) + .payment-type p.scheduled {
-  color: var(--color-green);
-}
-
-input#paymentType:checked + .payment-type p.one-time {
-  color: var(--color-green);
-}
-
 .plans .recurring,
 .plans .one-time {
   display: none;
 }
 
-input#paymentType:not(:checked) ~ .plans .plan-wrapper .recurring {
+input.payment-input:checked + .payment-type label::after {
+  right: 2px;
+}
+
+input.payment-input:not(:checked) + .payment-type p.scheduled {
+  color: var(--color-green);
+}
+
+input.payment-input:checked + .payment-type p.one-time {
+  color: var(--color-green);
+}
+
+input.payment-input:not(:checked) ~ .plans .plan-wrapper .recurring {
   display: block;
 }
 
-input#paymentType:checked ~ .plans .plan-wrapper .one-time {
+input.payment-input:checked ~ .plans .plan-wrapper .one-time {
   display: block;
 }
 
-input#paymentType:not(:checked) ~ .plans .plan-wrapper.coming-soon::after {
+input.payment-input:not(:checked) ~ .plans .plan-wrapper.coming-soon::after {
   display: none;
 }
 
-input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
+input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   display: block;
 }
 
@@ -1187,7 +1231,15 @@ input#paymentType:checked ~ .plans .plan-wrapper.coming-soon::after {
     margin: 0px 3em;
   }
   
-  #act .plans {
+  #act .program.classes .plans {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #act .program.study-groups .plans {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #act .program.one-on-one .plans {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -1528,7 +1580,7 @@ footer .copyright {
 
 /* check availability */
 
-#checkProgram > .modal-body {
+.sign-up > .modal-body {
   background-color: white;
   color: var(--color-blue);
 }

@@ -184,6 +184,20 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
     )
   }
 
+  // check if this email has requested a practice test already
+  const practiceTestQuery = await admin.firestore().collection('Leads')
+  .where('email', '==', data.email)
+  .where('type', '==', 'ACT-practiceTest')
+  .get();
+
+  // if they already have had a practice test sent to this email
+  if (practiceTestQuery.size > 0) {
+    // we don't need to send off the request or create the assignments
+    // just send them an email with the same link as before
+    await sendPracticeTestEmail(data.email, practiceTestQuery.docs[0].id);
+    return;
+  }
+
   //save the contact data to firebase first
   const ref = admin.firestore().collection('Leads').doc();
   data.timestamp = new Date(data.timestamp)
@@ -246,12 +260,18 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
   ])
 
   //then send an email to the admin account with the data
+  await sendPracticeTestEmail(data.email, ref.id)
+
+  return;
+});
+
+function sendPracticeTestEmail(email, leadID) {
   const msg = {
-    to: data.email,
+    to: email,
     from: 'contact@lyrnwithus.com',
     subject: 'Full Length ACT Tests',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
-    To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${ref.id}
+    To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${leadID}
     Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
     html: `
     <head>
@@ -289,7 +309,7 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
           <table role="presentation" align="center" border="0" cellspacing="0">
             <tr>
               <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
-                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker?student=${ref.id}">Open Test Taker</a>
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker?student=${leadID}">Open Test Taker</a>
               </td>
             </tr>
           </table>
@@ -327,7 +347,7 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
         <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
           <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
           <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
-          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe?q=${ref.id}"> Unsubscribe </a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe?q=${leadID}"> Unsubscribe </a>
           <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
         </td>
       </tr>
@@ -336,7 +356,5 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
 </body>
     `,
   }
-  await sgMail.send(msg)
-
-  return;
-});
+  return sgMail.send(msg)
+}
