@@ -264,12 +264,11 @@ function previousAssignmentClickCallback(assignmentData) {
   console.log(assignmentData)
   if (assignmentData.scaledScore == 'Not yet graded') {
     customConfirm(
-      `This test hasn't finished being graded. Refresh your page to try again.
-      This should only take a few seconds after you submitted the assignment.`,
-      'NO',
-      'YES',
+      `This test hasn't finished being graded. It should take a few more seconds.`,
+      '',
+      '',
       () => {},
-      () => { beginSectionAssignment(assignmentData) }
+      () => {}
     )
   }
   else if (assignmentData.section == 'all') {
@@ -337,7 +336,7 @@ async function beginSectionAssignment(assignmentData) {
         allAssignment: assignmentData.assignment,
         program: assignmentData.program,
         section,
-        status: 'new',
+        status: 'started',
         student: assignmentData.student,
         test: assignmentData.test,
         startedAt: new Date(new Date().setMinutes(new Date().getMinutes() + SECTION_CULMATIVE_START_TIME[section]))
