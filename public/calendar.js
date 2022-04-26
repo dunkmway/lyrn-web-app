@@ -987,8 +987,13 @@ function eventClickHandler(info) {
   })
 }
 
-function deleteEvent(eventID) {
-  return firebase.firestore().collection('Events').doc(eventID).delete();
+async function deleteEvent(eventID) {
+  // delete the attendees then the event
+  const attendeeCollectionRef = firebase.firestore().collection('Events').doc(eventID).collection('Attendees');
+  const attendeeQuery = await attendeeCollectionRef.get()
+
+  await Promise.all(attendeeQuery.docs.map(doc => doc.ref.delete()))
+  await firebase.firestore().collection('Events').doc(eventID).delete();
 }
 
 function deleteAvailability(eventID) {
@@ -1016,6 +1021,10 @@ function deleteRecurringLessonsCallback() {
     const student = pending_calendar_event.student
     const type = pending_calendar_event.type;
     const start = pending_calendar_event.start;
+
+    if (!student) {
+      alert('this function does not work unless we have a single student. talk to duncan about actually fixing this whole page');
+    }
 
     //query all events for this student, of this type and starting at or after this start time
 
@@ -2223,12 +2232,12 @@ function setupAddLesson() {
   document.getElementById('addLessonType').appendChild(defaultOptionType);
 
   //add back the default option (student)
-  const defaultOptionStudent = document.createElement('option');
-  defaultOptionStudent.value = "";
-  defaultOptionStudent.setAttribute('selected', true);
-  defaultOptionStudent.setAttribute('disabled', true);
-  defaultOptionStudent.textContent = "select a student"
-  document.getElementById('addLessonStudent').appendChild(defaultOptionStudent);
+  // const defaultOptionStudent = document.createElement('option');
+  // defaultOptionStudent.value = "";
+  // defaultOptionStudent.setAttribute('selected', true);
+  // defaultOptionStudent.setAttribute('disabled', true);
+  // defaultOptionStudent.textContent = "select a student"
+  // document.getElementById('addLessonStudent').appendChild(defaultOptionStudent);
 
   // //add the default option (staff)
   // const defaultOptionStaff = document.createElement('option');
@@ -2265,6 +2274,11 @@ function setupAddLesson() {
   //add in the list of lesson types. If no location is selected this will reject
   getLessonTypeList(document.getElementById('calendarLocation').dataset.value)
   .then((lessonTypes) => {
+    lessonTypes.sort((a,b) => {
+      if (a.name < b.name) { return -1 }
+      if (a.name > b.name) { return 1 }
+      return 0
+    });
     let lessonNames = [];
     let lessonValues = [];
     let lessonPrice = [];
@@ -2278,46 +2292,74 @@ function setupAddLesson() {
 
     addSelectOptions(document.getElementById('addLessonType'), lessonValues, lessonNames);
     $('#addLessonType').closest(".ui.dropdown").dropdown('setting', 'onChange',
-    (value, text) => {
-      if (!value) return;
+    (typeValue, text) => {
+      if (!typeValue) return;
 
-      document.getElementById('addLessonPrice').value = lessonPrice[lessonValues.indexOf(value)] ?? ''
+      document.getElementById('addLessonPrice').textContent = lessonPrice[lessonValues.indexOf(typeValue)] ?? ''
 
       //set up the subtypes
-      let subtypeValues = [];
-      let subtypeNames = [];
-      lessonSubtypes[lessonValues.indexOf(value)].forEach(subtype => {
+      let subtypeValues = ['select a subtype'];
+      let subtypeNames = [null];
+      lessonSubtypes[lessonValues.indexOf(typeValue)].forEach(subtype => {
         subtypeValues.push(subtype.value);
         subtypeNames.push(subtype.name);
       })
+
       document.getElementById('addLessonSubtype').innerHTML = null;
       $('#addLessonSubtype').closest(".ui.dropdown").dropdown('clear');
       addSelectOptions(document.getElementById('addLessonSubtype'), subtypeValues, subtypeNames);
-    })
+      $('#addLessonSubtype').closest(".ui.dropdown").dropdown('setting', 'onChange',
+      (subtypeValue, text) => {
+        if (!subtypeValue) return;
+
+        // get qualified tutors
+        getTutorDocsByQualification(current_location, `${typeValue}-${subtypeValue}`)
+        .then(tutorDocs => {
+          const docs = tutorDocs.docs;
+          docs.sort((a,b) => {
+            if (a.data().lastName < b.data().lastName) { return -1 }
+            if (a.data().lastName > b.data().lastName) { return 1 }
+            return 0
+          });
+          let tutorNames = [];
+          let tutorUIDs = [];
+          docs.forEach((doc) => {
+            tutorNames.push(doc.data().lastName + ', ' + doc.data().firstName);
+            tutorUIDs.push(doc.id);
+          });
+          document.getElementById('addLessonStaff').innerHTML = null;
+          $('#addLessonStaff').closest(".ui.dropdown").dropdown('clear');
+          addSelectOptions(document.getElementById('addLessonStaff'), tutorUIDs, tutorNames);
+        })
+      });
+    });
   })
   .catch((error) => {
     console.log(error)
     return closeCalendarSidebar(true);
   });
+
+  //remove all attendee nodes
+  removeAllChildNodes(document.getElementById('addLessonAttendeeContainer'))
 
   //add in the student list. If no location is selected this will reject
-  getUserListByRole(current_location, ['student'])
-  .then((students) => {
-    let studentNames = [];
-    let studentUIDs = [];
-    students.forEach((student) => {
-      studentNames.push(student.name);
-      studentUIDs.push(student.id);
-    });
+  // getUserListByRole(current_location, ['student'])
+  // .then((students) => {
+  //   let studentNames = [];
+  //   let studentUIDs = [];
+  //   students.forEach((student) => {
+  //     studentNames.push(student.name);
+  //     studentUIDs.push(student.id);
+  //   });
 
-    addSelectOptions(document.getElementById('addLessonStudent'), studentUIDs, studentNames);
-  })
-  .catch((error) => {
-    console.log(error)
-    return closeCalendarSidebar(true);
-  });
+  //   addSelectOptions(document.getElementById('addLessonStudent'), studentUIDs, studentNames);
+  // })
+  // .catch((error) => {
+  //   console.log(error)
+  //   return closeCalendarSidebar(true);
+  // });
 
-  //add in the staff list. If no location is selected this will reject
+  // add in the staff list. If no location is selected this will reject
   // getUserListByRole(current_location, STAFF_ROLES)
   // .then((staff) => {
   //   let staffNames = [];
@@ -2337,6 +2379,89 @@ function setupAddLesson() {
 
   showAddLessonWrapper();
   openCalendarSidebar();
+}
+
+function addLessonsAddAttendeeCallback() {
+  // add in a new fields for student and their price
+  const attendeeContainer = document.getElementById('addLessonAttendeeContainer');
+  const newChildIndex = attendeeContainer.children.length;
+
+  let attendeeWrapper = document.createElement('div');
+  attendeeWrapper.id = `addLessonAttendeeIndex_${newChildIndex}`;
+  attendeeWrapper.classList.add('attendee-wrapper');
+  attendeeWrapper.innerHTML = `
+  <label for="addLessonStudentIndex_${newChildIndex}" class="label">Student</label>
+  <select id="addLessonStudentIndex_${newChildIndex}" class="ui dropdown search selection"></select>
+  <label for="addLessonPriceIndex_${newChildIndex}" class="label">Price</label>
+  <input id="addLessonPriceIndex_${newChildIndex}" class="input"></select>
+  <button onclick="addLessonRemoveAttendeeCallback(${newChildIndex})">remove attendee</button>
+  `
+  attendeeContainer.appendChild(attendeeWrapper);
+
+  getUserListByRole(current_location, ['student'])
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById(`addLessonStudentIndex_${newChildIndex}`), studentUIDs, studentNames);
+    $(`#addLessonStudentIndex_${newChildIndex}`).dropdown();
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar(true);
+  });
+}
+
+function addLessonRemoveAttendeeCallback(index) {
+  const attendeeWrapper = document.getElementById(`addLessonAttendeeIndex_${index}`);
+  removeAllChildNodes(attendeeWrapper);
+  attendeeWrapper.remove();
+}
+
+function editLessonAddAttendeeCallback() {
+  // add in a new fields for student and their price
+  const attendeeContainer = document.getElementById('editLessonAttendeeContainer');
+  const newChildIndex = attendeeContainer.children.length;
+
+  let attendeeWrapper = document.createElement('div');
+  attendeeWrapper.id = `editLessonAttendeeIndex_${newChildIndex}`;
+  attendeeWrapper.classList.add('attendee-wrapper');
+  attendeeWrapper.innerHTML = `
+  <label for="editLessonStudentIndex_${newChildIndex}" class="label">Student</label>
+  <select id="editLessonStudentIndex_${newChildIndex}" class="ui dropdown search selection"></select>
+  <label for="editLessonPriceIndex_${newChildIndex}" class="label">Price</label>
+  <input id="editLessonPriceIndex_${newChildIndex}" class="input"></select>
+  <button onclick="editLessonRemoveAttendeeCallback(${newChildIndex})">remove attendee</button>
+  `
+  attendeeContainer.appendChild(attendeeWrapper);
+
+  return getUserListByRole(current_location, ['student'])
+  .then((students) => {
+    let studentNames = [];
+    let studentUIDs = [];
+    students.forEach((student) => {
+      studentNames.push(student.name);
+      studentUIDs.push(student.id);
+    });
+
+    addSelectOptions(document.getElementById(`editLessonStudentIndex_${newChildIndex}`), studentUIDs, studentNames);
+    $(`#editLessonStudentIndex_${newChildIndex}`).dropdown();
+    return
+  })
+  .catch((error) => {
+    console.log(error)
+    return closeCalendarSidebar(true);
+  });
+}
+
+function editLessonRemoveAttendeeCallback(index) {
+  const attendeeWrapper = document.getElementById(`editLessonAttendeeIndex_${index}`);
+  removeAllChildNodes(attendeeWrapper);
+  attendeeWrapper.remove();
 }
 
 function copyToClipboard(element, updateText = false) {
@@ -2368,50 +2493,56 @@ function setupEditLesson(data, id) {
   
     document.getElementById('editLessonType').textContent = lessonTypeReadable;
     document.getElementById('editLessonDescription').textContent = data.description;
-    document.getElementById('editLessonStudent').textContent = data.studentName;
+    // document.getElementById('editLessonStudent').textContent = data.studentName;
     document.getElementById('editLessonStaff').textContent = data.staffNames ?? 'No tutor assigned';
-    document.getElementById('editLessonPrice').value = data.price;
+    // document.getElementById('editLessonPrice').value = data.price;
 
     document.getElementById('editLessonStaffLink').textContent = data.staffZoomURL ? 'Copy link to clipboard' : 'No link set yet';
     document.getElementById('editLessonStudentLink').textContent = data.studentZoomURL ? 'Copy link to clipboard' : 'No link set yet';
     document.getElementById('editLessonStaffLink').setAttribute('data-clipboard', data.staffZoomURL ? data.staffZoomURL : null);
     document.getElementById('editLessonStudentLink').setAttribute('data-clipboard', data.studentZoomURL ? data.studentZoomURL : null);
   
-    // //add back the default option (staff)
-    // const defaultOptionStaff = document.createElement('option');
-    // defaultOptionStaff.value = "noStaff";
-    // defaultOptionStaff.textContent = "NO STAFF"
-    // document.getElementById('editLessonStaff').appendChild(defaultOptionStaff);
-  
-    // //add in the staff list. If no location is selected this will reject
-    // // getUserListByRole(current_location, STAFF_ROLES)
-    // getTutorDocsByQualification(data.location, `${data.type}-${data.subtype}`)
-    // .then((tutorDocs) => {
-    //   //get the black listed tutors as well
-    //   firebase.firestore().collection('Users').doc(data.student).get()
-    //   .then(studentDoc => {
-    //     const blacklistTutors = studentDoc.data().blacklistTutors ?? [];
+    // get qualified tutors
+    getTutorDocsByQualification(current_location, `${data.type}-${data.subtype}`)
+    .then(tutorDocs => {
+      const docs = tutorDocs.docs;
+      docs.sort((a,b) => {
+        if (a.data().lastName < b.data().lastName) { return -1 }
+        if (a.data().lastName > b.data().lastName) { return 1 }
+        return 0
+      });
+      let tutorNames = [];
+      let tutorUIDs = [];
+      docs.forEach((doc) => {
+        tutorNames.push(doc.data().lastName + ', ' + doc.data().firstName);
+        tutorUIDs.push(doc.id);
+      });
+      document.getElementById('editLessonStaff').innerHTML = null;
+      $('#editLessonStaff').closest(".ui.dropdown").dropdown('clear');
+      addSelectOptions(document.getElementById('editLessonStaff'), tutorUIDs, tutorNames);
+      $('#editLessonStaff').closest(".ui.dropdown").dropdown('set value', data.staff);
+    })
 
-    //     let tutorNames = [];
-    //     let tutorUIDs = [];
-    //     tutorDocs.forEach((tutorDoc) => {
-    //       if (!blacklistTutors.includes(tutorDoc.id)) {
-    //         tutorNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
-    //         tutorUIDs.push(tutorDoc.id);
-    //       }
-    //     });
-    
-    //     addSelectOptions(document.getElementById('editLessonStaff'), tutorUIDs, tutorNames);
-    
-    //     //select previously saved staff
-    //     $("#editLessonStaff").closest(".ui.dropdown").dropdown('set value', data.staff);
-    //   })
-    // })
-    // .catch((error) => {
-    //   console.log(error)
-    //   return closeCalendarSidebar(true);
-    // });
+    //remove all attendee nodes
+    removeAllChildNodes(document.getElementById('editLessonAttendeeContainer'))
+
+    // add in the attendees
+    firebase.firestore().collection('Events').doc(id).collection('Attendees').get()
+    .then((attendeeQuery) => {
+      const attendees = attendeeQuery.docs.map(doc => doc.data());
+      attendees.forEach((attendee, index) => {
+        const passThru = (index) => {
+          editLessonAddAttendeeCallback()
+          .then(() => {
+            $(`#editLessonStudentIndex_${index}`).closest(".ui.dropdown").dropdown('set selected', attendee.student);
+            document.getElementById(`editLessonPriceIndex_${index}`).value = attendee.price;
+          })
+        };
+        passThru(index);
+      })
+    })
   
+    
     //show the reconciled state
     $('#editLessonReconciled').parent()
     .checkbox({
@@ -3450,18 +3581,30 @@ async function submitAddLesson() {
   const type = document.getElementById('addLessonType').value;
   const subtype = document.getElementById('addLessonSubtype').value;
   const description = document.getElementById('addLessonDescription').value;
-  const student = document.getElementById('addLessonStudent').value;
-  // const staff = getDropdownValues('addLessonStaff');
+  // const student = document.getElementById('addLessonStudent').value;
+  const staff = getDropdownValues('addLessonStaff');
   // const staffNames = getDropdownText('addLessonStaff');
-  const price = Number(document.getElementById('addLessonPrice').value)
+  // const price = Number(document.getElementById('addLessonPrice').value)
   const location = document.getElementById('calendarLocation').dataset.value;
+
+  // we want to convert all attendee data
+  const attendees = [];
+  const attendeeContainer =  document.getElementById('addLessonAttendeeContainer');
+  attendeeContainer.querySelectorAll('.attendee-wrapper').forEach(wrapper => {
+    const index = Number(wrapper.id.split('_')[1]);
+    attendees.push({
+      student: document.getElementById(`addLessonStudentIndex_${index}`).value,
+      price: Number(document.getElementById(`addLessonPriceIndex_${index}`).value),
+    })
+  })
+
 
   if (scheduleType == 'single') {
     const start = pending_calendar_event.start;
     const end = pending_calendar_event.end;
     const allDay = pending_calendar_event.allDay;
 
-    if (!start || !type || !subtype || !student || !location || isNaN(price)) {
+    if (!start || !type || !subtype || !location || staff.length == 0 ) {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
@@ -3471,50 +3614,72 @@ async function submitAddLesson() {
     }
 
     if (confirm("Are you sure you want to submit this event?")) {
-      try {
-        const studentConflict = await checkStudentConflicts(student, start, end)
-        if (studentConflict) {
-          sidebarNotWorking();
-          return alert('This student has a conflict with a(n) ' + 
-            eventTypeReadable(studentConflict.data().type) + ' event from ' +
-            convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
-            convertFromDateInt(studentConflict.data().end).longReadable
-          )
-        }
-
-        const tutors = await getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
-        console.log(tutors)
-        if (tutors.length > 0) {
-          eventInfo = {
-            type: type,
-            subtype: subtype,
-            description: description,
-            start: start,
-            end: end,
-            allDay, allDay,
-            location: location,
-            student: student,
-            staff: [tutors[0].tutor], // choose the first tutor since this tutor has been with the student the most or random
-            price: price
-          }
-
-          const event = await saveLesson(eventInfo)
-          // //FIXME: This should automatically update for the client and put it in a pending status
-          // main_calendar.addEventSource([event]);
-          closeCalendarSidebar(true);
-          //since the defualt is to show no lesson just reload the entire calendar
-          getCurrentCalendarTypeContent();
-        }
-        else {
-          sidebarNotWorking();
-          return alert("We don't have any tutors open at this time. Check the openings page for more options.")
-        }
+      eventInfo = {
+        type,
+        subtype,
+        description,
+        start,
+        end,
+        allDay,
+        location,
+        attendees,
+        staff
       }
-      catch(error) {
-        sidebarNotWorking();
-        console.log(error);
-        alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
-      }
+
+      const event = await saveLesson(eventInfo)
+      console.log(event)
+      // //FIXME: This should automatically update for the client and put it in a pending status
+      // main_calendar.addEventSource([event]);
+      closeCalendarSidebar(true);
+      //since the defualt is to show no lesson just reload the entire calendar
+      getCurrentCalendarTypeContent();
+
+
+
+      // try {
+      //   const studentConflict = await checkStudentConflicts(student, start, end)
+      //   if (studentConflict) {
+      //     sidebarNotWorking();
+      //     return alert('This student has a conflict with a(n) ' + 
+      //       eventTypeReadable(studentConflict.data().type) + ' event from ' +
+      //       convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+      //       convertFromDateInt(studentConflict.data().end).longReadable
+      //     )
+      //   }
+
+      //   const tutors = await getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
+      //   console.log(tutors)
+      //   if (tutors.length > 0) {
+      //     eventInfo = {
+      //       type: type,
+      //       subtype: subtype,
+      //       description: description,
+      //       start: start,
+      //       end: end,
+      //       allDay, allDay,
+      //       location: location,
+      //       student: student,
+      //       staff: [tutors[0].tutor], // choose the first tutor since this tutor has been with the student the most or random
+      //       price: price
+      //     }
+
+      //     const event = await saveLesson(eventInfo)
+      //     // //FIXME: This should automatically update for the client and put it in a pending status
+      //     // main_calendar.addEventSource([event]);
+      //     closeCalendarSidebar(true);
+      //     //since the defualt is to show no lesson just reload the entire calendar
+      //     getCurrentCalendarTypeContent();
+      //   }
+      //   else {
+      //     sidebarNotWorking();
+      //     return alert("We don't have any tutors open at this time. Check the openings page for more options.")
+      //   }
+      // }
+      // catch(error) {
+      //   sidebarNotWorking();
+      //   console.log(error);
+      //   alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+      // }
     }
     else {
       sidebarNotWorking();
@@ -3529,7 +3694,7 @@ async function submitAddLesson() {
     let staffConflicts = [];
     let pendingEvents = [];
 
-    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !subtype || !student || !location) {
+    if (!pending_recurring_start.start || !pending_recurring_end.end || pending_recurring_times.length == 0 || !type || !subtype || staff.length == 0 || !location) {
       sidebarNotWorking();
       return alert("It looks like you're still missing some data for this lesson");
     }
@@ -3556,47 +3721,46 @@ async function submitAddLesson() {
         while (end < pending_recurring_end.end.getTime()) {
           let passThruTimes = (start, end) => {
             //check for conflicts
-            console.log('start checking a lesson at', start)
-            recurringPendingEventsFulfilled.push(
-              checkStudentConflicts(student, start, end)
-              .then((studentConflict) => {
-                console.log('done checking student conflicts for', start)
-                console.timeLog('recurring')
-                if (studentConflict) {
-                  studentConflicts.push(studentConflict);
-                  return; // since we have a student conflict just return so we don't check tutor
-                }
+            // console.log('start checking a lesson at', start)
+            // recurringPendingEventsFulfilled.push(
+            //   checkStudentConflicts(student, start, end)
+            //   .then((studentConflict) => {
+            //     console.log('done checking student conflicts for', start)
+            //     console.timeLog('recurring')
+            //     if (studentConflict) {
+            //       studentConflicts.push(studentConflict);
+            //       return; // since we have a student conflict just return so we don't check tutor
+            //     }
 
-                // return getRandomOpenTutor(start, end, staff, staffNames)
-                // return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
-                return getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
-                .then(tutors => {
-                  console.log('done getting tutors for', start)
-                  console.timeLog('recurring')
-                  if (tutors.length > 0) {
+            //     // return getRandomOpenTutor(start, end, staff, staffNames)
+            //     // return getQualifiedOpenTutor(start, end, `${type}-${subtype}`, student)
+            //     return getTutorsOpenByQualification(start, end, `${type}-${subtype}`, student)
+            //     .then(tutors => {
+            //       console.log('done getting tutors for', start)
+            //       console.timeLog('recurring')
+            //       if (tutors.length > 0) {
                     eventInfo = {
-                      type: type,
-                      subtype: subtype,
-                      description: description,
-                      start: start,
-                      end: end,
-                      location: location,
-                      student: student,
-                      pendingStaff: tutors,
-                      price: price
+                      type,
+                      subtype,
+                      description,
+                      start,
+                      end,
+                      location,
+                      attendees,
+                      staff,
                     }
                     pendingEvents.push(eventInfo);
-                  }
-                  else {
-                    staffConflicts.push({
-                      start : start,
-                      end : end
-                    })
-                    return;
-                  }
-                })
-              })
-            );
+            //       }
+            //       else {
+            //         staffConflicts.push({
+            //           start : start,
+            //           end : end
+            //         })
+            //         return;
+            //       }
+            //     })
+            //   })
+            // );
           }
           passThruTimes(start, end);
           start = new Date(start).setDate(new Date(start).getDate() + 7);
@@ -3605,39 +3769,41 @@ async function submitAddLesson() {
       })
 
       try {
-        await Promise.all(recurringPendingEventsFulfilled)
-        console.log('done with prepping all events')
-        console.timeLog('recurring')
-        if (studentConflicts.length == 0 && staffConflicts.length == 0) {
-          console.log(pendingEvents);
-          // get a new array with only one copy of each tutor for all lesson with their new scores
-          // convert the events just to their pending tutors and flatten so the arrays are all on the same level
-          let allTutors = pendingEvents.flatMap(event => event.pendingStaff) 
-          // filter out the duplicates and at the same time calculate how many times the tutor appears in the list
-          .filter((tutor, index, tutors) => {
-            let firstTutorIndex = tutors.findIndex(findTutor => findTutor.tutor === tutor.tutor)
-            tutors[firstTutorIndex].num++;
-            return firstTutorIndex === index;
-          })
-          // sort based on num
-          .sort((a,b) => b.num - a.num);
+        // await Promise.all(recurringPendingEventsFulfilled)
+        // console.log('done with prepping all events')
+        // console.timeLog('recurring')
+        // if (studentConflicts.length == 0 && staffConflicts.length == 0) {
+        //   console.log(pendingEvents);
+        //   // get a new array with only one copy of each tutor for all lesson with their new scores
+        //   // convert the events just to their pending tutors and flatten so the arrays are all on the same level
+        //   let allTutors = pendingEvents.flatMap(event => event.pendingStaff) 
+        //   // filter out the duplicates and at the same time calculate how many times the tutor appears in the list
+        //   .filter((tutor, index, tutors) => {
+        //     let firstTutorIndex = tutors.findIndex(findTutor => findTutor.tutor === tutor.tutor)
+        //     tutors[firstTutorIndex].num++;
+        //     return firstTutorIndex === index;
+        //   })
+        //   // sort based on num
+        //   .sort((a,b) => b.num - a.num);
 
           // go through each pending event and choose the tutor from that list that appears first in allTutors
           let batch = firebase.firestore().batch();
           pendingEvents.forEach(event => {
-            for (let i = 0; i < allTutors.length; i++) {
-              if (event.pendingStaff.find(pendingTutor => pendingTutor.tutor === allTutors[i].tutor)) {
-                event.staff = [allTutors[i].tutor];
-                recurringEventsFulfilled.push(batchSaveLesson(event, batch));
-                break;
-              }
-            }
+            // for (let i = 0; i < allTutors.length; i++) {
+            //   if (event.pendingStaff.find(pendingTutor => pendingTutor.tutor === allTutors[i].tutor)) {
+            //     event.staff = [allTutors[i].tutor];
+            //     recurringEventsFulfilled.push(batchSaveLesson(event, batch));
+            //     break;
+            //   }
+            // }
+            recurringEventsFulfilled.push(batchSaveLesson(event, batch));
           })
 
           console.log('done with setting all events')
           console.timeLog('recurring')
 
           const events = await Promise.all(recurringEventsFulfilled)
+          console.log(events)
           console.log('done with saving all events')
           console.timeLog('recurring')
           await batch.commit()
@@ -3646,35 +3812,35 @@ async function submitAddLesson() {
           console.log('done with rendering all events')
           console.timeEnd('recurring')
           getCurrentCalendarTypeContent();
-        }
-        else {
-          sidebarNotWorking();
-          console.log('These are the conflicts')
-          console.log(studentConflicts);
-          console.log(staffConflicts);
-          console.log(pendingEvents);
+        // }
+        // else {
+        //   sidebarNotWorking();
+        //   console.log('These are the conflicts')
+        //   console.log(studentConflicts);
+        //   console.log(staffConflicts);
+        //   console.log(pendingEvents);
 
-          let displayMessage = `
-            <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
-            <p>I tried my best to schedule the lessons you had inputted but we ran into some issues so I aborted the entire operation. No lesson was saved.</p>
-            <p>Here is a list of the events that had issues.</p>
-            <ul>
-          `
-          studentConflicts.forEach(conflictDoc => {
-            displayMessage += `
-              <li>The student has a conflict with ${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}.</li>
-            `
-          })
-          staffConflicts.forEach(conflict => {
-            displayMessage += `
-              <li>No tutor is available from ${convertFromDateInt(conflict.start).longReadable} to ${convertFromDateInt(conflict.end).longReadable}.</li>
-            `
-          })
-          displayMessage += `
-            </ul>
-          `
-          customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
-        }
+        //   let displayMessage = `
+        //     <p>I'm sorry, Dave. I'm afraid I can't do that.</p>
+        //     <p>I tried my best to schedule the lessons you had inputted but we ran into some issues so I aborted the entire operation. No lesson was saved.</p>
+        //     <p>Here is a list of the events that had issues.</p>
+        //     <ul>
+        //   `
+        //   studentConflicts.forEach(conflictDoc => {
+        //     displayMessage += `
+        //       <li>The student has a conflict with ${eventTypeReadable(conflictDoc.data().type)} on ${convertFromDateInt(conflictDoc.data().start).longReadable}.</li>
+        //     `
+        //   })
+        //   staffConflicts.forEach(conflict => {
+        //     displayMessage += `
+        //       <li>No tutor is available from ${convertFromDateInt(conflict.start).longReadable} to ${convertFromDateInt(conflict.end).longReadable}.</li>
+        //     `
+        //   })
+        //   displayMessage += `
+        //     </ul>
+        //   `
+        //   customConfirm(displayMessage, "", 'OK', ()=>{}, ()=>{});
+        // }
       }
       catch(error) {
         sidebarNotWorking();
@@ -3902,51 +4068,101 @@ function getTutorDocsByQualification(location, qualification) {
   .get()
 }
 
-function updateEditLesson() {
+async function updateEditLesson() {
   sidebarWorking();
   if (!confirm('Are you sure you want to update this lesson?')) {
     sidebarNotWorking();
     return
   }
   pending_calendar_event.description = document.getElementById('editLessonDescription').value;
-  pending_calendar_event.price = document.getElementById('editLessonPrice').value;
+  // pending_calendar_event.price = document.getElementById('editLessonPrice').value;
+  pending_calendar_event.staff = getDropdownValues('editLessonStaff')
+
+  //update the attendee list
+  let attendees = [];
+  const attendeeContainer =  document.getElementById('editLessonAttendeeContainer');
+  attendeeContainer.querySelectorAll('.attendee-wrapper').forEach(wrapper => {
+    const index = Number(wrapper.id.split('_')[1]);
+    const student = document.getElementById(`editLessonStudentIndex_${index}`).value;
+    attendees.push({
+      student: document.getElementById(`editLessonStudentIndex_${index}`).value,
+      price: Number(document.getElementById(`editLessonPriceIndex_${index}`).value),
+    })
+  })
+
+  let staffNames = new Array(pending_calendar_event.staff.length);
+  let studentData = new Array(attendees.length);
+  let promises = [];
+
+  // get the staff names
+  pending_calendar_event.staff.forEach(async (tutorUID, index) => {
+    promises.push(firebase.firestore().collection('Users').doc(tutorUID).get()
+    .then(tutorDoc => {
+      staffNames[index] = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
+    }))
+  })
+
+  //get the student doc for name and parent
+  attendees.forEach(async (attendee, index) => {
+    promises.push(firebase.firestore().collection("Users").doc(attendee.student).get()
+    .then(studentDoc => {
+      studentData[index] = studentDoc.data();
+    }))
+  })
+
+  await Promise.all(promises);
+  
+
+  attendees = attendees.map((attendee, index) => {
+    return {
+      ...attendee,
+      studentName: studentData[index].firstName + ' ' + studentData[index].lastName,
+      parents: studentData[index].parents
+    }
+  })
+
+  // we're just going to remove all attendees and then add them back
+  const attendeeCollectionRef = firebase.firestore().collection('Events').doc(pending_calendar_event_id).collection('Attendees');
+  const attendeeQuery = await attendeeCollectionRef.get()
+  await Promise.all(attendeeQuery.docs.map(doc => doc.ref.delete()))
+  await Promise.all(attendees.map(attendee => attendeeCollectionRef.doc().set(attendee)));
 
   //check for conflicts
-  checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-  .then((studentConflict) => {
-    if (studentConflict) {
-      sidebarNotWorking();
-      return alert('This student has a conflict with a(n) ' + 
-        eventTypeReadable(studentConflict.data().type) + ' event from ' +
-        convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
-        convertFromDateInt(studentConflict.data().end).longReadable
-      )
-    }
+  // checkStudentConflicts(pending_calendar_event.student, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  // .then((studentConflict) => {
+  //   if (studentConflict) {
+  //     sidebarNotWorking();
+  //     return alert('This student has a conflict with a(n) ' + 
+  //       eventTypeReadable(studentConflict.data().type) + ' event from ' +
+  //       convertFromDateInt(studentConflict.data().start).longReadable + ' to ' +
+  //       convertFromDateInt(studentConflict.data().end).longReadable
+  //     )
+  //   }
 
-    checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
-    .then((staffConflict) => {
-      if (staffConflict) {
-        sidebarNotWorking();
-        return alert('This staff has a conflict with a(n) ' + 
-          eventTypeReadable(staffConflict.data().type) + ' event from ' +
-          convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
-          convertFromDateInt(staffConflict.data().end).longReadable
-        )
-      }
+  //   checkStaffConflicts(pending_calendar_event.staff, pending_calendar_event.start, pending_calendar_event.end, pending_calendar_event_id)
+  //   .then((staffConflict) => {
+  //     if (staffConflict) {
+  //       sidebarNotWorking();
+  //       return alert('This staff has a conflict with a(n) ' + 
+  //         eventTypeReadable(staffConflict.data().type) + ' event from ' +
+  //         convertFromDateInt(staffConflict.data().start).longReadable + ' to ' +
+  //         convertFromDateInt(staffConflict.data().end).longReadable
+  //       )
+  //     }
 
-      let availablePromises = [];
-      for (let i = 0; i < pending_calendar_event.staff.length; i++) {
-        availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
-      }
+  //     let availablePromises = [];
+  //     for (let i = 0; i < pending_calendar_event.staff.length; i++) {
+  //       availablePromises.push(checkStaffAvailability(pending_calendar_event.staff[i], pending_calendar_event.start, pending_calendar_event.end))
+  //     }
 
-      Promise.all(availablePromises)
-      .then((areAvailable) => {
-        for (let i = 0; i < areAvailable.length; i++) {
-          if (!areAvailable[i].isAvailable) {
-            sidebarNotWorking();
-            return alert('The staff are not available at this time.')
-          }
-        }
+  //     Promise.all(availablePromises)
+  //     .then((areAvailable) => {
+  //       for (let i = 0; i < areAvailable.length; i++) {
+  //         if (!areAvailable[i].isAvailable) {
+  //           sidebarNotWorking();
+  //           return alert('The staff are not available at this time.')
+  //         }
+  //       }
 
         //update the doc with the pending event info
         firebase.firestore().collection('Events').doc(pending_calendar_event_id).update(pending_calendar_event)
@@ -3959,14 +4175,14 @@ function updateEditLesson() {
           closeCalendarSidebar(true);
         })
         
-      })
-    })
-  })
-  .catch((error) => {
-    sidebarNotWorking();
-    console.log(error);
-    alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
-  })
+  //     })
+  //   })
+  // })
+  // .catch((error) => {
+  //   sidebarNotWorking();
+  //   console.log(error);
+  //   alert("We are having issues saving this lesson :(\nPlease try again and if the issue persist please contact the devs.");
+  // })
 }
 
 function submitAddAvailability() {
@@ -4524,24 +4740,26 @@ function saveTestReview(eventInfo) {
 }
 
 async function batchSaveLesson(eventInfo, batch) {
-  let staffNames = [];
-  let studentData = {};
+  let staffNames = new Array(eventInfo.staff.length);
+  let studentData = new Array(eventInfo.attendees.length);
   let lessonTypeReadable = "";
   let promises = [];
 
   // get the staff names
-  eventInfo.staff.forEach(async (tutorUID) => {
+  eventInfo.staff.forEach(async (tutorUID, index) => {
     promises.push(firebase.firestore().collection('Users').doc(tutorUID).get()
     .then(tutorDoc => {
-      staffNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+      staffNames[index] = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
     }))
   })
 
   //get the student doc for name and parent
-  promises.push(firebase.firestore().collection("Users").doc(eventInfo.student).get()
-  .then(studentDoc => {
-    studentData = studentDoc.data();
-  }))
+  eventInfo.attendees.forEach(async (attendee, index) => {
+    promises.push(firebase.firestore().collection("Users").doc(attendee.student).get()
+    .then(studentDoc => {
+      studentData[index] = studentDoc.data();
+    }))
+  })
   
   promises.push(convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
   .then(res => {
@@ -4551,33 +4769,34 @@ async function batchSaveLesson(eventInfo, batch) {
   await Promise.all(promises);
   
 
-  const studentName = studentData.firstName + ' ' + studentData.lastName;
-  const studentParents = studentData.parents;
+  const attendees = eventInfo.attendees.map((attendee, index) => {
+    return {
+      ...attendee,
+      studentName: studentData[index].firstName + ' ' + studentData[index].lastName,
+      parents: studentData[index].parents
+    }
+  })
 
   const eventRef = firebase.firestore().collection("Events").doc()
   let eventData = {
     type: eventInfo.type,
     subtype: eventInfo.subtype,
     description: eventInfo.description,
-    title: studentName + " - " + lessonTypeReadable,
+    title: lessonTypeReadable,
     start: parseInt(eventInfo.start),
     end: parseInt(eventInfo.end),
     location: eventInfo.location,
 
-    student: eventInfo.student,
-    studentName: studentName,
-    
-    parents: studentParents,
-
     staff: eventInfo.staff,
     staffNames,
-
-    attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
-
-    price: eventInfo.price
   }
 
   batch.set(eventRef, eventData)
+  // set the attendee docuements
+  attendees.forEach(attendee => {
+    batch.set(eventRef.collection('Attendees').doc(), attendee);
+  })
+
   return {
     id: eventRef.id,
     title: eventData.title,
@@ -4590,24 +4809,26 @@ async function batchSaveLesson(eventInfo, batch) {
 }
 
 async function saveLesson(eventInfo) {
-  let staffNames = [];
-  let studentData = {};
+  let staffNames = new Array(eventInfo.staff.length);
+  let studentData = new Array(eventInfo.attendees.length);
   let lessonTypeReadable = "";
   let promises = [];
 
   // get the staff names
-  eventInfo.staff.forEach(async (tutorUID) => {
+  eventInfo.staff.forEach(async (tutorUID, index) => {
     promises.push(firebase.firestore().collection('Users').doc(tutorUID).get()
     .then(tutorDoc => {
-      staffNames.push(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName);
+      staffNames[index] = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
     }))
   })
 
   //get the student doc for name and parent
-  promises.push(firebase.firestore().collection("Users").doc(eventInfo.student).get()
-  .then(studentDoc => {
-    studentData = studentDoc.data();
-  }))
+  eventInfo.attendees.forEach(async (attendee, index) => {
+    promises.push(firebase.firestore().collection("Users").doc(attendee.student).get()
+    .then(studentDoc => {
+      studentData[index] = studentDoc.data();
+    }))
+  })
   
   promises.push(convertLessonTypeReadable(eventInfo.location, eventInfo.type, eventInfo.subtype)
   .then(res => {
@@ -4617,33 +4838,36 @@ async function saveLesson(eventInfo) {
   await Promise.all(promises);
   
 
-  const studentName = studentData.firstName + ' ' + studentData.lastName;
-  const studentParents = studentData.parents;
+  const attendees = eventInfo.attendees.map((attendee, index) => {
+    return {
+      ...attendee,
+      studentName: studentData[index].firstName + ' ' + studentData[index].lastName,
+      parents: studentData[index].parents
+    }
+  })
 
   const eventRef = firebase.firestore().collection("Events").doc()
   let eventData = {
     type: eventInfo.type,
     subtype: eventInfo.subtype,
     description: eventInfo.description,
-    title: studentName + " - " + lessonTypeReadable,
+    title: lessonTypeReadable,
     start: parseInt(eventInfo.start),
     end: parseInt(eventInfo.end),
     location: eventInfo.location,
 
-    student: eventInfo.student,
-    studentName: studentName,
-    
-    parents: studentParents,
-
     staff: eventInfo.staff,
     staffNames,
-
-    attendees: [eventInfo.student, ...studentParents, ...eventInfo.staff],
-
-    price: eventInfo.price
   }
 
+  // set the event
   await eventRef.set(eventData)
+
+  // set the attendee docuements
+  await Promise.all(attendees.map(attendee => {
+    return eventRef.collection('Attendees').doc().set(attendee)
+  }))
+
   return {
     id: eventRef.id,
     title: eventData.title,

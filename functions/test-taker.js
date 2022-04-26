@@ -148,3 +148,34 @@ exports.checkAssignments = functions.pubsub.schedule('59 23 * * *').timeZone('Am
     })
   ])
 })
+
+exports.checkAssignmentsNow = functions.https.onRequest(async (request, response) => {
+  // we need to update the status for new events that are past their close and started events that are past their length
+
+  await Promise.all([
+    // get all new events that are closed
+    admin.firestore().collection('Section-Assignments')
+    .where('status', '==', 'new')
+    .where('closed', '<', new Date())
+    .get()
+    .then((omiitedQuery) => {
+      return Promise.all(omiitedQuery.docs.map(doc => {
+        return doc.ref.update({ status: 'omitted' });
+      }))
+    }),
+
+    // get all started events
+    admin.firestore().collection('Section-Assignments')
+    .where('status', '==', 'started')
+    .get()
+    .then((startedQuery) => {
+      return Promise.all(startedQuery.docs.map(doc => {
+        if (doc.data().startedAt.toDate().getTime() + (SECTION_TIME[doc.data().section] * 60000) < new Date().getTime()) {
+          return doc.ref.update({ status: 'submitted' });
+        }
+      }))
+    })
+  ])
+
+  response.send('all assignments have been checked');
+})

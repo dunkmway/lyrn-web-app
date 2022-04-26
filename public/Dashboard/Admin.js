@@ -833,44 +833,32 @@ function createElement(elementType, classes = "", attributes = [], values = [], 
 
 function setupNavigationModal(studentUID, parentUID) {
   const modal = document.getElementById("navigationSection");
-  let studentQueryStr = "?student=" + studentUID;
-  let parentQueryStr = parentUID ? "?parent=" + parentUID : '';
+  let studentQueryStr = "student=" + studentUID;
+  let parentQueryStr = parentUID ? "parent=" + parentUID : '';
 
   document.getElementById("actNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + studentQueryStr
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html?" + studentQueryStr
   };
   document.getElementById("testTakerNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../test-taker.html" + studentQueryStr
+    window.location.href = "../test-taker.html?" + studentQueryStr
   };
-  // document.getElementById("subjectTutoringNav").onclick = () => {
-  //   modal.style.display = 'none';
-  //   window.location.href = "../subject-tutoring-dash.html" + studentQueryStr
-  // };
-  // document.getElementById("mathProgramNav").onclick = () => {
-  //   modal.style.display = 'none';
-  //   window.location.href = "../math-program.html" + studentQueryStr
-  // };
-  // document.getElementById("phonicsProgramNav").onclick = () => {
-  //   modal.style.display = 'none';
-  //   window.location.href = "../phonics-program.html" + studentQueryStr
-  // };
-  // document.getElementById("registrationNav").onclick = () => {
-  //   modal.style.display = 'none';
-  //   window.location.href = "../inquiry.html" + studentQueryStr;
-  // };
   document.getElementById("studentInfoNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../new-student.html" + studentQueryStr;
+    window.location.href = "../new-student.html?" + studentQueryStr;
   };
   document.getElementById("parentInfoNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../new-parent.html" + parentQueryStr;
+    window.location.href = "../new-parent.html?" + parentQueryStr;
   };
   document.getElementById("paymentNav").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../payment.html" + parentQueryStr;
+    window.location.href = "../payment.html?" + parentQueryStr;
+  };
+  document.getElementById("actInvoiceNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../new-act-invoice.html?" + studentQueryStr + '&' + parentQueryStr;
   };
 }
 

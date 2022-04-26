@@ -124,6 +124,13 @@ function setupPayInvoice() {
   const invoice = document.querySelector('#pay-invoice-details');
   removeAllChildNodes(invoice);
 
+  invoice.innerHTML = `
+  <h5 class="heading">Description</h5>
+  <h5 class="heading">Cost</h5>
+  <h5 class="heading">Qty</h5>
+  <h5 class="heading">Amount</h5>
+  `
+
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')
   programDesc.innerHTML = `
@@ -213,6 +220,13 @@ function setupPayInvoice() {
 function setupSaveInvoice() {
   const invoice = document.querySelector('#save-invoice-details');
   removeAllChildNodes(invoice);
+
+  invoice.innerHTML = `
+  <h5 class="heading">Description</h5>
+  <h5 class="heading">Cost</h5>
+  <h5 class="heading">Qty</h5>
+  <h5 class="heading">Amount</h5>
+  `
 
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')

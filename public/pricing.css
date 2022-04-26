@@ -732,6 +732,10 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   width: max-content;
 }
 
+.course-section .accent {
+  color: var(--color-green);
+}
+
 .course-section h1 {
   margin-bottom: 0px;
   color: var(--color-blue);
@@ -751,6 +755,10 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
 
 .course-section h4 {
   font-size: 1.75em;
+  text-align: center;
+}
+
+.course-section p {
   text-align: center;
 }
 
@@ -924,7 +932,7 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
 .program-selector > .selection-wrapper {
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(2, auto);
+  grid-template-rows: repeat(6, auto);
   justify-items: center;
   width: 100%;
   gap: 1em;
@@ -1048,6 +1056,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   display: grid;
   column-gap: 1em;
   width: 100%;
+  justify-items: center;
 }
 
 #act .plans {
@@ -1178,10 +1187,6 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   text-decoration: none;
 }
 
-.plan-wrapper .select > a > :first-child {
-  font-weight: 900;
-}
-
 .footnotes {
   color: #A3A3A3;
 }
@@ -1192,6 +1197,10 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
 
 
 @media screen and (min-width: 800px) {
+  .program-selector > .selection-wrapper {
+    grid-template-rows: repeat(2, auto);
+  }
+
   .course-wrapper {
     flex-direction: row;
     justify-content: center;
@@ -1232,7 +1241,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   }
   
   #act .program.classes .plans {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   #act .program.study-groups .plans {

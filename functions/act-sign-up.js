@@ -236,20 +236,19 @@ exports.updateInvoiceEvents = functions.firestore
       const events = newValues.events;
       let batch = admin.firestore().batch();
 
-      // go through all events and apply the discounts
-      events.forEach((event, index) => {
-        const ref = admin.firestore().collection('Events').doc(event);
-
+      // go through all events and apply the discounts to the attendee
+      await Promise.all(events.map(async (event, index) => {
+        const attendeeQuery = await admin.firestore().collection('Events').doc(event).collection('Attendees').where('student', '==', newValues.student).get();
+        const ref = attendeeQuery.docs[0].ref;
+        
         // check if first lesson should be free
         if (index == 0 && newValues.isFirstSessionFree) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
         }
         // last two lessons were already payed for
         else if (index == (events.length - 1) || index == (events.length - 2)) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
@@ -261,8 +260,8 @@ exports.updateInvoiceEvents = functions.firestore
             price: newValues.pricePerHour * (1 - 0.1 - (newValues.percentageOff / 100))
           })
         }
-      })
-
+        return
+      }));
       // commit the update operations
       await batch.commit();
     }
@@ -273,19 +272,18 @@ exports.updateInvoiceEvents = functions.firestore
       let batch = admin.firestore().batch();
 
       // go through all events and apply the discounts
-      events.forEach((event, index) => {
-        const ref = admin.firestore().collection('Events').doc(event);
+      await Promise.all(events.map(async (event, index) => {
+        const attendeeQuery = await admin.firestore().collection('Events').doc(event).collection('Attendees').where('student', '==', newValues.student).get();
+        const ref = attendeeQuery.docs[0].ref;
 
         // check if first lesson should be free
         if (index == 0 && newValues.isFirstSessionFree) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
         }
         // last two lessons were already payed for
         else if (index == (events.length - 1) || index == (events.length - 2)) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
@@ -297,7 +295,8 @@ exports.updateInvoiceEvents = functions.firestore
             price: newValues.pricePerHour * (1 - (newValues.percentageOff / 100))
           })
         }
-      })
+        return
+      }))
 
       // commit the update operations
       await batch.commit();
@@ -307,28 +306,37 @@ exports.updateInvoiceEvents = functions.firestore
     }
 
     // we want to send the test link to parents and student if they haven't already take the practice test
-    // query for the practice test
-    const practiceTestQuery = await admin.firestore().collection('Section-Assignments')
-    .where('student', '==', newValues.student)
-    .where('test', '==', INITIAL_PRACTICE_TEST_ID)
-    .where('section', '==', 'all')
-    .limit(1)
-    .get();
+    // only for one-on-one programs
+    if (newValues.program == 'actBasics' || newValues.program == 'actGuided') {
+      // query for the practice test
+      const practiceTestQuery = await admin.firestore().collection('Section-Assignments')
+      .where('student', '==', newValues.student)
+      .where('test', '==', INITIAL_PRACTICE_TEST_ID)
+      .where('section', '==', 'all')
+      .limit(1)
+      .get();
 
-    // if the assignment does not exist send off the link
-    if (practiceTestQuery.size == 0) {
-      // set the assignment
-      await setPracticeTestAssignments(newValues.student, newValues.program, newValues.programStart)
-      // get the student and parent email
-      const [parentDoc, studentDoc] = await Promise.all([
-        admin.firestore().collection('Users').doc(newValues.parent).get(),
-        admin.firestore().collection('Users').doc(newValues.student).get()
-      ])
+      // if the assignment does not exist send off the link
+      if (practiceTestQuery.size == 0) {
+        // set the assignment
+        await setPracticeTestAssignments(newValues.student, newValues.program, newValues.programStart)
+        // get the student and parent email
+        const [parentDoc, studentDoc] = await Promise.all([
+          admin.firestore().collection('Users').doc(newValues.parent).get(),
+          admin.firestore().collection('Users').doc(newValues.student).get()
+        ])
 
-      await sendPracticeTestEmail(parentDoc.data().email, newValues.student);
-      if (studentDoc.data().email) {
-        await sendPracticeTestEmail(studentDoc.data().email, newValues.student);
+        await sendPracticeTestEmail(parentDoc.data().email, newValues.student);
+        if (studentDoc.data().email) {
+          await sendPracticeTestEmail(studentDoc.data().email, newValues.student);
+        }
       }
+    }
+    else if (newValues.program == 'actClass') {
+      // assign all of the practice test
+    }
+    else if (newValues.program == 'actStudyGroup') {
+
     }
   }
   // the invoice has not been paid for
@@ -338,9 +346,22 @@ exports.updateInvoiceEvents = functions.firestore
     const events = newValues.events;
     let batch = admin.firestore().batch();
 
-    events.forEach(event => {
-      batch.delete(admin.firestore().collection('Events').doc(event))
-    })
+    await Promise.all(events.map(async event => {
+      const ref = admin.firestore().collection('Events').doc(event);
+      // group lessons must have the student removed
+      if (newValues.program == 'actClass' || newValues.program == 'actStudyGroup') {
+        // query for the attendee that matches this student and remove them
+        const attendeeQuery = await ref.collection('Attendees').where('student', '==', newValues.student).get();
+        attendeeQuery.forEach(attendee => batch.delete(attendee.ref));
+      }
+      // single lessons can just be deleted
+      else {
+        batch.delete(ref)
+        const attendeeQuery = await ref.collection('Attendees').get();
+        attendeeQuery.forEach(attendee => batch.delete(attendee.ref));
+      }
+      return;
+    }));
 
     // commit the update operations
     await batch.commit();

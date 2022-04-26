@@ -1197,17 +1197,12 @@ async function setCalendarEvents(studentUID, parentUID) {
   // create the final form of the event
   const calendarEvents = assignedLessons.map(lesson => {
     return {
-      attendees: [studentUID, parentUID, lesson.tutor],
       description: "",
       end: new Date(lesson.date).setMinutes(lesson.date.getMinutes() + (currentProgramDetails.sessionLength * 60)),
       location: CURRENT_LOCATION,
-      parents: [parentUID],
-      price: currentProgramDetails.price,
       staff: [lesson.tutor],
       staffNames: [qualifiedTutors_master.find(tutor => tutor.id == lesson.tutor).name],
       start: lesson.date.getTime(),
-      student: studentUID,
-      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
       subtype: lesson.lessonType,
       title: `${currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName} - ${currentProgramDetails.name} ${lesson.lessonType.charAt(0).toUpperCase() + lesson.lessonType.slice(1)}`,
       type: currentProgramDetails.value
@@ -1222,7 +1217,13 @@ async function setCalendarEvents(studentUID, parentUID) {
   calendarEvents.forEach(event => {
     const ref = firebase.firestore().collection('Events').doc();
     eventRefs.push(ref);
-    return eventBatch.set(ref, event);
+    eventBatch.set(ref, event);
+    eventBatch.set(ref.collection('Attendees').doc(), {
+      student: studentUID,
+      parents: [parentUID],
+      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+      price: currentProgramDetails.price
+    })
   });
 
   await eventBatch.commit();

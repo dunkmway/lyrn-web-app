@@ -79,70 +79,70 @@ const STUDY_GROUP_DETAILS = [
   },
 ]
 
-exports.generatePrograms = functions.pubsub
-.schedule('0 1 * * 6')
-.timeZone('America/Denver')
-.onRun(async (context) => {
-  // we need all of the test that are coming up
-  // and all of the classes and study groups that are already scheduled
-  const [
-    testDocs,
-    classDocs,
-    studyGroupDocs
-  ] = await Promise.all([
-    getAllFutureTests(),
-    getAllFutureClasses(),
-    getAllFutureStudyGroups()
-  ])
+// exports.generatePrograms = functions.pubsub
+// .schedule('0 1 * * 6')
+// .timeZone('America/Denver')
+// .onRun(async (context) => {
+//   // we need all of the test that are coming up
+//   // and all of the classes and study groups that are already scheduled
+//   const [
+//     testDocs,
+//     classDocs,
+//     studyGroupDocs
+//   ] = await Promise.all([
+//     getAllFutureTests(),
+//     getAllFutureClasses(),
+//     getAllFutureStudyGroups()
+//   ])
 
-  const classData = classDocs.map(doc => doc.data());
-  const studyGroupData = studyGroupDocs.map(doc => doc.data());
+//   const classData = classDocs.map(doc => doc.data());
+//   const studyGroupData = studyGroupDocs.map(doc => doc.data());
 
-  // we want to generate all of the possible classes and study groups
-  // and if the program doesn't already exist then generate it
-  let generatedClasses = [];
-  let generatedStudyGroups = [];
-  testDocs.forEach(testDoc => {
-    const testStart = new Date(new Date(testDoc.data().start).setHours(0,0,0,0));
+//   // we want to generate all of the possible classes and study groups
+//   // and if the program doesn't already exist then generate it
+//   let generatedClasses = [];
+//   let generatedStudyGroups = [];
+//   testDocs.forEach(testDoc => {
+//     const testStart = new Date(new Date(testDoc.data().start).setHours(0,0,0,0));
 
-    CLASS_DETAILS.forEach(classDetails => {
-      generatedClasses.push({
-        ...classDetails,
-        end: testStart
-      })
-      generatedClasses.push({
-        ...classDetails,
-        end: new Date(new Date(testStart).setDate(testStart.getDate() - (7 * CLASS_END_WEEKS_BEFORE_TEST)))
-      })
-    })
+//     CLASS_DETAILS.forEach(classDetails => {
+//       generatedClasses.push({
+//         ...classDetails,
+//         end: testStart
+//       })
+//       generatedClasses.push({
+//         ...classDetails,
+//         end: new Date(new Date(testStart).setDate(testStart.getDate() - (7 * CLASS_END_WEEKS_BEFORE_TEST)))
+//       })
+//     })
 
-    STUDY_GROUP_DETAILS.forEach(studyGroupDetails => {
-      generatedStudyGroups.push({
-        ...studyGroupDetails,
-        end: testStart
-      })
-    })
-  })
+//     STUDY_GROUP_DETAILS.forEach(studyGroupDetails => {
+//       generatedStudyGroups.push({
+//         ...studyGroupDetails,
+//         end: testStart
+//       })
+//     })
+//   })
 
-  // compare the generated classes to the class docs and filter out any that are already set
-  generatedClasses.filter(generatedClass => {
-    return classData.findIndex(data => areProgramsEqual(data, generatedClass)) == -1;
-  })
-  // do the same for study groups
-  generatedStudyGroups.filter(generatedStudyGroups => {
-    return studyGroupData.findIndex(data => areProgramsEqual(data, generatedStudyGroups)) == -1;
-  })
+//   // compare the generated classes to the class docs and filter out any that are already set
+//   generatedClasses.filter(generatedClass => {
+//     return classData.findIndex(data => areProgramsEqual(data, generatedClass)) == -1;
+//   })
+//   // do the same for study groups
+//   generatedStudyGroups.filter(generatedStudyGroups => {
+//     return studyGroupData.findIndex(data => areProgramsEqual(data, generatedStudyGroups)) == -1;
+//   })
 
-  // all of the remaining generated programs we attempt to create
-  // we need to check if it is possible to assign a tutor to the potential events
+//   // all of the remaining generated programs we attempt to create
+//   // we need to check if it is possible to assign a tutor to the potential events
 
-  // we start by finding all of the permutation of having the lessons
-  const sectionPermutations = arrayRandomOrder(arrayPermutations(SECTIONS));
+//   // we start by finding all of the permutation of having the lessons
+//   const sectionPermutations = arrayRandomOrder(arrayPermutations(SECTIONS));
 
-  // we want to find the first permutaiton that allows for the program to be scheduled
-  
+//   // we want to find the first permutaiton that allows for the program to be scheduled
 
-});
+
+// });
 
 async function getAllFutureTests() {
   const testQuery = await admin.firestore().collection('Events')

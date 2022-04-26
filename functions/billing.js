@@ -20,35 +20,39 @@ exports.chargeAccounts = functions.pubsub.schedule('5 6 * * *').timeZone('Americ
 
   let parentsCharged = [];
 
-  eventQuery.forEach(event => {
+  await Promise.all(eventQuery.docs.map(async (event) => {
     const eventData = event.data();
-    if (eventData.price > 0) {
-      const start = eventData.start;
-      const end = eventData.end;
-      const length = end - start;
-      const hourLength = length / 3600000;
-
-      const amount = eventData.price * hourLength;
-      const currency = 'usd';
-      const title = eventData.title;
-      const chargeData = {
-        currency,
-        amount: formatAmountForStripe(amount, currency),
-        title,
-        created: new Date().getTime(),
-        event: event.id,
-        eventStart: start,
-        eventEnd: end
+    const attendeeQuery = await event.ref.collection('Attendees').get();
+    const attendeeData = attendeeQuery.docs.map(doc => doc.data());
+    attendeeData.forEach(attendee => {
+      if (attendee.price > 0) {
+        const start = eventData.start;
+        const end = eventData.end;
+        const length = end - start;
+        const hourLength = length / 3600000;
+  
+        const amount = attendee.price * hourLength;
+        const currency = 'usd';
+        const title = eventData.title;
+        const chargeData = {
+          currency,
+          amount: formatAmountForStripe(amount, currency),
+          title,
+          created: new Date().getTime(),
+          event: event.id,
+          eventStart: start,
+          eventEnd: end
+        }
+  
+        batch.set(admin.firestore().collection('stripe_customers').doc(attendee.parents[0]).collection('charges').doc(), chargeData);
+  
+        //append the parents here so we know who to request payments for in the next step.
+        if (!parentsCharged.includes(attendee.parents[0])) {
+          parentsCharged.push(attendee.parents[0]);
+        }
       }
-
-      batch.set(admin.firestore().collection('stripe_customers').doc(eventData.parents[0]).collection('charges').doc(), chargeData);
-
-      //append the parents here so we know who to request payments for in the next step.
-      if (!parentsCharged.includes(eventData.parents[0])) {
-        parentsCharged.push(eventData.parents[0]);
-      }
-    }
-  })
+    })
+  }))
 
   //FIXME: batch can only commit 500 operation!!!
   await batch.commit();
@@ -111,6 +115,125 @@ exports.chargeAccounts = functions.pubsub.schedule('5 6 * * *').timeZone('Americ
   })
 
   return Promise.all(parentPromises)
+  .catch((error) => {
+    console.log(error)
+  })
+})
+
+//check for events happening the next day and place a charge on the parent account whose student is attending the event.
+exports.chargeAccounts_test = functions.https.onRequest(async (req, res) => {
+  //get the UTC time to look like the current time in salt lake so that relative times match up when we are setting hours
+  const startToday = new Date().setMinutes(0,0,0);
+  const startTomorrow = new Date(startToday).setDate(new Date(startToday).getDate() + 1);
+
+  let eventQuery = await admin.firestore().collection('Events')
+  .where('start', '>=', startToday)
+  .where('start', '<', startTomorrow)
+  .orderBy('start')
+  .get()
+
+  const batch = admin.firestore().batch();
+
+  let parentsCharged = [];
+
+  await Promise.all(eventQuery.docs.map(async (event) => {
+    const eventData = event.data();
+    const attendeeQuery = await event.ref.collection('Attendees').get();
+    const attendeeData = attendeeQuery.docs.map(doc => doc.data());
+    attendeeData.forEach(attendee => {
+      if (attendee.price > 0) {
+        const start = eventData.start;
+        const end = eventData.end;
+        const length = end - start;
+        const hourLength = length / 3600000;
+  
+        const amount = attendee.price * hourLength;
+        const currency = 'usd';
+        const title = eventData.title;
+        const chargeData = {
+          currency,
+          amount: formatAmountForStripe(amount, currency),
+          title,
+          created: new Date().getTime(),
+          event: event.id,
+          eventStart: start,
+          eventEnd: end
+        }
+  
+        batch.set(admin.firestore().collection('stripe_customers').doc(attendee.parents[0]).collection('charges').doc(), chargeData);
+  
+        //append the parents here so we know who to request payments for in the next step.
+        if (!parentsCharged.includes(attendee.parents[0])) {
+          parentsCharged.push(attendee.parents[0]);
+        }
+      }
+    })
+  }))
+
+  //FIXME: batch can only commit 500 operation!!!
+  await batch.commit();
+  
+
+  //run through the parents that have been charged and request payments from them
+  let parentPromises = [];
+  parentsCharged.forEach(parentUID => {
+    //check first of the parent has a payment method saved
+    parentPromises.push(admin.firestore().collection('stripe_customers').doc(parentUID).collection('payment_methods').limit(1).get()
+    .then(async (paymentMethodQuery) => {
+      if (paymentMethodQuery.size > 0) {
+        //the parent does have a card on file
+        //charge the parent if their balance is negative
+        const balance = await getUserBalance(parentUID);
+        if (balance < 0) {
+          //now charge their card by requesting a payment
+          const currency = 'usd';
+          const amount = balance * -1;
+          const data = {
+            payment_method: paymentMethodQuery.docs[0].data().id,
+            currency,
+            amount,
+            status: 'new',
+          };
+        
+          return admin.firestore().collection('stripe_customers').doc(parentUID).collection('payments').add(data); 
+        }
+        else {
+          //they have a non-negative balance so don't charge them
+          return;
+        }
+      }
+      //the parent does not have a card saved
+      else {
+        //and their balance is negative
+        if (await getUserBalance(parentUID) < 0) {
+          await setProbation(parentUID);
+          const parentRecord = await admin.auth().getUser(parentUID);
+          const msg = {
+            to: parentRecord.email, // Change to your recipient
+            from: 'support@lyrnwithus.com', // Change to your verified sender
+            subject: 'Lyrn Lesson Payment Issue',
+            text: `We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
+            on probabtion until your balance is resolved. Feel free to contact us with any concerns.
+            www.lyrnwithus.com`,
+            html: `<strong>We tried billing your account for your upcoming lesson and it appears that we don't have a card on file to charge this lesson. Unfortuanately we have to place your account
+            on probabtion until your balance is resolved. Feel free to contact us with any concerns.
+            www.lyrnwithus.com</strong>`,
+          }
+          await sgMail.send(msg)
+          return;
+        }
+        else {
+          //the parent has a non-negative balance so do nothing
+          return;
+        }
+      }
+    }));
+  })
+
+  return Promise.all(parentPromises)
+  .then(() => {
+    res.send('all good')
+  })
   .catch((error) => {
     console.log(error)
   })

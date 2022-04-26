@@ -132,6 +132,10 @@
               <option value="act">ACT</option>
               <option value="actFundamentals">ACT Fundamentals</option>
               <option value="actComprehensive">Comprehensive ACT</option>
+              <option value="actBasics"> ACT Basics</option>
+              <option value="actGuided"> Guided ACT</option>
+              <option value="actClass"> ACT Class</option>
+              <option value="actStudyGroup"> ACT Study Group</option>
               <option value="conference">Conference</option>
               <option value="generalInfo">General Info</option>
               <option value="mathProgram">Math Program</option>
@@ -560,36 +564,40 @@
         <textarea id="addLessonDescription" name="addLessonDescription" class="textarea"></textarea>
         <br>
 
-        <!-- student attending the lesson -->
+        <!-- student attending the lesson as well as the price they pay -->
         <div class="inputRow">
+          <div class="more-info " data-more-info="These are the students attending the lesson and their price">?</div>
+          <label for="addLessonAttendees" class="label">Attendees</label>
+        </div>
+        <button id="addLessonAttendee" onclick="addLessonsAddAttendeeCallback()">Add Attendee</button>
+        <div id="addLessonAttendeeContainer"></div>
+
+        <!-- student attending the lesson -->
+        <!-- <div class="inputRow">
           <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
           <label for="addLessonStudent" class="label">Student</label>
         </div>
         <select id="addLessonStudent" name="addLessonStudent" class="ui dropdown search selection"></select>
-        <br>
+        <br> -->
 
         <!-- staff teaching the lesson -->
-        <!-- <div class="inputRow">
-          <div class="more-info " data-more-info="These are the staff that could possible perform this lesson. One will be randomly chosen after submission.">?</div>
+        <div class="inputRow">
+          <div class="more-info " data-more-info="Staff teaching the lesson">?</div>
           <label for="addLessonStaff" class="label">Staff</label>
         </div>
-        <div class="ui checkbox">
-          <input type="checkbox" id="addLessonStaffSelectAll">
-          <label>Select all</label>
-        </div>
         <select id="addLessonStaff" name="addLessonStaff" class="ui dropdown search selection" multiple></select>
-        <br> -->
+        <br>
 
         <!-- price of lesson -->
         <div class="inputRow">
           <div class="more-info " data-more-info="This is the price for this lesson. This value will autopopulate when you select the type of lesson.">?</div>
-          <label for="addLessonPrice" class="label">Price</label>
+          <label for="addLessonPrice" class="label">Recommended Price</label>
         </div>
         <!-- <div class="ui checkbox">
           <input type="checkbox" id="addLessonPriceDiscount">
           <label>Discount</label>
         </div> -->
-        <input id="addLessonPrice" name="addLessonPrice" class="input">
+        <div id="addLessonPrice" name="addLessonPrice" class="input"></div>
 
         <div class="headerLine"></div>
 
@@ -636,29 +644,37 @@
         <textarea id="editLessonDescription" name="editLessonDescription" class="textarea"></textarea>
         <br>
 
-        <!-- student attending the lesson -->
+        <!-- student attending the lesson as well as the price they pay -->
         <div class="inputRow">
+          <div class="more-info " data-more-info="These are the students attending the lesson and their price">?</div>
+          <label for="editLessonAttendees" class="label">Attendees</label>
+        </div>
+        <button id="editLessonAttendee" onclick="editLessonAddAttendeeCallback()">Add Attendee</button>
+        <div id="editLessonAttendeeContainer"></div>
+
+        <!-- student attending the lesson -->
+        <!-- <div class="inputRow">
           <div class="more-info " data-more-info="This is the student attending the lesson">?</div>
           <label for="editLessonStudent" class="label">Student</label>
         </div>
         <div id="editLessonStudent" name="editLessonStudent" class="input nonEditable"></div>
-        <br>
+        <br> -->
 
         <!-- staff attending the lesson -->
         <div class="inputRow">
           <div class="more-info " data-more-info="This is/are the staff performing the lesson">?</div>
           <label for="editLessonStaff" class="label">Staff</label>
         </div>
-        <!-- <select id="editLessonStaff" name="editLessonStaff" class="ui dropdown search selection" multiple></select> -->
-        <div id="editLessonStaff" name="editLessonStaff" class="input nonEditable"></div>
+        <select id="editLessonStaff" name="editLessonStaff" class="ui dropdown search selection" multiple></select>
+        <!-- <div id="editLessonStaff" name="editLessonStaff" class="input nonEditable"></div> -->
         <br>
 
         <!-- price of lesson -->
-        <div class="inputRow">
+        <!-- <div class="inputRow">
           <div class="more-info " data-more-info="This is the price for this lesson. This value will autopopulate when you select the type of lesson.">?</div>
           <label for="editLessonPrice" class="label">Price</label>
         </div>
-        <input id="editLessonPrice" name="editLessonPrice" class="input">
+        <input id="editLessonPrice" name="editLessonPrice" class="input"> -->
 
         <!--zoom links -->
         <div class="inputRow">
