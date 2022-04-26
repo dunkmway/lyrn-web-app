@@ -22,7 +22,7 @@ async function programSelectedCallback(event) {
 
   document.getElementById('eventList').classList.add('loading', 'disabled')
 
-  const eventDocs = await getAllFutureEventDocs(CURRENT_STUDENT, value);
+  const eventDocs = await getAllFutureEventDocs(CURRENT_STUDENT);
   const eventData = eventDocs
   .map(doc => {
     return {
@@ -30,7 +30,7 @@ async function programSelectedCallback(event) {
       id: doc.id
     }
   })
-  .filter(data => data.type == value)
+  .filter(data => data.type == value && data.start > new Date().getTime())
   .sort((a,b) => a.start - b.start);
   master_events = eventData;
 
@@ -51,7 +51,7 @@ function mapDataToValue(data) {
   return data.id
 }
 
-async function getAllFutureEventDocs(studentUID, type) {
+async function getAllFutureEventDocs(studentUID) {
   try {
     const attendeeQuery = await firebase.firestore()
     .collectionGroup('Attendees')

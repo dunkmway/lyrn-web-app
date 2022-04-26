@@ -337,13 +337,13 @@ exports.checkProbation = functions.pubsub.schedule('30 0 * * *').timeZone('Ameri
       });
 
       // remove all future lessons where this user is one of the parents
-      let futureEvents = await admin.firestore().collection('Events').where('parents', 'array-contains', userStripeDoc.id).where('start', '>=', new Date().getTime()).get();
-      let eventDeletetions = [];
-      futureEvents.forEach(eventDoc => {
-        eventDeletetions.push(eventDoc.ref.delete());
-      })
+      // let futureEvents = await admin.firestore().collection('Events').where('parents', 'array-contains', userStripeDoc.id).where('start', '>=', new Date().getTime()).get();
+      // let eventDeletetions = [];
+      // futureEvents.forEach(eventDoc => {
+      //   eventDeletetions.push(eventDoc.ref.delete());
+      // })
 
-      await Promise.all(eventDeletetions);
+      // await Promise.all(eventDeletetions);
 
       // send the parent an email informing them that their lessons were deleted
       await sendExpiredProbationEmail(userStripeDoc.id);
