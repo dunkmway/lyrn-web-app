@@ -705,6 +705,18 @@ main {
   }
 }
 
+.hint {
+  display: none;
+}
+
+@media (hover: none) {
+  .hint {
+    display: block;
+    text-align: center;
+    width: 100%;
+  }
+}
+
 .tutor-grid {
   padding: 2em;
   display: grid;
