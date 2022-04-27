@@ -25,10 +25,6 @@ exports.sendLessonLink = functions.pubsub.schedule('*/30 * * * *').timeZone('Ame
   await Promise.all(eventQuery.docs.map(async (eventDoc) => {
     // get all of the info needed to send the link off
     const eventData = eventDoc.data();
-
-    //get the student, parent, and tutor info
-    const studentDoc = await admin.firestore().collection('Users').doc(eventData.student).get();
-    const parentDoc = await admin.firestore().collection('Users').doc(eventData.parents[0]).get();
     const tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get();
 
     //create the zoom meeting
@@ -64,13 +60,23 @@ exports.sendLessonLink = functions.pubsub.schedule('*/30 * * * *').timeZone('Ame
       zoomLink: response.data.join_url
     }
 
-    if (studentDoc.data().email) {
-      await sendLessonLinkEmail(studentDoc.data().email, lessonData);
-    }
-    await sendLessonLinkEmail(parentDoc.data().email, lessonData);
+    // get all of the attendees
+    const attendeeQuery = await eventDoc.ref.collection('Attendees').get();
+    await Promise.all(attendeeQuery.docs.map(attendeeDoc => sendLink(attendeeDoc.data().student, attendeeDoc.data().parents[0], lessonData)));
   }));
   return
 });
+
+async function sendLink(student, parent, lessonData) {
+  //get the student, parent, and tutor info
+  const studentDoc = await admin.firestore().collection('Users').doc(student).get();
+  const parentDoc = await admin.firestore().collection('Users').doc(parent).get();
+
+  if (studentDoc.data().email) {
+    await sendLessonLinkEmail(studentDoc.data().email, lessonData);
+  }
+  await sendLessonLinkEmail(parentDoc.data().email, lessonData);
+}
 
 exports.test_sendLessonLink = functions.https.onRequest(async (req, res) => {
   // assume the current time is at a 30 minute mark in the given timezone
@@ -86,10 +92,6 @@ exports.test_sendLessonLink = functions.https.onRequest(async (req, res) => {
   await Promise.all(eventQuery.docs.map(async (eventDoc) => {
     // get all of the info needed to send the link off
     const eventData = eventDoc.data();
-
-    //get the student, parent, and tutor info
-    const studentDoc = await admin.firestore().collection('Users').doc(eventData.student).get();
-    const parentDoc = await admin.firestore().collection('Users').doc(eventData.parents[0]).get();
     const tutorDoc = await admin.firestore().collection('Users').doc(eventData.staff[0]).get();
 
     //create the zoom meeting
@@ -125,10 +127,9 @@ exports.test_sendLessonLink = functions.https.onRequest(async (req, res) => {
       zoomLink: response.data.join_url
     }
 
-    if (studentDoc.data().email) {
-      await sendLessonLinkEmail(studentDoc.data().email, lessonData);
-    }
-    await sendLessonLinkEmail(parentDoc.data().email, lessonData);
+    // get all of the attendees
+    const attendeeQuery = await eventDoc.ref.collection('Attendees').get();
+    await Promise.all(attendeeQuery.docs.map(attendeeDoc => sendLink(attendeeDoc.data().student, attendeeDoc.data().parents[0], lessonData)));
   }));
   res.send('all done')
 });

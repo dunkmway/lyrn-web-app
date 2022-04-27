@@ -92,7 +92,29 @@
       </div>
     </div>
 
-    <div class="modal" id="checkProgram">
+    <div class="modal sign-up" id="availableClassesModal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        Classes
+      </div>
+    </div>
+
+    <div class="modal sign-up" id="availableStudyGroupsModal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        Study Groups
+      </div>
+    </div>
+
+    <div class="modal sign-up" id="checkProgram">
       <div class="modal-body">
         <div class="close">
           <svg viewbox="0 0 32 32">
@@ -201,40 +223,616 @@
           </div>
         </div>
 
-        <h2>Choose a program that helps you reach your goals</h2>
-        <h4>Guaranteed* point increases for all of our programs</h4>
+        <div class="program-selector">
+          <h3>I'm looking for</h3>
+          <div class="selection-wrapper">
+            <input type="radio" name="program-selection" id="classes" onclick=openProgram(event) checked>
+            <label for="classes">Classes</label>
+            <p>Affordable option for raising your score in the least amount of time.</p>
 
-        <input type="checkbox" id="paymentType">
-        <div class="payment-type">
-          <p class="scheduled">Pay each lesson</p>
-          <label for="paymentType"></label>
-          <p class="one-time">Pay up front (10% off)</p>
+            <input type="radio" name="program-selection" id="study-groups" onclick=openProgram(event)>
+            <label for="study-groups">Study Groups</label>
+            <p>Smaller group size means our tutors can focus more on your student.</p>
+
+            <input type="radio" name="program-selection" id="one-on-one" onclick=openProgram(event)>
+            <label for="one-on-one">One-on-One</label>
+            <p>The best way to prepare for the ACT is one-on-one with our tutors.</p>
+          </div>
         </div>
-        
-        <div class="plans">
-          <!-- Basics 6 weeks -->
-          <!-- <div class="plan-wrapper">
+
+        <!-- classes -->
+        <div class="program classes open">
+          <h2>Need the a quick boost on your score?</h2>
+          <h4>Choose a class that helps you reach your goals</h4>
+          <p><span class="accent">Bundle and save!</span> Sign up for multiple classes and get 5% off your total for each additional class.</p>
+
+          <input type="checkbox" id="paymentType_classes" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_classes"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- English -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+              <div class="title">
+                <h3>English</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 1 pm</p>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!--Math -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+              <div class="title">
+                <h3>Math</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 1 pm</p>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Reading -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+              <div class="title">
+                <h3>Reading</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 6 pm</p>
+                <p>Tuesday and Thursday at 1 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Science -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+              <div class="title">
+                <h3>Science</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 6 pm</p>
+                <p>Tuesday and Thursday at 1 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_classes" class="faq_toggle">
+              <label for="faq_0_classes" class="summary"><h3>What is my expected score?</h3></label>
+              <div class="content">
+                <p>
+                  We usually see an increase of 1-3 point increases from the beginning of our class to the end. If you do all of the practice and
+                  take notes during the classes we are confident you will reap your reward.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_classes" class="faq_toggle">
+              <label for="faq_1_classes" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  Our classes are ongoing and happen about twice a month. Call us to get a better idea of when the next classes are starting
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_classes" class="faq_toggle">
+              <label for="faq_2_classes" class="summary"><h3>How long are the classes?</h3></label>
+              <div class="content">
+                <p>
+                  Every class is 1 hour long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_classes" class="faq_toggle">
+              <label for="faq_3_classes" class="summary"><h3>How often are the classes?</h3></label>
+              <div class="content">
+                <p>
+                  Classes happen twice a week. Check availability above to see which days and times.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_classes" class="faq_toggle">
+              <label for="faq_4_classes" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  Classes are held in groups up to 20 students. We make sure that in every lesson there is time reserved to take questions
+                  so that your student can get personalized help.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_classes" class="faq_toggle">
+              <label for="faq_5_classes" class="summary"><h3>Where are the classes held?</h3></label>
+              <div class="content">
+                <p>
+                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_classes" class="faq_toggle">
+              <label for="faq_6_classes" class="summary"><h3>What does a class look like?</h3></label>
+              <div class="content">
+                <p>Every class is led by one of our best instructors that are specialized in the the specific section they are teaching. The instructor will
+                  go over topics our ACT experts created by explaing how to identify the question and the approach to answer the question. We use real ACT example questions
+                  to demontrate the principle. We leave time to answer questions about each topic. Your student at home then has practice tests to practice the topics taught during the lesson.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_classes" class="faq_toggle">
+              <label for="faq_7_classes" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
+        <!-- study-groups -->
+        <div class="program study-groups">
+          <h2>Want something a bit more personalized?</h2>
+          <h4>Choose a study group that helps you reach your goals</h4>
+
+          <input type="checkbox" id="paymentType_study-group" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_study-group"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- Study group 6 weeks -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $60">
+              <div class="title">
+                <h3>6 weeks</h3>
+                <h4 class="recurring">$600</h4>
+                <p class="recurring">10 payments of $50 and a $100 deposit**</p>
+                <h4 class="one-time">$540</h4>
+                <p class="one-time">1 payment of $540 which includes a $90 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Study Group</h4>
+                <h5>12 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>Focus on the topics that appear the most</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>1 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 7 pm</p>
+                <p>Tuesday and Thursday at 3 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableStudyGroupsCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Study Group 8 week -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $80">
+              <div class="title">
+                <h3>8 weeks</h3>
+                <h4 class="recurring">$800</h4>
+                <p class="recurring">14 payments of $50 and a $100 deposit**</p>
+                <h4 class="one-time">$720</h4>
+                <p class="one-time">1 payment of $720 which includes a $90 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Study Group</h4>
+                <h5>16 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>Focus on the topics that appear the most</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>1 full length ACT practice tests</li>
+                <li>16 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 3 pm</p>
+                <p>Tuesday and Thursday at 7 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableStudyGroupsCallback(1)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to check availability</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_study-groups" class="faq_toggle">
+              <label for="faq_0_study-groups" class="summary"><h3>What is my expected score?</h3></label>
+              <div class="content">
+                <p>
+                  We usually see an increase of 2-4 point increases from the beginning of our study group to the end. If you do all of the practice and
+                  take notes during the study group we are confident you will reap your reward.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_study-groups" class="faq_toggle">
+              <label for="faq_1_study-groups" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  In order for your student to get the best results, our programs all end the week before an official ACT test.
+                  That way all of the things they learn will be fresh in their minds. We then figure out the start date based on
+                  which program you choose and how many times a week you attend lessons. For our study groups, 
+                  this is typcially 6-8 weeks.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_study-groups" class="faq_toggle">
+              <label for="faq_2_study-groups" class="summary"><h3>How long are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  Every study group session is 1 hour long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_study-groups" class="faq_toggle">
+              <label for="faq_3_study-groups" class="summary"><h3>How often are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  All study groups happen twice a week so that your student has enough time to do their homework and not enough
+                  time to forget everything between sessions. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_study-groups" class="faq_toggle">
+              <label for="faq_4_study-groups" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  Study groups happen in groups of at most 6. This smaller class size allows more interaction with each student and time to review every student's questions.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_study-groups" class="faq_toggle">
+              <label for="faq_5_study-groups" class="summary"><h3>Where are the lessons held?</h3></label>
+              <div class="content">
+                <p>
+                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_study-groups" class="faq_toggle">
+              <label for="faq_6_study-groups" class="summary"><h3>What does a lesson look like?</h3></label>
+              <div class="content">
+                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. We then move into 
+                  reviewing a specific topic of the ACT from our world class curriculum. We practice questions specific to that topics and then student's at home
+                  will have full section tests to practice what we learned in class.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_study-groups" class="faq_toggle">
+              <label for="faq_7_study-groups" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
+        <!-- one-on-one -->
+        <div class="program one-on-one">
+          <h2>Get the score you deserve or your money back*</h2>
+          <h4>Choose a program that helps you reach your goals</h4>
+
+          <input type="checkbox" id="paymentType_one-on-one" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_one-on-one"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- Basics 6 weeks -->
+            <!-- <div class="plan-wrapper">
+              <div class="title">
+                <h3>1 point</h3>
+                <h4 class="recurring">$900</h4>
+                <p class="recurring">10 payments of $75 and a $150 deposit**</p>
+                <h4 class="one-time">$810</h4>
+                <p class="one-time"><strong>Save $90</strong> includes $135 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Basics</h4>
+                <h5>12 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <div class="select">
+                <a href="tel:+13853000906">
+                  <p>CALL OR TEXT</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </div>
+            </div> -->
+
+            <!-- Basics 8 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $120">
+              <div class="title">
+                <h3>2 points guaranteed*</h3>
+                <h4 class="recurring">$1200</h4>
+                <p class="recurring">14 payments of $75 and a $150 deposit**</p>
+                <h4 class="one-time">$1080</h4>
+                <p class="one-time">1 payment of $1080 which includes a $135 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Basics</h4>
+                <h5>16 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>16 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="checkProgramCallback(1)">
+                <p>Check Availability</p>
+              </button>
+            </div>
+
+            <!-- Guided 6 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $180">
+              <div class="title">
+                <h3>3 points guaranteed*</h3>
+                <h4 class="recurring">$1800</h4>
+                <p class="recurring">10 payments of $150 and a $300 deposit**</p>
+                <h4 class="one-time">$1620</h4>
+                <p class="one-time">1 payment of $1620 which includes a $270 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>Guided ACT</h4>
+                <h5>24 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>Adaptive Learning Intelligence</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>12 hours of topic specific lessons</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="checkProgramCallback(2)">
+                <p>Check Availability</p>
+              </button>
+            </div>
+
+            <!-- Guided 8 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $240">
+              <div class="title">
+                <h3>4 points guaranteed*</h3>
+                <h4 class="recurring">$2400</h4>
+                <p class="recurring">14 payments of $150 and a $300 deposit**</p>
+                <h4 class="one-time">$2160</h4>
+                <p class="one-time">1 payment of $2160 which includes a $270 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>Guided ACT</h4>
+                <h5>32 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>Adaptive Learning Intelligence</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>16 section practice homeworks</li>
+                <li>16 hours of topic specific lessons</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="checkProgramCallback(3)">
+                <p>Check Availability</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="plan-wrapper custom">
             <div class="title">
-              <h3>1 point</h3>
-              <h4 class="recurring">$900</h4>
-              <p class="recurring">10 payments of $75 and a $150 deposit**</p>
-              <h4 class="one-time">$810</h4>
-              <p class="one-time"><strong>Save $90</strong> includes $135 deposit**</p>
+              <h3>Customized programs</h3>
+              <!-- <h4>?</h4> -->
             </div>
             <div class="length">
-              <h4>ACT Basics</h4>
-              <h5>12 hours</h5>
+              <h5>Create a completely customized program to meet your student's needs.</h5>
             </div>
-            <ul>
-              <li><strong>One-on-One</strong> Personalized Tutoring</li>
-              <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
-              <li><strong>2000+</strong> ACT test questions</li>
-              <li>End right before an official test</li>
-              <li>2 full length ACT practice tests</li>
-              <li>12 section practice homeworks</li>
-              <li>Time management skills</li>
-              <li>Test tips and strategies</li>
-            </ul>
             <h4 class="start">GET STARTED TODAY!</h4>
             <div class="select">
               <a href="tel:+13853000906">
@@ -242,214 +840,103 @@
                 <p>(385) 300-0906</p>
               </a>
             </div>
-          </div> -->
-
-          <!-- Basics 8 weeks -->
-
-          <div class="plan-wrapper coming-soon" data-comingSoon="Save $120">
-            <div class="title">
-              <h3>2 points</h3>
-              <h4 class="recurring">$1200</h4>
-              <p class="recurring">14 payments of $75 and a $150 deposit**</p>
-              <h4 class="one-time">$1080</h4>
-              <p class="one-time">1 payment of $1080 which includes a $135 deposit**</p>
-            </div>
-            <div class="length">
-              <h4>ACT Basics</h4>
-              <h5>16 hours</h5>
-            </div>
-            <ul>
-              <li><strong>One-on-One</strong> Personalized Tutoring</li>
-              <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
-              <li><strong>2000+</strong> ACT test questions</li>
-              <li>End right before an official test</li>
-              <li>2 full length ACT practice tests</li>
-              <li>16 section practice homeworks</li>
-              <li>Time management skills</li>
-              <li>Test tips and strategies</li>
-            </ul>
-            <h4 class="start">GET STARTED TODAY!</h4>
-            <button class="select" onclick="checkProgramCallback(1)">
-              <p>Check Availability</p>
-            </button>
           </div>
 
-          <!-- Guided 6 weeks -->
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_one-on-one" class="faq_toggle">
+              <label for="faq_0_one-on-one" class="summary"><h3>What is my guarantee?</h3></label>
+              <div class="content">
+                <p>
+                  Each of our one-on-one programs comes with a guarantee that if you do all of your homework and come to all of your lessons,
+                  we will guarantee that your student will go up that many points on their official ACT test compared to when they
+                  first started their program or your money back. See our <a href="guarantee.html">guarantee policy</a> for more details.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_one-on-one" class="faq_toggle">
+              <label for="faq_1_one-on-one" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  In order for your student to get the best results, our one-on-one programs all end the week before an official ACT test.
+                  That way all of the things they learn will be fresh in their minds. We then figure out the start date based on
+                  which program you choose and how many times a week you attend lessons. For our set programs, 
+                  this is typcially 6-8 weeks.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_one-on-one" class="faq_toggle">
+              <label for="faq_2_one-on-one" class="summary"><h3>How long are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  Our ACT Basics program lessons are 1 hour long, and our Guided ACT program lessons are 2 hours long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_one-on-one" class="faq_toggle">
+              <label for="faq_3_one-on-one" class="summary"><h3>How often are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  We highly recommend 2 lessons a week so that your student has enough time to do their homework and not enough
+                  time to forget everything between sessions. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_one-on-one" class="faq_toggle">
+              <label for="faq_4_one-on-one" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  The best approach to learning is 1-on-1. That is why all of our one-on-one programs are just your student and their tutor. 
+                  That way our tutors can focus soley on your student and they can get the most out of every lesson.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_one-on-one" class="faq_toggle">
+              <label for="faq_5_one-on-one" class="summary"><h3>Where are the lessons held?</h3></label>
+              <div class="content">
+                <p>
+                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons. We know that online education might not sound the best after the pandemic, but our 1-on-1 tutoring
+                  is far superior to classes of 30 students in one meeting.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_one-on-one" class="faq_toggle">
+              <label for="faq_6_one-on-one" class="summary"><h3>What does a lesson look like?</h3></label>
+              <div class="content">
+                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. The in our Guided program
+                  the we go over specific topics that appear the most on the test to make the most of the short time we have. Then both programs 
+                  wrap up with practice from actual ACT questions.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_one-on-one" class="faq_toggle">
+              <label for="faq_7_one-on-one" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <div class="plan-wrapper coming-soon" data-comingSoon="Save $180">
-            <div class="title">
-              <h3>3 points</h3>
-              <h4 class="recurring">$1800</h4>
-              <p class="recurring">10 payments of $150 and a $300 deposit**</p>
-              <h4 class="one-time">$1620</h4>
-              <p class="one-time">1 payment of $1620 which includes a $270 deposit**</p>
-            </div>
-            <div class="length">
-              <h4>Guided ACT</h4>
-              <h5>24 hours</h5>
-            </div>
-            <ul>
-              <li><strong>One-on-One</strong> Personalized Tutoring</li>
-              <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
-              <li>Adaptive Learning Intelligence</li>
-              <li><strong>2000+</strong> ACT test questions</li>
-              <li>End right before an official test</li>
-              <li>2 full length ACT practice tests</li>
-              <li>12 section practice homeworks</li>
-              <li>12 hours of topic specific lessons</li>
-              <li>Time management skills</li>
-              <li>Test tips and strategies</li>
-            </ul>
-            <h4 class="start">GET STARTED TODAY!</h4>
-            <button class="select" onclick="checkProgramCallback(2)">
-              <p>Check Availability</p>
-            </button>
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
           </div>
-
-          <!-- Guided 8 weeks -->
-
-          <div class="plan-wrapper coming-soon" data-comingSoon="Save $240">
-            <div class="title">
-              <h3>4 points</h3>
-              <h4 class="recurring">$2400</h4>
-              <p class="recurring">14 payments of $150 and a $300 deposit**</p>
-              <h4 class="one-time">$2160</h4>
-              <p class="one-time">1 payment of $2160 which includes a $270 deposit**</p>
-            </div>
-            <div class="length">
-              <h4>Guided ACT</h4>
-              <h5>32 hours</h5>
-            </div>
-            <ul>
-              <li><strong>One-on-One</strong> Personalized Tutoring</li>
-              <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
-              <li>Adaptive Learning Intelligence</li>
-              <li><strong>2000+</strong> ACT test questions</li>
-              <li>End right before an official test</li>
-              <li>2 full length ACT practice tests</li>
-              <li>16 section practice homeworks</li>
-              <li>16 hours of topic specific lessons</li>
-              <li>Time management skills</li>
-              <li>Test tips and strategies</li>
-            </ul>
-            <h4 class="start">GET STARTED TODAY!</h4>
-            <button class="select" onclick="checkProgramCallback(3)">
-              <p>Check Availability</p>
-            </button>
-          </div>
-        </div>
-
-        <div class="plan-wrapper custom">
-          <div class="title">
-            <h3>Customized programs</h3>
-            <!-- <h4>?</h4> -->
-          </div>
-          <div class="length">
-            <h5>Create a completely customized program to meet your student's needs.</h5>
-          </div>
-          <h4 class="start">GET STARTED TODAY!</h4>
-          <div class="select">
-            <a href="tel:+13853000906">
-              <p>CALL OR TEXT</p>
-              <p>(385) 300-0906</p>
-            </a>
-          </div>
-        </div>
-
-        <div class="faq">
-          <h2 class="title">FAQ</h2>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_0" class="faq_toggle">
-            <label for="faq_0" class="summary"><h3>What is my guarantee?</h3></label>
-            <div class="content">
-              <p>
-                Each of our programs comes with a guarantee that if you do all of your homework and come to all of your lessons,
-                we will guarantee that your student will go up that many points on their official ACT test compared to when they
-                first started their program or your money back. See our <a href="guarantee.html">guarantee policy</a> for more details.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_1" class="faq_toggle">
-            <label for="faq_1" class="summary"><h3>When do the programs start?</h3></label>
-            <div class="content">
-              <p>
-                In order for your student to get the best results, our programs all end the week before an official ACT test.
-                That way all of the things they learn will be fresh in their minds. We then figure out the start date based on
-                which program you choose and how many times a week you attend lessons. For our set programs, 
-                this is typcially 6-8 weeks.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_2" class="faq_toggle">
-            <label for="faq_2" class="summary"><h3>How long are the lessons?</h3></label>
-            <div class="content">
-              <p>
-                Our ACT Basics program lessons are 1 hour long, and our Guided ACT program lessons are 2 hours long.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_3" class="faq_toggle">
-            <label for="faq_3" class="summary"><h3>How often are the lessons?</h3></label>
-            <div class="content">
-              <p>
-                We highly recommend 2 lessons a week so that your student has enough time to do their homework and not enough
-                time to forget everything between sessions. 
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_4" class="faq_toggle">
-            <label for="faq_4" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
-            <div class="content">
-              <p>
-                The best approach to learning is 1-on-1. That is why all of our programs are just your student and their tutor. 
-                That way our tutors can focus soley on your student and they can get the most out of every lesson.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_5" class="faq_toggle">
-            <label for="faq_5" class="summary"><h3>Where are the lessons held?</h3></label>
-            <div class="content">
-              <p>
-                All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
-                and state-of-the-art lessons. We know that online education might not sound the best after the pandemic, but our 1-on-1 tutoring
-                is far superior to classes of 20-30 students in one meeting.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_6" class="faq_toggle">
-            <label for="faq_6" class="summary"><h3>What does a lesson look like?</h3></label>
-            <div class="content">
-              <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. The in our Guided program
-                the we go over specific topics that appear the most on the test to make the most of the short time we have. Then both programs 
-                wrap up with practice from actual ACT questions.
-              </p>
-            </div>
-          </div>
-          <div class="details">
-            <input type="checkbox" name="faq" id="faq_7" class="faq_toggle">
-            <label for="faq_7" class="summary"><h3>What are my payment options?</h3></label>
-            <div class="content">
-              <p>
-                You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
-                entire program up front for a 10% discount.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="footnotes">
-          <p>
-            * See our <a href="guarantee.html">guarantee policy</a>.
-          </p>
-          <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
-            If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
-          </p>
         </div>
       </section>
 

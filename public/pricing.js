@@ -20,8 +20,12 @@ appCheck.activate(
 
 function initialSetup() {
   bannerSetup();
-  checkModalSetup();
-  reserveModalSetup();
+  // checkModalSetup();
+  // reserveModalSetup();
+  modalSetup('checkProgram', clearCheckModal);
+  modalSetup('reserveProgram', clearCheckModal);
+  modalSetup('availableClassesModal', () => {});
+  modalSetup('availableStudyGroupsModal', () => {});
   contactFormSetup();
   let queryCourse = queryStrings()['course'];
 
@@ -35,6 +39,22 @@ function initialSetup() {
 
 function openCourse(sectionID) {
   document.getElementById(sectionID + '-section').checked = true;
+}
+
+function openProgram(event) {
+  const program = event.target.id;
+  document.querySelectorAll('.program').forEach(element => {
+    element.classList.remove('open')
+  });
+
+  const programElement = document.querySelector(`.program.${program}`)
+  programElement.classList.add('open');
+  const programPosition = programElement.getBoundingClientRect().top;
+  const offsetPosition = programPosition + window.pageYOffset - (window.innerWidth < 800 ? 100 : 60);
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: "smooth"
+}); 
 }
 
 function checkModalSetup() {
@@ -60,6 +80,19 @@ function reserveModalSetup() {
     if (e.target !== e.currentTarget) return;
     document.querySelector('#reserveProgram').classList.remove('show');
     clearCheckModal();
+  })
+}
+
+function modalSetup(modalID, closeCallback) {
+  document.querySelector(`#${modalID} > .modal-body > .close`).addEventListener('click', () => {
+    document.querySelector(`#${modalID}`).classList.remove('show');
+    closeCallback();
+  })
+
+  document.querySelector(`#${modalID}`).addEventListener('click', (e) => {
+    if (e.target !== e.currentTarget) return;
+    document.querySelector(`#${modalID}`).classList.remove('show');
+    closeCallback();
   })
 }
 
@@ -373,6 +406,28 @@ function createAnalyticsEvent(data) {
     ...data,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   })
+}
+
+function availableClassesCallback(programIndex) {
+  document.querySelector('#availableClassesModal').classList.add('show');
+  createAnalyticsEvent({
+    eventID: 'pricing-availableClassesClicked',
+    additionalData: {
+      programIndex
+    }
+  });
+  // setClassesSelected(programIndex);
+}
+
+function availableStudyGroupsCallback(programIndex) {
+  document.querySelector('#availableStudyGroupsModal').classList.add('show');
+  createAnalyticsEvent({
+    eventID: 'pricing-availableStudyGroupsClicked',
+    additionalData: {
+      programIndex
+    }
+  });
+  // setStudyGroupsSelected(programIndex);
 }
 
 function checkProgramCallback(programIndex) {
@@ -799,8 +854,10 @@ function getOpenTutors(openTimes, eventLength) {
     const events = openingsMaster_copy[time].filter(opening => opening.type == 'event').map(opening => opening.tutor);
     const availabilities = openingsMaster_copy[time].filter(opening => opening.type == 'availability').map(opening => opening.tutor);
 
-    if (events.length > availabilities ) {
-      alert('There is a BIG issue with the calendar. Contact the Lyrn developers immediately.')
+    if (events.length > availabilities.length) {
+      // we found a major error in the openings
+      console.log('major openings error!!!')
+      // alert('There is a major issue with the calendar. Contact the Lyrn developers immediately.')
     }
 
     openTutorMaster[time] = arraySubtraction(availabilities, events);
@@ -1421,17 +1478,12 @@ async function setCalendarEvents(studentUID, parentUID) {
   // create the final form of the event
   const calendarEvents = assignedLessons.map(lesson => {
     return {
-      attendees: [studentUID, parentUID, lesson.tutor],
       description: "",
       end: new Date(lesson.date).setMinutes(lesson.date.getMinutes() + (currentProgramDetails.sessionLength * 60)),
       location: CURRENT_LOCATION,
-      parents: [parentUID],
-      price: currentProgramDetails.price,
       staff: [lesson.tutor],
       staffNames: [qualifiedTutors_master.find(tutor => tutor.id == lesson.tutor).name],
       start: lesson.date.getTime(),
-      student: studentUID,
-      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
       subtype: lesson.lessonType,
       title: `${currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName} - ${currentProgramDetails.name} ${lesson.lessonType.charAt(0).toUpperCase() + lesson.lessonType.slice(1)}`,
       type: currentProgramDetails.value
@@ -1444,7 +1496,13 @@ async function setCalendarEvents(studentUID, parentUID) {
   calendarEvents.forEach(event => {
     const ref = firebase.firestore().collection('Events').doc();
     eventRefs.push(ref);
-    return eventBatch.set(ref, event);
+    eventBatch.set(ref, event);
+    eventBatch.set(ref.collection('Attendees').doc(), {
+      student: studentUID,
+      parents: [parentUID],
+      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+      price: currentProgramDetails.price
+    })
   });
 
   await eventBatch.commit();

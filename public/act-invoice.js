@@ -124,6 +124,13 @@ function setupPayInvoice() {
   const invoice = document.querySelector('#pay-invoice-details');
   removeAllChildNodes(invoice);
 
+  invoice.innerHTML = `
+  <h5 class="heading">Description</h5>
+  <h5 class="heading">Cost</h5>
+  <h5 class="heading">Qty</h5>
+  <h5 class="heading">Amount</h5>
+  `
+
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')
   programDesc.innerHTML = `
@@ -214,6 +221,13 @@ function setupSaveInvoice() {
   const invoice = document.querySelector('#save-invoice-details');
   removeAllChildNodes(invoice);
 
+  invoice.innerHTML = `
+  <h5 class="heading">Description</h5>
+  <h5 class="heading">Cost</h5>
+  <h5 class="heading">Qty</h5>
+  <h5 class="heading">Amount</h5>
+  `
+
   const programDesc = document.createElement('div');
   programDesc.classList.add('description-wrapper')
   programDesc.innerHTML = `
@@ -294,7 +308,7 @@ function setupSaveInvoice() {
   `
   const amountDueAmount = document.createElement('p');
   amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + (2 * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100).toFixed(2);
+  amountDueAmount.textContent = '$' + ((invoiceData.events.length > 1 ? 2 : 1) * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100).toFixed(2);
   invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
 }
  

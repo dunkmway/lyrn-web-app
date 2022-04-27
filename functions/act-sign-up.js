@@ -13,7 +13,7 @@ const SECTION_TIME = {
 }
 const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be started before the required time to take (35 minute section + buffer before lesson starts)
 
-const INITIAL_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
+const GUARANTEE_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
 
 const PROMO_CODES = {
   'first act': { isFirstSessionFree: true, percentageOff: 0 },
@@ -236,20 +236,19 @@ exports.updateInvoiceEvents = functions.firestore
       const events = newValues.events;
       let batch = admin.firestore().batch();
 
-      // go through all events and apply the discounts
-      events.forEach((event, index) => {
-        const ref = admin.firestore().collection('Events').doc(event);
-
+      // go through all events and apply the discounts to the attendee
+      await Promise.all(events.map(async (event, index) => {
+        const attendeeQuery = await admin.firestore().collection('Events').doc(event).collection('Attendees').where('student', '==', newValues.student).get();
+        const ref = attendeeQuery.docs[0].ref;
+        
         // check if first lesson should be free
         if (index == 0 && newValues.isFirstSessionFree) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
         }
         // last two lessons were already payed for
         else if (index == (events.length - 1) || index == (events.length - 2)) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
@@ -261,8 +260,8 @@ exports.updateInvoiceEvents = functions.firestore
             price: newValues.pricePerHour * (1 - 0.1 - (newValues.percentageOff / 100))
           })
         }
-      })
-
+        return
+      }));
       // commit the update operations
       await batch.commit();
     }
@@ -273,19 +272,18 @@ exports.updateInvoiceEvents = functions.firestore
       let batch = admin.firestore().batch();
 
       // go through all events and apply the discounts
-      events.forEach((event, index) => {
-        const ref = admin.firestore().collection('Events').doc(event);
+      await Promise.all(events.map(async (event, index) => {
+        const attendeeQuery = await admin.firestore().collection('Events').doc(event).collection('Attendees').where('student', '==', newValues.student).get();
+        const ref = attendeeQuery.docs[0].ref;
 
         // check if first lesson should be free
         if (index == 0 && newValues.isFirstSessionFree) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
         }
         // last two lessons were already payed for
         else if (index == (events.length - 1) || index == (events.length - 2)) {
-          // update the lesson's price
           batch.update(ref, {
             price: 0
           })
@@ -297,7 +295,8 @@ exports.updateInvoiceEvents = functions.firestore
             price: newValues.pricePerHour * (1 - (newValues.percentageOff / 100))
           })
         }
-      })
+        return
+      }))
 
       // commit the update operations
       await batch.commit();
@@ -307,28 +306,37 @@ exports.updateInvoiceEvents = functions.firestore
     }
 
     // we want to send the test link to parents and student if they haven't already take the practice test
-    // query for the practice test
-    const practiceTestQuery = await admin.firestore().collection('Section-Assignments')
-    .where('student', '==', newValues.student)
-    .where('test', '==', INITIAL_PRACTICE_TEST_ID)
-    .where('section', '==', 'all')
-    .limit(1)
-    .get();
+    // only for one-on-one programs
+    if (newValues.program == 'actBasics' || newValues.program == 'actGuided') {
+      // query for the practice test
+      const practiceTestQuery = await admin.firestore().collection('Section-Assignments')
+      .where('student', '==', newValues.student)
+      .where('test', '==', GUARANTEE_PRACTICE_TEST_ID)
+      .where('section', '==', 'all')
+      .limit(1)
+      .get();
 
-    // if the assignment does not exist send off the link
-    if (practiceTestQuery.size == 0) {
-      // set the assignment
-      await setPracticeTestAssignments(newValues.student, newValues.program, newValues.programStart)
-      // get the student and parent email
-      const [parentDoc, studentDoc] = await Promise.all([
-        admin.firestore().collection('Users').doc(newValues.parent).get(),
-        admin.firestore().collection('Users').doc(newValues.student).get()
-      ])
+      // if the assignment does not exist send off the link
+      if (practiceTestQuery.size == 0) {
+        // set the assignment
+        await setPracticeTestAssignments(newValues.student, newValues.program, newValues.programStart)
+        // get the student and parent email
+        const [parentDoc, studentDoc] = await Promise.all([
+          admin.firestore().collection('Users').doc(newValues.parent).get(),
+          admin.firestore().collection('Users').doc(newValues.student).get()
+        ])
 
-      await sendPracticeTestEmail(parentDoc.data().email, newValues.student);
-      if (studentDoc.data().email) {
-        await sendPracticeTestEmail(studentDoc.data().email, newValues.student);
+        await sendPracticeTestEmail(parentDoc.data().email, newValues.student);
+        if (studentDoc.data().email) {
+          await sendPracticeTestEmail(studentDoc.data().email, newValues.student);
+        }
       }
+    }
+    else if (newValues.program == 'actClass') {
+      // assign all of the practice test
+    }
+    else if (newValues.program == 'actStudyGroup') {
+
     }
   }
   // the invoice has not been paid for
@@ -338,9 +346,22 @@ exports.updateInvoiceEvents = functions.firestore
     const events = newValues.events;
     let batch = admin.firestore().batch();
 
-    events.forEach(event => {
-      batch.delete(admin.firestore().collection('Events').doc(event))
-    })
+    await Promise.all(events.map(async event => {
+      const ref = admin.firestore().collection('Events').doc(event);
+      // group lessons must have the student removed
+      if (newValues.program == 'actClass' || newValues.program == 'actStudyGroup') {
+        // query for the attendee that matches this student and remove them
+        const attendeeQuery = await ref.collection('Attendees').where('student', '==', newValues.student).get();
+        attendeeQuery.forEach(attendee => batch.delete(attendee.ref));
+      }
+      // single lessons can just be deleted
+      else {
+        batch.delete(ref)
+        const attendeeQuery = await ref.collection('Attendees').get();
+        attendeeQuery.forEach(attendee => batch.delete(attendee.ref));
+      }
+      return;
+    }));
 
     // commit the update operations
     await batch.commit();
@@ -389,6 +410,33 @@ async function sendFailedInvoiceEmail(userUID, invoiceID) {
 }
 
 async function sendInvoiceEmail(email, invoiceID) {
+  // get the invocie doc
+  const invoiceDoc = await admin.firestore().collection('ACT-Invoices').doc(invoiceID).get();
+
+  // get the tutor from the first lesson
+  const eventDoc = await admin.firestore().collection('Events').doc(invoiceDoc.data().events[0]).get();
+
+  let tutorHTML = '';
+  await Promise.all(eventDoc.data().staff.map(async (tutor) => {
+    // we need to get their user doc for their full name and bio
+    // their image can be found at /Images/tutor/{tutor full name hyphenated}.jpg
+    const tutorDoc = await admin.firestore().collection('Users').doc(tutor).get();
+    const bio = tutorDoc.data().bio;
+    const tutorName = tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName;
+    const tutorURL = tutorDoc.data().firstName + '-' + tutorDoc.data().lastName;
+    const tutorRow = `
+      <tr>
+        <td style="vertical-align: top;padding: 30px 0px 30px 0px;">
+          <img src="https://lyrnwithus.com/Images/tutors/${tutorURL}.jpg" alt="tutor" style="width: 200px; float: left; margin-right: 1em;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;"> ${tutorName} </h2>
+          <h3>Teaching ${eventDoc.data().subtype.charAt(0).toUpperCase() + eventDoc.data().subtype.slice(1)}</h3>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${bio || ''}</p>
+        </td>
+      </tr>
+    `
+    tutorHTML += tutorRow;
+  }));
+
   const msg = {
     to: email, // Change to your recipient
     from: 'support@lyrnwithus.com', // Change to your verified sender
@@ -396,10 +444,78 @@ async function sendInvoiceEmail(email, invoiceID) {
     text: `We're almost ready to start Lyrning! Go to this link to pay for your upcoming ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
     If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
     html: `
-      <h1>We're almost ready to start Lyrning!</h1>
-      <p>Go to this link to pay for your upcoming ACT program.<p>
-      <a href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">Invoice</a>
-      <p>If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+    <head>
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+    </style>
+  </head>
+  <body style="font-family: 'proxima-nova', sans-serif;">
+    <div id="email" style="width:600px;margin: auto;background:white;">
+  
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td bgcolor="#101b42" align="center" style="color: white;">
+            <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
+          </td>
+        </tr>
+      </table>
+    
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td style="padding: 30px 30px 30px 60px;">
+            <h2 style="font-size: 28px; margin:0 0 20px 0;">Your program is almost here!</h2>
+            <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+              Follow the invoice link below to finalize your program. 
+              Be aware that this invoice will expire in 48 hours.
+              (see the invoice for the expiration time).
+            </p>
+          </td> 
+        </tr>
+      </table>
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td align="center">
+            <table role="presentation" align="center" border="0" cellspacing="0">
+              <tr>
+                <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                  <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">ACT Program Invoice</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td>
+            <h2 style="font-size: 28px; margin:20px 0 20px 0;">Meet your tutors!</h2>
+          </td>
+        </tr>
+        ${tutorHTML}
+      </table>
+  
+      <table role="presentation" border="0" width="100%">
+        <tr>
+          <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+            <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+            <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
+            <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          </td>
+        </tr>
+      </table>
+      
+      <table role="presentation" border="0" width="100%" cellspacing="0">
+        <tr>
+          <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+            <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+            <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+            <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+          </td>
+        </tr>
+      </table> 
+    </div>
+  </body>
     `
   }
 
@@ -671,7 +787,7 @@ async function setPracticeTestAssignments(studentUID, program, programStart) {
     section: 'all',
     status: 'new',
     student: studentUID,
-    test: INITIAL_PRACTICE_TEST_ID,
+    test: GUARANTEE_PRACTICE_TEST_ID,
     program: program,
     open: new Date(),
     close: programStart
