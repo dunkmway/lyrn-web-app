@@ -1187,6 +1187,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
 
 .footnotes > p {
   font-size: 1em;
+  text-align: start;
 }
 
 
