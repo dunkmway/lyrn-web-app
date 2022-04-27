@@ -3,11 +3,16 @@ let currentLocations = [];
 
 let current_user;
 
+const ACT_CLASS_STUDENT_UID = '8qt0UdPAmWF4uz57VN8l';
+const ACT_STUDY_GROUP_STUDENT_UID = 'JvKQhodsWZCe72iGNkmd';
+const EXAMPLE_STUDENT_UID = 'uwrnhMAL2ibBjgS0KppI';
+
 let main_calendar;
 let calendar_mode = "default";
 let calendar_view = 'defualt';
 
 function initialSetupData() {
+  setupExampleDailyLogButton();
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -29,6 +34,12 @@ function initialSetupData() {
       // No user is signed in.
     }
   });
+}
+
+function setupExampleDailyLogButton() {
+  document.getElementById('exampleDailyLog').addEventListener('click', () => {
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + EXAMPLE_STUDENT_UID;
+  })
 }
 
 function getEventsStaff(staffUID, start, end) {
@@ -152,19 +163,29 @@ function initializeDefaultCalendar(events, initialDate = new Date()) {
 }
 
 function eventClickHandler(info) {
-  getEvent(info.event.id)
-  .then((data) => {
+  getEventDoc(info.event.id)
+  .then(async (doc) => {
+    const data = doc.data();
+    // get the attendee list
+    const attendeeQuery = await doc.ref.collection('Attendees').get();
+    const attendeeList = attendeeQuery.docs.map(doc => doc.data().student);
+
     const queryStr = '?student=' + data.student;
     console.log(data.type)
     switch(data.type) {
       case 'act':
       case 'actBasics':
-        data.staffZoomURL && window.open(data.staffZoomURL)
-        window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
-        break;
       case 'actGuided':
         data.staffZoomURL && window.open(data.staffZoomURL)
-        window.location.href = "../Forms/ACT Daily Log/Daily Log.html" + queryStr;
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + attendeeList[0];
+        break;
+      case 'actClass':
+        data.staffZoomURL && window.open(data.staffZoomURL)
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + ACT_CLASS_STUDENT_UID;
+        break;
+      case 'actStudyGroup':
+        data.staffZoomURL && window.open(data.staffZoomURL)
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + ACT_STUDY_GROUP_STUDENT_UID;
         break;
       case 'actFundamentals':
       case 'actComprehensive':
@@ -172,10 +193,10 @@ function eventClickHandler(info) {
         data.staffZoomURL && window.open(data.staffZoomURL)
         break;
       case 'mathProgram':
-        window.location.href = "../math-program.html" + queryStr;
+        window.location.href = "../math-program.html?student=" + attendeeList[0];
         break;
       case 'phonicsProgram':
-        window.location.href = "../phonics-program.html" + queryStr;
+        window.location.href = "../phonics-program.html?student=" + attendeeList[0];
         break;
       default:
     }
@@ -192,11 +213,8 @@ function availabilityCallback() {
   )
 }
 
-function getEvent(eventID) {
+function getEventDoc(eventID) {
   return firebase.firestore().collection('Events').doc(eventID).get()
-  .then(doc => {
-    return doc.data();
-  });
 }
 
 function getAllLocations() {

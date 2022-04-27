@@ -856,7 +856,7 @@ function getOpenTutors(openTimes, eventLength) {
 
     if (events.length > availabilities.length) {
       // we found a major error in the openings
-      console.log('openings error')
+      console.log('major openings error!!!')
       // alert('There is a major issue with the calendar. Contact the Lyrn developers immediately.')
     }
 

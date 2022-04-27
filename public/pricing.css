@@ -1067,12 +1067,6 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   grid-template-columns: 1fr;
 }
 
-#subjectTutoring .plans > .plan-wrapper {
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 .plan-wrapper {
   background-color: var(--color-primary);
   border-radius: 2em;

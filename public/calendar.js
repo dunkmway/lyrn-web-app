@@ -938,9 +938,13 @@ function initializeOpeningCalendar(events, initialDate = new Date()) {
       }
     },
 
-    eventClick: function(info) {
+    eventClick: async function(info) {
       //show which tutors are avaialble during this time
-      console.log(info.event.extendedProps.tutors)
+      const tutors = info.event.extendedProps.tutors
+      
+      // get the names of the tutors
+      const tutorsDocs = await Promise.all(tutors.map(tutorUID => firebase.firestore().collection('Users').doc(tutorUID).get()));
+      console.log(tutorsDocs.map(doc => doc.data().firstName + ' ' + doc.data().lastName))
     },
 
     events: events
@@ -1504,8 +1508,6 @@ async function getOpeningLocation(location, start, end, eventLength, recurringWe
       .filter(tutor =>  availabilities?.[tempStart]?.includes(tutor) ?? false)
       .filter(tutor => !events?.[tempStart]?.includes(tutor) ?? true);
 
-      console.log(openTutors)
-
       const eventData = {
         title: openTutors.length,
         start: tempStart,
@@ -1520,8 +1522,6 @@ async function getOpeningLocation(location, start, end, eventLength, recurringWe
       //increment the start to the next time slot
       start = tempEnd
     }
-
-    console.log({checkEvents})
 
     //we don't want to see the check events that don't have any tutor available (do it here first to get rid of the first week zeros - this is for optimizations)
     viewableCheckEvents = viewableCheckEvents.filter(event => event.title > 0)
@@ -2603,6 +2603,9 @@ function setupAddTest() {
   }
   calendar_mode = "addTest";
   main_calendar.setOption('selectable', true);
+
+  //add back in the types
+  addSelectOptions(document.getElementById('addTestType'), ['actTest', 'satTest'], ['ACT', 'SAT']);
 
   showAddTestWrapper();
   openCalendarSidebar();

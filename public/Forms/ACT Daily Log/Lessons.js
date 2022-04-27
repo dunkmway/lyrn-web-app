@@ -310,30 +310,31 @@ function updateLessonGraphics() {
       const dateInt = lessonData[section][lesson].date;
 
       const lessonElem = document.getElementById(id);
-
-      switch (status) {
-        case "review":
-          //lessonElem.style.backgroundColor = "red";
-          lessonElem.classList.add('red')
-          break;
-        case "proficient":
-          //lessonElem.style.backgroundColor = "yellow";
-          lessonElem.classList.add('yellow')
-          break;
-        case "mastered":
-          //lessonElem.style.backgroundColor = "green";
-          lessonElem.classList.add('green')
-          break;
-        default:
-          break;
-      }
-
-      if (dateInt != 0) {
-        const dateStr = convertFromDateInt(dateInt)['shortestDate']
-        lessonElem.innerHTML = dateStr;
-      }
-      else {
-        lessonElem.innerHTML = null;
+      if (lessonElem) {
+        switch (status) {
+          case "review":
+            //lessonElem.style.backgroundColor = "red";
+            lessonElem.classList.add('red')
+            break;
+          case "proficient":
+            //lessonElem.style.backgroundColor = "yellow";
+            lessonElem.classList.add('yellow')
+            break;
+          case "mastered":
+            //lessonElem.style.backgroundColor = "green";
+            lessonElem.classList.add('green')
+            break;
+          default:
+            break;
+        }
+  
+        if (dateInt != 0) {
+          const dateStr = convertFromDateInt(dateInt)['shortestDate']
+          lessonElem.innerHTML = dateStr;
+        }
+        else {
+          lessonElem.innerHTML = null;
+        }
       }
     }
   }

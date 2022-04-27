@@ -1462,8 +1462,6 @@ async function assignHomework() {
   // Disable the buttons until homework has been assigned
   let assign = document.getElementById('assign')
   let unassign = document.getElementById('unassign')
-  console.log(assign)
-  console.log(unassign)
   assign.disabled = true;
   unassign.disabled = true;
 
@@ -1564,15 +1562,20 @@ async function assignHomework() {
 }
 
 async function getNextLessonDoc() {
-  const lessonQuery = await firebase.firestore().collection('Events')
+  // find the student in attendees
+  const attendeeQuery = await firebase.firestore().collectionGroup('Attendees')
   .where('student', '==', CURRENT_STUDENT_UID)
-  .where('start', '>', new Date().getTime())
-  .where('type', 'in', ['actBasics', 'actGuided'])
-  .orderBy('start')
-  .limit(1)
   .get();
 
-  return lessonQuery.docs[0];
+  // get the corresponding events
+  const eventDocs = await Promise.all(attendeeQuery.docs.map(doc => doc.ref.parent.parent.get()));
+
+  // sort the events and filter by future events
+  const futureEventDocs = eventDocs
+  .sort((a,b) => a.data().start - b.data().start)
+  .filter(doc => doc.data().start > new Date().getTime())
+
+  return futureEventDocs[0];
 }
 
 function openTestList(section) {
