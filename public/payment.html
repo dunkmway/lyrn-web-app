@@ -65,7 +65,7 @@
 
               <!-- amount and such -->
             </div>
-            <!-- <div>
+            <div>
               <label>
                 Amount:
                 <input
@@ -74,6 +74,7 @@
                   type="number"
                   min="1"
                   max="99999999"
+                  step=".01"
                   value="0"
                   required
                 />
@@ -84,12 +85,12 @@
                   <option value="usd" selected>USD</option>
                 </select>
               </label>
-              <label>
+              <!-- <label>
                 Payoff remaining lessons
                 <input type="checkbox" name="payoff" id="payoff">
-              </label>
-            </div> -->
-            <!-- <button type="submit">Charge card</button> -->
+              </label> -->
+            </div>
+            <button type="submit">Charge card</button>
             <button type="button" id="save-card-button">Save card</button>
             <button type="button" id="payment-link-button">Send Payment Link</button>
             <button type="button" id="delete-card-button" style="display: none;">Delete card</button>

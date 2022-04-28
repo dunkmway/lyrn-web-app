@@ -346,7 +346,7 @@ function updateBalance() {
   })
 
   balance = totalPaymentAmount - totalChargeAmount;
-  // document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
+  document.querySelector('#payment-amount').value = balance < 0 ? balance / -100 : 0;
   const symbol = balance < 0 ? '🚨' : '✅';
   document.querySelector('#balance').textContent = `${symbol} ${formatAmount(balance, 'USD')}`;
 }

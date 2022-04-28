@@ -232,6 +232,15 @@ exports.updateInvoiceEvents = functions.firestore
     // check the payment type to determine what we need to do to the lessons
     if (newValues.paymentType == 'one-time') {
       console.log('one-time')
+      // charge their account the deposit amount
+      const depositAmount = ((newValues.events.length > 1 ? 2 : 1) * newValues.sessionPrice * (100 - newValues.percentageOff - 10) / 100)
+      await admin.firestore().collection('stripe_customers').doc(newValues.parent).collection('charges').add({
+        currency: 'usd',
+        amount: formatAmountForStripe(depositAmount, 'usd'),
+        title: `${newValues.programName} initial deposit`,
+        created: new Date().getTime()
+      });
+
       // these evetns should be in time order
       const events = newValues.events;
       let batch = admin.firestore().batch();
@@ -267,6 +276,15 @@ exports.updateInvoiceEvents = functions.firestore
     }
     else if (newValues.paymentType == 'recurring') {
       console.log('recurring')
+      // charge their account the deposit amount
+      const depositAmount = ((newValues.events.length > 1 ? 2 : 1) * newValues.sessionPrice * (100 - newValues.percentageOff) / 100)
+      await admin.firestore().collection('stripe_customers').doc(newValues.parent).collection('charges').add({
+        currency: 'usd',
+        amount: formatAmountForStripe(depositAmount, 'usd'),
+        title: `${newValues.programName} initial deposit`,
+        created: new Date().getTime()
+      });
+
       // these evetns should be in time order
       const events = newValues.events;
       let batch = admin.firestore().batch();
@@ -369,6 +387,31 @@ exports.updateInvoiceEvents = functions.firestore
 
   return;
 });
+
+// Format amount for Stripe
+function formatAmountForStripe(amount, currency) {
+  return zeroDecimalCurrency(amount, currency)
+    ? amount
+    : Math.round(amount * 100);
+}
+
+// Check if we have a zero decimal currency
+// https://stripe.com/docs/currencies#zero-decimal
+function zeroDecimalCurrency(amount, currency) {
+  let numberFormat = new Intl.NumberFormat(['en-US'], {
+    style: 'currency',
+    currency: currency,
+    currencyDisplay: 'symbol',
+  });
+  const parts = numberFormat.formatToParts(amount);
+  let zeroDecimalCurrency = true;
+  for (let part of parts) {
+    if (part.type === 'decimal') {
+      zeroDecimalCurrency = false;
+    }
+  }
+  return zeroDecimalCurrency;
+}
 
 exports.checkInvoices = functions.pubsub.schedule('55 23 * * *').timeZone('America/Denver').onRun(async (context) => {
   // get all of the invoices that expired before this point and are still pending
