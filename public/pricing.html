@@ -73,7 +73,7 @@
 
     <!-- start banner -->
     <div class="banner">
-      <p>Get started today and recieve your <strong>first lesson free!</strong> Click for details.</p>
+      <p>Get started with <strong>2 free</strong> ACT tests. Click for details.</p>
     </div>
     <div class="modal" id="firstSessionFreeModal">
       <div class="modal-body">
@@ -82,11 +82,11 @@
             <path d="M10,10 L22,22 M22,10 L10,22"></path>
           </svg>
         </div>
-        <h1>First session <span class="accent">free!</span></h1>
-        <h2>up to a <span class="accent">$150</span> value</h2>
-        <p>When you sign up for one of our ACT programs.</p>
-        <p>Enter your email to get a promo code to use when scheduling your program.</p>
-        <input type="email" placeholder="tutoring@lyrn.com">
+        <h1>2 tests <span class="accent">free!</span></h1>
+        <h2>8 sections timed tests</h2>
+        <p>Use our custom test taker to practice before the test.</p>
+        <p>Enter your email so we can send you your custom link to take the tests.</p>
+        <input type="email" placeholder="email">
         <p class="error"></p>
         <button class="submit">Ready to Lyrn</button>
       </div>
@@ -226,13 +226,17 @@
         <div class="program-selector">
           <h3>I'm looking for</h3>
           <div class="selection-wrapper">
-            <input type="radio" name="program-selection" id="classes" onclick=openProgram(event) checked>
+            <input type="radio" name="program-selection" id="previews" onclick=openProgram(event) checked>
+            <label for="previews">Program Previews</label>
+            <p>FREE 30 minute session to go over a curriculum topic with one of our amazing tutors.</p>
+
+            <input type="radio" name="program-selection" id="classes" onclick=openProgram(event)>
             <label for="classes">Classes</label>
             <p>Affordable option for raising your score in the least amount of time.</p>
 
-            <input type="radio" name="program-selection" id="study-groups" onclick=openProgram(event)>
+            <!-- <input type="radio" name="program-selection" id="study-groups" onclick=openProgram(event)>
             <label for="study-groups">Study Groups</label>
-            <p>Smaller group size means our tutors can focus more on your student.</p>
+            <p>Smaller group size means our tutors can focus more on your student.</p> -->
 
             <input type="radio" name="program-selection" id="one-on-one" onclick=openProgram(event)>
             <label for="one-on-one">One-on-One</label>
@@ -240,8 +244,148 @@
           </div>
         </div>
 
+        <!-- previews -->
+        <div class="program previews open">
+          <h2>Get a better idea what a Lyrn lesson looks like.</h2>
+          <h4>Choose a section you want to work the most on</h4>
+          
+          <div class="plans">
+            <!-- English -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>English</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!--Math -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Math</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Reading -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Reading</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Science -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Science</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_previews" class="faq_toggle">
+              <label for="faq_0_previews" class="summary"><h3>What is a program preview?</h3></label>
+              <div class="content">
+                <p>
+                  Programs are a great way to get try out our programs before starting. You get 30 minutes with one of our amazing tutors who will
+                  teach a topic from our curriculum that appears most frequently on the ACT. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_previews" class="faq_toggle">
+              <label for="faq_1_previews" class="summary"><h3>How many previews can I sign up for?</h3></label>
+              <div class="content">
+                <p>
+                  You can sign up for one preview for each section depending on openings.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
         <!-- classes -->
-        <div class="program classes open">
+        <div class="program classes">
           <h2>Need a quick boost to your score?</h2>
           <h4>Choose a class that helps you reach your goals</h4>
           <p><span class="accent">Bundle and save!</span> Sign up for multiple classes and get 5% off your total for each additional class.</p>
@@ -286,7 +430,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>
@@ -324,7 +468,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>
@@ -362,7 +506,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>
@@ -400,7 +544,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>
@@ -544,7 +688,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>
@@ -584,7 +728,7 @@
               </button> -->
               <button class="select">
                 <a href="tel:+13853000906">
-                  <p>Call to check availability</p>
+                  <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
                 </a>
               </button>

@@ -118,7 +118,7 @@ function bannerSetup() {
 
     submit.disabled = true;
     submit.classList.add('loading');
-    submit.textContent = 'Sending promo'
+    submit.textContent = 'Sending practice tests'
     error.textContent = '';
 
     if (!isEmailValid(email.value)) {
@@ -129,11 +129,11 @@ function bannerSetup() {
       return;
     }
 
-    await sendLeadRequest(email.value, 'ACT-firstSessionFree', 'pricing');
+    await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
     submit.disabled = false;
     submit.classList.remove('loading');
-    submit.textContent = 'Promo sent!'
+    submit.textContent = 'Practice tests sent!'
   })
 }
 

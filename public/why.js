@@ -40,7 +40,7 @@ function bannerSetup() {
 
     submit.disabled = true;
     submit.classList.add('loading');
-    submit.textContent = 'Sending promo...'
+    submit.textContent = 'Sending practice tests'
     error.textContent = '';
 
     if (!isEmailValid(email.value)) {
@@ -51,11 +51,11 @@ function bannerSetup() {
       return;
     }
 
-    await sendLeadRequest(email.value, 'ACT-firstSessionFree', 'why');
+    await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
     submit.disabled = false;
     submit.classList.remove('loading');
-    submit.textContent = 'Promo sent!'
+    submit.textContent = 'Practice tests sent!'
   })
 }
 
@@ -65,6 +65,17 @@ function isEmailValid(email) {
 
 async function sendLeadRequest(email, type, page) {
   let response = await firebase.functions().httpsCallable('home-sendLeadRequest')({
+    email,
+    type,
+    page,
+    timestamp: new Date()
+  });
+
+  return response.data
+}
+
+async function sendPracticeTestRequest(email, type, page) {
+  let response = await firebase.functions().httpsCallable('home-sendPracticeTestRequest')({
     email,
     type,
     page,

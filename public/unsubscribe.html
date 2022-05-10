@@ -20,7 +20,7 @@
 
     <script src="Site Templates/generalFunctions.js" defer></script>
     <script defer>
-      async function unsubscribe() {
+      function initialSetup() {
         const firebaseConfig = {
           apiKey: "AIzaSyD8GSMZzjbubQ7AGcQKIV-enpDYpz_07mo",
           authDomain: "lyrn-web-app.firebaseapp.com",
@@ -40,21 +40,39 @@
           '6LejnxEdAAAAAE01TS3gbg8dFJHw6dPgWv3YJBnK',
           true
         )
+      }
+
+      async function unsubscribe() {
+        document.getElementById('submit').disabled = true;
+        if (!isEmailValid(document.getElementById('unsubscribeEmail').value)) {
+          document.querySelector('p').textContent = `This is not a valid email.`;
+          document.getElementById('submit').disabled = false;
+          return;
+        }
 
         try {
           await firebase.functions().httpsCallable('home-unsubscribe')({
-            q: queryStrings().q
+            email: document.getElementById('unsubscribeEmail').value
           });
 
           document.querySelector('p').textContent = `You will no longer receive marketing communications from Lyrn.`;
+          document.getElementById('submit').disabled = false;
         }
         catch (error) {
           document.querySelector('p').textContent = `We're having issues. Please try again.`;
+          document.getElementById('submit').disabled = false;
         }
+      }
+
+      function isEmailValid(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       }
     </script>
   </head>
-  <body onload="unsubscribe()">
-    <p>We're removing you now...</p>
+  <body onload="initialSetup()">
+    <label for="unsubscribeEmail">Email to be removed from our lists</label>
+    <input type="email" name="email" id="unsubscribeEmail">
+    <button id="submit" onclick="unsubscribe()">Submit</button>
+    <p></p>
   </body>
 </html>

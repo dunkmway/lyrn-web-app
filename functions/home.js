@@ -58,17 +58,11 @@ exports.unsubscribe = functions.https.onCall(async (data, context) => {
     )
   }
 
-  if (!data.q) { return };
-  const leadDoc = await admin.firestore().collection('Leads')
-  .doc(data.q)
-  .get();
-
-  const email = leadDoc.data().email;
-  const query = await admin.firestore().collection('Leads')
-  .where('email', '==', email)
-  .get();
-
-  await Promise.all(query.docs.map(doc => doc.ref.delete()));
+  if (!data.email) { return };
+  await admin.firestore().collection('Unsubscribe').doc().set({
+    email: data.email,
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  })
 
   return;
 });

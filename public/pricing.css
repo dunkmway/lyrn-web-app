@@ -1234,6 +1234,10 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   .intro-wrapper .feature-wrapper ul {
     margin: 0px 3em;
   }
+
+  #act .program.previews .plans {
+    grid-template-columns: repeat(4, 1fr);
+  }
   
   #act .program.classes .plans {
     grid-template-columns: repeat(4, 1fr);
