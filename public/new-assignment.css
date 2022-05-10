@@ -1,0 +1,55 @@
+main {
+  padding: 2em;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.input {
+  display: block;
+  margin: 0em 0em 1em;
+  border: 2px solid slategray;
+  padding: .5em 1em;
+}
+
+button {
+  cursor: pointer;
+}
+
+#nameSearch {
+  width: 200px;
+  margin-bottom: 0em;
+}
+
+#nameSearch[data-value] {
+  border-color: green;
+}
+
+#nameSearchResults {
+  margin-bottom: 1em;
+  position: absolute;
+  background-color: white;
+  visibility: hidden;
+}
+
+#nameSearch:focus + #nameSearchResults {
+  visibility: visible;
+}
+
+.search-result {
+  width: 200px;
+  cursor: pointer;
+  padding: .5em 1em;
+  border-top: 1px solid slategray;
+  border-inline: 1px solid slategray;
+  border-bottom: none;
+}
+
+.search-result:last-child {
+  border-top: 1px solid slategray;
+}
+
+.search-result:last-child {
+  border-bottom: 1px solid slategray;
+}
