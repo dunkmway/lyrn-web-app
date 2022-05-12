@@ -262,7 +262,10 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
 function sendPracticeTestEmail(email, leadID) {
   const msg = {
     to: email,
-    from: 'contact@lyrnwithus.com',
+    from: {
+      email: 'contact@lyrnwithus.com',
+      name: 'Lyrn Contact'
+    },
     subject: 'Full Length ACT Tests',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
     To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${leadID}
