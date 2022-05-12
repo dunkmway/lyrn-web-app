@@ -248,3 +248,25 @@ async function sendPracticeTestRequest(email, type, page) {
 
   return response.data
 }
+
+let questionnairePath = [0];
+
+function goForwardToQuestion(nextQuestion) {
+  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`);
+  const next = document.getElementById(`question_${nextQuestion}`);
+
+  current.classList.add('closed');
+  next.classList.add('open');
+
+  questionnairePath.push(nextQuestion);
+}
+
+function goBackAQuestion() {
+  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`);
+  const previous = document.getElementById(`question_${questionnairePath[questionnairePath.length - 2]}`);
+
+  current.classList.remove('open');
+  previous.classList.remove('closed');
+
+  questionnairePath.pop();
+}

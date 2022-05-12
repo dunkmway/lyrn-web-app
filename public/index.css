@@ -1349,15 +1349,18 @@ nav a:hover {
   background-color: var(--color-primary);
   color: var(--color-tertiary);
   text-align: center;
+  border-bottom: 8px solid var(--color-green);
 }
 
 .tutors .title {
-  color: var(--color-accent-1-deep);
+  color: var(--color-green);
 }
 
 .tutors .breakdown {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  row-gap: 2em;
+  margin-top: 2em;
 }
 
 .tutors .breakdown div {
@@ -1366,10 +1369,6 @@ nav a:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.tutors .breakdown .act-logo {
-  grid-column: 1 / 3;
 }
 
 .tutors .breakdown h2 {
@@ -1383,11 +1382,7 @@ nav a:hover {
 
 @media screen and (min-width: 800px) {
   .tutors .breakdown {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-
-  .tutors .breakdown .act-logo {
-    grid-column: 1 / 2;
+    grid-template-columns: 1fr 1fr;
   }
 
   .tutors .breakdown img {
@@ -1698,6 +1693,107 @@ nav a:hover {
   background-repeat: no-repeat;
   background-size: cover;
   height: 25vh;
+}
+
+/* Questionnaire section */
+.questionnaire {
+  background-color: white;
+  border: 1em solid var(--color-green);
+  overflow: hidden;
+  min-height: 400px;
+  position: relative;
+}
+
+.questionnaire .panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.questionnaire .question {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 512px;
+  transition: all 200ms ease-in;
+  transform: translateX(calc(100vw - 50%));
+  visibility: hidden;
+  position: absolute;
+  left: 50%;
+}
+
+.questionnaire .question.open {
+  transform: translateX(calc(0vw - 50%));
+  visibility: visible;
+}
+
+.questionnaire .question.open.closed {
+  transform: translateX(calc(-100vw - 50%));
+  visibility: hidden;
+}
+
+.questionnaire .question .text {
+  text-align: center;
+}
+
+.questionnaire .question .option {
+  display: block;
+  padding: .5em 1em;
+  background-color: var(--color-green);
+  color: white;
+  border: 2px solid transparent;
+  border-radius: .5em;
+  font-size: 1.5em;
+  width: 100%;
+  margin-bottom: .5em;
+  cursor: pointer;
+}
+
+.questionnaire .question .option:hover {
+  border-color: var(--color-green);
+  color: var(--color-green);
+  background-color: white;
+}
+
+.questionnaire .panel .back {
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color: black;
+  font-size: 1em;
+  display: none;
+}
+
+.questionnaire .panel .question.open + .back {
+  display: block;
+}
+
+.questionnaire .panel .back:active {
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  font-size: 1em;
+}
+
+.questionnaire .panel .back::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid black;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  transform: rotate(45deg);
+
 }
 
 /* footer */
