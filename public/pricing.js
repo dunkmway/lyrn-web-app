@@ -317,7 +317,7 @@ let currentProgramDetails = {
 
 async function checkProgramInitialSetup() {
   // set the check availability buttons into a loading state
-  document.querySelectorAll('button.select').forEach(button => {
+  document.querySelectorAll('.one-on-one button.select').forEach(button => {
     button.disabled = true;
   })
 
@@ -335,7 +335,7 @@ async function checkProgramInitialSetup() {
   }
 
   // unset the check availability buttons into a loading state
-  document.querySelectorAll('button.select').forEach(button => {
+  document.querySelectorAll('.one-on-one button.select').forEach(button => {
     button.disabled = false;
   })
 }
