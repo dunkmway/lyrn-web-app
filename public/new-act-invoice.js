@@ -156,6 +156,42 @@ async function submitInvoice() {
   document.querySelectorAll('button').forEach(button => button.disabled = false);
 }
 
+async function submitConfirmation() {
+  document.querySelectorAll('button').forEach(button => button.disabled = true);
+  const events = getDropdownValues('eventList');
+
+  if (events.length == 0) {
+    alert('choose events first')
+    document.querySelectorAll('button').forEach(button => button.disabled = false);
+    return
+  }
+
+  const eventData = master_events
+  .filter(event => events.includes(event.id))
+  .sort((a,b) => a.start - b.start);
+
+  const [
+    studentDoc,
+    parentDoc
+  ] = await Promise.all([
+    firebase.firestore().collection('Users').doc(CURRENT_STUDENT).get(),
+    firebase.firestore().collection('Users').doc(CURRENT_PARENT).get()
+  ])
+
+  const confirmation = {
+    studentName: studentDoc.data().firstName + ' ' + studentDoc.data().lastName,
+    parentName: parentDoc.data().firstName + ' ' + parentDoc.data().lastName,
+    events: eventData
+  }
+
+  await sendConfirmationEmail(parentDoc.data().email, confirmation);
+
+  Toastify({
+    text: 'Confirmation has been sent!'
+  }).showToast();
+  document.querySelectorAll('button').forEach(button => button.disabled = false);
+}
+
 function getDropdownValues(dropdownId) {
   const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
   
@@ -186,6 +222,15 @@ async function sendInvoiceEmail(email, invoice) {
   let response = await firebase.functions().httpsCallable('act_sign_up-sendInvoiceEmail')({
     email,
     invoice
+  });
+
+  return response.data
+}
+
+async function sendConfirmationEmail(email, confirmation) {
+  let response = await firebase.functions().httpsCallable('act_sign_up-sendConfirmationEmail')({
+    email,
+    confirmation
   });
 
   return response.data
