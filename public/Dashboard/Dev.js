@@ -1,5 +1,6 @@
 setLeadsTable();
 setPracticeTestTable();
+setUnsubscribeTable();
 setErrorTable();
 setFeedbackTable();
 
@@ -89,6 +90,36 @@ function setPracticeTestTable() {
       const row = leadsTable.row(event.target).index();
       let docUID = tableData[row].docUID;
       window.open(`../test-taker?student=${docUID}`, '_blank')
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
+
+function setUnsubscribeTable() {
+  let tableData = [];
+  const unsubscribeCollectionRef = firebase.firestore().collection("Unsubscribe");
+  unsubscribeCollectionRef.get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      let unsubscribeData = {
+        docUID : doc.id,
+        Email : data.email,
+        Time : convertFromDateInt(data.createdAt.toDate().getTime()).longDate,
+      }
+      tableData.push(unsubscribeData);
+    });
+
+    let unsubscribeTable = $('#unsubscribe-table').DataTable({
+      data: tableData,
+      columns: [
+        { data: 'Email' },
+        { data: 'Time' },
+      ],
+      "autoWidth": false,
+      "pageLength" : 10,
     });
   })
   .catch((error) => {
