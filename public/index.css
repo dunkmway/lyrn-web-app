@@ -1350,10 +1350,17 @@ nav a:hover {
   color: var(--color-tertiary);
   text-align: center;
   border-bottom: 8px solid var(--color-green);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tutors .title {
   color: var(--color-green);
+}
+
+.tutors .description {
+  max-width: 400px;
 }
 
 .tutors .breakdown {
@@ -1361,6 +1368,8 @@ nav a:hover {
   grid-template-columns: 1fr;
   row-gap: 2em;
   margin-top: 2em;
+  width: 100%;
+  justify-items: center;
 }
 
 .tutors .breakdown div {
@@ -1369,6 +1378,11 @@ nav a:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: var(--color-blue);
+  border-radius: .5em;
+  width: 50%;
+  padding: .5em 1em;
+  color: white;
 }
 
 .tutors .breakdown h2 {
