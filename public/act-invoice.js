@@ -308,7 +308,7 @@ function setupSaveInvoice() {
   `
   const amountDueAmount = document.createElement('p');
   amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + ((invoiceData.events.length > 1 ? 2 : 1) * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100).toFixed(2);
+  amountDueAmount.textContent = '$' + ((invoiceData.events.length > 1 ? 2 : 1) * invoiceData.sessionPrice * (100 - (invoiceData.percentageOff ?? 0)) / 100).toFixed(2);
   invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
 }
  
