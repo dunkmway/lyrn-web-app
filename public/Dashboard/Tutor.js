@@ -176,11 +176,11 @@ function eventClickHandler(info) {
       case 'actBasics':
       case 'actGuided':
         data.staffZoomURL && window.open(data.staffZoomURL)
-        window.open("../Forms/ACT Daily Log/Daily Log.html?student=" + attendeeList[0]);
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + attendeeList[0];
         break;
       case 'actClass':
         data.staffZoomURL && window.open(data.staffZoomURL)
-        window.open("../Forms/ACT Daily Log/Daily Log.html?student=" + ACT_CLASS_STUDENT_UID);
+        window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + ACT_CLASS_STUDENT_UID;
         break;
       case 'actStudyGroup':
       case 'actFundamentals':
