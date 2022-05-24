@@ -450,6 +450,9 @@ function selectDisplay(id, spacing = '') {
 		document.getElementById('modifier').parentNode.style = ''
 		initializeQuestionsDisplay(undefined, undefined, undefined, undefined, spacing + spaceSize)
 	}
+	else if (id == 'curriculumDisplay') {
+		initializeCurriculumDisplay();
+	}
 
 }
 
@@ -1555,6 +1558,27 @@ async function savePassage(spacing = '') {
 	}
 }
 
+async function saveCurriculum() {
+	// get the current topic
+	const topicID = document.getElementById('curriculumTopic').value;
+
+	if (!topicID) {
+		alert('You are missing the curriclum topic.');
+		return;
+	}
+
+	await firebase.firestore()
+	.collection('Dynamic-Content')
+	.doc('curriculum-topics')
+	.collection('Topics')
+	.doc(topicID)
+	.update({
+		curriculum: document.getElementById('curriculumText').value
+	})
+
+	return;
+}
+
 /**
  * This will setup the display to edit passages
  * 
@@ -1784,6 +1808,66 @@ async function initializeTests(id, spacing = '') {
 		dom_test.appendChild(createElement('option', [], ['value'], [tests[i]], tests[i]))
 	}
 
+}
+
+async function initializeCurriculumDisplay() {
+	// clear the currciculum text
+	document.getElementById('curriculumText').value = null;
+
+	// set the section to english
+	document.getElementById('curriculumSection').value = 'english';
+
+	// add the english topics to the topics select along with a default
+	const englishTopicDocs = await getTopicsBySection('english');
+	const englishTopicList = englishTopicDocs
+	.map(doc => {
+		return {
+			topic: doc.data().topic,
+			id: doc.id
+		}
+	})
+	.sort((a,b) => (a.topic < b.topic ? -1 : (a.topic > b.topic ? 1 : 0)))
+
+	const topicArray = englishTopicList.map(object => object.topic);
+	const idArray = englishTopicList.map(object => object.id);
+
+	removeChildren('curriculumTopic');
+	addSelectOptions(document.getElementById('curriculumTopic'), ['', ...idArray], ['select a topic', ...topicArray]);
+}
+
+/**
+ * Get the array of firebase docs for all topics of a specific section
+ * 
+ * @param {String} section section to get topics for
+ * @returns {Promise<FirebaseDoc[]>} 
+ */
+async function getTopicsBySection(section) {
+	const query = await firebase.firestore()
+	.collection('Dynamic-Content')
+	.doc('curriculum-topics')
+	.collection('Topics')
+	.where('section', '==', section)
+	.where('type', '==', 'topic')
+	.get();
+
+	return query.docs
+}
+
+/**
+ * Get the firebase doc for the given topic
+ * 
+ * @param {String} topicID topic to get
+ * @returns {Promise<FirebaseDoc>}
+ */
+ async function getTopicByID(topicID) {
+	const query = await firebase.firestore()
+	.collection('Dynamic-Content')
+	.doc('curriculum-topics')
+	.collection('Topics')
+	.doc(topicID)
+	.get();
+
+	return query;
 }
 
 /**
@@ -2281,6 +2365,21 @@ function setPassageText(data, spacing = '') {
 	resetMathJax(spacing + spaceSize)
 }
 
+function setPassageTextSimple(str, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'setPassageTextSimple()', data)
+	}
+
+	// Remove the current elements
+	removeChildren('pText', spacing + spaceSize)
+
+	let dom_passage = document.getElementById('pText');
+	dom_passage.innerHTML = str;
+
+	// Reset the MathJax
+	resetMathJax(spacing + spaceSize)
+}
+
 /**
  * This will return the text that has been selected
  * 
@@ -2630,6 +2729,61 @@ dom_questions.addEventListener('input', async function(event) {
 
 })
 
+let dom_curriculumText = document.querySelector('#curriculumText')
+dom_curriculumText.addEventListener('input', function (event) {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+	}
+
+	// Correct text
+	if (!event.target.id.toLowerCase().includes('image')) {
+		if (event.target.id.includes('PassageText')) {
+			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		}
+		else {
+			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+		}
+	}
+
+	// Update the bottom display
+	setPassageTextSimple(event.target.value, spaceSize);
+})
+
+let dom_curriculumSection = document.querySelector('#curriculumSection')
+dom_curriculumSection.addEventListener('change', async (event) => {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+	}
+
+	const topicDocs = await getTopicsBySection(event.target.value);
+	const topicList = topicDocs
+	.map(doc => {
+		return {
+			topic: doc.data().topic,
+			id: doc.id
+		}
+	})
+	.sort((a,b) => (a.topic < b.topic ? -1 : (a.topic > b.topic ? 1 : 0)))
+
+	const topicArray = topicList.map(object => object.topic);
+	const idArray = topicList.map(object => object.id);
+
+	removeChildren('curriculumTopic');
+	addSelectOptions(document.getElementById('curriculumTopic'), ['', ...idArray], ['select a topic', ...topicArray]);
+	document.getElementById('curriculumText').value = '';
+	document.getElementById('curriculumText').dispatchEvent(new Event('input'));
+})
+
+let dom_curriculumTopic = document.querySelector('#curriculumTopic')
+dom_curriculumTopic.addEventListener('change', async (event) => {
+	if (debug == true) {
+		console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+	}
+
+	const topicDoc = await getTopicByID(event.target.value);
+	document.getElementById('curriculumText').value = topicDoc.data().curriculum ?? null;
+	document.getElementById('curriculumText').dispatchEvent(new Event('input'));
+})
 
 
 

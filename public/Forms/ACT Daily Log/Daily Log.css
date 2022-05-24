@@ -1414,6 +1414,7 @@ span:hover + .wrap a, .wrap:hover a{
   color: white;
   padding: 24px;
   width: auto;
+  max-width: 40%;
   height: 70%;
   border-radius: 10px;
   overflow-y: auto;
@@ -1421,6 +1422,20 @@ span:hover + .wrap a, .wrap:hover a{
 
 #topicQuestionContainer h1 {
   text-decoration: underline;
+  font-size: 2em;
+}
+
+#topicQuestionContainer .curriculum-container h2 {
+  font-size: 24px;
+}
+
+#topicQuestionContainer .curriculum-container p {
+  font-size: 18px;
+  margin-bottom: 1em;
+}
+
+#topicQuestionContainer .curriculum-container li {
+  font-size: 18px;
 }
 
 #topicQuestionContainer .test-container {

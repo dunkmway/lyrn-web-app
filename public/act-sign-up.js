@@ -1165,7 +1165,7 @@ async function submit() {
 
   // send out the invoice
   const invoice = await generateInvoice(eventIDs, currentProgramDetails.start);
-  await sendInvoiceEmail(currentProgramDetails.contact.parent.email, invoice);
+  await sendInvoiceEmail(currentProgramDetails.contact.parent.email, currentProgramDetails.firstTutors, invoice);
 
   // save the program to the student's act profile
   await saveStudentProgram();
@@ -1193,6 +1193,14 @@ async function setCalendarEvents(studentUID, parentUID) {
   // determine the tutors to teach each lesson
   const assignedLessons = determineTutorToAssign([], lessonTimes)
   console.log(assignedLessons)
+
+  // pull out the first tutors so we can show the student who they are
+  currentProgramDetails.firstTutors = assignedLessons.reduce((prev, curr) => {
+    if(!prev[curr.lessonType]) {
+      prev[curr.lessonType] = curr.tutor;
+    }
+    return prev;
+  }, {})
 
   // create the final form of the event
   const calendarEvents = assignedLessons.map(lesson => {
@@ -1856,9 +1864,10 @@ async function addStudentWithoutEmail(firstName, lastName, parentUID) {
   return response.data
 }
 
-async function sendInvoiceEmail(email, invoice) {
+async function sendInvoiceEmail(email, firstTutors, invoice) {
   let response = await firebase.functions().httpsCallable('act_sign_up-sendInvoiceEmail')({
     email,
+    firstTutors,
     invoice
   });
 

@@ -66,6 +66,7 @@
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
         <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
         <button onclick = 'selectDisplay("questionsDisplay")'>Add Question</button>
+        <button onclick = 'selectDisplay("curriculumDisplay")'>Add Curriculum</button>
       </div>
 
 
@@ -482,6 +483,52 @@
 
         </div>
 
+      </div>
+
+      <!-- Curriculum -->
+      <div id = 'curriculumDisplay' class = 'columns hidden'>
+        <!-- Labels -->
+        <div class = 'rows'>
+          <!-- Section -->
+          <label for="curriculumSection" class = 'mainLabel'>Section</label>
+
+          <!-- Passage -->
+          <label for="curriculumTopic" class = 'mainLabel'>Topic</label>
+
+          <!-- Back Button -->
+          <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+        </div>
+      
+
+        <!-- Inputs -->
+        <div class = 'rows'>
+          <!-- Section -->
+          <select id="curriculumSection" class = 'mainInput'>
+            <option value="english">English</option>
+            <option value="math">Math</option>
+            <option value="reading">Reading</option>
+            <option value="science">Science</option>
+          </select>
+
+          <!-- Topic -->
+          <select id="curriculumTopic" class = 'mainInput'>
+          </select>
+
+          <!-- Save Test Button -->
+          <button onclick="saveCurriculum()" class = 'mainInput'>Save Curriculum</button>
+        </div>
+
+        <!-- Curriculum Info -->
+        <div id = 'curriculumSection' class = 'sectionPassage'>
+          <div class='columns'>
+            <div class='rows'>
+              <div>
+                <label for="curriculumText" id='curriculumTextLabel'>Curriculum</label>
+              </div>
+              <textarea class = 'textArea' placeholder="Type curriculum here" id='curriculumText'></textarea>
+            </div>
+          </div>
+        </div>
       </div>
           
     </div>

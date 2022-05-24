@@ -110,7 +110,7 @@ exports.addStudentWithoutEmail = functions.https.onCall(async (data, context) =>
 });
 
 exports.sendInvoiceEmail = functions.https.onCall(async (data, context) => {
-  return await sendInvoiceEmail(data.email, data.invoice);
+  return await sendInvoiceEmail(data.email, data.firstTutors, data.invoice);
 });
 
 exports.sendReserveEmail = functions.https.onCall(async (data, context) => {
@@ -457,15 +457,25 @@ async function sendFailedInvoiceEmail(userUID, invoiceID) {
   return;
 }
 
-async function sendInvoiceEmail(email, invoiceID) {
-  // get the invocie doc
-  const invoiceDoc = await admin.firestore().collection('ACT-Invoices').doc(invoiceID).get();
+async function sendInvoiceEmail(email, firstTutors, invoiceID) {
+  // we need to determine any overlap for the firstTutors
+  // make the tutor the key and the value an array of sections they are teaching
+  let tutorSections = {};
+  for (const section in firstTutors) {
+    if (!tutorSections[firstTutors[section]]) {
+      tutorSections[firstTutors[section]] = [];
+    }
+    tutorSections[firstTutors[section]].push(section.charAt(0).toUpperCase() + section.slice(1));
+  }
 
-  // get the tutor from the first lesson
-  const eventDoc = await admin.firestore().collection('Events').doc(invoiceDoc.data().events[0]).get();
+  // convert the tutor section arrays to their string equavalent grammatically correct
+  let tutorSectionStr = {};
+  for (const tutor in tutorSections) {
+    tutorSectionStr[tutor] = convertArrayToListString(tutorSections[tutor], 'and');
+  }
 
   let tutorHTML = '';
-  await Promise.all(eventDoc.data().staff.map(async (tutor) => {
+  for (const tutor in tutorSectionStr) {
     // we need to get their user doc for their full name and bio
     // their image can be found at /Images/tutor/{tutor full name hyphenated}.jpg
     const tutorDoc = await admin.firestore().collection('Users').doc(tutor).get();
@@ -477,13 +487,13 @@ async function sendInvoiceEmail(email, invoiceID) {
         <td style="vertical-align: top;padding: 30px 0px 30px 0px;">
           <img src="https://lyrnwithus.com/Images/tutors/${tutorURL}.jpg" alt="tutor" style="width: 200px; float: left; margin-right: 1em;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;"> ${tutorName} </h2>
-          <h3>Teaching ${eventDoc.data().subtype.charAt(0).toUpperCase() + eventDoc.data().subtype.slice(1)}</h3>
+          <h3>Teaching ${tutorSectionStr[tutor]}</h3>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${bio || ''}</p>
         </td>
       </tr>
     `
     tutorHTML += tutorRow;
-  }));
+  }
 
   const msg = {
     to: email, // Change to your recipient

@@ -70,10 +70,10 @@
     </header>
 
     <!-- start banner -->
-    <div class="banner">
+    <div class="banner" id="practiceTest_banner">
       <p>Get started with <strong>2 free</strong> ACT tests. Click for details.</p>
     </div>
-    <div class="modal">
+    <div class="modal" id="practiceTest_modal">
       <div class="modal-body">
         <div class="close">
           <svg viewbox="0 0 32 32">
@@ -86,7 +86,27 @@
         <p>Enter your email so we can send you your custom link to take the tests.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit">Ready to Lyrn</button>
+        <button class="submit" onclick="submitPracticeTestRequest(event)">Ready to Lyrn</button>
+      </div>
+    </div>
+
+    <div class="banner" id="lessonSeries_banner">
+      <p>Get started with <strong>12 free</strong> ACT lessons. Click for details.</p>
+    </div>
+    <div class="modal" id="lessonSeries_modal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h1>12 lessons <span class="accent">free!</span></h1>
+        <h2>Lessons with example problems</h2>
+        <p>Our ACT lesson series covers the same topics as our programs.</p>
+        <p>Enter your email so we can send you your custom lesson series.</p>
+        <input type="email" placeholder="email">
+        <p class="error"></p>
+        <button class="submit" onclick="submitLessonSeriesRequest(event)">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -279,6 +299,88 @@
                 I'm from Provo Utah, born and raised! I am currently attending the Utah Valley University studying English Education. 
                 After college I want to teach English as a foreign language in other countries. 
                 I love to travel, bake, and play video games!
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img src="Images/tutors/Andrew-Bouc.jpg" alt="Avatar">
+            </div>
+            <div class="flip-card-back">
+              <h1>Andrew Bouc</h1> 
+              <p>
+                Hi! I'm Andrew Bouc (pronounced like an oak tree with a “b” in front - “b-oak”). 
+                I grew up in a suburb north of Chicago, but recently moved down to a suburb south of Dallas. 
+                I can't let go of suburbia! I'm studying mechanical engineering at BYU in hopes of one day working in robotics and clean energy. 
+                I love cooking and fitness. In particular have been into weightlifting the past few years. 
+                I also played soccer and raced on the XC and track teams. 
+                School isn't as awful as you may think - it can be really cool to understand the world around us!
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img src="Images/tutors/Gary-Brede.jpg" alt="Avatar">
+            </div>
+            <div class="flip-card-back">
+              <h1>Gary Brede</h1> 
+              <p>
+                I was born in Draper, Utah, but moved out to Aiken, South Carolina a few days after I graduated from Lone Peak High School. 
+                I've nearly completed a bachelor's degree in math education at Brigham Young University, and once 
+                I graduate I'm looking at teaching Geometry or Calculus. I spend most of my free time swimming, 
+                designing video games/board games, and hiking. I'm also a really good cook, and specialize in classical 
+                Italian dishes and Southern barbecue. My favorite food, however, is sushi, and in particular, fried eel rolls. 
+                I'm excited for the opportunity to tutor you!
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img src="Images/tutors/Shep-Cash.jpg" alt="Avatar">
+            </div>
+            <div class="flip-card-back">
+              <h1>Shep Cash</h1> 
+              <p>
+                I am originally from Lehi, but I am living in Provo. I'm currently attending UVU and studying English Education.
+                My goal is to be a high school English teacher. I enjoy playing the guitar and bass, as well as woodworking and studying Latin.
+                I have been married for about 18 months and my wife and I are expecting a baby girl in May.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img src="Images/tutors/Trevor-Mallavia.jpg" alt="Avatar">
+            </div>
+            <div class="flip-card-back">
+              <h1>Trevor Mallavia</h1> 
+              <p>
+                My name is Trevor Mallavia and I'm from Arizona. I'm a junior at BYU studying Mathematics with hopes to go to medical school after I graduate. 
+                In my free time you'll find me in the outdoors with my friends going on hikes or playing sports. I also enjoy playing video games with my friends. 
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img src="Images/tutors/Jordan-Spriggs.jpg" alt="Avatar">
+            </div>
+            <div class="flip-card-back">
+              <h1>Jordan Spriggs</h1> 
+              <p>
+                My name is Jordan Spriggs, I was born in Missouri and lived there for most of my life. 
+                I'm currently attending Brigham Young University and studying Political Science. 
+                I'm hoping to work as a teacher in highschool, both in the US and abroad. 
+                I love to read, write, and have an unhealthy addiction to metroidvanias and minecraft. 
+                I got married about a year ago and am enjoying life with my best friend. 
               </p>
             </div>
           </div>

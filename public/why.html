@@ -69,10 +69,10 @@
     </header>
 
     <!-- start banner -->
-    <div class="banner">
+    <div class="banner" id="practiceTest_banner">
       <p>Get started with <strong>2 free</strong> ACT tests. Click for details.</p>
     </div>
-    <div class="modal">
+    <div class="modal" id="practiceTest_modal">
       <div class="modal-body">
         <div class="close">
           <svg viewbox="0 0 32 32">
@@ -85,7 +85,27 @@
         <p>Enter your email so we can send you your custom link to take the tests.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit">Ready to Lyrn</button>
+        <button class="submit" onclick="submitPracticeTestRequest(event)">Ready to Lyrn</button>
+      </div>
+    </div>
+
+    <div class="banner" id="lessonSeries_banner">
+      <p>Get started with <strong>12 free</strong> ACT lessons. Click for details.</p>
+    </div>
+    <div class="modal" id="lessonSeries_modal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h1>12 lessons <span class="accent">free!</span></h1>
+        <h2>Lessons with example problems</h2>
+        <p>Our ACT lesson series covers the same topics as our programs.</p>
+        <p>Enter your email so we can send you your custom lesson series.</p>
+        <input type="email" placeholder="email">
+        <p class="error"></p>
+        <button class="submit" onclick="submitLessonSeriesRequest(event)">Ready to Lyrn</button>
       </div>
     </div>
 
