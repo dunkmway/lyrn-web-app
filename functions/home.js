@@ -99,13 +99,15 @@ exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
 <body style="font-family: 'proxima-nova', sans-serif;">
   <div id="email" style="width:600px;margin: auto;background:white;">
 
-    <table role="presentation" border="0" width="100%" cellspacing="0">
-      <tr>
-        <td bgcolor="#101b42" align="center" style="color: white;">
-          <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-        </td>
-      </tr>
-    </table>
+  <table role="presentation" border="0" width="100%" cellspacing="0">
+  <tr>
+    <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+      <a href="https://lyrnwithus.com">
+        <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+      </a>
+    </td>
+  </tr>
+</table>
   
     <table role="presentation" border="0" width="100%" cellspacing="0">
       <tr>
@@ -279,13 +281,15 @@ function sendPracticeTestEmail(email, leadID) {
 <body style="font-family: 'proxima-nova', sans-serif;">
   <div id="email" style="width:600px;margin: auto;background:white;">
 
-    <table role="presentation" border="0" width="100%" cellspacing="0">
-      <tr>
-        <td bgcolor="#101b42" align="center" style="color: white;">
-          <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-        </td>
-      </tr>
-    </table>
+  <table role="presentation" border="0" width="100%" cellspacing="0">
+  <tr>
+    <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+      <a href="https://lyrnwithus.com">
+        <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+      </a>
+    </td>
+  </tr>
+</table>
   
     <table role="presentation" border="0" width="100%" cellspacing="0">
       <tr>

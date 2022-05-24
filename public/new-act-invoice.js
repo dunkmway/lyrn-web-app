@@ -110,6 +110,17 @@ async function submitInvoice() {
     sessionLengths.push((event.end - event.start) / 3600000);
   }))
 
+  // get the list of tutors and what they are teaching
+  let firstTutors = {}
+  eventData.forEach(data => {
+    const tutor = data.staff[0];
+    const lessonType = data.subtype;
+
+    if (!firstTutors[lessonType]) {
+      firstTutors[lessonType] = tutor;
+    }
+  })
+
   if (!verifySameValue(pricesPerHour) || !verifySameValue(sessionLengths)) {
     alert('the selected events do not have the same price nor length. we cannot generate an invoice for these events')
     document.querySelectorAll('button').forEach(button => button.disabled = false);
@@ -148,7 +159,7 @@ async function submitInvoice() {
   console.log(invoice)
   const invoiceRef = firebase.firestore().collection('ACT-Invoices').doc(); 
   await invoiceRef.set(invoice);
-  await sendInvoiceEmail(parentDoc.data().email, invoiceRef.id);
+  await sendInvoiceEmail(parentDoc.data().email, firstTutors, invoiceRef.id);
 
   Toastify({
     text: 'Invoice has been sent!'
@@ -170,6 +181,17 @@ async function submitConfirmation() {
   .filter(event => events.includes(event.id))
   .sort((a,b) => a.start - b.start);
 
+  // get the list of tutors and what they are teaching
+  let firstTutors = {}
+  eventData.forEach(data => {
+    const tutor = data.staff[0];
+    const lessonType = data.subtype;
+
+    if (!firstTutors[lessonType]) {
+      firstTutors[lessonType] = tutor;
+    }
+  })
+
   const [
     studentDoc,
     parentDoc
@@ -184,7 +206,7 @@ async function submitConfirmation() {
     events: eventData
   }
 
-  await sendConfirmationEmail(parentDoc.data().email, confirmation);
+  await sendConfirmationEmail(parentDoc.data().email, firstTutors, confirmation);
 
   Toastify({
     text: 'Confirmation has been sent!'
@@ -218,18 +240,20 @@ function verifySameValue(array) {
   return new Set(array).size == 1;
 }
 
-async function sendInvoiceEmail(email, invoice) {
+async function sendInvoiceEmail(email, firstTutors, invoice) {
   let response = await firebase.functions().httpsCallable('act_sign_up-sendInvoiceEmail')({
     email,
+    firstTutors,
     invoice
   });
 
   return response.data
 }
 
-async function sendConfirmationEmail(email, confirmation) {
+async function sendConfirmationEmail(email, firstTutors, confirmation) {
   let response = await firebase.functions().httpsCallable('act_sign_up-sendConfirmationEmail')({
     email,
+    firstTutors,
     confirmation
   });
 

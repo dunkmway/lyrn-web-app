@@ -497,8 +497,11 @@ async function sendInvoiceEmail(email, firstTutors, invoiceID) {
 
   const msg = {
     to: email, // Change to your recipient
-    from: 'support@lyrnwithus.com', // Change to your verified sender
-    subject: 'Lyrn ACT Program Invoice',
+    from: {
+      email: 'support@lyrnwithus.com',
+      name: 'Lyrn Support'
+    },
+    subject: 'Lyrn Program Invoice',
     text: `We're almost ready to start Lyrning! Go to this link to pay for your upcoming ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
     If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
     html: `
@@ -510,13 +513,15 @@ async function sendInvoiceEmail(email, firstTutors, invoiceID) {
   <body style="font-family: 'proxima-nova', sans-serif;">
     <div id="email" style="width:600px;margin: auto;background:white;">
   
-      <table role="presentation" border="0" width="100%" cellspacing="0">
-        <tr>
-          <td bgcolor="#101b42" align="center" style="color: white;">
-            <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-          </td>
-        </tr>
-      </table>
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+    <tr>
+      <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+        <a href="https://lyrnwithus.com">
+          <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+        </a>
+      </td>
+    </tr>
+  </table>
     
       <table role="presentation" border="0" width="100%" cellspacing="0">
         <tr>
@@ -536,7 +541,7 @@ async function sendInvoiceEmail(email, firstTutors, invoiceID) {
             <table role="presentation" align="center" border="0" cellspacing="0">
               <tr>
                 <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
-                  <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">ACT Program Invoice</a>
+                  <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">Program Invoice</a>
                 </td>
               </tr>
             </table>
@@ -636,7 +641,10 @@ async function sendReserveEmail(programDetails, invoiceID) {
 
   const msg = {
     to: programDetails.parentEmail, // Change to your recipient
-    from: 'support@lyrnwithus.com', // Change to your verified sender
+    from: {
+      email: 'support@lyrnwithus.com',
+      name: 'Lyrn Support'
+    },
     subject: 'Reserved Lyrn ACT Program',
     text: `We're almost ready to start Lyrning! Go to this link to pay for your reserved ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
     If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
@@ -649,13 +657,15 @@ async function sendReserveEmail(programDetails, invoiceID) {
   <body style="font-family: 'proxima-nova', sans-serif;">
     <div id="email" style="width:600px;margin: auto;background:white;">
   
-      <table role="presentation" border="0" width="100%" cellspacing="0">
-        <tr>
-          <td bgcolor="#101b42" align="center" style="color: white;">
-            <h1 style="font-size: 52px; margin:20px 10px;">Thank you for choosing Lyrn!</h1>
-          </td>
-        </tr>
-      </table>
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+    <tr>
+      <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+        <a href="https://lyrnwithus.com">
+          <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+        </a>
+      </td>
+    </tr>
+  </table>
     
       <table role="presentation" border="0" width="100%" cellspacing="0">
         <tr>
@@ -733,7 +743,7 @@ async function sendReserveEmail(programDetails, invoiceID) {
 async function sendConfirmationEmail(email, confirmationData) {
   let lessonList = '';
   confirmationData.events.forEach(event => {
-    lessonList += `<li style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${event.title + ' - ' + convertFromDateInt(event.start).longReadable}</li>`;
+  lessonList += `<li style="margin:0 0 12px 0;font-size:16px;line-height:24px;">${event.title + ' - ' + convertFromDateInt(convertToMountainTime(new Date(event.start)).getTime()).longReadable} MDT</li>`;
   });
 
   const msg = {
@@ -805,6 +815,10 @@ async function sendConfirmationEmail(email, confirmationData) {
 
   await sgMail.send(msg);
   return;
+}
+
+function convertToMountainTime(date) {
+  return new Date(date.setHours(date.getHours() - 6));
 }
 
 function nextDay(date, day, weekDiff = 0) {
