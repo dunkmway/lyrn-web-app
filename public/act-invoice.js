@@ -318,7 +318,7 @@ function setupPending() {
   setupPayInvoice();
   setupSaveInvoice();
 
-  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ACT program. Just a reminder, this is for the ${invoiceData.programName} program and will be ${invoiceData.programLength} weeks long.`
+  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.programName} program.`
   document.querySelector('#expiration-message').textContent = `This invoice will expire at 11:55 pm MDT on ${convertFromDateInt(invoiceData.expiration).dayAndDate}.
   A payment must be received before this time or all lessons for this program will be removed from our schedule.`
   document.querySelector('.payments').style.display = 'block';

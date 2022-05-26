@@ -7,6 +7,7 @@ let act_lesson_list = {
   reading: [],
   science: []
 };
+let act_curriculum_list = {};
 let act_topic_lists = {
   english: {},
   math: {},
@@ -70,7 +71,8 @@ async function initializeLessonList() {
 
   //go through the query and break them up into their sections
   curriculumTopicsQuery.forEach(topicDoc => {
-    act_lesson_list[topicDoc.data().section].push(topicDoc.data().topic)
+    act_lesson_list[topicDoc.data().section].push(topicDoc.data().topic);
+    act_curriculum_list[topicDoc.data().topic] = topicDoc.data().curriculum;
   })
   const sections = ['english', 'math', 'reading', 'science'];
 
@@ -89,6 +91,7 @@ async function initializeLessonList() {
 
   console.log(act_topic_lists);
   console.log(act_lesson_list);
+  console.log(act_curriculum_list);
 
   for (let i = 0; i < sections.length; i++) {
     let location = document.getElementById(sections[i] + 'Lessons')
@@ -176,9 +179,20 @@ async function setupTopicQuestionList(section, topic) {
 
   removeAllChildNodes(questionContainer)
 
+  // add in the title
   let containerTitle = document.createElement('h1');
   containerTitle.textContent = `${topic}`;
   questionContainer.appendChild(containerTitle);
+
+  // add in the curriculum
+  const curriculumContainer = document.createElement('div');
+  curriculumContainer.classList.add('curriculum-container')
+  curriculumContainer.innerHTML = act_curriculum_list[topic];
+  questionContainer.appendChild(curriculumContainer)
+
+  questionSection.style.display = 'flex';
+
+  const testWrapper = document.createElement('div');
 
   for (const test in tests) {
     tests[test].sort((a,b) => a - b);
@@ -224,10 +238,9 @@ async function setupTopicQuestionList(section, topic) {
       testContainer.appendChild(questionContainer);
     })
 
-    questionContainer.appendChild(testContainer)
+    testWrapper.appendChild(testContainer);
   }
-
-  questionSection.style.display = 'flex';
+  questionContainer.appendChild(testWrapper)
 }
 
 async function questionTopicChangeCallback(event, section, topic, questionID) {

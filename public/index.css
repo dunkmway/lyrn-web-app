@@ -371,6 +371,7 @@ nav a:hover {
 /* banner and modal section */
 
 .banner {
+  display: none;
   position: fixed;
   width: 100%;
   bottom: 0;
@@ -383,6 +384,10 @@ nav a:hover {
   transform: translateY(100%);
   animation: .5s ease-in 4s slidein;
   animation-fill-mode: forwards;
+}
+
+.banner.active {
+  display: block;
 }
 
 @keyframes slidein {

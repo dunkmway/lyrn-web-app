@@ -463,10 +463,9 @@ function reinitializeStaffTableData() {
     //this should fix some "cannot read property of undefined" errors
     if (args?.target?._DT_CellIndex) {
       let staffUID = tableDataStaff[args.target._DT_CellIndex.row].staffUID;
-      let staffName = tableDataStaff[args.target._DT_CellIndex.row].staffName;
-      let staffRole = tableDataStaff[args.target._DT_CellIndex.row].staffRole;
-      const queryStr = `?${staffRole}=` + staffUID;
-      window.location.href = `../new-${staffRole}.html` + queryStr;
+
+      setupNavigationModal_tutor(staffUID);
+      document.getElementById("navigationSection_tutor").style.display = "flex";
 
 
       // deleteStaff(staffUID, staffName, staffType)
@@ -862,7 +861,18 @@ function setupNavigationModal(studentUID, parentUID) {
   };
 }
 
+function setupNavigationModal_tutor(tutorUID) {
+  const modal = document.getElementById("navigationSection_tutor");
 
+  document.getElementById("testTakerNav_tutor").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../test-taker.html?student=" + tutorUID
+  };
+  document.getElementById("tutorInfoNav").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../new-tutor.html?tutor=" + tutorUID;
+  };
+}
 
 
 function pendingStudentSelected(studentUID, parentUID, location) {

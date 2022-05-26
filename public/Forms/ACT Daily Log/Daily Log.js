@@ -1823,7 +1823,7 @@ function openTest(test, section = undefined) {
   })
   .catch(error => {
     console.log(error)
-    alert('It seems this test does not exist. Verify you are trying to access the right test.')
+    alert('It seems this resource does not exist. Verify you are trying to access the right resource.')
   })
 }
 
@@ -1835,7 +1835,7 @@ function getTestURL(test, section = undefined) {
   })
   .catch(error => {
     console.log(error)
-    alert('It seems this test does not exist. Verify you are trying to access the right test.')
+    alert('It seems this resource does not exist. Verify you are trying to access the right resoruce.')
   })
 }
 
