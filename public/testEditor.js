@@ -2730,24 +2730,36 @@ dom_questions.addEventListener('input', async function(event) {
 })
 
 let dom_curriculumText = document.querySelector('#curriculumText')
-dom_curriculumText.addEventListener('input', function (event) {
+dom_curriculumText.addEventListener('input', function (e) {
 	if (debug == true) {
-		console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+		console.log('EVENT LISTENER (id = "' + e.target.id + '")')
 	}
 
 	// Correct text
-	if (!event.target.id.toLowerCase().includes('image')) {
-		if (event.target.id.includes('PassageText')) {
-			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
-		}
-		else {
-			event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-		}
+	if (!e.target.id.toLowerCase().includes('image')) {
+		e.target.value = e.target.value.replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+
 	}
 
 	// Update the bottom display
-	setPassageTextSimple(event.target.value, spaceSize);
+	setPassageTextSimple(e.target.value, spaceSize);
 })
+
+dom_curriculumText.addEventListener('keydown', function(e) {
+  if (e.key == 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\t" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+});
 
 let dom_curriculumSection = document.querySelector('#curriculumSection')
 dom_curriculumSection.addEventListener('change', async (event) => {

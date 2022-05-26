@@ -864,9 +864,13 @@ function setupNavigationModal(studentUID, parentUID) {
 function setupNavigationModal_tutor(tutorUID) {
   const modal = document.getElementById("navigationSection_tutor");
 
+  document.getElementById("actNav_tutor").onclick = () => {
+    modal.style.display = 'none';
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + tutorUID;
+  };
   document.getElementById("testTakerNav_tutor").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../test-taker.html?student=" + tutorUID
+    window.location.href = "../test-taker.html?student=" + tutorUID;
   };
   document.getElementById("tutorInfoNav").onclick = () => {
     modal.style.display = 'none';

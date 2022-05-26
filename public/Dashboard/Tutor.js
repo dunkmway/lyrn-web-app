@@ -38,7 +38,7 @@ function initialSetupData() {
 
 function setupExampleDailyLogButton() {
   document.getElementById('exampleDailyLog').addEventListener('click', () => {
-    window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + EXAMPLE_STUDENT_UID;
+    window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + current_user.uid;
   })
 }
 
@@ -175,18 +175,21 @@ function eventClickHandler(info) {
       case 'act':
       case 'actBasics':
       case 'actGuided':
-        data.staffZoomURL && window.open(data.staffZoomURL)
+        data.studentZoomURL && !isPrimaryTutor(current_user.uid, data) && window.open(data.studentZoomURL)
+        data.staffZoomURL && isPrimaryTutor(current_user.uid, data) && window.open(data.staffZoomURL)
         window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + attendeeList[0];
         break;
       case 'actClass':
-        data.staffZoomURL && window.open(data.staffZoomURL)
+        data.studentZoomURL && !isPrimaryTutor(current_user.uid, data) && window.open(data.studentZoomURL)
+        data.staffZoomURL && isPrimaryTutor(current_user.uid, data) && window.open(data.staffZoomURL)
         window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + ACT_CLASS_STUDENT_UID;
         break;
       case 'actStudyGroup':
       case 'actFundamentals':
       case 'actComprehensive':
       case 'subjectTutoring':
-        data.staffZoomURL && window.open(data.staffZoomURL)
+        data.studentZoomURL && !isPrimaryTutor(current_user.uid, data) && window.open(data.studentZoomURL)
+        data.staffZoomURL && isPrimaryTutor(current_user.uid, data) && window.open(data.staffZoomURL)
         break;
       case 'mathProgram':
         window.location.href = "../math-program.html?student=" + attendeeList[0];
@@ -197,6 +200,10 @@ function eventClickHandler(info) {
       default:
     }
   })
+}
+
+function isPrimaryTutor(tutorUID, eventData) {
+  return eventData.staff.indexOf(tutorUID) == 0;
 }
 
 function availabilityCallback() {

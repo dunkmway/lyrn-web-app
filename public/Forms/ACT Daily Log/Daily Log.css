@@ -1438,6 +1438,17 @@ span:hover + .wrap a, .wrap:hover a{
   font-size: 18px;
 }
 
+#topicQuestionContainer .curriculum-container table {
+  border: 1px solid white;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+#topicQuestionContainer .curriculum-container td {
+  border: 1px solid white;
+  padding: .5em 1em;
+}
+
 #topicQuestionContainer .test-container {
   border: 2px solid white;
   padding: 1em;
