@@ -213,54 +213,118 @@
         </div>
       </section> -->
 
-      <!-- <section class="questionnaire">
-        <div class="panel">
-          <div class="question open" id="question_0">
+      <section class="questionnaire">
+        <div class="progress">
+          <p><span id="progress_number">1</span> out of 5</p>
+          <div class="bar-wrapper">
+            <div class="bar-fill" style="width: 12.5%;" id="progress_fill"></div>
+          </div>
+        </div>
+        <div class="panel open">
+          <h2>Get started with a personalized program</h2>
+          <p>Tell us a little about your needs.</p>
+          <div class="question" id="question_0">
             <h3 class="text">I am a...</h3>
-            <button class="option" onclick="goForwardToQuestion(1)">Student</button>
-            <button class="option" onclick="goForwardToQuestion(1)">Parent</button>
+            <button class="option" onclick="goForwardToQuestion(1, 'student')">Student</button>
+            <button class="option" onclick="goForwardToQuestion(1, 'parent')">Parent</button>
           </div>
         </div>
 
         <div class="panel">
           <div class="question" id="question_1">
-            <h3 class="text">Second question</h3>
-            <button class="option" onclick="goForwardToQuestion(2)">Option 1</button>
-            <button class="option" onclick="goForwardToQuestion(3)">Option 2</button>
+            <h3 class="text">I'm looking for...</h3>
+            <button class="option" onclick="goForwardToQuestion(2, 'act')">ACT Prep</button>
+            <button class="option" onclick="goForwardToQuestion(6, 'subject tutoring')">Subject Tutoring</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>
 
         <div class="panel">
           <div class="question" id="question_2">
-            <h3 class="text">Option 1 from second question</h3>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 1</button>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 2</button>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 3</button>
+            <h3 class="text">What kind of ACT Prep are you interested in?</h3>
+            <button class="option" onclick="goForwardToQuestion(3, '1-on-1')">1-on-1</button>
+            <button class="option" onclick="goForwardToQuestion(4, 'classes')">Group Classes</button>
+            <button class="option" onclick="goForwardToQuestion(4, 'free')">Free Lessons / Resources</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>
 
         <div class="panel">
           <div class="question" id="question_3">
-            <h3 class="text">Option 2 from second question</h3>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 1</button>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 2</button>
-            <button class="option" onclick="goForwardToQuestion(4)">Option 3</button>
+            <h3 class="text">How many points would you like to go up on the ACT?</h3>
+            <button class="option" onclick="goForwardToQuestion(5, '2')">2</button>
+            <button class="option" onclick="goForwardToQuestion(5, '3')">3</button>
+            <button class="option" onclick="goForwardToQuestion(5, '4+')">4+</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>
 
         <div class="panel">
           <div class="question" id="question_4">
-            <h3 class="text">Final for both options</h3>
-            <button class="option">Option 1</button>
-            <button class="option">Option 2</button>
-            <button class="option">Option 3</button>
+            <h3 class="text">Which sections of the test would you like to work on?</h3>
+            <p>Select all that apply</p>
+            <div class="input-row">
+              <input type="checkbox" id="act_class_english" value="english">
+              <label for="act_class_english">English</label>
+            </div>
+            <div class="input-row">
+              <input type="checkbox" id="act_class_math" value="math">
+              <label for="act_class_math">Math</label>
+            </div>
+            <div class="input-row">
+              <input type="checkbox" id="act_class_reading" value="reading">
+              <label for="act_class_reading">Reading</label>
+            </div>
+            <div class="input-row">
+              <input type="checkbox" id="act_class_science" value="science">
+              <label for="act_class_science">Science</label>
+            </div>
+            <button class="option" onclick="goForwardToQuestion(5, getAllCheckboxesFromQuestion())">Continue</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>
-      </section> -->
+
+        <div class="panel">
+          <div class="question" id="question_5">
+            <h3 class="text">We'll send you a personalized program based on what you need the most.</h3>
+            <div class="input-column">
+              <label for="questionnaire_name">Full Name</label>
+              <input type="text" id="questionnaire_name">
+            </div>
+            <div class="input-column">
+              <label for="questionnaire_email">Email</label>
+              <input type="email" id="questionnaire_email">
+            </div>
+            <p class="error" id="questionnaire_error"></p>
+            <button class="option submit" onclick="submitQuestionnaire()" id="questionnaire_submit">Submit</button>
+          </div>
+          <button class="back" onclick="goBackAQuestion()">Back</button>
+        </div>
+
+        <div class="panel">
+          <div class="question" id="question_6">
+            <h3 class="text">What do you need help with?</h3>
+            <button class="option" onclick="goForwardToQuestion(7, 'struggle')">Improving in a class</button>
+            <button class="option" onclick="goForwardToQuestion(7, 'test')">Preparing for a test</button>
+            <button class="option" onclick="goForwardToQuestion(7, 'assignment')">Working on a few assignments</button>
+          </div>
+          <button class="back" onclick="goBackAQuestion()">Back</button>
+        </div>
+
+        <div class="panel">
+          <div class="question" id="question_7">
+            <h3 class="text">What subject do you need help with?</h3>
+            <div class="grid">
+              <button class="option" onclick="goForwardToQuestion(5, 'math')">Math</button>
+              <button class="option" onclick="goForwardToQuestion(5, 'science')">Science</button>
+              <button class="option" onclick="goForwardToQuestion(5, 'english')">English</button>
+              <button class="option" onclick="goForwardToQuestion(5, 'history')">History</button>
+              <button class="option" onclick="goForwardToQuestion(5, 'other')">Other</button>
+            </div>
+          </div>
+          <button class="back" onclick="goBackAQuestion()">Back</button>
+        </div>
+      </section>
   
       <section class="method">
         <h5 class="title">The Lyrn Method</h5>

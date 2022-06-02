@@ -497,3 +497,46 @@ function sendLessonSeriesEmail(email) {
   }
   return sgMail.send(msg)
 }
+
+exports.sendQuestionnaireRequest = functions.https.onCall(async (data, context) => {
+  // context.app will be undefined if the request doesn't include a valid
+  // App Check token.
+  if (context.app == undefined) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'The function must be called from an App Check verified app.'
+    )
+  }
+
+  //save the contact data to firebase first
+  const ref = admin.firestore().collection('Leads').doc();
+  data.timestamp = new Date(data.timestamp)
+  await ref.set(data);
+
+  const msg = {
+    to: 'admin@lyrnwithus.com',
+    from: {
+      email: 'system@lyrnwithus.com',
+      name: 'Lyrn System'
+    },
+    subject: 'Questionnaire Submitted!',
+    text: `
+    name: ${data.name}\n
+    email: ${data.email}\n
+    answers: ${data.answers}\n
+    Love,\n
+    Lydia
+    `,
+    html: `
+    <p>name: ${data.name}</p>
+    <p>email: ${data.email}</p>
+    <p>answers: ${data.answers}</p>
+    <p>Love,</p>
+    <p>Lydia</p>
+    `
+  }
+
+  await sgMail.send(msg);
+
+  return;
+});

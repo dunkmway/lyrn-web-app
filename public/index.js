@@ -301,24 +301,124 @@ async function sendLessonSeriesRequest(email, type, page) {
   return response.data
 }
 
-let questionnairePath = [0];
+async function sendQuestionnaireRequest(name, email, answers) {
+  let response = await firebase.functions().httpsCallable('home-sendQuestionnaireRequest')({
+    name,
+    email,
+    answers,
+    type: 'questionnaire',
+    page: 'home',
+    timestamp: new Date()
+  });
 
-function goForwardToQuestion(nextQuestion) {
-  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`);
-  const next = document.getElementById(`question_${nextQuestion}`);
+  return response.data
+}
+
+let questionnairePath = [0];
+let questionnaireAnswers = [];
+const questionnaireLength = 5;
+
+function goForwardToQuestion(nextQuestion, answer) {
+  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`).parentNode;
+  const next = document.getElementById(`question_${nextQuestion}`).parentNode;
 
   current.classList.add('closed');
   next.classList.add('open');
 
   questionnairePath.push(nextQuestion);
+  questionnaireAnswers.push(answer);
+
+  updateQuestionnaireProgress();
 }
 
 function goBackAQuestion() {
-  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`);
-  const previous = document.getElementById(`question_${questionnairePath[questionnairePath.length - 2]}`);
+  const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`).parentNode;
+  const previous = document.getElementById(`question_${questionnairePath[questionnairePath.length - 2]}`).parentNode;
 
   current.classList.remove('open');
   previous.classList.remove('closed');
 
   questionnairePath.pop();
+  questionnaireAnswers.pop();
+
+  updateQuestionnaireProgress();
+}
+
+function updateQuestionnaireProgress() {
+  const progressNum = document.getElementById('progress_number');
+  const progressFill = document.getElementById('progress_fill');
+
+  progressNum.textContent = questionnairePath.length;
+  progressFill.style.width = questionnairePath.length / questionnaireLength * 100 + '%';
+}
+
+function getAllCheckboxesFromQuestion() {
+  const currentQuestion = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`);
+  const checkboxes = currentQuestion.querySelectorAll('input[type="checkbox"]:checked');
+  
+  let answers = [];
+
+  checkboxes.forEach(checkbox => answers.push(checkbox.value));
+
+  return answers;
+}
+
+async function submitQuestionnaire() {
+  const name = document.getElementById('questionnaire_name');
+  const email = document.getElementById('questionnaire_email');
+  const submit = document.getElementById('questionnaire_submit')
+  const error = document.getElementById('questionnaire_error');
+
+  submit.classList.add('loading');
+  submit.disabled = true;
+
+  resetErrors([name, email], error);
+
+  if (!checkRequiredFields([name, email])) {
+    error.textContent = 'Please fill in these required fields.';
+    submit.classList.remove('loading');
+    submit.disabled = false;
+    return;
+  }
+
+  if (!isEmailValid(email.value)) {
+    email.classList.add('invalid');
+    error.textContent = 'There seems to be something wrong with this email.';
+    submit.classList.remove('loading');
+    submit.disabled = false;
+    return;
+  }
+
+  try {
+    await sendQuestionnaireRequest(name.value, email.value, questionnaireAnswers.toString().replaceAll(',', ', '));
+    submit.classList.remove('loading');
+    submit.disabled = false;
+    submit.textContent = 'Sent!'
+  }
+  catch (error) {
+    error.textContent = 'We are having issues submitting this request. Please try again.';
+    submit.classList.remove('loading');
+    submit.disabled = false;
+  }
+
+}
+
+function resetErrors(inputs, error) {
+  inputs.forEach(input => {
+    input.classList.remove('invalid');
+  });
+
+  error.textContent = '';
+}
+
+function checkRequiredFields(inputs) {
+  let allClear = true;
+  inputs.forEach(input => {
+    if (!input.value) {
+      input.classList.add('invalid');
+      allClear = false;
+    }
+  })
+
+  return allClear;
 }

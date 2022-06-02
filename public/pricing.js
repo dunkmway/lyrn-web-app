@@ -1569,9 +1569,9 @@ async function setCalendarEvents(studentUID, parentUID) {
   //   <a href="${testURL}">Test Link</a>
   //   <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
   // `
-  // await setScheduledEmail(currentProgramDetails.contact.parent.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() + 7));
+  // await setScheduledEmail(currentProgramDetails.contact.parent.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() - 7));
   // if (currentProgramDetails.contact.student.email) {
-  //   await setScheduledEmail(currentProgramDetails.contact.student.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() + 7));
+  //   await setScheduledEmail(currentProgramDetails.contact.student.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() - 7));
   // }
   
   return eventRefs.map(ref => ref.id);

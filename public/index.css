@@ -1717,10 +1717,45 @@ nav a:hover {
 /* Questionnaire section */
 .questionnaire {
   background-color: white;
-  border: 1em solid var(--color-green);
   overflow: hidden;
-  min-height: 400px;
+  min-height: 550px;
   position: relative;
+  padding: 0;
+}
+
+.questionnaire .progress {
+  background-color: var(--color-green);
+  color: white;
+  padding: 1em;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.questionnaire .progress > p {
+  margin: 0;
+}
+
+.questionnaire .progress .bar-wrapper {
+  width: 200px;
+  height: 1em;
+  border-radius: 0.5em;
+  border: 3px solid white;
+  background-color: transparent;
+  overflow: hidden;
+  margin-left: 2em;
+  padding: 1px;
+}
+
+.questionnaire .progress .bar-wrapper > .bar-fill {
+  width: 0%;
+  height: 100%;
+  background-color: white;
+  border-radius: 0.5em;
+  transition: all 200ms linear;
 }
 
 .questionnaire .panel {
@@ -1728,6 +1763,25 @@ nav a:hover {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  transition: all 200ms ease-in;
+  transform: translateX(calc(100vw - 50%));
+  visibility: hidden;
+  position: absolute;
+  left: 50%;
+  width: 100%;
+  height: calc(100% - 48px);
+  padding: 1em;
+  text-align: center;
+}
+
+.questionnaire .panel.open {
+  transform: translateX(calc(0vw - 50%));
+  visibility: visible;
+}
+
+.questionnaire .panel.open.closed {
+  transform: translateX(calc(-100vw - 50%));
+  visibility: hidden;
 }
 
 .questionnaire .question {
@@ -1737,25 +1791,75 @@ nav a:hover {
   align-items: center;
   width: 100%;
   max-width: 512px;
-  transition: all 200ms ease-in;
-  transform: translateX(calc(100vw - 50%));
-  visibility: hidden;
-  position: absolute;
-  left: 50%;
-}
-
-.questionnaire .question.open {
-  transform: translateX(calc(0vw - 50%));
-  visibility: visible;
-}
-
-.questionnaire .question.open.closed {
-  transform: translateX(calc(-100vw - 50%));
-  visibility: hidden;
+  margin-top: 2em;
+  
+  box-shadow: rgba(0, 0, 0, 0.15) 0 0 10px 10px;
+  border-radius: 1em;
+  padding: 1em;
 }
 
 .questionnaire .question .text {
   text-align: center;
+}
+
+.questionnaire .question .input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.questionnaire .question .input-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+label {
+  font-size: 1em;
+  text-align: left;
+}
+
+.questionnaire .question input[type='checkbox'] + label {
+  font-size: 1.5em;
+}
+
+.questionnaire .question input[type='text'],
+.questionnaire .question input[type='email'] {
+  padding: .5em 1em;
+  font-size: 1em;
+  width: 100%;
+  border: 2px solid var(--color-green);
+}
+
+.questionnaire .question input[type='text'].invalid,
+.questionnaire .question input[type='email'].invalid {
+  border-color: var(--color-accent-5-deep);
+}
+
+.questionnaire .question .error {
+  color: var(--color-accent-5-deep);
+}
+
+.questionnaire .question input[type='checkbox'] {
+  visibility: hidden;
+}
+
+.questionnaire .question input[type='checkbox'] + label::before {
+  content: '';
+  position: relative;
+  right: 8px;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-green);
+  background-color: white;
+}
+
+.questionnaire .question input[type='checkbox']:checked + label::before {
+  background-color: var(--color-green);
 }
 
 .questionnaire .question .option {
@@ -1777,6 +1881,29 @@ nav a:hover {
   background-color: white;
 }
 
+.questionnaire .question .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  column-gap: 1em;
+}
+
+.questionnaire .question .submit.loading::after {
+  content: '';
+  margin-left: .5em;
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  animation: spin .5s linear infinite;
+}
+
+.questionnaire .question .submit.loading:hover::after {
+  border-top-color: var(--color-green);
+}
+
 .questionnaire .panel .back {
   position: absolute;
   bottom: 1em;
@@ -1786,10 +1913,6 @@ nav a:hover {
   background-color: transparent;
   color: black;
   font-size: 1em;
-  display: none;
-}
-
-.questionnaire .panel .question.open + .back {
   display: block;
 }
 

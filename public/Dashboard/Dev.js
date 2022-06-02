@@ -14,7 +14,7 @@ function setLeadsTable() {
       let errorData = {
         docUID : doc.id,
         Email : data.email,
-        Time : convertFromDateInt(data.timestamp.toDate().getTime()).longDate,
+        Time : convertFromDateInt(data.timestamp.toDate().getTime()).fullCalendar,
         Page : data.page,
         Type : data.type,
       }
@@ -67,7 +67,7 @@ function setPracticeTestTable() {
       let errorData = {
         docUID : doc.id,
         Email : data.email,
-        Time : convertFromDateInt(data.timestamp.toDate().getTime()).longDate,
+        Time : convertFromDateInt(data.timestamp.toDate().getTime()).fullCalendar,
         Page : data.page,
         Type : data.type,
       }
@@ -107,7 +107,7 @@ function setUnsubscribeTable() {
       let unsubscribeData = {
         docUID : doc.id,
         Email : data.email,
-        Time : convertFromDateInt(data.createdAt.toDate().getTime()).longDate,
+        Time : convertFromDateInt(data.createdAt.toDate().getTime()).fullCalendar,
       }
       tableData.push(unsubscribeData);
     });
@@ -137,7 +137,7 @@ function setErrorTable() {
       let errorData = {
         docUID : doc.id,
         Message : data["Message"],
-        Time : convertFromDateInt(parseInt(data["Timestamp"]))["longDate"],
+        Time : convertFromDateInt(parseInt(data["Timestamp"]))["fullCalendar"],
         URL : data["URL"],
         Line : data["Line"],
         Column : data["Column"],
@@ -200,7 +200,7 @@ function setFeedbackTable() {
       let feedbackData = {
         docUID : doc.id,
         feedback : data["feedback"],
-        time : convertFromDateInt(parseInt(data["timestamp"]))["longDate"],
+        time : convertFromDateInt(parseInt(data["timestamp"]))["fullCalendar"],
         user : data["user"],
       }
       tableData.push(feedbackData);
