@@ -25,303 +25,14 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
 
     <script src="../Site Templates/site-wide.js"></script>
+    <script src="../Site Templates/generalFunctions.js"></script>
     <script src="Admin.js"></script>
 
   </head>
 
-  <body>
+  <body onload="initialSetup()">
     <section id="loading-screen">
       <div class="loading-ring"></div>
-    </section>
-    <section id="add-tutor-section" class="add-user-section">
-      <div id="add-tutor-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Tutor</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiTutor" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="tutorLocation" class="label">Wasatch Location:</label>
-                  <select id="tutorLocation" class="select" required>
-                    <option selected disabled value="">select a location</option>
-                  </select>
-              </div>
-            </div>
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="tutorFirstName" class="label">Tutor First Name:</label>
-                  <input id="tutorFirstName" placeholder="John" class="input" required>
-              </div>
-
-              <div class="input-block">
-                <label for="tutorLastName" class="label">Tutor Last Name:</label>
-                <input id="tutorLastName" placeholder="Doe" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="tutorEmail" class="label">Tutor Email:</label>
-                  <input id="tutorEmail" placeholder="person@gmail.com" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('tutor')">back</button> 
-              <button type = button class="button" onclick="createTutor()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="tutorErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="add-secretary-section" class="add-user-section">
-      <div id="add-secretary-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Secretary</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiSecretary" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-block">
-              <label for="secretaryLocation" class="label">Wasatch Location:</label>
-              <select id="secretaryLocation" class="select" required>
-                <option selected disabled value="">select a location</option>
-              </select>
-          </div>
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="secretaryFirstName" class="label">Secretary First Name:</label>
-                  <input id="secretaryFirstName" placeholder="John" class="input" required>
-              </div>
-
-              <div class="input-block">
-                <label for="secretaryLastName" class="label">Secretary Last Name:</label>
-                <input id="secretaryLastName" placeholder="Doe" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="secretaryEmail" class="label">Secretary Email:</label>
-                  <input id="secretaryEmail" placeholder="person@gmail.com" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('secretary')">back</button> 
-              <button type = button class="button" onclick="createSecretary()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="secretaryErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="add-admin-section" class="add-user-section">
-      <div id="add-admin-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Admin</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiAdmin" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <!-- <div class="input-block">
-              <label for="adminLocation" class="label">Wasatch Location:</label>
-              <select id="adminLocation" class="select" required>
-                <option selected disabled value="">select a location</option>
-              </select>
-            </div> -->
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="adminFirstName" class="label">Admin First Name:</label>
-                  <input id="adminFirstName" placeholder="John" class="input" required>
-              </div>
-
-              <div class="input-block">
-                <label for="adminLastName" class="label">Admin Last Name:</label>
-                <input id="adminLastName" placeholder="Doe" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="adminEmail" class="label">Admin Email:</label>
-                  <input id="adminEmail" placeholder="person@gmail.com" class="input" required>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('admin')">back</button> 
-              <button type = button class="button" onclick="createAdmin()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="adminErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="add-location-section" class="add-user-section">
-      <div id="add-location-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Location</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiLocation" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="locationName" class="label">Location</label>
-                  <input id="locationName" class="input" required>
-              </div>
-            </div>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('location')">back</button> 
-              <button type = button class="button" onclick="createLocation()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="locationErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="add-school-section" class="add-user-section">
-      <div id="add-school-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add School</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiSchool" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="schoolLocation" class="label">Wasatch Location:</label>
-                  <select id="schoolLocation" class="select" required>
-                    <option selected disabled value="">select a location</option>
-                  </select>
-              </div>
-            </div>
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="schoolName" class="label">School Name:</label>
-                  <input id="schoolName" placeholder="Alta" class="input" required>
-              </div>
-
-              <div class="input-block">
-                <label for="schoolType" class="label">School Type:</label>
-                  <select id="schoolType" class="select" required>
-                    <option selected disabled value="">select a type</option>
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                    <option value="charter">Charter</option>
-                    <option value="virtual">Virtual</option>
-                    <option value="magnet">Magnet</option>
-                  </select>
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="schoolGradeMin" class="label">School Grades:</label>
-                  <div class="rangeInput">
-                    <div>
-                      <select id="schoolGradeMin" placeholder="" class="select range" onchange="handleSchoolGrade()" required>
-                        <option selected disabled value=""></option>
-                        <option value="0">K</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="-1">C</option>
-                      </select>
-                    </div>
-                    <div>
-                      <select id="schoolGradeMax" placeholder="" class="select range" onchange="handleSchoolGrade()" required>
-                        <option selected disabled value=""></option>
-                        <option value="0">K</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                        <option value="-1">C</option>
-                      </select>
-                    </div>
-                  </div>
-
-              </div>
-            </div><br>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('school')">back</button> 
-              <button type = button class="button" onclick="createSchool()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="schoolErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <section id="add-extracurricular-section" class="add-user-section">
-      <div id="add-extracurricular-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Extracurricular</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiExtracurricular" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="extracurricular" class="label">Extracurricular</label>
-                  <input id="extracurricular" class="input" required>
-              </div>
-            </div>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('extracurricular')">back</button> 
-              <button type = button class="button" onclick="createExtracurricular()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="extracurricularErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
     </section>
 
     <section id="navigationSection" class="add-user-section">
@@ -330,10 +41,6 @@
         <h4 style="margin: 0;">What would you like to see?</h4>
         <button id="actNav" class="button">ACT</button>
         <button id="testTakerNav" class="button">Test Taker</button>
-        <!-- <button id="subjectTutoringNav" class="button">Subject Tutoring</button> -->
-        <!-- <button id="mathProgramNav" class="button">Math Program</button>
-        <button id="phonicsProgramNav" class="button">Phonics Program</button> -->
-        <!-- <button id="registrationNav" class="button">Registration</button> -->
         <button id="studentInfoNav" class="button">Student Info</button>
         <button id="parentInfoNav" class="button">Parent Info</button>
         <button id="paymentNav" class="button">Payment</button>
@@ -365,15 +72,12 @@
         <button class="button" onclick="window.location.href='../new-act-fundamentals.html'">New ACT Fundamentals</button>
         <button class="button" onclick="window.location.href='../act-sign-up.html'">New ACT Basic/Guided</button>
         <button class="button" onclick="window.location.href='../new-assignment.html'">New Assignment</button>
-        <!-- <button class="button" onclick="openModal('tutor')">Add Tutor</button> -->
-        <!-- <button class="button" onclick="goToStaffRegistration()">Add Staff</button> -->
-        <!-- <button class="button" onclick="openModal('admin')">Add Admin</button> -->
-        <!-- <button class="button" onclick="openModal('secretary')">Add Secretary</button> -->
-        <!-- <button class="button" onclick="openModal('school')">Add School</button> -->
-        <!-- <button class="button" onclick="openModal('extracurricular')">Add Extracurricular</button> -->
-        <!-- <button class="button" onclick="resetPassword()">reset password</button> -->
         <a href="https://flex.twilio.com/auburn-goose-1633" target="_blank">Contact Center</a>
       </div>
+
+      <h2>Users</h2>
+      <input type="text" id="userSearch">
+      <div id="userSearchResults"></div>
 
       <h2 style="margin-bottom: 0px;">Students</h2>
       <div>
@@ -407,15 +111,6 @@
           </thead>
         </table>
       </div>
-      
-
-      <!-- feedback area -->
-      <!-- <div style="margin: 25px;">
-        <h3>Feedback</h3>
-        <textarea id="feedback_input" class="feedback_input" placeholder="any feedback?"></textarea>
-        <p id="feedback_error_msg"></p>
-        <button id="feedback_submit_btn" class="button" onclick="submitFeedback()">Submit</button>
-      </div> -->
 
     </section>
   </body>

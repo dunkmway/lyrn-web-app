@@ -13,6 +13,97 @@ let tableDataStaff = [];
 
 initialSetupData();
 
+function initialSetup() {
+  const nameSearchInput = debounce(() => queryUsers(), 500);
+  document.getElementById('userSearch').addEventListener('input', nameSearchInput);
+
+  queryUsers();
+}
+
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}
+
+async function queryUsers() {
+  let firstNameQuery = document.getElementById('userSearch').value.split(' ')[0];
+  let lastNameQuery = document.getElementById('userSearch').value.split(' ')[1];
+
+  if (firstNameQuery) {
+    firstNameQuery = formatToName(firstNameQuery);
+  }
+  if (lastNameQuery) {
+    lastNameQuery = formatToName(lastNameQuery);
+  }
+
+  const userResultsWrapper =  document.getElementById('userSearchResults');
+  removeAllChildNodes(userResultsWrapper);
+
+  if (firstNameQuery && !lastNameQuery) {
+    const firstNameUserDocs = await firebase.firestore().collection('Users')
+    .where('firstName', '>=', firstNameQuery)
+    .where('firstName', '<=', firstNameQuery + '\uf8ff')
+    .orderBy('firstName')
+    .get();
+
+    const lastNameUserDocs = await firebase.firestore().collection('Users')
+    .where('lastName', '>=', firstNameQuery)
+    .where('lastName', '<=', firstNameQuery + '\uf8ff')
+    .orderBy('lastName')
+    .get();
+
+    firstNameUserDocs.docs.forEach(doc => {
+      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
+    })
+    lastNameUserDocs.docs.forEach(doc => {
+      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
+    })
+  }
+  else if (firstNameQuery && lastNameQuery) {
+    try {
+      const userDocs = await firebase.firestore().collection('Users')
+      .where('firstName', '==', firstNameQuery)
+      .where('lastName', '>=', lastNameQuery)
+      .where('lastName', '<=', lastNameQuery + '\uf8ff')
+      .orderBy('lastName')
+      .get();
+
+      userDocs.docs.forEach(doc => {
+        renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
+      })
+    }
+    catch (error) {
+      console.log(error)
+    }
+  }
+}
+
+function formatToName(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function renderUserSearchResult(name, uid, role) {
+  const userResultsWrapper =  document.getElementById('userSearchResults');
+
+  let result = document.createElement('div');
+  result.classList.add('search-result');
+  result.textContent = `${name} (${role})`;
+  result.addEventListener('mousedown', () => searchResultClicked(name, uid, role));
+
+  userResultsWrapper.appendChild(result);
+}
+
+function searchResultClicked(userName, userUID, userRole) {
+  console.log({
+    userName,
+    userUID,
+    userRole
+  })
+}
+
 function initialSetupData() {
   firebase.auth().onAuthStateChanged(function(user) {
     currentUser = user;

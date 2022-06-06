@@ -1,5 +1,6 @@
 const errorMsg = document.querySelector('.error')
 let studentData = null;
+let parentData = null;
 
 async function getAllLocations() {
   return await firebase.firestore().collection('Locations').orderBy('locationName').get()
@@ -48,6 +49,11 @@ async function initialSetup() {
     document.getElementById('action').innerHTML = 'Submit';
     document.getElementById('action').addEventListener('click', submit);
     document.getElementById('title').textContent = 'Add Student';
+
+    // if there is a parent then fill in the parent's relevant data
+    if (queryStrings().parent) {
+
+    }
   }
 }
 
@@ -114,6 +120,20 @@ async function fillInData() {
   await locationCallback(document.getElementById('location'));
   $('#parents').closest(".ui.dropdown").dropdown('set selected', studentData.parents);
   $('#blacklistTutors').closest(".ui.dropdown").dropdown('set selected', studentData.blacklistTutors);
+  return;
+}
+
+async function fillInParentData() {
+  const parentUID = queryStrings().parent;
+  const parentDoc = await firebase.firestore().collection('Users').doc(parentUID).get();
+
+  parentData = parentDoc.data()
+
+  // the only relavant fields is the location and the parents
+  document.getElementById('location').value = parentData.location;
+  await locationCallback(document.getElementById('location'));
+  $('#parents').closest(".ui.dropdown").dropdown('set selected', parentUID);
+
   return;
 }
 
