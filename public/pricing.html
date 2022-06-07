@@ -39,7 +39,7 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <header class="nav-start">
-      <a href="index.html" class="logo">
+      <a href="index.html" onclick="createAnalyticsEvent({eventID: 'navHomeClicked', page: 'pricing'})" class="logo">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
             <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -60,8 +60,8 @@
       <nav>
         <ul>
           <!-- <li><a href="index.html">Home</a></li> -->
-          <li><a href="why.html">Why Lyrn</a></li>
-          <li><a href="team.html">Our Team</a></li>
+          <li><a href="why.html" onclick="createAnalyticsEvent({eventID: 'navWhyClicked', page: 'pricing'})">Why Lyrn</a></li>
+          <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked', page: 'pricing'})">Our Team</a></li>
           <li><a href="#">Pricing</a></li>
           <!-- <li><a href="sign-in.html">Sign In</a></li> -->
           <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
@@ -243,7 +243,7 @@
           </div>
         </div>
 
-        <div class="program-selector">
+        <div class="program-selector" id="program_selector">
           <h3>I'm looking for</h3>
           <div class="selection-wrapper">
             <input type="radio" name="program-selection" id="previews" onclick=openProgram(event) checked>
@@ -388,7 +388,7 @@
               <label for="faq_1_previews" class="summary"><h3>How many previews can I sign up for?</h3></label>
               <div class="content">
                 <p>
-                  You can sign up for one preview for each section depending on openings.
+                  You can sign up for one preview for each section.
                 </p>
               </div>
             </div>
@@ -625,7 +625,7 @@
               <label for="faq_5_classes" class="summary"><h3>Where are the classes held?</h3></label>
               <div class="content">
                 <p>
-                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  All of our classes are online over Zoom. This along with our proprietary software allows for the most convienient
                   and state-of-the-art lessons.
                 </p>
               </div>
@@ -919,8 +919,14 @@
                 <li>Test tips and strategies</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="checkProgramCallback(1)">
+              <!-- <button class="select" onclick="checkProgramCallback(1)">
                 <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
               </button>
             </div>
 
@@ -951,8 +957,14 @@
                 <li>Test tips and strategies</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="checkProgramCallback(2)">
+              <!-- <button class="select" onclick="checkProgramCallback(2)">
                 <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
               </button>
             </div>
 
@@ -983,8 +995,14 @@
                 <li>Test tips and strategies</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="checkProgramCallback(3)">
+              <!-- <button class="select" onclick="checkProgramCallback(3)">
                 <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
               </button>
             </div>
           </div>
@@ -1065,7 +1083,8 @@
               <label for="faq_5_one-on-one" class="summary"><h3>Where are the lessons held?</h3></label>
               <div class="content">
                 <p>
-                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  Our lessons are held mainly online over Zoom (we are starting to have in-person lesson either in your home or a public place 
+                  only in Salt Lake and Utah County UT. Call for more details.) This along with our proprietary software allows for the most convienient
                   and state-of-the-art lessons. We know that online education might not sound the best after the pandemic, but our 1-on-1 tutoring
                   is far superior to classes of 30 students in one meeting.
                 </p>
@@ -1075,7 +1094,7 @@
               <input type="checkbox" name="faq" id="faq_6_one-on-one" class="faq_toggle">
               <label for="faq_6_one-on-one" class="summary"><h3>What does a lesson look like?</h3></label>
               <div class="content">
-                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. The in our Guided program
+                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. Then in our Guided program
                   the we go over specific topics that appear the most on the test to make the most of the short time we have. Then both programs 
                   wrap up with practice from actual ACT questions.
                 </p>

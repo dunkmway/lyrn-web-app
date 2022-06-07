@@ -29,6 +29,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
     <!-- Global site tag (gtag.js) - Google Ads: 10828068158 -->
@@ -76,9 +77,9 @@
       <nav>
         <ul>
           <!-- <li><a href="#">Home</a></li> -->
-          <li><a href="why.html">Why Lyrn</a></li>
-          <li><a href="team.html">Our Team</a></li>
-          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="why.html" onclick="createAnalyticsEvent({eventID: 'navWhyClicked', page: 'home'})">Why Lyrn</a></li>
+          <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked', page: 'home'})">Our Team</a></li>
+          <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked', page: 'home'})">Pricing</a></li>
           <!-- <li><a href="sign-in.html">Sign In</a></li> -->
           <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
           <!-- <li><a href="enroll.html">Enroll</a></li> -->
@@ -190,9 +191,9 @@
           <div class="background-main noselect">College Consultation</div>
         </div>
         <div class="hero__intro">
-          <h1>Advanced Online Tutoring</h1>
+          <h1>Advanced Data Driven Tutoring</h1>
           <h4>ACT Prep and Subject Tutoring with <a href="why.html">Adaptive Learning Intelligence</a></h4>
-          <div><a class="hero__button" href="pricing.html">Get 2 <b>FREE</b> hours of ACT Prep</a></div>
+          <div><a class="hero__button" href="pricing.html#program_selector" onclick="createAnalyticsEvent({eventID: 'heroButtonClicked', page: 'home'})">Get 2 <b>FREE</b> hours of ACT Prep</a></div>
         </div>
         <!-- <div class="hero__body">
             <img src="Images/Lyrn_hero_section_image.png" alt="Adaptive Learning in action">

@@ -35,6 +35,11 @@ function initialSetup() {
 
   //initialze the check program
   checkProgramInitialSetup();
+
+  createAnalyticsEvent({
+    eventID: 'load',
+    page: 'pricing'
+  })
 }
 
 function openCourse(sectionID) {
@@ -54,7 +59,15 @@ function openProgram(event) {
   window.scrollTo({
     top: offsetPosition,
     behavior: "smooth"
-}); 
+  }); 
+
+  createAnalyticsEvent({
+    eventID: 'programSelected',
+    page: 'pricing',
+    additionalData: {
+      program
+    }
+  })
 }
 
 function checkModalSetup() {
@@ -107,6 +120,10 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`,
+        page: 'pricing'
+      })
     })
 
     // add click event to close
@@ -145,6 +162,14 @@ async function submitPracticeTestRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'pricing',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-practiceTest'
+    }
+  })
   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
   submit.disabled = false;
@@ -171,6 +196,14 @@ async function submitLessonSeriesRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'pricing',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-lessonSeries'
+    }
+  })
   await sendLessonSeriesRequest(email.value, 'ACT-lessonSeries', 'pricing');
 
   submit.disabled = false;
@@ -213,6 +246,14 @@ document.querySelector('.practice-test-wrapper button').addEventListener('click'
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'pricing',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-practiceTest'
+    }
+  })
   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
   submit.disabled = false;
@@ -369,9 +410,9 @@ let currentProgramDetails = {
 
 async function checkProgramInitialSetup() {
   // set the check availability buttons into a loading state
-  document.querySelectorAll('.one-on-one button.select').forEach(button => {
-    button.disabled = true;
-  })
+  // document.querySelectorAll('.one-on-one button.select').forEach(button => {
+  //   button.disabled = true;
+  // })
 
   //calculate the program cards
   await updateSetPrograms();
@@ -454,16 +495,27 @@ async function updateSetPrograms() {
 }
 
 function createAnalyticsEvent(data) {
+  let userID = localStorage.getItem('userID'); 
+  if (!userID) {
+    userID = firebase.firestore().collection('Analytics').doc().id
+    localStorage.setItem('userID', userID);
+    firebase.firestore().collection('Analytics').doc('Aggregate').update({
+      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
+    })
+  }
+
   return firebase.firestore().collection('Analytics').doc().set({
     ...data,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    userID
   })
 }
 
 function availableClassesCallback(programIndex) {
   document.querySelector('#availableClassesModal').classList.add('show');
   createAnalyticsEvent({
-    eventID: 'pricing-availableClassesClicked',
+    eventID: 'availableClassesClicked',
+    page: 'pricing',
     additionalData: {
       programIndex
     }
@@ -474,7 +526,8 @@ function availableClassesCallback(programIndex) {
 function availableStudyGroupsCallback(programIndex) {
   document.querySelector('#availableStudyGroupsModal').classList.add('show');
   createAnalyticsEvent({
-    eventID: 'pricing-availableStudyGroupsClicked',
+    eventID: 'availableStudyGroupsClicked',
+    page: 'pricing',
     additionalData: {
       programIndex
     }
@@ -485,7 +538,8 @@ function availableStudyGroupsCallback(programIndex) {
 function checkProgramCallback(programIndex) {
   document.querySelector('#checkProgram').classList.add('show');
   createAnalyticsEvent({
-    eventID: 'pricing-checkAvailabilityClicked',
+    eventID: 'checkAvailabilityClicked',
+    page: 'pricing',
     additionalData: {
       programIndex
     }
@@ -498,7 +552,8 @@ function moveToReserveProgram() {
   document.querySelector('#reserveProgram').classList.add('show');
 
   createAnalyticsEvent({
-    eventID: 'pricing-reserveClicked',
+    eventID: 'reserveClicked',
+    page: 'pricing',
     additionalData: {
       programDetails: {
         programLength: currentProgramDetails.programLength,

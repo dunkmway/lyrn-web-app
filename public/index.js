@@ -23,6 +23,27 @@ let aboutAnimations = [];
 function afterLoad() {
   aboutSetup();
   bannerSetup();
+  createAnalyticsEvent({
+    eventID: 'load',
+    page: 'home'
+  })
+}
+
+function createAnalyticsEvent(data) {
+  let userID = localStorage.getItem('userID'); 
+  if (!userID) {
+    userID = firebase.firestore().collection('Analytics').doc().id
+    localStorage.setItem('userID', userID);
+    firebase.firestore().collection('Analytics').doc('Aggregate').update({
+      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
+    })
+  }
+
+  return firebase.firestore().collection('Analytics').doc().set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    userID
+  })
 }
 
 //navbar section
@@ -193,6 +214,10 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`,
+        page: 'home'
+      })
     })
 
     // add click event to close
@@ -231,6 +256,14 @@ async function submitPracticeTestRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'home',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-practiceTest'
+    }
+  })
   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'home');
 
   submit.disabled = false;
@@ -257,6 +290,14 @@ async function submitLessonSeriesRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'home',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-lessonSeries'
+    }
+  })
   await sendLessonSeriesRequest(email.value, 'ACT-lessonSeries', 'home');
 
   submit.disabled = false;
@@ -329,6 +370,14 @@ function goForwardToQuestion(nextQuestion, answer) {
   questionnaireAnswers.push(answer);
 
   updateQuestionnaireProgress();
+
+  createAnalyticsEvent({
+    eventID: 'questionnaireForward',
+    page: 'home',
+    additionalData: {
+      questionnaireAnswers
+    }
+  })
 }
 
 function goBackAQuestion() {
@@ -342,6 +391,14 @@ function goBackAQuestion() {
   questionnaireAnswers.pop();
 
   updateQuestionnaireProgress();
+
+  createAnalyticsEvent({
+    eventID: 'questionnaireBackwards',
+    page: 'home',
+    additionalData: {
+      questionnaireAnswers
+    }
+  })
 }
 
 function updateQuestionnaireProgress() {
@@ -390,6 +447,14 @@ async function submitQuestionnaire() {
   }
 
   try {
+    createAnalyticsEvent({
+      eventID: 'emailProvided',
+      page: 'home',
+      additionalData: {
+        email: email.value,
+        from: 'questionnaire'
+      }
+    })
     await sendQuestionnaireRequest(name.value, email.value, questionnaireAnswers.toString().replaceAll(',', ', '));
     submit.classList.remove('loading');
     submit.disabled = false;

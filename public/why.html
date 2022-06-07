@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
     <script src="why.js" defer></script>
@@ -30,13 +31,13 @@
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
   </head>
 
-  <body onload="bannerSetup()">
+  <body onload="initialSetup()">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N393M5F"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <header class="nav-start">
-      <a href="index.html" class="logo">
+      <a href="index.html" onclick="createAnalyticsEvent({eventID: 'navHomeClicked', page: 'why'})" class="logo">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
             <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -58,8 +59,8 @@
         <ul>
           <!-- <li><a href="index.html">Home</a></li> -->
           <li><a href="#">Why Lyrn</a></li>
-          <li><a href="team.html">Our Team</a></li>
-          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked', page: 'why'})">Our Team</a></li>
+          <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked', page: 'why'})">Pricing</a></li>
           <!-- <li><a href="sign-in.html">Sign In</a></li> -->
           <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
           <!-- <li><a href="enroll.html">Enroll</a></li> -->

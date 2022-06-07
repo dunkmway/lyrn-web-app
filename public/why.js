@@ -18,6 +18,31 @@ appCheck.activate(
   true
 )
 
+function createAnalyticsEvent(data) {
+  let userID = localStorage.getItem('userID'); 
+  if (!userID) {
+    userID = firebase.firestore().collection('Analytics').doc().id
+    localStorage.setItem('userID', userID);
+    firebase.firestore().collection('Analytics').doc('Aggregate').update({
+      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
+    })
+  }
+
+  return firebase.firestore().collection('Analytics').doc().set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    userID
+  })
+}
+
+function initialSetup() {
+  bannerSetup();
+  createAnalyticsEvent({
+    eventID: 'load',
+    page: 'why'
+  })
+}
+
 function bannerSetup() {
   // get the banners
   const banners = document.querySelectorAll('.banner');
@@ -29,6 +54,10 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`,
+        page: 'why'
+      })
     })
 
     // add click event to close
@@ -67,6 +96,14 @@ async function submitPracticeTestRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'why',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-practiceTest'
+    }
+  })
   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'why');
 
   submit.disabled = false;
@@ -93,6 +130,14 @@ async function submitLessonSeriesRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    page: 'why',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-lessonSeries'
+    }
+  })
   await sendLessonSeriesRequest(email.value, 'ACT-lessonSeries', 'why');
 
   submit.disabled = false;

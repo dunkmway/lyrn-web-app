@@ -18,9 +18,30 @@ appCheck.activate(
   true
 )
 
+function createAnalyticsEvent(data) {
+  let userID = localStorage.getItem('userID'); 
+  if (!userID) {
+    userID = firebase.firestore().collection('Analytics').doc().id
+    localStorage.setItem('userID', userID);
+    firebase.firestore().collection('Analytics').doc('Aggregate').update({
+      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
+    })
+  }
+
+  return firebase.firestore().collection('Analytics').doc().set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    userID
+  })
+}
+
 function initialSetup() {
   bannerSetup();
   randomizeTutors();
+  createAnalyticsEvent({
+    eventID: 'load',
+    page: 'team'
+  })
 }
 
 function bannerSetup() {
@@ -34,6 +55,10 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`,
+        page: 'team'
+      })
     })
 
     // add click event to close
