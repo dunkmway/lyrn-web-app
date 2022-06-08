@@ -372,17 +372,17 @@ function goBackAQuestion() {
   current.classList.remove('open');
   previous.classList.remove('closed');
 
-  questionnairePath.pop();
-  questionnaireAnswers.pop();
-
-  updateQuestionnaireProgress();
-
   createAnalyticsEvent({
     eventID: 'questionnaireBackwards',
     additionalData: {
       questionnaireAnswers
     }
   })
+
+  questionnairePath.pop();
+  questionnaireAnswers.pop();
+
+  updateQuestionnaireProgress();
 }
 
 function updateQuestionnaireProgress() {
