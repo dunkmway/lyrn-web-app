@@ -488,26 +488,6 @@ async function updateSetPrograms() {
   })
 }
 
-function createAnalyticsEvent(data) {
-  if (window.location.hostname == 'localhost') return;
-
-  let userID = localStorage.getItem('userID'); 
-  if (!userID) {
-    userID = firebase.firestore().collection('Analytics').doc().id
-    localStorage.setItem('userID', userID);
-    firebase.firestore().collection('Analytics').doc('Aggregate').update({
-      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
-    })
-  }
-
-  return firebase.firestore().collection('Analytics').doc().set({
-    ...data,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    userID,
-    page: window.location.pathname
-  })
-}
-
 function availableClassesCallback(programIndex) {
   document.querySelector('#availableClassesModal').classList.add('show');
   createAnalyticsEvent({

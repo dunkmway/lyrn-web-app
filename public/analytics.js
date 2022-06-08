@@ -1,3 +1,39 @@
+async function updatePageReference() {
+  try {
+    const analyticsQuery = await firebase.firestore().collection('Analytics').get();
+    
+    await Promise.all(analyticsQuery.docs.map(doc => {
+      const oldPage = doc.data().page;
+  
+      switch (oldPage) {
+        case 'home':
+          return doc.ref.update({ page: '/' });
+        case 'why':
+          return doc.ref.update({ page: '/why' });
+        case 'team':
+          return doc.ref.update({ page: '/team' });
+        case 'pricing':
+          return doc.ref.update({ page: '/pricing' });
+        default:
+          return;
+      }
+    }))
+    return 'Pages have been updated!'
+  }
+  catch (error) {
+    throw error;
+  }
+}
+
+async function test() {
+  try {
+    return await updatePageReference();
+  }
+  catch (error) {
+    return error
+  }
+}
+
 function initialSetup() {
 
   getUserList()
