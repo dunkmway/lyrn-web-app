@@ -19,6 +19,8 @@ appCheck.activate(
 )
 
 function createAnalyticsEvent(data) {
+  if (window.location.hostname == 'localhost') return;
+
   let userID = localStorage.getItem('userID'); 
   if (!userID) {
     userID = firebase.firestore().collection('Analytics').doc().id
@@ -31,15 +33,15 @@ function createAnalyticsEvent(data) {
   return firebase.firestore().collection('Analytics').doc().set({
     ...data,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    userID
+    userID,
+    page: window.location.pathname
   })
 }
 
 function initialSetup() {
   bannerSetup();
   createAnalyticsEvent({
-    eventID: 'load',
-    page: 'why'
+    eventID: 'load'
   })
 }
 
@@ -55,8 +57,7 @@ function bannerSetup() {
     banner.addEventListener('click', () => {
       modal.classList.add('show');
       createAnalyticsEvent({
-        eventID: `${banner.id.split('_')[0]}BannerClicked`,
-        page: 'why'
+        eventID: `${banner.id.split('_')[0]}BannerClicked`
       })
     })
 
@@ -98,7 +99,6 @@ async function submitPracticeTestRequest(e) {
 
   createAnalyticsEvent({
     eventID: 'emailProvided',
-    page: 'why',
     additionalData: {
       email: email.value,
       from: 'ACT-practiceTest'
@@ -132,7 +132,6 @@ async function submitLessonSeriesRequest(e) {
 
   createAnalyticsEvent({
     eventID: 'emailProvided',
-    page: 'why',
     additionalData: {
       email: email.value,
       from: 'ACT-lessonSeries'

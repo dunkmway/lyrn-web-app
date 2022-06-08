@@ -1,0 +1,25 @@
+main {
+  padding: 2em;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.input {
+  display: block;
+  margin: 0em 0em 1em;
+  border: 2px solid slategray;
+  padding: .5em 1em;
+}
+
+button {
+  cursor: pointer;
+}
+
+.result {
+  border: 2px solid black;
+  padding: 1em;
+  margin: 1em;
+}
+

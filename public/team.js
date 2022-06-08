@@ -19,6 +19,8 @@ appCheck.activate(
 )
 
 function createAnalyticsEvent(data) {
+  if (window.location.hostname == 'localhost') return;
+
   let userID = localStorage.getItem('userID'); 
   if (!userID) {
     userID = firebase.firestore().collection('Analytics').doc().id
@@ -31,7 +33,8 @@ function createAnalyticsEvent(data) {
   return firebase.firestore().collection('Analytics').doc().set({
     ...data,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    userID
+    userID,
+    page: window.location.pathname
   })
 }
 
@@ -39,8 +42,7 @@ function initialSetup() {
   bannerSetup();
   randomizeTutors();
   createAnalyticsEvent({
-    eventID: 'load',
-    page: 'team'
+    eventID: 'load'
   })
 }
 
@@ -56,8 +58,7 @@ function bannerSetup() {
     banner.addEventListener('click', () => {
       modal.classList.add('show');
       createAnalyticsEvent({
-        eventID: `${banner.id.split('_')[0]}BannerClicked`,
-        page: 'team'
+        eventID: `${banner.id.split('_')[0]}BannerClicked`
       })
     })
 

@@ -25,11 +25,12 @@ function afterLoad() {
   bannerSetup();
   createAnalyticsEvent({
     eventID: 'load',
-    page: 'home'
   })
 }
 
 function createAnalyticsEvent(data) {
+  if (window.location.hostname == 'localhost') return;
+
   let userID = localStorage.getItem('userID'); 
   if (!userID) {
     userID = firebase.firestore().collection('Analytics').doc().id
@@ -42,7 +43,8 @@ function createAnalyticsEvent(data) {
   return firebase.firestore().collection('Analytics').doc().set({
     ...data,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    userID
+    userID,
+    page: window.location.pathname
   })
 }
 
@@ -161,6 +163,13 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
   .then(() => {
     event.target.reset();
     submitBtn.value = 'We got it!'
+    createAnalyticsEvent({
+      eventID: 'emailProvided',
+      additionalData: {
+        email: data.email,
+        from: 'contactForm'
+      }
+    })
   })
   .catch(error => {
     // console.log(error)
@@ -215,8 +224,7 @@ function bannerSetup() {
     banner.addEventListener('click', () => {
       modal.classList.add('show');
       createAnalyticsEvent({
-        eventID: `${banner.id.split('_')[0]}BannerClicked`,
-        page: 'home'
+        eventID: `${banner.id.split('_')[0]}BannerClicked`
       })
     })
 
@@ -258,7 +266,6 @@ async function submitPracticeTestRequest(e) {
 
   createAnalyticsEvent({
     eventID: 'emailProvided',
-    page: 'home',
     additionalData: {
       email: email.value,
       from: 'ACT-practiceTest'
@@ -292,7 +299,6 @@ async function submitLessonSeriesRequest(e) {
 
   createAnalyticsEvent({
     eventID: 'emailProvided',
-    page: 'home',
     additionalData: {
       email: email.value,
       from: 'ACT-lessonSeries'
@@ -357,7 +363,7 @@ async function sendQuestionnaireRequest(name, email, answers) {
 
 let questionnairePath = [0];
 let questionnaireAnswers = [];
-const questionnaireLength = 5;
+const questionnaireLength = 6;
 
 function goForwardToQuestion(nextQuestion, answer) {
   const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`).parentNode;
@@ -373,7 +379,6 @@ function goForwardToQuestion(nextQuestion, answer) {
 
   createAnalyticsEvent({
     eventID: 'questionnaireForward',
-    page: 'home',
     additionalData: {
       questionnaireAnswers
     }
@@ -394,7 +399,6 @@ function goBackAQuestion() {
 
   createAnalyticsEvent({
     eventID: 'questionnaireBackwards',
-    page: 'home',
     additionalData: {
       questionnaireAnswers
     }
@@ -449,7 +453,6 @@ async function submitQuestionnaire() {
   try {
     createAnalyticsEvent({
       eventID: 'emailProvided',
-      page: 'home',
       additionalData: {
         email: email.value,
         from: 'questionnaire'
@@ -458,13 +461,36 @@ async function submitQuestionnaire() {
     await sendQuestionnaireRequest(name.value, email.value, questionnaireAnswers.toString().replaceAll(',', ', '));
     submit.classList.remove('loading');
     submit.disabled = false;
-    submit.textContent = 'Sent!'
+    goForwardToQuestion(8, { name: name.value, email: email.value })
   }
   catch (error) {
     error.textContent = 'We are having issues submitting this request. Please try again.';
     submit.classList.remove('loading');
     submit.disabled = false;
   }
+}
+
+function resetQuestionnaire() {
+  // clear all of the inputs
+  document.querySelectorAll('.questionnaire input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+  document.querySelectorAll('.questionnaire input[type="text"]').forEach(text => text.value = '');
+  document.querySelectorAll('.questionnaire input[type="email"]').forEach(email => email.value = '');
+
+  // remove all of the open and closed classes from all of the panels
+  document.querySelectorAll('.questionnaire .panel').forEach(panel => {
+    panel.classList.remove('open');
+    panel.classList.remove('closed');
+  })
+
+  // reopen the first question
+  document.getElementById('question_0').parentNode.classList.add('open');
+
+  // reset the questionnaire state
+  questionnairePath = [0];
+  questionnaireAnswers = [];
+
+  //update the progress bar
+  updateQuestionnaireProgress();
 
 }
 

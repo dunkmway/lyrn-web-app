@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analytics</title>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- semantic UI -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <!-- Toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- flatpickr (date picker)-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link href="analytics.css" rel="stylesheet">
+    <link href="Site Templates/site-wide.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
+
+    <script src="Site Templates/site-wide.js"></script>
+    <script src="Site Templates/formatting.js" defer></script>
+    <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="analytics.js" defer></script>
+  </head>
+
+  <body onload="initialSetup()">
+    <main>
+      <label for="user">User</label>
+      <select id="user" class="input"></select>
+
+      <label for="event">Event</label>
+      <input type="text" id="event" class="input">
+
+      <label for="page">Page</label>
+      <input type="text" id="page" class="input">
+
+      <label for="hasStart">Include Start</label>
+      <input type="checkbox" id="hasStart">
+      <br>
+      <label for="start">Start</label>
+      <input id="start" class="input">
+
+      <label for="hasEnd">Include End</label>
+      <input type="checkbox" id="hasEnd">
+      <br>
+      <label for="end">End</label>
+      <input id="end" class="input">
+
+      <label for="none">NONE</label>
+      <input type="radio" name="order" id="none" value="" checked>
+      <label for="asc">ASC</label>
+      <input type="radio" name="order" id="asc" value="asc">
+      <label for="desc">DESC</label>
+      <input type="radio" name="order" id="desc" value="desc">
+
+      <button onclick="runQuery()">Submit Query</button>
+
+      <p><span id="numResults">0</span> results</p>
+      <div id="results"></div>
+    </main>
+  </body>
