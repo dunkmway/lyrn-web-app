@@ -62,6 +62,9 @@ const ACT_PROGRAMS = ['actBasics', 'actGuided', 'actFundamentals', 'actComprehen
 
 const CURRENT_STUDENT_UID = queryStrings().student;
 
+let currentUser = null;
+let currentUserRole = null;
+
 let current_data = {
   mode: 'default',
   test: null,
@@ -74,6 +77,7 @@ let current_data = {
 async function initialSetup() {
   changeMode('default');
   initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+  setCurrentUser();
   try {
     await setLandingPage(CURRENT_STUDENT_UID);
   }
@@ -83,6 +87,18 @@ async function initialSetup() {
 }
 
 initialSetup();
+
+function setCurrentUser() {
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      const idTokenResult = await user.getIdTokenResult()
+      const role = idTokenResult.claims.role
+
+      currentUser = user;
+      currentUserRole = role;
+    }
+  })
+}
 
 
 /**
@@ -1486,11 +1502,11 @@ async function setPreviousQuestion(test, section, question) {
       // if there already exists an answer for this question on this assignment
       if (answerData) {
         current_data.answer = answerDoc.id;
-        renderPreviousQuestion(questionData, answerData)
+        renderPreviousQuestion(questionData, answerData, ['tutor', 'admin', 'dev'].includes(currentUserRole))
       }
       else {
         current_data.answer = null;
-        renderPreviousQuestion(questionData);
+        renderPreviousQuestion(questionData, null, ['tutor', 'admin', 'dev'].includes(currentUserRole));
       }
   
       current_data.test = test;
@@ -1503,14 +1519,14 @@ async function setPreviousQuestion(test, section, question) {
   }
 }
 
-function renderPreviousQuestion(questionData, answerData = null) {
+function renderPreviousQuestion(questionData, answerData = null, showCorrectAnswer = false) {
   // document.querySelector('.main .panels .question').classList.remove('hide');
 
   //render the question text
   document.getElementById('questionNumber').textContent = questionData.problem;
   document.getElementById('questionText').innerHTML = questionData.questionText;
 
-  // handle teh questions that have markers in the passage that need to be highlighted
+  // handle the questions that have markers in the passage that need to be highlighted
   document.querySelectorAll(`.passage-container span[data-question]`).forEach(question => { question.classList.remove('highlighted') });
   document.querySelectorAll(`.passage-container span[data-question="${questionData.problem}"]`).forEach(question => { question.classList.add('highlighted'); });
 
@@ -1529,7 +1545,7 @@ function renderPreviousQuestion(questionData, answerData = null) {
 
     const choiceElem = document.createElement('div');
     choiceElem.classList.add('choice');
-    if (isCorrectChoice) {
+    if (isCorrectChoice && showCorrectAnswer) {
       choiceElem.classList.add('correct');
     }
     // choiceElem.innerHTML = `
