@@ -696,6 +696,10 @@ MASTER */
     padding: 1px;
 }
 
+.item:disabled {
+  opacity: .5;
+}
+
 .sectionBox {
   width: 25%;
   padding-top: calc(6vh - 0.5em - 4px);
