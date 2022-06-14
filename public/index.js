@@ -109,7 +109,7 @@ const analyticsObserver = new IntersectionObserver((entries, animationObserver) 
       createAnalyticsEvent({
         eventID: 'sectionScroll',
         additionalData: {
-          sectionID: entry.id
+          sectionID: entry.target.id
         }
       })
     }
