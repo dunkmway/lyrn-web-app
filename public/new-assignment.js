@@ -1,3 +1,5 @@
+const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id
+
 function initialSetup() {
   const nameSearchInput = debounce(() => queryUsers(), 500);
   document.getElementById('nameSearch').addEventListener('input', nameSearchInput);
@@ -143,9 +145,8 @@ async function setAssignment() {
   }
 
   if (student == 'anonymous') {
-    const anonymousUID = firebase.firestore().collection('Users').doc().id
     await firebase.firestore().collection('Section-Assignments').doc().set({
-      student: anonymousUID,
+      student: ANONYMOUS_UID,
       test,
       section,
       open,
@@ -154,8 +155,8 @@ async function setAssignment() {
       status: 'new'
     })
 
-    document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker?student=${anonymousUID}`;
-    document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker?student=${anonymousUID}`;
+    document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker?student=${ANONYMOUS_UID}`;
+    document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker?student=${ANONYMOUS_UID}`;
   }
   else {
     await firebase.firestore().collection('Section-Assignments').doc().set({
