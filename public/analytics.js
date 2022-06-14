@@ -19,14 +19,12 @@ function initialSetup() {
 
   flatpickr('#start', {
     defaultDate: 'today',
-    minDate: 'today',
     dateFormat: 'M j, Y h:i K',
     enableTime: true
   });
 
   flatpickr('#end', {
-    defaultDate: 'today',
-    minDate: 'today',
+    defaultDate: new Date(new Date().setHours(24,0,0,0)),
     dateFormat: 'M j, Y h:i K',
     enableTime: true
   });
