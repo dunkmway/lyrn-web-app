@@ -144,6 +144,23 @@ async function setAssignment() {
     return;
   }
 
+  // set the date to the earliest right now
+  if (open.getTime() < new Date().getTime()) { open = new Date(); };
+
+  // check for impossible open and close times
+  if (open.getTime() >= close.getTime()) {
+    customConfirm(
+      'You have impossible open and close times.',
+      '',
+      'OK',
+      () => {},
+      () => {}
+    );
+
+    document.querySelectorAll('button').forEach(button => button.disabled = false);
+    return;
+  }
+
   if (student == 'anonymous') {
     await firebase.firestore().collection('Section-Assignments').doc().set({
       student: ANONYMOUS_UID,
