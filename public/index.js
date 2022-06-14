@@ -99,6 +99,30 @@ const aboutAnimationObserver = new IntersectionObserver((entries, animationObser
 }, animationOptions)
 // aboutAnimationObserver.observe(aboutSection)
 
+const analyticsOptions = {
+  threshold: 0.5
+};
+// analytics intersection observer
+const analyticsObserver = new IntersectionObserver((entries, animationObserver) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      createAnalyticsEvent({
+        eventID: 'sectionScroll',
+        additionalData: {
+          sectionID: entry.id
+        }
+      })
+    }
+  })
+}, analyticsOptions)
+
+analyticsObserver.observe(document.querySelector('.hero'));
+analyticsObserver.observe(document.querySelector('.questionnaire'));
+analyticsObserver.observe(document.querySelector('.method'));
+analyticsObserver.observe(document.querySelector('.tutors'));
+analyticsObserver.observe(document.querySelector('.about'));
+analyticsObserver.observe(document.querySelector('.contact'));
+
 //work with the about section animations
 
 function aboutSetup() {
