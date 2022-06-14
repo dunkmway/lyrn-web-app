@@ -102,6 +102,17 @@ function searchResultClicked(userName, userUID, userRole) {
     userUID,
     userRole
   })
+
+  switch (userRole) {
+    case 'tutor':
+      break;
+    case 'student':
+      window.location.href = `../customer-dashboard.html?student=${userUID}`;
+      break;
+    case 'parent':
+      break;
+    default: 
+  }
 }
 
 function initialSetupData() {
