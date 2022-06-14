@@ -127,7 +127,7 @@ async function setAssignment() {
   const student = document.getElementById('nameSearch').dataset.value;
   const test = document.getElementById('testList').value;
   const section = document.getElementById('sections').value;
-  const open = document.getElementById('open')._flatpickr.selectedDates[0];
+  let open = document.getElementById('open')._flatpickr.selectedDates[0];
   const close = document.getElementById('close')._flatpickr.selectedDates[0];
   const program = document.getElementById('programs').value;
 
