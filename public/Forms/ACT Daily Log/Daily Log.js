@@ -20,8 +20,9 @@ let initialScores = {};
                   //'71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A',
                   //'66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
 // REMOVE - revert to test lists above
-const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
-const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
+// const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
+const hwTests = ['C01', 'B02', 'C02', 'B05'];
+const icTests  = ['C03', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // Other needed info
 const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
@@ -347,7 +348,7 @@ function addCompletedHomeworks() {
     setObjectValue([test, section, 'status'], student_tests[section][test]['status'], test_answers_grading)
 
     // Create the array for the test that needs graded this session
-    addAssignedTest(test, section, 'green');
+    // addAssignedTest(test, section, 'green');
 
     // Store the id
     /*ids.push({
@@ -1518,47 +1519,84 @@ async function assignHomework() {
   setObjectValue(['scaledScore'], -1, obj);
 
   // Send the object to Fb
-  let ref = firebase.firestore().collection('ACT-Student-Tests').doc()
-  ref.set(obj)
+  let ref = null;
+  try {
+    // the homework will be saved either way then determine how it will be sent
+    ref = firebase.firestore().collection('ACT-Student-Tests').doc()
+    await ref.set(obj)
 
-  // Indicate that the test has been assigned
-  .then(() => {
-    // Swap buttons
-    assign.classList.add('hidden')
-    unassign.classList.remove('hidden')
+    // get the test id
+    const testQuery = await firebase.firestore().collection('ACT-Tests')
+    .where('type', '==', 'test')
+    .where('test', '==', test)
+    .limit(1)
+    .get();
 
-    // Re-enable the buttons again
-    assign.disabled = false;
-    unassign.disabled = false;
+    // if we can get the test on the test-taker
+    if (testQuery.size == 1) {
+      // send off the assignment for test taker
+      const sectionTimes = {
+        english: 45,
+        math: 60,
+        reading: 35,
+        science: 35
+      }
+      const buffer = 5;
+    
+      const assignmentData = {
+        open: new Date(),
+        close: new Date(lessonDoc.data().start - ((sectionTimes[section] + buffer) * 60 * 1000)),
+        program: CURRENT_STUDENT_TYPE,
+        section,
+        status: 'new',
+        student: CURRENT_STUDENT_UID,
+        test: testQuery.docs[0].id
+      }
 
-    // Add the test to the composite page
-    addAssignedTest(test, section)
+      await firebase.firestore().collection('Section-Assignments').doc().set(assignmentData);
 
-    ids.push({
-      'type' : 'homework',
-      'section' : section,
-      'test' : test,
-      'action' : 'assign',
-      'id' : ref.id
-    })
+      const sendHomework = firebase.functions().httpsCallable('daily_log-sendHomework');
+      await sendHomework({ testURL: `https://lyrnwithus.com/test-taker?student=${CURRENT_STUDENT_UID}`, student: CURRENT_STUDENT_UID });
 
-    numAssignedTests += 1;
-    submitSession()
-  })
-  
-  // Indicate that the test wasn't assigned successfully
-  .catch((error) => {
+      alert('Test sent to student. Verify that they have received it.');
+    } 
+    else {
+      alert('Test not found. Please contact Duncan to resolve this issue.');
+    }
+  } 
+  catch (error) {
+    // Indicate that the test wasn't assigned successfully
     console.log(error)
     assign.disabled = false;
-    unassign.disabled = false;
+    // unassign.disabled = false;
+  }
+
+  // Indicate that the test has been assigned
+  // Swap buttons
+  assign.classList.add('hidden')
+  unassign.classList.remove('hidden')
+
+  // Re-enable the buttons again
+  assign.disabled = false;
+  // unassign.disabled = false;
+
+  // Add the test to the composite page
+  // addAssignedTest(test, section);
+
+  ids.push({
+    'type' : 'homework',
+    'section' : section,
+    'test' : test,
+    'action' : 'assign',
+    'id' : ref.id
   })
 
-  // Open the test to print
-  getTestURL(test, section)
-  .then(testURL => {
-    const sendHomework = firebase.functions().httpsCallable('daily_log-sendHomework');
-    sendHomework({ testURL, student: CURRENT_STUDENT_UID });
-  })
+  numAssignedTests += 1;
+  submitSession()
+}
+
+function goToTestTaker() {
+  window.location.href = `../../test-taker.html?student=${CURRENT_STUDENT_UID}`
 }
 
 async function getNextLessonDoc() {
@@ -1590,7 +1628,7 @@ function closeTestList(section) {
 }
 
 function initializeEmptyAnswers(test, section) {
-  const questions = test_answers_data[test][section + "Answers"]
+  const questions = test_answers_data?.[test]?.[section + "Answers"] ?? []
   let studentQuestions = [];
   for (let i = 0; i < questions.length; i++) {
     studentQuestions.push({

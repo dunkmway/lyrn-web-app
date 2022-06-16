@@ -678,7 +678,13 @@ function initializeAssignmentsSnapshot(studentUID) {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      if (data.status == 'new' || data.status == 'started') {
+      if (data.status == 'started') {
+        currentAssignments.push({
+          ...data,
+          assignment: doc.id
+        });
+      }
+      else if (data.status == 'new') {
         // filter out the current assignments that aren't open right now
         if (
           data.open.toDate().getTime() <= new Date().getTime() && 
