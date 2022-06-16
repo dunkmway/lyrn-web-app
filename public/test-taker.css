@@ -83,7 +83,7 @@ body {
   font-family: "proxima-nova", sans-serif;
   font-size: 1rem;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: auto;
   width: 100vw;
   margin: 0;
 }
@@ -159,7 +159,7 @@ section.hide {
 }
 
 .landing .content {
-  padding: 4em 4em 0em 4em;
+  padding: 4em;
   display: grid;
   height: 100%;
   grid-template-columns: 1fr 1fr;
@@ -170,7 +170,9 @@ section.hide {
 
 @media screen and (max-width: 800px) {
   .landing .content {
+    padding: 2em;
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr 1fr;
   }
 }
 
