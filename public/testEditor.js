@@ -2930,3 +2930,109 @@ addTopic('science', 'Experimental Design', '')
 addTopic('science', 'Conflicting Viewpoints', '')
 addTopic('science', 'Modify the experiment', '')
 */
+
+
+/*async function transferCurriculum(topic = "") {
+	// Set the firestore reference
+	let ref = firebase.firestore();
+	if (topic == "") {
+		ref = ref.collection('Dynamic-Content').doc('curriculum-topics').collection('Topics')
+	}
+	else {
+		ref = ref.collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').where('topic', '==', topic)
+	}
+
+	// Grab the data from firebase
+	let querySnapshot = await ref.get()
+
+	try {
+		const results = await Promise.all(querySnapshot.docs.map((doc, i) => {
+			let data = doc.data()
+			delete data.type
+			delete data.subTopics
+			data['content'] = data.curriculum ?? null
+			delete data.curriculum
+			data['createdAt'] = firebase.firestore().FieldValue.serverTimestamp()
+
+			return firebase.firestore().collection('ACT-Topics').doc().set(data)
+			.then(() => data)
+		}))
+
+		console.log(results)
+	}
+	catch(e) {
+		console.log(`Funciton Failed: ${e}`)
+	}
+
+}*/
+
+async function grabAnalytics() {
+	const ref = firebase.firestore().collection('Analytics')
+	let querySnapshot = await ref.get()
+
+	let master = [['Id', 'Page', 'Event', 'Datetime', 'Additional Data']]
+	querySnapshot.forEach((doc) => {
+		let data = doc.data();
+		if (doc.id != 'Aggregate') {
+			master.push([data['userID'], data['page'], data['eventID'], convertFromDateInt(data['createdAt'].toDate().getTime()).completeCalendar, JSON.stringify(data['additionalData'])])
+		}
+	})
+
+	console.log(master)
+
+	exportToCsv('Data.csv', master)
+}
+
+function exportToCsv(filename, rows) {
+    var processRow = function (row) {
+        var finalVal = '';
+        for (var j = 0; j < row.length; j++) {
+            var innerValue = row[j] === null ? '' : (row[j]?.toString() ?? '');
+            if (row[j] instanceof Date) {
+                innerValue = row[j].toLocaleString();
+            };
+            var result = innerValue.replace(/"/g, '""');
+            if (result.search(/("|,|\n)/g) >= 0)
+                result = '"' + result + '"';
+            if (j > 0)
+                finalVal += ',';
+            finalVal += result;
+        }
+        return finalVal + '\n';
+    };
+
+    var csvFile = '';
+    for (var i = 0; i < rows.length; i++) {
+        csvFile += processRow(rows[i]);
+    }
+
+    var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        var link = document.createElement("a");
+        if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+}
+
+/*async function removeTest(test) {
+	const ref = firebase.firestore().collection('ACT-Tests').where('test', '==', test)
+
+	let querySnapshot = await ref.get()
+
+	querySnapshot.forEach((doc) => {
+		if (doc.data()['test'] == test) {
+			firebase.firestore().collection('ACT-Tests').doc(doc.id).delete()
+		}
+	})
+
+}*/
