@@ -3,6 +3,7 @@ const CURRENT_STUDENT_UID = queryStrings().student;
 
 let student_doc = null;
 let parent_doc = null;
+let location_doc = null;
 let current_events = [];
 let current_event_filter = {
   student: null,
@@ -27,12 +28,34 @@ async function test() {
   else {
     renderHeader(student_doc.data().firstName + ' ' + student_doc.data().lastName)
   }
+  setUpLinks();
+  location_doc = await firebase.firestore().collection('Locations').doc('WIZWBumUoo7Ywkc3pl2G').get();
 
   listenToAttendee(CURRENT_STUDENT_UID);
 }
 
 function getUserDoc(userUID) {
   return db.collection('Users').doc(userUID).get();
+}
+
+function setUpLinks() {
+  const links = document.querySelectorAll('nav .links > a');
+  links.forEach(link => {
+    if (link.dataset.query) {
+      const queries = link.dataset.query.split(',');
+      if (queries.length > 0) {
+        queries.forEach((query, index) => {
+          const queryUID = query === 'student' ? student_doc.id : (query === 'parent') ? parent_doc.id : '';
+          if (index === 0) {
+            link.href += `?${query}=${queryUID}`
+          }
+          else {
+            link.href += `&${query}=${queryUID}`
+          }
+        })
+      }
+    }
+  })
 }
 
 function renderHeader(studentName, parentName = 'No Parent', balance = 0) {
@@ -45,7 +68,7 @@ function renderHeader(studentName, parentName = 'No Parent', balance = 0) {
 function formatAmount(amount, currency) {
   amount = zeroDecimalCurrency(amount, currency)
     ? amount
-    : (amount / 100).toFixed(2);
+    : amount.toFixed(2);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -141,22 +164,26 @@ function orderEvents() {
   })
 }
 
-function renderEvent(attendeeID) {
+async function renderEvent(attendeeID) {
+  // get the event data
+  const eventData = current_events.find(event => event.attendeeDoc.id === attendeeID);
+  const tutorDocs = await Promise.all(eventData.eventDoc.data().staff.map(tutorUID => getUserDoc(tutorUID)));
+  const tutorNames = tutorDocs.map(doc => doc.data().firstName + ' ' + doc.data().lastName);
+
   // check if the event element already exists
   if (document.querySelector(`.event[data-id="${attendeeID}"]`)) {
     // replace the innerhtml of the event
-    const eventData = current_events.find(event => event.attendeeDoc.id === attendeeID);
     const eventElem = document.querySelector(`.event[data-id="${attendeeID}"]`);
     eventElem.innerHTML = `
       <div class="summary"
-      <h4 class="title">${eventData.eventDoc.data().title}</h4>
-      <h4 class="time">${new Date(eventData.eventDoc.data().start).toDateString()}</h4>
+        <h4 class="title">${convertLessonTypeReadable(eventData.eventDoc.data().type, eventData.eventDoc.data().subtype)}</h4>
+        <h4 class="time">${convertFromDateInt(eventData.eventDoc.data().start).shortDateTime}</h4>
       </div>
       <div class="details">
         <div class="hidden">
-          <h4 class="title">${eventData.eventDoc.data().title}</h4>
-          <p class="time">${new Date(eventData.eventDoc.data().start).toDateString()}</p>
-          <p>${eventData.eventDoc.data().staffNames}</p>
+        <h4 class="title">${convertLessonTypeReadable(eventData.eventDoc.data().type, eventData.eventDoc.data().subtype)}</h4>
+          <p class="time">${convertFromDateInt(eventData.eventDoc.data().start).longReadable}</p>
+          <p>${tutorNames.toString()}</p>
           <p>${formatAmount(eventData.attendeeDoc.data().price, 'usd')}</p>
         </div>
       </div>
@@ -164,21 +191,20 @@ function renderEvent(attendeeID) {
   }
   else {
     // we need to place the event at the end. another function will order it
-    const eventData = current_events.find(event => event.attendeeDoc.id === attendeeID);
     const eventElem = document.createElement('div');
     eventElem.classList.add('event');
     eventElem.setAttribute('data-id', eventData.attendeeDoc.id)
     eventElem.addEventListener('click', () => eventElem.classList.toggle('open'));
     eventElem.innerHTML = `
       <div class="summary">
-      <h4 class="title">${eventData.eventDoc.data().title}</h4>
-      <h4 class="time">${new Date(eventData.eventDoc.data().start).toDateString()}</h4>
+        <h4 class="title">${convertLessonTypeReadable(eventData.eventDoc.data().type, eventData.eventDoc.data().subtype)}</h4>
+        <h4 class="time">${convertFromDateInt(eventData.eventDoc.data().start).shortDateTime}</h4>
       </div>
       <div class="details">
         <div class="hidden">
-          <h4 class="title">${eventData.eventDoc.data().title}</h4>
-          <p class="time">${new Date(eventData.eventDoc.data().start).toDateString()}</p>
-          <p>${eventData.eventDoc.data().staffNames}</p>
+          <h4 class="title">${convertLessonTypeReadable(eventData.eventDoc.data().type, eventData.eventDoc.data().subtype)}</h4>
+          <p class="time">${convertFromDateInt(eventData.eventDoc.data().start).longReadable}</p>
+          <p>${tutorNames.toString()}</p>
           <p>${formatAmount(eventData.attendeeDoc.data().price, 'usd')}</p>
         </div>
       </div>
@@ -194,3 +220,16 @@ function removeEvent(attendeeID) {
   // find the event and remove it
   document.querySelector(`.event[data-id="${attendeeID}"]`).remove();
 }
+
+function convertLessonTypeReadable(type, subtype = null) {
+  // get the location's lesson types
+  const lessonTypes = location_doc.data().lessonTypes;
+
+  // find the type and subtype names
+  const lessonType = lessonTypes.find(lesson => lesson.value == type);
+  const lessonName = lessonType.name;
+  const lessonSubname = subtype ? lessonType.subtypes.find(sublesson => sublesson.value == subtype).name : '';
+
+  return lessonName + ' ' + lessonSubname;
+}
+
