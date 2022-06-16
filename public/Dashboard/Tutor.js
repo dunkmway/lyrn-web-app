@@ -13,6 +13,7 @@ let calendar_view = 'defualt';
 
 function initialSetupData() {
   setupExampleDailyLogButton();
+  setupTestTakerButton();
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
@@ -39,6 +40,12 @@ function initialSetupData() {
 function setupExampleDailyLogButton() {
   document.getElementById('exampleDailyLog').addEventListener('click', () => {
     window.location.href = "../Forms/ACT Daily Log/Daily Log.html?student=" + current_user.uid;
+  })
+}
+
+function setupTestTakerButton() {
+  document.getElementById('testTaker').addEventListener('click', () => {
+    window.location.href = "../test-taker.html?student=" + current_user.uid;
   })
 }
 
