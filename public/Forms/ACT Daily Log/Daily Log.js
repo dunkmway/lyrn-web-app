@@ -21,8 +21,8 @@ let initialScores = {};
                   //'66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
 // REMOVE - revert to test lists above
 // const hwTests  = ['C02', 'A11', '71E', 'A10', 'MC2', 'B05', '74C','67C', 'ST1', '64E', '61C', '59F', '69A', 'ST2', '66F','61F', '55C', '58E', '71C', '71G', '68G', '68A', '72F']
-const hwTests = ['76C', 'D03', 'D05', 'D06'];
-const icTests  = ['C03', 'B02', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
+const hwTests = ['C01', 'B02', 'C02', 'B05'];
+const icTests  = ['C03', 'A09', 'B04', 'MC3', '74F', 'Z15', '72C', '71H', 'C01', '67A', '63C', '61D', '73E', '73C', '71A', '66C', '65E', '63F', '63D', '72G', '69F', '70G', '65C', '74H']
         
 // Other needed info
 const coloring = {'Completed' : 'green', 'in-time' : 'green', 'not in time' : 'greenShade', 'poor conditions' : 'greenShade', 'previously completed' : 'greenShade', 'assigned' : 'yellow', 'in-center' : 'red', 'partial' : 'greenShade', 'white' : 'white'};
@@ -371,7 +371,7 @@ function checkForAssignedHomeworks() {
     const id = testList[i]['id']
 
     // Create the array for the test that needs graded this session
-    // addAssignedTest(test, section);
+    addAssignedTest(test, section);
 
     // Make sure that the test was assigned before the current day
     if (student_tests[section][test]['date'] < convertFromDateInt(date.getTime())['startOfDayInt']) {
@@ -1581,7 +1581,7 @@ async function assignHomework() {
   // unassign.disabled = false;
 
   // Add the test to the composite page
-  // addAssignedTest(test, section)
+  // addAssignedTest(test, section);
 
   ids.push({
     'type' : 'homework',
