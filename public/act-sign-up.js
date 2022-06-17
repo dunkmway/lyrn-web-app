@@ -73,6 +73,50 @@ const SET_PROGRAMS = [
   GUIDED_EIGHT
 ]
 
+let CLASS_ENGLISH = {
+  value: 'english',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {}
+}
+let CLASS_MATH = {
+  value: 'math',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {}
+}
+let CLASS_READING = {
+  value: 'reading',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {}
+}
+let CLASS_SCIENCE = {
+  value: 'science',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {}
+}
+
+const SET_CLASSES = [
+  CLASS_ENGLISH,
+  CLASS_MATH,
+  CLASS_READING,
+  CLASS_SCIENCE
+]
+
 let openings_master = null // local version of all of the calendar openings docs that we need for the given start and end dates
 let qualifiedTutors_master = null // local version of all tutors that qualify for eitehr ACT Basics or Guided ACT
 let blacklistTutors_master = null // local version of all tutors who are blacklisted by this student
@@ -219,7 +263,39 @@ async function initialSetup() {
     calculateQualifiedTutors(CURRENT_LOCATION);
   }
 
+  await initializeClasses();
+
+  // initialize the contact data
+  if (!queryStrings().student && !queryStrings().parent) {
+    customConfirm(
+      "We are having difficulty initializing the programs (missing parent or student UID).",
+      '',
+      'OK',
+      () => {},
+      () => {}
+    )
+  }
+  initializeContactData(queryStrings().student, queryStrings().parent);
+
   toggleWorking();
+}
+
+function programTypeChange(event) {
+  // remove the selected class from all option items
+  document.querySelectorAll('.heading .options .item').forEach(item => item.classList.remove('selected'));
+
+  // set the current target to selected class
+  event.target.classList.add('selected');
+
+  // set the title textcontent to the same as the current target
+  document.querySelector('.heading .title').textContent = event.target.textContent;
+
+  // close the title options
+  document.querySelector('.heading .title').classList.remove('open');
+
+  // change the program type screen
+  document.querySelectorAll('main').forEach(main => main.classList.remove('open'));
+  document.getElementById(event.target.dataset.program).classList.add('open')
 }
 
 function chooseRandomAccentSection() {
@@ -252,6 +328,32 @@ function toggleWorking() {
   document.querySelectorAll('button').forEach(button => {
     button.disabled = !button.disabled;
   })
+}
+
+async function initializeContactData(studentUID, parentUID) {
+  const [studentDoc, parentDoc] = await Promise.all([getUserDoc(studentUID), getUserDoc(parentUID)]);
+  currentProgramDetails.contact = {
+    parent: {
+      firstName: parentDoc.data().firstName,
+      lastName: parentDoc.data().lastName,
+      email: parentDoc.data().email,
+      phoneNumber: parentDoc.data().phoneNumber,
+      uid: parentUID
+    },
+    student: {
+      firstName: studentDoc.data().firstName,
+      lastName: studentDoc.data().lastName,
+      email: studentDoc.data().email,
+      phoneNumber: studentDoc.data().phoneNumber,
+      uid: studentUID
+    }
+  }
+
+  await calculateBlacklistedTutors(studentUID);
+}
+
+function getUserDoc(userUID) {
+  return firebase.firestore().collection('Users').doc(userUID).get();
 }
 
 async function startAfterDateChangeCallback(selectedDates, dateStr, instance) {
@@ -1877,4 +1979,161 @@ async function sendInvoiceEmail(email, firstTutors, invoice) {
 async function setUserDoc(id, data) {
   await firebase.firestore().collection('Users').doc(id).set(data)
   return;
+}
+
+/////////////
+// Classes //
+/////////////
+
+async function initializeClasses() {
+  // place the class tiles in a loading state
+  renderLoadingSetClasses();
+
+  // calculate the next class for each section
+  await updateSetClasses();
+
+  // render the class to the tiles
+  renderSetClasses();
+}
+
+function renderLoadingSetClasses() {
+  const programWrapper = document.getElementById('programWrapper_classes')
+  removeAllChildNodes(programWrapper)
+
+  // go through all of the set classes and create the program block
+  SET_CLASSES.forEach(program => {
+    let programDiv = document.createElement('div');
+    programDiv.classList.add('program', 'loading');
+    programDiv.id = program.value + 'Class';
+    programDiv.innerHTML = `
+      <div class="loader"></div>
+    `
+    programWrapper.appendChild(programDiv)
+  })
+}
+
+async function updateSetClasses() {
+  // go through all of the classes and their start times
+  await Promise.all(SET_CLASSES.map((classType, classIndex) => {
+    return Promise.all(classType.startHours.map(hour => {
+      return getClassEventSetDocs(classType.value, hour, classType.maxAttendees)
+      .then(classDocs => {
+        SET_CLASSES[classIndex].classes[hour] = classDocs;
+      })
+    }))
+  }))
+}
+
+async function getClassEventSetDocs(section, startHour, maxAttendees) {
+  // query for all actClass events that begin after now for this section
+  try {
+    const classQuery = await firebase.firestore().collection('Events')
+    .where('type', '==', 'actClass')
+    .where('subtype', '==', section)
+    .where('start' , '>', new Date().getTime())
+    .orderBy('start')
+    .get();
+
+
+    // remove all event that have more than 20 attendees
+    const classSizes = await Promise.all(classQuery.docs.map(doc => {
+      return doc.ref.collection('Attendees').get()
+      .then(attendeeQuery => {
+        return attendeeQuery.size
+      })
+    }));
+
+    // we need to figure out which classes go together. 
+    // for now classes take 2 weeks and have gaps between sets
+    const classes = classQuery.docs.filter((doc, index) => new Date(doc.data().start).getHours() === startHour && classSizes[index] < maxAttendees);
+    const connectedClasses = connectClasses(classes);
+
+    //return the first set of classes
+    return connectedClasses[0].length == 4 ? connectedClasses[0] : connectedClasses[1];
+
+  }
+  catch (error) {
+    console.log(error);
+    alert('We failed to get the classes');
+  }
+}
+
+function connectClasses(classDocs) {
+  if (classDocs.length === 0) return [];
+  let connections = [[classDocs[0]]];
+  
+  // check each class and see if the next class is within a week of it
+  for (let i = 0; i < classDocs.length - 1; i++) {
+    const currentClass = classDocs[i];
+    const nextClass = classDocs[i + 1];
+    if ((nextClass.data().start - currentClass.data().start) < (1000 * 60 * 60 * 24 * 7)) {
+      connections[connections.length - 1].push(nextClass);
+    }
+    else {
+      connections.push(nextClass);
+    }
+  }
+
+  return connections;
+}
+
+function renderSetClasses() {
+  const programWrapper = document.getElementById('programWrapper_classes')
+  removeAllChildNodes(programWrapper)
+
+  // go through all of the set programs and create the program block
+  SET_CLASSES.forEach((program, programIndex) => {
+    program.startHours.forEach((hour, hourIndex) => {
+      let programDiv = document.createElement('div');
+      programDiv.classList.add('program');
+      programDiv.id = `setClass-${programIndex}:${hourIndex}`;
+      programDiv.innerHTML = `
+      <div class="detail-wrapper">
+        <p>Section</p>
+        <p>${program.value.charAt(0).toUpperCase() + program.value.slice(1)}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program</p>
+        <p>ACT Class</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Start Time</p>
+        <p>${(hour > 12 ? (hour - 12).toString() : hour == 0 ? '12' : hour.toString()) + ":00" + (hour >= 12 ? " pm" : " am")}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program Length</p>
+        <p>2 weeks</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Start</p>
+        <p>${program.classes[hour]?.[0] ? convertFromDateInt(program.classes[hour][0].data().start).shortReadable : 'no class available'}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>End</p>
+        <p>${program.classes[hour]?.[program.classes[hour].length - 1] ? convertFromDateInt(program.classes[hour][program.classes[hour].length - 1].data().end).shortReadable : 'no class available'}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Session Length</p>
+        <p>1 hour</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Session per Week</p>
+        <p>2</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Price per Hour</p>
+        <p>$40</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program Price</p>
+        <p>$160</p>
+      </div>
+      <button disabled tabindex="1" onclick="setClassSelected(${programIndex}, ${hourIndex})">Select</button>
+      `
+      programWrapper.appendChild(programDiv)
+    })
+  })
+}
+function setClassSelected(sectionIndex, classIndex) {
+  console.log('class selected:', SET_CLASSES[sectionIndex].value, SET_CLASSES[sectionIndex].startHours[classIndex]);
 }
