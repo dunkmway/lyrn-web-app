@@ -80,7 +80,11 @@ let CLASS_ENGLISH = {
     18
   ],
   maxAttendees: 20,
-  classes: {}
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
 }
 let CLASS_MATH = {
   value: 'math',
@@ -89,7 +93,11 @@ let CLASS_MATH = {
     18
   ],
   maxAttendees: 20,
-  classes: {}
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
 }
 let CLASS_READING = {
   value: 'reading',
@@ -98,7 +106,11 @@ let CLASS_READING = {
     18
   ],
   maxAttendees: 20,
-  classes: {}
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
 }
 let CLASS_SCIENCE = {
   value: 'science',
@@ -107,7 +119,11 @@ let CLASS_SCIENCE = {
     18
   ],
   maxAttendees: 20,
-  classes: {}
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
 }
 
 const SET_CLASSES = [
@@ -201,6 +217,12 @@ let currentProgramDetails = {
   sessionsPerWeek: null,
   price: null,
   sections: null
+}
+
+let currentClassDetails = {
+  classDocs: [],
+  sectionIndex: null,
+  classIndex: null
 }
 
 /**
@@ -1194,7 +1216,7 @@ async function submitContact() {
 }
 
 function verify() {
-  const submitSection = document.querySelector('.submit-section');
+  const submitSection = document.querySelector('#actBasics/Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
 
   toggleWorking()
@@ -1258,7 +1280,7 @@ function verify() {
 }
 
 async function submit() {
-  const submitSection = document.querySelector('.submit-section');
+  const submitSection = document.querySelector('#actBasics/Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
   console.log('about to submit', currentProgramDetails)
 
@@ -2136,4 +2158,88 @@ function renderSetClasses() {
 }
 function setClassSelected(sectionIndex, classIndex) {
   console.log('class selected:', SET_CLASSES[sectionIndex].value, SET_CLASSES[sectionIndex].startHours[classIndex]);
+
+  // unselect all programs
+  document.querySelectorAll('.program').forEach(program => program.classList.remove('selected'));
+  //select the current program
+  document.getElementById(`setClass-${sectionIndex}:${classIndex}`).classList.add('selected');
+
+  currentClassDetails.classDocs = SET_CLASSES[sectionIndex].classes[SET_CLASSES[sectionIndex].startHours[classIndex]];
+  currentClassDetails.sectionIndex = sectionIndex;
+  currentClassDetails.classIndex = classIndex;
+}
+
+function verifyClass() {
+  const submitSection = document.querySelector('#actClasses .submit-section');
+  const submitButton = submitSection.querySelector('button');
+
+  toggleWorking()
+  submitButton.classList.add('loading');
+
+  // we need to have 4 classes in the program
+  if (currentClassDetails.classDocs.length != 4) {
+    customConfirm(
+      `<p>You seem to be missing some data. Complain to Duncan if this message sucks.`,
+      '',
+      'OK',
+      () => {},
+      () => {}
+    )
+    toggleWorking()
+    submitButton.classList.remove('loading');
+  }
+  else {
+    submitClass();
+  }
+}
+
+async function submitClass() {
+  const submitSection = document.querySelector('#actClasses .submit-section');
+  const submitButton = submitSection.querySelector('button');
+  
+  // add this student to the class events as attendees
+  await Promise.all(currentClassDetails.classDocs.map(classDoc => {
+    return classDoc.ref.collection('Attendees').doc().set({
+      parents: [currentProgramDetails.contact.parent.uid],
+      price: 40,
+      student: currentProgramDetails.contact.student.uid,
+      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName
+    })
+  }))
+
+  // set an invoice doc
+  const invoiceData = {
+    parent: currentProgramDetails.contact.parent.uid,
+    parentName: currentProgramDetails.contact.parent.firstName + ' ' + currentProgramDetails.contact.parent.lastName,
+    student: currentProgramDetails.contact.student.uid,
+    studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+    program: 'actClass',
+    programName: 'ACT Class',
+    programLength: SET_CLASSES[currentClassDetails.sectionIndex].programLength,
+    programStart: new Date(currentClassDetails.classDocs[0].data().start),
+    programPrice: SET_CLASSES[currentClassDetails.sectionIndex].price * SET_CLASSES[currentClassDetails.sectionIndex].sessionLength * currentClassDetails.classDocs.length,
+    sessionLength: SET_CLASSES[currentClassDetails.sectionIndex].sessionLength,
+    sessionPrice: SET_CLASSES[currentClassDetails.sectionIndex].price * SET_CLASSES[currentClassDetails.sectionIndex].sessionLength,
+    pricePerHour: SET_CLASSES[currentClassDetails.sectionIndex].price,
+    events: currentClassDetails.classDocs.map(doc => doc.id),
+    createdAt: new Date().getTime(),
+    expiration: new Date().setHours(new Date().getHours() + INVOICE_EXPIRATION_TIME),
+    status: 'pending'
+  }
+
+  const ref = firebase.firestore().collection('ACT-Invoices').doc();
+  await ref.set(invoiceData)
+
+  // email the invoice
+  await sendInvoiceEmail(
+    currentProgramDetails.contact.parent.email, 
+    { [SET_CLASSES[currentClassDetails.sectionIndex].value]: currentClassDetails.classDocs[0].data().staff[0] }, 
+    ref.id
+  );
+
+  // tell the user the invoice has been sent
+  customConfirm('Lessons have been set and the invoice is being emailed right now!', '', 'OK', () => {}, () => {});
+
+  toggleWorking()
+  submitButton.classList.remove('loading');
 }
