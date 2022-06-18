@@ -121,10 +121,8 @@ function listenToAttendee(studentUID) {
         // unsubscribe from the corresponding event listener and remove the event from current_events
         const eventIndex = current_events.findIndex(event => event.attendeeDoc.id === change.doc.id);
         current_events[eventIndex].unsubscribeEvent();
-        current_events.splice(eventIndex, 1);
-
-        //remove the deleted event
         removeEvent(current_events[eventIndex].attendeeDoc.id)
+        current_events.splice(eventIndex, 1);
       }
   });
   })
