@@ -2157,6 +2157,9 @@ function renderSetClasses() {
   })
 }
 function setClassSelected(sectionIndex, classIndex) {
+  // check if the class actually has events to set first
+  if (SET_CLASSES[sectionIndex].classes[SET_CLASSES[sectionIndex].startHours[classIndex]].length != 4) return;
+  
   console.log('class selected:', SET_CLASSES[sectionIndex].value, SET_CLASSES[sectionIndex].startHours[classIndex]);
 
   // unselect all programs
