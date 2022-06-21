@@ -1208,30 +1208,60 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
     return Promise.resolve([]);
   }
 
-  //get the cartesian product of the arrays to get all of the AND queries we need to make
-  const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
-  const filterList = cartesian(filter.staff, filter.student, filter.type);
+  // if the filter includes student
+  if (filter.student[0]) {
+    filter.student.forEach(student => {
+      // grab all of the events that this student is attending
+      // then filter out the rest of the filters if applicable
+      let attendeeQuery = firebase.firestore().collectionGroup('Attendees')
+      .where('student', '==', student)
+      .get()
+      .then(studentQuery => {
+        // return the events that this student is attending
+        let eventPromises = [];
 
-  filterList.forEach(filterTuple => {
-    let eventRef = firebase.firestore().collection('Events')
-    .where("location", '==', location)
-    .where('start', '>=', start)
-    .where('start', '<', end)
+        studentQuery.forEach(doc => 
+          eventPromises.push(doc.ref.parent.parent.get())
+        );
 
-    if (filterTuple[0]) {
-      eventRef = eventRef.where('staff', 'array-contains', filterTuple[0])
-    }
-    if (filterTuple[1]) {
-      eventRef = eventRef.where('student', '==', filterTuple[1])
-    }
-    if (filterTuple[2]) {
-      eventRef = eventRef.where('type', '==', filterTuple[2])
-    }
+        return Promise.all(eventPromises)
+        .then(eventDocs => {
+          // filter out the rest of the filter
+          return eventDocs.filter(eventDoc => {
+            const data = eventDoc.data();
+            return data.start >= start &&
+            data.start < end &&
+            (!filter.staff[0] || filter.staff.some(staff => data.staff.includes(staff))) && 
+            (!filter.type[0] || filter.type.includes(data.type))
+          })
+        })
+      })
 
-    queryPromises.push(eventRef.get())
-  })
+      queryPromises.push(attendeeQuery);
+    })
+  }
+  else {
+    //get the cartesian product of the arrays to get all of the AND queries we need to make
+    const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+    const filterList = cartesian(filter.staff, filter.type);
 
-  console.log(current_filter)
+    filterList.forEach(filterTuple => {
+      let eventRef = firebase.firestore().collection('Events')
+      .where("location", '==', location)
+      .where('start', '>=', start)
+      .where('start', '<', end)
+  
+      if (filterTuple[0]) {
+        eventRef = eventRef.where('staff', 'array-contains', filterTuple[0])
+      }
+      if (filterTuple[1]) {
+        eventRef = eventRef.where('type', '==', filterTuple[2])
+      }
+  
+      queryPromises.push(eventRef.get())
+    })
+  }
+
 
   return Promise.all(queryPromises)
   .then((eventSnapshots) => {
