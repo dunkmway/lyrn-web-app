@@ -2800,133 +2800,143 @@ dom_curriculumTopic.addEventListener('change', async (event) => {
 
 
 
-/*
-function addTopic(section, topic, subTopics = undefined, type = 'topic') {
+async function transferTest() {
+	// get all of the old tests
+	const testQuery = await firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'test')
+	.get();
 
-	if (section != undefined && topic != undefined && subTopics != undefined) {
-
-		if (subTopics != '') {
-			data = {
-				'section' : section,
-				'topic' : topic,
-				'subTopics' : subTopics.split(', '),
-				'type' : type
-			}
-		}
-		else {
-			data = {
-				'section' : section,
-				'topic' : topic,
-				'subTopics' : [],
-				'type' : type
-			}
-		}
-
-		ref = firebase.firestore().collection('Dynamic-Content').doc('curriculum-topics').collection('Topics').doc()
-		ref.set(data)
-		.then(() => {
-			console.log('Set', section, ':', topic, ':', subTopics.split(', '))
-		})
+	// save the new test
+	const months = { 
+		'Practice': '00',
+		'Janurary': '01',
+		'February': '02',
+		'March': '03',
+		'April': '04',
+		'May': '05',
+		'June': '06',
+		'July': '07',
+		'August': '08',
+		'September': '09',
+		'October': '10',
+		'November': '11',
+		'December': '12',
 	}
+	await Promise.all(testQuery.docs.map(doc => {
+		return firebase.firestore().collection('ACT-Test-Data').doc().set({
+			code: doc.data().test,
+			releaseDate: `${doc.data().year}-${months[doc.data().month]}`
+		})
+	}))
+	console.log('done transferring tests')
 }
-*/
 
-/*
-addTopic('english', 'Redundancy', '')
-addTopic('english', 'Simplicity', '')
-addTopic('english', 'Pronoun Ambiguity', '')
-addTopic('english', 'Adding / Deleting / Revising Sentences', '')
-addTopic('english', 'Main Idea', '')
-addTopic('english', 'Subject-Verb Agreement', '')
-addTopic('english', 'Tense', '')
-addTopic('english', 'Noun-Pronoun Agreement', '')
-addTopic('english', 'Adding Sentence', '')
-addTopic('english', 'Transition Phrases', '')
-addTopic('english', 'Ordering', '')
-addTopic('english', 'Phrase Placement', '')
-addTopic('english', 'Splitting a paragraph', '')
-addTopic('english', 'IC, DC, Phrases', '')
-addTopic('english', 'Parts of Speech', '')
-addTopic('english', 'Subject, Verb, Object', '')
-addTopic('english', 'Vocab and Expressions', '', 'modifier')
-addTopic('english', 'Vocab and Expressions', '')
-addTopic('english', 'Connotation', '')
-addTopic('english', 'Active and Passive Voice', '')
-addTopic('english', 'Tone and Emphasis', '')
-addTopic('english', 'Commas', '')
-addTopic('english', 'Apostrophes', '')
-addTopic('english', 'Citing Quotations', '')
-addTopic('english', 'Semicolon', '')
-addTopic('english', 'Sentence Composition', '')
-addTopic('english', 'Identify IC, DC, Phrases', '')
-addTopic('english', 'Transition words', '')
-addTopic('english', 'Homophones', '')
-addTopic('english', 'Preposition', '')
-addTopic('english', 'Parallelism', '')
-addTopic('english', 'Transitive vs Intransitive', '')
-addTopic('english', 'Concrete vs Abstract adjectives', '')
-addTopic('english', 'Identify Parts of Speech', '')
-addTopic('english', 'Conjunctions', '')
-addTopic('english', 'NOT', '', 'modifier')
+async function transferSection() {
+	// get all of the old tests
+	const testQuery = await firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'test')
+	.get();
 
-addTopic('math', 'Word Problems', '', 'modifier')
-addTopic('math', 'Arithmetic', '')
-addTopic('math', 'Functions', '')
-addTopic('math', 'Polygons', '')
-addTopic('math', 'Trigonometry', '')
-addTopic('math', 'Units', '')
-addTopic('math', 'Probability', '')
-addTopic('math', 'Logic', '')
-addTopic('math', 'Mean', '')
-addTopic('math', 'Percentages', '')
-addTopic('math', 'Statistics', '')
-addTopic('math', 'Proportions', '')
-addTopic('math', 'Exponents', '')
-addTopic('math', 'Transformations', '')
-addTopic('math', 'Linear Equations - Algebra', '')
-addTopic('math', 'Quadratic Equations - Algebra', '')
-addTopic('math', 'Rational Functions', '')
-addTopic('math', 'Midpoint', '')
-addTopic('math', 'Triangles', '')
-addTopic('math', 'Ellipses', '')
-addTopic('math', 'Circles', '')
-addTopic('math', 'Complex Numbers', '')
-addTopic('math', 'Inequalities', '')
-addTopic('math', 'Matrices', '')
-addTopic('math', 'System of Equations', '')
-addTopic('math', 'Combinatorics', '')
-addTopic('math', 'Euclidean Geometry', '')
-addTopic('math', 'Linear Equations - Geometry', '')
-addTopic('math', 'Radicals', '')
-addTopic('math', 'Real World Functions', '')
-addTopic('math', 'Sets', '')
-addTopic('math', 'Sequences and Series', '')
-addTopic('math', 'Function Transformations', '')
-addTopic('math', 'Logarithms', '')
-addTopic('math', 'Number Theory', '')
-addTopic('math', 'Hyperbolas', '')
-addTopic('math', 'Quadratic Equations - Geometry', '')
-addTopic('math', 'Vectors', '')
-addTopic('math', 'Absolute Value', '')
-addTopic('math', 'Distributing', '')
-addTopic('math', 'Fractions', '')
-addTopic('math', 'Geometry Fundamentals', '')
+	// save the new sections
+	const sections = ['english', 'math', 'reading', 'science'];
+	await Promise.all(testQuery.docs.map(doc => {
+		return Promise.all(sections.map(async (section) => {
+			// get the new test doc
+			const testDoc = await firebase.firestore().collection('ACT-Test-Data')
+			.where('code', '==', doc.data().test)
+			.limit(1)
+			.get();
 
-addTopic('reading', 'Ambiguous Pronouns', '')
-addTopic('reading', 'Phrase Interpretation', '')
-addTopic('reading', 'Multiple Word Definition', '')
-addTopic('reading', 'Essay', '')
-addTopic('reading', 'Paragraph', '')
-addTopic('reading', 'Point of View', '')
-addTopic('reading', 'Findable answer', '')
-addTopic('reading', 'Direct inference', '')
+			return firebase.firestore().collection('ACT-Section-Data').doc().set({
+				code: section,
+				test: testDoc.docs[0].id,
+				scaledScores: doc.data().scaledScores[section]
+			})
+		}))
+	}))
+	console.log('done transferring sections')
+}
 
-addTopic('science', 'Graph Reading', '')
-addTopic('science', 'Variable Relationships', '')
-addTopic('science', 'Extrapolation', '')
-addTopic('science', 'Reasoned Answer', '')
-addTopic('science', 'Variable Types', '')
-addTopic('science', 'Experimental Design', '')
-addTopic('science', 'Conflicting Viewpoints', '')
-addTopic('science', 'Modify the experiment', '')
-*/
+async function transferPassage() {
+	// get all of the old passages
+	const passageQuery = await firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'passage')
+	.get();
+
+	const testQuery = await firebase.firestore().collection('ACT-Test-Data').get()
+	const sectionQuery = await firebase.firestore().collection('ACT-Section-Data').get()
+
+	await Promise.all(passageQuery.docs.map(async (doc) => {
+		const testDoc = testQuery.docs.find(test => test.data().code == doc.data().test)
+		const sectionDoc = sectionQuery.docs.find(section => section.data().test == testDoc.id && section.data().code == doc.data().section)
+
+		return firebase.firestore().collection('ACT-Passage-Data').doc().set({
+			code: doc.data().passageNumber,
+			section: sectionDoc.id,
+			test: testDoc.id,
+			content: (doc.data().title ?? '') +
+			(doc.data().preText ?? '') +
+			(doc.data().passageText ?? '') +
+			(doc.data().ABData.title ?? '') +
+			(doc.data().ABData.preText ?? '') +
+			(doc.data().ABData.passageText ?? '') +
+			(doc.data().reference ?? '') +
+			(doc.data().ABData.reference ?? '')
+		})
+	}))
+	console.log('done transferring passages')
+}
+
+async function transferQuestion() {
+	// get all of the old questions
+	const questionQuery = await firebase.firestore().collection('ACT-Tests')
+	.where('type', '==', 'question')
+	.get();
+
+	// for better performance get the list of test, section, and passages and load it into the client
+	const testQuery = await firebase.firestore().collection('ACT-Test-Data').get()
+	const sectionQuery = await firebase.firestore().collection('ACT-Section-Data').get()
+	const passageQuery = await firebase.firestore().collection('ACT-Passage-Data').get()
+
+	await Promise.all(questionQuery.docs.map(async (doc, index) => {
+		const testDoc = testQuery.docs.find(test => test.data().code == doc.data().test)
+		const sectionDoc = sectionQuery.docs.find(section => section.data().test == testDoc.id && section.data().code == doc.data().section)
+		const passageDoc = passageQuery.docs.find(passage => passage.data().test == testDoc.id && passage.data().section == sectionDoc.id && passage.data().code == doc.data().passage)
+
+		const answers = {
+			'A': 0,
+			'B': 1,
+			'C': 2,
+			'D': 3,
+			'E': 4,
+
+			'F': 0,
+			'G': 1,
+			'H': 2,
+			'J': 3,
+			'K': 4
+		}
+
+		console.log(`setting question ${index + 1} out of ${questionQuery.size}`)
+
+		return firebase.firestore().collection('ACT-Question-Data').doc().set({
+			code: doc.data().problem,
+			choices: doc.data().answers.map(ans => `<p>${ans}</p>`),
+			answer: answers[doc.data().correctAnswer],
+			content: doc.data().questionText,
+			topics: doc.data().topic,
+			passage: passageDoc?.id ?? null,
+			section: sectionDoc.id,
+			test: testDoc.id
+		});
+	}))
+
+	console.log('done transferring questions')
+}
+
+async function transferEverything() {
+	await transferTest();
+	await transferSection();
+	await transferPassage();
+	await transferQuestion();
+}
