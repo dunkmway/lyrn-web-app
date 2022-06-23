@@ -1255,7 +1255,7 @@ function getEventsLocationForCalendar(location, start, end, filter = {}) {
         eventRef = eventRef.where('staff', 'array-contains', filterTuple[0])
       }
       if (filterTuple[1]) {
-        eventRef = eventRef.where('type', '==', filterTuple[2])
+        eventRef = eventRef.where('type', '==', filterTuple[1])
       }
   
       queryPromises.push(eventRef.get())
