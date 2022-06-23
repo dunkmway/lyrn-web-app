@@ -1173,12 +1173,12 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	// Remove extra spaces
 	let dom_text = document.getElementById('questionText')
 	while (dom_text.value.includes('  ')) {
-		dom_text.value = dom_text.value.replaceAll('  ', ' ')
+		dom_text.value = dom_text.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 	}
 
 	for (let i = 0; i < answers.length; i++) {
 		while (answers[i].includes('  ')) {
-			answers[i] = answers[i].replaceAll('  ', ' ')
+			answers[i] = answers[i].replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 		}
 	}
 
@@ -1505,7 +1505,7 @@ async function savePassage(spacing = '') {
 	let dom_abText = document.getElementById('readingPassageTextB').value
 	if (dom_abText.value != undefined) {
 		while (dom_abText.value.includes('  ')) {
-			dom_abText.value = dom_abText.value.replaceAll('  ', ' ')
+			dom_abText.value = dom_abText.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 		}
 	}
 
@@ -1520,7 +1520,7 @@ async function savePassage(spacing = '') {
 
 	// Remove extra spaces
 	while (text.value.includes('  ')) {
-		text.value = text.value.replaceAll('  ', ' ')
+		text.value = text.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 	}
 
 	data = {
@@ -2566,10 +2566,10 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 		// Correct text
 		if (!event.target.id.toLowerCase().includes('image')) {
 			if (event.target.id.includes('PassageText')) {
-				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll(' teh ', ' the ')
 			}
 			else {
-				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 			}
 		}
 
@@ -2684,7 +2684,7 @@ dom_questions.addEventListener('input', async function(event) {
 
 	// Clean up the textarea
 	if (event.target.tagName.toLowerCase() == 'textarea') {
-		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll(' teh ', ' the ')
 		//event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
 	}
 
@@ -2737,7 +2737,7 @@ dom_curriculumText.addEventListener('input', function (e) {
 
 	// Correct text
 	if (!e.target.id.toLowerCase().includes('image')) {
-		e.target.value = e.target.value.replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		e.target.value = e.target.value.replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll(' teh ', ' the ')
 
 	}
 
