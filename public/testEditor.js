@@ -479,22 +479,21 @@ function removeChildren(id, spacing = '') {
 /**
  * This will grab a test document from firebase
  * 
- * @param {string} test Test Code (ie. B05)
+ * @param {string} testCode Test Code (ie. B05)
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  * @returns {Object | boolean} Object (firebase doc object [doc not doc.data()]) or false if it doesn't exist
  */
-async function getTestDocument(test, spacing = '') {
+async function getTestDocumentByCode(testCode, spacing = '') {
 	if (debug == true) {
-		console.log(spacing + 'getTestDocument()', {'test' : test})
+		console.log(spacing + 'getTestDocument()', {'test' : testCode})
 	}
 
 	// remove case sensitivity
-	test = test.toUpperCase()
+	testCode = testCode.toUpperCase()
 
 	// Set the firebase reference
-	const ref = firebase.firestore().collection('ACT-Tests')
-	.where('type', '==', 'test')
-	.where('test', '==', test.toUpperCase())
+	const ref = firebase.firestore().collection('ACT-Test-Data')
+	.where('code', '==', testCode)
 
 	// Grab the data from firebase
 	let querySnapshot = await ref.get()
@@ -509,36 +508,72 @@ async function getTestDocument(test, spacing = '') {
 }
 
 /**
+ * Query for test doc by id
+ * @param {String} testID firestore document id
+ * @returns {Promise(FirebaseFirestore.Document)} single firestore document by id
+ */
+function getTestDoc(testID) {
+	return firebase.firestore().collection('ACT-Test-Data').doc(testID).get();
+}
+
+/**
+ * Query for section doc by id
+ * @param {String} sectionID firestore document id
+ * @returns {Promise(FirebaseFirestore.Document)} single firestore document by id
+ */
+function getSectionDoc(sectionID) {
+	return firebase.firestore().collection('ACT-Section-Data').doc(sectionID).get();
+}
+
+/**
+ * Query for passage doc by id
+ * @param {String} passageID firestore document id
+ * @returns {Promise(FirebaseFirestore.Document)} single firestore document by id
+ */
+function getPassageDoc(passageID) {
+	return firebase.firestore().collection('ACT-Passage-Data').doc(passageID).get();
+}
+
+/**
+ * Query for question doc by id
+ * @param {String} questionID firestore document id
+ * @returns {Promise(FirebaseFirestore.Document)} single firestore document by id
+ */
+function getQuestionDoc(questionID) {
+	return firebase.firestore().collection('ACT-Question-Data').doc(questionID).get();
+}
+
+/**
  * This will grab a list of all tests that have been added to firebase
  * 
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
- * @returns {Array} List of all test codes in firebase
+ * @returns {Promise(FirebaseFirestore.Document[])} List of all test docs in firebase
  */
-async function getTests(spacing = '') {
+async function getAllTestDocs(spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'getTests()')
 	}
 	// Set the firebase reference
-	const ref = firebase.firestore().collection('ACT-Tests').where('type', '==', 'test')
+	const ref = firebase.firestore().collection('ACT-Test-Data')
 
 	// Grab the data from firebase
 	let querySnapshot = await ref.get()
 
-	// Pull out the test code from the pulled data
-	let tests = []
-	querySnapshot.forEach((doc) => {
-		let data = doc.data();
-		if (!tests.includes(data['test'])) {
-			tests.push(data['test'])
-		}
-	})
+	// Return the list of test docs
+	return querySnapshot.docs;
+}
 
-	// Return the list of tests
-	return tests
+async function getSectionDocsByTest(testID) {
+	const sectionQuery = await firebase.firestore().collection('ACT-Section-Data')
+	.where('test', '==', testID)
+	.get();
+
+	return sectionQuery.docs;
 }
 
 /**
  * This will save / update the test information
+ * It will also initialize the section docs
  * 
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  */
@@ -547,7 +582,7 @@ async function saveTest(spacing = '') {
 		console.log(spacing + 'saveTest()')
 	}
 	// Set the firebase reference
-	const ref = firebase.firestore().collection('ACT-Tests')
+	const ref = firebase.firestore().collection('ACT-Test-Data')
 
 	// set / grab needed values
 	let testCode = document.getElementById('testCode')
@@ -557,23 +592,24 @@ async function saveTest(spacing = '') {
 
 	// Set the data to define
 	const data = {
-		'test': testCode.value.toUpperCase(),
-		'type': 'test',
-		'year': parseInt(year.value),
-		'month': month.value
+		code: testCode.value.toUpperCase(),
+		releaseDate: `${year.value}-${month.value}`
 	}
 
 	// Validate, set data, and re-initialize the test list
 	if (testCode.value.length = 3 && parseInt(year.value) <= date.getFullYear() && parseInt(year.value) >= 1959 && (numInts == 1 || numInts == 2)) {
 		// Check to see if the test exists
-		const response = await getTestDocument(document.getElementById('testList').value != 'newTest' ? document.getElementById('testList').value : testCode.value, spacing + spaceSize)
+		const testDoc = await getTestDoc(document.getElementById('testList').value);
 
 		// Set the data
-		if (response == false) {
-			await ref.doc().set(data)
+		if (!testDoc.exists) {
+			const newTestRef = firebase.firestore().collection('ACT-Test-Data').doc()
+			await newTestRef.set(data)
+			// since the test is new we need to save the section docs as well
+			await Promise.all(['english', 'math', 'reading', 'science'].map(section => saveNewSection(section, newTestRef.id)))
 		}
 		else {
-			await ref.doc(response.id).set(data)
+			await firebase.firestore().collection('ACT-Test-Data').doc(testDoc.id).set(data)
 		}
 
 		// Re-initialize the display
@@ -582,6 +618,21 @@ async function saveTest(spacing = '') {
 	else {
 		console.log("The test must have exactly 3 characters: B05, 76C, A10, etc. (1 - 2 letters and 1 - 2 numbers)")
 	}
+}
+
+/**
+ * Set a new section doc with the given info
+ * 
+ * @param {String} sectionCode
+ * @param {String} testID 
+ * @param {Number[]} scaledScores 
+ */
+function saveNewSection(sectionCode, testID, scaledScores = []) {
+	firebase.firestore().collection('ACT-Section-Data').doc().set({
+		code: sectionCode,
+		test: testID,
+		scaledScores
+	})
 }
 
 /**
@@ -603,7 +654,7 @@ async function initializeTestDisplay(spacing = '') {
 	testYear.setAttribute('value', date.getFullYear())
 
 	// Set the Month to the current Month
-	document.getElementById('testMonth').value = convertFromDateInt(date.getTime())['monthString']
+	document.getElementById('testMonth').value = (date.getMonth() + 1).toString().padStart(2, '0');
 
 	// Reset the test code
 	document.getElementById('testCode').value = ''
@@ -1538,7 +1589,7 @@ async function savePassage(spacing = '') {
 
 	// Validate then set the data
 	if (text.value.length > 0) {
-		let testResults = await getTestDocument(test, spacing + spaceSize)
+		let testResults = await getTestDocumentByCode(test, spacing + spaceSize)
 		if (testResults != false) {
 			let passageResults = await getPassageDocument(test, section, passageNumber, spacing + spaceSize)
 			if (passageResults == false) {
@@ -1620,8 +1671,14 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 
 	// Get a list of all available tests from firebase
 	await initializeTests('passageTest', spacing + spaceSize)
-	if (test != undefined) {
+	if (test) {
 		dom_test.value = test
+
+		// if we have a test then we can initialize the sections
+		await initializeSections('passageSection', test);
+		if (section) {
+			dom_section.value = section
+		}
 	}
 
 	// Reset passage numbers
@@ -1796,18 +1853,83 @@ async function initializeTests(id, spacing = '') {
 	if (id == 'testList') {
 		dom_test.appendChild(createElement('option', [], ['value'], ['newTest'], "New Test"))
 	}
-
-	// Get the list of tests from firebase and update the HTML with the list (only add new values)
-	let tests = await getTests(spacing + spaceSize)
-
-	// Sort the tests
-	tests.sort()
-
-	// Add the remaining tests
-	for (let i = 0; i < tests.length; i++) {
-		dom_test.appendChild(createElement('option', [], ['value'], [tests[i]], tests[i]))
+	else {
+		dom_test.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a test"))
 	}
 
+	// Get the list of tests from firebase and update the HTML with the list (only add new values)
+	let testDocs = await getAllTestDocs(spacing + spaceSize)
+
+	// Sort the tests
+	testDocs.sort((a,b) => sortAlphabetically(a.data().code, b.data().code))
+
+	// add in the test to the dom
+	testDocs.forEach(testDoc => {
+		dom_test.appendChild(createElement('option', [], ['value'], [testDoc.id], testDoc.data().code))
+	})
+}
+
+/**
+ * This will remove all tests from the testList with the given id, get a list of all tests from firebase,
+ * then repopulate the list with the current list of tests
+ * 
+ * @param {string} id The id of the HTML element to populate
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+ async function initializeSections(id, testID, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializeSections()', {'id' : id})
+	}
+
+	// Delete the current list of tests
+	removeChildren(id, spacing + spaceSize)
+
+	// Find the HTML elements
+	let dom_section = document.getElementById(id)
+
+	// Add default
+	dom_section.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a section"))
+
+	// get all of the sections of the given test 
+	let sectionDocs = await getSectionDocsByTest(testID);
+
+	// sort the section
+	sectionDocs.sort((a,b) => sortSectionCanonically(a.data().code, b.data().code));
+
+	// add in the test to the dom
+	sectionDocs.forEach(sectionDoc => {
+		dom_section.appendChild(createElement('option', [], ['value'], [sectionDoc.id], capitalizeFirstChar(sectionDoc.data().code)))
+	})
+}
+
+function sortAlphabetically(a,b) {
+	a = a.toString();
+	b = b.toString();
+
+	if (a < b) {
+		return -1;
+	}
+	if (a == b) {
+		return 0;
+	}
+	if (a > b) {
+		return 1
+	}
+}
+
+function sortSectionCanonically(a,b) {
+	const canon = {
+		english: 0,
+		math: 1,
+		reading: 2,
+		science: 3
+	}
+
+	return canon[a] - canon[b];
+}
+
+function capitalizeFirstChar(str) {
+	return str[0].toUpperCase() + str.slice(1);
 }
 
 async function initializeCurriculumDisplay() {
@@ -2139,7 +2261,7 @@ function saveAnswers(spacing = '') {
 
 async function saveAnswersToTest(test, section, answers) {
 	console.log('saving answers')
-	let doc = await getTestDocument(test, spaceSize)
+	let doc = await getTestDocumentByCode(test, spaceSize)
 	const id = doc.id
 	let data = doc.data()
 
@@ -2152,7 +2274,7 @@ async function saveAnswersToTest(test, section, answers) {
 
 async function saveScaledScoresToTest(test, section, scores) {
 	console.log('saving scores')
-	let doc = await getTestDocument(test, spaceSize)
+	let doc = await getTestDocumentByCode(test, spaceSize)
 	const id = doc.id
 	let data = doc.data()
 
@@ -2445,7 +2567,7 @@ dom_test.addEventListener('change', async function () {
 	}
 	else {
 		// Get the test document data
-		let data = await getTestDocument(dom_test.value, spaceSize)
+		let data = await getTestDocumentByCode(dom_test.value, spaceSize)
 
 		// Display the year and month of the test
 		let year = document.getElementById('testYear')
