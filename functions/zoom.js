@@ -164,6 +164,119 @@ function convertMilliToZoomDateFormat(timeMilli) {
   return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
 }
 
+exports.updateZoomLicenseDaily = functions.pubsub.schedule('0 1 * * *').timeZone('America/Denver').onRun(async (context) => {
+  // get all of our tutors
+  const tutorQuery = await admin.firestore().collection('Users').where('zoomID', '!=', '').get();
+
+  // go through each tutor and give them a license if they have a lesson today an set them to basic if not
+  await Promise.allSettled(tutorQuery.docs.map(async (tutorDoc) => {
+    // check if this tutor has a lesson today
+    const eventQuery = await admin.firestore().collection('Events')
+    .where('start', '>=', new Date().setHours(6,0,0,0))
+    .where('start', '<', new Date().setHours(30,0,0,0))
+    .where('staff', 'array-contains', tutorDoc.id)
+    .get();
+
+    const payload = {
+      iss: functions.config().zoom.key,
+      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+    };
+    const token = jwt.sign(payload, functions.config().zoom.secret);
+
+    if (eventQuery.size > 0) {
+      // tutor has lessons
+      await axios({
+        method: 'patch',
+        url: `/users/${tutorDoc.data().zoomID}`,
+        baseURL: zoomBaseURL,
+        headers: {
+          Authorization: 'Bearer ' + token,
+          ['Content-Type']: 'application/json'
+        },
+        data: {
+          type: 2
+        },
+      });
+    }
+    else {
+      // tutor does not have lessons
+      await axios({
+        method: 'patch',
+        url: `/users/${tutorDoc.data().zoomID}`,
+        baseURL: zoomBaseURL,
+        headers: {
+          Authorization: 'Bearer ' + token,
+          ['Content-Type']: 'application/json'
+        },
+        data: {
+          type: 1
+        },
+      });
+    }
+  }))
+  return
+});
+
+// exports.updateZoomLicenseDaily_test = functions.https.onRequest(async (request, response) => {
+//   // get all of our tutors
+//   const tutorQuery = await admin.firestore().collection('Users').where('zoomID', '!=', '').get();
+
+//   // go through each tutor and give them a license if they have a lesson today an set them to basic if not
+//   const patchRequests = await Promise.allSettled(tutorQuery.docs.map(async (tutorDoc) => {
+//     // check if this tutor has a lesson today
+//     const eventQuery = await admin.firestore().collection('Events')
+//     .where('start', '>=', new Date().setHours(6,0,0,0))
+//     .where('start', '<', new Date().setHours(30,0,0,0))
+//     .where('staff', 'array-contains', tutorDoc.id)
+//     .get();
+
+//     console.log(tutorDoc.data().firstName + ' ' + tutorDoc.data().lastName)
+
+//     // if (eventQuery.size > 0) {
+//     //   console.log('tutor and their lessons')
+//     //   console.log(tutorDoc.data(), eventQuery.docs.map(doc => doc.data()));
+//     // }
+
+//     const payload = {
+//       iss: functions.config().zoom.key,
+//       exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+//     };
+//     const token = jwt.sign(payload, functions.config().zoom.secret);
+
+//     if (eventQuery.size > 0) {
+//       // tutor has lessons
+//       await axios({
+//         method: 'patch',
+//         url: `/users/${tutorDoc.data().zoomID}`,
+//         baseURL: zoomBaseURL,
+//         headers: {
+//           Authorization: 'Bearer ' + token,
+//           ['Content-Type']: 'application/json'
+//         },
+//         data: {
+//           type: 2
+//         },
+//       });
+//     }
+//     else {
+//       // tutor does not have lessons
+//       await axios({
+//         method: 'patch',
+//         url: `/users/${tutorDoc.data().zoomID}`,
+//         baseURL: zoomBaseURL,
+//         headers: {
+//           Authorization: 'Bearer ' + token,
+//           ['Content-Type']: 'application/json'
+//         },
+//         data: {
+//           type: 1
+//         },
+//       });
+//     }
+//     return
+//   }))
+//   response.send(patchRequests)
+// });
 
 
 
