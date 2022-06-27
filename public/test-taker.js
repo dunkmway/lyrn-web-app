@@ -742,7 +742,7 @@ function initializeAssignmentsSnapshot(studentUID) {
     // also sort the previous to be in most recent started to oldest
     previousAssignments = previousAssignments
     .filter(assignment => !assignment.allAssignment)
-    .sort((a,b) => a.startedAt?.toDate()?.getTime() - b.startedAt?.toDate()?.getTime())
+    .sort((a,b) => b.startedAt?.toDate()?.getTime() - a.startedAt?.toDate()?.getTime())
 
     // remove all the assignments
     removeAllChildNodes(document.getElementById('sectionAssignmentList'));
