@@ -571,6 +571,15 @@ async function getSectionDocsByTest(testID) {
 	return sectionQuery.docs;
 }
 
+async function getPassageDocsByTestAndSection(testID, sectionID) {
+	const passageQuery = await firebase.firestore().collection('ACT-Passage-Data')
+	.where('test', '==', testID)
+	.where('section', '==', sectionID)
+	.get();
+
+	return passageQuery.docs;
+}
+
 /**
  * This will save / update the test information
  * It will also initialize the section docs
@@ -980,7 +989,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 		}
 
 		// Set the bottom half - passage
-		setPassageText(await getPassageDocument(dom_test.value, dom_section.value, dom_passage.value, spacing + spaceSize), spacing + spaceSize)
+		setPassageText(await getPassageDocumentByCode(dom_test.value, dom_section.value, dom_passage.value, spacing + spaceSize), spacing + spaceSize)
 
 		// Set the correct answer
 		selectAnswer(document.getElementById('answer' + questionLocations[data['correctAnswer']].toString() + 'Label'), spacing + spaceSize)
@@ -1497,7 +1506,7 @@ async function displayScaledScores(test, section, spacing = '') {
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  * @returns {Object | boolean} Object (firebase doc object [doc not doc.data()]) or false if it doesn't exist
  */
-async function getPassageDocument(test, section, passage, spacing = '') {
+async function getPassageDocumentByCode(test, section, passage, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'getPassageDocument()', {
 			'test' : test,
@@ -1591,7 +1600,7 @@ async function savePassage(spacing = '') {
 	if (text.value.length > 0) {
 		let testResults = await getTestDocumentByCode(test, spacing + spaceSize)
 		if (testResults != false) {
-			let passageResults = await getPassageDocument(test, section, passageNumber, spacing + spaceSize)
+			let passageResults = await getPassageDocumentByCode(test, section, passageNumber, spacing + spaceSize)
 			if (passageResults == false) {
 				ref.doc().set(data)
 				.then(() => {console.log("Set")})
@@ -1635,15 +1644,15 @@ async function saveCurriculum() {
  * 
  * @param {?string} test ACT test ID (ie. B05)
  * @param {?string} section ACT section (possible values are english, math, reading, and science)
- * @param {?number} passageNumber This is the passage number
+ * @param {?number} passage This is the passage number
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  */
-async function initializePassageDisplay(test = undefined, section = undefined, passageNumber = 1, spacing = '') {
+async function initializePassageDisplay(test = undefined, section = undefined, passage = undefined, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'initializePassageDisplay()', {
 			'test' : test,
 			'section' : section,
-			'passageNumber' : passageNumber
+			'passage' : passage
 		})
 	}
 
@@ -1656,18 +1665,22 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	// Find the HTML elements
 	let dom_test = document.getElementById('passageTest')
 	let dom_section = document.getElementById('passageSection')
-	let dom_passages = document.getElementById('passageNumber')
+	let dom_passage = document.getElementById('passageNumber')
+	let dom_passageText = document.getElementById('passageText')
 
-	// Display the correct section
-	let passageDivs = document.querySelectorAll('div[id$="Passage"]')
-	for (let i = 0; i < passageDivs.length; i++) {
-		if (passageDivs[i].id != (section ?? dom_section.value) + 'Passage') {
-			passageDivs[i].classList.add('hidden')
-		}
-		else {
-			passageDivs[i].classList.remove('hidden')
-		}
-	}
+	// if (!test) {
+	// 	removeChildren(dom_test.id)
+	// }
+	// if (!section) {
+	// 	removeChildren(dom_section.id)
+	// }
+	// if (!passage) {
+	// 	removeChildren(dom_passage.id)
+	// }
+
+	removeChildren(dom_test.id)
+	removeChildren(dom_section.id)
+	removeChildren(dom_passage.id)
 
 	// Get a list of all available tests from firebase
 	await initializeTests('passageTest', spacing + spaceSize)
@@ -1678,141 +1691,26 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 		await initializeSections('passageSection', test);
 		if (section) {
 			dom_section.value = section
+
+			await initializePassages('passageNumber', test, section);
+			if (passage) {
+				dom_passage.value = passage
+
+				// Grab the passage from firebase
+				const passageDoc = await getPassageDoc(passage);
+				if (passageDoc.exists) {
+					console.log(passageDoc.data())
+					const passageData = passageDoc.data()
+
+					dom_passageText.value = passageData.content;
+					dom_passageText.dispatchEvent(new Event('input'))
+
+					// // Display the info below
+					// setPassageText(passageData, spacing + spaceSize)
+				}
+			}
 		}
 	}
-
-	// Reset passage numbers
-	removeChildren('passageNumber', spacing + spaceSize)
-
-	// Identify how many passages there should be
-	let passageCount = 0;
-	switch(section ?? dom_section.value) {
-		case 'english':
-			passageCount = 5;
-			break;
-		case 'math':
-			passageCount = 3;
-			break;
-		case 'reading':
-			passageCount = 4;
-			break
-		case 'science':
-			passageCount = 7;
-			break;
-		default:
-			console.log('check your section spelling')
-			return;
-	}
-
-	// Populate the passage list and set its value
-	for (let i = 0; i < passageCount; i++) {
-		dom_passages.appendChild(createElement('option', [], ['value'], [(i + 1)], (i + 1).toString()))
-	}
-	dom_passages.value = passageNumber
-
-	// Grab the passage from firebase
-	let passageData = await getPassageDocument(test ?? dom_test.value, section ?? dom_section.value, passageNumber, spacing + spaceSize)
-	if (passageData != false) {
-		passageData = passageData.data()
-	}
-
-	// Display the preText
-	try {
-		document.getElementById((section ?? dom_section.value) + 'PassagePreText').value = passageData['preText'] ?? ''
-	}
-	catch {
-		//console.log('Missing ' + (section ?? dom_section.value) + 'PassagePreText')
-	}
-
-	// Display the title
-	try {
-		document.getElementById((section ?? dom_section.value) + 'PassageTitle').value = passageData['title'] ?? ''
-	}
-	catch {
-		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageTitle')
-	}
-
-	// Add the paragraph labels, if needed
-	/*if (passageData['shouldLabelParagraphs'] == true && passageData['section'] == 'english' && passageData['passageText'] != undefined && passageData['passageText'] != '' && !passageData['passageText'].includes('<b>1</b>')) {
-		let splitText = passageData['passageText'].split('<br><br>')
-		
-		for (let i = 0; i < splitText.length; i++) {
-			splitText[i] = '<b>' + (i + 1).toString() + '</b><br> ' + splitText[i]
-		}
-
-		passageData['passageText'] = splitText.join('<br><br>')
-	}*/
-
-	// Display the passage
-	try {
-		document.getElementById((section ?? dom_section.value) + 'PassageText').value = passageData['passageText'] ?? ''
-	}
-	catch {
-		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageText')
-	}
-
-	// Display the reference
-	try {
-		document.getElementById((section ?? dom_section.value) + 'PassageReference').value = passageData['reference'] ?? ''
-	}
-	catch {
-		//console.log('Missing ' + (section ?? dom_section.value) + 'PassageReference')
-	}
-
-	// Extra displays for reading
-	if ((section ?? dom_section.value) == 'reading') {
-
-		// Display the title - B
-		if (passageData['ABData']?.['title'] != undefined && passageData['ABData']?.['title'] != '') {
-			document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = passageData['ABData']['title']
-		}
-		else {
-			document.getElementById((section ?? dom_section.value) + 'PassageTitleB').value = ''
-		}
-
-		// Display the title - B
-		if (passageData['ABData']?.['preText'] != undefined && passageData['ABData']?.['preText'] != '') {
-			document.getElementById((section ?? dom_section.value) + 'PassagePreTextB').value = passageData['ABData']['preText']
-		}
-		else {
-			document.getElementById((section ?? dom_section.value) + 'PassagePreTextB').value = ''
-		}
-
-		// Display the passageText - B
-		if (passageData['ABData']?.['passageText'] != undefined && passageData['ABData']?.['passageText'] != '') {
-			document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = passageData['ABData']['passageText']
-		}
-		else {
-			document.getElementById((section ?? dom_section.value) + 'PassageTextB').value = ''
-		}
-
-		// Display the reference - B
-		if (passageData['ABData']?.['reference'] != undefined && passageData['ABData']?.['reference'] != '') {
-			document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = passageData['ABData']['reference']
-		}
-		else {
-			document.getElementById((section ?? dom_section.value) + 'PassageReferenceB').value = ''
-		}
-
-		// Set the 'hasABPassges' toggle - B
-		if (passageData['ABData'] != undefined && Object.keys(passageData['ABData']).length > 0) {
-			document.getElementById('hasABPassages').value = 1
-			document.getElementById('passageB').classList.remove('hidden')
-		}
-		else {
-			document.getElementById('hasABPassages').value = 0
-			document.getElementById('passageB').classList.add('hidden')
-		}
-
-	}
-
-	// Set the 'Label Paragraphs' tag
-	//if ((section ?? dom_section.value) == 'english') {
-		//document.getElementById((section ?? dom_section.value) + 'LabelParagraphs').value = (passageData['shouldLabelParagraphs'] ?? false) ? 1 : 0
-	//}
-
-	// Display the info below
-	setPassageText(passageData, spacing + spaceSize)
 
 	// Highlight all spans
 	let elements = document.getElementById('pText').querySelectorAll('span')
@@ -1900,6 +1798,42 @@ async function initializeTests(id, spacing = '') {
 	sectionDocs.forEach(sectionDoc => {
 		dom_section.appendChild(createElement('option', [], ['value'], [sectionDoc.id], capitalizeFirstChar(sectionDoc.data().code)))
 	})
+}
+
+/**
+ * This will remove all passages from the passageList with the given id, get a list of all passages from firebase,
+ * then repopulate the list with the current list of tests
+ * 
+ * @param {string} id The id of the HTML element to populate
+ * @param {?string} spacing The spacing for debug purposes (ie. '  ')
+ */
+ async function initializePassages(id, testID, sectionID, spacing = '') {
+	if (debug == true) {
+		console.log(spacing + 'initializePassage()', {'id' : id})
+	}
+
+	// Delete the current list of tests
+	removeChildren(id, spacing + spaceSize)
+
+	// Find the HTML elements
+	let dom_passage = document.getElementById(id)
+
+	// Add default
+	dom_passage.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a passage"))
+
+	// get all of the sections of the given test 
+	let passgeDocs = await getPassageDocsByTestAndSection(testID, sectionID);
+
+	// sort the section
+	passgeDocs.sort((a,b) => a.data().code - b.data().code);
+
+	// add in the test to the dom
+	passgeDocs.forEach(passageDoc => {
+		dom_passage.appendChild(createElement('option', [], ['value'], [passageDoc.id], passageDoc.data().code))
+	})
+
+	// add new passgae
+	dom_passage.appendChild(createElement('option', [], ['value'], ['new'], "Create new passage"))
 }
 
 function sortAlphabetically(a,b) {
@@ -2411,74 +2345,27 @@ function setPassageText(data, spacing = '') {
 		console.log(spacing + 'setPassageText()', data)
 	}
 
-	try {
-		data = data.data()
-	}
-	catch {
-	}
-
 	// Remove the current elements
 	removeChildren('pText', spacing + spaceSize)
 
 	// Find the HTML elements
 	let dom_passage = document.getElementById('pText')
 
-	// Set the pre-passage text (only applicable to reading I think (1/8/22))
-	if (data['preText'] != undefined && data['preText'] != '') {
-		dom_passage.appendChild(createElement('p', [], [], [], data['preText']))
-	}
-
-	// Set the title
-	if (data['title'] != undefined && data['title'] != '') {
-		dom_passage.appendChild(createElement('p', [], [], [], data['title']))
-	}
-
 	// Set the passage text
-	if (data['passageText'] != undefined && data['passageText'] != '') {
-		dom_passage.appendChild(createElement('p', [], [], [], data['passageText']))
-	}
-
-	// Set the passage text
-	if (data['ABData'] == undefined || data['ABData'] == {}) {
-		if (data['reference'] != undefined && data['reference'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
-		}
-	}
-
-	// Set passage B
-	if (data['ABData'] != undefined && data['ABData'] != {}) {
-		if (data['ABData']?.['title'] != undefined && data['ABData']?.['title'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['title']))
-		}
-
-		if (data['ABData']?.['preText'] != undefined && data['ABData']?.['preText'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['preText']))
-		}
-
-		if (data['ABData']?.['passageText'] != undefined && data['ABData']?.['passageText'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['passageText']))
-		}
-
-		if (data['reference'] != undefined && data['reference'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['reference']))
-		}
-
-		if (data['ABData']?.['reference'] != undefined && data['ABData']?.['reference'] != '') {
-			dom_passage.appendChild(createElement('p', [], [], [], data['ABData']['reference']))
-		}
+	if (data.content != undefined && data.content != '') {
+		// dom_passage.appendChild(createElement('p', [], [], [], data['passageText']))
+		dom_passage.innerHTML = data.content;
 	}
 
 	// Highlight the text, if necessary
-	if (data['section'] == 'english' || data['section'] == 'reading') {
-		let elements = document.getElementById('pText').querySelectorAll('span')
-		for (let i = 0; i < elements.length; i++) {
-			let ele = elements[i]
-			if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
-				ele.classList.add('box')
-			}
-			else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
-				ele.classList.add('spotlight')
-			}
+	let elements = document.getElementById('pText').querySelectorAll('span')
+	for (let i = 0; i < elements.length; i++) {
+		let ele = elements[i]
+		if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+			ele.classList.add('box')
+		}
+		else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+			ele.classList.add('spotlight')
 		}
 	}
 
@@ -2612,7 +2499,7 @@ dom_passageTest.addEventListener('change', function() {
 	}
 
 	// Re-initialize the display
-	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
+	initializePassageDisplay(dom_passageTest.value, null, null, spaceSize)
 })
 
 let dom_passageSection = document.getElementById('passageSection')
@@ -2622,7 +2509,7 @@ dom_passageSection.addEventListener('change', function() {
 	}
 
 	// Re-initialize the display
-	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
+	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, null, spaceSize)
 })
 
 let dom_passageNumber = document.getElementById('passageNumber')
@@ -2635,20 +2522,20 @@ dom_passageNumber.addEventListener('change', function() {
 	initializePassageDisplay(dom_passageTest.value, dom_passageSection.value, dom_passageNumber.value, spaceSize)
 })
 
-let dom_AB = document.getElementById('hasABPassages')
-dom_AB.addEventListener('change', function() {
-	if (debug == true) {
-		console.log('EVENT LISTENER (id = "hasABPassages")')
-	}
+// let dom_AB = document.getElementById('hasABPassages')
+// dom_AB.addEventListener('change', function() {
+// 	if (debug == true) {
+// 		console.log('EVENT LISTENER (id = "hasABPassages")')
+// 	}
 
-	// Add / Remove Passage B
-	if (dom_AB.value == 0) {
-		document.getElementById('passageB').classList.add('hidden')
-	}
-	else if (dom_AB.value == 1) {
-		document.getElementById('passageB').classList.remove('hidden')
-	}
-})
+// 	// Add / Remove Passage B
+// 	if (dom_AB.value == 0) {
+// 		document.getElementById('passageB').classList.add('hidden')
+// 	}
+// 	else if (dom_AB.value == 1) {
+// 		document.getElementById('passageB').classList.remove('hidden')
+// 	}
+// })
 
 
 let dom_passageSections = document.querySelectorAll('div[id$="Passage"]')
@@ -2697,6 +2584,30 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 
 		// Update the bottom display
 		setPassageTextHelper(spaceSize);
+	})
+}
+
+let dom_passageText = document.querySelectorAll('#passageText')
+for (let i = 0; i < dom_passageText.length; i++) {
+	dom_passageText[i].addEventListener('input', function (event) {
+		if (debug == true) {
+			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
+		}
+
+		// Correct text
+		if (!event.target.id.toLowerCase().includes('image')) {
+			if (event.target.id.includes('passageText')) {
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+			}
+			else {
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+			}
+		}
+
+		// Update the bottom display
+		setPassageText({
+			content: event.target.value
+		});
 	})
 }
 
@@ -2765,7 +2676,7 @@ dom_questionsPassageNumber.addEventListener('change', async function () {
 	const number = parseInt(document.getElementById('questionList').value)
 
 	// Set the bottom half - passage
-	setPassageText(await getPassageDocument(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, spaceSize))
+	setPassageText(await getPassageDocumentByCode(dom_questionsTest.value, dom_questionsSection.value, dom_questionsPassageNumber.value, spaceSize))
 
 	// Get the possible answers' text
 	let answers = []

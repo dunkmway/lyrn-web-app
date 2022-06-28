@@ -62,9 +62,9 @@
       <!-- Opening Screen -->
       <div id = 'openingDisplay' class = 'centerSpread'>
         <button onclick = 'selectDisplay("testDisplay")'>Add Test</button>
-        <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
         <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
+        <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("questionsDisplay")'>Add Question</button>
         <button onclick = 'selectDisplay("curriculumDisplay")'>Add Curriculum</button>
       </div>
@@ -143,6 +143,7 @@
 
           <!-- Passage -->
           <label for="passageNumber" class = 'mainLabel'>Passage</label>
+          <label for="passageNumber" class = 'mainLabel'>New Passage Number</label>
 
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
@@ -162,13 +163,28 @@
           <!-- Passage -->
           <select id="passageNumber" class = 'mainInput'>
           </select>
+          <input id="newPassageNumber" class = 'mainInput' type="number" min="1">
 
           <!-- Save Test Button -->
           <button onclick="savePassage()" class = 'mainInput'>Save Passage</button>
         </div>
 
         <!-- Passage Info -->
-        <div id = 'englishPassage' class = 'sectionPassage'>
+        <div id = 'passage' class = 'sectionPassage'>
+          <div class='columns'>
+            <div class="rows" style = 'margin-left:10px;'>
+              <label for="passageText" id='passageTextLabel'>Passage</label>
+              <textarea class = 'textArea' placeholder="Copy passage text here" id='passageText'></textarea>
+            </div>
+
+            <div class='rows' style = 'margin-left:10px;'>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()">
+            </div>
+          </div>
+        </div>
+        
+        <!-- <div id = 'englishPassage' class = 'sectionPassage'>
           <div class='columns'>
             <div class='rows'>
               <div>
@@ -178,11 +194,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="englishLabelParagraphs" id='englishLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="englishLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
@@ -293,7 +304,7 @@
             <label for="sciencePassageReference" id='sciencePassageReferenceLabel'>Reference</label>
           </div>
           <textarea id = 'sciencePassageReference' class = 'reference'></textarea>
-        </div>
+        </div> -->
 
       </div>
 
