@@ -1543,79 +1543,63 @@ async function savePassage(spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'savePassage()')
 	}
-
-	// Get the ref location
-	const ref = firebase.firestore().collection('ACT-Tests')
 	
 	// Prepare the data
-	let test = document.getElementById('passageTest').value.toUpperCase()
-	let section = document.getElementById('passageSection').value
-	let passageNumber = parseInt(document.getElementById('passageNumber').value)
-	let text = document.getElementById(section + 'PassageText')
-	let dom_reference = document.getElementById(section + 'PassageReference') ?? ''
-	const preText = (section == 'reading') ? document.getElementById('readingPassagePreText').value : ''
-	let ABData = {}
+	let test = document.getElementById('passageTest').value;
+	let section = document.getElementById('passageSection').value;
+	let passage = document.getElementById('passageNumber').value;
+	let passageNumber = Number(document.getElementById('newPassageNumber').value);
+	let text = document.getElementById('passageText').value;
 
-	// Remove the paragraph labels, if needed
-	/*for (let i = 0; i < 5; i++) {
-		text.value = text.value.replaceAll('<b>' + (i + 1).toString() + '</b><br> ', '')
-	}*/
-
-	// Remove extra spaces
-	let dom_abText = document.getElementById('readingPassageTextB').value
-	if (dom_abText.value != undefined) {
-		while (dom_abText.value.includes('  ')) {
-			dom_abText.value = dom_abText.value.replaceAll('  ', ' ')
-		}
+	if (!test) {
+		alert('You are missing the test')
+		return;
 	}
-
-
-	// Add the A/B passage information if needed
-	if (section == 'reading' && dom_AB.value == 1) {
-		ABData['title'] = document.getElementById('readingPassageTitleB').value
-		ABData['preText'] = document.getElementById('readingPassagePreTextB').value
-		ABData['passageText'] = document.getElementById('readingPassageTextB').value
-		ABData['reference'] = document.getElementById('readingPassageReferenceB').value
+	if (!section) {
+		alert('You are missing the section')
+		return;
+	}
+	if (!passage) {
+		alert('You are missing the passage')
+		return;
+	}
+	if (passage === 'new' && (!passageNumber || passageNumber < 1)) {
+		alert('Your new passage number is invalid')
+		return
 	}
 
 	// Remove extra spaces
-	while (text.value.includes('  ')) {
-		text.value = text.value.replaceAll('  ', ' ')
-	}
-
-	data = {
-		'test' : test,
-		'section' : section,
-		'type' : 'passage',
-		'title' : document.getElementById(section + 'PassageTitle').value,
-		'passageText' : text.value,
-		'passageNumber' : passageNumber,
-		'preText' : preText,
-		//'shouldLabelParagraphs': ((section == 'english' && document.getElementById(section + 'LabelParagraphs').value == 1) ? true : false),
-		'reference' : dom_reference.value ?? '',
-		'ABData' : ABData
+	while (text.includes('  ')) {
+		text = text.replaceAll('  ', ' ')
 	}
 
 	// Validate then set the data
-	if (text.value.length > 0) {
-		let testResults = await getTestDocumentByCode(test, spacing + spaceSize)
-		if (testResults != false) {
-			let passageResults = await getPassageDocumentByCode(test, section, passageNumber, spacing + spaceSize)
-			if (passageResults == false) {
-				ref.doc().set(data)
-				.then(() => {console.log("Set")})
-			}
-			else {
-				ref.doc(passageResults.id).set(data)
-				.then(() => {
-					console.log("Updated")
-				})
-			}
+	if (text.length > 0) {
+		// save different things based on if it is a new passage or not
+		if (passage === 'new') {
+			// save a new passage
+			const newRef = firebase.firestore().collection('ACT-Passage-Data').doc()
+			await newRef.set({
+				test,
+				section,
+				code: passageNumber,
+				content: text
+			})
+			passage = newRef.id;
 		}
 		else {
-			console.log('How did you get here?!')
+			// update the existing passage
+			await firebase.firestore().collection('ACT-Passage-Data').doc(passage).update({
+				content: text
+			})
 		}
 	}
+	else {
+		alert('You did not input any text')
+		return;
+	}
+
+	initializePassageDisplay(test, section, passage, spacing);
 }
 
 async function saveCurriculum() {
@@ -1666,6 +1650,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	let dom_test = document.getElementById('passageTest')
 	let dom_section = document.getElementById('passageSection')
 	let dom_passage = document.getElementById('passageNumber')
+	let dom_PassageNumber = document.getElementById('newPassageNumber')
 	let dom_passageText = document.getElementById('passageText')
 
 	// if (!test) {
@@ -1681,6 +1666,9 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	removeChildren(dom_test.id)
 	removeChildren(dom_section.id)
 	removeChildren(dom_passage.id)
+	dom_passageText.value = null;
+	dom_passageText.dispatchEvent(new Event('input'))
+	dom_PassageNumber.value = null;
 
 	// Get a list of all available tests from firebase
 	await initializeTests('passageTest', spacing + spaceSize)
@@ -1699,7 +1687,6 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 				// Grab the passage from firebase
 				const passageDoc = await getPassageDoc(passage);
 				if (passageDoc.exists) {
-					console.log(passageDoc.data())
 					const passageData = passageDoc.data()
 
 					dom_passageText.value = passageData.content;
@@ -2920,6 +2907,24 @@ async function transferPassage() {
 	console.log('done transferring passages')
 }
 
+async function transferCurriculum() {
+	// get all of the old curriculum docs
+	const curriculumQuery = await firebase.firestore()
+	.collection('Dynamic-Content').doc('curriculum-topics')
+	.collection('Topics')
+	.where('type', '==', 'topic')
+	.get()
+
+	await Promise.all(curriculumQuery.docs.map(async (doc) => {
+		await firebase.firestore()
+		.collection('ACT-Curriculum-Data').doc().set({
+			content: doc.data().curriculum ?? '',
+			code: doc.data().topic,
+			sectionCode: doc.data().section
+		})
+	}))
+}
+
 async function transferQuestion() {
 	// get all of the old questions
 	const questionQuery = await firebase.firestore().collection('ACT-Tests')
@@ -2930,11 +2935,13 @@ async function transferQuestion() {
 	const testQuery = await firebase.firestore().collection('ACT-Test-Data').get()
 	const sectionQuery = await firebase.firestore().collection('ACT-Section-Data').get()
 	const passageQuery = await firebase.firestore().collection('ACT-Passage-Data').get()
+	const curriculumQuery = await firebase.firestore().collection('ACT-Curriculum-Data').get()
 
 	await Promise.all(questionQuery.docs.map(async (doc, index) => {
-		const testDoc = testQuery.docs.find(test => test.data().code == doc.data().test)
-		const sectionDoc = sectionQuery.docs.find(section => section.data().test == testDoc.id && section.data().code == doc.data().section)
-		const passageDoc = passageQuery.docs.find(passage => passage.data().test == testDoc.id && passage.data().section == sectionDoc.id && passage.data().code == doc.data().passage)
+		const testDoc = testQuery.docs.find(test => test.data().code == doc.data().test);
+		const sectionDoc = sectionQuery.docs.find(section => section.data().test == testDoc.id && section.data().code == doc.data().section);
+		const passageDoc = passageQuery.docs.find(passage => passage.data().test == testDoc.id && passage.data().section == sectionDoc.id && passage.data().code == doc.data().passage);
+		const curriculumDocs = curriculumQuery.docs.filter(curriculum => doc.data().topic.includes(curriculum.data().code));
 
 		const answers = {
 			'A': 0,
@@ -2957,7 +2964,7 @@ async function transferQuestion() {
 			choices: doc.data().answers.map(ans => `<p>${ans}</p>`),
 			answer: answers[doc.data().correctAnswer],
 			content: doc.data().questionText,
-			topics: doc.data().topic,
+			topics: curriculumDocs.map(doc => doc.id),
 			passage: passageDoc?.id ?? null,
 			section: sectionDoc.id,
 			test: testDoc.id
@@ -2971,5 +2978,6 @@ async function transferEverything() {
 	await transferTest();
 	await transferSection();
 	await transferPassage();
+	await transferCurriculum();
 	await transferQuestion();
 }
