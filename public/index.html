@@ -8,6 +8,21 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-N393M5F');</script>
     <!-- End Google Tag Manager -->
+    <!-- Free Resources -->
+    <script>
+      function gtag_report_conversion_resources(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/IkcBCMTa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Lyrn Tutoring is bringing education into the 21st century with adaptive learning. A simple and transparent online tutoring experience driven by data to bring about success for your student in any class or upcoming test.">
@@ -106,7 +121,7 @@
         <p>Enter your email so we can send you your custom link to take the tests.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitPracticeTestRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitPracticeTestRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -126,7 +141,7 @@
         <p>Enter your email so we can send you your custom lesson series.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitLessonSeriesRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitLessonSeriesRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -298,7 +313,7 @@
               <input type="email" id="questionnaire_email">
             </div>
             <p class="error" id="questionnaire_error"></p>
-            <button class="option submit" onclick="submitQuestionnaire()" id="questionnaire_submit">Submit</button>
+            <button class="option submit" onclick="submitQuestionnaire(); gtag_report_conversion_resources()" id="questionnaire_submit">Submit</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>

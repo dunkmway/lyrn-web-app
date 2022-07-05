@@ -8,6 +8,37 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-N393M5F');</script>
     <!-- End Google Tag Manager -->
+    <!-- Book Program Preview -->
+    <script>
+      function gtag_report_conversion_preview(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/oy1uCMHa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
+    <!-- Free Resources -->
+    <script>
+      function gtag_report_conversion_resources(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/IkcBCMTa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
+  
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Lyrn pricing is simple and transparent. Select the tutoring that your student needs and contact us to get started.">
@@ -92,7 +123,7 @@
         <p>Enter your email so we can send you your custom link to take the tests.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitPracticeTestRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitPracticeTestRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -112,7 +143,7 @@
         <p>Enter your email so we can send you your custom lesson series.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitLessonSeriesRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitLessonSeriesRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -291,7 +322,7 @@
                 <li>Focus on one section or sign up for multiple</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="createAnalyticsEvent({eventID: 'englishPreviewScheduleClicked'})">
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'englishPreviewScheduleClicked'}); gtag_report_conversion_preview()">
                 <!-- <a href="tel:+13853000906">
                   <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
@@ -317,7 +348,7 @@
                 <li>Focus on one section or sign up for multiple</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="createAnalyticsEvent({eventID: 'mathPreviewScheduleClicked'})">
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'mathPreviewScheduleClicked'}); gtag_report_conversion_preview()">
                 <!-- <a href="tel:+13853000906">
                   <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
@@ -343,7 +374,7 @@
                 <li>Focus on one section or sign up for multiple</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="createAnalyticsEvent({eventID: 'readingPreviewScheduleClicked'})">
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'readingPreviewScheduleClicked'}); gtag_report_conversion_preview()">
                 <!-- <a href="tel:+13853000906">
                   <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
@@ -369,7 +400,7 @@
                 <li>Focus on one section or sign up for multiple</li>
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
-              <button class="select" onclick="createAnalyticsEvent({eventID: 'sciencePreviewScheduleClicked'})">
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'sciencePreviewScheduleClicked'}); gtag_report_conversion_preview()">
                 <!-- <a href="tel:+13853000906">
                   <p>Call to sign up</p>
                   <p>(385) 300-0906</p>
