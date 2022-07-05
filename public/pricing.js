@@ -28,13 +28,20 @@ function initialSetup() {
   modalSetup('availableStudyGroupsModal', () => {});
   contactFormSetup();
   let queryCourse = queryStrings()['course'];
+  let programCourse = queryStrings()['program'];
 
   if (queryCourse) {
     openCourse(queryCourse)
   }
 
+  if (programCourse) {
+    document.getElementById(programCourse).dispatchEvent(new Event('click'));
+  }
+
   //initialze the check program
   checkProgramInitialSetup();
+
+
 
   createAnalyticsEvent({
     eventID: 'load'
@@ -47,6 +54,8 @@ function openCourse(sectionID) {
 
 function openProgram(event) {
   const program = event.target.id;
+  event.target.checked = true;
+  
   document.querySelectorAll('.program').forEach(element => {
     element.classList.remove('open')
   });

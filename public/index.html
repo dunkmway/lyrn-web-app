@@ -8,6 +8,21 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-N393M5F');</script>
     <!-- End Google Tag Manager -->
+    <!-- Book Program Preview -->
+    <script>
+      function gtag_report_conversion_preview(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/oy1uCMHa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
     <!-- Free Resources -->
     <script>
       function gtag_report_conversion_resources(url) {
@@ -46,6 +61,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+
+    <!-- Calendly -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 
     <!-- Global site tag (gtag.js) - Google Ads: 10828068158 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-10828068158"></script>
@@ -207,9 +226,11 @@
           <div class="background-main noselect">College Consultation</div>
         </div>
         <div class="hero__intro">
-          <h1>Advanced Data Driven Tutoring</h1>
-          <h4>ACT Prep and Subject Tutoring with <a href="why.html">Adaptive Learning Intelligence</a></h4>
-          <div><a class="hero__button" href="pricing.html#program_preview" onclick="createAnalyticsEvent({eventID: 'heroButtonClicked'})">Get 2 <b>FREE</b> hours of ACT Prep</a></div>
+          <h1>Worried about getting into college?</h1>
+          <h4>We guarantee a <a onclick="createAnalyticsEvent({eventID: 'hero4+Clicked'});" href="pricing?program=one-on-one">4+ point increase</a> on your ACT.</h4>
+          <div onclick="createAnalyticsEvent({eventID: 'heroPreviewScheduleClicked'}); gtag_report_conversion_preview()">
+            <a class="hero__button" href="pricing.html#program_preview" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;">Schedule a preview today</a>
+          </div>
         </div>
         <!-- <div class="hero__body">
             <img src="Images/Lyrn_hero_section_image.png" alt="Adaptive Learning in action">
