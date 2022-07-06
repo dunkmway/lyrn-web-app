@@ -2092,7 +2092,7 @@ function connectClasses(classDocs) {
       connections[connections.length - 1].push(nextClass);
     }
     else {
-      connections.push(nextClass);
+      connections.push([nextClass]);
     }
   }
 
