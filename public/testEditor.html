@@ -88,6 +88,9 @@
           <!-- Code -->
           <label id = 'testCodeLabel' for="testCode" class = 'mainLabel'>Test Code</label>
 
+          <!-- isQuestionBank -->
+          <label id = 'isQuestionBankLabel' for="isQuestionBank" class = 'mainLabel'>Is Question Bank</label>
+
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
         </div>
@@ -123,6 +126,9 @@
 
           <!-- Code -->
           <input type="text" id="testCode" placeholder="Enter new test id (ex. B05)" class = 'mainInput'>
+
+          <!-- isQuestionBank -->
+          <input type="checkbox" id="isQuestionBank" class = 'mainInput' checked>
 
           <!-- Save Test Button -->
           <button onclick="saveTest()" class = 'mainInput'>Save Test</button>
@@ -394,6 +400,7 @@
 
           <!-- Passage -->
           <label for="questionsNumber" class = 'mainLabel'>Passage</label>
+          <label for="isGroupedByPassage">Group w/ passage</label>
 
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
@@ -414,6 +421,9 @@
           <select id="questionsPassageNumber" class = 'mainInput'>
           </select>
 
+          <!-- isGroupedByPassage -->
+          <input type="checkbox" id="isGroupedByPassage" class="mainInput">
+
           <!-- Save Test Button -->
           <button onclick="saveQuestion()" class = 'mainInput'>Save Question</button>
         </div>
@@ -426,8 +436,8 @@
             <select id="questionList">
             </select>
 
-            <label for="topic" id='topicLabel'>Topic(s)</label>
-            <select class='ui dropdown search multiple' multiple id="topic" style = 'display:none'>
+            <label for="topic" id='topicLabel'>Topic</label>
+            <select class="mainInput" id="topic">
             </select>
 
             <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>

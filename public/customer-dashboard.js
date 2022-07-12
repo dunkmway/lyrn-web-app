@@ -41,6 +41,12 @@ function getUserDoc(userUID) {
 function setUpLinks() {
   const links = document.querySelectorAll('nav .links > a');
   links.forEach(link => {
+    if (link.dataset.path) {
+      const path = (link.dataset.path === 'student') ? '/' + student_doc.id : (link.dataset.path === 'parent') ? '/' + parent_doc.id : '';
+      const htmlIndex = link.href.indexOf('.html');
+      link.href = link.href.slice(0, htmlIndex) + path;
+    }
+
     if (link.dataset.query) {
       const queries = link.dataset.query.split(',');
       if (queries.length > 0) {

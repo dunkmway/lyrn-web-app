@@ -53,3 +53,52 @@ button {
 .search-result:last-child {
   border-bottom: 1px solid slategray;
 }
+
+
+#bySection ~ .by-section-wrapper {
+  display: none;
+}
+
+#bySection:checked ~ .by-section-wrapper {
+  display: block;
+}
+
+#byTopic ~ .by-topic-wrapper {
+  display: none;
+}
+
+#byTopic:checked ~ .by-topic-wrapper {
+  display: block;
+}
+
+#topicWrapper {
+  display: flex;
+  flex: row;
+  justify-content: space-between;
+}
+
+#topicWrapper > div {
+  display: none;
+}
+
+
+.topic-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-bottom: .5em;
+}
+
+.topic-row > input[type='checkbox'] {
+ margin-right: .5em;
+}
+
+.topic-row > label {
+  margin-right: 1em;
+ }
+
+.topic-row > input[type='number'] {
+  width: 4em;
+  margin-left: auto;
+}

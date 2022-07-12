@@ -608,11 +608,10 @@ async function saveTest(spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'saveTest()')
 	}
-	// Set the firebase reference
-	const ref = firebase.firestore().collection('ACT-Test-Data')
 
 	// set / grab needed values
 	let testCode = document.getElementById('testCode')
+	let isQuestionBank = document.getElementById('isQuestionBank')
 	const numInts = testCode.value.replace(/\D/g, '').length
 	let year = document.getElementById('testYear')
 	let month = document.getElementById('testMonth')
@@ -620,6 +619,7 @@ async function saveTest(spacing = '') {
 	// Set the data to define
 	const data = {
 		code: testCode.value.toUpperCase(),
+		isQuestionBank: isQuestionBank.checked,
 		releaseDate: `${year.value}-${month.value}`
 	}
 
@@ -636,7 +636,17 @@ async function saveTest(spacing = '') {
 			await Promise.all(['english', 'math', 'reading', 'science'].map(section => saveNewSection(section, newTestRef.id)))
 		}
 		else {
+			// the test exists already so overwrite it
 			await firebase.firestore().collection('ACT-Test-Data').doc(testDoc.id).set(data)
+
+			// we also need to set all questions of this test to the new usQuestionBank
+			const questionQuery = await firebase.firestore().collection('ACT-Question-Data')
+			.where('test', '==', testDoc.id)
+			.get()
+
+			await Promise.all(questionQuery.docs.map(doc => {
+				return doc.ref.update({ isQuestionBank: isQuestionBank.checked })
+			}))
 		}
 
 		// Re-initialize the display
@@ -873,8 +883,10 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	let dom_test = document.getElementById('questionsTest')
 	let dom_section = document.getElementById('questionsSection')
 	let dom_passage = document.getElementById('questionsPassageNumber')
+	let dom_isGroupedByPassage = document.getElementById('isGroupedByPassage')
 	let dom_questionList = document.getElementById('questionList')
 	let dom_questionText = document.getElementById('questionText')
+	let dom_topic = document.getElementById('topic')
 
 	// Display the 5th question if it's the math section
 	if (dom_section.querySelector('option:checked')?.textContent?.toLowerCase() == 'math') {
@@ -902,9 +914,10 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	removeChildren(dom_section.id)
 	removeChildren(dom_passage.id)
 	removeChildren(dom_questionList.id)
+	removeChildren(dom_topic.id)
 	removeChildren('pText')
 	dom_questionText.value = null;
-	$('#topic').closest(".ui.dropdown").dropdown('clear')
+	dom_isGroupedByPassage.checked = false;
 	document.querySelectorAll('textarea[id^="answer"]').forEach(answer => answer.value = null)
 	document.getElementById('questions').dispatchEvent(new Event('input'))
 	document.getElementById('questionsPart2').querySelectorAll('label').forEach(label => label.classList.remove('correctAnswer'))
@@ -932,7 +945,8 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 					resetQuestion(questionDoc.data().code)
 
 					dom_questionText.value = questionDoc.data().content;
-					$('#topic').closest(".ui.dropdown").dropdown('set selected', questionDoc.data().topics);
+					dom_isGroupedByPassage.checked = questionDoc.data().isGroupedByPassage ?? false;
+					dom_topic.value = questionDoc.data().topic
 
 					// Set the answers
 					if (questionDoc.data().choices) {
@@ -1056,7 +1070,7 @@ function initializeQuestionNumbersList(test, section, spacing = '') {
 				list.push(problem)
 				questions[problem] = doc.id;
 				if (doc.data().choices.length == (section != 'math' ? 4 : 5) && doc.data().choices[0] != "") {
-					if (doc.data().topics.length != 0) {
+					if (doc.data().topic) {
 						data[problem] = 'stage3'
 					}
 					else {
@@ -1122,6 +1136,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	const section = document.getElementById('questionsSection').value
 	const passage = document.getElementById('questionsPassageNumber').value ?? null
 	const question = document.getElementById('questionList').value
+	const topic = document.getElementById('topic').value ?? null
 
 	if (!test || !section || !question) {
 		alert('You are missing some data')
@@ -1134,7 +1149,6 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Grab the topics
-	const topics = getDropdownValues('topic', spacing + spaceSize)
 
 	// Remove extra spaces
 	let dom_text = document.getElementById('questionText')
@@ -1150,65 +1164,18 @@ async function saveQuestion(goToNext = true, spacing = '') {
 
 	// Create the data that will be sent to Firebase
 	if (choices.length == (section != 'math' ? 4 : 5)) {
+		const testDoc = await firebase.firestore().collection('ACT-Test-Data').doc(test).get()
+		const isQuestionBank = testDoc.data().isQuestionBank
 		const data = {
 			choices,
 			content: dom_text.value,
 			passage,
-			topics
+			topic,
+			isQuestionBank
 		}
 
 		// Set the data
 		await firebase.firestore().collection('ACT-Question-Data').doc(question).update(data)
-
-		// // Add the question to the list of questions if it isn't there already
-		// let dom_qNumbers = document.getElementById('qNumbers')
-		// const children = dom_qNumbers.children
-		// let insertedElement = false;
-		// let ele = undefined;
-		// for (let i = 0; i < children.length; i++) {
-		// 	if (parseInt(children[i].innerHTML) == number) {
-		// 		ele = children[i]
-		// 		insertedElement = true
-		// 		break;
-		// 	}
-		// 	if (parseInt(children[i].innerHTML) > number) {
-		// 		ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
-		// 		dom_qNumbers.insertBefore(ele, children[i])
-		// 		insertedElement = true
-		// 		break;
-		// 	}
-		// }
-		// if (insertedElement == false) {
-		// 	ele = createElement('div', ['problem'], ['onclick'], ["initializeQuestion(" + number.toString() + ")"], number.toString())
-		// 	dom_qNumbers.appendChild(ele)
-		// }
-
-		// // Assign the set question a color
-		// ele.classList.remove('stage1')
-		// ele.classList.remove('stage2')
-		// ele.classList.remove('stage3')
-		// if (choices.length == (section != 'math' ? 4 : 5) && choices[0] != "") {
-		// 	if (topics.length > 0) {
-		// 		ele.classList.add('stage3')
-		// 	}
-		// 	else {
-		// 		ele.classList.add('stage2')
-		// 	}
-		// }
-		// else {
-		// 	ele.classList.add('stage1')
-		// }
-
-		// // Reset the question display
-		// if (goToNext == true) {
-		// 	const counts = {'english' : 75, 'math' : 60, 'reading' : 40, 'science' : 40}
-		// 	if (number != counts[section]) {
-		// 		initializeQuestionsDisplay(test, section, passage, number + 1, spacing + spaceSize)
-		// 	}
-		// }
-		// else {
-		// 	initializeQuestionsDisplay(test, section, passage, number, spacing + spaceSize)
-		// }
 
 		const nextQuestion = document.getElementById('questionList').querySelector('option:checked+option')?.value ?? question;
 		initializeQuestionsDisplay(test, section, null, nextQuestion)
@@ -2103,9 +2070,11 @@ function saveAnswers(spacing = '') {
 			}
 			else {
 				// no question associated with this answer so set
-				promises.push((() => {
+				promises.push((async () => {
 					const newRef = firebase.firestore().collection('ACT-Question-Data').doc();
 					answers[i].setAttribute('data-question', newRef.id);
+					const testDoc = await firebase.firestore().collection('ACT-Test-Data').doc(dom_test.value).get()
+					const isQuestionBank = testDoc.data().isQuestionBank
 					return newRef.set({
 						answer: answer_key[answers[i].value.toUpperCase()],
 						choices: [],
@@ -2114,7 +2083,8 @@ function saveAnswers(spacing = '') {
 						passage: null,
 						section: dom_section.value,
 						test: dom_test.value,
-						topics: []
+						topic: null,
+						isQuestionBank
 					})
 				})())
 			}
@@ -2374,19 +2344,24 @@ dom_test.addEventListener('change', async function () {
 		// Reset the test code
 		document.getElementById('testCode').value = ''
 
+		// Reset the isQuestionBank
+		document.getElementById('isQuestionBank').checked = true
+
 	}
 	else {
 		// Get the test document data
-		let data = await getTestDocumentByCode(dom_test.value, spaceSize)
+		let data = await getTestDoc(dom_test.value, spaceSize)
 
 		// Display the year and month of the test
 		let year = document.getElementById('testYear')
 		let month = document.getElementById('testMonth')
 		let code = document.getElementById('testCode')
+		let isQuestionBank = document.getElementById('isQuestionBank')
 
-		year.value = data.data()['year']
-		month.value = data.data()['month']
-		code.value = data.data()['test']
+		year.value = data.data()['releaseDate'].split('-')[0]
+		month.value = data.data()['releaseDate'].split('-')[1]
+		code.value = data.data()['code']
+		isQuestionBank.checked = data.data()['isQuestionBank']
 
 	}
 })
@@ -2860,7 +2835,7 @@ async function transferQuestion() {
 		const testDoc = testQuery.docs.find(test => test.data().code == doc.data().test);
 		const sectionDoc = sectionQuery.docs.find(section => section.data().test == testDoc.id && section.data().code == doc.data().section);
 		const passageDoc = passageQuery.docs.find(passage => passage.data().test == testDoc.id && passage.data().section == sectionDoc.id && passage.data().code == doc.data().passage);
-		const curriculumDocs = curriculumQuery.docs.filter(curriculum => doc.data().topic.includes(curriculum.data().code));
+		const curriculumDoc = curriculumQuery.docs.find(curriculum => doc.data().topic[0] == curriculum.data().code);
 
 		const answers = {
 			'A': 0,
@@ -2883,10 +2858,12 @@ async function transferQuestion() {
 			choices: doc.data().answers.map(ans => `<p>${ans}</p>`),
 			answer: answers[doc.data().correctAnswer],
 			content: doc.data().questionText,
-			topics: curriculumDocs.map(doc => doc.id),
+			topic: curriculumDoc?.id ?? null,
 			passage: passageDoc?.id ?? null,
 			section: sectionDoc.id,
-			test: testDoc.id
+			test: testDoc.id,
+			isQuestionBank: true,
+			isGroupedByPassage: doc.data().section == 'reading' || doc.data().topic.includes('Conflicting Viewpoints')
 		});
 	}))
 

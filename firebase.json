@@ -7,6 +7,13 @@
       "**/node_modules/**"
     ],
 
+    "rewrites": [
+      {
+        "source": "/test-taker/**",
+        "destination": "/test-taker.html"
+      }
+    ],
+
     "cleanUrls": true,
     "trailingSlash": false
   },

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
-  <link rel="stylesheet" href="Site Templates/site-wide.css">
-  <link rel="stylesheet" href="test-taker.css">
+  <link rel="stylesheet" href="../Site Templates/site-wide.css">
+  <link rel="stylesheet" href="../test-taker.css">
 
   <title>Test Taker</title>
 
@@ -44,9 +44,9 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-  <script src="Site Templates/generalFunctions.js"></script>
-  <script src="Site Templates/site-wide.js"></script>
-  <script src="test-taker.js" defer></script>
+  <script src="../Site Templates/generalFunctions.js"></script>
+  <script src="../Site Templates/site-wide.js"></script>
+  <script src="../test-taker-2.js" defer></script>
 
 </head>
 <body>
@@ -69,23 +69,21 @@
         </svg>
       </div>
     </div>
-    <!-- <h1 id="studentName"></h1> -->
     <div class="content">
       <div class="next-lesson-wrapper box">
         <h2 id="nextLessonDetails"></h2>
       </div>
-      <div class="section-assignment-wrapper">
-        <h3>Homework Assignments</h3>
-        <div id="sectionAssignmentList"></div>
+      <div>
+        <h3>Current Assignments</h3>
+        <div id="currentAssignmentList">
+          <div id="startedAssignments"></div>
+          <div id="newAssignments"></div>
+        </div>
       </div>
-      <div class="previous-assignment-wrapper">
+      <div>
         <h3>Previous Assignments</h3>
         <div id="previousAssignmentList"></div>
       </div>
-      <!-- <div class="daily-assignment-wrapper">
-        <h3>Daily Assignments</h3>
-        <div id="dailyAssignmentList"></div>
-      </div> -->
     </div>
   </section>
 
