@@ -248,6 +248,15 @@ function queryStrings() {
   return GET;
 }
 
+/**
+ * get the path paramater at a certain index in the path
+ * @param {number} index index in path to get paramater
+ * @returns {string} returns the path paramater
+ */
+function pathParameter(index) {
+  return location.pathname.split('/')[index + 1]
+}
+
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
       parent.removeChild(parent.firstChild);

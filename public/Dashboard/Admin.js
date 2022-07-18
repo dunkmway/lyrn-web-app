@@ -107,7 +107,7 @@ function searchResultClicked(userName, userUID, userRole) {
     case 'tutor':
       break;
     case 'student':
-      window.location.href = `../customer-dashboard.html?student=${userUID}`;
+      window.location.href = `../customer-dashboard/${userUID}`;
       break;
     case 'parent':
       break;

@@ -1,5 +1,5 @@
 const db = firebase.firestore();
-const CURRENT_STUDENT_UID = queryStrings().student;
+const CURRENT_STUDENT_UID = pathParameter(1);
 
 let student_doc = null;
 let parent_doc = null;
@@ -17,6 +17,7 @@ const eventDebounce = debounce(() => orderEvents(), 500);
 test();
 
 async function test() {
+  console.log(CURRENT_STUDENT_UID)
   student_doc = await getUserDoc(CURRENT_STUDENT_UID);
   if (student_doc.data().parents[0]) {
     parent_doc = await getUserDoc(student_doc.data().parents[0]);
