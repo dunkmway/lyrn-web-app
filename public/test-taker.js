@@ -678,7 +678,7 @@ function initializeAssignmentsSnapshot(studentUID) {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      if (data.status == 'started') {
+      if (data.status == 'started' && !data.allAssignment) {
         currentAssignments.push({
           ...data,
           assignment: doc.id
