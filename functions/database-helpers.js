@@ -4,13 +4,13 @@ const admin = require("firebase-admin");
 exports.createdAndUpdatedHelper = functions.firestore
 .document('{colId}/{docId}')
 .onWrite(async (change, context) => {
-  // // the collections you want to trigger
-  // const setCols = ['posts', 'reviews','comments'];
+  // the collections you want to trigger
+  const setCols = [];
 
-  // // if not one of the set columns
-  // if (setCols.indexOf(context.params.colId) === -1) {
-  //   return null;
-  // }
+  // if not one of the set columns
+  if (setCols.indexOf(context.params.colId) === -1) {
+    return null;
+  }
 
   // simplify event types
   const createDoc = change.after.exists && !change.before.exists;
