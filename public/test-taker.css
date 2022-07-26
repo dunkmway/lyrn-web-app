@@ -299,8 +299,9 @@ section.hide {
   left: 0;
   background-color: white;
   height: 100%;
+  width: 220px;
   transform: translateX(-100%);
-  transition: transform 250ms ease-in;
+  transition: all 250ms ease-in;
   z-index: 10;
   overflow: visible;
 }
@@ -309,22 +310,64 @@ section.hide {
   transform: translateX(0%);
 }
 
+.main .panels .selector + .spacer {
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  transition: all 225ms ease-in;
+}
+
+.main .panels .selector.open + .spacer {
+  margin-right: 220px;
+}
+
 .main .panels .selector .selector-scroll {
   height: 100%;
   overflow-y: auto;
 }
 
-.main .panels .selector .time-container {
+.main .panels .selector .top-container {
   position: sticky;
   background-color: var(--main-background);
   top: 0;
   width: 100%;
   padding: 1em 1em;
   border-bottom: 2px solid rgb(197, 197, 197);
+  z-index: 100;
+
 }
 
-#sectionTime {
+.main .panels .selector .top-container > div {
   text-align: center;
+}
+
+#selectorContainer {
+  position: relative;
+}
+
+#selectorContainer > .topic {
+  position: sticky;
+  top: 0;
+  /* background-color: var(--main-background); */
+  margin: 0;
+  padding: .5em 0em;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 900;
+  /* color: var(--accent-color);
+  border-top: 4px solid var(--accent-color);
+  border-bottom: 4px solid var(--accent-color); */
+  background-color: var(--accent-color);
+  color: var(--main-background);
+  /* border-top: 4px solid var(--default-color);
+  border-bottom: 4px solid var(--default-color); */
+}
+
+#selectorContainer > .separator {
+  width: 100%;
+  background-color: var(--accent-color);
+  height: 4px;
 }
 
 .main .panels .selector input[type=radio] {
@@ -401,9 +444,15 @@ section.hide {
   fill:var(--accent-color);
 }
 
-.main .panels .selector .selector-wrapper span.answered {
-  border: 2px solid var(--main-background);
+.main .panels .selector .selector-wrapper span.answered,
+.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover span.answered {
+  border: 2px solid var(--accent-color);
   background-color: var(--accent-color);
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper span.answered,
+.main .panels .selector .selector-wrapper:hover span.answered {
+  border: 2px solid var(--main-background);
 }
 
 .main .panels .selector .selector-wrapper span.answered .flag {
@@ -494,7 +543,7 @@ section.hide {
   break-after: column;
 } */
 
-.main .panels .passage-container span[data-question].box {
+#passageContent span[data-question].box {
   border-radius: 0;
   padding: 0;
   font-weight: 300;
@@ -507,7 +556,7 @@ section.hide {
   margin: 0 .25em;
 }
 
-.main .panels .passage-container span[data-question].box.highlighted {
+#passageContent span[data-question].box.highlighted {
   display: inline-block;
   background-color: var(--accent-color);
 }
@@ -574,7 +623,11 @@ section.hide {
 }
 
 .main .panels .question .choice > input {
-  margin-right: 1em;
+  position: relative;
+}
+
+.main .panels .question .choice > label {
+  padding-left: 1em;
   position: relative;
 }
 

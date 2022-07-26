@@ -1,7 +1,8 @@
 class Question {
-  constructor(id, pos) {
+  constructor(id, pos, assignmentTimeline) {
     this.id = id;
     this.pos = pos;
+    this.assignmentTimeline = assignmentTimeline;
     this.isLoaded = false;
 
     this.answer = null;
@@ -13,6 +14,9 @@ class Question {
     this.section = null;
     this.test = null;
     this.topic = null;
+
+    this.selectorInput = document.createElement('input');
+    this.selectorLabel = document.createElement('label');
   }
 
   async load() {
@@ -43,7 +47,10 @@ class Question {
     this.isLoaded = false;
   }
 
-  show(checkedChoiceIndex, isFlagged) {
+  show() {
+    const checkedChoiceIndex = this.assignmentTimeline.getAnswer(this.id);
+    const isFlagged = this.assignmentTimeline.getFlag(this.id);
+
     // show the question number
     document.getElementById('questionNumber').textContent = (this.pos + 1).toString();
     // show the question content
@@ -68,7 +75,6 @@ class Question {
       input.setAttribute('type', 'radio');
       input.setAttribute('name', 'choice');
       input.id = `choice_${index}`;
-      // input.value = index;
       if (checkedChoiceIndex === index) {
         input.checked = true;
       } else {
@@ -80,8 +86,8 @@ class Question {
 
       const label = document.createElement('label');
       label.setAttribute('for', `choice_${index}`);
-      label.classList.add('flex-row', 'align-center');
-      const choiceLetter = (this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index];
+      label.classList.add('flex-row');
+      const choiceLetter = ((this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
       label.innerHTML = `<p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}`
 
       choiceElem.appendChild(input);
@@ -108,12 +114,97 @@ class Question {
     document.querySelector('.main .panels .question').classList.add('hide');
   }
 
-  answerSelected(index) {
-    console.log('FIXME', 'answer index', index)
+  review(showCorrectAnswer = false) {
+    const checkedChoiceIndex = this.assignmentTimeline.getAnswer(this.id);
+    const isFlagged = this.assignmentTimeline.getFlag(this.id);
+
+    // show the question number
+    document.getElementById('questionNumber').textContent = (this.pos + 1).toString();
+    // show the question content
+    document.getElementById('questionContent').innerHTML = this.content;
+    //determine if the flag should be shown
+    document.getElementById('questionFlag').checked = isFlagged;
+    // disable the flag
+    document.getElementById('questionFlag').disabled = false;
+
+    // remove the old choices and add in the new ones
+    const questionChoices = document.getElementById('questionChoices');
+    removeAllChildNodes(questionChoices);
+
+    const ODD_ANSWERS = ['A', 'B', 'C', 'D', 'E'];
+    const EVEN_ANSWERS = ['F', 'G', 'H', 'J', 'K'];
+
+    this.choices.forEach((choice, index) => {
+      const choiceElem = document.createElement('div');
+      choiceElem.classList.add('choice');
+      if (showCorrectAnswer && index === this.answer) {
+        choiceElem.classList.add('correct');
+      }
+
+      const input = document.createElement('input');
+      input.setAttribute('type', 'radio');
+      input.setAttribute('name', 'choice');
+      input.id = `choice_${index}`;
+      if (checkedChoiceIndex === index) {
+        input.checked = true;
+      } else {
+        input.checked = false;
+      }
+      input.disabled = true;
+
+      const label = document.createElement('label');
+      label.setAttribute('for', `choice_${index}`);
+      label.classList.add('flex-row');
+      const choiceLetter = ((this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
+      label.innerHTML = `<p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}`
+
+      choiceElem.appendChild(input);
+      choiceElem.appendChild(label);
+
+      questionChoices.appendChild(choiceElem);
+    })
+
+    document.querySelector('.main .panels .question').classList.remove('hide');
   }
 
-  toggleFlag() {
-    console.log('FIXME', 'flag')
+  renderSelector(showWrong = false) {
+    // clear the wrapper
+    removeAllChildNodes(this.selectorLabel)
+
+    // render the selector
+    const answer = this.assignmentTimeline.getAnswer(this.id);
+    const isAnswered = answer != null;
+    const isFlagged = this.assignmentTimeline.getFlag(this.id);
+    this.selectorLabel.innerHTML = `
+      <span class="${isAnswered ? 'answered' : ''} ${isFlagged ? 'flagged' : ''}">${FLAG_SVG}</span>
+      Question ${this.pos + 1}
+      <span>${(showWrong && (answer != this.answer)) ? CROSS_SVG : ''}</span>
+    `
+  }
+
+  setupSelector(clickCallback, ...args) {
+    this.selectorInput.setAttribute('id', 'selectorRadio-' + this.id);
+    this.selectorInput.setAttribute('type', 'radio');
+    this.selectorInput.setAttribute('name', 'questionSelector');
+
+    this.selectorLabel.setAttribute('for', 'selectorRadio-' + this.id);
+    this.selectorLabel.classList.add('selector-wrapper');
+    this.selectorLabel.addEventListener('click', () => clickCallback(...args));
+
+    document.getElementById('selectorContainer').appendChild(this.selectorInput);
+    document.getElementById('selectorContainer').appendChild(this.selectorLabel);
+  }
+
+  async answerSelected(index) {
+    this.assignmentTimeline.add(this.id, 'answer', index);
+    this.renderSelector();
+    await this.assignmentTimeline.update();
+  }
+
+  async flagToggled(isFlagged) {
+    this.assignmentTimeline.add(this.id, 'flag', isFlagged);
+    this.renderSelector();
+    await this.assignmentTimeline.update();
   }
 
 }

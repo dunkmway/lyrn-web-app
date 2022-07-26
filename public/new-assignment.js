@@ -320,12 +320,12 @@ async function submitSectionAssignment(student, test, section, sectionCode, open
     time: time ? time * 60000 : null,
     type,
     sectionCode,
-    hasScaledScore: section,
+    scaledScoreSection: section,
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker?student=${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker?student=${student}`;
+  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
 
   Toastify({
     text: 'Assignment Sent!'
@@ -378,6 +378,17 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
 
   const questions = getRandomQuestions(count, topics, topicProportions, questionsByTopics)
 
+  console.log({
+    student,
+    questions,
+    open,
+    close,
+    time: time ? time * 60000 : null,
+    type,
+    sectionCode,
+    status: 'new'
+  })
+
   await firebase.firestore().collection('ACT-Assignments').doc().set({
     student,
     questions,
@@ -389,8 +400,8 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker?student=${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker?student=${student}`;
+  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
 
   Toastify({
     text: 'Assignment Sent!'
@@ -463,7 +474,8 @@ function getRandomQuestions(count, topics, topicProportions, questionsByTopics, 
     }
   }
 
-  return arrayRandomOrder(Object.values(pendingAssignedQuestions)).flat(); // random
+  console.log(pendingAssignedQuestions)
+  return arrayRandomOrder(Object.values(pendingAssignedQuestions).flat()).flat(); // random
   // return Object.values(pendingAssignedQuestions).flat(); // not random
 }
 
@@ -517,6 +529,18 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
     return prev;
   }, {})
 
+  console.log({
+    student,
+    questions,
+    open,
+    close,
+    time: time ? time * 60000 : null,
+    type,
+    sectionCode,
+    topicProportions: topicsWithProportions,
+    status: 'new'
+  })
+
   await firebase.firestore().collection('ACT-Assignments').doc().set({
     student,
     questions,
@@ -529,8 +553,8 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker?student=${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker?student=${student}`;
+  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
 
   Toastify({
     text: 'Assignment Sent!'

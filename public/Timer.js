@@ -4,10 +4,11 @@ class Timer {
    * Precision is set to 1 second
    * @param {Date} date date obejct when the timer will expire
    * @param {CallableFunction} callback callback function to be called when the timer expires
+   * @param {...any} args rest used for arguments for callback
    */
-  constructor(date, callback = null) {
+  constructor(date, callback = null, ...args) {
     this.date = date;
-    this.callback = callback;
+    this.callback = () => callback(...args);
     this.time = this.date.getTime() - new Date().getTime();
     this.elements = [];
 

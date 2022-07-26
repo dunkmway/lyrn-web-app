@@ -46,11 +46,13 @@
 
   <script src="../Site Templates/generalFunctions.js"></script>
   <script src="../Site Templates/site-wide.js"></script>
+  <script src="../test-taker-svg.js"></script>
   <script src="../Timer.js"></script>
   <script src="../ACT-Passage.js"></script>
   <script src="../ACT-Question.js"></script>
+  <script src="../ACT-Assignment-Timeline.js"></script>
   <script src="../ACT-Assignment.js"></script>
-  <script src="../test-taker-2.js"></script>
+  <script src="../test-taker-2.js" defer></script>
 
 </head>
 <body onload="setup()">
@@ -113,10 +115,11 @@
     <div class="panels">
       <div class="selector">
         <div class="selector-scroll">
-          <div class="time-container">
-            <div id="sectionTime" class="background-accent box">Time</div>
+          <div class="top-container">
+            <div id="assignmentTime" class="background-accent box">Time</div>
+            <div id="assignmentSubmit" class="background-accent box" style="cursor: pointer;" onclick="submitCurrentAssignment()">Submit</div>
           </div>
-          <div class="selector-container"></div>
+          <div class="selector-container" id="selectorContainer"></div>
           <!-- <div class="background-accent box submit">Submit Test</div> -->
         </div>
         <div class="pull-tab" onclick="toggleSelectorCallback()">
@@ -125,6 +128,7 @@
           <div></div>
         </div>
       </div>
+      <div class="spacer"></div>
       <div class="passage hide">
         <!-- <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div> -->
         <div id="passageContent">
@@ -154,7 +158,6 @@
         <div class="circle"><div class="left-arrow"></div></div>
         <h1>Previous</h1>
       </div>
-      <div class="nav button" id="exitReview" onclick="exitReviewCallback()">Exit Review</div>
       <div class="nav hide" id="nextBtn" onclick="nextQuestionCallback()">
         <h1>Next</h1>
         <div class="circle"><div class="right-arrow"></div></div>

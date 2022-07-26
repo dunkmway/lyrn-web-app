@@ -1132,11 +1132,12 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Find the HTML elements
-	const test = document.getElementById('questionsTest').value
-	const section = document.getElementById('questionsSection').value
-	const passage = document.getElementById('questionsPassageNumber').value ?? null
-	const question = document.getElementById('questionList').value
-	const topic = document.getElementById('topic').value ?? null
+	const test = document.getElementById('questionsTest').value;
+	const section = document.getElementById('questionsSection').value;
+	const passage = document.getElementById('questionsPassageNumber').value ?? null;
+	const question = document.getElementById('questionList').value;
+	const topic = document.getElementById('topic').value ?? null;
+	const isGroupedByPassage = document.getElementById('isGroupedByPassage').checked;
 
 	if (!test || !section || !question) {
 		alert('You are missing some data')
@@ -1176,6 +1177,17 @@ async function saveQuestion(goToNext = true, spacing = '') {
 
 		// Set the data
 		await firebase.firestore().collection('ACT-Question-Data').doc(question).update(data)
+
+		if (passage) {
+			// update all questions with this passage to have the same isGroupedByPassage boolen value
+			const questionByPassageDocs = await firebase.firestore().collection('ACT-Question-Data')
+			.where('passage', '==', passage)
+			.get();
+
+			await Promise.all(questionByPassageDocs.docs.map(doc => {
+				doc.ref.update({ isGroupedByPassage })
+			}))
+		}
 
 		const nextQuestion = document.getElementById('questionList').querySelector('option:checked+option')?.value ?? question;
 		initializeQuestionsDisplay(test, section, null, nextQuestion)

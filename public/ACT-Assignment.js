@@ -16,10 +16,14 @@ class Assignment {
     this.topicProportions = data.topicProportions;
     this.startedAt = data.startedAt;
     this.submittedAt = data.submittedAt;
+    this.score = data.score;
+    this.scaledScore = data.scaledScore;
+    this.scaledScoreSection = data.scaledScore;
 
     // objects
     this.questionObjects = null;
-    this.passageObjects = null;
+    this.sortedQuestionsByTopic = null;
+    this.timeline = null;
 
     // dom elements
     this.wrapper = document.createElement('div');
@@ -36,10 +40,13 @@ class Assignment {
 
     // state
     this.isStarted = false;
+    this.isInReview = false;
     this.currentQuestion = null;
   }
 
   update(newData) {
+    console.log('update')
+    console.log(newData);
     // update the doc data
     for (let key in newData) {
       this[key] = newData[key]
@@ -47,48 +54,41 @@ class Assignment {
 
     // reset the timers
     this.resetTimers();
-
-    // if this assignment has been started
-    if (this.isStarted) {
-      // update the selector
-      console.log('FIXME: implement update selector')
-
-    }
   }
 
   resetTimers() {
+    console.log('reset timer status:', this.status)
     // open timer - only new assignments
     if (this.openTimeout) {
       this.openTimeout.cleanUp();
       this.openTimeout = null;
     }
+    if (this.closeTimeout) {
+      this.closeTimeout.cleanUp();
+      this.closeTimeout = null;
+    }
+    if (this.submitTimeout) {
+      this.submitTimeout.cleanUp();
+      this.submitTimeout = null;
+    }
+
     if (this.status === 'new') {
+      // open timer
       this.openTimeout = new Timer(this.open.toDate(), () => {
         this.openTimeout.cleanUp();
         this.openTimeout = null;
         showAssignments();
       })
-    }
 
-    if (this.closeTimeout) {
-      this.closeTimeout.cleanUp();
-      this.closeTimeout = null;
-    }
-    if (this.status === 'new') {
+      //close timer
       this.closeTimeout = new Timer(this.close.toDate(), async () => {
         this.closeTimeout.cleanUp();
         this.closeTimeout = null;
         await this.omit();
-        // no need to re show the assignment since assignment doc is being updated
-        // the listener will catch the update and re show
       })
     }
 
-    if (this.submitTimeout) {
-      this.submitTimeout.cleanUp();
-      this.submitTimeout = null;
-    }
-    if (this.status === 'started' && this.time) {
+    if (this.status === 'started' && this.startedAt && this.time) {
       this.submitTimeout = new Timer(new Date(this.startedAt.toDate().getTime() + this.time), async () => {
         this.submitTimeout.cleanUp();
         this.submitTimeout = null;
@@ -97,6 +97,15 @@ class Assignment {
         // the listener will catch the update and re show
       })
       this.submitTimeout.attach(this.statusIndicator);
+      
+      if (this.isStarted) {
+        // show the time
+        document.getElementById('assignmentTime').classList.remove('hide');
+        this.submitTimeout.attach(document.getElementById('assignmentTime'));
+
+        // and hide the submit button
+        document.getElementById('assignmentSubmit').classList.add('hide');
+      }
     }
   }
 
@@ -123,7 +132,7 @@ class Assignment {
         break;
       case 'started':
         this.statusIndicator.classList.remove('spinner');
-        if (this.time) {
+        if (this.time && this.submitTimeout) {
           this.submitTimeout.show();
         } else {
           this.statusIndicator.textContent = '--:--'
@@ -137,7 +146,7 @@ class Assignment {
         break;
       case 'graded':
         this.statusIndicator.classList.remove('spinner');
-        this.statusIndicator.textContent = this.scaledScore ? this.scaledScore : (`${this.score}/${this.questions.length}`);
+        this.statusIndicator.textContent = `${this.scaledScore ?? ''} (${this.score} out of ${this.questions.length})`;
         document.getElementById('previousAssignments').appendChild(this.wrapper);
         break;
       case 'omitted':
@@ -166,8 +175,7 @@ class Assignment {
     if (this.isStarted) {
       this.end();
     }
-    // the assignment is closed if it is a new assignment past it's close date
-    // set the status to omitted
+
     return this.ref.update({
       status: 'submitted',
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -211,16 +219,47 @@ class Assignment {
   async start() {
     // change the state
     this.isStarted = true;
+
+    // construct the timeline
+    this.timeline = new Timeline(this.id);
+    // load the timeline (it will be created if it doesn't exists)
+    await this.timeline.load();
     
     // construct the question objects
-    this.questionObjects = this.questions.map((id, index) => new Question(id, index));
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.timeline));
     // load all docs for the questions and passages
     await Promise.all(this.questionObjects.map(async (question) => {
+      // load the quesiton from the db
       await question.load();
     }));
 
-    // get the answer timeline or create it if it doesn't exist
+    // setup the selectors
+    this.questionObjects.forEach(question => {
+      // setup the selector
+      question.setupSelector(() => this.startQuestion(question.pos));
+      // render the selector
+      question.renderSelector();
+    })
 
+    // setup the time / submit button
+    if (this.submitTimeout) {
+      // if there is a submit timeout show the time
+      document.getElementById('assignmentTime').classList.remove('hide');
+      this.submitTimeout.attach(document.getElementById('assignmentTime'));
+
+      // and hide the submit button
+      document.getElementById('assignmentSubmit').classList.add('hide');
+    }
+    else {
+      // else hide the time
+      document.getElementById('assignmentTime').classList.add('hide');
+
+      // and show the submit button
+      document.getElementById('assignmentSubmit').classList.remove('hide');
+    }
+
+    // close the selector
+    document.querySelector('.main .panels .selector').classList.remove('open')
 
     // now move into the main section
     changeSection('main');
@@ -231,17 +270,18 @@ class Assignment {
     // show the first question
     await this.startQuestion(0);
 
-    console.log('FIXME: uncomment below me. update the doc to status of started')
-
-    // // set the event to a started state
-    // await this.ref.update({
-    //   status: 'started',
-    //   startedAt: firebase.firestore.FieldValue.serverTimestamp()
-    // })
+    // set the event to a started state
+    if (this.status !== 'started') {
+      await this.ref.update({
+        status: 'started',
+        startedAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+    }
   }
 
   end() {
     this.isStarted = false;
+    this.isInReview = false;
 
     changeSection('landing');
     changeAccentColor('default');
@@ -250,9 +290,29 @@ class Assignment {
     this.currentQuestion.hide();
     if (this.currentQuestion.passage) {
       this.currentQuestion.passage.hide();
-      this.currentQuestion.passage = null;
     }
     this.currentQuestion = null;
+
+    // clean up
+    this.questionObjects = null;
+    this.sortedQuestionsByTopic = null;
+    this.timeline = null;
+
+    // clean up the selector
+    removeAllChildNodes(document.getElementById('selectorContainer'));
+
+    // clean up the time / submit button
+    if (this.submitTimeout) {
+      // if there is a submit timeout detach the timer
+      this.submitTimeout.detach(document.getElementById('assignmentTime'));
+    }
+    // hide the time and submit
+    document.getElementById('assignmentSubmit').classList.add('hide');
+    document.getElementById('assignmentTime').classList.add('hide');
+    document.querySelector('.main .panels .selector .top-container').classList.remove('hide');
+
+    // close the selector
+    document.querySelector('.main .panels .selector').classList.remove('open')
   }
 
   async startQuestion(index) {
@@ -279,6 +339,11 @@ class Assignment {
       previousBtn.classList.remove('hide');
     }
 
+    // if the question that is being started was the same as the current question
+    // stop here because the rest should only be run the first time the question is loaded in a row
+    // this handles the re starting after we load dynamic questions
+    if (this.currentQuestion?.id === this.questionObjects[index].id) return
+
     // hide the old question
     if (this.currentQuestion) {
       this.currentQuestion.hide();
@@ -289,39 +354,166 @@ class Assignment {
 
     // show the new question
     this.currentQuestion = this.questionObjects[index];
-    this.currentQuestion.show()
+    this.currentQuestion.show();
     if (this.currentQuestion.passage) {
-      this.currentQuestion.passage.show();
+      this.currentQuestion.passage.show(this.currentQuestion.code);
     }
+
+    // select the new question in the selector
+    this.currentQuestion.selectorInput.checked = true;
+
     resetMathJax();
+
+    this.timeline.add(this.currentQuestion.id, 'start', true);
+    await this.timeline.update();
 
     // see if the next question needs to be loaded/generated
     if ((index == this.questionObjects.length - 1) && this.topicProportions) {
       const newQuestions = await getNewDynamicQuestions_helper(this.topicProportions, this.questionObjects);
+      if (newQuestions && newQuestions.length != 0) {
+        // add the new question to the question objects
+        await Promise.all(newQuestions.map(async (id, sumIndex) => {
+          const newQuestion = new Question(id, index + sumIndex + 1, this.timeline);
 
-      // add the new question to the question objects
-      await Promise.all(newQuestions.map(async (id, sumIndex) => {
-        const newQuestion = new Question(id, index + sumIndex + 1);
-        await newQuestion.load();
-        this.questionObjects.push(newQuestion);
-      }));
+          // setup the selector
+          newQuestion.setupSelector(() => this.startQuestion(question.pos));
+          // render the selector
+          newQuestion.renderSelector();
+          // add it to the question objects
+          this.questionObjects.push(newQuestion);
 
-      // start this question again to update the view
-      this.startQuestion(index)
+          // load the new question
+          await newQuestion.load();
+        }));
 
-      console.log('new questions', newQuestions)
-      
-      // save this new question to the assignment
-      await this.ref.update({
-        questions: this.questions.concat(newQuestions)
-      })
+        // start this question again to update the view
+        this.startQuestion(index)
+        
+        // save this new question to the assignment
+        await this.ref.update({
+          questions: this.questions.concat(newQuestions)
+        })
+      }
     }
   }
 
-  
+  async review() {
+    // change the state
+    this.isInReview = true;
 
-  review() {
-    console.log('implement review')
+    // construct the timeline
+    this.timeline = new Timeline(this.id);
+    // load the timeline (it will be created if it doesn't exists)
+    await this.timeline.load();
+    
+    // construct the question objects
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.timeline));
+    // load all docs for the questions and passages
+    await Promise.all(this.questionObjects.map(async (question) => {
+      // load the quesiton from the db
+      await question.load();
+    }));
+
+    // for review we want to sort the questions in the assignment in order of topic occurence
+    // get all of the topics in this assignment
+    const topics = this.questionObjects.reduce((prev, curr) => {
+      if (curr.topic && !prev.includes(curr.topic)) {
+        prev.push(curr.topic);
+      }
+      return prev;
+    }, [])
+    const topicDocs = await Promise.all(topics.map(topic => firebase.firestore().collection('ACT-Curriculum-Data').doc(topic).get()));
+    topicDocs.sort((a,b) => b.data().numQuestions - a.data().numQuestions);
+
+    this.sortedQuestionsByTopic = topicDocs.map(topicDoc => {
+      return {
+        topic: topicDoc.data().code,
+        questions: this.questionObjects.filter(question => question.topic === topicDoc.id)
+      }
+    })
+
+    // setup the selectors
+    let pos = 0;
+    this.sortedQuestionsByTopic.forEach(topicGroup => {
+      const topicName = document.createElement('p');
+      topicName.classList.add('topic')
+      topicName.textContent = topicGroup.topic;
+      document.getElementById('selectorContainer').appendChild(topicName);
+
+      topicGroup.questions.forEach(question => {
+        // setup the selector
+        question.setupSelector((index) => this.reviewQuestion(index), pos);
+        // render the selector
+        question.renderSelector(true);
+        pos++;
+      })
+    })
+
+    // hide the time and submit
+    document.getElementById('assignmentSubmit').classList.add('hide');
+    document.getElementById('assignmentTime').classList.add('hide');
+    document.querySelector('.main .panels .selector .top-container').classList.add('hide');
+
+    // close the selector
+    document.querySelector('.main .panels .selector').classList.remove('open')
+
+    // now move into the main section
+    changeSection('main');
+    changeAccentColor(this.sectionCode);
+    changePassageColumns(this.sectionCode);
+    document.getElementById('previousBtn').classList.add('hide');
+
+    // show the first question
+    await this.reviewQuestion(0);
+  }
+
+  async reviewQuestion(index) {
+    const flatSortedQuestionList = this.sortedQuestionsByTopic.reduce((prev, curr) => {
+      prev = prev.concat(curr.questions);
+      return prev
+    }, []);
+    if (index > flatSortedQuestionList.length - 1) {
+      index = flatSortedQuestionList.length - 1
+    }
+    if (index < 0) {
+      index = 0;
+    }
+
+    // handle the next and previous buttons
+    const nextBtn = document.getElementById('nextBtn');
+    const previousBtn = document.getElementById('previousBtn')
+
+    if (index === flatSortedQuestionList.length - 1) {
+      nextBtn.classList.add('hide');
+    } else {
+      nextBtn.classList.remove('hide');
+    }
+
+    if (index === 0) {
+      previousBtn.classList.add('hide');
+    } else {
+      previousBtn.classList.remove('hide');
+    }
+
+    // hide the old question
+    if (this.currentQuestion) {
+      this.currentQuestion.hide();
+      if (this.currentQuestion.passage) {
+        this.currentQuestion.passage.hide();
+      }
+    }
+
+    // show the new question
+    this.currentQuestion = flatSortedQuestionList[index];
+    this.currentQuestion.review(STAFF_ROLES.includes(current_user_role));
+    if (this.currentQuestion.passage) {
+      this.currentQuestion.passage.show(this.currentQuestion.code);
+    }
+
+    // select the new question in the selector
+    this.currentQuestion.selectorInput.checked = true;
+
+    resetMathJax();
   }
 }
 
@@ -400,17 +592,12 @@ async function getNewDynamicQuestions_helper(topicProportions, questionObjects) 
     }
     diffTopicProportions.sort((a,b) => a.diff - b.diff);
 
-    console.log('actual', actualTopicProportions)
-    console.log('target', targetTopicProportions)
-    console.log('diff', diffTopicProportions)
-
     // the new question should be the first topic that has questions from the diff array
-    let newQuestions = null;
+    let newQuestions = [];
     for (const { topic } of diffTopicProportions) {
       if (questionsByTopics[topic].length > 0) {
         const index = randomInt(0, questionsByTopics[topic].length)
-        newQuestions = questionsByTopics[topic][index]
-        console.log('new question topic', topic)
+        newQuestions = questionsByTopics[topic][index] ?? [];
         break;
       }
     }

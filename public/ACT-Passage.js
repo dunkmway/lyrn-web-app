@@ -27,13 +27,17 @@ class Passage {
     this.isLoaded = false;
   }
 
-  show(question = null) {
+  show(questionCode = null) {
     const content = document.getElementById('passageContent');
     removeAllChildNodes(content);
     content.innerHTML = this.content;
 
-    content.querySelectorAll(`span[data-question]`).forEach(question => { question.classList.remove('highlighted') });
-    content.querySelectorAll(`span[data-question="${question}"]`).forEach(question => { question.classList.add('highlighted'); });
+    content.querySelectorAll(`span[data-question]`).forEach(q => { q.classList.remove('highlighted') });
+
+    if (questionCode) {
+      content.querySelectorAll(`span[data-question="${questionCode}"]`).forEach(q => { q.classList.add('highlighted'); });
+    }
+
     document.querySelector('.main .panels .passage').classList.remove('hide');
   }
 
