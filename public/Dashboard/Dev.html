@@ -137,4 +137,29 @@
     </div>
     
   </body>
+  <script>
+    document.body.addEventListener('keydown', async (e) => {
+      if (e.ctrlKey) {
+        const dialog =  new Dialog({
+          message: 'Tosst message',
+          // choices: ['Yes', 'No'],
+          // values: [true, false],
+          blocking: false,
+          justify: 'end',
+          align: 'start',
+          backgroundColor: '#657EF7',
+          messageColor: '#FFFFFF',
+          choiceColor: '#FFFFFF',
+          slideInDir: 'down',
+          slideInDist: 150,
+          slideOutDir: 'right',
+          slideOutDist: 300,
+          // timeout: 3000
+        });
+
+        const res = await dialog.show();
+        console.log(res);
+      }
+    })
+  </script>
 </html>
