@@ -20,11 +20,18 @@
   --reading-color: #8786FC;
   --science-color: #64C13D;
   --writing-color: #F5B233;
-  --all-color: var(--secondary-background);
+
+  --writing-color-light: #F7C463;
+  --science-color-light: #3cdd58;
+  --math-color-light: #87D7FC;
+  --reading-color-light: #BAB9FD;
+  --english-color-light: #F08685;
 
   --default-color: rgb(122, 122, 122);
+  --default-color-light: #BDBDBD;
 
   --accent-color: var(--default-color);
+  --accent-color-light: var(--default-color-light);
 
   --english-passage-columns: 2;
   --math-passage-columns: 1;
@@ -45,6 +52,12 @@
   }
 }
 
+.default-color {
+  color: var(--default-color);
+}
+.default-background {
+  background-color: var(--default-color);
+}
 .english-color {
   color: var(--english-color);
 }
@@ -387,19 +400,19 @@ section.hide {
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color-light);
   color: var(--main-background);
 }
 
 .main .panels .selector .selector-wrapper:hover {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color-light);
   color: var(--main-background);
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper:hover {
   background-color: var(--main-background);
-  color: var(--accent-color);
-  outline: 2px solid var(--accent-color);
+  color: var(--accent-color-light);
+  outline: 2px solid var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span {
@@ -407,7 +420,7 @@ section.hide {
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  border: 2px solid var(--accent-color);
+  border: 2px solid var(--accent-color-light);
   background-color: var(--main-background);
 }
 
@@ -419,7 +432,7 @@ section.hide {
 .main .panels .selector .selector-wrapper span:nth-child(2) {
   margin-left: 1em;
   padding: 1px;
-  fill: var(--accent-color);
+  fill: var(--accent-color-light);
   border: none;
   background-color: transparent;
 }
@@ -433,7 +446,7 @@ section.hide {
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper:hover > span:nth-child(2) {
-  fill: var(--accent-color);
+  fill: var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span .flag {
@@ -441,13 +454,13 @@ section.hide {
 }
 
 .main .panels .selector .selector-wrapper span.flagged .flag {
-  fill:var(--accent-color);
+  fill:var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span.answered,
 .main .panels .selector input[type=radio]:checked + .selector-wrapper:hover span.answered {
-  border: 2px solid var(--accent-color);
-  background-color: var(--accent-color);
+  border: 2px solid var(--accent-color-light);
+  background-color: var(--accent-color-light);
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper span.answered,
@@ -456,7 +469,7 @@ section.hide {
 }
 
 .main .panels .selector .selector-wrapper span.answered .flag {
-  fill:var(--accent-color);
+  fill:var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span.answered.flagged .flag {
@@ -767,7 +780,7 @@ table {
 
 table th {
 	text-align: center;
-	background-color: #3a6070;
+	background-color: var(--accent-color);
 	color: #FFF;
 	padding: 4px 8px 4px 8px;
 	border: 2px solid black;
@@ -781,7 +794,7 @@ table td {
 }
 
 table tr:nth-child(odd) td {
-	background-color: #e7edf0;
+	background-color: var(--default-color-light);
 }
 
 .border-top {

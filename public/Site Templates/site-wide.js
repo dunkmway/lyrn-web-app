@@ -33,9 +33,13 @@ window.addEventListener('storage', (e) => {
     if (e.key !== 'authExpiration') return;
     setAuthExpirationTimers();
 });
-window.addEventListener('load', checkAuthorization)
+window.addEventListener('DOMContentLoaded', checkAuthorization)
 
 let allowedPages = {
+    all: [
+        '/act-invoice',
+        '/test-taker/*',
+    ],
     public: [
         "/sign-in",
     ],
@@ -47,16 +51,21 @@ let allowedPages = {
     ],
     tutor: [
         "/Dashboard/Tutor",
-        "/test-taker/*"
     ],
     admin: [
         "&student",
         "&parent",
         "&tutor",
         "/Dashboard/Admin",
+        "/customer-dashboard/*"
     ],
     dev: [
-        "/**"
+        '&public',
+        "&student",
+        "&parent",
+        "&tutor",
+        '&admin',
+        "/Dashboard/Dev",
     ]
 }
 
@@ -82,10 +91,8 @@ function checkAuthorization() {
         firebase.auth().onAuthStateChanged(async (user) => {
             let currentPath = location.pathname;
             if (user) {
-                console.log('logged in')
                 // make sure the authExpiration hasn't passed
                 if (!localStorage.getItem('authExpiration') || parseInt(localStorage.getItem('authExpiration')) < new Date().getTime()) {
-                    console.log("signing out because we don't have auth expiration or it's expired")
                     // sign out the user
                     signOut(true);
                     return;
@@ -104,7 +111,6 @@ function checkAuthorization() {
                 setAuthExpirationTimers();
             }
             else {
-                console.log('not logged in')
                 const role = 'public';
                 if(!isPathAllowed(role, currentPath)) {
                     // access denied
@@ -182,7 +188,7 @@ async function setAuthExpirationTimers() {
 }
 
 function isPathAllowed(role, path) {
-    const allowedPaths = allowedPages[role];
+    const allowedPaths = [...allowedPages[role], ...allowedPages.all];
 
     for (const allowedPath of allowedPaths) {
         const splitAllowedPath = allowedPath.split('/');

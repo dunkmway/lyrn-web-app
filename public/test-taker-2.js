@@ -124,6 +124,23 @@ function showAssignments() {
   for (const assignment of previousAssignments) {
     assignment.show();
   }
+
+  // remove the no assignments
+  const noCurrent = document.getElementById('noCurrentAssignments');
+  if (startedAssignments.length + newAssignments.length === 0) {
+    noCurrent.classList.remove('hide');
+  }
+  else {
+    noCurrent.classList.add('hide');
+  }
+
+  const noPrevious = document.getElementById('noPreviousAssignments');
+  if (previousAssignments.length === 0) {
+    noPrevious.classList.remove('hide');
+  }
+  else {
+    noPrevious.classList.add('hide');
+  }
 }
 
 function questionFlagChangeCallback(event) {
@@ -202,6 +219,7 @@ function changeSection(sectionID) {
  */
  function changeAccentColor(sectionName) {
   document.querySelector(':root').style.setProperty('--accent-color', `var(--${sectionName}-color)`)
+  document.querySelector(':root').style.setProperty('--accent-color-light', `var(--${sectionName}-color-light)`)
 }
 
 /**

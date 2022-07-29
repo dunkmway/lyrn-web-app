@@ -45,8 +45,6 @@ class Assignment {
   }
 
   update(newData) {
-    console.log('update')
-    console.log(newData);
     // update the doc data
     for (let key in newData) {
       this[key] = newData[key]
@@ -57,7 +55,6 @@ class Assignment {
   }
 
   resetTimers() {
-    console.log('reset timer status:', this.status)
     // open timer - only new assignments
     if (this.openTimeout) {
       this.openTimeout.cleanUp();
