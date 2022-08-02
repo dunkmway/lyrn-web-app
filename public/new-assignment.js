@@ -1,10 +1,21 @@
 const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id
 
 function initialSetup() {
-  const nameSearchInput = debounce(() => queryUsers(), 500);
-  document.getElementById('nameSearch').addEventListener('input', nameSearchInput);
+  if (queryStrings().student) {
+    document.getElementById('nameSearch').disabled = true;
+    document.getElementById('nameSearch').setAttribute('data-value', queryStrings().student);
+    getTestsForSections()
+    firebase.firestore().collection('Users').doc(queryStrings().student).get()
+    .then((studentDoc) => {
+      document.getElementById('nameSearch').value = studentDoc.data().firstName + ' ' + studentDoc.data().lastName + ' (' + studentDoc.data().role + ')';
+    })    
+  }
+  else {
+    const nameSearchInput = debounce(() => queryUsers(), 500);
+    document.getElementById('nameSearch').addEventListener('input', nameSearchInput);
+    queryUsers();
+  }
 
-  queryUsers()
   getTopics()
 
 
@@ -23,7 +34,7 @@ function initialSetup() {
   });
 }
 
-function debounce(func, timeout = 300){
+function debounce(func, timeout = 300) {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -112,6 +123,7 @@ function searchResultClicked(studentUID, studentName) {
   nameSearch.setAttribute('data-value', studentUID);
 
   getTestsForSections();
+  document.getElementById('curriculumSection').value = '';
 
   // re-run the query
   queryUsers(false);
@@ -170,21 +182,129 @@ async function getTopics() {
 };
 
 function renderTopicDoc(topicDoc) {
+  // for assignments
   const topicRow = document.createElement('div');
   topicRow.classList.add('topic-row')
   topicRow.innerHTML = `
     <input type='checkbox' id='${topicDoc.id}-checkbox' value='${topicDoc.id}'>
     <label for='${topicDoc.id}-checkbox'>${topicDoc.data().code}</label>
-    <input type='number' id='${topicDoc.id}-number' value='${topicDoc.data().numQuestions ?? 0}'>
+    <input type='number' id='${topicDoc.id}-number' data-num_questions='${topicDoc.data().numQuestions ?? 0}' value='${topicDoc.data().numQuestions ?? 0}'>
   `
-
   document.getElementById(`${topicDoc.data().sectionCode}Topics`).appendChild(topicRow)
+
+  // for lessons
+  const lessonRow = document.createElement('div');
+  lessonRow.classList.add('topic-row');
+  lessonRow.innerHTML = `
+    <label for='${topicDoc.id}-date'>${topicDoc.data().code}</label>
+    <button id='${topicDoc.id}-date' onclick="lessonDateClick(event)"></button>
+  `
+  document.getElementById(`${topicDoc.data().sectionCode}Lessons`).appendChild(lessonRow);
 }
 
-function showCurriculum(event) {
+function resetTopicWeights() {
+  const topicWrapper = document.getElementById('topicWrapper');
+  topicWrapper.querySelectorAll('input[type="number"]').forEach(input => input.value = input.dataset.num_questions);
+}
+
+function showCurriculumAssignments(event) {
   document.querySelectorAll('#topicWrapper > div').forEach(topicWrapper => topicWrapper.style.display = 'none');
   document.querySelectorAll('#topicWrapper > div > .topic-row > input[type="checkbox"]').forEach(checkBox => checkBox.checked = false);
   document.getElementById(`${event.target.value}Topics`).style.display = 'block';
+}
+
+function showCurriculumLessons(event) {
+  document.querySelectorAll('#lessonWrapper > div').forEach(topicWrapper => topicWrapper.style.display = 'none');
+
+  const student = document.getElementById('nameSearch').dataset.value;
+  if (!student) {
+    new Dialog({
+      message: 'Select a student first',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
+    return;
+  }
+
+  document.getElementById(`${event.target.value}Lessons`).style.display = 'block';
+
+  // get the lesson data for the current section
+  const curriculumIDs = Array.from(document.getElementById(`${event.target.value}Lessons`).querySelectorAll('button')).map(button => button.id.split('-')[0]);
+
+  Promise.all(curriculumIDs.map(id => {
+    return firebase.firestore()
+    .collection('Users').doc(student)
+    .collection('ACT-Topics-Taught').doc(id)
+    .get()
+  }))
+  .then(docs => {
+    for (const doc of docs) {
+      document.querySelector(`button[id^="${doc.id}"]`).textContent = 
+      doc.exists ?
+      new Time(doc.data().taughtOn.toDate()).toFormat('{MM}/{dd}/{yyyy}') :
+      // convertFromDateInt(doc.data().taughtOn.toDate().getTime())['mm/dd/yyyy'] :
+      '';
+    }
+  })
+
+}
+
+function lessonDateClick(event) {
+  const student = document.getElementById('nameSearch').dataset.value;
+
+  if (!student) {
+    new Dialog({
+      message: 'Select a student first',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
+    return;
+  }
+
+  // if there is already text then the doc exists (hopefully)
+  if (event.target.textContent) {
+    event.target.textContent = '';
+
+    // save the lesson to the user
+    firebase.firestore()
+    .collection('Users').doc(student)
+    .collection('ACT-Topics-Taught').doc(event.target.id.split('-')[0])
+    .delete();
+  }
+  else {
+    event.target.textContent = new Time().toFormat('{MM}/{dd}/{yyyy}')
+
+    // save the lesson to the user
+    firebase.firestore()
+    .collection('Users').doc(student)
+    .collection('ACT-Topics-Taught').doc(event.target.id.split('-')[0])
+    .set({
+      taughtOn: firebase.firestore.FieldValue.serverTimestamp(),
+      taughtBy: firebase.auth()?.currentUser?.uid ?? null
+    }, { merge: true });
+  }
 }
 
 function sortSectionCanonically(a,b) {
@@ -237,13 +357,22 @@ async function setAssignment() {
 
   // check for impossible open and close times
   if (open.getTime() >= close.getTime()) {
-    customConfirm(
-      'You have impossible open and close times.',
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    new Dialog({
+      message: 'You have impossible open and close times.',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;
@@ -278,26 +407,45 @@ async function setAssignment() {
       }
       break;
     default:
-      customConfirm(
-        'You are missing the assignment type',
-        '',
-        'OK',
-        () => {},
-        () => {}
-      );
+      new Dialog({
+        message: 'You are missing the assignment type.',
+        backgroundColor: '#E36868',
+        messageColor: '#FFFFFF',
+        messageFontSize: '14px',
+        messageFontWeight: 700,
+        blocking: false,
+        justify: 'end',
+        align: 'start',
+        shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+        slideInDir: 'down',
+        slideInDist: 150,
+        slideOutDir: 'right',
+        slideOutDist: 300,
+        timeout: 5000
+      }).show();
+
       document.querySelectorAll('button').forEach(button => button.disabled = false);
   }
 }
 
 async function submitSectionAssignment(student, test, section, sectionCode, open, close, time, type) {
   if(!student || !test || !section || !sectionCode || !open || !close || !time || !type) {
-    customConfirm(
-      'Check that all values have been inputted.',
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    new Dialog({
+      message: 'Check that all values have been inputted.',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;
@@ -327,6 +475,8 @@ async function submitSectionAssignment(student, test, section, sectionCode, open
   document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
   document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
 
+  getTestsForSections();
+
   Toastify({
     text: 'Assignment Sent!'
   }).showToast();
@@ -335,13 +485,22 @@ async function submitSectionAssignment(student, test, section, sectionCode, open
 
 async function submitTopicAssignment(student, sectionCode, topics, topicProportions, count, open, close, time, type) {
   if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !open || !close || !type) {
-    customConfirm(
-      'Check that all values have been inputted.',
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    new Dialog({
+      message: 'Check that all values have been inputted.',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;
@@ -481,13 +640,22 @@ function getRandomQuestions(count, topics, topicProportions, questionsByTopics, 
 
 async function submitDynamicAssignment(student, sectionCode, topics, topicProportions, open, close, time, type) {
   if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !open || !close || !type) {
-    customConfirm(
-      'Check that all values have been inputted.',
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    new Dialog({
+      message: 'Check that all values have been inputted.',
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;

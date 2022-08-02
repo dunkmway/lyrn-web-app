@@ -37,7 +37,11 @@ class Dialog {
     this.align = options.align ?? 'center';
     this.backgroundColor = options.backgroundColor ?? '#FFFFFF';
     this.messageColor = options.messageColor ?? '#5B5B5B';
+    this.messageFontSize = options.messageFontSize ?? 'inherit';
+    this.messageFontWeight = options.messageFontWeight ?? 'inherit';
     this.choiceColor = options.choiceColor ?? '#057AFB';
+    this.choiceFontSize = options.choiceFontSize ?? 'inherit';
+    this.messageFontWeight = options.messageFontWeight ?? 'inherit';
     this.borderRadius = options.borderRadius ?? '0.5em';
     this.shadow = options.shadow ?? '0 0 10px 1px rgba(0, 0, 0, 0.3)';
     this.padding = options.padding ?? '1em 2em';
@@ -129,6 +133,8 @@ class Dialog {
       wrapperTop.style.padding = this.padding;
       if (typeof this.message === 'string') {
         wrapperTop.textContent = this.message;
+        wrapperTop.style.fontSize = this.messageFontSize;
+        wrapperTop.style.fontWeight = this.messageFontWeight;
       }
       else {
         wrapperTop.appendChild(this.message);
@@ -150,6 +156,8 @@ class Dialog {
             choiceElem = document.createElement('p');
             choiceElem.style.margin = '0';
             choiceElem.textContent = choice;
+            choiceElem.style.fontSize = this.choiceFontSize;
+            choiceElem.style.fontWeight = this.choiceFontWeight;
           }
           else {
             choiceElem = choice;

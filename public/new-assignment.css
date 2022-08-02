@@ -1,5 +1,12 @@
 main {
   padding: 2em;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-between; */
+}
+
+main > section {
+  width: 50%;
 }
 
 *, *::before, *::after {
@@ -15,6 +22,10 @@ main {
 
 button {
   cursor: pointer;
+}
+
+.user-wrapper {
+  margin: 2em 0em 0em 2em;
 }
 
 #nameSearch {
@@ -81,6 +92,15 @@ button {
   display: none;
 }
 
+#lessonWrapper {
+  display: flex;
+  flex: row;
+  justify-content: space-between;
+}
+
+#lessonWrapper > div {
+  display: none;
+}
 
 .topic-row {
   display: flex;
@@ -100,5 +120,11 @@ button {
 
 .topic-row > input[type='number'] {
   width: 4em;
+  margin-left: auto;
+}
+
+.topic-row > button {
+  width: 7em;
+  height: 21px;
   margin-left: auto;
 }

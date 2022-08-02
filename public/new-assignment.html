@@ -29,35 +29,90 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
 
     <script src="Site Templates/site-wide.js"></script>
+    <script src="Dialog.js"></script>
+    <script src="Time.js"></script>
     <script src="Site Templates/formatting.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
     <script src="new-assignment.js" defer></script>
   </head>
 
   <body onload="initialSetup()">
-    <main>
-      <h2>Set Assignments</h2>
+    <div class="user-wrapper">
       <label for="nameSearch">User</label>
       <input class="input" type="text" id="nameSearch">
       <div id="nameSearchResults"></div>
+    </div>
 
-      <p style="margin: .5em .5em .5em 0; display: inline-block;">Generate assignment</p>
-      <input type="radio" name="assignmentType" id="bySection" value="section" checked>
-      <label for="bySection" style="margin: 0 .5em 0 0;">by section</label>
-      <input type="radio" name="assignmentType" id="byTopic" value="topic">
-      <label for="byTopic">by topic</label>
+    <main>
+      <section id="assignment">
+        <h2>Assignments</h2>
 
-      <div class="by-section-wrapper">
-        <label for="tests">Test</label>
-        <select class="input" id="tests" onchange="getSections(event)"></select>
-      
-        <label for="sections">Section</label>
-        <select class="input" id="sections"></select>
-      </div>
+        <p style="margin: .5em .5em .5em 0; display: inline-block;">Generate assignment</p>
+        <input type="radio" name="assignmentType" id="bySection" value="section" checked>
+        <label for="bySection" style="margin: 0 .5em 0 0;">by section</label>
+        <input type="radio" name="assignmentType" id="byTopic" value="topic">
+        <label for="byTopic">by topic</label>
 
-      <div class="by-topic-wrapper">
-        <label for="sectionCodes">Section</label>
-        <select class="input" id="sectionCodes" onchange="showCurriculum(event)">
+        <div class="by-section-wrapper">
+          <label for="tests">Test</label>
+          <select class="input" id="tests" onchange="getSections(event)"></select>
+        
+          <label for="sections">Section</label>
+          <select class="input" id="sections"></select>
+        </div>
+
+        <div class="by-topic-wrapper">
+          <label for="sectionCodes">Section</label>
+          <select class="input" id="sectionCodes" onchange="showCurriculumAssignments(event)">
+            <option value="" selected disabled>select a section</option>
+            <option value="english">english</option>
+            <option value="math">math</option>
+            <option value="reading">reading</option>
+            <option value="science">science</option>
+          </select>
+
+          <button class="input" onclick="resetTopicWeights()">Reset Topic Weights</button>
+
+          <label for="topics">Topics</label>
+          <div id="topicWrapper">
+            <div id="englishTopics"></div>
+            <div id="mathTopics"></div>
+            <div id="readingTopics"></div>
+            <div id="scienceTopics"></div>
+          </div>
+
+          <label for="count">Number of Questions</label>
+          <input type="number" class="input" id="count" min="0">
+        </div>
+
+        <label for="open">Open</label>
+        <input class="input" id="open">
+        <label for="close">Close</label>
+        <input class="input" id="close">
+
+        <label for="time">Time (in minutes)</label>
+        <input type="number" class="input" id="time" min="0">
+
+        <label for="types">Type</label>
+        <select class="input" id="types">
+          <option value="" disabled selected>select a type</option>
+          <option value="guarantee">Guarantee</option>
+          <option value="marketing">Marketing</option>
+          <option value="daily">Daily</option>
+          <option value="homework">Homework</option>
+          <option value="worksheet">Worksheet</option>
+          <option value="tutor">Tutor</option>
+        </select>
+
+        <button class="input" onclick="setAssignment()">Submit Assignment</button>
+        <a id="testTakerLink" target="_blank"></a>
+      </section>
+
+      <section id="lesson">
+        <h2>Lessons</h2>
+
+        <label for="curriculumSection">Section</label>
+        <select class="input" id="curriculumSection" onchange="showCurriculumLessons(event)">
           <option value="" selected disabled>select a section</option>
           <option value="english">english</option>
           <option value="math">math</option>
@@ -66,37 +121,13 @@
         </select>
 
         <label for="topics">Topics</label>
-        <div id="topicWrapper">
-          <div id="englishTopics"></div>
-          <div id="mathTopics"></div>
-          <div id="readingTopics"></div>
-          <div id="scienceTopics"></div>
+        <div id="lessonWrapper">
+          <div id="englishLessons"></div>
+          <div id="mathLessons"></div>
+          <div id="readingLessons"></div>
+          <div id="scienceLessons"></div>
         </div>
 
-        <label for="count">Number of Questions</label>
-        <input type="number" class="input" id="count" min="0">
-      </div>
-
-      <label for="open">Open</label>
-      <input class="input" id="open">
-      <label for="close">Close</label>
-      <input class="input" id="close">
-
-      <label for="time">Time (in minutes)</label>
-      <input type="number" class="input" id="time" min="0">
-
-      <label for="types">Type</label>
-      <select class="input" id="types">
-        <option value="" disabled selected>select a type</option>
-        <option value="guarantee">Guarantee</option>
-        <option value="marketing">Marketing</option>
-        <option value="daily">Daily</option>
-        <option value="homework">Homework</option>
-        <option value="worksheet">Worksheet</option>
-        <option value="tutor">Tutor</option>
-      </select>
-
-      <button class="input" onclick="setAssignment()">Submit Assignment</button>
-      <a id="testTakerLink" target="_blank"></a>
+      </section>
     </main>
   </body>

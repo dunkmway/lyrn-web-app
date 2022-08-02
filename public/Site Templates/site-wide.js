@@ -51,6 +51,7 @@ let allowedPages = {
     ],
     tutor: [
         "/Dashboard/Tutor",
+        "/new-assignment",
     ],
     admin: [
         "&student",
@@ -189,6 +190,7 @@ async function setAuthExpirationTimers() {
 
 function isPathAllowed(role, path) {
     const allowedPaths = [...allowedPages[role], ...allowedPages.all];
+    // console.log(allowedPaths)
 
     for (const allowedPath of allowedPaths) {
         const splitAllowedPath = allowedPath.split('/');
