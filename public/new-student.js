@@ -49,11 +49,6 @@ async function initialSetup() {
     document.getElementById('action').innerHTML = 'Submit';
     document.getElementById('action').addEventListener('click', submit);
     document.getElementById('title').textContent = 'Add Student';
-
-    // if there is a parent then fill in the parent's relevant data
-    if (queryStrings().parent) {
-
-    }
   }
 }
 
@@ -145,12 +140,17 @@ async function submit() {
     return;
   }
 
+  let userUID = '';
+
   try {
     //split based on if we have an email
-    const userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
+    userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
     //adding user with email can fail if the email is already in use. Not an error so catch it here
     if (!userUID) {
       toggleWorking();
+      Toastify({
+        text: 'Student already exists'
+      }).showToast();
       return;
     } 
 
@@ -160,6 +160,15 @@ async function submit() {
   catch (error) {
     console.log(error)
     alert('We encountered an error while adding this student.')
+
+    clearFields();
+    toggleWorking();
+    //finish with a toast message
+    Toastify({
+      text: 'Student not submitted!'
+    }).showToast();
+
+    return 
   }
 
   clearFields();
@@ -168,6 +177,8 @@ async function submit() {
   Toastify({
     text: 'Student successfully submitted'
   }).showToast();
+
+  window.location.href = `customer-dashboard/${userUID}`;
   return;
 }
 

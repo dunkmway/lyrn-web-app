@@ -25,6 +25,10 @@ class Question {
       this[key] = doc.data()[key]
     }
 
+    if (!this.topic) {
+      this.topic = -1;
+    }
+
     if (this.passage) {
       this.passage = new Passage(this.passage);
       await this.passage.load();

@@ -52,13 +52,20 @@ let allowedPages = {
     tutor: [
         "/Dashboard/Tutor",
         "/new-assignment",
+        "/view-curriculum",
+        "/customer-dashboard/*",
     ],
     admin: [
         "&student",
         "&parent",
         "&tutor",
         "/Dashboard/Admin",
-        "/customer-dashboard/*"
+        "/new-parent",
+        "/new-student",
+        "/new-tutor",
+        "/act-sign-up",
+        "/calendar",
+        "/payment"
     ],
     dev: [
         '&public',
@@ -67,6 +74,7 @@ let allowedPages = {
         "&tutor",
         '&admin',
         "/Dashboard/Dev",
+        "/testEditor"
     ]
 }
 

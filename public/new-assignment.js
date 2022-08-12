@@ -1,6 +1,9 @@
-const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id
+const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id;
+const TOPIC_GRADED_ASSIGNMENT_TYPES = ['daily', 'homework', 'practice'];
 
-function initialSetup() {
+async function initialSetup() {
+  await getTopics()
+
   if (queryStrings().student) {
     document.getElementById('nameSearch').disabled = true;
     document.getElementById('nameSearch').setAttribute('data-value', queryStrings().student);
@@ -8,15 +11,14 @@ function initialSetup() {
     firebase.firestore().collection('Users').doc(queryStrings().student).get()
     .then((studentDoc) => {
       document.getElementById('nameSearch').value = studentDoc.data().firstName + ' ' + studentDoc.data().lastName + ' (' + studentDoc.data().role + ')';
-    })    
+    })
+    await getAssignments(queryStrings().student);
   }
   else {
     const nameSearchInput = debounce(() => queryUsers(), 500);
     document.getElementById('nameSearch').addEventListener('input', nameSearchInput);
     queryUsers();
   }
-
-  getTopics()
 
 
   flatpickr('#open', {
@@ -32,6 +34,52 @@ function initialSetup() {
     dateFormat: 'M j, Y h:i K',
     enableTime: true
   });
+}
+
+async function getAssignments(studentUID) {
+  const assignmentQuery = await firebase.firestore()
+  .collection('ACT-Assignments')
+  .where('student', '==', studentUID)
+  .where('status', '==', 'graded')
+  .where('type', 'in', TOPIC_GRADED_ASSIGNMENT_TYPES)
+  .get()
+
+  const topicGrades = assignmentQuery.docs
+  .map(doc => doc.data().topicGrades ?? null) // map the docs to just the topic grades
+  .filter(grades => grades != null) // filter out the assignments that don't have topic grades
+  .reduce((prev, curr) => { // reduce the topic grades into a single object with combined topics
+    for (const topic in curr) {
+      if ((!prev[topic])) {
+        prev[topic] = {
+          correct: 0,
+          total: 0
+        }
+      }
+
+      prev[topic].correct += curr[topic].correct ?? 0;
+      prev[topic].total += curr[topic].total ?? 0;
+    }
+
+    return prev
+  }, {})
+
+  // go through and reomve all of the grades and scores that are already in the topics
+  document.querySelectorAll('div[id$="-grade"]').forEach(div => div.textContent = '');
+  document.querySelectorAll('div[id$="-score"]').forEach(div => div.textContent = '');
+
+  // go through the topic grades and add them to the by topic weights
+  for (const topic in topicGrades) {
+    // we need to know the frequency
+    const frequency = Number.parseInt(document.getElementById(`${topic}-frequency`).textContent);
+
+    // write the grade
+    const grade = Math.round((topicGrades[topic].correct / topicGrades[topic].total) * 100)
+    document.getElementById(`${topic}-grade`).textContent = grade;
+
+    // write the score
+    document.getElementById(`${topic}-score`).textContent = (100 - grade) * frequency;
+  }
+
 }
 
 function debounce(func, timeout = 300) {
@@ -125,6 +173,8 @@ function searchResultClicked(studentUID, studentName) {
   getTestsForSections();
   document.getElementById('curriculumSection').value = '';
 
+  getAssignments(studentUID)
+
   // re-run the query
   queryUsers(false);
 }
@@ -183,34 +233,33 @@ async function getTopics() {
 
 function renderTopicDoc(topicDoc) {
   // for assignments
-  const topicRow = document.createElement('div');
-  topicRow.classList.add('topic-row')
-  topicRow.innerHTML = `
+  document.getElementById(`${topicDoc.data().sectionCode}Topics`).innerHTML +=
+  `
     <input type='checkbox' id='${topicDoc.id}-checkbox' value='${topicDoc.id}'>
     <label for='${topicDoc.id}-checkbox'>${topicDoc.data().code}</label>
-    <input type='number' id='${topicDoc.id}-number' data-num_questions='${topicDoc.data().numQuestions ?? 0}' value='${topicDoc.data().numQuestions ?? 0}'>
+    <input type='number' id='${topicDoc.id}-weight' value="1">
+    <div id="${topicDoc.id}-frequency">${topicDoc.data().numQuestions ?? 0}</div>
+    <div id="${topicDoc.id}-grade"></div>
+    <div id="${topicDoc.id}-score"></div>
   `
-  document.getElementById(`${topicDoc.data().sectionCode}Topics`).appendChild(topicRow)
 
   // for lessons
-  const lessonRow = document.createElement('div');
-  lessonRow.classList.add('topic-row');
-  lessonRow.innerHTML = `
+  document.getElementById(`${topicDoc.data().sectionCode}Lessons`).innerHTML += 
+  `
     <label for='${topicDoc.id}-date'>${topicDoc.data().code}</label>
     <button id='${topicDoc.id}-date' onclick="lessonDateClick(event)"></button>
   `
-  document.getElementById(`${topicDoc.data().sectionCode}Lessons`).appendChild(lessonRow);
+
 }
 
-function resetTopicWeights() {
-  const topicWrapper = document.getElementById('topicWrapper');
-  topicWrapper.querySelectorAll('input[type="number"]').forEach(input => input.value = input.dataset.num_questions);
+function selectAllTopicsChange(e) {
+  e.target.parentElement.querySelectorAll('input[type="checkbox"]').forEach(checkBox => checkBox.checked = e.target.checked);
 }
 
 function showCurriculumAssignments(event) {
   document.querySelectorAll('#topicWrapper > div').forEach(topicWrapper => topicWrapper.style.display = 'none');
-  document.querySelectorAll('#topicWrapper > div > .topic-row > input[type="checkbox"]').forEach(checkBox => checkBox.checked = false);
-  document.getElementById(`${event.target.value}Topics`).style.display = 'block';
+  document.querySelectorAll('#topicWrapper > div > input[type="checkbox"]').forEach(checkBox => checkBox.checked = false);
+  document.getElementById(`${event.target.value}Topics`).style.display = 'grid';
 }
 
 function showCurriculumLessons(event) {
@@ -237,7 +286,7 @@ function showCurriculumLessons(event) {
     return;
   }
 
-  document.getElementById(`${event.target.value}Lessons`).style.display = 'block';
+  document.getElementById(`${event.target.value}Lessons`).style.display = 'grid';
 
   // get the lesson data for the current section
   const curriculumIDs = Array.from(document.getElementById(`${event.target.value}Lessons`).querySelectorAll('button')).map(button => button.id.split('-')[0]);
@@ -260,7 +309,7 @@ function showCurriculumLessons(event) {
 
 }
 
-function lessonDateClick(event) {
+async function lessonDateClick(event) {
   const student = document.getElementById('nameSearch').dataset.value;
 
   if (!student) {
@@ -285,6 +334,14 @@ function lessonDateClick(event) {
 
   // if there is already text then the doc exists (hopefully)
   if (event.target.textContent) {
+    const deleteConfirm = await new Dialog({
+      message: 'Are you sure you want to delete this lesson?',
+      choices: ['NO', 'YES'],
+      values: [false, true]
+    }).show();
+
+    if (!deleteConfirm) return;
+    
     event.target.textContent = '';
 
     // save the lesson to the user
@@ -344,8 +401,8 @@ async function setAssignment() {
   const section = document.getElementById('sections').value;
   const sectionCodeBySection = document.getElementById('sections').querySelector('option:checked').textContent;
   const sectionCodeByTopic = document.getElementById('sectionCodes').value;
-  const topics = Array.from(document.querySelectorAll('#topicWrapper > div > .topic-row > input[type="checkbox"]:checked'), checkbox => checkbox.value);
-  const topicProportions = Array.from(document.querySelectorAll('#topicWrapper > div > .topic-row > input[type="checkbox"]:checked ~ input[type="number"]'), number => parseInt(number.value));
+  const topics = Array.from(document.querySelectorAll('#topicWrapper > div > input[type="checkbox"]:checked'), checkbox => checkbox.value);
+  const topicProportions = topics.map(id => Number.parseInt(document.getElementById(`${id}-weight`).value))
   const count = parseInt(document.getElementById('count').value ?? 0) || null;
   let open = document.getElementById('open')._flatpickr.selectedDates[0];
   const close = document.getElementById('close')._flatpickr.selectedDates[0];
@@ -510,7 +567,8 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
   let questionsByTopics = await getQuestionsByTopics(topics);
   // remove all of the already assigned questions
   for (let topic in questionsByTopics) {
-    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assignedQuestions.includes(question)));
+    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assignedQuestions.includes(question)))
+    .filter(filteredGroup => filteredGroup.length > 0);
   }
 
   // make sure we have enough questions in all topics to actually generate this assignment
@@ -665,7 +723,8 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
   let questionsByTopics = await getQuestionsByTopics(topics);
   // remove all of the already assigned questions
   for (let topic in questionsByTopics) {
-    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assignedQuestions.includes(question)));
+    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assignedQuestions.includes(question)))
+    .filter(filteredGroup => filteredGroup.length > 0);
   }
 
   // make sure we have enough questions in all topics to actually generate this assignment

@@ -89,28 +89,51 @@ async function new_gradeAssignment(assignmentDoc) {
   })
 
   // go through all the question and grade each
+  // at the same time get the grades for the topics
+  let topicGrades = {};
   const isAnswerCorrectList = startedQuestions.flat().map(questionDoc => {
     const questionAnswer = questionDoc.data().answer;
+    const questionTopic = questionDoc.data().topic;
+
+    // create the topic key if undefined
+    if (!topicGrades[questionTopic]) {
+      topicGrades[questionTopic] = {
+        correct: 0,
+        wrong: 0,
+        unanswered: 0,
+        total: 0,
+      }
+    }
+
+    topicGrades[questionTopic].total++;
 
     // find the last timeline answer for this question
     for (let i = timeline.length - 1; i > -1; i--) {
       // if an answer is found return if the timeline answer matches the question answer
       if (timeline[i].question === questionDoc.id && timeline[i].type === 'answer') {
+        // if the correct answer then increment the number correct for the question's topic
+        if (timeline[i].data === questionAnswer) {
+          topicGrades[questionTopic].correct++;
+        }
+        else {
+          topicGrades[questionTopic].wrong++;
+        }
         return timeline[i].data === questionAnswer
       }
     }
 
     // if no answer was found return false
+    topicGrades[questionTopic].unanswered++;
     return false
   });
-
   const numAnswersCorrect = isAnswerCorrectList.reduce((prev, curr) => prev + curr);
 
   // update the assignment with graded date
   let gradedData = {
     status: 'graded',
     score: numAnswersCorrect,
-    questions: startedQuestions.flat().map(doc => doc.id)
+    questions: startedQuestions.flat().map(doc => doc.id),
+    topicGrades
   }
 
   // get the scaled score if applicable

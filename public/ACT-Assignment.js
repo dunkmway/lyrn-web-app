@@ -373,7 +373,7 @@ class Assignment {
           const newQuestion = new Question(id, index + sumIndex + 1, this.timeline);
 
           // setup the selector
-          newQuestion.setupSelector(() => this.startQuestion(question.pos));
+          newQuestion.setupSelector(() => this.startQuestion(newQuestion.pos));
           // render the selector
           newQuestion.renderSelector();
           // add it to the question objects
@@ -414,12 +414,29 @@ class Assignment {
     // for review we want to sort the questions in the assignment in order of topic occurence
     // get all of the topics in this assignment
     const topics = this.questionObjects.reduce((prev, curr) => {
-      if (curr.topic && !prev.includes(curr.topic)) {
+      if (!prev.includes(curr.topic)) {
         prev.push(curr.topic);
       }
       return prev;
     }, [])
-    const topicDocs = await Promise.all(topics.map(topic => firebase.firestore().collection('ACT-Curriculum-Data').doc(topic).get()));
+
+    const topicDocs = await Promise.all(topics.map(topic => {
+      if (topic !== -1) {
+        return firebase.firestore().collection('ACT-Curriculum-Data').doc(topic).get()
+      }
+      else {
+        return {
+          id: -1,
+          data: () => {
+            return {
+              code: 'No Topic',
+              numQuestions: -1
+            }
+          }
+        }
+      }
+      
+    }));
     topicDocs.sort((a,b) => b.data().numQuestions - a.data().numQuestions);
 
     this.sortedQuestionsByTopic = topicDocs.map(topicDoc => {
@@ -564,7 +581,8 @@ async function getNewDynamicQuestions_helper(topicProportions, questionObjects) 
   let questionsByTopics = await getQuestionsByTopics_helper(Object.keys(topicProportions));
   // remove all of the already assigned questions
   for (let topic in questionsByTopics) {
-    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assigned_questions.includes(question)));
+    questionsByTopics[topic] = questionsByTopics[topic].map(group => group.filter(question => !assigned_questions.includes(question)))
+    .filter(filteredGroup => filteredGroup.length > 0);
   }
 
   // make sure we have enough questions in all topics to actually generate another question

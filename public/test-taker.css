@@ -145,6 +145,10 @@ img {
   border: none;
 }
 
+/* .MathJax {
+
+} */
+
 .color-accent {
   color: var(--accent-color);
 }
@@ -362,19 +366,16 @@ section.hide {
 #selectorContainer > .topic {
   position: sticky;
   top: 0;
-  /* background-color: var(--main-background); */
   margin: 0;
-  padding: .5em 0em;
+  padding: .5em .5em;
   text-align: center;
   font-size: 1em;
   font-weight: 900;
-  /* color: var(--accent-color);
-  border-top: 4px solid var(--accent-color);
-  border-bottom: 4px solid var(--accent-color); */
   background-color: var(--accent-color);
   color: var(--main-background);
-  /* border-top: 4px solid var(--default-color);
-  border-bottom: 4px solid var(--default-color); */
+
+  white-space: nowrap;
+  overflow-x: auto;
 }
 
 #selectorContainer > .separator {
@@ -517,44 +518,36 @@ section.hide {
   column-count: var(--passage-columns);
 }
 
-#passageTitle-A, #passageTitle-B {
-  margin-top: 0;
-}
-
-#passagePreText-A, #passageReference-A,
-#passagePreText-B, #passageReference-B {
-  font-size: .8em;
-  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
-  page-break-inside: avoid; /* Firefox */
-  break-inside: avoid; /* IE 10+ */
-} 
-
-#passageText-A p, #passageText-B p {
+#passageContent p {
   margin-top: 0;
   text-indent: 1.5em;
-  line-height: 1.8;
-}
-
-#passageText-A table, #passageText-B table {
   margin-bottom: 1em;
 }
 
-#passageText-A img, #passageText-B img {
-  display: block;
+#passageContent p.reference,
+#passageContent p.preText {
+  font-size: .9em;
+  text-indent: 0;
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Firefox */
+  break-inside: avoid; /* IE 10+ */
 }
 
-#passageText-A p.paragraphLabel, #passageText-B p.paragraphLabel {
+#passageContent p.paragraphLabel {
   text-align: center;
 }
 
-#passageText-A p.experimentLabel, #passageText-B p.experimentLabel {
+#passageContent p.experimentLabel {
   text-indent: 0;
 }
 
-/* force the second passage to the new column */
-/* #passageText-A {
-  break-after: column;
-} */
+#passageContent table {
+  margin-bottom: 2em;
+}
+
+#passageContent img {
+  display: block;
+}
 
 #passageContent span[data-question].box {
   border-radius: 0;
@@ -582,6 +575,20 @@ section.hide {
 
 .main .panels .question {
   flex: .5;
+}
+
+.main .panels .passage.hide + .question {
+  flex: 1;
+  padding-right: 50%;
+  transition: padding 225ms ease-in;
+}
+
+.main .panels .selector.open ~ .passage.hide + .question {
+  padding-right: calc(50% - 220px);
+}
+
+.main .panels .question > div:first-child {
+  margin-bottom: 1em;
 }
 
 #questionFlag {
@@ -627,12 +634,9 @@ section.hide {
 }
 
 .main .panels .question .choice .choice-letter {
-  width: 1.5em;
-  height: 1.5em;
   display: inline-block;
   margin: 0;
-  margin-right: 4px;
-  text-align: center;
+  padding-right: .5em;
 }
 
 .main .panels .question .choice > input {
@@ -640,7 +644,7 @@ section.hide {
 }
 
 .main .panels .question .choice > label {
-  padding-left: 1em;
+  padding-left: .75em;
   position: relative;
 }
 
@@ -769,9 +773,6 @@ section.hide {
 
 table {
 	border-collapse: collapse;
-	border-style: solid;
-	border-color: black;
-	border-width: 2px;
 
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid; /* Firefox */
@@ -779,36 +780,32 @@ table {
 }
 
 table th {
-	text-align: center;
 	background-color: var(--accent-color);
 	color: #FFF;
-	padding: 4px 8px 4px 8px;
-	border: 2px solid black;
 }
 
-table td {
+table th, table td {
 	text-align: center;
-	border: 1px solid #e3e3e3;
-  border-right: 2px solid black;
+	border: 1px solid #ddd;
 	padding: 4px 8px;
 }
 
-table tr:nth-child(odd) td {
-	background-color: var(--default-color-light);
+table tr:nth-child(even) td {
+  background-color: #f2f2f2;
 }
 
 .border-top {
-	border-top: 2px solid black;
+	border-top: 1px solid black;
 }
 
 .border-right {
-	border-right: 2px solid black;
+	border-right: 1px solid black;
 }
 
 .border-bottom {
-	border-bottom: 2px solid black;
+	border-bottom: 1px solid black;
 }
 
 .border-left {
-	border-left: 2px solid black;
+	border-left: 1px solid black;
 }

@@ -16,9 +16,8 @@ const MINIMUM_START_BUFFER = 5; // number of minutes an assignment must be start
 const GUARANTEE_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
 
 const PROMO_CODES = {
-  'first act': { isFirstSessionFree: true, percentageOff: 0 },
-  '50off': { percentageOff: 50, isFirstSessionFree: false },
-  'practice': { percentageOff: 20, isFirstSessionFree: false }
+  'lessonseries': { percentageOff: 20, isFirstSessionFree: false },
+  'gopioneers': { percentageOff: 20, isFirstSessionFree: false },
 }
 
 // returns the list of UIDs for tutors that are qualified in the given array of qualifications and the array qualifications thay have that are applicable

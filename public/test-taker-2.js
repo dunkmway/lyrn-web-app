@@ -9,6 +9,12 @@ let assignment_listener;
 let assignments = [];
 let assigned_questions = [];
 
+HTMLElement.prototype.textNodes = function() {
+  return [...this.childNodes].filter((node) => {
+    return (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "");
+  });
+}
+
 /**
  * This will cause MathJax to look for unprocessed mathematics on the page and typeset it
  */
@@ -17,7 +23,18 @@ async function resetMathJax() {
     await MathJax.typesetPromise();
     document.querySelectorAll('.MathJax').forEach((math) => {
       math.removeAttribute('tabindex');
+
+      // we need to insert and invisble character if there aren't any text node siblings with the MathJax
+      // equations don't appear on the same line if they are alone in a parent without text to align them
+      // thus we will add an invisible character so that MathJax knows how to align the equation
+      if (math.parentElement) {
+        if (math.parentElement.textNodes().length === 0) {
+          const text = document.createTextNode(' '); // we are using unicode char U+2009 (thin space) which is invisble
+          math.parentElement.appendChild(text);
+        }
+      }
     })
+
   } catch (error) {
     console.log(error);
   }
@@ -30,6 +47,9 @@ function setup() {
 
   // start listening to the current user
   initializeCurrentUser();
+
+  // get the next lesson
+  getNextLesson(CURRENT_STUDENT_UID);
 }
 
 function initializeCurrentUser() {
@@ -245,4 +265,50 @@ function submitCurrentAssignment() {
 
 function getCurrentAssignment() {
   return assignments.find(assignment => assignment.isStarted || assignment.isInReview);
+}
+
+function renderNextLessonDetails(lessonData) {
+  const nextLessonWrapper = document.querySelector('.next-lesson-wrapper');
+  const nextLessonElement = document.getElementById('nextLessonDetails');
+
+  if (!lessonData) {
+    nextLessonElement.innerHTML = 'Need to increase you ACT score? Check out our <a href="/pricing" target="_blank">ACT programs.</a>'
+    return;
+  }
+
+  nextLessonWrapper.style.backgroundColor = `var(--${lessonData.subtype}-color)`;
+  nextLessonElement.textContent = `Your next lesson is ${lessonData.subtype.toUpperCase()} - ${new Time(lessonData.start).toFormat('{EEEE}, {MMMM} {ddd}, {yyyy} at {hh}:{mm} {a}')}`;
+}
+
+async function getNextLesson(studentUID) {
+  // get all attendee docs this student is attending
+  let attendeeQuery = await firebase.firestore()
+  .collectionGroup('Attendees')
+  .where('student', '==', studentUID)
+  .get();
+
+  // get all of the event docs connected to these attendee docs
+  const eventDocs = await Promise.all(attendeeQuery.docs.map(doc => doc.ref.parent.parent.get()));
+  
+  // filter out oast lessons
+  const futureEvents = eventDocs
+  .filter(doc => doc.data().start > new Date().getTime())
+  .sort((a,b) => a.data().start - b.data().start);
+
+  // get the next lesson
+  const nextLesson = futureEvents[0];
+
+  // render the lesson
+  renderNextLessonDetails(nextLesson?.data());
+
+  if (nextLesson) {
+    // set a timer to re-run this function when the next lesson starts
+    const lessonTimer = new Timer(
+      new Date(nextLesson.data().start),
+      () => {
+        getNextLesson(studentUID);
+        lessonTimer.cleanUp();
+      }
+    )
+  }
 }

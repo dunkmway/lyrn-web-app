@@ -10,33 +10,48 @@ const SECTION_SCORE_WEIGHTS = { // FIXME: not implemented yet (goal is to affect
   science: 1,
 }
 
-let BASICS_SIX = {
-  score: 1, // number of points we guarantee with this program
-  name: 'ACT Basics', // name of the program
-  value: 'actBasics', // value of the program
+// let BASICS_SIX = {
+//   score: 1, // number of points we guarantee with this program
+//   name: 'ACT Basics', // name of the program
+//   value: 'actBasics', // value of the program
+//   start: null, // start date (will be calculated later)
+//   end: null, // end date (will be calculated later)
+//   testDoc: null, // test doc that will be taken at the end of the program
+//   programLength: 6, // length of the entire porgram in weeks
+//   sessionLength: 1, // length of one session in hours
+//   sessionsPerWeek: 2, // number of sessions per week
+//   price: 75, // price per hour
+//   sections: LESSON_ORDER, // which section will be taught
+// }
+
+// let BASICS_EIGHT = {
+//   score: 2, // number of points we guarantee with this program
+//   name: 'ACT Basics', // name of the program
+//   value: 'actBasics', // value of the program
+//   start: null, // start date (will be calculated later)
+//   end: null, // end date (will be calculated later)
+//   testDoc: null, // test doc that will be taken at the end of the program
+//   programLength: 8, // length of the entire porgram in weeks
+//   sessionLength: 1, // length of one session in hours
+//   sessionsPerWeek: 2, // number of sessions per week
+//   price: 75, // price per hour
+//   sections: LESSON_ORDER, // which section will be taught
+// }
+
+let GUIDED_FOUR = {
+  score: 2, // number of points we guarantee with this program
+  name: 'Guided ACT', // name of the program
+  value: 'actGuided', // value of the program
   start: null, // start date (will be calculated later)
   end: null, // end date (will be calculated later)
   testDoc: null, // test doc that will be taken at the end of the program
-  programLength: 6, // length of the entire porgram in weeks
-  sessionLength: 1, // length of one session in hours
+  programLength: 4, // length of the entire porgram in weeks
+  sessionLength: 2, // length of one session in hours
   sessionsPerWeek: 2, // number of sessions per week
   price: 75, // price per hour
   sections: LESSON_ORDER, // which section will be taught
 }
 
-let BASICS_EIGHT = {
-  score: 2, // number of points we guarantee with this program
-  name: 'ACT Basics', // name of the program
-  value: 'actBasics', // value of the program
-  start: null, // start date (will be calculated later)
-  end: null, // end date (will be calculated later)
-  testDoc: null, // test doc that will be taken at the end of the program
-  programLength: 8, // length of the entire porgram in weeks
-  sessionLength: 1, // length of one session in hours
-  sessionsPerWeek: 2, // number of sessions per week
-  price: 75, // price per hour
-  sections: LESSON_ORDER, // which section will be taught
-}
 
 let GUIDED_SIX = {
   score: 3, // number of points we guarantee with this program
@@ -67,8 +82,9 @@ let GUIDED_EIGHT = {
 }
 
 const SET_PROGRAMS = [
-  BASICS_SIX,
-  BASICS_EIGHT,
+  // BASICS_SIX,
+  // BASICS_EIGHT,
+  GUIDED_FOUR,
   GUIDED_SIX,
   GUIDED_EIGHT
 ]
@@ -277,9 +293,9 @@ async function initialSetup() {
   await updateSetPrograms();
 
   // initialize the openings with the longest program first calculated
-  if (GUIDED_SIX.start || GUIDED_EIGHT.start) {
-    const earliestStart = new Date(Math.min(GUIDED_SIX?.start?.getTime(), GUIDED_EIGHT?.start?.getTime()));
-    const latestEnd = new Date(Math.max(GUIDED_SIX?.end?.getTime(), GUIDED_EIGHT?.end?.getTime()));
+  if (GUIDED_FOUR.start || GUIDED_EIGHT.start) {
+    const earliestStart = new Date(Math.min(GUIDED_FOUR?.start?.getTime(), GUIDED_EIGHT?.start?.getTime()));
+    const latestEnd = new Date(Math.max(GUIDED_FOUR?.end?.getTime(), GUIDED_EIGHT?.end?.getTime()));
     calculateOpeningsMaster(earliestStart, latestEnd);
     // initialize qualified tutors for all programs. this will not change
     calculateQualifiedTutors(CURRENT_LOCATION);
@@ -408,8 +424,8 @@ async function startAfterDateChangeCallback(selectedDates, dateStr, instance) {
   ])
 
   // we need to know which start time is the oldest and which end time is the newest and calculate openings_master based on these times
-  const earliestStart = new Date(Math.min(GUIDED_SIX.start.getTime(), GUIDED_EIGHT.start.getTime(), currentCustomProgramDetails?.start?.getTime()));
-  const latestEnd = new Date(Math.max(GUIDED_SIX.end.getTime(), GUIDED_EIGHT.end.getTime(), currentCustomProgramDetails?.end?.getTime()));
+  const earliestStart = new Date(Math.min(GUIDED_FOUR.start.getTime(), GUIDED_EIGHT.start.getTime(), currentCustomProgramDetails?.start?.getTime()));
+  const latestEnd = new Date(Math.max(GUIDED_FOUR.end.getTime(), GUIDED_EIGHT.end.getTime(), currentCustomProgramDetails?.end?.getTime()));
   // place the openingsMaster into a loading state
   openings_master = false;
   calculateOpeningsMaster(earliestStart, latestEnd);
@@ -421,15 +437,22 @@ async function updateSetPrograms() {
   // the start after date should be updated for the current program
   // use this date to calculate the start and end for the different programs
   const [
+    fourWeekProgram,
     sixWeekProgram,
     eightWeekProgram
   ] = await Promise.all([
+    await getProgramStartEnd(4, currentProgramDetails.startAfterDate),
     await getProgramStartEnd(6, currentProgramDetails.startAfterDate),
     await getProgramStartEnd(8, currentProgramDetails.startAfterDate)
   ])
 
   SET_PROGRAMS.forEach(program => {
-    if (program.programLength == 6) {
+    if (program.programLength == 4) {
+      program.start = fourWeekProgram.startDate;
+      program.end = fourWeekProgram.endDate;
+      program.testDoc = fourWeekProgram.testDoc
+    }
+    else if (program.programLength == 6) {
       program.start = sixWeekProgram.startDate;
       program.end = sixWeekProgram.endDate;
       program.testDoc = sixWeekProgram.testDoc
@@ -1216,7 +1239,7 @@ async function submitContact() {
 }
 
 function verify() {
-  const submitSection = document.querySelector('#actBasics/Guided .submit-section');
+  const submitSection = document.querySelector('#actBasics-Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
 
   toggleWorking()
@@ -1280,7 +1303,7 @@ function verify() {
 }
 
 async function submit() {
-  const submitSection = document.querySelector('#actBasics/Guided .submit-section');
+  const submitSection = document.querySelector('#actBasics-Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
   console.log('about to submit', currentProgramDetails)
 

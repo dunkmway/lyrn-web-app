@@ -71,14 +71,39 @@
             <option value="science">science</option>
           </select>
 
-          <button class="input" onclick="resetTopicWeights()">Reset Topic Weights</button>
-
-          <label for="topics">Topics</label>
           <div id="topicWrapper">
-            <div id="englishTopics"></div>
-            <div id="mathTopics"></div>
-            <div id="readingTopics"></div>
-            <div id="scienceTopics"></div>
+            <div id="englishTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="mathTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="readingTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="scienceTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
           </div>
 
           <label for="count">Number of Questions</label>
@@ -98,9 +123,10 @@
           <option value="" disabled selected>select a type</option>
           <option value="guarantee">Guarantee</option>
           <option value="marketing">Marketing</option>
+          <option value="worksheet">Worksheet</option>
+          <option value="practice">Practice</option>
           <option value="daily">Daily</option>
           <option value="homework">Homework</option>
-          <option value="worksheet">Worksheet</option>
           <option value="tutor">Tutor</option>
         </select>
 
@@ -120,12 +146,23 @@
           <option value="science">science</option>
         </select>
 
-        <label for="topics">Topics</label>
         <div id="lessonWrapper">
-          <div id="englishLessons"></div>
-          <div id="mathLessons"></div>
-          <div id="readingLessons"></div>
-          <div id="scienceLessons"></div>
+          <div id="englishLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="mathLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="readingLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="scienceLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
         </div>
 
       </section>

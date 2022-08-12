@@ -6,6 +6,10 @@
 	background-color: var(--mainColor)
 }
 
+.MathJax {
+	font-size: 1em;
+}
+
 #firstHalf {
 	height: 45vh;
 }

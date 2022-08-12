@@ -24,15 +24,18 @@ function resetMathJax(spacing = '') {
 		console.log(spacing + 'resetMathJax()')
 	}
 
-    clearTimeout(mathJaxTimer);
-		mathJaxTimer = setTimeout(() => {
-			try {
-				MathJax.typeset()
-			}
-			catch (err) {
-				console.log(err)
-			}
-		}, 250);
+	clearTimeout(mathJaxTimer);
+	mathJaxTimer = setTimeout(async () => {
+		try {
+			await MathJax.typesetPromise();
+			document.querySelectorAll('.MathJax').forEach((math) => {
+				math.removeAttribute('tabindex');
+			})
+		}
+		catch (err) {
+			console.log(err)
+		}
+	}, 250);
 		
 }
 
@@ -989,6 +992,32 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 					}
 					else if (passage) {
 						dom_passage.value = passage
+
+						// Grab the passage from firebase
+						const passageDoc = await getPassageDoc(passage);
+						if (passageDoc.exists) {
+							setPassageText(passageDoc.data())
+
+							// Remove text highlighting
+							let elements = document.getElementById('pText').querySelectorAll('span')
+							for (let i = 0; i < elements.length; i++) {
+								elements[i].classList.remove('spotlight')
+								elements[i].classList.remove('box')
+							}
+
+							// Highlight the text, if necessary
+							if (dom_section.querySelector('option:checked').textContent.toLowerCase() == 'english' || dom_section.querySelector('option:checked').textContent.toLowerCase() == 'reading') {
+								let elements = document.querySelectorAll('span[data-question="' + questionDoc.data().code.toString() + '"]')
+								elements.forEach(ele => {
+									if (ele != undefined && parseInt(ele.innerHTML) >= 1 && parseInt(ele.innerHTML) <= 75) {
+										ele.classList.add('box')
+									}
+									else if (ele != undefined && ele.innerHTML != '' && ele.innerHTML != undefined) {
+										ele.classList.add('spotlight')
+									}
+								})
+							}
+						}
 					}
 				}
 			}

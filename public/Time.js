@@ -30,7 +30,7 @@ class Time extends Date {
         this.getDate() === 3 ? this.getDate().toString() + 'rd' :
         this.getDate() === 21 ? this.getDate().toString() + 'st' :
         this.getDate() === 22 ? this.getDate().toString() + 'nd' :
-        this.getDate() === 32 ? this.getDate().toString() + 'rd' :
+        this.getDate() === 23 ? this.getDate().toString() + 'rd' :
         this.getDate() === 31 ? this.getDate().toString() + 'st' :
         this.getDate().toString() + 'th',
       ['o']: this.getDayOfYear().toString(),
@@ -48,7 +48,7 @@ class Time extends Date {
       ['MMMMM']: this.toLocaleString('default', { month: 'narrow' }),
       ['y']: this.getFullYear().toString(),
       ['yy']: this.getFullYear().toString().slice(-2),
-      ['yyyy']: this.getFullYear().toString().padStart(2, '0'),
+      ['yyyy']: this.getFullYear().toString().padStart(4, '0'),
     }
 
     // split the str into outside and inside the curly braces

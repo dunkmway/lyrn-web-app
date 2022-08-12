@@ -147,7 +147,7 @@ function initialSetupData() {
         .then((doc) => {
           if (doc.exists) {
             setAdminName();
-            setActiveStudentTable();
+            // setActiveStudentTable();
             getStaffData()
             .then(() => {
               reinitializeStaffTableData();
@@ -972,7 +972,7 @@ function setupNavigationModal_tutor(tutorUID) {
   };
   document.getElementById("testTakerNav_tutor").onclick = () => {
     modal.style.display = 'none';
-    window.location.href = "../test-taker.html?student=" + tutorUID;
+    window.location.href = "../test-taker/" + tutorUID;
   };
   document.getElementById("tutorInfoNav").onclick = () => {
     modal.style.display = 'none';
