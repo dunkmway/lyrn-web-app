@@ -29,8 +29,6 @@ function debounce(func, timeout = 300){
 }
 
 async function checkPromo() {
-  console.log('called check promo')
-
   //place the promo into a loading state
   document.querySelector('.promo').classList.add('loading');
 
@@ -331,7 +329,7 @@ function setupSuccess() {
 }
 
 function setupFailed() {
-  document.querySelector('#welcome-message').textContent = "We weren't able to receive your payemnt for this program before this invoice expired. We have removed the corresponding lessons from the schedule."
+  document.querySelector('#welcome-message').textContent = "We weren't able to receive your payment for this program before this invoice expired. We have removed the corresponding lessons from the schedule."
   document.querySelector('#expiration-message').textContent = '';
   document.querySelector('.payments').style.display = 'none';
 }
