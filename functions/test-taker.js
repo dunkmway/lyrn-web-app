@@ -342,7 +342,7 @@ exports.sendAssignmentCloseReminder = functions.pubsub.schedule('0 8 * * *').tim
   const startOfTomorrow = new Date(new Date().setHours(24,0,0,0));
   const endOfTomorrow = new Date(new Date().setHours(48,0,0,0));
 
-  const assignmentQuery = await admin.firestore().collection('Section-Assignments')
+  const assignmentQuery = await admin.firestore().collection('ACT-Assignments')
   .where('close', '>=', startOfTomorrow)
   .where('close', '<', endOfTomorrow)
   .get();
@@ -368,7 +368,7 @@ exports.sendAssignmentCloseReminderNow = functions.https.onRequest(async (reques
   console.log(startOfTomorrow)
   console.log(endOfTomorrow)
 
-  const assignmentQuery = await admin.firestore().collection('Section-Assignments')
+  const assignmentQuery = await admin.firestore().collection('ACT-Assignments')
   .where('close', '>=', startOfTomorrow)
   .where('close', '<', endOfTomorrow)
   .get();
@@ -426,7 +426,7 @@ return `
           <table role="presentation" align="center" border="0" cellspacing="0">
             <tr>
               <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
-                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker?student=${userUID}">Open Test Taker</a>
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker/${userUID}">Open Test Taker</a>
               </td>
             </tr>
           </table>

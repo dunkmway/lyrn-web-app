@@ -89,7 +89,7 @@ function setPracticeTestTable() {
     $('#practice-table tbody').on('click', 'tr', (event) => {
       const row = leadsTable.row(event.target).index();
       let docUID = tableData[row].docUID;
-      window.open(`../test-taker?student=${docUID}`, '_blank')
+      window.open(`../test-taker/${docUID}`, '_blank')
     });
   })
   .catch((error) => {
@@ -445,4 +445,74 @@ function closeModal(type, submitted = false) {
       errorMessages[err].remove()
     }
   }
+}
+
+
+async function test() {
+  const MARKETING_TEST_CODE = '76C';
+  const SECTION_TIMES = {
+    english: 1000 * 60 * 60 * 45,
+    math: 1000 * 60 * 60 * 60,
+    reading: 1000 * 60 * 60 * 35,
+    science: 1000 * 60 * 60 * 35
+  }
+
+  const marketingTest = (await firebase.firestore()
+  .collection('ACT-Test-Data')
+  .where('code', '==', MARKETING_TEST_CODE)
+  .limit(1)
+  .get())
+  .docs[0];
+
+  console.log(marketingTest.data())
+
+  const marketingSections = (await firebase.firestore()
+  .collection('ACT-Section-Data')
+  .where('test', '==', marketingTest.id)
+  .get()).docs
+  .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
+
+  console.log(marketingSections.map(doc => doc.data()))
+
+  const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
+    return (await firebase.firestore()
+    .collection('ACT-Question-Data')
+    .where('test', '==', marketingTest.id)
+    .where('section', '==', section.id)
+    .get()).docs
+    .sort((a,b) => a.data().code - b.data().code)
+    .map(doc => doc.id);
+  }))
+
+  console.log(marketingQuestions)
+
+  // set a new assignment for the lead
+  // this is so the assignments come in the proper order in the test taker
+  const now = new Date();
+
+  await Promise.all(marketingSections.map((sectionDoc, index) => {
+    // firebase.firestore().collection('ACT-Assignments').doc().set({
+    //   open: new Date(new Date(now).setMilliseconds(now.getMilliseconds() + index)),
+    //   close: new Date(new Date(now).setFullYear(time0.getFullYear() + 1)),
+    //   questions: marketingQuestions[index],
+    //   scaledScoreSection: sectionDoc.id,
+    //   sectionCode: sectionDoc.data().code,
+    //   status: 'new',
+    //   student: ref.id,
+    //   time: SECTION_TIMES[sectionDoc.data().code],
+    //   type: 'marketing'
+    // })
+
+    console.log({
+      open: new Date(new Date(now).setMilliseconds(now.getMilliseconds() + index)),
+      close: new Date(new Date(now).setFullYear(now.getFullYear() + 1)),
+      questions: marketingQuestions[index],
+      scaledScoreSection: sectionDoc.id,
+      sectionCode: sectionDoc.data().code,
+      status: 'new',
+      student: 'studentUID',
+      time: SECTION_TIMES[sectionDoc.data().code],
+      type: 'marketing'
+    })
+  }))
 }
