@@ -627,7 +627,7 @@ async function saveTest(spacing = '') {
 	}
 
 	// Validate, set data, and re-initialize the test list
-	if (testCode.value.length = 3 && parseInt(year.value) <= date.getFullYear() && parseInt(year.value) >= 1959 && (numInts == 1 || numInts == 2)) {
+	if (testCode.value.length == 3 && parseInt(year.value) <= date.getFullYear() && parseInt(year.value) >= 1959 && (numInts == 1 || numInts == 2)) {
 		// Check to see if the test exists
 		const testDoc = await getTestDoc(document.getElementById('testList').value);
 
@@ -652,10 +652,13 @@ async function saveTest(spacing = '') {
 			}))
 		}
 
+		Dialog.toastMessage('Test successfully saved!');
+
 		// Re-initialize the display
 		initializeTestDisplay(spacing + spaceSize)
 	}
 	else {
+		Dialog.toastError('The test code must be 3 characters long.');
 		console.log("The test must have exactly 3 characters: B05, 76C, A10, etc. (1 - 2 letters and 1 - 2 numbers)")
 	}
 }
@@ -1169,7 +1172,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	const isGroupedByPassage = document.getElementById('isGroupedByPassage').checked;
 
 	if (!test || !section || !question) {
-		alert('You are missing some data')
+		Dialog.toastError('You are missing some data')
 	}
 
 	// Get the possible answers' text
@@ -1222,7 +1225,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		initializeQuestionsDisplay(test, section, null, nextQuestion)
 
 		// Finished!!
-		console.log('It is done')
+		Dialog.toastMessage('Question successfully saved!')
 	}
 }
 
@@ -1457,19 +1460,19 @@ async function savePassage(spacing = '') {
 	let text = document.getElementById('passageText').value;
 
 	if (!test) {
-		alert('You are missing the test')
+		Dialog.toastError('You are missing the test')
 		return;
 	}
 	if (!section) {
-		alert('You are missing the section')
+		Dialog.toastError('You are missing the section')
 		return;
 	}
 	if (!passage) {
-		alert('You are missing the passage')
+		Dialog.toastError('You are missing the passage')
 		return;
 	}
 	if (passage === 'new' && (!passageNumber || passageNumber < 1)) {
-		alert('Your new passage number is invalid')
+		Dialog.toastError('Your new passage number is invalid')
 		return
 	}
 
@@ -1500,10 +1503,12 @@ async function savePassage(spacing = '') {
 		}
 	}
 	else {
-		alert('You did not input any text')
+		Dialog.toastError('You did not input any text')
 		return;
 	}
 
+	
+	Dialog.toastMessage('Passage successfully saved!')
 	initializePassageDisplay(test, section, passage, spacing);
 }
 
@@ -1512,7 +1517,7 @@ async function saveCurriculum() {
 	const topicID = document.getElementById('curriculumTopic').value;
 
 	if (!topicID) {
-		alert('You are missing the curriclum topic.');
+		Dialog.toastError('You are missing the curriclum topic')
 		return;
 	}
 
@@ -1523,6 +1528,7 @@ async function saveCurriculum() {
 		content: document.getElementById('curriculumText').value
 	})
 
+	Dialog.toastMessage('Curriculum successfully saved!')
 	return;
 }
 
@@ -2132,14 +2138,15 @@ function saveAnswers(spacing = '') {
 		}
 		Promise.all(promises)
 		.then(() => {
-			console.log("Finished Setting / Updating Answers")
+			Dialog.toastMessage('Answers successfully saved!')
 		})
 		.catch((error) => {
+			Dialog.toastError('Error saving answers')
 			console.log(error)
 		})
 	}
 	else {
-		alert("Please correct your issues")
+		Dialog.toastError("Please correct your issues")
 	}
 	
 }
@@ -2224,10 +2231,10 @@ async function saveScaledScores(spacing = '') {
 		.collection('ACT-Section-Data').doc(dom_section.value)
 		.update({ scaledScores })
 
-		console.log("Finished Setting / Updating Answers")
+		Dialog.toastMessage('Scaled scores successfully saved')
 	}
 	else {
-		alert("Please correct your issues")
+		Dialog.toastError("Please correct your issues")
 	}
 	
 }
