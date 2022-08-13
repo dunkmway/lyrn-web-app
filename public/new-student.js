@@ -1,5 +1,6 @@
 const errorMsg = document.querySelector('.error')
 let studentData = null;
+let parentData = null;
 
 async function getAllLocations() {
   return await firebase.firestore().collection('Locations').orderBy('locationName').get()
@@ -117,6 +118,20 @@ async function fillInData() {
   return;
 }
 
+async function fillInParentData() {
+  const parentUID = queryStrings().parent;
+  const parentDoc = await firebase.firestore().collection('Users').doc(parentUID).get();
+
+  parentData = parentDoc.data()
+
+  // the only relavant fields is the location and the parents
+  document.getElementById('location').value = parentData.location;
+  await locationCallback(document.getElementById('location'));
+  $('#parents').closest(".ui.dropdown").dropdown('set selected', parentUID);
+
+  return;
+}
+
 async function submit() {
   toggleWorking();
   const values = getValues();
@@ -125,12 +140,17 @@ async function submit() {
     return;
   }
 
+  let userUID = '';
+
   try {
     //split based on if we have an email
-    const userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
+    userUID = await (values.email ? addUserWithEmail(values) : addUserWithoutEmail(values));
     //adding user with email can fail if the email is already in use. Not an error so catch it here
     if (!userUID) {
       toggleWorking();
+      Toastify({
+        text: 'Student already exists'
+      }).showToast();
       return;
     } 
 
@@ -140,6 +160,15 @@ async function submit() {
   catch (error) {
     console.log(error)
     alert('We encountered an error while adding this student.')
+
+    clearFields();
+    toggleWorking();
+    //finish with a toast message
+    Toastify({
+      text: 'Student not submitted!'
+    }).showToast();
+
+    return 
   }
 
   clearFields();
@@ -148,6 +177,8 @@ async function submit() {
   Toastify({
     text: 'Student successfully submitted'
   }).showToast();
+
+  window.location.href = `customer-dashboard/${userUID}`;
   return;
 }
 

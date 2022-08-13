@@ -10,33 +10,33 @@ const SECTION_SCORE_WEIGHTS = { // FIXME: not implemented yet (goal is to affect
   science: 1,
 }
 
-let BASICS_SIX = {
-  score: 1, // number of points we guarantee with this program
-  name: 'ACT Basics', // name of the program
-  value: 'actBasics', // value of the program
-  start: null, // start date (will be calculated later)
-  end: null, // end date (will be calculated later)
-  testDoc: null, // test doc that will be taken at the end of the program
-  programLength: 6, // length of the entire porgram in weeks
-  sessionLength: 1, // length of one session in hours
-  sessionsPerWeek: 2, // number of sessions per week
-  price: 75, // price per hour
-  sections: LESSON_ORDER, // which section will be taught
-}
+// let BASICS_SIX = {
+//   score: 1, // number of points we guarantee with this program
+//   name: 'ACT Basics', // name of the program
+//   value: 'actBasics', // value of the program
+//   start: null, // start date (will be calculated later)
+//   end: null, // end date (will be calculated later)
+//   testDoc: null, // test doc that will be taken at the end of the program
+//   programLength: 6, // length of the entire porgram in weeks
+//   sessionLength: 1, // length of one session in hours
+//   sessionsPerWeek: 2, // number of sessions per week
+//   price: 75, // price per hour
+//   sections: LESSON_ORDER, // which section will be taught
+// }
 
-let BASICS_EIGHT = {
-  score: 2, // number of points we guarantee with this program
-  name: 'ACT Basics', // name of the program
-  value: 'actBasics', // value of the program
-  start: null, // start date (will be calculated later)
-  end: null, // end date (will be calculated later)
-  testDoc: null, // test doc that will be taken at the end of the program
-  programLength: 8, // length of the entire porgram in weeks
-  sessionLength: 1, // length of one session in hours
-  sessionsPerWeek: 2, // number of sessions per week
-  price: 75, // price per hour
-  sections: LESSON_ORDER, // which section will be taught
-}
+// let BASICS_EIGHT = {
+//   score: 2, // number of points we guarantee with this program
+//   name: 'ACT Basics', // name of the program
+//   value: 'actBasics', // value of the program
+//   start: null, // start date (will be calculated later)
+//   end: null, // end date (will be calculated later)
+//   testDoc: null, // test doc that will be taken at the end of the program
+//   programLength: 8, // length of the entire porgram in weeks
+//   sessionLength: 1, // length of one session in hours
+//   sessionsPerWeek: 2, // number of sessions per week
+//   price: 75, // price per hour
+//   sections: LESSON_ORDER, // which section will be taught
+// }
 
 let GUIDED_FOUR = {
   score: 2, // number of points we guarantee with this program
@@ -86,6 +86,66 @@ const SET_PROGRAMS = [
   GUIDED_FOUR,
   GUIDED_SIX,
   GUIDED_EIGHT
+]
+
+let CLASS_ENGLISH = {
+  value: 'english',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
+}
+let CLASS_MATH = {
+  value: 'math',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
+}
+let CLASS_READING = {
+  value: 'reading',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
+}
+let CLASS_SCIENCE = {
+  value: 'science',
+  startHours: [
+    13,
+    18
+  ],
+  maxAttendees: 20,
+  classes: {},
+  programLength: 2, // length of the entire porgram in weeks
+  sessionLength: 1, // length of one session in hours
+  sessionsPerWeek: 2, // number of sessions per week
+  price: 40, // price per hour
+}
+
+const SET_CLASSES = [
+  CLASS_ENGLISH,
+  CLASS_MATH,
+  CLASS_READING,
+  CLASS_SCIENCE
 ]
 
 let openings_master = null // local version of all of the calendar openings docs that we need for the given start and end dates
@@ -174,6 +234,12 @@ let currentProgramDetails = {
   sections: null
 }
 
+let currentClassDetails = {
+  classDocs: [],
+  sectionIndex: null,
+  classIndex: null
+}
+
 /**
 * Set up Stripe Elements
 */
@@ -234,7 +300,39 @@ async function initialSetup() {
     calculateQualifiedTutors(CURRENT_LOCATION);
   }
 
+  await initializeClasses();
+
+  // initialize the contact data
+  if (!queryStrings().student && !queryStrings().parent) {
+    customConfirm(
+      "We are having difficulty initializing the programs (missing parent or student UID).",
+      '',
+      'OK',
+      () => {},
+      () => {}
+    )
+  }
+  initializeContactData(queryStrings().student, queryStrings().parent);
+
   toggleWorking();
+}
+
+function programTypeChange(event) {
+  // remove the selected class from all option items
+  document.querySelectorAll('.heading .options .item').forEach(item => item.classList.remove('selected'));
+
+  // set the current target to selected class
+  event.target.classList.add('selected');
+
+  // set the title textcontent to the same as the current target
+  document.querySelector('.heading .title').textContent = event.target.textContent;
+
+  // close the title options
+  document.querySelector('.heading .title').classList.remove('open');
+
+  // change the program type screen
+  document.querySelectorAll('main').forEach(main => main.classList.remove('open'));
+  document.getElementById(event.target.dataset.program).classList.add('open')
 }
 
 function chooseRandomAccentSection() {
@@ -267,6 +365,32 @@ function toggleWorking() {
   document.querySelectorAll('button').forEach(button => {
     button.disabled = !button.disabled;
   })
+}
+
+async function initializeContactData(studentUID, parentUID) {
+  const [studentDoc, parentDoc] = await Promise.all([getUserDoc(studentUID), getUserDoc(parentUID)]);
+  currentProgramDetails.contact = {
+    parent: {
+      firstName: parentDoc.data().firstName,
+      lastName: parentDoc.data().lastName,
+      email: parentDoc.data().email,
+      phoneNumber: parentDoc.data().phoneNumber,
+      uid: parentUID
+    },
+    student: {
+      firstName: studentDoc.data().firstName,
+      lastName: studentDoc.data().lastName,
+      email: studentDoc.data().email,
+      phoneNumber: studentDoc.data().phoneNumber,
+      uid: studentUID
+    }
+  }
+
+  await calculateBlacklistedTutors(studentUID);
+}
+
+function getUserDoc(userUID) {
+  return firebase.firestore().collection('Users').doc(userUID).get();
 }
 
 async function startAfterDateChangeCallback(selectedDates, dateStr, instance) {
@@ -312,7 +436,7 @@ async function updateSetPrograms() {
   // the start after date should be updated for the current program
   // use this date to calculate the start and end for the different programs
   const [
-    foruWeekProgram,
+    fourWeekProgram,
     sixWeekProgram,
     eightWeekProgram
   ] = await Promise.all([
@@ -323,9 +447,9 @@ async function updateSetPrograms() {
 
   SET_PROGRAMS.forEach(program => {
     if (program.programLength == 4) {
-      program.start = foruWeekProgram.startDate;
-      program.end = foruWeekProgram.endDate;
-      program.testDoc = foruWeekProgram.testDoc
+      program.start = fourWeekProgram.startDate;
+      program.end = fourWeekProgram.endDate;
+      program.testDoc = fourWeekProgram.testDoc
     }
     else if (program.programLength == 6) {
       program.start = sixWeekProgram.startDate;
@@ -1114,7 +1238,7 @@ async function submitContact() {
 }
 
 function verify() {
-  const submitSection = document.querySelector('.submit-section');
+  const submitSection = document.querySelector('#actBasics-Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
 
   toggleWorking()
@@ -1178,7 +1302,7 @@ function verify() {
 }
 
 async function submit() {
-  const submitSection = document.querySelector('.submit-section');
+  const submitSection = document.querySelector('#actBasics-Guided .submit-section');
   const submitButton = submitSection.querySelector('button');
   console.log('about to submit', currentProgramDetails)
 
@@ -1899,4 +2023,248 @@ async function sendInvoiceEmail(email, firstTutors, invoice) {
 async function setUserDoc(id, data) {
   await firebase.firestore().collection('Users').doc(id).set(data)
   return;
+}
+
+/////////////
+// Classes //
+/////////////
+
+async function initializeClasses() {
+  // place the class tiles in a loading state
+  renderLoadingSetClasses();
+
+  // calculate the next class for each section
+  await updateSetClasses();
+
+  // render the class to the tiles
+  renderSetClasses();
+}
+
+function renderLoadingSetClasses() {
+  const programWrapper = document.getElementById('programWrapper_classes')
+  removeAllChildNodes(programWrapper)
+
+  // go through all of the set classes and create the program block
+  SET_CLASSES.forEach(program => {
+    let programDiv = document.createElement('div');
+    programDiv.classList.add('program', 'loading');
+    programDiv.id = program.value + 'Class';
+    programDiv.innerHTML = `
+      <div class="loader"></div>
+    `
+    programWrapper.appendChild(programDiv)
+  })
+}
+
+async function updateSetClasses() {
+  // go through all of the classes and their start times
+  await Promise.all(SET_CLASSES.map((classType, classIndex) => {
+    return Promise.all(classType.startHours.map(hour => {
+      return getClassEventSetDocs(classType.value, hour, classType.maxAttendees)
+      .then(classDocs => {
+        SET_CLASSES[classIndex].classes[hour] = classDocs;
+      })
+    }))
+  }))
+}
+
+async function getClassEventSetDocs(section, startHour, maxAttendees) {
+  // query for all actClass events that begin after now for this section
+  try {
+    const classQuery = await firebase.firestore().collection('Events')
+    .where('type', '==', 'actClass')
+    .where('subtype', '==', section)
+    .where('start' , '>', new Date().getTime())
+    .orderBy('start')
+    .get();
+
+
+    // remove all event that have more than 20 attendees
+    const classSizes = await Promise.all(classQuery.docs.map(doc => {
+      return doc.ref.collection('Attendees').get()
+      .then(attendeeQuery => {
+        return attendeeQuery.size
+      })
+    }));
+
+    // we need to figure out which classes go together. 
+    // for now classes take 2 weeks and have gaps between sets
+    const classes = classQuery.docs.filter((doc, index) => new Date(doc.data().start).getHours() === startHour && classSizes[index] < maxAttendees);
+    const connectedClasses = connectClasses(classes);
+
+    //return the first set of classes
+    return connectedClasses[0].length == 4 ? connectedClasses[0] : connectedClasses[1];
+
+  }
+  catch (error) {
+    console.log(error);
+    alert('We failed to get the classes');
+  }
+}
+
+function connectClasses(classDocs) {
+  if (classDocs.length === 0) return [];
+  let connections = [[classDocs[0]]];
+  
+  // check each class and see if the next class is within a week of it
+  for (let i = 0; i < classDocs.length - 1; i++) {
+    const currentClass = classDocs[i];
+    const nextClass = classDocs[i + 1];
+    if ((nextClass.data().start - currentClass.data().start) < (1000 * 60 * 60 * 24 * 7)) {
+      connections[connections.length - 1].push(nextClass);
+    }
+    else {
+      connections.push([nextClass]);
+    }
+  }
+
+  return connections;
+}
+
+function renderSetClasses() {
+  const programWrapper = document.getElementById('programWrapper_classes')
+  removeAllChildNodes(programWrapper)
+
+  // go through all of the set programs and create the program block
+  SET_CLASSES.forEach((program, programIndex) => {
+    program.startHours.forEach((hour, hourIndex) => {
+      let programDiv = document.createElement('div');
+      programDiv.classList.add('program');
+      programDiv.id = `setClass-${programIndex}:${hourIndex}`;
+      programDiv.innerHTML = `
+      <div class="detail-wrapper">
+        <p>Section</p>
+        <p>${program.value.charAt(0).toUpperCase() + program.value.slice(1)}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program</p>
+        <p>ACT Class</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Start Time</p>
+        <p>${(hour > 12 ? (hour - 12).toString() : hour == 0 ? '12' : hour.toString()) + ":00" + (hour >= 12 ? " pm" : " am")}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program Length</p>
+        <p>2 weeks</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Start</p>
+        <p>${program.classes[hour]?.[0] ? convertFromDateInt(program.classes[hour][0].data().start).shortReadable : 'no class available'}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>End</p>
+        <p>${program.classes[hour]?.[program.classes[hour].length - 1] ? convertFromDateInt(program.classes[hour][program.classes[hour].length - 1].data().end).shortReadable : 'no class available'}</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Session Length</p>
+        <p>1 hour</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Session per Week</p>
+        <p>2</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Price per Hour</p>
+        <p>$40</p>
+      </div>
+      <div class="detail-wrapper">
+        <p>Program Price</p>
+        <p>$160</p>
+      </div>
+      <button disabled tabindex="1" onclick="setClassSelected(${programIndex}, ${hourIndex})">Select</button>
+      `
+      programWrapper.appendChild(programDiv)
+    })
+  })
+}
+function setClassSelected(sectionIndex, classIndex) {
+  // check if the class actually has events to set first
+  if (SET_CLASSES[sectionIndex].classes[SET_CLASSES[sectionIndex].startHours[classIndex]].length != 4) return;
+  
+  console.log('class selected:', SET_CLASSES[sectionIndex].value, SET_CLASSES[sectionIndex].startHours[classIndex]);
+
+  // unselect all programs
+  document.querySelectorAll('.program').forEach(program => program.classList.remove('selected'));
+  //select the current program
+  document.getElementById(`setClass-${sectionIndex}:${classIndex}`).classList.add('selected');
+
+  currentClassDetails.classDocs = SET_CLASSES[sectionIndex].classes[SET_CLASSES[sectionIndex].startHours[classIndex]];
+  currentClassDetails.sectionIndex = sectionIndex;
+  currentClassDetails.classIndex = classIndex;
+}
+
+function verifyClass() {
+  const submitSection = document.querySelector('#actClasses .submit-section');
+  const submitButton = submitSection.querySelector('button');
+
+  toggleWorking()
+  submitButton.classList.add('loading');
+
+  // we need to have 4 classes in the program
+  if (currentClassDetails.classDocs.length != 4) {
+    customConfirm(
+      `<p>You seem to be missing some data. Complain to Duncan if this message sucks.`,
+      '',
+      'OK',
+      () => {},
+      () => {}
+    )
+    toggleWorking()
+    submitButton.classList.remove('loading');
+  }
+  else {
+    submitClass();
+  }
+}
+
+async function submitClass() {
+  const submitSection = document.querySelector('#actClasses .submit-section');
+  const submitButton = submitSection.querySelector('button');
+  
+  // add this student to the class events as attendees
+  await Promise.all(currentClassDetails.classDocs.map(classDoc => {
+    return classDoc.ref.collection('Attendees').doc().set({
+      parents: [currentProgramDetails.contact.parent.uid],
+      price: 40,
+      student: currentProgramDetails.contact.student.uid,
+      studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName
+    })
+  }))
+
+  // set an invoice doc
+  const invoiceData = {
+    parent: currentProgramDetails.contact.parent.uid,
+    parentName: currentProgramDetails.contact.parent.firstName + ' ' + currentProgramDetails.contact.parent.lastName,
+    student: currentProgramDetails.contact.student.uid,
+    studentName: currentProgramDetails.contact.student.firstName + ' ' + currentProgramDetails.contact.student.lastName,
+    program: 'actClass',
+    programName: 'ACT Class',
+    programLength: SET_CLASSES[currentClassDetails.sectionIndex].programLength,
+    programStart: new Date(currentClassDetails.classDocs[0].data().start),
+    programPrice: SET_CLASSES[currentClassDetails.sectionIndex].price * SET_CLASSES[currentClassDetails.sectionIndex].sessionLength * currentClassDetails.classDocs.length,
+    sessionLength: SET_CLASSES[currentClassDetails.sectionIndex].sessionLength,
+    sessionPrice: SET_CLASSES[currentClassDetails.sectionIndex].price * SET_CLASSES[currentClassDetails.sectionIndex].sessionLength,
+    pricePerHour: SET_CLASSES[currentClassDetails.sectionIndex].price,
+    events: currentClassDetails.classDocs.map(doc => doc.id),
+    createdAt: new Date().getTime(),
+    expiration: new Date().setHours(new Date().getHours() + INVOICE_EXPIRATION_TIME),
+    status: 'pending'
+  }
+
+  const ref = firebase.firestore().collection('ACT-Invoices').doc();
+  await ref.set(invoiceData)
+
+  // email the invoice
+  await sendInvoiceEmail(
+    currentProgramDetails.contact.parent.email, 
+    { [SET_CLASSES[currentClassDetails.sectionIndex].value]: currentClassDetails.classDocs[0].data().staff[0] }, 
+    ref.id
+  );
+
+  // tell the user the invoice has been sent
+  customConfirm('Lessons have been set and the invoice is being emailed right now!', '', 'OK', () => {}, () => {});
+
+  toggleWorking()
+  submitButton.classList.remove('loading');
 }

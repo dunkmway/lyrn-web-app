@@ -1,9 +1,25 @@
-main {
-  padding: 2em;
-}
-
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+main {
+  padding: 2em;
+  display: flex;
+  flex-direction: row;
+}
+
+main > section {
+  width: 50%;
+}
+
+@media screen and (max-width: 800px) {
+  main {
+    flex-direction: column;
+  }
+
+  main > section {
+    width: 100%;
+  }
 }
 
 .input {
@@ -15,6 +31,10 @@ main {
 
 button {
   cursor: pointer;
+}
+
+.user-wrapper {
+  margin: 2em 0em 0em 2em;
 }
 
 #nameSearch {
@@ -53,3 +73,114 @@ button {
 .search-result:last-child {
   border-bottom: 1px solid slategray;
 }
+
+
+#bySection ~ .by-section-wrapper {
+  display: none;
+}
+
+#bySection:checked ~ .by-section-wrapper {
+  display: block;
+}
+
+#byTopic ~ .by-topic-wrapper {
+  display: none;
+}
+
+#byTopic:checked ~ .by-topic-wrapper {
+  display: block;
+}
+
+#topicWrapper {
+  display: flex;
+  flex: row;
+  justify-content: space-between;
+}
+
+#topicWrapper > div {
+  display: none;
+  grid-template-columns: auto auto 4em 1fr 1fr 1fr;
+  align-items: center;
+  row-gap: .5em;
+}
+
+#topicWrapper > div > * {
+  margin: 0em 0.5em 0em 0em;
+}
+
+#topicWrapper > div > *:nth-child(-n+6) {
+  border-bottom: 2px solid black;
+  position: relative;
+}
+
+#topicWrapper > div > *:nth-child(-n+6):not(input[type="checkbox"])::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  left: -19px;
+  border-bottom: 2px solid black;
+}
+
+#lessonWrapper {
+  display: flex;
+  flex: row;
+  justify-content: space-between;
+}
+
+#lessonWrapper > div {
+  display: none;
+  grid-template-columns: auto 7em;
+  align-items: center;
+  row-gap: .5em;
+}
+
+#lessonWrapper > div > * {
+  margin: 0em 0.5em 0em 0em;
+}
+
+#lessonWrapper > div > *:nth-child(-n+2) {
+  border-bottom: 2px solid black;
+  position: relative;
+}
+
+#lessonWrapper > div > *:nth-child(-n+1):not(input[type="checkbox"])::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  right: -20px;
+  border-bottom: 2px solid black;
+}
+
+/* .topic-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  margin-bottom: .5em;
+}
+
+.topic-row > input[type='checkbox'] {
+ margin-right: .5em;
+}
+
+.topic-row > label {
+  margin-right: 1em;
+ }
+
+.topic-row > input[type='number'] {
+  width: 4em;
+  margin-right: .5em;
+  margin-left: auto;
+}
+
+.topic-row > input[type='number'].align {
+  
+}
+
+.topic-row > button {
+  width: 7em;
+  height: 21px;
+  margin-left: auto;
+} */

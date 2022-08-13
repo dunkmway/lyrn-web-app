@@ -83,6 +83,7 @@ select {
 label {
   font-size: 1.25em;
   margin-top: 1em;
+  width: max-content;
 }
 
 p.error {
@@ -147,12 +148,54 @@ button.loading::after {
   background-color: var(--accent-color);
 }
 
-#title {
+.heading {
+  position: relative;
+}
+
+.heading .title {
   color: white;
   margin: 0;
 }
 
-#programWrapper {
+.heading .options {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background-color: white;
+  border: 4px solid var(--accent-color);
+  border-top: none;
+  border-radius: 0 0 1em 1em;
+  padding: .5em 2em;
+  display: none;
+}
+
+.heading .title.open + .options {
+  display: block;
+  z-index: 999;
+}
+
+.heading .options > .item {
+  font-size: 1.5em;
+  color: var(--accent-color);
+  padding: .25em 0;
+  margin: 0;
+  display: block;
+  cursor: pointer;
+}
+
+.heading .options > .item.selected {
+  display: block;
+}
+
+main {
+  display: none;
+}
+
+main.open {
+  display: block;
+}
+
+.program-wrapper {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   row-gap: 2em;
@@ -161,13 +204,13 @@ button.loading::after {
 }
 
 @media screen and (max-width: 1400px) {
-  #programWrapper {
+  .program-wrapper {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media screen and (max-width: 750px) {
-  #programWrapper {
+  .program-wrapper {
     grid-template-columns: 1fr;
   }
 }

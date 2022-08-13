@@ -29,46 +29,142 @@
     <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
 
     <script src="Site Templates/site-wide.js"></script>
+    <script src="Dialog.js"></script>
+    <script src="Time.js"></script>
     <script src="Site Templates/formatting.js" defer></script>
     <script src="Site Templates/generalFunctions.js" defer></script>
     <script src="new-assignment.js" defer></script>
   </head>
 
   <body onload="initialSetup()">
-    <main>
-      <h2>Set Assignments</h2>
+    <div class="user-wrapper">
       <label for="nameSearch">User</label>
       <input class="input" type="text" id="nameSearch">
       <div id="nameSearchResults"></div>
+    </div>
 
-      <label for="testList">Test</label>
-      <select class="input" id="testList"></select>
+    <main>
+      <section id="assignment">
+        <h2>Assignments</h2>
 
-      <label for="sections">Section</label>
-      <select class="input" id="sections">
-        <option value="english">English</option>
-        <option value="math">Math</option>
-        <option value="reading">Reading</option>
-        <option value="science">Science</option>
-        <option value="all">All</option>
-      </select>
+        <p style="margin: .5em .5em .5em 0; display: inline-block;">Generate assignment</p>
+        <input type="radio" name="assignmentType" id="bySection" value="section" checked>
+        <label for="bySection" style="margin: 0 .5em 0 0;">by section</label>
+        <input type="radio" name="assignmentType" id="byTopic" value="topic">
+        <label for="byTopic">by topic</label>
 
-      <label for="open">Open</label>
-      <input class="input" id="open"></input>
-      <label for="close">Close</label>
-      <input class="input" id="close"></input>
+        <div class="by-section-wrapper">
+          <label for="tests">Test</label>
+          <select class="input" id="tests" onchange="getSections(event)"></select>
+        
+          <label for="sections">Section</label>
+          <select class="input" id="sections"></select>
+        </div>
 
-      <label for="programs">Program</label>
-      <select class="input" id="programs">
-        <option value="actClass">ACT Class</option>
-        <option value="actStudyGroup">ACT Study Group</option>
-        <option value="actBasics">ACT Basics</option>
-        <option value="actGuided">Guided ACT</option>
-        <option value="practiceTest">Practice Test</option>
-        <option value="tutor">Tutor</option>
-      </select>
+        <div class="by-topic-wrapper">
+          <label for="sectionCodes">Section</label>
+          <select class="input" id="sectionCodes" onchange="showCurriculumAssignments(event)">
+            <option value="" selected disabled>select a section</option>
+            <option value="english">english</option>
+            <option value="math">math</option>
+            <option value="reading">reading</option>
+            <option value="science">science</option>
+          </select>
 
-      <button class="input" onclick="setAssignment()">Submit Assignment</button>
-      <a id="testTakerLink" target="_blank"></a>
+          <div id="topicWrapper">
+            <div id="englishTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="mathTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="readingTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+            <div id="scienceTopics">
+              <input type="checkbox" onchange="selectAllTopicsChange(event)">
+              <label>Topics</label>
+              <label>Weight</label>
+              <label>Frequency</label>
+              <label>Grade</label>
+              <label>Score</label>
+            </div>
+          </div>
+
+          <label for="count">Number of Questions</label>
+          <input type="number" class="input" id="count" min="0">
+        </div>
+
+        <label for="open">Open</label>
+        <input class="input" id="open">
+        <label for="close">Close</label>
+        <input class="input" id="close">
+
+        <label for="time">Time (in minutes)</label>
+        <input type="number" class="input" id="time" min="0">
+
+        <label for="types">Type</label>
+        <select class="input" id="types">
+          <option value="" disabled selected>select a type</option>
+          <option value="guarantee">Guarantee</option>
+          <option value="marketing">Marketing</option>
+          <option value="worksheet">Worksheet</option>
+          <option value="practice">Practice</option>
+          <option value="daily">Daily</option>
+          <option value="homework">Homework</option>
+          <option value="tutor">Tutor</option>
+        </select>
+
+        <button class="input" onclick="setAssignment()">Submit Assignment</button>
+        <a id="testTakerLink" target="_blank"></a>
+      </section>
+
+      <section id="lesson">
+        <h2>Lessons</h2>
+
+        <label for="curriculumSection">Section</label>
+        <select class="input" id="curriculumSection" onchange="showCurriculumLessons(event)">
+          <option value="" selected disabled>select a section</option>
+          <option value="english">english</option>
+          <option value="math">math</option>
+          <option value="reading">reading</option>
+          <option value="science">science</option>
+        </select>
+
+        <div id="lessonWrapper">
+          <div id="englishLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="mathLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="readingLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+          <div id="scienceLessons">
+            <label>Topics</label>
+            <label>Date</label>
+          </div>
+        </div>
+
+      </section>
     </main>
   </body>

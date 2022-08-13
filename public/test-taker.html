@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
-  <link rel="stylesheet" href="Site Templates/site-wide.css">
-  <link rel="stylesheet" href="test-taker.css">
+  <link rel="stylesheet" href="../Site Templates/site-wide.css">
+  <link rel="stylesheet" href="../test-taker.css">
 
   <title>Test Taker</title>
 
@@ -23,10 +23,11 @@
         inlineMath: [['$', '$'], ['\\(', '\\)']]
       },
       svg: {
-        fontCache: 'global'
+        fontCache: 'global',
+        scale: 1,
       },
       chtml: {
-        scale: 1.1
+        scale: 1,
       },
       options: {
         enableMenu: false,
@@ -44,14 +45,21 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-  <script src="Site Templates/generalFunctions.js"></script>
-  <script src="Site Templates/site-wide.js"></script>
-  <script src="test-taker.js" defer></script>
+  <script src="../Site Templates/generalFunctions.js"></script>
+  <script src="../Site Templates/site-wide.js"></script>
+  <script src="../test-taker-svg.js"></script>
+  <script src="../Timer.js"></script>
+  <script src="../Time.js"></script>
+  <script src="../ACT-Passage.js"></script>
+  <script src="../ACT-Question.js"></script>
+  <script src="../ACT-Assignment-Timeline.js"></script>
+  <script src="../ACT-Assignment.js"></script>
+  <script src="../test-taker-2.js" defer></script>
 
 </head>
-<body>
+<body onload="setup()">
   <!-- Landing Page -->
-  <section class="landing hide">
+  <section class="landing" id="landing">
     <div class="header">
       <div class="container"><h1><span class="color-accent">ACT</span> Test Taker</h1></div>
       <div class="container">
@@ -69,31 +77,31 @@
         </svg>
       </div>
     </div>
-    <!-- <h1 id="studentName"></h1> -->
     <div class="content">
       <div class="next-lesson-wrapper box">
         <h2 id="nextLessonDetails"></h2>
       </div>
-      <div class="section-assignment-wrapper">
-        <h3>Homework Assignments</h3>
-        <div id="sectionAssignmentList"></div>
+      <div>
+        <h3>Current Assignments</h3>
+        <div class="assignment box default-background" id="noCurrentAssignments">Hurray no assignments!</div>
+        <div>
+          <div id="startedAssignments"></div>
+          <div id="newAssignments"></div>
+        </div>
       </div>
-      <div class="previous-assignment-wrapper">
+      <div>
         <h3>Previous Assignments</h3>
-        <div id="previousAssignmentList"></div>
+        <div class="assignment box default-background" id="noPreviousAssignments">No previous assignments.</div>
+        <div id="previousAssignments"></div>
       </div>
-      <!-- <div class="daily-assignment-wrapper">
-        <h3>Daily Assignments</h3>
-        <div id="dailyAssignmentList"></div>
-      </div> -->
     </div>
   </section>
 
   <!-- Main Test Taker -->
-  <section class="main hide">
+  <section class="main hide" id="main">
     <div class="header">
       <div class="container"><h1><span class="color-accent">ACT</span> PRACTICE TEST</h1></div>
-      <div class="container">
+      <div class="container" onclick="goToLanding()" style="cursor: pointer;">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
             <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -111,10 +119,11 @@
     <div class="panels">
       <div class="selector">
         <div class="selector-scroll">
-          <div class="time-container">
-            <div id="sectionTime" class="background-accent box">Time</div>
+          <div class="top-container">
+            <div id="assignmentTime" class="background-accent box">Time</div>
+            <div id="assignmentSubmit" class="background-accent box" style="cursor: pointer;" onclick="submitCurrentAssignment()">Submit</div>
           </div>
-          <div class="selector-container"></div>
+          <div class="selector-container" id="selectorContainer"></div>
           <!-- <div class="background-accent box submit">Submit Test</div> -->
         </div>
         <div class="pull-tab" onclick="toggleSelectorCallback()">
@@ -123,91 +132,13 @@
           <div></div>
         </div>
       </div>
-      <div class="passage">
-        <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div>
-        <div class="passage-container">
-          <h2 id="passageTitle-A"></h2>
-          <div id="passagePreText-A"></div>
-          <div id="passageText-A"></div>
-
-          <h2 id="passageTitle-B"></h2>
-          <div id="passagePreText-B"></div>
-          <div id="passageText-B"></div>
-
-          <div id="passageReference-A"></div>
-          <div id="passageReference-B"></div>
+      <div class="spacer"></div>
+      <div class="passage hide">
+        <!-- <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div> -->
+        <div id="passageContent">
         </div>
       </div>
-      <div class="directions hide">
-        <div id="englishDirections" class="hide">
-          <h1>ENGLISH TEST</h1>
-          <h2>45 Minutes—75 Questions</h2>
-          <p>
-            DIRECTIONS: In the five passages that follow, certain words and phrases are underlined and numbered. 
-            In the right-hand column, you will find alternatives for the underlined part. 
-            In most cases, you are to choose the one that best expresses the idea, makes the statement appropriate for standard written English, 
-            or is worded most consistently with the style and tone of the passage as a whole. 
-            If you think the original version is best, choose “NO CHANGE.” 
-            In some cases, you will find in the right-hand column a question about the underlined part. 
-            You are to choose the best answer to the question.
-          </p>
-          <p>
-            You will also find questions about a section of the passage, or about the passage as a whole. 
-            These questions do not refer to an underlined portion of the passage, but rather are identified by a number or numbers in a box. 
-          </p>
-          <p>
-            For each question, choose the alternative you consider best and fill in the corresponding oval on your answer document. 
-            Read each passage through once before you begin to answer the questions that accompany it. 
-            For many of the questions, you must read several sentences beyond the question to determine the answer. 
-            Be sure that you have read far enough ahead each time you choose an alternative.
-          </p>
-        </div>
-        <div id="mathDirections" class="hide">
-          <h1>MATH TEST</h1>
-          <h2>60 Minutes—60 Questions</h2>
-          <p>DIRECTIONS: Solve each problem, choose the correct answer, and then fill in the corresponding oval on your answer document.</p>
-          <p>Do not linger over problems that take too much time. Solve as many as you can; then return to the others in the time you have left for this test.</p>
-          <p>You are permitted to use a calculator on this test. You may use your calculator for any problems you choose, but some of the problems may best be done without using a calculator.</p>
-          <p>Note: Unless otherwise stated, all of the following should be assumed.</p>
-          <ol>
-            <li>Illustrative figures are NOT necessarily drawn to scale.</li>
-            <li>Geometric figures lie in a plane.</li>
-            <li>The word line indicates a straight line.</li>
-            <li>The word average indicates arithmetic mean.</li>
-          </ol>
-        </div>
-        <div id="breakDirections" class="hide">
-          <h1>Break</h1>
-          <h2>10 Minutes</h2>
-          <p>
-            You now have a break. The test will resume in 10 minutes automatically (see the timer in the question select tab). We reccomend using the restroom and eating a snack.
-          </p>
-        </div>
-        <div id="readingDirections" class="hide">
-          <h1>READING TEST</h1>
-          <h2>35 Minutes—40 Questions</h2>
-          <p>
-            DIRECTIONS: There are several passages in this test. 
-            Each passage is accompanied by several questions. 
-            After reading a passage, choose the best answer to each question and fill in the corresponding oval on your answer document.  
-            You may refer to the passages as often as necessary.
-          </p>
-        </div>
-        <div id="scienceDirections" class="hide">
-          <h1>SCIENCE TEST</h1>
-          <h2>35 Minutes—40 Questions</h2>
-          <p>
-            DIRECTIONS: There are several passages in this test. 
-            Each passage is followed by several questions. 
-            After reading a passage, choose the best answer to each question and fill in the corresponding oval on your answer document. 
-            You may refer to the passages as often as necessary.
-          </p>
-          <p>
-            You are NOT permitted to use a calculator on this test.
-          </p>
-        </div>
-      </div>
-      <div class="question">
+      <div class="question hide">
         <div class="background-accent box">Question <span id="questionNumber"></span>
           <input type="checkbox" id="questionFlag" onchange="questionFlagChangeCallback(event)">
           <label for="questionFlag" class="flag">
@@ -221,18 +152,17 @@
             </svg>
           </label>
         </div>
-        <p id="questionText"></p>
+        <div id="questionContent"></div>
         <div id="questionChoices">
         </div>
       </div>
     </div>
     <div class="footer">
-      <div class="nav" id="previousBtn" onclick="previousQuestionCallback()">
+      <div class="nav hide" id="previousBtn" onclick="previousQuestionCallback()">
         <div class="circle"><div class="left-arrow"></div></div>
         <h1>Previous</h1>
       </div>
-      <div class="nav button" id="exitReview" onclick="exitReviewCallback()">Exit Review</div>
-      <div class="nav" id="nextBtn" onclick="nextQuestionCallback()">
+      <div class="nav hide" id="nextBtn" onclick="nextQuestionCallback()">
         <h1>Next</h1>
         <div class="circle"><div class="right-arrow"></div></div>
       </div>

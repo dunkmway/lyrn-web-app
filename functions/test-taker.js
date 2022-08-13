@@ -17,6 +17,160 @@ const SECTION_TIME = {
   all: 189
 }
 
+exports.assignmentUpdated = functions.firestore
+.document('/ACT-Assignments/{assignmentID}')
+.onUpdate(async (change, context) => {
+  const oldValues = change.before.data();
+  const newValues = change.after.data();
+
+  //handle when the assignments are submitted
+  if (newValues.status == 'submitted') {
+    // we want to grade this assignment and put it into a graded state
+    await new_gradeAssignment(change.after);
+  }
+  else {
+    return;
+  }
+})
+
+async function new_gradeAssignment(assignmentDoc) {
+  // get the assignment timeline
+  const timelineDoc = await admin.firestore().collection('ACT-Assignment-Timelines').doc(assignmentDoc.id).get();
+  const timeline = timelineDoc.exists ? timelineDoc.data().timeline : [];
+
+  const questionDocs = await Promise.all(assignmentDoc.data().questions.map(async (questionID) => {
+    return admin.firestore().collection('ACT-Question-Data').doc(questionID).get();
+  }));
+
+  // group the questions together by group
+  let groupedQuestions = [];
+  // go through the question docs and find groups of questions if applicable
+  while (questionDocs.length > 0) {
+    const currentDoc = questionDocs[0];
+    let groupedQuestionDocs;
+    // if the question is grouped
+    if (currentDoc.data().isGroupedByPassage) {
+      // get the other question that are grouped with this question
+      const commonPassage = currentDoc.data().passage;
+      groupedQuestionDocs = questionDocs.filter(doc => doc.data().passage == commonPassage);
+    }
+    else {
+      // just pass this question in
+      groupedQuestionDocs = [currentDoc];
+    }
+
+    // add this grouping into the master copy and remove the group from the docs
+    groupedQuestions.push(groupedQuestionDocs);
+    groupedQuestionDocs.forEach(question => {
+      questionDocs.splice(questionDocs.findIndex(doc => question.id == doc.id), 1)
+    })
+  }
+
+
+  // filter out groups where none of the questions where started on the timeline
+  // only if this assignment was dynamic and the question is in the question bank
+  // we'll remove these questions from the assignment question list
+  const startedQuestions = groupedQuestions.filter(group => {
+    if (!assignmentDoc.data().topicProportions) {
+      return true;
+    }
+    // loop through each question
+    for (let i = 0; i < group.length; i++) {
+      const question = group[i];
+
+      // determine if this question has been started or if it is not part of the question bank
+      for (let j = timeline.length - 1; j > -1; j--) {
+        const event = timeline[j]
+        // if the question has been started then the entire group has been started
+        if (!question.isQuestionBank || (event.question === question.id && event.type === 'start')) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  })
+
+  // go through all the question and grade each
+  // at the same time get the grades for the topics
+  let topicGrades = {};
+  const isAnswerCorrectList = startedQuestions.flat().map(questionDoc => {
+    const questionAnswer = questionDoc.data().answer;
+    const questionTopic = questionDoc.data().topic;
+
+    // create the topic key if undefined
+    if (!topicGrades[questionTopic]) {
+      topicGrades[questionTopic] = {
+        correct: 0,
+        wrong: 0,
+        unanswered: 0,
+        total: 0,
+      }
+    }
+
+    topicGrades[questionTopic].total++;
+
+    // find the last timeline answer for this question
+    for (let i = timeline.length - 1; i > -1; i--) {
+      // if an answer is found return if the timeline answer matches the question answer
+      if (timeline[i].question === questionDoc.id && timeline[i].type === 'answer') {
+        // if the correct answer then increment the number correct for the question's topic
+        if (timeline[i].data === questionAnswer) {
+          topicGrades[questionTopic].correct++;
+        }
+        else {
+          topicGrades[questionTopic].wrong++;
+        }
+        return timeline[i].data === questionAnswer
+      }
+    }
+
+    // if no answer was found return false
+    topicGrades[questionTopic].unanswered++;
+    return false
+  });
+  const numAnswersCorrect = isAnswerCorrectList.reduce((prev, curr) => prev + curr);
+
+  // update the assignment with graded date
+  let gradedData = {
+    status: 'graded',
+    score: numAnswersCorrect,
+    questions: startedQuestions.flat().map(doc => doc.id),
+    topicGrades
+  }
+
+  // get the scaled score if applicable
+  if (assignmentDoc.data().scaledScoreSection) {
+    // get the section doc for the scaled scores
+    const sectionDoc = await admin.firestore().collection('ACT-Section-Data').doc(assignmentDoc.data().scaledScoreSection).get();
+    // determine the scaled score for this score
+    const scaledScores = sectionDoc.data().scaledScores;
+    let scaledScoreWinner = null;
+    let winnerScore = Infinity;
+    for (const scaledScore in scaledScores) {
+      const minScore = scaledScores[scaledScore];
+      if (minScore != -1) {
+        let score = numAnswersCorrect - minScore
+        if (score >= 0 && score < winnerScore) {
+          scaledScoreWinner = Number(scaledScore);
+        }
+      }
+    }
+
+    if (scaledScoreWinner) {
+      gradedData.scaledScore = scaledScoreWinner;
+    }
+  }
+
+  // update the assignment doc
+  assignmentDoc.ref.update(gradedData);
+}
+
+
+///////////////////
+// OLD FUNCTIONS //
+///////////////////
+
 exports.sectionAssignmentUpdated = functions.firestore
 .document('/Section-Assignments/{assignmentID}')
 .onUpdate(async (change, context) => {

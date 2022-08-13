@@ -7,6 +7,17 @@
       "**/node_modules/**"
     ],
 
+    "rewrites": [
+      {
+        "source": "/test-taker/**",
+        "destination": "/test-taker.html"
+      },
+      {
+        "source": "/customer-dashboard/**",
+        "destination": "/customer-dashboard.html"
+      }
+    ],
+
     "cleanUrls": true,
     "trailingSlash": false
   },

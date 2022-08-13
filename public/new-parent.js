@@ -70,23 +70,34 @@ async function submit() {
     //adding user with email can fail if the email is already in use. Not an error so catch it here
     if (!userUID) {
       toggleWorking();
+      Toastify({
+        text: 'Parent already exists'
+      }).showToast();
       return;
     } 
 
     await updateUserDisplayName(userUID, values)
     await addUserDoc(userUID, values);
+
+    clearFields();
+    toggleWorking();
+    //finish with a toast message
+    Toastify({
+      text: 'Parent successfully submitted'
+    }).showToast();
+
+    // redirect to the new student page with the newly created parent uid
+    window.location.href = 'new-student.html?parent=' + userUID;
   }
   catch (error) {
     console.log(error)
-    alert('We encountered an error while adding this parent.')
+    clearFields();
+    toggleWorking();
+    Toastify({
+      text: 'An error has occured'
+    }).showToast();
   }
 
-  clearFields();
-  toggleWorking();
-  //finish with a toast message
-  Toastify({
-    text: 'Parent successfully submitted'
-  }).showToast();
   return;
 }
 

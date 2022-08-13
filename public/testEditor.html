@@ -24,9 +24,23 @@
       },
       svg: {
         fontCache: 'global'
+      },
+      chtml: {
+        scale: 1.1
+      },
+      options: {
+        enableMenu: false,
+        menuOptions: {
+          settings: {
+            inTabOrder: false,
+          }
+        },
+        skipHtmlTags: [
+          'script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'
+        ],
       }
     };
-    </script>
+  </script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -62,9 +76,9 @@
       <!-- Opening Screen -->
       <div id = 'openingDisplay' class = 'centerSpread'>
         <button onclick = 'selectDisplay("testDisplay")'>Add Test</button>
-        <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("answersDisplay")'>Add Answers</button>
         <button onclick = 'selectDisplay("scaledScoresDisplay")'>Add Scaled Scores</button>
+        <button onclick = 'selectDisplay("passageDisplay")'>Add Passage</button>
         <button onclick = 'selectDisplay("questionsDisplay")'>Add Question</button>
         <button onclick = 'selectDisplay("curriculumDisplay")'>Add Curriculum</button>
       </div>
@@ -88,6 +102,9 @@
           <!-- Code -->
           <label id = 'testCodeLabel' for="testCode" class = 'mainLabel'>Test Code</label>
 
+          <!-- isQuestionBank -->
+          <label id = 'isQuestionBankLabel' for="isQuestionBank" class = 'mainLabel'>Is Question Bank</label>
+
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
         </div>
@@ -106,23 +123,26 @@
 
           <!-- Month -->
           <select id="testMonth" class = 'mainInput'>
-            <option value="January">January</option>
-            <option value="February">February</option>
-            <option value="March">March</option>
-            <option value="April">April</option>
-            <option value="May">May</option>
-            <option value="June">June</option>
-            <option value="July">July</option>
-            <option value="August">August</option>
-            <option value="September">September</option>
-            <option value="October">October</option>
-            <option value="November">November</option>
-            <option value="December">December</option>
-            <option value="Practice">Practice</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+            <option value="00">Practice</option>
           </select>
 
           <!-- Code -->
           <input type="text" id="testCode" placeholder="Enter new test id (ex. B05)" class = 'mainInput'>
+
+          <!-- isQuestionBank -->
+          <input type="checkbox" id="isQuestionBank" class = 'mainInput' checked>
 
           <!-- Save Test Button -->
           <button onclick="saveTest()" class = 'mainInput'>Save Test</button>
@@ -143,6 +163,7 @@
 
           <!-- Passage -->
           <label for="passageNumber" class = 'mainLabel'>Passage</label>
+          <label for="passageNumber" class = 'mainLabel'>New Passage Number</label>
 
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
@@ -157,22 +178,33 @@
 
           <!-- Section -->
           <select id="passageSection" class = 'mainInput'>
-            <option value="english">English</option>
-            <option value="math">Math</option>
-            <option value="reading">Reading</option>
-            <option value="science">Science</option>
           </select>
 
           <!-- Passage -->
           <select id="passageNumber" class = 'mainInput'>
           </select>
+          <input id="newPassageNumber" class = 'mainInput' type="number" min="1">
 
           <!-- Save Test Button -->
           <button onclick="savePassage()" class = 'mainInput'>Save Passage</button>
         </div>
 
         <!-- Passage Info -->
-        <div id = 'englishPassage' class = 'sectionPassage'>
+        <div id = 'passage' class = 'sectionPassage'>
+          <div class='columns'>
+            <div class="rows" style = 'margin-left:10px;'>
+              <label for="passageText" id='passageTextLabel'>Passage</label>
+              <textarea class = 'textArea' placeholder="Copy passage text here" id='passageText'></textarea>
+            </div>
+
+            <div class='rows' style = 'margin-left:10px;'>
+              <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
+              <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()">
+            </div>
+          </div>
+        </div>
+        
+        <!-- <div id = 'englishPassage' class = 'sectionPassage'>
           <div class='columns'>
             <div class='rows'>
               <div>
@@ -182,11 +214,6 @@
             </div>
         
             <div class='rows' style = 'margin-left:10px;'>
-              <!--<label for="englishLabelParagraphs" id='englishLabelParagraphsLabel'>Label Paragraphs</label>
-              <select id="englishLabelParagraphs">
-                <option value=0>No</option>
-                <option value=1>Yes</option>
-              </select>-->
 
               <button onclick = 'clickInput()' style = 'margin-top: 5px;'>Add Image</button>
               <input id = 'englishImage' type = 'file' accept = "image/png" onchange="addImage()" style = 'display: none;'>
@@ -297,7 +324,7 @@
             <label for="sciencePassageReference" id='sciencePassageReferenceLabel'>Reference</label>
           </div>
           <textarea id = 'sciencePassageReference' class = 'reference'></textarea>
-        </div>
+        </div> -->
 
       </div>
 
@@ -326,10 +353,6 @@
 
           <!-- Section -->
           <select id="answersSection" class = 'mainInput'>
-            <option value="english">English</option>
-            <option value="math">Math</option>
-            <option value="reading">Reading</option>
-            <option value="science">Science</option>
           </select>
 
           <!-- Save Test Button -->
@@ -366,10 +389,6 @@
 
           <!-- Section -->
           <select id="scaledScoresSection" class = 'mainInput'>
-            <option value="english">English</option>
-            <option value="math">Math</option>
-            <option value="reading">Reading</option>
-            <option value="science">Science</option>
           </select>
 
           <!-- Save Test Button -->
@@ -395,6 +414,7 @@
 
           <!-- Passage -->
           <label for="questionsNumber" class = 'mainLabel'>Passage</label>
+          <label for="isGroupedByPassage">Group w/ passage</label>
 
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
@@ -409,15 +429,14 @@
 
           <!-- Section -->
           <select id="questionsSection" class = 'mainInput'>
-            <option value="english">English</option>
-            <option value="math">Math</option>
-            <option value="reading">Reading</option>
-            <option value="science">Science</option>
           </select>
 
           <!-- Passage -->
           <select id="questionsPassageNumber" class = 'mainInput'>
           </select>
+
+          <!-- isGroupedByPassage -->
+          <input type="checkbox" id="isGroupedByPassage" class="mainInput">
 
           <!-- Save Test Button -->
           <button onclick="saveQuestion()" class = 'mainInput'>Save Question</button>
@@ -431,17 +450,17 @@
             <select id="questionList">
             </select>
 
-            <label for="topic" id='topicLabel'>Topic(s)</label>
-            <select class='ui dropdown search multiple' multiple id="topic" style = 'display:none'>
+            <label for="topic" id='topicLabel'>Topic</label>
+            <select class="mainInput" id="topic">
             </select>
 
             <!--<label class='label hidden' for="subTopic" id='subTopicLabel'>SubTopic(s)</label>
             <select class='hidden' id="subTopic">
             </select>-->
 
-            <label for="modifier" id='modifierLabel'>Modifier(s)</label>
+            <!-- <label for="modifier" id='modifierLabel'>Modifier(s)</label>
             <select class='ui dropdown search multiple' multiple id="modifier" style = 'display:none'>
-            </select>
+            </select> -->
 
           </div>
 

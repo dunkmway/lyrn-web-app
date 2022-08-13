@@ -12,8 +12,7 @@ let calendar_mode = "default";
 let calendar_view = 'defualt';
 
 function initialSetupData() {
-  setupExampleDailyLogButton();
-  setupTestTakerButton();
+  // setupExampleDailyLogButton();
 
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {

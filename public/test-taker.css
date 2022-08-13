@@ -20,11 +20,18 @@
   --reading-color: #8786FC;
   --science-color: #64C13D;
   --writing-color: #F5B233;
-  --all-color: var(--secondary-background);
+
+  --writing-color-light: #F7C463;
+  --science-color-light: #3cdd58;
+  --math-color-light: #87D7FC;
+  --reading-color-light: #BAB9FD;
+  --english-color-light: #F08685;
 
   --default-color: rgb(122, 122, 122);
+  --default-color-light: #BDBDBD;
 
   --accent-color: var(--default-color);
+  --accent-color-light: var(--default-color-light);
 
   --english-passage-columns: 2;
   --math-passage-columns: 1;
@@ -45,6 +52,12 @@
   }
 }
 
+.default-color {
+  color: var(--default-color);
+}
+.default-background {
+  background-color: var(--default-color);
+}
 .english-color {
   color: var(--english-color);
 }
@@ -92,6 +105,34 @@ img {
   max-width: 100%;
 }
 
+.spinner {
+  display: block;
+  border: 3px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  width: 1.25em;
+  height: 1.25em;
+  animation: spin 750ms linear infinite;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
 /* fix position of mathjax */
 #bimg {
   position: relative;
@@ -103,6 +144,10 @@ img {
   outline: none;
   border: none;
 }
+
+/* .MathJax {
+
+} */
 
 .color-accent {
   color: var(--accent-color);
@@ -197,8 +242,22 @@ section.hide {
   cursor: pointer;
 }
 
-.landing .content .assignment > * {
+.landing .content .assignment.hide {
+  display: none;
+}
+
+.landing .content .assignment * {
   margin: 0;
+}
+
+.landing .content .assignment svg {
+  margin-right: .5em;
+  height: 1.3em;
+  fill: white;
+}
+
+.landing .content .assignment p {
+  margin-right: .5em;
 }
 
 .landing .content .previous-assignment-wrapper .subsections {
@@ -257,8 +316,9 @@ section.hide {
   left: 0;
   background-color: white;
   height: 100%;
+  width: 220px;
   transform: translateX(-100%);
-  transition: transform 250ms ease-in;
+  transition: all 250ms ease-in;
   z-index: 10;
   overflow: visible;
 }
@@ -267,22 +327,61 @@ section.hide {
   transform: translateX(0%);
 }
 
+.main .panels .selector + .spacer {
+  width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  transition: all 225ms ease-in;
+}
+
+.main .panels .selector.open + .spacer {
+  margin-right: 220px;
+}
+
 .main .panels .selector .selector-scroll {
   height: 100%;
   overflow-y: auto;
 }
 
-.main .panels .selector .time-container {
+.main .panels .selector .top-container {
   position: sticky;
   background-color: var(--main-background);
   top: 0;
   width: 100%;
   padding: 1em 1em;
   border-bottom: 2px solid rgb(197, 197, 197);
+  z-index: 100;
+
 }
 
-#sectionTime {
+.main .panels .selector .top-container > div {
   text-align: center;
+}
+
+#selectorContainer {
+  position: relative;
+}
+
+#selectorContainer > .topic {
+  position: sticky;
+  top: 0;
+  margin: 0;
+  padding: .5em .5em;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 900;
+  background-color: var(--accent-color);
+  color: var(--main-background);
+
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+#selectorContainer > .separator {
+  width: 100%;
+  background-color: var(--accent-color);
+  height: 4px;
 }
 
 .main .panels .selector input[type=radio] {
@@ -302,19 +401,19 @@ section.hide {
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color-light);
   color: var(--main-background);
 }
 
 .main .panels .selector .selector-wrapper:hover {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color-light);
   color: var(--main-background);
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper:hover {
   background-color: var(--main-background);
-  color: var(--accent-color);
-  outline: 2px solid var(--accent-color);
+  color: var(--accent-color-light);
+  outline: 2px solid var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span {
@@ -322,7 +421,7 @@ section.hide {
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  border: 2px solid var(--accent-color);
+  border: 2px solid var(--accent-color-light);
   background-color: var(--main-background);
 }
 
@@ -334,7 +433,7 @@ section.hide {
 .main .panels .selector .selector-wrapper span:nth-child(2) {
   margin-left: 1em;
   padding: 1px;
-  fill: var(--accent-color);
+  fill: var(--accent-color-light);
   border: none;
   background-color: transparent;
 }
@@ -348,7 +447,7 @@ section.hide {
 }
 
 .main .panels .selector input[type=radio]:checked + .selector-wrapper:hover > span:nth-child(2) {
-  fill: var(--accent-color);
+  fill: var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span .flag {
@@ -356,16 +455,22 @@ section.hide {
 }
 
 .main .panels .selector .selector-wrapper span.flagged .flag {
-  fill:var(--accent-color);
+  fill:var(--accent-color-light);
 }
 
-.main .panels .selector .selector-wrapper span.answered {
+.main .panels .selector .selector-wrapper span.answered,
+.main .panels .selector input[type=radio]:checked + .selector-wrapper:hover span.answered {
+  border: 2px solid var(--accent-color-light);
+  background-color: var(--accent-color-light);
+}
+
+.main .panels .selector input[type=radio]:checked + .selector-wrapper span.answered,
+.main .panels .selector .selector-wrapper:hover span.answered {
   border: 2px solid var(--main-background);
-  background-color: var(--accent-color);
 }
 
 .main .panels .selector .selector-wrapper span.answered .flag {
-  fill:var(--accent-color);
+  fill:var(--accent-color-light);
 }
 
 .main .panels .selector .selector-wrapper span.answered.flagged .flag {
@@ -408,51 +513,43 @@ section.hide {
   flex: 1.25;
 }
 
-.main .panels .passage-container {
+#passageContent {
   margin-top: 1em;
   column-count: var(--passage-columns);
 }
 
-#passageTitle-A, #passageTitle-B {
-  margin-top: 0;
-}
-
-#passagePreText-A, #passageReference-A,
-#passagePreText-B, #passageReference-B {
-  font-size: .8em;
-  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
-  page-break-inside: avoid; /* Firefox */
-  break-inside: avoid; /* IE 10+ */
-} 
-
-#passageText-A p, #passageText-B p {
+#passageContent p {
   margin-top: 0;
   text-indent: 1.5em;
-  line-height: 1.8;
-}
-
-#passageText-A table, #passageText-B table {
   margin-bottom: 1em;
 }
 
-#passageText-A img, #passageText-B img {
-  display: block;
+#passageContent p.reference,
+#passageContent p.preText {
+  font-size: .9em;
+  text-indent: 0;
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Firefox */
+  break-inside: avoid; /* IE 10+ */
 }
 
-#passageText-A p.paragraphLabel, #passageText-B p.paragraphLabel {
+#passageContent p.paragraphLabel {
   text-align: center;
 }
 
-#passageText-A p.experimentLabel, #passageText-B p.experimentLabel {
+#passageContent p.experimentLabel {
   text-indent: 0;
 }
 
-/* force the second passage to the new column */
-/* #passageText-A {
-  break-after: column;
-} */
+#passageContent table {
+  margin-bottom: 2em;
+}
 
-.main .panels .passage-container span[data-question].box {
+#passageContent img {
+  display: block;
+}
+
+#passageContent span[data-question].box {
   border-radius: 0;
   padding: 0;
   font-weight: 300;
@@ -465,7 +562,7 @@ section.hide {
   margin: 0 .25em;
 }
 
-.main .panels .passage-container span[data-question].box.highlighted {
+#passageContent span[data-question].box.highlighted {
   display: inline-block;
   background-color: var(--accent-color);
 }
@@ -478,6 +575,20 @@ section.hide {
 
 .main .panels .question {
   flex: .5;
+}
+
+.main .panels .passage.hide + .question {
+  flex: 1;
+  padding-right: 50%;
+  transition: padding 225ms ease-in;
+}
+
+.main .panels .selector.open ~ .passage.hide + .question {
+  padding-right: calc(50% - 220px);
+}
+
+.main .panels .question > div:first-child {
+  margin-bottom: 1em;
 }
 
 #questionFlag {
@@ -518,21 +629,22 @@ section.hide {
   border-color: var(--accent-color)
 }
 
-.main .panels .question .choice > * {
+.main .panels .question .choice * {
   margin: 0;
 }
 
 .main .panels .question .choice .choice-letter {
-  width: 1.5em;
-  height: 1.5em;
   display: inline-block;
   margin: 0;
-  margin-right: 4px;
-  text-align: center;
+  padding-right: .5em;
 }
 
 .main .panels .question .choice > input {
-  margin-right: 1em;
+  position: relative;
+}
+
+.main .panels .question .choice > label {
+  padding-left: .75em;
   position: relative;
 }
 
@@ -661,9 +773,6 @@ section.hide {
 
 table {
 	border-collapse: collapse;
-	border-style: solid;
-	border-color: black;
-	border-width: 2px;
 
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid; /* Firefox */
@@ -671,36 +780,32 @@ table {
 }
 
 table th {
-	text-align: center;
-	background-color: #3a6070;
+	background-color: var(--accent-color);
 	color: #FFF;
-	padding: 4px 8px 4px 8px;
-	border: 2px solid black;
 }
 
-table td {
+table th, table td {
 	text-align: center;
-	border: 1px solid #e3e3e3;
-  border-right: 2px solid black;
+	border: 1px solid #ddd;
 	padding: 4px 8px;
 }
 
-table tr:nth-child(odd) td {
-	background-color: #e7edf0;
+table tr:nth-child(even) td {
+  background-color: #f2f2f2;
 }
 
 .border-top {
-	border-top: 2px solid black;
+	border-top: 1px solid black;
 }
 
 .border-right {
-	border-right: 2px solid black;
+	border-right: 1px solid black;
 }
 
 .border-bottom {
-	border-bottom: 2px solid black;
+	border-bottom: 1px solid black;
 }
 
 .border-left {
-	border-left: 2px solid black;
+	border-left: 1px solid black;
 }

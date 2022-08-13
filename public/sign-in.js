@@ -1,6 +1,3 @@
-//set firebase auth persistence
-setSession();
-
 // login functionality
 const usernameField = document.getElementById("email");
 const passwordField = document.getElementById("password");
@@ -29,13 +26,15 @@ loginButton.addEventListener("keyup", function(event) {
 });
 
 async function login() {
+  console.log('login')
   errorElem.style.display = "none";
 
   const username = usernameField.value;
   const password = passwordField.value;
 
   try {
-    await firebase.auth().signInWithEmailAndPassword(username, password)
+    localStorage.setItem('authExpiration', (new Date().getTime() + AUTH_EXPIRATION).toString());
+    await firebase.auth().signInWithEmailAndPassword(username, password);
     goToDashboard();
   }
   catch(error) {
@@ -88,22 +87,4 @@ async function forgotPassword() {
     errorElem.textContent = 'Please fill in your email so we can help you reset your password.';
     errorElem.style.display = 'block';
   }
-}
-
-function setSession() {
-//set auth persistence to session
-return firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-.then(function() {
-  // console.log("set persistence")
-// Existing and future Auth states are now persisted in the current
-// session only. Closing the window would clear any existing state even
-// if a user forgets to sign out.
-// ...
-// New sign-in will be persisted with session persistence.
-return firebase.auth().signInWithEmailAndPassword(email, password);
-})
-.catch(function(error) {
-  // Handle Errors here.
-  // this always throws an error but works...
-});
 }
