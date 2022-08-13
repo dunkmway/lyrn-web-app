@@ -124,7 +124,7 @@ class Assignment {
     switch (this.status) {
       case 'new':
         this.statusIndicator.classList.remove('spinner');
-        this.statusIndicator.textContent = convertFromDateInt(this.close.toDate().getTime()).shortDateTime;
+        this.statusIndicator.textContent = new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{y}, {hh}:{mm} {a}');
         document.getElementById('newAssignments').appendChild(this.wrapper);
         break;
       case 'started':
@@ -183,7 +183,7 @@ class Assignment {
     switch (this.status) {
       case 'new':
         customConfirm(
-          'Are you sure you are ready to start this assignment?',
+          `Are you sure you are ready to start this ${this.sectionCode} assignment?`,
           'NO',
           'YES',
           () => {},
@@ -266,6 +266,9 @@ class Assignment {
 
     // show the first question
     await this.startQuestion(0);
+
+    // scroll selector to top
+    document.querySelector('.main .panels .selector-scroll').scrollTo(0,0);
 
     // set the event to a started state
     if (this.status !== 'started') {

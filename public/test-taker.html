@@ -133,12 +133,18 @@
         </div>
       </div>
       <div class="spacer"></div>
-      <div class="passage hide">
+      <div class="passage hide mobile-hide">
         <!-- <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div> -->
+        <div class="show-question">
+          <button onclick="showQuestionMobile()">Question</button>
+        </div>
         <div id="passageContent">
         </div>
       </div>
       <div class="question hide">
+        <div class="show-passage">
+          <button onclick="showPassageMobile()">Passage</button>
+        </div>
         <div class="background-accent box">Question <span id="questionNumber"></span>
           <input type="checkbox" id="questionFlag" onchange="questionFlagChangeCallback(event)">
           <label for="questionFlag" class="flag">

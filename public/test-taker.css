@@ -289,6 +289,7 @@ section.hide {
   display: flex;
   flex-direction: row;
   position: relative;
+  overflow: hidden;
 }
 
 .main .panels .hide {
@@ -513,6 +514,25 @@ section.hide {
   flex: 1.25;
 }
 
+.main .panels .passage .show-question {
+  display: none;
+  flex-direction: row;
+  justify-content: end;
+  width: 100%;
+  position: sticky;
+  top: 0;
+}
+
+.main .panels .passage .show-question > button {
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  font-size: 1em;
+  background-color: var(--main-background);
+  border-radius: .5em;
+  padding: .5em 1em;
+  cursor: pointer;
+}
+
 #passageContent {
   margin-top: 1em;
   column-count: var(--passage-columns);
@@ -575,6 +595,25 @@ section.hide {
 
 .main .panels .question {
   flex: .5;
+}
+
+.main .panels .question .show-passage {
+  display: none;
+  flex-direction: row;
+  justify-content: start;
+  width: 100%;
+  position: sticky;
+  top: 0;
+}
+
+.main .panels .question .show-passage > button {
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  font-size: 1em;
+  background-color: var(--main-background);
+  border-radius: .5em;
+  padding: .5em 1em;
+  cursor: pointer;
 }
 
 .main .panels .passage.hide + .question {
@@ -701,6 +740,53 @@ section.hide {
 .main .panels .question .choice > input[type="radio"]:checked::after {
   background-color: var(--accent-color);
   border: none;
+}
+
+@media screen and (max-width: 800px) {
+  .main .panels .passage,
+  .main .panels .question {
+    transition: all 225ms ease-in;
+    flex: none;
+    width: 100vw;
+    position: relative;
+  }
+
+  .main .panels .passage:not(.hide) + .question {
+    left: -100%;
+  }
+
+  .main .panels .passage {
+    right: 0%;
+  }
+
+  .main .panels > div.passage {
+    border: none;
+  }
+
+  .main .panels .passage:not(.hide) + .question.mobile-hide {
+    left: 100%;
+  }
+
+  .main .panels .passage.mobile-hide {
+    right: 100%;
+  }
+
+  .main .panels .passage .show-question {
+    display: flex;
+  }
+
+  .main .panels .passage:not(.hide) + .question .show-passage {
+    display: flex;
+  }
+
+  .main .panels .selector.open ~ .passage.hide + .question,
+  .main .panels .passage.mobile-hide + .question {
+    padding-right: 2em;
+  }
+
+  .main .panels .selector.open + .spacer {
+    margin-right: 0;
+  }
 }
 
 .main .panels .directions {

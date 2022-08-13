@@ -312,3 +312,23 @@ async function getNextLesson(studentUID) {
     )
   }
 }
+
+// show question button clicked on mobile device
+function showQuestionMobile() {
+  // give passage panel class of mobile-hide
+  document.querySelector('.main .panels .passage').classList.add('mobile-hide');
+
+  // remove question panel class of mobile-hide
+  document.querySelector('.main .panels .question').classList.remove('mobile-hide');
+
+}
+
+// show passage button clicked on mobile device
+function showPassageMobile() {
+  // give question panel class of mobile-hide
+  document.querySelector('.main .panels .question').classList.add('mobile-hide');
+
+  // remove passage panel class of mobile-hide
+  document.querySelector('.main .panels .passage').classList.remove('mobile-hide');
+
+}
