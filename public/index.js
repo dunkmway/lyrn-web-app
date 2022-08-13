@@ -23,6 +23,9 @@ let aboutAnimations = [];
 function afterLoad() {
   aboutSetup();
   bannerSetup();
+  createAnalyticsEvent({
+    eventID: 'load',
+  })
 }
 
 //navbar section
@@ -96,6 +99,30 @@ const aboutAnimationObserver = new IntersectionObserver((entries, animationObser
 }, animationOptions)
 // aboutAnimationObserver.observe(aboutSection)
 
+const analyticsOptions = {
+  threshold: 0.5
+};
+// analytics intersection observer
+const analyticsObserver = new IntersectionObserver((entries, animationObserver) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      createAnalyticsEvent({
+        eventID: 'sectionScroll',
+        additionalData: {
+          sectionID: entry.target.id
+        }
+      })
+    }
+  })
+}, analyticsOptions)
+
+analyticsObserver.observe(document.querySelector('.hero'));
+analyticsObserver.observe(document.querySelector('.questionnaire'));
+analyticsObserver.observe(document.querySelector('.method'));
+analyticsObserver.observe(document.querySelector('.tutors'));
+analyticsObserver.observe(document.querySelector('.about'));
+analyticsObserver.observe(document.querySelector('.contact'));
+
 //work with the about section animations
 
 function aboutSetup() {
@@ -140,6 +167,13 @@ document.querySelector('#contactForm').addEventListener('submit', async (event) 
   .then(() => {
     event.target.reset();
     submitBtn.value = 'We got it!'
+    createAnalyticsEvent({
+      eventID: 'emailProvided',
+      additionalData: {
+        email: data.email,
+        from: 'contactForm'
+      }
+    })
   })
   .catch(error => {
     // console.log(error)
@@ -193,6 +227,9 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`
+      })
     })
 
     // add click event to close
@@ -231,6 +268,13 @@ async function submitPracticeTestRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-practiceTest'
+    }
+  })
   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'home');
 
   submit.disabled = false;
@@ -257,6 +301,13 @@ async function submitLessonSeriesRequest(e) {
     return;
   }
 
+  createAnalyticsEvent({
+    eventID: 'emailProvided',
+    additionalData: {
+      email: email.value,
+      from: 'ACT-lessonSeries'
+    }
+  })
   await sendLessonSeriesRequest(email.value, 'ACT-lessonSeries', 'home');
 
   submit.disabled = false;
@@ -316,7 +367,7 @@ async function sendQuestionnaireRequest(name, email, answers) {
 
 let questionnairePath = [0];
 let questionnaireAnswers = [];
-const questionnaireLength = 5;
+const questionnaireLength = 6;
 
 function goForwardToQuestion(nextQuestion, answer) {
   const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`).parentNode;
@@ -329,6 +380,13 @@ function goForwardToQuestion(nextQuestion, answer) {
   questionnaireAnswers.push(answer);
 
   updateQuestionnaireProgress();
+
+  createAnalyticsEvent({
+    eventID: 'questionnaireForward',
+    additionalData: {
+      questionnaireAnswers
+    }
+  })
 }
 
 function goBackAQuestion() {
@@ -342,6 +400,13 @@ function goBackAQuestion() {
   questionnaireAnswers.pop();
 
   updateQuestionnaireProgress();
+
+  createAnalyticsEvent({
+    eventID: 'questionnaireBackwards',
+    additionalData: {
+      questionnaireAnswers
+    }
+  })
 }
 
 function updateQuestionnaireProgress() {
@@ -390,16 +455,46 @@ async function submitQuestionnaire() {
   }
 
   try {
+    createAnalyticsEvent({
+      eventID: 'emailProvided',
+      additionalData: {
+        email: email.value,
+        from: 'questionnaire'
+      }
+    })
     await sendQuestionnaireRequest(name.value, email.value, questionnaireAnswers.toString().replaceAll(',', ', '));
     submit.classList.remove('loading');
     submit.disabled = false;
-    submit.textContent = 'Sent!'
+    goForwardToQuestion(8, { name: name.value, email: email.value })
   }
   catch (error) {
     error.textContent = 'We are having issues submitting this request. Please try again.';
     submit.classList.remove('loading');
     submit.disabled = false;
   }
+}
+
+function resetQuestionnaire() {
+  // clear all of the inputs
+  document.querySelectorAll('.questionnaire input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+  document.querySelectorAll('.questionnaire input[type="text"]').forEach(text => text.value = '');
+  document.querySelectorAll('.questionnaire input[type="email"]').forEach(email => email.value = '');
+
+  // remove all of the open and closed classes from all of the panels
+  document.querySelectorAll('.questionnaire .panel').forEach(panel => {
+    panel.classList.remove('open');
+    panel.classList.remove('closed');
+  })
+
+  // reopen the first question
+  document.getElementById('question_0').parentNode.classList.add('open');
+
+  // reset the questionnaire state
+  questionnairePath = [0];
+  questionnaireAnswers = [];
+
+  //update the progress bar
+  updateQuestionnaireProgress();
 
 }
 

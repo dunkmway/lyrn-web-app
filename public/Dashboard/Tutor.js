@@ -42,6 +42,12 @@ function setupExampleDailyLogButton() {
   })
 }
 
+function setupTestTakerButton() {
+  document.getElementById('testTaker').addEventListener('click', () => {
+    window.location.href = "../test-taker.html?student=" + current_user.uid;
+  })
+}
+
 function getEventsStaff(staffUID, start, end) {
   return firebase.firestore().collection('Events')
   .where("staff", 'array-contains', staffUID)

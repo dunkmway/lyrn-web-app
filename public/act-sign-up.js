@@ -52,7 +52,6 @@ let GUIDED_FOUR = {
   sections: LESSON_ORDER, // which section will be taught
 }
 
-
 let GUIDED_SIX = {
   score: 3, // number of points we guarantee with this program
   name: 'Guided ACT', // name of the program

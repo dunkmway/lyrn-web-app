@@ -3,6 +3,9 @@ const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
 const axios = require("axios").default;
 
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(functions.config().sendgrid.secret);
+
 const express = require('express');
 
 const app = express();
@@ -164,8 +167,109 @@ function convertMilliToZoomDateFormat(timeMilli) {
   return `${year}-${month}-${day}T${hour}:${minute}:${second}Z`
 }
 
+exports.updateZoomLicenseDaily = functions.pubsub.schedule('0 1 * * *').timeZone('America/Denver').onRun(async (context) => {
+  // get all of our tutors
+  const tutorQuery = await admin.firestore().collection('Users').where('zoomID', '!=', '').get();
 
+  // go through each tutor and give them a license if they have a lesson today an set them to basic if not
+  await Promise.allSettled(tutorQuery.docs.map(async (tutorDoc) => {
+    // check if this tutor has a lesson today
+    const eventQuery = await admin.firestore().collection('Events')
+    .where('start', '>=', new Date().setHours(6,0,0,0))
+    .where('start', '<', new Date().setHours(30,0,0,0))
+    .where('staff', 'array-contains', tutorDoc.id)
+    .get();
 
+    const payload = {
+      iss: functions.config().zoom.key,
+      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+    };
+    const token = jwt.sign(payload, functions.config().zoom.secret);
+
+    if (eventQuery.size > 0) {
+      // tutor has lessons
+      await axios({
+        method: 'patch',
+        url: `/users/${tutorDoc.data().zoomID}`,
+        baseURL: zoomBaseURL,
+        headers: {
+          Authorization: 'Bearer ' + token,
+          ['Content-Type']: 'application/json'
+        },
+        data: {
+          type: 2
+        },
+      });
+    }
+    else {
+      // tutor does not have lessons
+      await axios({
+        method: 'patch',
+        url: `/users/${tutorDoc.data().zoomID}`,
+        baseURL: zoomBaseURL,
+        headers: {
+          Authorization: 'Bearer ' + token,
+          ['Content-Type']: 'application/json'
+        },
+        data: {
+          type: 1
+        },
+      });
+    }
+  }))
+  return
+});
+
+exports.verifyHostInMeeting = functions.pubsub.schedule('3,33 * * * *').timeZone('America/Denver').onRun(async (context) => {
+  // get all of the lessons that are happening 3 minutes ago (minute 0 and minute 30)
+  const lessonStartTime = roundToNearestHalfHour(new Date().getTime());
+  const lessonQuery = await admin.firestore().collection('Events')
+  .where('start', '==', lessonStartTime)
+  .get();
+
+  // go through the lessons and verify that the host has joined
+  await Promise.all(lessonQuery.docs.map(lessonDoc => {
+    const timeline = lessonDoc.data().timeline ?? [];
+    const hostEvents = timeline.filter(event => event.payload.object.host_id === event.payload.object.participant.participant_user_id)
+    // if the host doesn't have any meeting events or their last event was leaving they aren't in the meeting
+    if (hostEvents.length == 0 || hostEvents[hostEvents.length - 1].event === 'meeting.participant_left') {
+      //send us an email telling us this tutor is not in the lesson
+      const msg = {
+        to: 'admin@lyrnwithus.com',
+        from: {
+          name: 'Lyrn System',
+          email: 'system@lyrnwithus.com'
+        },
+        subject: 'TUTOR NOT IN LESSON!!!',
+        text: `${JSON.stringify(lessonDoc.data())}`,
+        html: `
+          <p>${JSON.stringify(lessonDoc.data())}</p>
+        `
+      }
+      return sgMail.send(msg)
+    }
+  }))
+
+});
+
+function roundToNearestHalfHour(time) {
+  const startHour = new Date(time).setMinutes(0,0,0);
+  const halfHour = new Date(time).setMinutes(30,0,0);
+  const nextHour = new Date(time).setMinutes(60,0,0);
+
+  let closestScore = Math.abs(startHour - time);
+  let winningTime = startHour;
+  if (Math.abs(halfHour - time) < closestScore) {
+    closestScore = Math.abs(halfHour - time);
+    winningTime = halfHour;
+  }
+  if (Math.abs(nextHour - time) < closestScore) {
+    closestScore = Math.abs(nextHour - time);
+    winningTime = nextHour;
+  }
+
+  return winningTime;
+}
 
 app.get('/', (req, res) => res.status(200).send('Zoom webhook is online!'))
 

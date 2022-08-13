@@ -46,11 +46,13 @@ function convertFromDateInt(date) {
         'longDateMilitary' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString() + " " + hours.toString() + ":" + current_date.getMinutes().toString().padStart(2,'0'),
         'mm/dd/yyyy' : month.toString().padStart(2, '0') + "/" + dayOfMonth.toString().padStart(2, '0') + "/" + year.toString().padStart(4, '0'),
         'fullCalendar' : year.toString().padStart(4,'0') + "-" + month.toString().padStart(2, '0') + "-" + dayOfMonth.toString().padStart(2, '0') + "T" + hours.toString().padStart(2, '0') + ":" + current_date.getMinutes().toString().padStart(2, "0"),
+        'completeCalendar' : year.toString().padStart(4,'0') + "-" + month.toString().padStart(2, '0') + "-" + dayOfMonth.toString().padStart(2, '0') + "T" + hours.toString().padStart(2, '0') + ":" + current_date.getMinutes().toString().padStart(2, "0") + ":" + current_date.getSeconds().toString().padStart(2, "0"),
         'shortestDate' : month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString().slice(-2),
         'startOfDayInt' : new Date(year, month - 1, dayOfMonth, 0, 0, 0, 0).getTime(),
         'shortDateAndDay' : days[dayOfWeek - 1] + month.toString() + "/" + dayOfMonth.toString() + "/" + year.toString(),
         'shortReadable': days[dayOfWeek - 1] + ' ' + months[month - 1] + " " + dayOfMonth.toString() + ", " + year.toString(),
         'longReadable' : days[dayOfWeek - 1] + ' ' + months[month - 1] + " " + dayOfMonth.toString() + ", " + year.toString() + " at " + (hours > 12 ? (hours - 12).toString() : hours.toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0') + (hours >= 12 ? ' p' : ' a') + 'm',
+        'veryLongReadable' : days[dayOfWeek - 1] + ' ' + months[month - 1] + " " + dayOfMonth.toString() + ", " + year.toString() + " at " + (hours > 12 ? (hours - 12).toString() : (hours == 0 ? 12 : hours).toString()) + ":" + current_date.getMinutes().toString().padStart(2,'0') + ":" + current_date.getSeconds().toString().padStart(2,'0') + (hours >= 12 ? ' p' : ' a') + 'm',
         'dayAndDate' : days[dayOfWeek - 1] + ', ' + shortMonths[month - 1] + ' ' + dayOfMonth.toString(),
         'shortDateTime' : shortDays[dayOfWeek - 1] + ' ' + month + '/' + dayOfMonth + '/' + year.toString().slice(-2) + ', ' + (hours > 12 ? (hours - 12).toString() : (hours == 0 ? '12' : hours.toString())) + ":" + current_date.getMinutes().toString().padStart(2,'0') + (hours >= 12 ? " pm" : " am"),
     };
@@ -261,4 +263,24 @@ function removeAllChildNodes(parent) {
   while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
   }
+}
+
+function createAnalyticsEvent(data) {
+  if (window.location.hostname == 'localhost') return;
+
+  let userID = localStorage.getItem('userID'); 
+  if (!userID) {
+    userID = firebase.firestore().collection('Analytics').doc().id
+    localStorage.setItem('userID', userID);
+    firebase.firestore().collection('Analytics').doc('Aggregate').update({
+      userIDs: firebase.firestore.FieldValue.arrayUnion(userID)
+    })
+  }
+
+  return firebase.firestore().collection('Analytics').doc().set({
+    ...data,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    userID,
+    page: window.location.pathname
+  })
 }

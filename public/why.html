@@ -8,6 +8,21 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-N393M5F');</script>
     <!-- End Google Tag Manager -->
+    <!-- Free Resources -->
+    <script>
+      function gtag_report_conversion_resources(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/IkcBCMTa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Why should you choose Lyrn over other tutoring comapnies.">
@@ -22,21 +37,23 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
+    <script src="Site Templates/generalFunctions.js" defer></script>
     <script src="why.js" defer></script>
 
     <link href="why.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
   </head>
 
-  <body onload="bannerSetup()">
+  <body onload="initialSetup()">
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N393M5F"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <header class="nav-start">
-      <a href="index.html" class="logo">
+      <a href="index.html" onclick="createAnalyticsEvent({eventID: 'navHomeClicked'})" class="logo">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
             <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -58,14 +75,14 @@
         <ul>
           <!-- <li><a href="index.html">Home</a></li> -->
           <li><a href="#">Why Lyrn</a></li>
-          <li><a href="team.html">Our Team</a></li>
-          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li>
+          <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked'})">Pricing</a></li>
           <!-- <li><a href="sign-in.html">Sign In</a></li> -->
           <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
           <!-- <li><a href="enroll.html">Enroll</a></li> -->
         </ul>
       </nav>
-      <div class="phone"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div>
+      <div class="phone" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div>
     </header>
 
     <!-- start banner -->
@@ -85,7 +102,7 @@
         <p>Enter your email so we can send you your custom link to take the tests.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitPracticeTestRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitPracticeTestRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 
@@ -105,7 +122,7 @@
         <p>Enter your email so we can send you your custom lesson series.</p>
         <input type="email" placeholder="email">
         <p class="error"></p>
-        <button class="submit" onclick="submitLessonSeriesRequest(event)">Ready to Lyrn</button>
+        <button class="submit" onclick="submitLessonSeriesRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
       </div>
     </div>
 

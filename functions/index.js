@@ -17,6 +17,7 @@ exports.daily_log = require('./daily-log');
 exports.act_sign_up = require('./act-sign-up');
 exports.scheduled_emails = require('./scheduled-emails');
 exports.test_taker = require('./test-taker');
+exports.act_question_bank = require('./act-question-bank');
 exports.events = require('./events');
 
 exports.database_helpers = require('./database-helpers');

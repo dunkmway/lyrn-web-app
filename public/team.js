@@ -21,6 +21,9 @@ appCheck.activate(
 function initialSetup() {
   bannerSetup();
   randomizeTutors();
+  createAnalyticsEvent({
+    eventID: 'load'
+  })
 }
 
 function bannerSetup() {
@@ -34,6 +37,9 @@ function bannerSetup() {
     // add click event to banner
     banner.addEventListener('click', () => {
       modal.classList.add('show');
+      createAnalyticsEvent({
+        eventID: `${banner.id.split('_')[0]}BannerClicked`
+      })
     })
 
     // add click event to close

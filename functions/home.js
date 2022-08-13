@@ -538,5 +538,101 @@ exports.sendQuestionnaireRequest = functions.https.onCall(async (data, context) 
 
   await sgMail.send(msg);
 
+  if (data.answers.split(', ')[1] == 'act') {
+    await sendQuestionnaireEmail(data.email, data.name);
+  }
+
   return;
 });
+
+function sendQuestionnaireEmail(email, name) {
+  const msg = {
+    to: email,
+    from: {
+      email: 'contact@lyrnwithus.com',
+      name: 'Lyrn Contact'
+    },
+    subject: 'Your custom program is almost ready!',
+    text: `
+    Hey ${name}\n
+    We're excited to help you prepare for the ACT! Our amazing programs have been optimized to maximize your ACT score in the least amount of time.
+    We're working on creating your custom program based on the responses you gave us in our questionnaire. While you wait, we wanted to tell you about our FREE program previews.
+    We highly recommend that everyone should try out our program before making a decision. That is why we want to offer you 2 hours of ACT prep with one of our 
+    professional tutors and work through some of the most important topics in the ACT. You can sign up for one or all of the sections using the link below.\n\n
+    https://calendly.com/duncanmorais
+    
+    `,
+    html: `
+    <head>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+  </style>
+</head>
+<body style="font-family: 'proxima-nova', sans-serif;">
+  <div id="email" style="width:600px;margin: auto;background:white;">
+
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+          <a href="https://lyrnwithus.com">
+            <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+          </a>
+        </td>
+      </tr>
+    </table>
+  
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td style="padding: 30px 30px 30px 60px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">Your personalized program!</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Hey ${name}</p>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+            We're excited to help you prepare for the ACT! Our amazing programs have been optimized to maximize your ACT score in the least amount of time.
+            We're working on creating your custom program based on the responses you gave us in our questionnaire. While you wait, we wanted to tell you about our <b>FREE</b> program previews.
+            We highly recommend that everyone should try out our program before making a decision. That is why we want to offer you 2 hours of ACT prep with one of our 
+            professional tutors and work through some of the most important topics in the ACT. You can sign up for one or all of the sections using the link below.
+          </p>
+        </td> 
+      </tr>
+    </table>
+    <table role="presentation" border="0" width="100%" cellspacing="0" style="margin-bottom: 2em;">
+      <tr>
+        <td align="center">
+          <table role="presentation" align="center" border="0" cellspacing="0">
+            <tr>
+              <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://calendly.com/duncanmorais">Schedule a Program Preview</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table role="presentation" border="0" width="100%">
+      <tr>
+        <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
+          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe"> Unsubscribe </a>
+          <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+        </td>
+      </tr>
+    </table> 
+  </div>
+</body>
+    `
+  }
+
+  return sgMail.send(msg);
+}

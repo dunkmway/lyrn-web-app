@@ -1183,7 +1183,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	// Remove extra spaces
 	let dom_text = document.getElementById('questionText')
 	while (dom_text.value.includes('  ')) {
-		dom_text.value = dom_text.value.replaceAll('  ', ' ')
+		dom_text.value = dom_text.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 	}
 
 	for (let i = 0; i < choices.length; i++) {
@@ -2524,28 +2524,6 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 		}
 
 		// Update the bottom display
-		setPassageTextHelper(spaceSize);
-	})
-}
-
-let dom_passageText = document.querySelectorAll('#passageText')
-for (let i = 0; i < dom_passageText.length; i++) {
-	dom_passageText[i].addEventListener('input', function (event) {
-		if (debug == true) {
-			console.log('EVENT LISTENER (id = "' + event.target.id + '")')
-		}
-
-		// Correct text
-		if (!event.target.id.toLowerCase().includes('image')) {
-			if (event.target.id.includes('passageText')) {
-				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
-			}
-			else {
-				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
-			}
-		}
-
-		// Update the bottom display
 		setPassageText({
 			content: event.target.value
 		});
@@ -2660,7 +2638,7 @@ dom_questions.addEventListener('input', async function(event) {
 
 	// Clean up the textarea
 	if (event.target.tagName.toLowerCase() == 'textarea') {
-		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll(' teh ', ' the ')
 		//event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
 	}
 
@@ -2692,7 +2670,7 @@ dom_curriculumText.addEventListener('input', function (e) {
 
 	// Correct text
 	if (!e.target.id.toLowerCase().includes('image')) {
-		e.target.value = e.target.value.replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
+		e.target.value = e.target.value.replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll(' teh ', ' the ')
 
 	}
 
