@@ -6,19 +6,18 @@ exports.sign_in = require('./sign-in');
 exports.stripe = require('./stripe');
 exports.billing = require('./billing');
 exports.text_reminders = require('./text-reminders');
-exports.previous_tutors = require('./previous-tutors');
 exports.lesson_link = require('./lesson-link');
 exports.payment_link = require('./payment-link');
 exports.calendar_openings = require('./calendar-openings');
 exports.frontline = require('./frontline');
 exports.zoom = require('./zoom');
-exports.act_tests = require('./act-tests');
-exports.daily_log = require('./daily-log');
 exports.act_sign_up = require('./act-sign-up');
 exports.scheduled_emails = require('./scheduled-emails');
 exports.test_taker = require('./test-taker');
-exports.act_question_bank = require('./act-question-bank');
+
+// database collection triggers
 exports.events = require('./events');
+exports.act_question_data = require('./act-question-data');
 
 exports.database_helpers = require('./database-helpers');
 admin.initializeApp();
@@ -188,161 +187,3 @@ exports.updateUserDisplayName = functions.https.onCall((data, context) => {
         });
 });
 
-exports.getACTStudentNotes = functions.https.onCall((data, context) => {
-    const studentNotesDocRef = firebase.firestore().collection("Students").doc(data.studentUID).collection("ACT").doc("notes");
-    return studentNotesDocRef.get()
-})
-
-exports.setMessage = functions.https.onCall((data, context) => {
-    return new Promise((resolve, reject) => {
-        const time = new Date().getTime()
-        const authorId = context.auth.uid;
-
-        let messageData = {
-            user: authorId,
-            note: data.message,
-            isSessionNote: data.isSessionNote
-        }
-
-        // Generate the firebase reference
-        let ref = undefined;
-        switch (data.type) {
-            case ('ACT'):
-                ref = generateRef(['Students', data.id, 'ACT', 'notes'])
-                break;
-            case ('Subject-Tutoring'):
-                ref = generateRef(['Students', data.id, 'Subject-Tutoring', 'notes'])
-                break;
-            case ('Math-Program'):
-                ref = generateRef(['Students', data.id, 'Math-Program', 'notes'])
-                break;
-            case ('Writing-Program'):
-                ref = generateRef(['Students', data.id, 'Writing-Program', 'notes'])
-                break;
-            case ('Location'):
-                //ref = generateRef(['Students', data.id, 'Data', 'notes'])
-                break;
-            default:
-                reject('Reference location does not exist');
-                break;
-        }
-
-        ref.get()
-            .then((doc) => {
-                if (doc.exists) {
-                    ref.update({
-                        [data.messageType + '.' + time]: messageData
-                    })
-                    .then(() => resolve())
-                    .catch((error) => reject('Could not create message:' + error))
-                }
-                else {
-                    ref.set({
-                        [data.messageType]: {
-                            [time]: messageData
-                        }
-                    })
-                    .then(() => resolve())
-                    .catch((error) => reject('Could not create message:' + error))
-                }
-            })
-            .catch((error) => reject('Could not create document:' + error))
-    })
-})
-
-function generateRef(path) {
-
-    // Make sure an array was passed in
-    if (Array.isArray(path) != true) {
-        return undefined;
-    }
-
-    // Generate the reference from the path
-    let ref = firebase.firestore();
-    for (let i = 0; i < path.length; i++) {
-        if (i % 2 == 0) {
-            ref = ref.collection(path[i])
-        }
-        else {
-            ref = ref.doc(path[i])
-        }
-    }
-
-    return ref;
-}
-
-exports.saveStudentMessage = functions.https.onCall((data, context) => {
-    const mes = {
-        conversation: data.conversation,
-        timestamp: data.timestamp,
-        message: data.message,
-        author: context.auth.uid,
-        authorName: context.auth.token.name,
-        authorRole: context.auth.token.role
-    }
-    const chatRef =  admin.firestore().collection("Student-Chats").doc();
-    return chatRef.set(mes)
-    .then(() => {
-        return {
-            timestamp: data.timestamp,
-            message: data.message,
-            author: context.auth.token.name,
-            id: chatRef.id,
-            currentUserIsAuthor: true,
-            isImportant: context.auth.token.role == 'admin'
-        };
-    })
-    .catch((error) => {
-        console.log(error);
-    })
-});
-
-exports.getStudentMessages = functions.https.onCall((data, context) => {
-    const studentUID = data.studentUID;
-    const studentType = data.studentType;
-    const conversationType = data.conversationType;
-    const conversation = studentUID + "-" + studentType + "-" + conversationType;
-
-    const chatRef = admin.firestore().collection("Student-Chats").where("conversation", "==", conversation).orderBy("timestamp", "asc")
-    return chatRef.get()
-    .then((querySnapshot) => {
-        let messages = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const clientMessage = {
-                timestamp: data.timestamp,
-                message: data.message,
-                author: data.authorName,
-                id: doc.id,
-                currentUserIsAuthor: context.auth.uid == data.author,
-                isImportant: data.authorRole == "admin"
-            };
-            messages.push(clientMessage);
-        })
-        return messages;
-    })
-    .catch((error) => {
-        console.log(error)
-        new functions.https.HttpsError(error.code, error.message, error.details);
-    });
-});
-
-function getUserDisplayNamePrivate(uid) {
-    return admin.auth().getUser(uid)
-    .then((userRecord) => {
-        return userRecord.displayName;
-    })
-    .catch((error) => {
-        new functions.https.HttpsError(error.code, error.message, error.details);
-    });
-}
-
-function getUserRolePrivate(uid) {
-    return admin.auth().getUser(uid)
-    .then((userRecord) => {
-        return userRecord.customClaims.role;
-    })
-    .catch((error) => {
-        new functions.https.HttpsError(error.code, error.message, error.details);
-    });
-}
