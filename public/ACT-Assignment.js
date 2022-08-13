@@ -214,6 +214,9 @@ class Assignment {
   }
 
   async start() {
+    // show loading
+    document.querySelector('.landing .loading').classList.add('active');
+
     // change the state
     this.isStarted = true;
 
@@ -277,6 +280,9 @@ class Assignment {
         startedAt: firebase.firestore.FieldValue.serverTimestamp()
       })
     }
+
+    // remove loading
+    document.querySelector('.landing .loading').classList.remove('active');
   }
 
   end() {
@@ -398,6 +404,9 @@ class Assignment {
   }
 
   async review() {
+    // show loading
+    document.querySelector('.landing .loading').classList.add('active');
+
     // change the state
     this.isInReview = true;
 
@@ -482,6 +491,9 @@ class Assignment {
 
     // show the first question
     await this.reviewQuestion(0);
+
+    // remove loading
+    document.querySelector('.landing .loading').classList.remove('active');
   }
 
   async reviewQuestion(index) {
