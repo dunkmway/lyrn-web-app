@@ -74,7 +74,8 @@ let allowedPages = {
         "&tutor",
         '&admin',
         "/Dashboard/Dev",
-        "/testEditor"
+        "/testEditor",
+        "/analytics"
     ]
 }
 
