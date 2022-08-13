@@ -33,6 +33,7 @@ class Dialog {
 
     // wrapper
     this.wrapper = document.createElement('div');
+    this.width = options.width ?? 'auto';
     this.justify = options.justify ?? 'center';
     this.align = options.align ?? 'center';
     this.backgroundColor = options.backgroundColor ?? '#FFFFFF';
@@ -91,6 +92,7 @@ class Dialog {
       }
 
       // set up the wrapper
+      this.wrapper.style.width = this.width;
       this.wrapper.style.backgroundColor = this.backgroundColor;
       this.wrapper.style.color = this.messageColor;
       this.wrapper.style.borderRadius = this.borderRadius;
@@ -290,5 +292,96 @@ class Dialog {
     else {
       this.container.remove();
     }
+  }
+
+
+
+
+
+
+  static alert(message) {
+    return new Dialog({
+      message,
+      choices: ['Close'],
+      values: [null],
+      width: '400px'
+    }).show();
+  }
+
+  static confirm(message) {
+    return new Dialog({
+      message,
+      choices: ['Cancel', 'OK'],
+      values: [false, true],
+      width: '400px'
+    }).show();
+  }
+
+  static prompt(message) {
+    const wrapper = document.createElement('div');
+    const input = document.createElement('input');
+    input.style.display = 'block';
+    input.style.width = '100%';
+    input.style.marginTop = '1em';
+    wrapper.append(message, input);
+
+    const dialog = new Dialog({
+      message: wrapper,
+      choices: ['Cancel', 'OK'],
+      values: [null, () => input.value],
+      width: '400px'
+    })
+
+    const inputPromise = new Promise((resolve, reject) => {
+      input.addEventListener('keyup', (e) => {
+        if (e.key == 'Enter') {
+          resolve(input.value);
+          dialog.hide();
+        }
+      })
+    })
+
+    const dialogPromise = dialog.show()
+    .then(res => res && res());
+
+    return Promise.race([inputPromise, dialogPromise])
+  }
+
+  static toastMessage(message) {
+    return new Dialog({
+      message,
+      backgroundColor: '#61A1EA',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
+  }
+
+  static toastError(message) {
+    return new Dialog({
+      message,
+      backgroundColor: '#E36868',
+      messageColor: '#FFFFFF',
+      messageFontSize: '14px',
+      messageFontWeight: 700,
+      blocking: false,
+      justify: 'end',
+      align: 'start',
+      shadow: '0 0 10px 1px rgba(0, 0, 0, 0.2)',
+      slideInDir: 'down',
+      slideInDist: 150,
+      slideOutDir: 'right',
+      slideOutDist: 300,
+      timeout: 5000
+    }).show();
   }
 }
