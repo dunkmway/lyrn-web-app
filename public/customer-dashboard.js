@@ -65,11 +65,9 @@ function setUpLinks() {
   })
 }
 
-function renderHeader(studentName, parentName = 'No Parent', balance = 0) {
+function renderHeader(studentName, parentName = 'No Parent') {
   document.getElementById('studentName').textContent = studentName;
   document.getElementById('parentName').textContent = parentName;
-  document.getElementById('balanceAmount').textContent = formatAmount(balance, 'usd');
-  document.getElementById('balanceAmount').classList.add(balance == 0 ? 'zero' : (balance < 0 ? 'negative' : 'positive'))
 }
 
 function formatAmount(amount, currency) {
