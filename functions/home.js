@@ -7,6 +7,14 @@ sgMail.setApiKey(functions.config().sendgrid.secret);
 const PRACTICE_TEST_ID = 'DwhdhUl8ldRExlG5DxAc';
 const ALT_PRACTICE_TEST_ID = 'p6YFv9xLs142aI2rGYup';
 
+const MARKETING_TEST_CODE = '76C';
+const SECTION_TIMES = {
+  english: 1000 * 60 * 45,
+  math: 1000 * 60 * 60,
+  reading: 1000 * 60 * 35,
+  science: 1000 * 60  * 35
+}
+
 exports.sendContactRequest = functions.https.onCall(async (data, context) => {
   // context.app will be undefined if the request doesn't include a valid
   // App Check token.
@@ -199,61 +207,47 @@ exports.sendPracticeTestRequest = functions.https.onCall(async (data, context) =
   data.timestamp = new Date(data.timestamp)
   await ref.set(data);
 
+  // get the questions for the marketing test
+  const marketingTest = (await admin.firestore()
+  .collection('ACT-Test-Data')
+  .where('code', '==', MARKETING_TEST_CODE)
+  .limit(1)
+  .get())
+  .docs[0];
+
+  const marketingSections = (await admin.firestore()
+  .collection('ACT-Section-Data')
+  .where('test', '==', marketingTest.id)
+  .get()).docs
+  .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
+
+  const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
+    return (await admin.firestore()
+    .collection('ACT-Question-Data')
+    .where('test', '==', marketingTest.id)
+    .where('section', '==', section.id)
+    .get()).docs
+    .sort((a,b) => a.data().code - b.data().code)
+    .map(doc => doc.id);
+  }))
+
   // set a new assignment for the lead
   // this is so the assignments come in the proper order in the test taker
   const now = new Date();
-  const time0 = new Date(now);
-  const time1 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 1));
-  const time2 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 2));
-  const time3 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 3));
-  const time4 = new Date(new Date(now).setMilliseconds(now.getMilliseconds() + 4));
-  await Promise.all([
-    admin.firestore().collection('Section-Assignments').doc().set({
-      open: time0,
-      close: new Date(new Date(now).setFullYear(time0.getFullYear() + 1)),
-      program: 'practiceTest',
-      section: 'all',
+
+  await Promise.all(marketingSections.map((sectionDoc, index) => {
+    admin.firestore().collection('ACT-Assignments').doc().set({
+      open: new Date(new Date(now).setSeconds(now.getSeconds() + index)),
+      close: new Date(new Date(now).setFullYear(now.getFullYear() + 1)),
+      questions: marketingQuestions[index],
+      scaledScoreSection: sectionDoc.id,
+      sectionCode: sectionDoc.data().code,
       status: 'new',
       student: ref.id,
-      test: PRACTICE_TEST_ID
-    }),
-    admin.firestore().collection('Section-Assignments').doc().set({
-      open: time1,
-      close: new Date(new Date(time1).setFullYear(time1.getFullYear() + 1)),
-      program: 'practiceTest',
-      section: 'english',
-      status: 'new',
-      student: ref.id,
-      test: ALT_PRACTICE_TEST_ID
-    }),
-    admin.firestore().collection('Section-Assignments').doc().set({
-      open: time2,
-      close: new Date(new Date(time2).setFullYear(time2.getFullYear() + 1)),
-      program: 'practiceTest',
-      section: 'math',
-      status: 'new',
-      student: ref.id,
-      test: ALT_PRACTICE_TEST_ID
-    }),
-    admin.firestore().collection('Section-Assignments').doc().set({
-      open: time3,
-      close: new Date(new Date(time3).setFullYear(time3.getFullYear() + 1)),
-      program: 'practiceTest',
-      section: 'reading',
-      status: 'new',
-      student: ref.id,
-      test: ALT_PRACTICE_TEST_ID
-    }),
-    admin.firestore().collection('Section-Assignments').doc().set({
-      open: time4,
-      close: new Date(new Date(time4).setFullYear(time4.getFullYear() + 1)),
-      program: 'practiceTest',
-      section: 'science',
-      status: 'new',
-      student: ref.id,
-      test: ALT_PRACTICE_TEST_ID
-    }),
-  ])
+      time: SECTION_TIMES[sectionDoc.data().code],
+      type: 'marketing'
+    })
+  }))
 
   //then send an email to the admin account with the data
   await sendPracticeTestEmail(data.email, ref.id)
@@ -270,7 +264,7 @@ function sendPracticeTestEmail(email, leadID) {
     },
     subject: 'Full Length ACT Tests',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
-    To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker?student=${leadID}
+    To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker/${leadID}
     Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
     html: `
     <head>
@@ -310,7 +304,7 @@ function sendPracticeTestEmail(email, leadID) {
           <table role="presentation" align="center" border="0" cellspacing="0">
             <tr>
               <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
-                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker?student=${leadID}">Open Test Taker</a>
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker/${leadID}">Open Test Taker</a>
               </td>
             </tr>
           </table>
