@@ -16,7 +16,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const AUTH_EXPIRATION = 1000 * 60 * 60 * 6;
+const AUTH_EXPIRATION = 1000 * 60 * 60 * 24 * 5;
 const AUTH_EXPIRATION_WARNING = 1000 * 60 * 5;
 // const AUTH_EXPIRATION = 1000 * 60 * 1;
 // const AUTH_EXPIRATION_WARNING = 1000 * 30;
