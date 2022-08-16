@@ -399,7 +399,7 @@ async function setAssignment() {
   const assignmentType = document.querySelector('input[name="assignmentType"]:checked').value;
   const test = document.getElementById('tests').value;
   const section = document.getElementById('sections').value;
-  const sectionCodeBySection = document.getElementById('sections').querySelector('option:checked').textContent;
+  const sectionCodeBySection = document.getElementById('sections')?.querySelector('option:checked')?.textContent;
   const sectionCodeByTopic = document.getElementById('sectionCodes').value;
   const topics = Array.from(document.querySelectorAll('#topicWrapper > div > input[type="checkbox"]:checked'), checkbox => checkbox.value);
   const topicProportions = topics.map(id => Number.parseInt(document.getElementById(`${id}-weight`).value))
