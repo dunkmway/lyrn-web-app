@@ -925,7 +925,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	dom_questionText.value = null;
 	dom_isGroupedByPassage.checked = false;
 	document.querySelectorAll('textarea[id^="answer"]').forEach(answer => answer.value = null)
-	document.getElementById('questions').dispatchEvent(new Event('input'))
+	document.getElementById('questions').dispatchEvent(new Event('input', {bubbles:true}))
 	document.getElementById('questionsPart2').querySelectorAll('label').forEach(label => label.classList.remove('correctAnswer'))
 
 	// Get a list of all available tests from firebase
@@ -960,7 +960,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 							document.getElementById('answer' + (i + 1).toString()).value = questionDoc.data().choices[i];
 						}
 					}
-					document.getElementById('questions').dispatchEvent(new Event('input'))
+					document.getElementById('questions').dispatchEvent(new Event('input', {bubbles:true}))
 					// Set the correct answer
 					selectAnswer(document.getElementById('answer' + (questionDoc.data().answer + 1).toString() + 'Label'), spacing + spaceSize)
 
@@ -1166,9 +1166,9 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	// Find the HTML elements
 	const test = document.getElementById('questionsTest').value;
 	const section = document.getElementById('questionsSection').value;
-	const passage = document.getElementById('questionsPassageNumber').value ?? null;
+	const passage = document.getElementById('questionsPassageNumber').value || null;
 	const question = document.getElementById('questionList').value;
-	const topic = document.getElementById('topic').value ?? null;
+	const topic = document.getElementById('topic').value || null;
 	const isGroupedByPassage = document.getElementById('isGroupedByPassage').checked;
 
 	if (!test || !section || !question) {
@@ -1576,7 +1576,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 	removeChildren(dom_section.id)
 	removeChildren(dom_passage.id)
 	dom_passageText.value = null;
-	dom_passageText.dispatchEvent(new Event('input'))
+	dom_passageText.dispatchEvent(new Event('input', {bubbles:true}))
 	dom_PassageNumber.value = null;
 
 	// Get a list of all available tests from firebase
@@ -1599,7 +1599,7 @@ async function initializePassageDisplay(test = undefined, section = undefined, p
 					const passageData = passageDoc.data()
 
 					dom_passageText.value = passageData.content;
-					dom_passageText.dispatchEvent(new Event('input'))
+					dom_passageText.dispatchEvent(new Event('input', {bubbles:true}))
 
 					// // Display the info below
 					// setPassageText(passageData, spacing + spaceSize)
@@ -2723,7 +2723,7 @@ dom_curriculumSection.addEventListener('change', async (event) => {
 	removeChildren('curriculumTopic');
 	addSelectOptions(document.getElementById('curriculumTopic'), ['', ...idArray], ['select a topic', ...topicArray]);
 	document.getElementById('curriculumText').value = '';
-	document.getElementById('curriculumText').dispatchEvent(new Event('input'));
+	document.getElementById('curriculumText').dispatchEvent(new Event('input', {bubbles:true}));
 })
 
 let dom_curriculumTopic = document.querySelector('#curriculumTopic')
@@ -2734,7 +2734,7 @@ dom_curriculumTopic.addEventListener('change', async (event) => {
 
 	const topicDoc = await getTopicByID(event.target.value);
 	document.getElementById('curriculumText').value = topicDoc.data().content ?? null;
-	document.getElementById('curriculumText').dispatchEvent(new Event('input'));
+	document.getElementById('curriculumText').dispatchEvent(new Event('input', {bubbles:true}));
 })
 
 

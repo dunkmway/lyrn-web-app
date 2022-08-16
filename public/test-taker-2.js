@@ -131,7 +131,7 @@ function showAssignments() {
 
   // sort each appropriately 
   startedAssignments.sort((a,b) => (a.startedAt.toDate().getTime() + (a.time ?? Infinity)) - (b.startedAt.toDate().getTime() + (b.time ?? Infinity)));
-  newAssignments.sort((a,b) => a.close.toDate().getTime() - b.close.toDate().getTime());
+  newAssignments.sort((a,b) => a.close.toDate().getTime() - b.close.toDate().getTime() || a.open.toDate().getTime() - b.open.toDate().getTime());
   previousAssignments.sort((a,b) => (b.submittedAt?.toDate()?.getTime() ?? b.close.toDate().getTime()) - (a.submittedAt?.toDate()?.getTime() ?? a.close.toDate().getTime()));
 
   // show the assignments

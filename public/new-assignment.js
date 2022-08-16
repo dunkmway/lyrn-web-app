@@ -435,21 +435,21 @@ async function setAssignment() {
     return;
   }
 
-  console.log({
-    student,
-    assignmentType,
-    test,
-    section,
-    sectionCodeBySection,
-    sectionCodeByTopic,
-    topics,
-    topicProportions,
-    count,
-    open,
-    close,
-    time,
-    type
-  })
+  // console.log({
+  //   student,
+  //   assignmentType,
+  //   test,
+  //   section,
+  //   sectionCodeBySection,
+  //   sectionCodeByTopic,
+  //   topics,
+  //   topicProportions,
+  //   count,
+  //   open,
+  //   close,
+  //   time,
+  //   type
+  // })
 
   switch (assignmentType) {
     case 'section':
@@ -595,16 +595,16 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
 
   const questions = getRandomQuestions(count, topics, topicProportions, questionsByTopics)
 
-  console.log({
-    student,
-    questions,
-    open,
-    close,
-    time: time ? time * 60000 : null,
-    type,
-    sectionCode,
-    status: 'new'
-  })
+  // console.log({
+  //   student,
+  //   questions,
+  //   open,
+  //   close,
+  //   time: time ? time * 60000 : null,
+  //   type,
+  //   sectionCode,
+  //   status: 'new'
+  // })
 
   await firebase.firestore().collection('ACT-Assignments').doc().set({
     student,
@@ -691,7 +691,7 @@ function getRandomQuestions(count, topics, topicProportions, questionsByTopics, 
     }
   }
 
-  console.log(pendingAssignedQuestions)
+  // console.log(pendingAssignedQuestions)
   return arrayRandomOrder(Object.values(pendingAssignedQuestions).flat()).flat(); // random
   // return Object.values(pendingAssignedQuestions).flat(); // not random
 }
@@ -756,17 +756,17 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
     return prev;
   }, {})
 
-  console.log({
-    student,
-    questions,
-    open,
-    close,
-    time: time ? time * 60000 : null,
-    type,
-    sectionCode,
-    topicProportions: topicsWithProportions,
-    status: 'new'
-  })
+  // console.log({
+  //   student,
+  //   questions,
+  //   open,
+  //   close,
+  //   time: time ? time * 60000 : null,
+  //   type,
+  //   sectionCode,
+  //   topicProportions: topicsWithProportions,
+  //   status: 'new'
+  // })
 
   await firebase.firestore().collection('ACT-Assignments').doc().set({
     student,

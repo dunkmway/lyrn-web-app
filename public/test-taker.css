@@ -57,30 +57,35 @@
 }
 .default-background {
   background-color: var(--default-color);
+  border-color: var(--default-color);
 }
 .english-color {
   color: var(--english-color);
 }
 .english-background {
   background-color: var(--english-color);
+  border-color: var(--english-color);
 }
 .math-color {
   color: var(--math-color);
 }
 .math-background {
   background-color: var(--math-color);
+  border-color: var(--math-color);
 }
 .reading-color {
   color: var(--reading-color);
 }
 .reading-background {
   background-color: var(--reading-color);
+  border-color: var(--reading-color);
 }
 .science-color {
   color: var(--science-color);
 }
 .science-background {
   background-color: var(--science-color);
+  border-color: var(--science-color);
 }
 
 /* general styles */
@@ -292,6 +297,13 @@ section.hide {
 
 .landing .content .assignment.hide {
   display: none;
+}
+
+.landing .content .assignment.not-open {
+  background-color: var(--default-color);
+  border-width: 4px;
+  border-style: solid;
+  padding: calc(1em - 4px);
 }
 
 .landing .content .assignment * {
@@ -752,6 +764,7 @@ section.hide {
 .main .panels .question .choice > input[type="checkbox"]::after {
   content: '-';
   font-size: 2.5em;
+  display: block;
   width: 1em;
   height: 1em;
   position: absolute;

@@ -114,17 +114,34 @@ class Assignment {
     this.wrapper.classList.add('assignment', 'box', `${this.sectionCode}-background`);
     
     // hide the assignments that haven't opened yet
-    if (this.open.toDate().getTime() > new Date().getTime()) {
-      this.wrapper.classList.add('hide')
+    // if not a staff
+    if (!STAFF_ROLES.includes(current_user_role)) {
+      if (this.open.toDate().getTime() > new Date().getTime()) {
+        this.wrapper.classList.add('hide')
+      } else {
+        this.wrapper.classList.remove('hide')
+      }
     } else {
-      this.wrapper.classList.remove('hide')
+      // show the assignment according to it's open status
+      if (this.open.toDate().getTime() > new Date().getTime()) {
+        this.wrapper.classList.add('not-open')
+      } else {
+        this.wrapper.classList.remove('not-open')
+      }
     }
 
     // append the element to the appropriate container and give it the appropriate inner html
     switch (this.status) {
       case 'new':
         this.statusIndicator.classList.remove('spinner');
-        this.statusIndicator.textContent = new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{y}, {hh}:{mm} {a}');
+        if (STAFF_ROLES.includes(current_user_role)) {
+          this.statusIndicator.textContent = 
+          new Time(this.open.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}')
+          + ' — ' +
+          new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}');
+        } else {
+          this.statusIndicator.textContent = new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}');
+        }
         document.getElementById('newAssignments').appendChild(this.wrapper);
         break;
       case 'started':
@@ -158,7 +175,8 @@ class Assignment {
       this.wrapper,
       (this.time ? Math.ceil((this.time / 60000)) : null),
       (!this.topicProportions ? this.questions.length : null),
-      this.statusIndicator
+      this.statusIndicator,
+      STAFF_ROLES.includes(current_user_role) && this.type
     )
   }
 
@@ -553,17 +571,24 @@ class Assignment {
  * @param {Number} numQuestions (optional) number of questions to show
  * @param {Element} statusIndicatorElement dom element to show for the status indicator
  */
-function show_helper(parent, minutes, numQuestions, statusIndicatorElement) {
+function show_helper(parent, minutes, numQuestions, statusIndicatorElement, type = null) {
   const leftDiv = document.createElement('div');
   const rightDiv = document.createElement('div');
 
   leftDiv.classList.add('flex-row', 'align-center');
-  leftDiv.innerHTML = `
+  leftDiv.innerHTML = 
+  `
+  ${type ?
+    `<p style="margin-right: 0.5em;">
+      ${type.charAt(0).toUpperCase()}
+    </p>` :
+    ''
+  }
   ${minutes ? 
     (
       `${STOPWATCH_SVG}
       <p>
-        ${minutes} min${minutes === 1 ? '' : 's'}
+        ${minutes}
       </p>`
     ) : ''
   }
@@ -571,7 +596,7 @@ function show_helper(parent, minutes, numQuestions, statusIndicatorElement) {
     (
       `${MINUS_BOX_SVG}
       <p>
-        ${numQuestions} question${numQuestions === 1 ? '' : 's'}
+        ${numQuestions}
       </p>`
     ) : ''
   }
@@ -579,7 +604,7 @@ function show_helper(parent, minutes, numQuestions, statusIndicatorElement) {
     (
       `${REFRESH_SVG}
       <p>
-        auto generated
+        auto
       </p>`
     )
     : ''

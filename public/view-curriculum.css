@@ -17,3 +17,14 @@ table th {
   background-color: #808080;
   color: white;
 }
+
+
+details {
+  border: 2px solid black;
+  margin-bottom: 1em;
+  padding: 1em;
+}
+
+details > summary:focus {
+  outline: none;
+}

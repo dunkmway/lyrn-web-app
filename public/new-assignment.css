@@ -6,10 +6,11 @@ main {
   padding: 2em;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
 }
 
 main > section {
-  width: 50%;
+  width: calc(50% - 1em);
 }
 
 @media screen and (max-width: 800px) {
@@ -184,3 +185,17 @@ button {
   height: 21px;
   margin-left: auto;
 } */
+
+.instructions {
+  border-top: 2px solid black;
+}
+
+details {
+  border: 2px solid black;
+  margin-bottom: 1em;
+  padding: 1em;
+}
+
+details > summary:focus {
+  outline: none;
+}
