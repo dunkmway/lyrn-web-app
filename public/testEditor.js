@@ -1166,6 +1166,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	// Find the HTML elements
 	const test = document.getElementById('questionsTest').value;
 	const section = document.getElementById('questionsSection').value;
+	const sectionCode = document.getElementById('questionsSection').querySelector('option:checked').textContent.toLowerCase();
 	const passage = document.getElementById('questionsPassageNumber').value || null;
 	const question = document.getElementById('questionList').value;
 	const topic = document.getElementById('topic').value || null;
@@ -1177,7 +1178,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 
 	// Get the possible answers' text
 	let choices = []
-	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
+	for (let i = 0; i < (sectionCode != 'math' ? 4 : 5); i++) {
 		choices.push(document.getElementById('answer' + (i + 1).toString()).value)
 	}
 
@@ -1196,7 +1197,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	}
 
 	// Create the data that will be sent to Firebase
-	if (choices.length == (section != 'math' ? 4 : 5)) {
+	if (choices.length == (sectionCode != 'math' ? 4 : 5)) {
 		const testDoc = await firebase.firestore().collection('ACT-Test-Data').doc(test).get()
 		const isQuestionBank = testDoc.data().isQuestionBank
 		const data = {
@@ -2657,7 +2658,7 @@ dom_questions.addEventListener('input', async function(event) {
 	}
 
 	// Remove the last answer, if needed
-	if (dom_questionsSection.value != 'math') {
+	if (dom_questionsSection.querySelector('option:checked')?.textContent?.toLowerCase() != 'math') {
 		answers.splice(answers.length - 1, 1)
 	}
 
