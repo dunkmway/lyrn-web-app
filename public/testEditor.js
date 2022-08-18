@@ -1649,7 +1649,7 @@ async function initializeTests(id, spacing = '') {
 		dom_test.appendChild(createElement('option', [], ['value'], ['newTest'], "New Test"))
 	}
 	else {
-		dom_test.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a test"))
+		dom_test.appendChild(createElement('option', [], ['value', 'disabled', 'selected'], ['', true, true], "select a test"))
 	}
 
 	// Get the list of tests from firebase and update the HTML with the list (only add new values)
@@ -1684,7 +1684,7 @@ async function initializeTests(id, spacing = '') {
 	let dom_section = document.getElementById(id)
 
 	// Add default
-	dom_section.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a section"))
+	dom_section.appendChild(createElement('option', [], ['value', 'disabled', 'selected'], ['', true, true], "select a section"))
 
 	// get all of the sections of the given test 
 	let sectionDocs = await getSectionDocsByTest(testID);
@@ -1717,7 +1717,7 @@ async function initializeTests(id, spacing = '') {
 	let dom_passage = document.getElementById(id)
 
 	// Add default
-	dom_passage.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a passage"))
+	dom_passage.appendChild(createElement('option', [], ['value', 'disabled', 'selected'], ['', true, true], "select a passage"))
 
 	// get all of the sections of the given test 
 	let passgeDocs = await getPassageDocsByTestAndSection(testID, sectionID);
@@ -1755,7 +1755,7 @@ async function initializeTests(id, spacing = '') {
 	let dom_question = document.getElementById(id)
 
 	// Add default
-	dom_question.appendChild(createElement('option', [], ['value', 'disabled'], ['', true], "select a question"))
+	dom_question.appendChild(createElement('option', [], ['value', 'disabled', 'selected'], ['', true, true], "select a question"))
 
 	// get all of the sections of the given test 
 	let questionDocs = await getQuestionDocsByTestAndSection(testID, sectionID);
