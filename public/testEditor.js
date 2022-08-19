@@ -790,8 +790,8 @@ function resetQuestion(number, spacing = '') {
 	selectAnswer(undefined, spacing + spaceSize)
 
 	// Set the answers
-	const section = document.getElementById('questionsSection').querySelector('option:checked').textContent.toLowerCase();
-	for (let i = 0; i < (section != 'math' ? 4 : 5); i++) {
+	const sectionCode = document.getElementById('questionsSection').querySelector('option:checked').textContent.toLowerCase();
+	for (let i = 0; i < (sectionCode != 'math' ? 4 : 5); i++) {
 		document.getElementById('answer' + (i + 1).toString()).value = ''
 	}
 
@@ -930,11 +930,13 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 
 	// Get a list of all available tests from firebase
 	await initializeTests('questionsTest', spacing + spaceSize)
+	dom_test.focus();
 	if (test) {
 		dom_test.value = test
 
 		// if we have a test then we can initialize the sections
 		await initializeSections('questionsSection', test);
+		dom_section.focus()
 		if (section) {
 			dom_section.value = section
 
@@ -943,8 +945,10 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 			initializeQuestionNumbersList(test, section, spacing + spaceSize)
 
 			await initializeQuestions('questionList', test, section);
+			dom_questionList.focus()
 			if (question) {
 				dom_questionList.value = question
+				dom_questionText.focus()
 
 				const questionDoc = await getQuestionDoc(question);
 				if (questionDoc.exists) {
@@ -1101,7 +1105,8 @@ function initializeQuestionNumbersList(test, section, spacing = '') {
 				const problem = doc.data().code
 				list.push(problem)
 				questions[problem] = doc.id;
-				if (doc.data().choices.length == (section != 'math' ? 4 : 5) && doc.data().choices[0] != "") {
+				const sectionCode = document.getElementById('questionsSection').querySelector('option:checked').textContent.toLowerCase();
+				if (doc.data().choices.length == (sectionCode != 'math' ? 4 : 5) && doc.data().choices[0] != "") {
 					if (doc.data().topic) {
 						data[problem] = 'stage3'
 					}
@@ -1166,7 +1171,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 	// Find the HTML elements
 	const test = document.getElementById('questionsTest').value;
 	const section = document.getElementById('questionsSection').value;
-	const sectionCode = document.getElementById('questionsSection').querySelector('option:checked').textContent.toLowerCase();
+	const sectionCode = document.getElementById('questionsSection').querySelector('option:checked')?.textContent?.toLowerCase();
 	const passage = document.getElementById('questionsPassageNumber').value || null;
 	const question = document.getElementById('questionList').value;
 	const topic = document.getElementById('topic').value || null;
@@ -1174,6 +1179,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 
 	if (!test || !section || !question) {
 		Dialog.toastError('You are missing some data')
+		return;
 	}
 
 	// Get the possible answers' text
@@ -1222,11 +1228,76 @@ async function saveQuestion(goToNext = true, spacing = '') {
 			}))
 		}
 
-		const nextQuestion = document.getElementById('questionList').querySelector('option:checked+option')?.value ?? question;
-		initializeQuestionsDisplay(test, section, null, nextQuestion)
+		if (goToNext) {
+			nextQuestion();
+		}
 
 		// Finished!!
 		Dialog.toastMessage('Question successfully saved!')
+	}
+}
+
+// all input and textarea should prevent if special keys
+document.querySelectorAll('input, textarea').forEach(editable => {
+	editable.addEventListener('keydown', (e) => {
+		if (e.ctrlKey && e.key === 'Enter') {
+			e.preventDefault();
+		}
+	})
+})
+
+// save the 
+document.querySelector('main').addEventListener('keydown', (e) => {
+	if (e.ctrlKey && e.key === 'Enter' && !e.repeat) {
+		// whatever display is not hidden
+		const currentDisplay = document.querySelector('main').querySelector('#firstHalf > div.columns:not(.hidden)');
+		if (!currentDisplay) return;
+
+		// save that display 
+		const currentDisplayName = currentDisplay.id.split('Display')[0];
+		switch(currentDisplayName) {
+			case 'test':
+				saveTest();
+				break;
+			case 'answers':
+				saveAnswers();
+				break;
+			case 'scaledScores':
+				saveScaledScores();
+				break;
+			case 'passage':
+				savePassage();
+				break;
+			case 'questions':
+				saveQuestion();
+				break;
+			case 'curriculum':
+				saveCurriculum();
+				break;
+			default:
+				Dialog.toastError('No save function for this display.')
+		}
+	} 
+})
+
+function nextQuestion() {
+	const question = document.getElementById('questionList').querySelector('option:checked+option')?.value;
+	if (question) {
+		const test = document.getElementById('questionsTest').value;
+		const section = document.getElementById('questionsSection').value;
+		initializeQuestionsDisplay(test, section, null, question)
+	}
+}
+
+function previousQuestion() {
+	const parent = document.getElementById('questionList');
+	const child = parent.querySelector('option:checked');
+	const index = Array.from(parent.children).indexOf(child);
+	const question = parent.children.item(index - 1).value;
+	if (question) {
+		const test = document.getElementById('questionsTest').value;
+		const section = document.getElementById('questionsSection').value;
+		initializeQuestionsDisplay(test, section, null, question)
 	}
 }
 

@@ -645,11 +645,11 @@ section.hide {
 #passageContent span[data-question].box.highlighted {
   display: inline-block;
   background-color: var(--accent-color);
+  color: var(--main-background);
+  border-color: var(--accent-color);
 }
 
 .main .panels .passage span.highlighted {
-  /* background-color: #FFE659; */
-
   border-bottom: 2px solid var(--accent-color);
 }
 

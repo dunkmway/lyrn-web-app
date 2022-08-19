@@ -66,7 +66,7 @@
 
 <body class='main'>
 
-  <main>
+  <main tabindex="0">
 
     <div id = 'imageRemovalPopup' class = 'hidden imagePopup'>
       <div>
@@ -417,10 +417,11 @@
 
           <!-- Passage -->
           <label for="questionsNumber" class = 'mainLabel'>Passage</label>
-          <label for="isGroupedByPassage">Group w/ passage</label>
+          <label for="isGroupedByPassage" style="width: max-content;">Group w/ passage</label>
 
           <!-- Back Button -->
           <button onclick="selectDisplay('openingDisplay')" class = 'mainLabel'>Back</button>
+          <button onclick="previousQuestion()" class = 'mainLabel'>Previous</button>
         </div>
       
 
@@ -443,6 +444,7 @@
 
           <!-- Save Test Button -->
           <button onclick="saveQuestion()" class = 'mainInput'>Save Question</button>
+          <button onclick="nextQuestion()" class = 'mainLabel'>Next</button>
         </div>
 
         <!-- Question / Answer Elements -->
