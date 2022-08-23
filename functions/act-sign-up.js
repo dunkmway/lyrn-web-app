@@ -18,6 +18,7 @@ const GUARANTEE_PRACTICE_TEST_ID = 'XYKebuFU5dO7PWOZ2xKY';
 const PROMO_CODES = {
   'lessonseries': { percentageOff: 20, isFirstSessionFree: false },
   'gopioneers': { percentageOff: 20, isFirstSessionFree: false },
+  'freedom': { percentageOff: 20, isFirstSessionFree: false }
 }
 
 // returns the list of UIDs for tutors that are qualified in the given array of qualifications and the array qualifications thay have that are applicable
