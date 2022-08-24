@@ -65,7 +65,8 @@ let allowedPages = {
         "/new-tutor",
         "/act-sign-up",
         "/calendar",
-        "/payment"
+        "/payment",
+        "/new-invoice"
     ],
     dev: [
         '&public',

@@ -65,12 +65,9 @@ body.authorized > #siteWideLoadingScreen {
   100% { transform: rotate(360deg); }
 }
 
-:focus {
+/* :focus {
   outline: rgb(135, 168, 247) solid 2px;
-  /* border-style: solid;
-  border-width: 2px;
-  border-color: rgb(135, 168, 247); */
-}
+} */
 
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
