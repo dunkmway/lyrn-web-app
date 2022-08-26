@@ -17,6 +17,8 @@
   <script src="Site Templates/site-wide.js"></script>
   <script src="Site Templates/generalFunctions.js"></script>
   <script src="Components/Search-Input.js"></script>
+  <script src="Dialog.js"></script>
+  <script src="Time.js"></script>
   <script src="new-invoice.js" defer></script>
 </head>
 <body onload="initialSetup()">
@@ -25,9 +27,9 @@
       <h1>New Invoice</h1>
 
       <label>Parent</label>
-      <search-input id="searchParent"></search-input>
+      <search-input id="searchParent" onchange="checkInputValidity(this, validateAnyString)"></search-input>
       <label>Student</label>
-      <search-input id="searchStudent"></search-input>
+      <search-input id="searchStudent" onchange="checkInputValidity(this, validateAnyString)"></search-input>
 
       <h3>Items</h3>
       <table id="items-wrapper">
@@ -41,13 +43,19 @@
       </table>
       <button onclick="addItemRow()" style="display: inline-block;">Add Row</button>
       <span>Total: <span id="total"></span></span>
-      <br>
 
       <h3>Payment Options</h3>
       <label for="oneTime" data-hint="The entire invoice will be payed for upon completion. A discount of 10% will be applied.">One time</label>
-      <input type="checkbox" name="paymentOptions" id="oneTime">
-      <label for="recurring" data-hint="The invoice will be paid over the course of the proceeding events. No discount is applied.">Recurring</label>
-      <input type="checkbox" name="paymentOptions" id="recurring">
+      <input type="radio" name="paymentOptions" id="oneTime">
+      <label for="recurring" data-hint="The invoice will be paid over the course of the proceeding events. No discount is applied. The amount due today will be two quantity of the first item.">Recurring</label>
+      <input type="radio" name="paymentOptions" id="recurring">
+
+      <h3>Events</h3>
+      <div id="events-wrapper"></div>
+
+      <label for="type">Type</label>
+      <search-input id="type" onchange="checkInputValidity(this, validateAnyString)"></search-input>
+      <button onclick="submitInvoice()">Submit</button>
 
 
       <div id="super-secret" class="hidden">
@@ -64,7 +72,7 @@
     }],
     "paymentOptions": [{
         "description": "",
-        "amountDueToday": "",
+        "initialPayment": 0,
         "discount": 0,
         "discountType": "",
         "schedule": [
@@ -73,7 +81,7 @@
     }],
     "events": [""],
     "type": "",
-    "status": "new"
+    "status": "pending"
 }
         </textarea>
       </div>

@@ -10,8 +10,8 @@ class SearchInput extends HTMLElement {
   constructor() {
     super();
 
-    this.value = null;
-    this.text = null;
+    this.value = '';
+    this.text = '';
     this.isDisabled = false;
 
     // used for debouncing the input events on the input
@@ -39,6 +39,14 @@ class SearchInput extends HTMLElement {
       this.#renderResults(results);
       editable.classList.remove('loading');
     }, 500));
+
+    // on focus immeditaley call the getResults
+    editable.addEventListener('focus', async () => {
+      editable.classList.add('loading');
+      const results = await this.getResults(editable.textContent);
+      this.#renderResults(results);
+      editable.classList.remove('loading');
+    });
 
     // we also listen for focus out to return the input to the saved state
     editable.addEventListener('focusout', async() => {
@@ -93,8 +101,8 @@ class SearchInput extends HTMLElement {
       const container = document.createElement('div');
       // each result will have a mousedown event to select the result
       container.addEventListener('mousedown', () => {
-        this.value = value;
-        this.text = text;
+        this.value = value ?? '';
+        this.text = text ?? '';
         this.editable.textContent = text;
         this.dispatchEvent(new Event('change'));
       })
@@ -124,8 +132,8 @@ class SearchInput extends HTMLElement {
       if (foundResult) {
         // if the value is found render it and set it's value and text
         this.#renderResults([foundResult]);
-        this.value = foundResult.value;
-        this.text = foundResult.text;
+        this.value = foundResult.value ?? '';
+        this.text = foundResult.text ?? '';
         this.editable.textContent = foundResult.text;
       }
     }
@@ -166,7 +174,10 @@ const SEARCH_INPUT_STYLE = `
   border-radius: 0.5em;
   width: 100%;
   position: relative;
-  background-color: white;
+
+  border-color: inherit;
+  background-color: inherit;
+  color: inherit;
 }
 
 .input[contenteditable='false'] {
@@ -208,7 +219,7 @@ const SEARCH_INPUT_STYLE = `
   top: 0;
   visibility: hidden;
   width: 100%;
-  max-height: 10em;
+  max-height: 15em;
   overflow-y: auto;
   border: 2px solid #F2F2F2;
   border-radius: 0.5em;

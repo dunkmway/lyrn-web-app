@@ -15,6 +15,10 @@
       {
         "source": "/customer-dashboard/**",
         "destination": "/customer-dashboard.html"
+      },
+      {
+        "source": "/invoice/**",
+        "destination": "/invoice.html"
       }
     ],
 

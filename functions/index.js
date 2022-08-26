@@ -7,7 +7,6 @@ exports.stripe = require('./stripe');
 exports.billing = require('./billing');
 exports.text_reminders = require('./text-reminders');
 exports.lesson_link = require('./lesson-link');
-exports.payment_link = require('./payment-link');
 exports.calendar_openings = require('./calendar-openings');
 exports.frontline = require('./frontline');
 exports.zoom = require('./zoom');
@@ -17,6 +16,7 @@ exports.test_taker = require('./test-taker');
 
 // database collection triggers
 exports.events = require('./events');
+exports.invoices = require('./invoices');
 exports.act_question_data = require('./act-question-data');
 
 exports.database_helpers = require('./database-helpers');

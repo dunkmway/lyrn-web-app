@@ -39,6 +39,7 @@ let allowedPages = {
     all: [
         '/act-invoice',
         '/test-taker/*',
+        '/invoice/*'
     ],
     public: [
         "/sign-in",

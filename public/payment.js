@@ -207,7 +207,7 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          invoices.push(invoice);
        })
 
-       invoices.sort((a,b) => b.createdAt - a.createdAt);
+       invoices.sort((a,b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
 
        //remove any liElement that is no longer in the list
        let existingInvoices = document.querySelectorAll('#invoices-list li');
@@ -225,19 +225,19 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
            liElement.id = `invoice-${invoice.docId}`;
            liElement.style.cursor = 'pointer';
            liElement.addEventListener('click', () => {
-            window.open(`payment-link?invoice=${invoice.docId}`, "_blank");
+            window.open(`invoice/${invoice.docId}`, "_blank");
           })
          }
  
          let content = '';
          if (invoice.status === 'pending') {
-           content = `⚠️ Pending invoice created on ${convertFromDateInt(invoice.createdAt)['longDate']}.`;
+           content = `⚠️ Pending invoice created on ${convertFromDateInt(invoice.createdAt.toDate().getTime())['longDate']}.`;
          } else if (invoice.status === 'success') {
-           content = `✅ Invoice processed on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+           content = `✅ Invoice processed on ${convertFromDateInt(invoice.processedAt.toDate().getTime())['longDate']}`;
          } else if (invoice.status === 'failed') {
-           content = `🚨 Invoice expired on ${convertFromDateInt(invoice.processedAt)['longDate']}`;
+           content = `🚨 Invoice expired on ${convertFromDateInt(invoice.processedAt.toDate().getTime())['longDate']}`;
          } else {
-           content = `Generating invoice.`;
+           content = `Invoice Error - ${invoice.doc.Id}`;
          }
          liElement.innerText = content;
          document.querySelector('#invoices-list').appendChild(liElement);
