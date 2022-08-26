@@ -141,7 +141,16 @@ function getImageDomInfo(text = undefined, spacing = '') {
 	const section = document.getElementById((type == 'passage' ? 'passage' : 'questions') + 'Section').querySelector('option:checked').textContent.toLowerCase()
 
 	// Identify the passage
-	const passage = parseInt(document.getElementById((type == 'passage' ? 'passageNumber' : 'questionsPassageNumber')).querySelector('option:checked').textContent)
+	const passageDOM = document.getElementById((type == 'passage' ? 'passageNumber' : 'questionsPassageNumber'))
+	const newPassageDOM = document.getElementById((type == 'passage' ? 'newPassageNumber' : 'questionsPassageNumber'))
+
+	let passage = null;
+	if (passageDOM.querySelector('option:checked').value == 'new') {
+		passage = parseInt(newPassageDOM.value);
+	}
+	else {
+		passage = parseInt(passageDOM.querySelector('option:checked').textContent)
+	}
 
 	// Identify the question, if applicable
 	let question = undefined
@@ -187,7 +196,7 @@ function clickInput(spacing = '') {
 		return;
 	}
 	else {
-		document.getElementById((data['type'] == 'passage' ? data['section'] : 'questions') + 'Image').click()
+		document.getElementById((data['type'] == 'passage' ? 'passage' : 'questions') + 'Image').click()
 	}
 }
 
@@ -238,7 +247,7 @@ function addImage(spacing = '') {
 	let filename = undefined
 	let image = undefined
 	if (data['type'] == 'passage') {
-		image = document.getElementById(data['section'] + 'Image').files[0]
+		image = document.getElementById('passageImage').files[0]
 		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + '.png'
 	}
 	else if (data['type'] == 'question') {
@@ -269,7 +278,7 @@ function addImage(spacing = '') {
 
 			// Reset the display
 			if (data['type'] == 'passage') {
-				document.getElementById(data['section'] + 'Image').value = null
+				document.getElementById('passageImage').value = null
 				savePassage(spacing + spaceSize)
 			}
 			else {
@@ -1791,18 +1800,18 @@ async function initializeTests(id, spacing = '') {
 	dom_passage.appendChild(createElement('option', [], ['value', 'disabled', 'selected'], ['', true, true], "select a passage"))
 
 	// get all of the sections of the given test 
-	let passgeDocs = await getPassageDocsByTestAndSection(testID, sectionID);
+	let passageDocs = await getPassageDocsByTestAndSection(testID, sectionID);
 
 	// sort the section
-	passgeDocs.sort((a,b) => a.data().code - b.data().code);
+	passageDocs.sort((a,b) => a.data().code - b.data().code);
 
 	// add in the test to the dom
-	passgeDocs.forEach(passageDoc => {
+	passageDocs.forEach(passageDoc => {
 		dom_passage.appendChild(createElement('option', [], ['value'], [passageDoc.id], passageDoc.data().code))
 	})
 
 	if (newPassage) {
-		// add new passgae
+		// add new passage
 		dom_passage.appendChild(createElement('option', [], ['value'], ['new'], "Create new passage"))
 	}
 }
