@@ -28,7 +28,7 @@
 </head>
 
 <body onload="initialSetup()">
-  <header class="nav-start">
+  <!-- <header class="nav-start">
     <a href="index.html" class="logo">
       <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
         <g>
@@ -55,72 +55,76 @@
       </ul>
     </nav>
     <div class="phone"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div>
-  </header>
+  </header> -->
 
-  <main>
-    <section class="welcome">
-      <h3 id="parent-name">Welcome</h3>
-      <h4 id="welcome-message"></h4>
-    </section>
-
-    <section class="payments" style="display: none;">
-      <h2>Start Lyrning</h2>
-      <div class="make-payment">
-
-        <input class="payment-type" type="checkbox" id="paymentType">
-        <p class="scheduled payment-type">Recurring Payments</p>
-        <label class="payment-type" for="paymentType"></label>
-        <p class="one-time payment-type">One-time Payment</p>
-
-        <div id="pay-invoice-details" class="invoice-details">
-          <h5 class="heading">Description</h5>
-          <h5 class="heading">Cost</h5>
-          <h5 class="heading">Qty</h5>
-          <h5 class="heading">Amount</h5>
+  <div class="background">
+    <main>
+      <section class="welcome">
+        <h3 id="parent-name">Welcome</h3>
+        <h4 id="welcome-message"></h4>
+      </section>
+  
+      <section class="payments" style="display: none;">
+        <h2>Start Lyrning</h2>
+        <div class="make-payment">
+  
+          <!-- <input class="payment-type" type="checkbox" id="paymentType">
+          <p class="scheduled payment-type">Recurring Payments</p>
+          <label class="payment-type" for="paymentType"></label>
+          <p class="one-time payment-type">One-time Payment</p> -->
+  
+          <div id="invoice"></div>
+  
+          <!-- <div id="pay-invoice-details" class="invoice-details">
+            <h5 class="heading">Description</h5>
+            <h5 class="heading">Cost</h5>
+            <h5 class="heading">Qty</h5>
+            <h5 class="heading">Amount</h5>
+          </div>
+          <div id="save-invoice-details" class="invoice-details">
+            <h5 class="heading">Description</h5>
+            <h5 class="heading">Cost</h5>
+            <h5 class="heading">Qty</h5>
+            <h5 class="heading">Amount</h5>
+          </div> -->
+          <p id="expiration-message"></p>
+  
+          <div class="promo">
+            <label for="promoCode">Promo Code</label>
+            <input type="text" name="promoCode" id="promoCode">
+          </div>
+  
+          <h2>Payment Info</h2>
+          <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
+          <label for="carholderName"></label>
+          <div id="card-element"></div>
+  
+          <!-- agreements -->
+          <!-- <div class="agreements">
+            <input type="checkbox" id="guaranteeAgreement">
+            <label for="guaranteeAgreement">I have read and agree to the <a href="guarantee.html" target="_blank">guarantee policy</a>.</label>
+            <div style="height: .5em;"></div>
+            <input type="checkbox" id="cancellationAgreement">
+            <label for="cancellationAgreement">I have read and agree to the <a href="cancellation.html" target="_blank">cancellation policy</a>.</label>
+            <div style="height: .5em;"></div>
+            <input type="checkbox" id="nonrefundableAgreement">
+            <label for="nonrefundableAgreement">I understand that my last two lessons are being charged as a nonrefundable deposit to reserve my spot and will be used to pay for my last two lessons.</label>
+          </div> -->
+  
+          <p id="error-message" class="error"></p>
+          <div class="pay-wrapper">
+            <div class="pay button" tabindex="0">Pay</div>
+          </div>
+          <div class="save-wrapper">
+            <div class="save-card button" tabindex="0">Pay</div>
+          </div>
+          <p class="encrypted">All payments are encrypted and secure</p>
         </div>
-        <div id="save-invoice-details" class="invoice-details">
-          <h5 class="heading">Description</h5>
-          <h5 class="heading">Cost</h5>
-          <h5 class="heading">Qty</h5>
-          <h5 class="heading">Amount</h5>
-        </div>
-        <p id="expiration-message"></p>
+      </section>
+    </main>
+  </div>
 
-        <div class="promo">
-          <label for="promoCode">Promo Code</label>
-          <input type="text" name="promoCode" id="promoCode">
-        </div>
-
-        <h2>Payment Info</h2>
-        <input type="text" name="cardholder_name" id="cardholderName" placeholder="Cardholder Name">
-        <label for="carholderName"></label>
-        <div id="card-element"></div>
-
-        <!-- agreements -->
-        <div class="agreements">
-          <input type="checkbox" id="guaranteeAgreement">
-          <label for="guaranteeAgreement">I have read and agree to the <a href="guarantee.html" target="_blank">guarantee policy</a>.</label>
-          <div style="height: .5em;"></div>
-          <input type="checkbox" id="cancellationAgreement">
-          <label for="cancellationAgreement">I have read and agree to the <a href="cancellation.html" target="_blank">cancellation policy</a>.</label>
-          <div style="height: .5em;"></div>
-          <input type="checkbox" id="nonrefundableAgreement">
-          <label for="nonrefundableAgreement">I understand that my last two lessons are being charged as a nonrefundable deposit to reserve my spot and will be used to pay for my last two lessons.</label>
-        </div>
-
-        <p id="error-message" class="error"></p>
-        <div class="pay-wrapper">
-          <div class="pay button" tabindex="0">Pay</div>
-        </div>
-        <div class="save-wrapper">
-          <div class="save-card button" tabindex="0">Pay</div>
-        </div>
-        <p class="encrypted">All payments are encrypted and secure</p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
+  <!-- <footer>
     <div class="links">
       <div>
         <div>
@@ -166,7 +170,7 @@
     </div>
 
     <p class="copyright">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>
-  </footer>
+  </footer> -->
   
 </body>
 </html>

@@ -4,6 +4,7 @@ const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMD
 let customerData = {};
 let parentData = {};
 let invoiceData = {};
+let promoData = null;
 
 /**
 * Set up Stripe Elements
@@ -35,13 +36,13 @@ async function checkPromo() {
 
   //check the promo on the server
   const promoCode = document.getElementById('promoCode').value.toLowerCase().trim();
-  const invoice = queryStrings().invoice
+  const invoice = pathParameter(1);
   if (!invoice) {
     return;
   }
 
   try {
-    let response = await firebase.functions().httpsCallable('act_sign_up-checkPromo')({
+    let response = await firebase.functions().httpsCallable('invoices-checkPromo')({
       promoCode,
       invoice
     });
@@ -81,15 +82,37 @@ async function initialSetup() {
     return;
   };
 
-  let invoiceDoc = await firebase.firestore().collection('Invoices').doc(pathParameter(1)).get();
-  invoiceData = invoiceDoc.data();
-  console.log(invoiceData)
+  // let invoiceDoc = await firebase.firestore().collection('Invoices').doc(pathParameter(1)).get();
+  // invoiceData = invoiceDoc.data();
+  // console.log(invoiceData)
 
   // get the invoice data
-  firebase.firestore().collection('Invoices').doc(pathParameter(1)).onSnapshot((invoice) => {
+  firebase.firestore().collection('Invoices').doc(pathParameter(1)).onSnapshot(async (invoice) => {
+    // set up the page depending on what the status of the invoice is
+    if (!invoice.exists) {
+      setupInvalid();
+      return;
+    };
+
     invoiceData = invoice.data();
     console.log('snapshot called', invoiceData)
-    // set up the page depending on what the status of the invoice is
+
+    const [
+      parentDoc,
+      customerDoc,
+      promoDoc
+    ] = await Promise.all([
+      firebase.firestore().collection('Users').doc(invoiceData.parent).get(),
+      firebase.firestore().collection('stripe_customers').doc(invoiceData.parent).get(),
+      invoiceData.promo && firebase.firestore().collection('Promos').doc(invoiceData.promo).get()
+    ])
+
+    parentData = parentDoc.data();
+    customerData = customerDoc.data();
+    promoData = promoDoc ? promoDoc.data() : null;
+
+    //set the parent name
+    document.getElementById('parent-name').textContent = 'Hi ' + parentData.firstName + ' ' + parentData.lastName + ',';
 
     switch (invoiceData?.status) {
       case 'pending':
@@ -105,21 +128,95 @@ async function initialSetup() {
         setupInvalid();
     }
   });
+}
 
-  //set the date
-  // document.querySelector('.date').textContent = convertFromDateInt(invoiceData?.createdAt)?.shortDate ?? convertFromDateInt(new Date().getTime()).shortDate;
+function setupInvoice() {
+  const invoiceWrapper = document.getElementById('invoice');
+  removeAllChildNodes(invoiceWrapper);
 
-  if (!invoiceDoc.exists) { return };
+  // go through the items and add in a invoice row
+  invoiceData.items.forEach(item => {
+    const itemRow = createInvoiceRow(
+      item.description,
+      `Qty ${item.quantity}`,
+      formatAmount(item.price * item.quantity, 'usd'),
+      `${formatAmount(item.price, 'usd')} each`,
+      false
+    );
+    invoiceWrapper.appendChild(itemRow);
+  });
 
-  // get the parent data
-  parentData = (await firebase.firestore().collection('Users').doc(invoiceData.parent).get()).data();
+  // if promo has absolute discount
+  let promoAbsoluteAmount = 0;
+  if (promoData && promoData.absoluteAmount) {
+    promoAbsoluteAmount = -1 * promoData.absoluteAmount;
 
-  //set the parent name
-  document.getElementById('parent-name').textContent = 'Hi ' + parentData.firstName + ' ' + parentData.lastName + ',';
+    const promoAbsoluteRow = createInvoiceRow(
+      'Promo Code',
+      promoData.code.toUpperCase(),
+      formatAmount(promoData.absoluteAmount, 'usd'),
+      '',
+      false
+    );
+    invoiceWrapper.appendChild(promoAbsoluteRow);
+  }
 
-  // get the customer data
-  let customer = await firebase.firestore().collection('stripe_customers').doc(invoiceData.parent).get();
-  customerData = customer.data();
+  // set up the subtotal
+  const subtotal = invoiceData.items.reduce((prev, curr) => prev + (curr.quantity * curr.price), 0) + promoAbsoluteAmount;
+
+  // relative promo
+  let promoRelativeAmount = 0;
+  if (promoData && promoData.relativeAmount) {
+    // only show sub total if there is a promo affecting it
+    const subtotalRow = createInvoiceRow(
+      'Subtotal',
+      '',
+      formatAmount(subtotal, 'usd'),
+      '',
+      true
+    );
+    invoiceWrapper.appendChild(subtotalRow);
+
+    // display the realtive promo
+    promoRelativeAmount = -1 * subtotal * (promoData.relativeAmount / 100);
+    const promoRelativeRow = createInvoiceRow(
+      'Promo Code',
+      promoData.code.toUpperCase(),
+      formatAmount(promoRelativeAmount, 'usd'),
+      `${promoData.relativeAmount}% off`,
+      false
+    );
+    invoiceWrapper.appendChild(promoRelativeRow);
+  }
+
+  // set up the total
+  const total = subtotal + promoRelativeAmount
+  const totalRow = createInvoiceRow(
+    'Total',
+    '',
+    formatAmount(total, 'usd'),
+    '',
+    true
+  );
+  invoiceWrapper.appendChild(totalRow);
+
+}
+
+function createInvoiceRow(description, quantity, total, price, isSeparator) {
+  const row = document.createElement('div');
+  row.classList.add('invoice-row');
+  isSeparator && row.classList.add('separator');
+  row.innerHTML = `
+    <div class="start">
+      <p>${description}</p>
+      <p class="sub">${quantity}</p>
+    </div>
+    <div class="end">
+      <p>${total}</p>
+      <p class="sub">${price}</p>
+    </div>
+  `
+  return row;
 }
 
 function setupPayInvoice() {
@@ -317,12 +414,12 @@ function setupSaveInvoice() {
 
 function setupPending() {
   // set up each invoice details
-  setupPayInvoice();
-  setupSaveInvoice();
+  // setupPayInvoice();
+  // setupSaveInvoice();
+  setupInvoice();
 
-  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.programName} program.`
-  document.querySelector('#expiration-message').textContent = `This invoice will expire at 11:55 pm MDT on ${new Time(invoiceData.expiration.toDate()).toFormat('{EEE}, {MMM} {ddd}, {yyyy}')}.
-  A payment must be received before this time or all lessons for this program will be removed from our schedule.`
+  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.type} program.`
+  document.querySelector('#expiration-message').textContent = `Due ${new Time(invoiceData.expiration.toDate()).toFormat('{EEE}, {MMM} {ddd}, {yyyy}')} by 11:55 p.m.`
   document.querySelector('.payments').style.display = 'block';
 }
 

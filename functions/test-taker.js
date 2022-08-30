@@ -129,7 +129,7 @@ async function new_gradeAssignment(assignmentDoc) {
     topicGrades[questionTopic].unanswered++;
     return false
   });
-  const numAnswersCorrect = isAnswerCorrectList.reduce((prev, curr) => prev + curr);
+  const numAnswersCorrect = +isAnswerCorrectList.reduce((prev, curr) => prev + curr);
 
   // update the assignment with graded date
   let gradedData = {

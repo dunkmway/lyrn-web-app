@@ -180,8 +180,6 @@ function renderEvents(eventDocs) {
   const grid = document.getElementById('events-wrapper');
   removeAllChildNodes(grid);
 
-  // 
-
   eventDocs.forEach((eventDoc, index) => {
     const eventWrapper = document.createElement('div');
     const title = eventDoc.data().title;
@@ -465,6 +463,7 @@ async function submitInvoice() {
 
     data.createdAt = new Date();
     data.expiration = new Date(new Date().setHours(new Date().getHours() + EXPIRATION_HOURS));
+    data.status = 'pending';
 
     try {
       await firebase.firestore()
@@ -578,11 +577,9 @@ async function submitInvoice() {
 
     if (oneTime) {
       data.initialPayment = items.reduce((prev, curr) => prev + (curr.price * curr.quantity), 0);
-      data.percentOff = 10;
       data.schedule = [];
     } else if (recurring) {
       data.initialPayment = items[0].price * (items[0].quantity < 2 ? items[0].quantity : 2);
-      data.percentOff = 0;
       data.schedule = currentEventDocs
       .filter(doc => events.includes(doc.id))
       .map(doc => new Date(doc.data().start));
