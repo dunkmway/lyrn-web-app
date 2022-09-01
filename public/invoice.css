@@ -99,7 +99,7 @@ h2 {
 }
 
 h3 {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 100;
 }
 
@@ -148,8 +148,25 @@ p {
   }
 }
 
+header {
+  background-color: var(--color-blue);
+  padding: 1em 2em;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  position: sticky;
+  top: 0;
+}
+
+header > .logo {
+  fill: white;
+  height: 2em;
+}
+
 main {
   padding: 1em;
+  /* padding-top: calc(1em + 4em); */
   /* min-height: 65vh; */
   display: flex;
   flex-direction: column;
@@ -159,6 +176,7 @@ main {
 @media screen and (min-width: 800px) {
   main {
     padding: 3em;
+    /* padding-top: calc(3em + 4em); */
   }
 }
 
@@ -190,18 +208,6 @@ main {
   margin: .5em 0em;
 }
 
-.button {
-  cursor: pointer;
-
-  background-position: left;
-  background-size: 200%;
-  transition: background-position 200ms ease-out;
-}
-
-.button:hover {
-  background-position: right;
-}
-
 .welcome {
   /* background-image: linear-gradient(90deg, var(--color-accent-3-light), 80%, var(--color-accent-4-light)); */
   background-color: var(--color-green);
@@ -231,6 +237,32 @@ main {
 .payments .make-payment .new-card-wrapper {
   margin-top: 1em;
   display: none;
+}
+
+.button {
+  color: white;
+  border-radius: .5em;
+  text-align: center;
+  padding: 1em;
+  font-size: 1.25em;
+  background-color: var(--color-green);
+  border: none;
+  width: 100%;
+}
+
+.button.spinner::after {
+  box-sizing: border-box;
+  content: '';
+  display: inline-block;
+  margin-left: 1em;
+  position: relative;
+  bottom: 0;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  animation: spin 500ms linear infinite;
 }
 
 .save-card.spinner::after, .pay.spinner::after {

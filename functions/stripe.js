@@ -58,16 +58,6 @@ exports.createStripeCustomerAuto = functions.auth.user().onCreate(async (user) =
 
      await snap.ref.set(paymentMethod);
 
-     // now that we have a payment method all pending invoices are now successful
-     // query all pending invoices and change the status to succes
-     let pendingInvoices = await admin.firestore().collection('Invoices').where('status', '==', 'pending').where('parent', '==', context.params.userId).get();
-     pendingInvoices.forEach(async (invoice) => {
-       await invoice.ref.update({
-        status: 'success',
-        processedAt: new Date().getTime()
-       })
-     })
-
      // Create a new SetupIntent so the customer can add a new method next time.
      const intent = await stripe.setupIntents.create({
        customer: `${paymentMethod.customer}`,
@@ -118,7 +108,7 @@ exports.createStripePayment = functions.firestore
     );
     // If the result is successful, write it back to the database.
     await snap.ref.update(payment);
-    console.log(payment.status)
+
     if (payment.status != 'succeeded') { return }
 
     await paymentSucceeded(snap.data(), context.params.userId);
@@ -139,8 +129,6 @@ exports.createStripePayment = functions.firestore
 exports.confirmStripePayment = functions.firestore
  .document('stripe_customers/{userId}/payments/{pushId}')
  .onUpdate(async (change, context) => {
-  console.log(change.after.data().status)
-
    if (change.after.data().status === 'requires_confirmation') {
      const payment = await stripe.paymentIntents.confirm(
        change.after.data().id
@@ -159,7 +147,7 @@ async function paymentSucceeded(paymentData, parentUID) {
   if (paymentData.invoice) {
     await admin.firestore().collection('Invoices').doc(paymentData.invoice).update({
       status: 'success',
-      processedAt: new Date().getTime() 
+      processedAt: new Date()
     })
   }
 
@@ -170,17 +158,17 @@ async function paymentSucceeded(paymentData, parentUID) {
       processedAt: new Date().getTime(),
       paymentType: paymentData.paymentType
     })
-  }
 
-  //remove the parent from probation if their balance is now >= 0
-  if (await getUserBalance(parentRecord.uid) >= 0) {
-    await unsetProbation(parentRecord.uid);
-    await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
-  }
-  //payment was successful but the account of the parent is still negative
-  else {
-    await setProbation(parentRecord.uid)
-    await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+    //remove the parent from probation if their balance is now >= 0
+    if (await getUserBalance(parentRecord.uid) >= 0) {
+      await unsetProbation(parentRecord.uid);
+      await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
+    }
+    //payment was successful but the account of the parent is still negative
+    else {
+      await setProbation(parentRecord.uid)
+      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+    }
   }
 
   return;
@@ -189,15 +177,17 @@ async function paymentSucceeded(paymentData, parentUID) {
 async function paymentError(error, paymentRef, paymentData, parentUID) {
   const parentRecord = await admin.auth().getUser(parentUID);
 
-  //remove the parent from probation if their balance is now >= 0
-  if (await getUserBalance(parentRecord.uid) >= 0) {
-    await unsetProbation(parentRecord.uid);
-    await paymentFailedBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
-  }
-  //payment was unsuccessful but the account of the parent is still negative
-  else {
-    await setProbation(parentRecord.uid)
-    await paymentFailedBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+  if (paymentData.act_invoice) {
+    //remove the parent from probation if their balance is now >= 0
+    if (await getUserBalance(parentRecord.uid) >= 0) {
+      await unsetProbation(parentRecord.uid);
+      await paymentFailedBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
+    }
+    //payment was unsuccessful but the account of the parent is still negative
+    else {
+      await setProbation(parentRecord.uid)
+      await paymentFailedBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+    }
   }
 
   // We want to capture errors and render them in a user-friendly way, while

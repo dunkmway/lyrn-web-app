@@ -200,6 +200,20 @@ function setupInvoice() {
   );
   invoiceWrapper.appendChild(totalRow);
 
+  // set up the amount due
+  const amountDue = (invoiceData.initialPayment // amount passed in the invoice
+  - (promoData.absoluteAmount ?? 0)) // remove absolute promo discount
+  * (100 - (promoData.relativeAmount ?? 0)) / 100; // remove relative promo amount
+
+  const amountDueRow = createInvoiceRow(
+    'Amount Due',
+    'Charged today',
+    formatAmount(amountDue, 'usd'),
+    '',
+    false
+  );
+  invoiceWrapper.appendChild(amountDueRow)
+
 }
 
 function createInvoiceRow(description, quantity, total, price, isSeparator) {
@@ -218,204 +232,10 @@ function createInvoiceRow(description, quantity, total, price, isSeparator) {
   `
   return row;
 }
-
-function setupPayInvoice() {
-  const invoice = document.querySelector('#pay-invoice-details');
-  removeAllChildNodes(invoice);
-
-  invoice.innerHTML = `
-  <h5 class="heading">Description</h5>
-  <h5 class="heading">Cost</h5>
-  <h5 class="heading">Qty</h5>
-  <h5 class="heading">Amount</h5>
-  `
-
-  const programDesc = document.createElement('div');
-  programDesc.classList.add('description-wrapper')
-  programDesc.innerHTML = `
-    <p>${invoiceData.programName} Lessons</p>
-    <p>The last two lessons will be charged as a nonrefundable deposit</p>
-  `
-  const programCost = document.createElement('p')
-  programCost.textContent = '$' + invoiceData.sessionPrice.toFixed(2);
-  const programQty = document.createElement('p')
-  programQty.textContent = invoiceData.events.length;
-  const programAmount = document.createElement('p')
-  programAmount.textContent = '$' + invoiceData.programPrice.toFixed(2);
-  invoice.append(programDesc, programCost, programQty, programAmount)
-
-  let firstSessionFreeAmount = 0;
-  if (invoiceData.isFirstSessionFree) {
-    const discountDesc = document.createElement('div');
-    discountDesc.classList.add('description-wrapper')
-    discountDesc.innerHTML = `
-      <p>First Lesson Free</p>
-      <p>Discount</p>
-    `
-    const discountCost = document.createElement('p')
-    discountCost.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
-    const discountQty = document.createElement('p')
-    discountQty.textContent = '1';
-    const discountAmount = document.createElement('p')
-    discountAmount.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
-    firstSessionFreeAmount = invoiceData.sessionPrice;
-    invoice.append(discountDesc, discountCost, discountQty, discountAmount)
-  }
-
-  const subtotalDescFiller = document.createElement('div');
-  subtotalDescFiller.classList.add('begin-totals');
-  const subtotalCostFiller = document.createElement('div');
-  subtotalCostFiller.classList.add('begin-totals');
-  const subTotalTitle = document.createElement('p');
-  subTotalTitle.classList.add('begin-totals');
-  subTotalTitle.textContent = 'Subtotal'
-  const subTotalAmount = document.createElement('p');
-  subTotalAmount.classList.add('begin-totals');
-  subTotalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount).toFixed(2);
-  invoice.append(subtotalDescFiller, subtotalCostFiller, subTotalTitle, subTotalAmount)
-
-  let percentageDiscountAmount = 0;
-  if (invoiceData.percentageOff > 0) {
-    const discountDescFiller = document.createElement('div');
-    const discountCostFiller = document.createElement('div');
-    const discountTitle = document.createElement('p')
-    discountTitle.textContent = `${invoiceData.percentageOff}% off`;
-    const discountAmount = document.createElement('p')
-    discountAmount.textContent = '-$' + ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
-    percentageDiscountAmount = ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount));
-    invoice.append(discountDescFiller, discountCostFiller, discountTitle, discountAmount)
-  }
-
-  const percentageDescFiller = document.createElement('div');
-  const percentageCostFiller = document.createElement('div');
-  const percentageTitle = document.createElement('p');
-  percentageTitle.textContent = '10% off'
-  const percentageAmount = document.createElement('p');
-  percentageAmount.textContent = '-$' + (0.1 * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
-  const oneTimeDiscountAmount = (0.1 * (invoiceData.programPrice - firstSessionFreeAmount));
-  invoice.append(percentageDescFiller, percentageCostFiller, percentageTitle, percentageAmount)
-
-  const totalDescFiller = document.createElement('div');
-  const totalCostFiller = document.createElement('div');
-  const totalTitle = document.createElement('p');
-  totalTitle.textContent = 'Total'
-  const totalAmount = document.createElement('p');
-  totalAmount.textContent = '$' + (invoiceData.programPrice - oneTimeDiscountAmount - percentageDiscountAmount - firstSessionFreeAmount).toFixed(2);
-  invoice.append(totalDescFiller, totalCostFiller, totalTitle, totalAmount)
-
-  const amountDueDescFiller = document.createElement('div');
-  amountDueDescFiller.classList.add('begin-totals');
-  const amountDueFiller = document.createElement('div');
-  amountDueFiller.classList.add('begin-totals');
-  const amountDueTitle = document.createElement('p');
-  amountDueTitle.classList.add('begin-totals');
-  amountDueTitle.textContent = 'Amount Due'
-  const amountDueAmount = document.createElement('p');
-  amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + (invoiceData.programPrice - oneTimeDiscountAmount - percentageDiscountAmount - firstSessionFreeAmount).toFixed(2);
-  invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
-}
-
-function setupSaveInvoice() {
-  const invoice = document.querySelector('#save-invoice-details');
-  removeAllChildNodes(invoice);
-
-  invoice.innerHTML = `
-  <h5 class="heading">Description</h5>
-  <h5 class="heading">Cost</h5>
-  <h5 class="heading">Qty</h5>
-  <h5 class="heading">Amount</h5>
-  `
-
-  const programDesc = document.createElement('div');
-  programDesc.classList.add('description-wrapper')
-  programDesc.innerHTML = `
-    <p>${invoiceData.programName} Lessons</p>
-    <p>The last two lessons will be charged as a nonrefundable deposit</p>
-  `
-  const programCost = document.createElement('p')
-  programCost.textContent = '$' + invoiceData.sessionPrice.toFixed(2);
-  const programQty = document.createElement('p')
-  programQty.textContent = invoiceData.events.length;
-  const programAmount = document.createElement('p')
-  programAmount.textContent = '$' + invoiceData.programPrice.toFixed(2);
-  invoice.append(programDesc, programCost, programQty, programAmount)
-
-  let firstSessionFreeAmount = 0;
-  if (invoiceData.isFirstSessionFree) {
-    const discountDesc = document.createElement('div');
-    discountDesc.classList.add('description-wrapper')
-    discountDesc.innerHTML = `
-      <p>First Lesson Free</p>
-      <p>Discount</p>
-    `
-    const discountCost = document.createElement('p')
-    discountCost.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
-    const discountQty = document.createElement('p')
-    discountQty.textContent = '1';
-    const discountAmount = document.createElement('p')
-    discountAmount.textContent = '-$' + invoiceData.sessionPrice.toFixed(2);
-    firstSessionFreeAmount = invoiceData.sessionPrice;
-    invoice.append(discountDesc, discountCost, discountQty, discountAmount)
-  }
-
-  const subtotalDescFiller = document.createElement('div');
-  subtotalDescFiller.classList.add('begin-totals');
-  const subtotalCostFiller = document.createElement('div');
-  subtotalCostFiller.classList.add('begin-totals');
-  const subTotalTitle = document.createElement('p');
-  subTotalTitle.classList.add('begin-totals');
-  subTotalTitle.textContent = 'Subtotal'
-  const subTotalAmount = document.createElement('p');
-  subTotalAmount.classList.add('begin-totals');
-  subTotalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount).toFixed(2);
-  invoice.append(subtotalDescFiller, subtotalCostFiller, subTotalTitle, subTotalAmount)
-
-  let percentageDiscountAmount = 0;
-  if (invoiceData.percentageOff > 0) {
-    const discountDescFiller = document.createElement('div');
-    const discountCostFiller = document.createElement('div');
-    const discountTitle = document.createElement('p')
-    discountTitle.textContent = `${invoiceData.percentageOff}% off`;
-    const discountAmount = document.createElement('p')
-    discountAmount.textContent = '-$' + ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount)).toFixed(2);
-    percentageDiscountAmount = ((invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount));
-    invoice.append(discountDescFiller, discountCostFiller, discountTitle, discountAmount)
-  }
-
-  const totalDescFiller = document.createElement('div');
-  const totalCostFiller = document.createElement('div');
-  const totalTitle = document.createElement('div');
-  totalTitle.classList.add('description-wrapper')
-  totalTitle.innerHTML = `
-    <p>Total</p>
-    <p>Amount due over the course of the program</p>
-  `
-  const totalAmount = document.createElement('p');
-  totalAmount.textContent = '$' + (invoiceData.programPrice - firstSessionFreeAmount - percentageDiscountAmount).toFixed(2);
-  invoice.append(totalDescFiller, totalCostFiller, totalTitle, totalAmount)
-
-  const amountDueDescFiller = document.createElement('div');
-  amountDueDescFiller.classList.add('begin-totals');
-  const amountDueFiller = document.createElement('div');
-  amountDueFiller.classList.add('begin-totals');
-  const amountDueTitle = document.createElement('div');
-  amountDueTitle.classList.add('begin-totals', 'description-wrapper')
-  amountDueTitle.innerHTML = `
-    <p>Amount Due</p>
-    <p>Amount due today (nonrefundable deposit)</p>
-  `
-  const amountDueAmount = document.createElement('p');
-  amountDueAmount.classList.add('begin-totals');
-  amountDueAmount.textContent = '$' + ((invoiceData.events.length > 1 ? 2 : 1) * invoiceData.sessionPrice * (100 - (invoiceData.percentageOff ?? 0)) / 100).toFixed(2);
-  invoice.append(amountDueDescFiller, amountDueFiller, amountDueTitle, amountDueAmount)
-}
  
 
 function setupPending() {
   // set up each invoice details
-  // setupPayInvoice();
-  // setupSaveInvoice();
   setupInvoice();
 
   document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.type} program.`
@@ -442,24 +262,19 @@ function setupInvalid() {
 }
 
  
- /**
-  * Event listeners
-  */
- 
- // Create payment form
-document
-.querySelector('.pay')
-.addEventListener('click', async (event) => {
+/*
+* Event listeners
+*/
+
+async function submit(event) {
   startWorking(event);
 
   const cardholderName = document.querySelector('#cardholderName').value;
-  const firstSessionFreeAmount = (invoiceData.isFirstSessionFree ? invoiceData.sessionPrice : 0);
-  const percentageDiscountAmount = (invoiceData.percentageOff / 100) * (invoiceData.programPrice - firstSessionFreeAmount);
-  const oneTimeDiscountAmount = 0.1 * (invoiceData.programPrice - firstSessionFreeAmount);
-  const amount = invoiceData.programPrice - firstSessionFreeAmount - percentageDiscountAmount - oneTimeDiscountAmount;
-  const depositAmount = (2 * invoiceData.sessionPrice * (90 - invoiceData.percentageOff) / 100);
+  const amountDue = (invoiceData.initialPayment // amount passed in the invoice
+  - (promoData.absoluteAmount ?? 0)) // remove absolute promo discount
+  * (100 - (promoData.relativeAmount ?? 0)) / 100; // remove relative promo amount
   const currency = 'usd';
-  const agreements = document.querySelectorAll('.agreements > input')
+  const agreements = document.querySelectorAll('.agreements > input');
 
   //check cardholder
   if (!cardholderName) {
@@ -476,62 +291,21 @@ document
   }
 
   //confirm
-  if (!confirm(`By pressing ok you are agreeing to pay the full amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)}. You also understand that ${formatAmount(formatAmountForStripe(depositAmount, currency), currency)} will be counted towards a nonrefundable deposit.`)) {
+  const confirmation = await Dialog.confirm(`${formatAmount(amountDue, currency)} will be charged to the inputted credit card. Do you wish to continue?`)
+  if (!confirmation) {
     handleError('', event);
     return;
   }
 
-  //charge full amount
   try {
-    await chargeCard(amount, currency, 'one-time', cardholderName, event, depositAmount);
+    await chargeCard(amount, currency, cardholderName, event, invoiceData.schedule.length > 0);
   }
   catch (error) {
     handleError(error.message, event);
     return;
   }
-});
 
-//save the new card
-document
-.querySelector('.save-card')
-.addEventListener('click', async (event) => {
-  startWorking(event);
-
-  const cardholderName = document.getElementById('cardholderName').value;
-  const amount = (2 * invoiceData.sessionPrice * (100 - invoiceData.percentageOff) / 100);
-  const depositAmount = amount;
-  const currency = 'usd';
-  const agreements = document.querySelectorAll('.agreements > input')
-
-  //check cardholder
-  if (!cardholderName) {
-    handleError('Please add a cardholder name.', event);
-    return;
-  }
-
-  // check agreements
-  for (let i = 0; i < agreements.length; i++) {
-    if (!agreements[i].checked) {
-      handleError('Please agree to all of the terms before continuing', event);
-      return;
-    }
-  }
-
-  // confirm
-  if (!confirm(`By pressing ok you are agreeing to pay now an amount of ${formatAmount(formatAmountForStripe(amount, currency), currency)} which is the nonrefundable deposit. You also allow Lyrn to save this card and charge it the morning before your lessons for the price of the respective lesson.`)) {
-    handleError('', event);
-    return;
-  }
-
-  // save the card and charge it
-  try {
-    await chargeCard(amount, currency, 'recurring', cardholderName, event, depositAmount, true);
-  }
-  catch (error) {
-    handleError(error.message, event);
-    return;
-  }
-});
+}
 
 function handleError(message, event) {
   document.querySelector('#error-message').textContent = message;
@@ -557,7 +331,7 @@ function endWorking(event) {
   document.querySelector('#cardholderName').value = "";
 }
 
-async function chargeCard(amount, currency, paymentType, cardholderName, event, depositAmount, isSaveCard = false) {
+async function chargeCard(amount, currency, cardholderName, event, shouldSaveCard = false) {
   const { paymentMethod, error } = await stripe.createPaymentMethod({
     type: 'card',
     card: cardElement,
@@ -577,9 +351,8 @@ async function chargeCard(amount, currency, paymentType, cardholderName, event, 
     currency,
     amount: formatAmountForStripe(amount, currency),
     status: 'new',
-    created: new Date().getTime() / 1000,
-    act_invoice: queryStrings().invoice,
-    paymentType
+    createdAt: new Date(),
+    invoice: pathParameter(1)
   };
 
   const paymentRef = firebase
@@ -605,10 +378,9 @@ async function chargeCard(amount, currency, paymentType, cardholderName, event, 
         break;
       case 'succeeded':
         try {
-          if (isSaveCard) {
+          if (shouldSaveCard) {
             await saveCard(cardholderName);
           }
-          await setDepositCharge(depositAmount, currency);
         }
         catch (error) {
           handleError(error.message, event);
@@ -653,21 +425,6 @@ async function saveCard(cardholderName) {
   .collection('payment_methods')
   .add({
     id: setupIntent.payment_method,
-  });
-}
-
-async function setDepositCharge(amount, currency) {
-  // we have to charge the parent's account the amount of the deposit so that that those lessons can be set to $0 (nonrefundable)
-  await firebase
-  .firestore()
-  .collection('stripe_customers')
-  .doc(invoiceData.parent)
-  .collection('charges')
-  .add({
-    amount: formatAmountForStripe(amount, currency),
-    created: new Date().getTime(),
-    currency: currency,
-    title: 'ACT program deposit'
   });
 }
 
