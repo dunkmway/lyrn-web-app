@@ -299,25 +299,27 @@ class Dialog {
 
 
 
-  static alert(message) {
+  static alert(message, options = {}) {
     return new Dialog({
       message,
       choices: ['Close'],
       values: [null],
-      width: '400px'
+      width: '400px',
+      ...options
     }).show();
   }
 
-  static confirm(message) {
+  static confirm(message, options = {}) {
     return new Dialog({
       message,
       choices: ['Cancel', 'OK'],
       values: [false, true],
-      width: '400px'
+      width: '400px',
+      ...options
     }).show();
   }
 
-  static prompt(message) {
+  static prompt(message, options = {}) {
     const wrapper = document.createElement('div');
     const input = document.createElement('input');
     input.style.display = 'block';
@@ -329,7 +331,8 @@ class Dialog {
       message: wrapper,
       choices: ['Cancel', 'OK'],
       values: [null, () => input.value],
-      width: '400px'
+      width: '400px',
+      ...options
     })
 
     const inputPromise = new Promise((resolve, reject) => {
@@ -347,7 +350,7 @@ class Dialog {
     return Promise.race([inputPromise, dialogPromise])
   }
 
-  static toastMessage(message) {
+  static toastMessage(message, options = {}) {
     return new Dialog({
       message,
       backgroundColor: '#61A1EA',
@@ -362,11 +365,12 @@ class Dialog {
       slideInDist: 150,
       slideOutDir: 'right',
       slideOutDist: 300,
-      timeout: 5000
+      timeout: 5000,
+      ...options
     }).show();
   }
 
-  static toastError(message) {
+  static toastError(message, options = {}) {
     return new Dialog({
       message,
       backgroundColor: '#E36868',
@@ -381,7 +385,8 @@ class Dialog {
       slideInDist: 150,
       slideOutDir: 'right',
       slideOutDist: 300,
-      timeout: 5000
+      timeout: 5000,
+      ...options
     }).show();
   }
 }

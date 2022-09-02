@@ -1256,7 +1256,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		}
 
 		// Finished!!
-		Dialog.toastMessage('Question successfully saved!')
+		Dialog.toastMessage('Question successfully saved!', {'justify' : 'start', 'slideOutDir' : 'left', 'timeout' : 2000})
 	}
 }
 
