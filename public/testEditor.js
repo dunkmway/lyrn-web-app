@@ -1164,6 +1164,16 @@ function getDropdownValues(dropdownId, spacing = '') {
   	return values;
 }
 
+/**
+ * Checks if the provided tag name wraps the given string
+ * @param {string} tagname name of the tag to search for
+ * @param {string} str string to test
+ * @returns {boolean} whether the string is wrapped in the given tag
+ */
+function isWrappedInTagname(tagname, str) {
+    const regex = new RegExp(`^<${tagname}>.*<\/${tagname}>$`, 'g');
+  return regex.test(str)
+}
 
 
 /**
@@ -1205,7 +1215,11 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		dom_text.value = dom_text.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 	}
 
+	// Clean up choices
 	for (let i = 0; i < choices.length; i++) {
+		if(isWrappedInTagname('p', choices[i]) == false && isWrappedInTagname('img', choices[i]) == false && isWrappedInTagname('p', choices[i]) == false) {
+			choices[i] = '<p>' + choices[i] + '</p>'
+		}
 		while (choices[i].includes('  ')) {
 			choices[i] = choices[i].replaceAll('  ', ' ')
 		}
@@ -2607,7 +2621,7 @@ for (let i = 0; i < dom_passageSections.length; i++) {
 				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
 			}
 			else {
-				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;').replaceAll('  ', ' ')
+				event.target.value = event.target.value.replaceAll('\n', ' ').replaceAll('--', '&mdash;').replaceAll('—', '&mdash;')
 			}
 		}
 
