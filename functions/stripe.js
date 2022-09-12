@@ -7,9 +7,9 @@ const logging = new Logging({
 });
 
 const Stripe = require('stripe');
-const stripe = new Stripe(functions.config().stripe.secret, {
-  apiVersion: '2020-08-27',
-});
+// const stripe = new Stripe(functions.config().stripe.secret, {
+//   apiVersion: '2020-08-27',
+// });
 
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
@@ -19,7 +19,13 @@ sgMail.setApiKey(functions.config().sendgrid.secret);
  *
  * @see https://stripe.com/docs/payments/save-and-reuse#web-create-customer
  */
-exports.createStripeCustomer = functions.https.onCall(async (data, context) => {
+exports.createStripeCustomer = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.https.onCall(async (data, context) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET, {
+    apiVersion: '2020-08-27',
+  });
+
   const customer = await stripe.customers.create({ email: data.email });
   const intent = await stripe.setupIntents.create({
     customer: customer.id,
@@ -31,7 +37,14 @@ exports.createStripeCustomer = functions.https.onCall(async (data, context) => {
   return;
 });
 
-exports.createStripeCustomerAuto = functions.auth.user().onCreate(async (user) => {
+exports.createStripeCustomerAuto = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.auth.user()
+.onCreate(async (user) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET, {
+    apiVersion: '2020-08-27',
+  });
+
   const customer = await stripe.customers.create({ email: user.email });
   const intent = await stripe.setupIntents.create({
     customer: customer.id,
@@ -41,39 +54,45 @@ exports.createStripeCustomerAuto = functions.auth.user().onCreate(async (user) =
     setup_secret: intent.client_secret,
   }, {merge: true});
   return;
-});
+});  
 
 /**
  * When adding the payment method ID on the client,
  * this function is triggered to retrieve the payment method details.
  */
- exports.addPaymentMethodDetails = functions.firestore
- .document('/stripe_customers/{userId}/payment_methods/{pushId}')
- .onCreate(async (snap, context) => {
-   try {
-     const paymentMethodId = snap.data().id;
-     const paymentMethod = await stripe.paymentMethods.retrieve(
-       paymentMethodId
-     );
+ exports.addPaymentMethodDetails = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.firestore
+.document('/stripe_customers/{userId}/payment_methods/{pushId}')
+.onCreate(async (snap, context) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET, {
+    apiVersion: '2020-08-27',
+  });
 
-     await snap.ref.set(paymentMethod);
+  try {
+    const paymentMethodId = snap.data().id;
+    const paymentMethod = await stripe.paymentMethods.retrieve(
+      paymentMethodId
+    );
 
-     // Create a new SetupIntent so the customer can add a new method next time.
-     const intent = await stripe.setupIntents.create({
-       customer: `${paymentMethod.customer}`,
-     });
-     await snap.ref.parent.parent.set(
-       {
-         setup_secret: intent.client_secret,
-       },
-       { merge: true }
-     );
-     return;
-   } catch (error) {
-     await snap.ref.set({ error: userFacingMessage(error) }, { merge: true });
-     await reportError(error, { user: context.params.userId });
-   }
- });
+    await snap.ref.set(paymentMethod);
+
+    // Create a new SetupIntent so the customer can add a new method next time.
+    const intent = await stripe.setupIntents.create({
+      customer: `${paymentMethod.customer}`,
+    });
+    await snap.ref.parent.parent.set(
+      {
+        setup_secret: intent.client_secret,
+      },
+      { merge: true }
+    );
+    return;
+  } catch (error) {
+    await snap.ref.set({ error: userFacingMessage(error) }, { merge: true });
+    await reportError(error, { user: context.params.userId });
+  }
+});
 
 /**
 * When a payment document is written on the client,
@@ -84,9 +103,15 @@ exports.createStripeCustomerAuto = functions.auth.user().onCreate(async (user) =
 
 // [START chargecustomer]
 
-exports.createStripePayment = functions.firestore
+exports.createStripePayment = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.firestore
 .document('stripe_customers/{userId}/payments/{pushId}')
 .onCreate(async (snap, context) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET, {
+    apiVersion: '2020-08-27',
+  });
+
   const { amount, currency, payment_method } = snap.data();
   try {
     // Look up the Stripe customer id.
@@ -111,7 +136,7 @@ exports.createStripePayment = functions.firestore
 
     if (payment.status != 'succeeded') { return }
 
-    await paymentSucceeded(snap.data(), context.params.userId);
+    await paymentSucceeded(snap, context.params.userId);
   } 
   catch (error) {
     paymentError(error, snap.ref, snap.data(), context.params.userId);
@@ -126,48 +151,55 @@ exports.createStripePayment = functions.firestore
 *
 * @see https://stripe.com/docs/payments/accept-a-payment-synchronously#web-confirm-payment
 */
-exports.confirmStripePayment = functions.firestore
- .document('stripe_customers/{userId}/payments/{pushId}')
- .onUpdate(async (change, context) => {
-   if (change.after.data().status === 'requires_confirmation') {
-     const payment = await stripe.paymentIntents.confirm(
-       change.after.data().id
-     );
-     change.after.ref.update(payment);
-   }
-   else if (change.after.data().status === 'succeeded') {
-     paymentSucceeded(change.after.data(), context.params.userId)
-   }
- });
+exports.confirmStripePayment = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.firestore
+.document('stripe_customers/{userId}/payments/{pushId}')
+.onUpdate(async (change, context) => {
+const stripe = new Stripe(process.env.STRIPE_SECRET, {
+  apiVersion: '2020-08-27',
+});
 
-async function paymentSucceeded(paymentData, parentUID) {
+  if (change.after.data().status === 'requires_confirmation') {
+    const payment = await stripe.paymentIntents.confirm(
+      change.after.data().id
+    );
+    change.after.ref.update(payment);
+  }
+  else if (change.after.data().status === 'succeeded') {
+    paymentSucceeded(change.after, context.params.userId)
+  }
+});
+
+async function paymentSucceeded(paymentDoc, parentUID) {
   const parentRecord = await admin.auth().getUser(parentUID);
 
   // if the payment was connected to an invoice update the invoice
-  if (paymentData.invoice) {
-    await admin.firestore().collection('Invoices').doc(paymentData.invoice).update({
+  if (paymentDoc.data().invoice) {
+    await admin.firestore().collection('Invoices').doc(paymentDoc.data().invoice).update({
       status: 'success',
-      processedAt: new Date()
+      processedAt: new Date(),
+      payment: paymentDoc.id
     })
   }
 
   // if the payment was connected to an act invoice update the invoice
-  if (paymentData.act_invoice) {
-    await admin.firestore().collection('ACT-Invoices').doc(paymentData.act_invoice).update({
+  if (paymentDoc.data().act_invoice) {
+    await admin.firestore().collection('ACT-Invoices').doc(paymentDoc.data().act_invoice).update({
       status: 'success',
       processedAt: new Date().getTime(),
-      paymentType: paymentData.paymentType
+      paymentType: paymentDoc.data().paymentType
     })
 
     //remove the parent from probation if their balance is now >= 0
     if (await getUserBalance(parentRecord.uid) >= 0) {
       await unsetProbation(parentRecord.uid);
-      await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency);
+      await paymentSuccessfulBalanceNonNegativeEmail(parentRecord.email, paymentDoc.data().amount, paymentDoc.data().currency);
     }
     //payment was successful but the account of the parent is still negative
     else {
       await setProbation(parentRecord.uid)
-      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, paymentData.amount, paymentData.currency)
+      await paymentSuccessfulBalanceNegativeEmail(parentRecord.email, paymentDoc.data().amount, paymentDoc.data().currency)
     }
   }
 
@@ -205,7 +237,14 @@ async function paymentError(error, paymentRef, paymentData, parentUID) {
 /**
 * When a user deletes their account, clean up after them
 */
-exports.cleanupUser = functions.auth.user().onDelete(async (user) => {
+exports.cleanupUser = functions
+.runWith({ secrets: ["STRIPE_SECRET"] })
+.auth.user()
+.onDelete(async (user) => {
+  const stripe = new Stripe(process.env.STRIPE_SECRET, {
+    apiVersion: '2020-08-27',
+  });
+
  const dbRef = admin.firestore().collection('stripe_customers');
  const customer = (await dbRef.doc(user.uid).get()).data();
  await stripe.customers.del(customer.customer_id);

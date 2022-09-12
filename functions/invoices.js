@@ -8,12 +8,6 @@ exports.checkPromo = functions.https.onCall(async (data, context) => {
   return await checkPromo(data.promoCode, data.invoice);
 });
 
-exports.addPaymentMethodDetails = functions.firestore
-.document('/Invoices/{invoiceID}')
-.onUpdate(async (change, context) => {
-  return await invoiceUpdated(change);
-});
-
 async function checkPromo(promoCode, invoice) {
   if (typeof promoCode !== 'string') return false;
   if (typeof invoice !== 'string') return false;
@@ -61,14 +55,4 @@ async function checkPromo(promoCode, invoice) {
 
   return true;
 
-}
-
-async function invoiceUpdated(change) {
-  const newValues = change.after.data();
-  const oldValues = change.before.data();
-
-  // handle successful invoices
-  if (oldValues.status !== 'success' && newValues === 'success') {
-    // if there is a schedule
-  }
 }

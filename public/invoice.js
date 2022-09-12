@@ -1,5 +1,7 @@
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
+const STRIPE_PUBLISHABLE_KEY = location.hostname === "localhost" ?
+'pk_test_51JYNNQLLet6MRTvnXP7E1r6Xgea5rIdUxNOFlLcVmEPtBkABMn4G8QJfdxHJE2Na4HmqrxnxKSvYKpm7AJsWHSvz00VfCQ4ORr' :
+'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
 
 let customerData = {};
 let parentData = {};
@@ -351,7 +353,7 @@ async function chargeCard(amount, currency, cardholderName, event, shouldSaveCar
     currency,
     amount: formatAmountForStripe(amount, currency),
     status: 'new',
-    createdAt: new Date(),
+    created: new Date().getTime() / 1000,
     invoice: pathParameter(1)
   };
 
@@ -379,13 +381,19 @@ async function chargeCard(amount, currency, cardholderName, event, shouldSaveCar
       case 'succeeded':
         try {
           if (shouldSaveCard) {
-            await saveCard(cardholderName);
+            const paymentMethodID = await saveCard(cardholderName);
+            await firebase.firestore()
+            .collection('Invoices').doc(pathParameter(1))
+            .update({
+              paymentMethod: paymentMethodID
+            })
           }
         }
         catch (error) {
           handleError(error.message, event);
           return;
         }
+
         endWorking(event);
         paymentSubscription();
         break;
@@ -418,14 +426,15 @@ async function saveCard(cardholderName) {
     throw error;
   }
 
-  await firebase
-  .firestore()
-  .collection('stripe_customers')
-  .doc(invoiceData.parent)
-  .collection('payment_methods')
-  .add({
+  const paymentMethodRef = firebase.firestore()
+  .collection('stripe_customers').doc(invoiceData.parent)
+  .collection('payment_methods').doc()
+
+  await paymentMethodRef.set({
     id: setupIntent.payment_method,
   });
+
+  return paymentMethodRef.id;
 }
 
  

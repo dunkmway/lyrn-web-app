@@ -240,23 +240,6 @@ let currentClassDetails = {
   classIndex: null
 }
 
-/**
-* Set up Stripe Elements
-*/
-// const STRIPE_PUBLISHABLE_KEY = 'pk_live_51JYNNQLLet6MRTvnZAwlZh6hdMQqNgVp5hvHuMDEfND7tClZcbTCRZl9fluBQDZBAAGSNOJBQWMjcj0ow1LFernK00l8QY5ouc';
-// const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-// const elements = stripe.elements();
-// const cardElement = elements.create('card');
-// cardElement.mount('#card-element');
-// cardElement.on('change', ({ error }) => {
-//   const displayError = document.getElementById('error-message');
-//   if (error) {
-//     displayError.textContent = error.message;
-//   } else {
-//     displayError.textContent = '';
-//   }
-// });
-
 async function initialSetup() {
   toggleWorking();
 

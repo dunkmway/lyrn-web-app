@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "uid": null,
+      "firstName": "Local",
+      "lastName": "Dev",
+      "email": "dev@local.com",
+      "password": null,
+      "role": "dev",
+      "location": "WIZWBumUoo7Ywkc3pl2G"
+    },
+    {
+      "uid": null,
+      "firstName": "Student",
+      "lastName": "Test",
+      "email": "student@test.com",
+      "password": null,
+      "role": "student",
+      "location": "WIZWBumUoo7Ywkc3pl2G"
+    },
+    {
+      "uid": null,
+      "firstName": "Parent",
+      "lastName": "Test",
+      "email": "parent@test.com",
+      "password": null,
+      "role": "parent",
+      "location": "WIZWBumUoo7Ywkc3pl2G"
+    },
+    {
+      "uid": null,
+      "firstName": "Tutor",
+      "lastName": "Test",
+      "email": "tutor@test.com",
+      "password": null,
+      "role": "tutor",
+      "location": "WIZWBumUoo7Ywkc3pl2G"
+    }
+  ]
+}

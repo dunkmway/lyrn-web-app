@@ -1,0 +1,55 @@
+{
+  "collections": [{
+    "id": "test collection",
+    "docs": [{
+      "id": "test doc",
+      "data": {
+        "key": "test value"
+      },
+      "collections": [{
+        "id": "subcollection",
+        "docs": [{
+          "id": "subcollection doc",
+          "data": {
+            "key":"subcollection value"
+          }
+        }]
+      }]
+    },
+    {
+      "id": null,
+      "data": {
+        "key": "This document should have a auto generated id."
+      }
+    }]
+  },
+  {
+    "id": "Locations",
+    "docs": [{
+      "id": "WIZWBumUoo7Ywkc3pl2G",
+      "data": {
+        "locationName": "Online",
+        "lessonTypes": [{
+          "name": "Guided ACT",
+          "price": 75,
+          "subtypes": [{
+            "name": "English",
+            "value": "english"
+          },
+          {
+            "name": "Math",
+            "value": "math"
+          },
+          {
+            "name": "Reading",
+            "value": "reading"
+          },
+          {
+            "name": "Science",
+            "value": "science"
+          }]
+        }]
+      }
+    }]
+  }]
+}
