@@ -267,7 +267,7 @@
 
         <div class="practice-test-wrapper">
           <h2>4 free full length ACT section practice tests</h2>
-          <p>Not sure how many points you need to go up? Take two <strong>free</strong> full length ACT tests and get your results back immediately.</p>
+          <p>Not sure how many points you need to go up? Take a <strong>free</strong> full length ACT tests and get your results back immediately.</p>
           <div class="flex-row">
             <input type="email" placeholder="email">
             <button>Submit</button>
@@ -281,9 +281,13 @@
         <div class="program-selector" id="program_selector">
           <h3>I'm looking for</h3>
           <div class="selection-wrapper">
-            <input type="radio" name="program-selection" id="previews" onclick=openProgram(event) checked>
+            <input type="radio" name="program-selection" id="crash" onclick=openProgram(event) checked>
+            <label for="crash">Crash Course</label>
+            <p>4 hours of FREE ACT instruction in all sections over 2 weeks.</p>
+
+            <!-- <input type="radio" name="program-selection" id="previews" onclick=openProgram(event) checked>
             <label for="previews">Program Previews</label>
-            <p>FREE 30 minute session to go over a curriculum topic with one of our amazing tutors.</p>
+            <p>FREE 30 minute session to go over a curriculum topic with one of our amazing tutors.</p> -->
 
             <input type="radio" name="program-selection" id="classes" onclick=openProgram(event)>
             <label for="classes">Classes</label>
@@ -299,13 +303,93 @@
           </div>
         </div>
 
+        <!-- Crash Course -->
+        <div class="program crash open" id="crash_course">
+          <h2>Go over the most important topics</h2>
+          <h4>Just two weeks to cover all 4 sections</h4>
+          
+          <div class="plans" style="grid-template-columns: 1fr;">
+            <!-- English -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>ALL 4 Sections</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>4 classes</h4>
+                <h5>1 hour each</h5>
+              </div>
+              <ul>
+                <li>Learn in depth topics from our expert made curriculum</li>
+                <li>4 full length section tests for practice</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Classes every week</li>
+                <li>Great right before the test</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'crashCourseCallClicked'}); gtag_report_conversion_preview()">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_crash" class="faq_toggle">
+              <label for="faq_0_crash" class="summary"><h3>What is our crash course?</h3></label>
+              <div class="content">
+                <p>
+                  Every two weeks we cover all four sections of the ACT and cover the most important topics from each.
+                  You can jump right in at any point and stay for all of the sections or just the ones you want to cover.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_crash" class="faq_toggle">
+              <label for="faq_1_crash" class="summary"><h3>What else is included?</h3></label>
+              <div class="content">
+                <p>
+                  You will not only get an hour of instruction in each section but will also get a full length practice test 
+                  that will be graded right after you finish.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_crash" class="faq_toggle">
+              <label for="faq_2_crash" class="summary"><h3>When can I start?</h3></label>
+              <div class="content">
+                <p>
+                  We can get you into a class as as sson as possible. You can jump in at any point and go to which ever classes you want.
+                  Classes happen almost every Tuesday and Thursday.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
         <!-- previews -->
-        <div class="program previews open" id="program_preview">
+        <!-- <div class="program previews open" id="program_preview">
           <h2>Get a better idea what a Lyrn lesson looks like.</h2>
           <h4>Choose a section you want to work the most on</h4>
           
           <div class="plans">
-            <!-- English -->
             <div class="plan-wrapper">
               <div class="title">
                 <h3>English</h3>
@@ -323,15 +407,10 @@
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
               <button class="select" onclick="createAnalyticsEvent({eventID: 'englishPreviewScheduleClicked'}); gtag_report_conversion_preview()">
-                <!-- <a href="tel:+13853000906">
-                  <p>Call to sign up</p>
-                  <p>(385) 300-0906</p>
-                </a> -->
                 <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
               </button>
             </div>
 
-            <!--Math -->
             <div class="plan-wrapper">
               <div class="title">
                 <h3>Math</h3>
@@ -349,15 +428,10 @@
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
               <button class="select" onclick="createAnalyticsEvent({eventID: 'mathPreviewScheduleClicked'}); gtag_report_conversion_preview()">
-                <!-- <a href="tel:+13853000906">
-                  <p>Call to sign up</p>
-                  <p>(385) 300-0906</p>
-                </a> -->
                 <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
               </button>
             </div>
 
-            <!-- Reading -->
             <div class="plan-wrapper">
               <div class="title">
                 <h3>Reading</h3>
@@ -375,15 +449,10 @@
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
               <button class="select" onclick="createAnalyticsEvent({eventID: 'readingPreviewScheduleClicked'}); gtag_report_conversion_preview()">
-                <!-- <a href="tel:+13853000906">
-                  <p>Call to sign up</p>
-                  <p>(385) 300-0906</p>
-                </a> -->
                 <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
               </button>
             </div>
 
-            <!-- Science -->
             <div class="plan-wrapper">
               <div class="title">
                 <h3>Science</h3>
@@ -401,10 +470,6 @@
               </ul>
               <h4 class="start">GET STARTED TODAY!</h4>
               <button class="select" onclick="createAnalyticsEvent({eventID: 'sciencePreviewScheduleClicked'}); gtag_report_conversion_preview()">
-                <!-- <a href="tel:+13853000906">
-                  <p>Call to sign up</p>
-                  <p>(385) 300-0906</p>
-                </a> -->
                 <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
               </button>
             </div>
@@ -441,7 +506,7 @@
               If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
             </p>
           </div>
-        </div>
+        </div> -->
 
         <!-- classes -->
         <div class="program classes">

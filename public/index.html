@@ -228,8 +228,11 @@
         <div class="hero__intro">
           <h1>Worried about getting into college?</h1>
           <h4>We guarantee a <a onclick="createAnalyticsEvent({eventID: 'hero4+Clicked'});" href="pricing?program=one-on-one">4+ point increase</a> on your ACT.</h4>
-          <div onclick="createAnalyticsEvent({eventID: 'heroPreviewScheduleClicked'}); gtag_report_conversion_preview()">
+          <!-- <div onclick="createAnalyticsEvent({eventID: 'heroPreviewScheduleClicked'}); gtag_report_conversion_preview()">
             <a class="hero__button" href="pricing.html#program_preview" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;">Schedule a preview today</a>
+          </div> -->
+          <div onclick="createAnalyticsEvent({eventID: 'heroButtonClicked'});">
+            <a class="hero__button" href="pricing.html#crash_course">Join our FREE class today</a>
           </div>
         </div>
         <!-- <div class="hero__body">
