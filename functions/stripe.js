@@ -177,7 +177,7 @@ async function paymentSucceeded(paymentDoc, parentUID) {
   // if the payment was connected to an invoice update the invoice
   if (paymentDoc.data().invoice) {
     await admin.firestore().collection('Invoices').doc(paymentDoc.data().invoice).update({
-      status: 'success',
+      status: 'processed',
       processedAt: new Date(),
       payment: paymentDoc.id
     })
@@ -225,6 +225,12 @@ async function paymentError(error, paymentRef, paymentData, parentUID) {
   // We want to capture errors and render them in a user-friendly way, while
   // still logging an exception with StackDriver
   functions.logger.log(error);
+  if (paymentData.invoice) {
+    await admin.firestore().collection('Invoices').doc(paymentData.invoice).update({
+      error: userFacingMessage(error),
+      status: 'error'
+    })
+  }
   await paymentRef.update({ 
     error: userFacingMessage(error),
     status: 'error'

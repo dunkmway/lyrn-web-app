@@ -17,9 +17,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 if (location.hostname === "localhost") {
-    firebase.firestore().useEmulator("localhost", 8080);
-    firebase.functions().useEmulator("localhost", 5001);
-    firebase.auth().useEmulator("http://localhost:9099");
+    firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
+    firebase.functions && firebase.functions().useEmulator("localhost", 5001);
+    firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
 }
 
 const AUTH_EXPIRATION = 1000 * 60 * 60 * 24 * 5;

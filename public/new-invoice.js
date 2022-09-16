@@ -582,7 +582,8 @@ async function submitInvoice() {
       data.initialPayment = items[0].price * (items[0].quantity < 2 ? items[0].quantity : 2);
       data.schedule = currentEventDocs
       .filter(doc => events.includes(doc.id))
-      .map(doc => new Date(doc.data().start));
+      .map(doc => new Date(doc.data().start))
+      .slice(0, -2);
     }
 
     try {

@@ -19,6 +19,7 @@ async function main() {
  * @param {string} msg mesage to be logged
  */
 function log(msg) {
+  if (typeof msg === "object") msg = JSON.stringify(msg, null, 2)
   let stream = fs.createWriteStream(DEV_LOG_PATH, {flags:'a'});
   stream.write(`${msg}: ${new Date()}\n`);
   stream.end();
@@ -45,14 +46,14 @@ async function firestoreDataParser() {
     return;
   }
 
-  const isLoadedDoc = await admin.firestore().collection('~isLoaded').doc('true').get();
-  if (isLoadedDoc.exists) {
-    log('Firestore already initialized')
-    return;
-  };
+  // const isLoadedDoc = await admin.firestore().collection('~isLoaded').doc('true').get();
+  // if (isLoadedDoc.exists) {
+  //   log('Firestore already initialized')
+  //   return;
+  // };
 
   await collectionParser(data);
-  await admin.firestore().collection('~isLoaded').doc('true').set({});
+  // await admin.firestore().collection('~isLoaded').doc('true').set({});
 }
 
 /**
@@ -68,7 +69,7 @@ function collectionParser(data, path = admin.firestore()) {
     const collectionID = collection.id;
     const docs = collection.docs;
     
-    return Promise.all(docs.map(doc => {
+    return Promise.all(docs.map(async (doc, docIndex) => {
       const docID = doc.id;
       const docData = doc.data;
 
@@ -78,15 +79,59 @@ function collectionParser(data, path = admin.firestore()) {
       }
       else {
         ref = path.collection(collectionID).doc()
+        updateFileDocID(ref, docIndex)
       }
-      return ref.set(docData)
-      .then(() => {
-        if (doc.collections) {
-          return collectionParser(doc, ref);
+
+      const existingDoc = await ref.get()
+      if (existingDoc.exists) {
+        let changedData = {};
+        for (const key in docData) {
+          if (existingDoc.data()[key] !== docData[key]) {
+            changedData[key] = docData[key]
+          }
         }
-      });
+        if (Object.keys(changedData).length > 0) {
+          await ref.update(changedData)
+        }
+      }
+      else {
+        await ref.set(docData)
+      }
+
+      if (doc.collections) {
+        return collectionParser(doc, ref);
+      }
     }))
   }))
+}
+
+function updateFileDocID(ref, finalDocIndex) {
+  const data = require(FIRESTORE_EMULATOR_JSON_PATH);
+  const path = ref._path.segments;
+
+  let currentDataPath = data;
+
+  path.forEach((segment, index) => {
+    if (index % 2 === 0) {
+      // collection segment
+      const collectionIndex = currentDataPath.collections.findIndex(collection => collection.id === segment)
+      currentDataPath = currentDataPath.collections[collectionIndex]
+    }
+    else {
+      // doc segment
+      if (index === path.length - 1) {
+        // last index, should be the doc we are interested in
+        currentDataPath.docs[finalDocIndex].id = segment;
+      }
+      else {
+        const docIndex = currentDataPath.docs.findIndex(doc => doc.id === segment)
+        currentDataPath = currentDataPath.docs[docIndex] 
+      }
+    }
+  })
+
+  // update the file with replaced id
+  return fs.writeFileSync(FIRESTORE_EMULATOR_JSON_PATH, JSON.stringify(data, null, 2));
 }
 
 async function authDataParser() {
@@ -97,13 +142,6 @@ async function authDataParser() {
   }
 
   const users = data.users;
-
-  const isLoadedDoc = await admin.firestore().collection('~isLoaded').doc('true').get();
-
-  if (isLoadedDoc.exists) {
-    log('Auth already initialized')
-    return;
-  };
 
   return Promise.all(users.map(async userData => {
     try {
@@ -137,7 +175,7 @@ async function authDataParser() {
       })
     }
     catch (error) {
-      log(error.message);
+      log(`Auth error for user ${userData.email} - ${error.message}`);
     }
   }))
 }

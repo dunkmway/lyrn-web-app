@@ -19,7 +19,7 @@ test();
 async function test() {
   console.log(CURRENT_STUDENT_UID)
   student_doc = await getUserDoc(CURRENT_STUDENT_UID);
-  if (student_doc.data().parents[0]) {
+  if (student_doc.data().parents?.[0]) {
     parent_doc = await getUserDoc(student_doc.data().parents[0]);
     renderHeader(
       student_doc.data().firstName + ' ' + student_doc.data().lastName,
@@ -43,7 +43,7 @@ function setUpLinks() {
   const links = document.querySelectorAll('nav .links > a');
   links.forEach(link => {
     if (link.dataset.path) {
-      const path = (link.dataset.path === 'student') ? '/' + student_doc.id : (link.dataset.path === 'parent') ? '/' + parent_doc.id : '';
+      const path = (link.dataset.path === 'student') ? '/' + student_doc.id : (link.dataset.path === 'parent') ? '/' + parent_doc?.id : '';
       const htmlIndex = link.href.indexOf('.html');
       link.href = link.href.slice(0, htmlIndex) + path;
     }
@@ -52,7 +52,7 @@ function setUpLinks() {
       const queries = link.dataset.query.split(',');
       if (queries.length > 0) {
         queries.forEach((query, index) => {
-          const queryUID = query === 'student' ? student_doc.id : (query === 'parent') ? parent_doc.id : '';
+          const queryUID = query === 'student' ? student_doc.id : (query === 'parent') ? parent_doc?.id : '';
           if (index === 0) {
             link.href += `?${query}=${queryUID}`
           }

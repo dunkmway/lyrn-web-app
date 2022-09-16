@@ -120,7 +120,16 @@ async function initialSetup() {
       case 'pending':
         setupPending();
         break;
-      case 'success':
+      case 'processing':
+        setupProcessing();
+        break;
+      case 'processed':
+        setupProcessed();
+        break;
+      case 'error':
+        setupError();
+        break;
+      case 'succeeded':
         setupSuccess();
         break;
       case 'failed':
@@ -204,8 +213,8 @@ function setupInvoice() {
 
   // set up the amount due
   const amountDue = (invoiceData.initialPayment // amount passed in the invoice
-  - (promoData.absoluteAmount ?? 0)) // remove absolute promo discount
-  * (100 - (promoData.relativeAmount ?? 0)) / 100; // remove relative promo amount
+  - (promoData?.absoluteAmount ?? 0)) // remove absolute promo discount
+  * (100 - (promoData?.relativeAmount ?? 0)) / 100; // remove relative promo amount
 
   const amountDueRow = createInvoiceRow(
     'Amount Due',
@@ -245,6 +254,39 @@ function setupPending() {
   document.querySelector('.payments').style.display = 'block';
 }
 
+function setupProcessing() {
+  setupInvoice();
+
+  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.type} program.`
+  document.querySelector('#expiration-message').textContent = `Due ${new Time(invoiceData.expiration.toDate()).toFormat('{EEE}, {MMM} {ddd}, {yyyy}')} by 11:55 p.m.`
+  document.querySelector('.payments').style.display = 'block';
+}
+
+async function setupProcessed() {
+  setupInvoice();
+
+  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.type} program.`
+  document.querySelector('#expiration-message').textContent = `Due ${new Time(invoiceData.expiration.toDate()).toFormat('{EEE}, {MMM} {ddd}, {yyyy}')} by 11:55 p.m.`
+  document.querySelector('.payments').style.display = 'block';
+
+  const paymentMethodID = await saveCard(cardholderName);
+  await firebase.firestore()
+  .collection('Invoices').doc(pathParameter(1))
+  .update({
+    savedPaymentMethod: paymentMethodID
+  })
+}
+
+function setupError() {
+  setupInvoice();
+
+  document.querySelector('#welcome-message').textContent = `We're just one step away from starting your ${invoiceData.type} program.`
+  document.querySelector('#expiration-message').textContent = `Due ${new Time(invoiceData.expiration.toDate()).toFormat('{EEE}, {MMM} {ddd}, {yyyy}')} by 11:55 p.m.`
+  document.querySelector('.payments').style.display = 'block';
+
+  handleError(invoiceData.error, { target: document.querySelector('button.submit') })
+}
+
 function setupSuccess() {
   document.querySelector('#welcome-message').textContent = "We're all set! We can't wait to see you for your program."
   document.querySelector('#expiration-message').textContent = '';
@@ -273,8 +315,8 @@ async function submit(event) {
 
   const cardholderName = document.querySelector('#cardholderName').value;
   const amountDue = (invoiceData.initialPayment // amount passed in the invoice
-  - (promoData.absoluteAmount ?? 0)) // remove absolute promo discount
-  * (100 - (promoData.relativeAmount ?? 0)) / 100; // remove relative promo amount
+  - (promoData?.absoluteAmount ?? 0)) // remove absolute promo discount
+  * (100 - (promoData?.relativeAmount ?? 0)) / 100; // remove relative promo amount
   const currency = 'usd';
   const agreements = document.querySelectorAll('.agreements > input');
 
@@ -300,7 +342,28 @@ async function submit(event) {
   }
 
   try {
-    await chargeCard(amount, currency, cardholderName, event, invoiceData.schedule.length > 0);
+    // await chargeCard(amount, currency, cardholderName, event, invoiceData.schedule.length > 0);
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: {
+        name: cardholderName,
+      },
+    })
+  
+    if (error) {
+      throw error;
+    }
+
+    await firebase
+    .firestore()
+    .collection('Invoices')
+    .doc(pathParameter(1))
+    .update({
+      payment_method: paymentMethod.id,
+      status: 'processing'
+    })
+
   }
   catch (error) {
     handleError(error.message, event);

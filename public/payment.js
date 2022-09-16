@@ -234,12 +234,12 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
          let content = '';
          if (invoice.status === 'pending') {
            content = `⚠️ Pending invoice created on ${convertFromDateInt(invoice.createdAt.toDate().getTime())['longDate']}.`;
-         } else if (invoice.status === 'success') {
+         } else if (invoice.status === 'succeeded') {
            content = `✅ Invoice processed on ${convertFromDateInt(invoice.processedAt.toDate().getTime())['longDate']}`;
          } else if (invoice.status === 'failed') {
            content = `🚨 Invoice expired on ${convertFromDateInt(invoice.processedAt.toDate().getTime())['longDate']}`;
          } else {
-           content = `Invoice Error - ${invoice.doc.Id}`;
+           content = `Invoice Error - ${invoice.docId}`;
          }
          liElement.innerText = content;
          document.querySelector('#invoices-list').appendChild(liElement);
