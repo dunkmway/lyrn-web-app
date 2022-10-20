@@ -6,20 +6,10 @@ class Timer {
    * @param {CallableFunction} callback callback function to be called when the timer expires
    * @param {...any} args rest used for arguments for callback
    */
-  constructor(date, callback = null, ...args) {
+  constructor(date, callback = () => {}, ...args) {
     this.date = date;
     this.callback = () => callback(...args);
     this.time = this.date.getTime() - new Date().getTime();
-
-    // the largest a timeout can run for (signed 32 bit max)
-    if (this.time > 2147483647) {
-      // set this timer to expire at the max time and then construct a new timer at that time
-      this.date = new Date(new Date().getTime() + 2147483647);
-      this.callback = () => {
-        new Timer(newDate, callback, ...args)
-      }
-      this.time = 2147483647
-    }
 
     this.elements = [];
 
@@ -27,9 +17,10 @@ class Timer {
       this.update()
     }, 500);
 
+    // the largest a timeout can run for (signed 32 bit max)
     this.timeout = setTimeout(() => {
       this.finish()
-    }, this.time);
+    }, this.time > 2147483647 ? 2147483647 : this.time);
   }
 
   /**
@@ -88,11 +79,20 @@ class Timer {
    * call the given callback and stop the interval
    */
   finish() {
-    if (this.callback) {
-      this.callback()
+    // check to see if the timer should actually be finished
+    // (we might have set the timer lower becuase of int overflow)
+    if (this.time > 0) {
+      // reset the timer
+      this.timeout = setTimeout(() => {
+        this.finish()
+      }, this.time > 2147483647 ? 2147483647 : this.time);
     }
-    clearInterval(this.interval);
-    this.time = 0;
-    this.show()
+    else {
+      this.callback()
+
+      clearInterval(this.interval);
+      this.time = 0;
+      this.show()
+    }
   }
 }
