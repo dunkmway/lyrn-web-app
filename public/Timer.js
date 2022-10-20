@@ -10,11 +10,11 @@ class Timer {
     this.date = date;
     this.callback = () => callback(...args);
     this.time = this.date.getTime() - new Date().getTime();
-    
+
     // the largest a timeout can run for (signed 32 bit max)
     if (this.time > 2147483647) {
       // set this timer to expire at the max time and then construct a new timer at that time
-      this.date = new Date(date.getTime() + 2147483647);
+      this.date = new Date(new Date().getTime() + 2147483647);
       this.callback = () => {
         new Timer(newDate, callback, ...args)
       }
