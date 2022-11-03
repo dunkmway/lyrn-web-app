@@ -28,24 +28,29 @@
 	border-style: solid;
 	border-width: 1px;
 	border-color: black;
-	margin-right: 5vw;
-	width: 45vw;
+	margin-right: 20px;
 	height: 80%;
 	margin-top: calc(.10 * 70vh);
 	padding: 1em;
+	overflow: auto;
 }
 
-.finalProductDiv:first-child {
-	margin-left: 5vw;
-	width: 10vw;
+#qNumbers {
+	margin-left: 20px;
+	flex: 1;
 	text-align: center;
-	overflow: auto;
 }
 
-.finalProductDiv:last-child {
-	margin-right: 0vw;
-	width: 25vw;
-	overflow: auto;
+#pText {
+	flex: 5;
+}
+
+#eText {
+	flex: 3;
+}
+
+#qList {
+	flex: 3;
 }
 
 .bold {

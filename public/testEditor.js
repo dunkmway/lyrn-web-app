@@ -901,6 +901,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	let dom_isGroupedByPassage = document.getElementById('isGroupedByPassage')
 	let dom_questionList = document.getElementById('questionList')
 	let dom_questionText = document.getElementById('questionText')
+	let dom_questionExplanation = document.getElementById('questionExplanation')
 	let dom_topic = document.getElementById('topic')
 
 	// Display the 5th question if it's the math section
@@ -932,6 +933,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 	removeChildren(dom_topic.id)
 	removeChildren('pText')
 	dom_questionText.value = null;
+	dom_questionExplanation.value = null;
 	dom_isGroupedByPassage.checked = false;
 	document.querySelectorAll('textarea[id^="answer"]').forEach(answer => answer.value = null)
 	document.getElementById('questions').dispatchEvent(new Event('input', {bubbles:true}))
@@ -963,7 +965,8 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
 				if (questionDoc.exists) {
 					resetQuestion(questionDoc.data().code)
 
-					dom_questionText.value = questionDoc.data().content;
+					dom_questionText.value = questionDoc.data().content ?? '';
+					dom_questionExplanation.value = questionDoc.data().explanation ?? '';
 					dom_isGroupedByPassage.checked = questionDoc.data().isGroupedByPassage ?? false;
 					dom_topic.value = questionDoc.data().topic
 
@@ -1052,7 +1055,7 @@ async function initializeQuestionsDisplay(test = undefined, section = undefined,
  * @param {number} number The question at hand
  * @param {?string} spacing The spacing for debug purposes (ie. '  ')
  */
-async function initializeQuestionPreview(question, answers, number, spacing = '') {
+async function initializeQuestionPreview(question, explanation, answers, number, spacing = '') {
 	if (debug == true) {
 		console.log(spacing + 'initializeQuestionPreview()', {
 			'question' : question,
@@ -1072,6 +1075,7 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 
 	// Get the HTML elements
 	const dom_qList = document.getElementById('qList')
+	const dom_eList = document.getElementById('eText')
 
 	// Display the question
 	if (question != undefined && question != '') {
@@ -1085,6 +1089,8 @@ async function initializeQuestionPreview(question, answers, number, spacing = ''
 	}
 	dom_qList.appendChild(answerDiv)
 
+	// Display the explanation
+	dom_eList.innerHTML = explanation;
 }
 
 /**
@@ -1215,6 +1221,11 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		dom_text.value = dom_text.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
 	}
 
+	let dom_explanation = document.getElementById('questionExplanation')
+	while (dom_explanation.value.includes('  ')) {
+		dom_explanation.value = dom_explanation.value.replaceAll('  ', ' ').replaceAll(' teh ', ' the ')
+	}
+
 	// Clean up choices
 	for (let i = 0; i < choices.length; i++) {
 		if(isWrappedInTagname('p', choices[i]) == false && isWrappedInTagname('img', choices[i]) == false && isWrappedInTagname('p', choices[i]) == false) {
@@ -1232,6 +1243,7 @@ async function saveQuestion(goToNext = true, spacing = '') {
 		const data = {
 			choices,
 			content: dom_text.value,
+			explanation: dom_explanation.value,
 			passage,
 			topic,
 			isQuestionBank
@@ -2757,7 +2769,7 @@ dom_questions.addEventListener('input', async function(event) {
 	}
 
 	// Initialize the Question Preview
-	await initializeQuestionPreview(document.getElementById('questionText').value, answers, Number(dom_questionList.querySelector('option:checked')?.textContent), spaceSize)
+	await initializeQuestionPreview(document.getElementById('questionText').value, document.getElementById('questionExplanation').value, answers, Number(dom_questionList.querySelector('option:checked')?.textContent), spaceSize)
 
 	// Reset Math Jax
 	resetMathJax()

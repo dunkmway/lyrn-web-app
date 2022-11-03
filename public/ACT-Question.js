@@ -8,6 +8,7 @@ class Question {
     this.answer = null;
     this.choices = null;
     this.content = null;
+    this.explanation = null;
     this.isGroupedByPassage = null;
     this.isQuestionBank = null;
     this.passage = null;
@@ -41,6 +42,7 @@ class Question {
     this.answer = null;
     this.choices = null;
     this.content = null;
+    this.explanation = null;
     this.isGroupedByPassage = null;
     this.isQuestionBank = null;
     this.passage = null;
@@ -125,7 +127,14 @@ class Question {
     // show the question number
     document.getElementById('questionNumber').textContent = (this.pos + 1).toString();
     // show the question content
-    document.getElementById('questionContent').innerHTML = this.content;
+    document.getElementById('questionContent').innerHTML = this.content ?? '';
+    // show the question explanation
+    const explanationHTML = `
+    <input type="checkbox" id="questionExplanationInput">
+    <label for="questionExplanationInput" class="color-accent">Explanation</label>
+    <div id="explanationWrapper">${this.explanation}</div>
+    `
+    document.getElementById('questionExplanation').innerHTML = this.explanation ? explanationHTML : '';
     //determine if the flag should be shown
     document.getElementById('questionFlag').checked = isFlagged;
     // disable the flag

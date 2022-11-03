@@ -184,9 +184,17 @@ section.hide {
 }
 
 .header > .container {
-  /* flex: 1; */
+  flex: 1;
   display: flex;
   justify-content: center;
+}
+
+.header > .container:first-child {
+  justify-content: start;
+}
+
+.header > .container:last-child {
+  justify-content: end;
 }
 
 .header h1 {
@@ -801,6 +809,48 @@ section.hide {
 .main .panels .question .choice > input[type="radio"]:checked::after {
   background-color: var(--accent-color);
   border: none;
+}
+
+#questionExplanationInput {
+  visibility: hidden;
+  position: absolute;
+  top: -9999;
+  left: -9999;
+}
+
+#questionExplanation > label[for="questionExplanationInput"] {
+  margin-top: 1em;
+}
+
+#questionExplanation > label[for="questionExplanationInput"]::after {
+  content: '';
+  width: 0.75em;
+  height: 0.75em;
+  margin: 0 0.5em 2px;
+  display: inline-block;
+  border: 2px solid var(--accent-color);
+  border-left-color: transparent;
+  border-top-color: transparent;
+  transform-origin: 8px 8px;
+  transform: rotate(45deg);
+  transition: all ease-in-out 250ms;
+}
+
+#questionExplanation > #questionExplanationInput:checked + label[for="questionExplanationInput"]::after {
+  transform: rotateX(180deg) rotate(45deg);
+}
+
+#questionExplanation > #explanationWrapper {
+  overflow: hidden;
+}
+
+#questionExplanation > #explanationWrapper * {
+  transform: translateY(calc(-100% - 2em));
+  transition: all ease-in-out 250ms;
+}
+
+#questionExplanation > #questionExplanationInput:checked ~ #explanationWrapper * {
+  transform: translateY(0);
 }
 
 @media screen and (max-width: 800px) {

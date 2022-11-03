@@ -584,31 +584,12 @@ function show_helper(parent, minutes, numQuestions, statusIndicatorElement, type
     </p>` :
     ''
   }
-  ${minutes ? 
-    (
-      `${STOPWATCH_SVG}
-      <p>
-        ${minutes}
-      </p>`
-    ) : ''
-  }
-  ${numQuestions ? 
-    (
-      `${MINUS_BOX_SVG}
-      <p>
-        ${numQuestions}
-      </p>`
-    ) : ''
-  }
-  ${!minutes && !numQuestions ?
-    (
-      `${REFRESH_SVG}
-      <p>
-        auto
-      </p>`
-    )
-    : ''
-  }
+
+  ${STOPWATCH_SVG}
+  <p>${minutes ? minutes : '--:--'}</p>
+
+  ${MINUS_BOX_SVG}
+  <p>${numQuestions ? numQuestions : 'auto'}</p>
   `
   rightDiv.classList.add('flex-row', 'align-center');
   rightDiv.appendChild(statusIndicatorElement);
