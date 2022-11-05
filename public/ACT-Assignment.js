@@ -71,18 +71,20 @@ class Assignment {
 
     if (this.status === 'new') {
       // open timer
-      this.openTimeout = new Timer(this.open.toDate(), () => {
+      this.openTimeout = this.open ? 
+      new Timer(this.open.toDate(), () => {
         this.openTimeout.cleanUp();
         this.openTimeout = null;
         showAssignments();
-      })
+      }) : null
 
       //close timer
-      this.closeTimeout = new Timer(this.close.toDate(), async () => {
+      this.closeTimeout = this.close ?
+      new Timer(this.close.toDate(), async () => {
         this.closeTimeout.cleanUp();
         this.closeTimeout = null;
         await this.omit();
-      })
+      }) : null
     }
 
     if (this.status === 'started' && this.startedAt && this.time) {
@@ -116,14 +118,14 @@ class Assignment {
     // hide the assignments that haven't opened yet
     // if not a staff
     if (!STAFF_ROLES.includes(current_user_role)) {
-      if (this.open.toDate().getTime() > new Date().getTime()) {
+      if (this.open && this.open.toDate().getTime() > new Date().getTime()) {
         this.wrapper.classList.add('hide')
       } else {
         this.wrapper.classList.remove('hide')
       }
     } else {
       // show the assignment according to it's open status
-      if (this.open.toDate().getTime() > new Date().getTime()) {
+      if (this.open && this.open.toDate().getTime() > new Date().getTime()) {
         this.wrapper.classList.add('not-open')
       } else {
         this.wrapper.classList.remove('not-open')
@@ -135,12 +137,12 @@ class Assignment {
       case 'new':
         this.statusIndicator.classList.remove('spinner');
         if (STAFF_ROLES.includes(current_user_role)) {
-          this.statusIndicator.textContent = 
-          new Time(this.open.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}')
+          this.statusIndicator.textContent =
+          (this.open ? new Time(this.open.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '')
           + ' — ' +
-          new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}');
+          (this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '');
         } else {
-          this.statusIndicator.textContent = new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}');
+          this.statusIndicator.textContent = this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '';
         }
         document.getElementById('newAssignments').appendChild(this.wrapper);
         break;

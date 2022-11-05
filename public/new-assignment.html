@@ -43,6 +43,12 @@
       <div id="nameSearchResults"></div>
     </div>
 
+    <details style="max-width: max-content; margin: 0em 0em 0em 2em; padding: 0; border: none;">
+      <summary>Manual User UID Entry</summary>
+      <input type="text" id="manualUID" class="input">
+      <button onclick="setManualStudent()">Submit</button>
+    </details>
+
     <main>
       <section id="assignment">
         <h2>Assignments</h2>
@@ -111,8 +117,10 @@
         </div>
 
         <label for="open">Open</label>
+        <input type="checkbox" id="hasOpen" checked>
         <input class="input" id="open">
         <label for="close">Close</label>
+        <input type="checkbox" id="hasClose" checked>
         <input class="input" id="close">
 
         <label for="time">Time (in minutes)</label>

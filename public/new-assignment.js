@@ -1,6 +1,16 @@
 const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id;
 const TOPIC_GRADED_ASSIGNMENT_TYPES = ['daily', 'homework', 'practice'];
 
+function setManualStudent() {
+  const student = document.getElementById('manualUID').value;
+  if (student) {
+    window.location.href = window.location.href.split('?')[0] + `?student=${student}`
+  }
+  else {
+    window.location.href = window.location.href.split('?')[0]
+  }
+}
+
 async function initialSetup() {
   await getTopics()
 
@@ -10,7 +20,12 @@ async function initialSetup() {
     getTestsForSections()
     firebase.firestore().collection('Users').doc(queryStrings().student).get()
     .then((studentDoc) => {
-      document.getElementById('nameSearch').value = studentDoc.data().firstName + ' ' + studentDoc.data().lastName + ' (' + studentDoc.data().role + ')';
+      if (studentDoc.exists) {
+        document.getElementById('nameSearch').value = studentDoc.data().firstName + ' ' + studentDoc.data().lastName + ' (' + studentDoc.data().role + ')';
+      }
+      else {
+        document.getElementById('nameSearch').value = queryStrings().student;
+      }
     })
     await getAssignments(queryStrings().student);
   }
@@ -404,16 +419,18 @@ async function setAssignment() {
   const topics = Array.from(document.querySelectorAll('#topicWrapper > div > input[type="checkbox"]:checked'), checkbox => checkbox.value);
   const topicProportions = topics.map(id => Number.parseInt(document.getElementById(`${id}-weight`).value))
   const count = parseInt(document.getElementById('count').value ?? 0) || null;
+  const hasOpen = document.getElementById('hasOpen').checked;
   let open = document.getElementById('open')._flatpickr.selectedDates[0];
+  const hasClose = document.getElementById('hasClose').checked;
   const close = document.getElementById('close')._flatpickr.selectedDates[0];
   const time = parseInt(document.getElementById('time').value ?? 0) || null;
   const type = document.getElementById('types').value;
 
   // set the date to the earliest right now
-  if (open.getTime() < new Date().getTime()) { open = new Date(); };
+  if (hasOpen && open.getTime() < new Date().getTime()) { open = new Date(); };
 
   // check for impossible open and close times
-  if (open.getTime() >= close.getTime()) {
+  if (hasOpen && hasClose && open.getTime() >= close.getTime()) {
     new Dialog({
       message: 'You have impossible open and close times.',
       backgroundColor: '#E36868',
@@ -435,32 +452,16 @@ async function setAssignment() {
     return;
   }
 
-  // console.log({
-  //   student,
-  //   assignmentType,
-  //   test,
-  //   section,
-  //   sectionCodeBySection,
-  //   sectionCodeByTopic,
-  //   topics,
-  //   topicProportions,
-  //   count,
-  //   open,
-  //   close,
-  //   time,
-  //   type
-  // })
-
   switch (assignmentType) {
     case 'section':
-      await submitSectionAssignment(student, test, section, sectionCodeBySection, open, close, time, type);
+      await submitSectionAssignment(student, test, section, sectionCodeBySection, hasOpen ? open : null, hasClose ? close : null, time, type);
       break;
     case 'topic':
       if (count) {
-        await submitTopicAssignment(student, sectionCodeByTopic, topics, topicProportions, count, open, close, time, type);
+        await submitTopicAssignment(student, sectionCodeByTopic, topics, topicProportions, count, hasOpen ? open : null, hasClose ? close : null, time, type);
       }
       else {
-        await submitDynamicAssignment(student, sectionCodeByTopic, topics, topicProportions, open, close, time, type);
+        await submitDynamicAssignment(student, sectionCodeByTopic, topics, topicProportions, hasOpen ? open : null, hasClose ? close : null, time, type);
       }
       break;
     default:
@@ -486,7 +487,7 @@ async function setAssignment() {
 }
 
 async function submitSectionAssignment(student, test, section, sectionCode, open, close, time, type) {
-  if(!student || !test || !section || !sectionCode || !open || !close || !time || !type) {
+  if(!student || !test || !section || !sectionCode || !type) {
     new Dialog({
       message: 'Check that all values have been inputted.',
       backgroundColor: '#E36868',
@@ -529,8 +530,8 @@ async function submitSectionAssignment(student, test, section, sectionCode, open
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
 
   getTestsForSections();
 
@@ -541,7 +542,7 @@ async function submitSectionAssignment(student, test, section, sectionCode, open
 }
 
 async function submitTopicAssignment(student, sectionCode, topics, topicProportions, count, open, close, time, type) {
-  if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !open || !close || !type) {
+  if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !type) {
     new Dialog({
       message: 'Check that all values have been inputted.',
       backgroundColor: '#E36868',
@@ -617,8 +618,8 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
 
   Toastify({
     text: 'Assignment Sent!'
@@ -697,7 +698,7 @@ function getRandomQuestions(count, topics, topicProportions, questionsByTopics, 
 }
 
 async function submitDynamicAssignment(student, sectionCode, topics, topicProportions, open, close, time, type) {
-  if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !open || !close || !type) {
+  if (!student || !sectionCode || !topics || topics.length == 0 || !topicProportions || topicProportions.length == 0 || !type) {
     new Dialog({
       message: 'Check that all values have been inputted.',
       backgroundColor: '#E36868',
@@ -780,8 +781,8 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
     status: 'new'
   })
 
-  document.getElementById('testTakerLink').textContent = `https://lyrnwithus.com/test-taker/${student}`;
-  document.getElementById('testTakerLink').href = `https://lyrnwithus.com/test-taker/${student}`;
+  document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
+  document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
 
   Toastify({
     text: 'Assignment Sent!'
