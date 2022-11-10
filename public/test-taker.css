@@ -844,12 +844,12 @@ section.hide {
   overflow: hidden;
 }
 
-#questionExplanation > #explanationWrapper * {
+#questionExplanation > #explanationWrapper > div {
   transform: translateY(calc(-100% - 2em));
   transition: all ease-in-out 250ms;
 }
 
-#questionExplanation > #questionExplanationInput:checked ~ #explanationWrapper * {
+#questionExplanation > #questionExplanationInput:checked ~ #explanationWrapper > div {
   transform: translateY(0);
 }
 

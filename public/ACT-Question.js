@@ -132,7 +132,7 @@ class Question {
     const explanationHTML = `
     <input type="checkbox" id="questionExplanationInput">
     <label for="questionExplanationInput" class="color-accent">Explanation</label>
-    <div id="explanationWrapper">${this.explanation}</div>
+    <div id="explanationWrapper"><div>${this.explanation}</div></div>
     `
     document.getElementById('questionExplanation').innerHTML = this.explanation ? explanationHTML : '';
     //determine if the flag should be shown
