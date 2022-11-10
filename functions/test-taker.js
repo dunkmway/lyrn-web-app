@@ -4,17 +4,17 @@ const admin = require("firebase-admin");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgrid.secret);
 
-const SECTION_TIME = {
-  english_directions: 1,
-  english: 45,
-  math_directions: 1,
-  math: 60,
-  break_directions: 10,
-  reading_directions: 1,
-  reading: 35,
-  science_directions: 1,
-  science: 35,
-  all: 189
+const FREE_TIER_TESTS = [
+  'a3jWOjkavIOaCsiu9sot',   // B02 
+  'eTqlQ5uRx8KUZPeBRuVT',   // C01
+  '1iuXV7lsj4f6AimfQtM4'    // D05
+]
+
+const SECTION_TIMES = {
+  english: 1000 * 60 * 45,
+  math: 1000 * 60 * 60,
+  reading: 1000 * 60 * 35,
+  science: 1000 * 60  * 35
 }
 
 exports.assignmentUpdated = functions.firestore
@@ -320,4 +320,177 @@ async function sendAssignmentCloseReminderEmail(userUID) {
       html: assignmentCloseReminderEmail(userUID)
     });
   }
+}
+
+exports.generateFreeTierAssignments = functions.https.onCall(async (data, context) => {
+  // context.app will be undefined if the request doesn't include a valid
+  // App Check token.
+  // if (context.app == undefined) {
+  //   throw new functions.https.HttpsError(
+  //     'failed-precondition',
+  //     'The function must be called from an App Check verified app.'
+  //   )
+  // }
+
+  // check if this email has requested a free tier test already
+  const freeTierQuery = await admin.firestore().collection('Leads')
+  .where('email', '==', data.email)
+  .where('type', '==', 'ACT-testTakerFreeTier')
+  .get();
+
+  // if they already have had a practice test sent to this email
+  if (freeTierQuery.size > 0) {
+    // we don't need to send off the request or create the assignments
+    // just send them an email with the same link as before
+    await sendFreeTierEmail(data.email, freeTierQuery.docs[0].id);
+    return;
+  }
+
+  //save the contact data to firebase first
+  const ref = admin.firestore().collection('Leads').doc();
+  data.timestamp = new Date()
+  await ref.set(data);
+
+  // get the questions for the tests
+  const marketingSections = (await Promise.all(FREE_TIER_TESTS.map(async testID => {
+    return (await admin.firestore()
+    .collection('ACT-Section-Data')
+    .where('test', '==', testID)
+    .get()).docs
+    .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
+  }))).flat()
+
+  const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
+    return (await admin.firestore()
+    .collection('ACT-Question-Data')
+    .where('test', '==', section.data().test)
+    .where('section', '==', section.id)
+    .get()).docs
+    .sort((a,b) => a.data().code - b.data().code)
+    .map(doc => doc.id);
+  }))
+
+  // set a new assignment for the lead
+  // this is so the assignments come in the proper order in the test taker
+  const now = new Date();
+
+  await Promise.all(marketingSections.map((sectionDoc, index) => {
+    admin.firestore().collection('ACT-Assignments').doc().set({
+      open: new Date(new Date(now).setSeconds(now.getSeconds() + index)),
+      close: null,
+      questions: marketingQuestions[index],
+      scaledScoreSection: sectionDoc.id,
+      sectionCode: sectionDoc.data().code,
+      status: 'new',
+      student: ref.id,
+      time: index % 8 < 4 ? SECTION_TIMES[sectionDoc.data().code] : null,     // this is so that the second set of four sections are not timed
+      type: 'marketing'
+    })
+  }))
+
+  //then send an email to the admin account with the data
+  await sendFreeTierEmail(data.email, ref.id)
+
+  return;
+})
+
+function sendFreeTierEmail(email, leadID) {
+  const msg = {
+    to: email,
+    from: {
+      email: 'contact@lyrnwithus.com',
+      name: 'Lyrn Contact'
+    },
+    subject: 'Full Length ACT Tests',
+    text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
+    To help you get started, we've sent you 3 full length ACT tests with detailed explanation for each question.
+    Use the link below to access your personal test taker. https://lyrnwithus.com/test-taker/${leadID}
+    Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
+    html: `
+    <head>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+  </style>
+</head>
+<body style="font-family: 'proxima-nova', sans-serif;">
+  <div id="email" style="width:600px;margin: auto;background:white;">
+
+  <table role="presentation" border="0" width="100%" cellspacing="0">
+  <tr>
+    <td bgcolor="white" align="right" style="color:#27c03a; border-bottom: 2px solid #27c03a;">
+      <a href="https://lyrnwithus.com">
+        <img src="https://lyrnwithus.com/Images/Lyrn_Logo_Green.png" alt="Lyrn Logo" style="height: 3em;">
+      </a>
+    </td>
+  </tr>
+</table>
+  
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td style="padding: 30px 30px 30px 60px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">ACT Practice Test</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
+            The best way to start preparing for the ACT is with a practice test. 
+            That's why we sent you 12 full length sections!
+            With our test taker, you will be timed just like the actual test, and when you're done, you can review your score and answers all from the same place.
+            We've even included details explanations for each question along with the type of question answered.
+            What are you waiting for? Get testing!
+          </p>
+        </td> 
+      </tr>
+    </table>
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td align="center">
+          <table role="presentation" align="center" border="0" cellspacing="0">
+            <tr>
+              <td align="center" bgcolor="#27c03a" style="border-radius: .5em;">
+                <a style="font-size: 1em; text-decoration: none; color: white; padding: .5em 1em; border-radius: .5em; display: inline-block; border: 1px solid #27c03a;" href="https://lyrnwithus.com/test-taker/${leadID}">Open My Test Taker</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td style="vertical-align: top;padding: 30px 10px 30px 60px;"> 
+          <h2 style="font-size: 28px; margin:0 0 20px 0;"> ACT Prep Courses </h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Sometimes practice on your own just doesn't cut it. Our ACT programs are designed to help you get the score you need to get into college or get that scholarship.</p>
+          <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=act" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+        </td>
+        <td style="vertical-align: top;padding: 30px 30px 30px 60px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">Subject Tutoring</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Need some help with your homework or preparing for a test? Subject tutoring is your perfect fit. We teach all topics K-12, and one of our expert tutors will gladly help you get that A+!</p>
+          <p style="margin:0;font-size:16px;line-height:24px; "><a href="https://lyrnwithus.com/pricing?course=subjectTutoring" style="color:#27c03a;text-decoration:underline;">Learn more</a></p>
+        </td>
+      </tr>       
+    </table>
+
+    <table role="presentation" border="0" width="100%">
+      <tr>
+        <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
+          <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
+          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+        </td>
+      </tr>
+    </table>
+    
+    <table role="presentation" border="0" width="100%" cellspacing="0">
+      <tr>
+        <td class="footer" bgcolor="#F5F8FA" style="padding: 30px 30px;">
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/terms">Terms and Conditions</a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/privacy">Privacy Policy</a>
+          <a style="font-size: 12px; color: #99ACC2; margin-right: 1em;" href="lyrnwithus.com/unsubscribe?q=${leadID}"> Unsubscribe </a>
+          <p style="font-size: 12px; color: #99ACC2;">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>      
+        </td>
+      </tr>
+    </table> 
+  </div>
+</body>
+    `,
+  }
+  return sgMail.send(msg)
 }
