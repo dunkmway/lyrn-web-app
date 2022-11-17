@@ -22,6 +22,12 @@ exports.act_question_data = require('./act-question-data');
 exports.database_helpers = require('./database-helpers');
 admin.initializeApp();
 
+// run the emulator main if we are running the emulator
+if (process.env.FUNCTIONS_EMULATOR) {
+    const emulator = require('./emulator');
+    emulator.main();
+}
+
 //don't let this request go public becuase it could really mess things up!!!
 exports.setCustomClaimsRequest = functions.https.onRequest((request, response) => {
     admin

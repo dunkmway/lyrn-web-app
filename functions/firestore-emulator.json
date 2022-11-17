@@ -1,0 +1,102 @@
+{
+  "collections": [
+    {
+      "id": "test collection",
+      "docs": [
+        {
+          "id": "test doc",
+          "data": {
+            "key": "new test value",
+            "unchanged": "this values should stay the same when changing other values"
+          },
+          "collections": [
+            {
+              "id": "subcollection",
+              "docs": [
+                {
+                  "id": "subcollection doc",
+                  "data": {
+                    "key": "subcollection value"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "Mbl1wXctNWUDrU4hFK7g",
+          "data": {
+            "key": "This document should have a auto generated id."
+          },
+          "collections": [
+            {
+              "id": "sub",
+              "docs": [
+                {
+                  "id": "hMmg6y3JonRKgGAFSRVv",
+                  "data": {
+                    "key": "making sure this doc also gets its id replaced"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Locations",
+      "docs": [
+        {
+          "id": "WIZWBumUoo7Ywkc3pl2G",
+          "data": {
+            "locationName": "Online",
+            "lessonTypes": [
+              {
+                "name": "Guided ACT",
+                "value": "actGuided",
+                "price": 75,
+                "subtypes": [
+                  {
+                    "name": "English",
+                    "value": "english"
+                  },
+                  {
+                    "name": "Math",
+                    "value": "math"
+                  },
+                  {
+                    "name": "Reading",
+                    "value": "reading"
+                  },
+                  {
+                    "name": "Science",
+                    "value": "science"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "Promos",
+      "docs": [
+        {
+          "id": "LJl0zK9yskMZyuYfUBNF",
+          "data": {
+            "code": "gomascot",
+            "end": null,
+            "hasSchedule": null,
+            "maxUses": null,
+            "relativeAmount": 10,
+            "start": null,
+            "type": "actGuided",
+            "uses": 0
+          }
+        }
+      ]
+    }
+  ]
+}
