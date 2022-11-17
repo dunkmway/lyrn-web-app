@@ -1,24 +1,30 @@
-@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600');
+@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
 
 :root {
   --nav-background: white;
   --nav-color: black;
 
   --color-primary: #ffffff;
-  --color-secondary: #e7e8e9;
+  --color-secondary: #E6E7E8;
   --color-tertiary: #101b42;
 
-  --color-accent-1-deep: #ffb102;
-  --color-accent-2-deep: #27c13a;
-  --color-accent-3-deep: #19a7c8;
-  --color-accent-4-deep: #6b6be5;
-  --color-accent-5-deep: #ef6b6b;
+  --yellow-deep: #ffb102;
+  --green-deep: #27c13a;
+  --blue-deep: #19a7c8;
+  --purple-deep: #6b6be5;
+  --red-deep: #ef6b6b;
 
-  --color-accent-1-light: #ffca02;
-  --color-accent-2-light: #3cdd58;
-  --color-accent-3-light: #02c6ff;
-  --color-accent-4-light: #8787ff;
-  --color-accent-5-light: #ea5a5a;
+  --yellow-light: #ffca02;
+  --green-light: #3cdd58;
+  --blue-light: #02c6ff;
+  --purple-light: #8787ff;
+  --red-light: #ea5a5a;
+
+  --yellow-very-light: #FFF4CC;
+  --green-very-light: #CCFFD5;
+  --blue-very-light: #CCF4FF;
+  --purple-very-light: #CCCCFF;
+  --red-very-light: #FFCCCC;
 }
 
 *, *::before, *::after {
@@ -31,119 +37,127 @@ html {
 
 body {
   font-family: "proxima-nova", sans-serif;
-  font-size: 1.5rem;
+  font-size: 1rem;
   overflow-x: hidden;
   width: 100vw;
   margin: 0;
   background-color: var(--color-secondary);
 }
 
-img {
-  width: 100%;
-}
-
 a {
   cursor: pointer;
+  text-decoration: none;
+  color: var(--purple-deep);
 }
 
-.sign-in {
-  background: url('Images/Lyrn-Log-In.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+img {
+  display: block;
+  max-width: 100%;
 }
 
-.sign-in .wrapper {
-  width: 40%;
-  max-width: 600px;
-  background-color: var(--color-primary);
+.register {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 2.5em;
+  width: 100vw;
+  height: 100vh;
+  padding: 5%;
+  background-position: left;
+  background-size: 300%;
+  /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light)); */
+  background-image: linear-gradient(45deg, var(--green-light), var(--blue-light), var(--purple-light), var(--blue-light), var(--green-light));
+  animation: gradient-background 60s linear infinite alternate;
+  overflow-y: auto;
+}
+
+.register .wrapper {
+  max-width: 500px;
+  width: 100%;
+}
+
+@keyframes gradient-background {
+  0% {
+    background-position: left;
+  }
+  100% {
+    background-position: right;
+  }
+}
+
+.logo {
+  height: 3rem;
+  fill: white;
+  margin-bottom: 1em;
+}
+
+#signin {
+  background-color: white;
   border-radius: 1em;
-  overflow: hidden;
-  position: relative;
-}
-
-/* .sign-in .wrapper::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  height: 1em;
-  display: block;
-  background-color: var(--color-tertiary);
-} */
-
-.sign-in .logo {
-  min-width: 200px;
-  width: 40%;
-  margin: 1.5em 0em;
-}
-
-.sign-in label {
-  align-self: flex-start;
-  font-size: .75em;
-  margin: 0;
-  margin-left: 1em;
-  margin-top: 1.5em;
-  color: #acacac;
-}
-
-.sign-in input {
-  height: 3em;
-  font-size: 1em;
-  border: 2px solid #acacac;
-  border-radius: .5em;
-  -moz-appearance:none;
-  -webkit-appearance:none;
-  appearance:none;
-  padding: 0 0.5em;
-  color: var(--color-tertiary);
-  margin: 0;
+  padding: 1em 2em;
   width: 100%;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.30);
+  margin-bottom: 3em;
 }
 
-.sign-in .forgot {
-  text-decoration: underline;
-  font-size: .75em;
-  align-self: flex-start;
-  margin-left: 1em;
-  cursor: pointer;
-}
-
-.sign-in .error {
-  color: var(--color-accent-5-light);
-  font-size: .75em;
-  display: none;
-  margin-top: 0;
-  margin-left: 1em;
-  align-self: flex-start;
-}
-
-.sign-in .button {
-  background-image: linear-gradient(45deg, #ffca02, 85%, #ea5a5a);
-  width: 100%;
-  padding: 1em;
+#signin h1 {
+  margin: 0;
+  font-size: 3em;
+  color: var(--green-light);
+  font-weight: 900;
   text-align: center;
-  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+#signin h2 {
+  text-align: center;
+  margin: .3em;
+}
+
+#signin input, #signin label {
+  display: block;
+}
+
+#signin input:not([type='radio']):not([type='submit']) {
+  font-size: 1em;
+  height: 2em;
+  width: 100%;
+  padding: .5em;
+  margin-bottom: 1em;
   border-radius: .5em;
+  border: 2px solid var(--color-secondary);
+}
+
+#signin label {
+  font-size: .9em;
+}
+
+#signin .password-label {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#signin .forgot {
+  cursor: pointer;
+  color: var(--purple-deep);
+}
+
+#signin input[type='submit'] {
+  width: 100%;
+  padding: .75em;
+  border-radius: .5em;
+  border: none;
+  background-color: var(--green-deep);
+  color: white;
+  font-size: 1em;
   cursor: pointer;
 }
 
-@media screen and (max-width: 800px) {
-  body {
-    font-size: .75em;
-  }
+#signin .error {
+  color: var(--red-light);
+}
 
-  .sign-in .wrapper {
-    width: 90%;
-  }
+#signin .have-account {
+  text-align: center;
 }

@@ -1,5 +1,5 @@
 //form submission
-document.getElementById('signup').addEventListener('submit', (event) => {
+document.getElementById('signup').addEventListener('submit', async (event) => {
   event.preventDefault();
   const target = event.target;
   const registrationData = Object.fromEntries(new FormData(target).entries())
@@ -28,19 +28,16 @@ document.getElementById('signup').addEventListener('submit', (event) => {
   
     //set up their role
     const addUserRole = firebase.functions().httpsCallable('addUserRole');
-    await addUserRole({ role: registrationData.role });
+    await addUserRole({ role: 'student' });
 
     //set up their user profile
     await firebase.firestore().collection('Users').doc(user.uid).set({
       firstName : registrationData.firstName.trim(),
       lastName : registrationData.lastName.trim(),
       email : registrationData.email.trim(),
-      role : registrationData.role,
+      role : 'student',
       location : 'WIZWBumUoo7Ywkc3pl2G' //hard coded for the online location
     })
-
-    //set up their stripe profile
-    //This happens automatically on user creation
 
     target.reset();
     console.log('new user uid:', user.uid)
@@ -53,5 +50,6 @@ document.getElementById('signup').addEventListener('submit', (event) => {
     var errorMessage = error.message;
     console.log(errorCode, errorMessage);
 
+    Dialog.alert(error.message)
   });
 })

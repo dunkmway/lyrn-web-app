@@ -42,6 +42,7 @@ let allowedPages = {
     ],
     public: [
         "/sign-in",
+        "/sign-up"
     ],
     student: [
         "/Dashboard/Student",

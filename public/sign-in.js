@@ -1,28 +1,27 @@
 // login functionality
+const formElement = document.getElementById('signin');
 const usernameField = document.getElementById("email");
 const passwordField = document.getElementById("password");
 const loginButton = document.querySelector('.button')
 const errorElem = document.querySelector(".error");
 
-usernameField.addEventListener("keyup", function(event) {
-  if(event.code === 'Enter') {
-      event.preventDefault()
-      login();
-  }
-});
+// usernameField.addEventListener("keyup", function(event) {
+//   if(event.code === 'Enter') {
+//       event.preventDefault()
+//       login();
+//   }
+// });
 
-passwordField.addEventListener("keyup", function(event) {
-  if(event.code === 'Enter') {
-      event.preventDefault()
-      login();
-  }
-});
+// passwordField.addEventListener("keyup", function(event) {
+//   if(event.code === 'Enter') {
+//       event.preventDefault()
+//       login();
+//   }
+// });
 
-loginButton.addEventListener("keyup", function(event) {
-  if(event.code === 'Enter') {
-      event.preventDefault()
-      login();
-  }
+formElement.addEventListener("submit", function(event) {
+    event.preventDefault()
+    login();
 });
 
 async function login() {
@@ -55,33 +54,22 @@ async function forgotPassword() {
   const email = usernameField.value;
 
   if (email) {
-    customConfirm(
-      `Yeah I know how that feels...Would you like us to send you an email so that you can reset your password?`,
-      'Yes!',
-      'No',
-      () => {
-        const resetPassword = firebase.functions().httpsCallable('sign_in-resetPasswordUnauthenticated');
+    const confirm = await Dialog.confirm('Would you like us to send you an email so that you can reset your password?')
+    if (confirm) {
+      const resetPassword = firebase.functions().httpsCallable('sign_in-resetPasswordUnauthenticated');
         resetPassword({
           email: email
         })
         .then((result) => {
-          console.log(result.data)
-          customConfirm(
-            result.data,
-            'Ok',
-            '',
-            () => {},
-            () => {}
-          )
+          Dialog.alert(result.data)
         })
         .catch((error) => {
           console.log(error)
           errorElem.textContent = error.message;
           errorElem.style.display = 'block';
         })
-      },
-      () => {}
-    )
+    }
+
   }
   else {
     errorElem.textContent = 'Please fill in your email so we can help you reset your password.';

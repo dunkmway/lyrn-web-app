@@ -8,23 +8,23 @@
   --color-secondary: #E6E7E8;
   --color-tertiary: #101b42;
 
-  --color-accent-1-deep: #ffb102;
-  --color-accent-2-deep: #27c13a;
-  --color-accent-3-deep: #19a7c8;
-  --color-accent-4-deep: #6b6be5;
-  --color-accent-5-deep: #ef6b6b;
+  --yellow-deep: #ffb102;
+  --green-deep: #27c13a;
+  --blue-deep: #19a7c8;
+  --purple-deep: #6b6be5;
+  --red-deep: #ef6b6b;
 
-  --color-accent-1-light: #ffca02;
-  --color-accent-2-light: #3cdd58;
-  --color-accent-3-light: #02c6ff;
-  --color-accent-4-light: #8787ff;
-  --color-accent-5-light: #ea5a5a;
+  --yellow-light: #ffca02;
+  --green-light: #3cdd58;
+  --blue-light: #02c6ff;
+  --purple-light: #8787ff;
+  --red-light: #ea5a5a;
 
-  --color-accent-yellow-veryLight: #FFF4CC;
-  --color-accent-green-veryLight: #CCFFD5;
-  --color-accent-blue-veryLight: #CCF4FF;
-  --color-accent-purple-veryLight: #CCCCFF;
-  --color-accent-red-veryLight: #FFCCCC;
+  --yellow-very-light: #FFF4CC;
+  --green-very-light: #CCFFD5;
+  --blue-very-light: #CCF4FF;
+  --purple-very-light: #CCCCFF;
+  --red-very-light: #FFCCCC;
 }
 
 *, *::before, *::after {
@@ -47,21 +47,12 @@ body {
 a {
   cursor: pointer;
   text-decoration: none;
-  color: var(--color-accent-4-deep);
+  color: var(--purple-deep);
 }
 
 img {
   display: block;
   max-width: 100%;
-}
-
-details > summary::-webkit-details-marker { 
-  display: none; 
-}
-
-details summary { 
-  cursor: pointer;
-  outline: none;
 }
 
 .register {
@@ -73,8 +64,9 @@ details summary {
   height: 100vh;
   padding: 5%;
   background-position: left;
-  background-size: 1100%;
-  background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light));
+  background-size: 300%;
+  /* background-image: linear-gradient(45deg, var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light), var(--color-accent-2-light), var(--color-accent-3-light), var(--color-accent-4-deep), var(--color-accent-3-light)); */
+  background-image: linear-gradient(45deg, var(--green-light), var(--blue-light), var(--purple-light), var(--blue-light), var(--green-light));
   animation: gradient-background 60s linear infinite alternate;
   overflow-y: auto;
 }
@@ -97,11 +89,9 @@ details summary {
 }
 
 .intro .logo {
-  width: min-content;
-}
-
-.intro .logo img {
-  height: 1.5em;
+  height: 3rem;
+  fill: white;
+  margin-left: 15px;
 }
 
 .info {
@@ -124,7 +114,7 @@ details summary {
 #signup {
   background-color: white;
   border-radius: 1em;
-  padding: 4% 3%;
+  padding: 1em 2em;
   max-width: 100%;
   /* max-height: 100%; */
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.30);
@@ -136,7 +126,7 @@ details summary {
   /* background: linear-gradient(45deg, var(--color-accent-3-light), var(--color-accent-4-deep));
   background-clip: text;
   -webkit-text-fill-color: transparent; */
-  color: var(--color-accent-3-light);
+  color: var(--green-light);
   font-weight: 900;
   text-align: center;
   border-bottom: 1px solid var(--color-secondary);
@@ -175,8 +165,8 @@ details summary {
 }
 
 #signup .radios input:checked+label {
-  border: 2px solid var(--color-accent-2-deep);
-  background-color: var(--color-accent-green-veryLight);
+  border: 2px solid var(--green-deep);
+  background-color: var(--green-very-light);
   /* background-color: var(--color-accent-2-light); */
 }
 
@@ -203,14 +193,14 @@ details summary {
   padding: .75em;
   border-radius: .5em;
   border: none;
-  background-color: var(--color-accent-2-deep);
+  background-color: var(--green-deep);
   color: white;
   font-size: 1em;
   cursor: pointer;
 }
 
 #signup .error {
-  color: var(--color-accent-5-light);
+  color: var(--red-light);
 }
 
 #signup .have-account {
@@ -229,8 +219,8 @@ details summary {
     align-self: auto;
   }
 
-  .intro .logo img {
-    margin-left: 1.5em;
+  .intro .logo {
+    margin-left: 39px;
   }
 
   .info {
