@@ -1,6 +1,6 @@
 //form submission
 document.getElementById('signup').addEventListener('submit', async (event) => {
-  console.log('submitting form')
+  isLoading(true);
   event.preventDefault();
   const target = event.target;
   const registrationData = Object.fromEntries(new FormData(target).entries())
@@ -13,6 +13,7 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
   if (registrationData.password != registrationData.confirmPassword) {
     errorMsg.textContent = 'Your password does not match'
     errorMsg.hidden = false;
+    isLoading(false);
     return;
   }
 
@@ -45,7 +46,8 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
 
     target.reset();
 
-    window.location.href = location.origin + "/Dashboard/Student";
+    isLoading(false);
+    window.location.href = location.origin + `/test-taker/${user.uid}`;
   })
   .catch((error) => {
     var errorCode = error.code;
@@ -53,5 +55,10 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
     console.log(errorCode, errorMessage);
 
     Dialog.alert(error.message)
+    isLoading(false);
   });
 })
+
+function isLoading(bool) {
+  document.querySelector('main').className = bool ? 'loading' : '';
+}

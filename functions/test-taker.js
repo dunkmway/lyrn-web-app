@@ -322,6 +322,47 @@ async function sendAssignmentCloseReminderEmail(userUID) {
   }
 }
 
+exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) => {
+  // get the questions for the tests
+  const marketingSections = (await Promise.all(FREE_TIER_TESTS.map(async testID => {
+    return (await admin.firestore()
+    .collection('ACT-Section-Data')
+    .where('test', '==', testID)
+    .get()).docs
+    .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
+  }))).flat()
+
+  const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
+    return (await admin.firestore()
+    .collection('ACT-Question-Data')
+    .where('test', '==', section.data().test)
+    .where('section', '==', section.id)
+    .get()).docs
+    .sort((a,b) => a.data().code - b.data().code)
+    .map(doc => doc.id);
+  }))
+
+  // set a new assignment for the lead
+  // this is so the assignments come in the proper order in the test taker
+  const now = new Date();
+
+  await Promise.all(marketingSections.map((sectionDoc, index) => {
+    admin.firestore().collection('ACT-Assignments').doc().set({
+      open: new Date(new Date(now).setSeconds(now.getSeconds() + index)),
+      close: null,
+      questions: marketingQuestions[index],
+      scaledScoreSection: sectionDoc.id,
+      sectionCode: sectionDoc.data().code,
+      status: 'new',
+      student: user.uid,
+      time: index % 8 < 4 ? SECTION_TIMES[sectionDoc.data().code] : null,     // this is so that the second set of four sections are not timed
+      type: 'marketing'
+    })
+  }))
+
+  return;
+});
+
 exports.generateFreeTierAssignments = functions.https.onCall(async (data, context) => {
   // context.app will be undefined if the request doesn't include a valid
   // App Check token.

@@ -246,17 +246,20 @@ function addImage(spacing = '') {
 	// Construct the filename for firebase and grab the image
 	let filename = undefined
 	let image = undefined
+	const name = document.getElementById('passageImage').files[0].name;
+  const lastDot = name.lastIndexOf('.');
+  const ext = name.substring(lastDot + 1);
 	if (data['type'] == 'passage') {
 		image = document.getElementById('passageImage').files[0]
-		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + '.png'
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + ext;
 	}
 	else if (data['type'] == 'question') {
 		image = document.getElementById('questionsImage').files[0]
-		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + '.png'
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + ext;
 	}
 	else if (data['type'] == 'answer') {
 		image = document.getElementById('questionsImage').files[0]
-		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + '.png'
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + ext;
 	}
 
 	// Finalize the firebase reference

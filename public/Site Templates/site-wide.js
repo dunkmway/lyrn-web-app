@@ -17,9 +17,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 if (location.hostname === "localhost") {
-    firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
-    firebase.functions && firebase.functions().useEmulator("localhost", 5001);
-    firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
+    // firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
+    // firebase.functions && firebase.functions().useEmulator("localhost", 5001);
+    // firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
 }
 
 const AUTH_EXPIRATION = 1000 * 60 * 60 * 24 * 5;
@@ -44,7 +44,6 @@ window.addEventListener('DOMContentLoaded', checkAuthorization)
 let allowedPages = {
     all: [
         '/act-invoice',
-        '/test-taker/*',
         "/sign-up",
     ],
     public: [
@@ -52,15 +51,18 @@ let allowedPages = {
     ],
     student: [
         "/Dashboard/Student",
+        '/test-taker/*',
     ],
     parent: [
         "/Dashboard/Parent",
+        '/test-taker/*',
     ],
     tutor: [
         "/Dashboard/Tutor",
         "/new-assignment",
         "/view-curriculum",
         "/customer-dashboard/*",
+        '/test-taker/*',
     ],
     admin: [
         "&student",
@@ -329,7 +331,6 @@ function handleFirebaseErrors(err, file) {
 
 function goToDashboard() {
     const user = firebase.auth().currentUser;
-    console.log(user)
     // firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             user.getIdTokenResult()
@@ -339,7 +340,7 @@ function goToDashboard() {
     
                 switch (role) {
                     case "student":
-                    window.location.replace(location.origin + "/Dashboard/Student");
+                    window.location.replace(location.origin + `/test-taker/${user.uid}`);
                     break;
                     case "parent":
                     window.location.replace(location.origin + "/Dashboard/Parent");
