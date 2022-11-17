@@ -30,43 +30,43 @@ function convertAxiosResponseToJSON(axiosResponse) {
 /**
  * create zoom user when a user is first created in auth
  */
-exports.createZoomUser = functions.firestore
-.document('/Users/{userID}')
-.onCreate(async (snap, context) => {
-  if (['tutor', 'admin', 'dev'].includes(snap.data().role)) {
-    const payload = {
-      iss: functions.config().zoom.key,
-      exp: Math.round(((new Date()).getTime() + 5000) / 1000)
-    };
+// exports.createZoomUser = functions.firestore
+// .document('/Users/{userID}')
+// .onCreate(async (snap, context) => {
+//   if (['tutor', 'admin', 'dev'].includes(snap.data().role)) {
+//     const payload = {
+//       iss: functions.config().zoom.key,
+//       exp: Math.round(((new Date()).getTime() + 5000) / 1000)
+//     };
     
-    const token = jwt.sign(payload, functions.config().zoom.secret);
+//     const token = jwt.sign(payload, functions.config().zoom.secret);
     
-    var config = {
-      method: 'post',
-      url: '/users',
-      baseURL: zoomBaseURL,
-      data: {
-        action: 'create',
-        user_info: {
-          email: snap.data().email,
-          type: 1,
-          first_name: snap.data().firstName,
-          last_name: snap.data().lastName,
-        }
-      },
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    }
+//     var config = {
+//       method: 'post',
+//       url: '/users',
+//       baseURL: zoomBaseURL,
+//       data: {
+//         action: 'create',
+//         user_info: {
+//           email: snap.data().email,
+//           type: 1,
+//           first_name: snap.data().firstName,
+//           last_name: snap.data().lastName,
+//         }
+//       },
+//       headers: {
+//         Authorization: 'Bearer ' + token
+//       }
+//     }
   
-    let response = await axios(config);
-    console.log(convertAxiosResponseToJSON(response))
-    await snap.ref.update({
-      zoomID: response.data.id
-    })
-  }
-  return;
-});
+//     let response = await axios(config);
+//     console.log(convertAxiosResponseToJSON(response))
+//     await snap.ref.update({
+//       zoomID: response.data.id
+//     })
+//   }
+//   return;
+// });
 
 // zoom meeting creation is handled when sedning out the lesson-link email
 

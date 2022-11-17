@@ -1,5 +1,6 @@
 //form submission
 document.getElementById('signup').addEventListener('submit', async (event) => {
+  console.log('submitting form')
   event.preventDefault();
   const target = event.target;
   const registrationData = Object.fromEntries(new FormData(target).entries())
@@ -19,7 +20,7 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
   firebase.auth().createUserWithEmailAndPassword(registrationData.email.trim(), registrationData.password)
   .then(async (userCredential) => {
     // Signed in 
-    var user = userCredential.user;
+    const user = userCredential.user;
 
     //update user profile
     user.updateProfile({
@@ -39,11 +40,12 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
       location : 'WIZWBumUoo7Ywkc3pl2G' //hard coded for the online location
     })
 
-    target.reset();
-    console.log('new user uid:', user.uid)
+    // refresh the user token
+    await user.getIdTokenResult(true);
 
-    goToDashboard();
-    
+    target.reset();
+
+    window.location.href = location.origin + "/Dashboard/Student";
   })
   .catch((error) => {
     var errorCode = error.code;

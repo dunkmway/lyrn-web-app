@@ -45,10 +45,10 @@ let allowedPages = {
     all: [
         '/act-invoice',
         '/test-taker/*',
+        "/sign-up",
     ],
     public: [
         "/sign-in",
-        "/sign-up"
     ],
     student: [
         "/Dashboard/Student",
@@ -119,7 +119,7 @@ function checkAuthorization() {
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied
-                    window.location.replace(`${location.origin}/Dashboard/${role.charAt(0).toUpperCase() + role.slice(1)}`);
+                    window.location.replace(`${location.origin}/Dashboard/${role ? (role.charAt(0).toUpperCase() + role.slice(1)) : 'Student'}`);
                     return;
                 }
 
@@ -205,7 +205,7 @@ async function setAuthExpirationTimers() {
 }
 
 function isPathAllowed(role, path) {
-    const allowedPaths = [...allowedPages[role], ...allowedPages.all];
+    const allowedPaths = [...(allowedPages[role] ?? []), ...allowedPages.all];
     // console.log(allowedPaths)
 
     for (const allowedPath of allowedPaths) {
@@ -328,11 +328,14 @@ function handleFirebaseErrors(err, file) {
 }
 
 function goToDashboard() {
-    firebase.auth().onAuthStateChanged((user) => {
+    const user = firebase.auth().currentUser;
+    console.log(user)
+    // firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             user.getIdTokenResult()
             .then((idTokenResult) => {
                 let role = idTokenResult.claims.role;
+                console.log('going to dashboard for user with role', role)
     
                 switch (role) {
                     case "student":
@@ -364,7 +367,7 @@ function goToDashboard() {
         else {
             window.location.replace(location.origin + "/sign-in");
         }
-    });
+    // });
 }
 
 const loadScript = (FILE_URL, async = true, type = "text/javascript") => {

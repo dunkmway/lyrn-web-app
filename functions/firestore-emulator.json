@@ -79,24 +79,6 @@
           }
         }
       ]
-    },
-    {
-      "id": "Promos",
-      "docs": [
-        {
-          "id": "LJl0zK9yskMZyuYfUBNF",
-          "data": {
-            "code": "gomascot",
-            "end": null,
-            "hasSchedule": null,
-            "maxUses": null,
-            "relativeAmount": 10,
-            "start": null,
-            "type": "actGuided",
-            "uses": 0
-          }
-        }
-      ]
     }
   ]
 }
