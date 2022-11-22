@@ -119,7 +119,7 @@ const analyticsObserver = new IntersectionObserver((entries, animationObserver) 
 analyticsObserver.observe(document.querySelector('.hero'));
 analyticsObserver.observe(document.querySelector('.questionnaire'));
 analyticsObserver.observe(document.querySelector('.method'));
-analyticsObserver.observe(document.querySelector('.tutors'));
+// analyticsObserver.observe(document.querySelector('.tutors'));
 analyticsObserver.observe(document.querySelector('.about'));
 analyticsObserver.observe(document.querySelector('.contact'));
 
@@ -246,7 +246,7 @@ function bannerSetup() {
 
   // randomly choose one banner to display and hide the rest
   const randIndex = Math.floor(Math.random() * banners.length)
-  banners[randIndex].classList.add('active');
+  // banners[randIndex].classList.add('active');
 }
 
 async function submitPracticeTestRequest(e) {

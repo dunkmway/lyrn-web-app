@@ -120,7 +120,8 @@
           <!-- <li><a href="enroll.html">Enroll</a></li> -->
         </ul>
       </nav>
-      <div class="phone" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div>
+      <!-- <div class="phone" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div> -->
+      <div class="phone"><a href="sign-in.html">Sign in</a></div>
     </header>
 
     <!-- start banner -->
@@ -144,7 +145,7 @@
       </div>
     </div>
 
-    <div class="banner" id="lessonSeries_banner">
+    <div class="banner active" id="lessonSeries_banner">
       <p>Get started with <strong>12 free</strong> ACT lessons. Click for details.</p>
     </div>
     <div class="modal" id="lessonSeries_modal">
@@ -226,13 +227,13 @@
           <div class="background-main noselect">College Consultation</div>
         </div>
         <div class="hero__intro">
-          <h1>Worried about getting into college?</h1>
-          <h4>We guarantee a <a onclick="createAnalyticsEvent({eventID: 'hero4+Clicked'});" href="pricing?program=one-on-one">4+ point increase</a> on your ACT.</h4>
+          <h1>Increase Your ACT Score Today</h1>
+          <h4>Practice real ACT questions on our custom test taker for FREE.</h4>
           <!-- <div onclick="createAnalyticsEvent({eventID: 'heroPreviewScheduleClicked'}); gtag_report_conversion_preview()">
             <a class="hero__button" href="pricing.html#program_preview" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;">Schedule a preview today</a>
           </div> -->
           <div onclick="createAnalyticsEvent({eventID: 'heroButtonClicked'});">
-            <a class="hero__button" href="pricing.html#crash_course">Join our FREE class today</a>
+            <a class="hero__button" href="sign-up.html">Start Now</a>
           </div>
         </div>
         <!-- <div class="hero__body">
@@ -285,7 +286,7 @@
             <h3 class="text">What kind of ACT Prep are you interested in?</h3>
             <button class="option" onclick="goForwardToQuestion(3, '1-on-1')">1-on-1</button>
             <button class="option" onclick="goForwardToQuestion(4, 'classes')">Group Classes</button>
-            <button class="option" onclick="goForwardToQuestion(4, 'free')">Free Lessons / Resources</button>
+            <button class="option" onclick="goForwardToQuestion(4, 'free')">Free Resources</button>
           </div>
           <button class="back" onclick="goBackAQuestion()">Back</button>
         </div>
@@ -386,15 +387,15 @@
         <img src="Images/Lyrn_method_section_image.png" alt="Example course load">
       </section>
   
-      <section class="tutors" id="tutorSection">
+      <!-- <section class="tutors" id="tutorSection">
         <h5 class="title">Lyrn Tutors</h5>
         <h2 class="subtitle">Qualified in each section</h2>
         <p class="description">All of our tutors have been certified to teach the ACT and have gone through our rigoruous qualification process.
         </p>
         <div class="breakdown">
-          <!-- <div class="act-logo">
+          <div class="act-logo">
             <img src="Images/logo-act-blue-300.png" alt="act logo">
-          </div> -->
+          </div>
           <div>
             <h2>34+</h2>
             <h5>ACT SCORES</h5>
@@ -405,7 +406,7 @@
           </div>
         </div>
       </div>
-      </section>
+      </section> -->
   
       <!-- <section class="faq">
         <h2 class="title">FAQ</h2>

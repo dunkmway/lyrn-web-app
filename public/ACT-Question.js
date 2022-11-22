@@ -138,7 +138,7 @@ class Question {
     //determine if the flag should be shown
     document.getElementById('questionFlag').checked = isFlagged;
     // disable the flag
-    document.getElementById('questionFlag').disabled = false;
+    document.getElementById('questionFlag').disabled = true;
 
     // remove the old choices and add in the new ones
     const questionChoices = document.getElementById('questionChoices');

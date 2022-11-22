@@ -56,7 +56,7 @@ function bannerSetup() {
 
   // randomly choose one banner to display and hide the rest
   const randIndex = Math.floor(Math.random() * banners.length)
-  banners[randIndex].classList.add('active');
+  // banners[randIndex].classList.add('active');
 }
 
 async function submitPracticeTestRequest(e) {
