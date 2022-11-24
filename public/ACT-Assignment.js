@@ -554,7 +554,8 @@ class Assignment {
 
     // show the new question
     this.currentQuestion = flatSortedQuestionList[index];
-    this.currentQuestion.review(STAFF_ROLES.includes(current_user_role));
+    // this.currentQuestion.review(STAFF_ROLES.includes(current_user_role));
+    this.currentQuestion.review(true);
     if (this.currentQuestion.passage) {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }
