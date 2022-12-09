@@ -206,9 +206,99 @@ section.hide {
   fill: white;
 }
 
+/* tutorial */
+
+#tutorial {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .4);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+#tutorial.open {
+  display: flex;
+}
+
+#tutorial .content {
+  width: 80%;
+  height: 90%;
+  background-color: white;
+  padding: 2em 3em;
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#tutorial .content .exit {
+  color: var(--default-color);
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  cursor: pointer;
+}
+
+#tutorial .content .tabs {
+  flex: 0;
+}
+
+#tutorial .content .tabs input {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  visibility: hidden;
+}
+
+#tutorial .content .tabs label {
+  font-size: 1em;
+  background-color: white;
+  display: inline-block;
+  padding: .5em 1em;
+  border-radius: .5em;
+  font-weight: 900;
+}
+
+#tutorial .content .tabs input:checked + label {
+  background-color: var(--secondary-background);
+  color: white;
+}
+
+#tutorial .content .wrapper {
+  display: none;
+  overflow-y: scroll;
+  flex: 1;
+}
+
+#tutorial .content .tabs:has( input#tutorial-quick:checked ) ~ .quick {
+  display: block;
+}
+
+#tutorial .content .tabs:has( input#tutorial-assignment:checked ) ~ .assignment {
+  display: block;
+}
+
+#tutorial .content .tabs:has( input#tutorial-question:checked ) ~ .question {
+  display: block;
+}
+
+@media screen and (max-width: 800px) {
+  #tutorial .content {
+    width: 90%;
+    height: 95%;
+    padding: 1em 1.5em;
+    border-radius: .5em;
+  }
+}
+
+
 /* Landing screen */
 
-.landing{
+.landing {
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -230,6 +320,7 @@ section.hide {
   width: 100vw;
   top: 0;
   left: 0;
+  z-index: 999;
 }
 
 .landing .loading.active::after {
@@ -269,9 +360,10 @@ section.hide {
   display: grid;
   height: 100%;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   gap: 2em;
   overflow-y: auto;
+  position: relative;
 }
 
 @media screen and (max-width: 800px) {
@@ -282,9 +374,33 @@ section.hide {
   }
 }
 
+.landing .content .helpers {
+  color: var(--default-color);
+}
+
+.landing .content .helpers .feedback {
+  margin: 0;
+  cursor: pointer;
+  position: absolute;
+  top: 1em;
+  left: 1em;
+}
+
+.landing .content .helpers .tutorial-bubble {
+  border: 2px solid var(--default-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+}
+
 .landing .content .next-lesson-wrapper {
   grid-column: 1 / -1;
-  background-color: var(--default-color);
+  background-color: var(--break-color);
   color: white;
 }
 
@@ -342,6 +458,16 @@ section.hide {
   text-align: center;
 }
 
+.assignment-wrapper > div > h4 {
+  margin-bottom: 0;
+  display: none;
+}
+
+.assignment-wrapper > div > h4:has( + *) {
+  display: block;
+}
+
+
 /* Main screen */
 
 .main {
@@ -376,7 +502,7 @@ section.hide {
 }
 
 .main .panels > div:not(:last-child) {
-  border-right: 4px solid black;
+  border-right: 2px solid black;
 }
 
 .main .panels .selector {
@@ -553,7 +679,7 @@ section.hide {
 .main .panels .selector .pull-tab {
   position: absolute;
   top: 25%;
-  left: calc(100% + 4px);
+  left: calc(100% + 2px);
   background-color: var(--accent-color);
   width: 1.5em;
   height: 4.5em;
@@ -852,6 +978,39 @@ section.hide {
 
 #questionExplanation > #questionExplanationInput:checked ~ #explanationWrapper > div {
   transform: translateY(0);
+}
+
+#questionExplanation a {
+  color: var(--accent-color);
+}
+
+#answerToggleInput {
+  visibility: hidden;
+  position: absolute;
+  top: -9999;
+  left: -9999;
+}
+
+#answerToggleInput + #answerToggle > label[for="answerToggleInput"] {
+  display: block;
+  margin: .5em 0em;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  width: max-content;
+  padding: .25em .5em;
+  border-radius: .5em;
+}
+
+#answerToggleInput:not(:checked) + #answerToggle > label[for="answerToggleInput"].hide-answer {
+  display: none;
+}
+
+#answerToggleInput:checked + #answerToggle > label[for="answerToggleInput"].show-answer {
+  display: none;
+}
+
+#answerToggleInput:not(:checked) ~ #questionChoices > .choice.correct {
+  border-color: transparent;
 }
 
 @media screen and (max-width: 800px) {

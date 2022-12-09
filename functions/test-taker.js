@@ -329,8 +329,9 @@ exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) =
     .collection('ACT-Section-Data')
     .where('test', '==', testID)
     .get()).docs
-    .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
-  }))).flat()
+  })))
+  .flat()
+  .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
 
   const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
     return (await admin.firestore()
@@ -355,7 +356,7 @@ exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) =
       sectionCode: sectionDoc.data().code,
       status: 'new',
       student: user.uid,
-      time: index % 8 < 4 ? SECTION_TIMES[sectionDoc.data().code] : null,     // this is so that the second set of four sections are not timed
+      time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
       type: 'marketing'
     })
   }))
@@ -398,8 +399,9 @@ exports.generateFreeTierAssignments = functions.https.onCall(async (data, contex
     .collection('ACT-Section-Data')
     .where('test', '==', testID)
     .get()).docs
-    .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
-  }))).flat()
+  })))
+  .flat()
+  .sort((a,b) => a.data().code < b.data().code ? -1 : a.data().code > b.data().code ? 1 : 0);
 
   const marketingQuestions = await Promise.all(marketingSections.map(async (section) => {
     return (await admin.firestore()
@@ -424,7 +426,7 @@ exports.generateFreeTierAssignments = functions.https.onCall(async (data, contex
       sectionCode: sectionDoc.data().code,
       status: 'new',
       student: ref.id,
-      time: index % 8 < 4 ? SECTION_TIMES[sectionDoc.data().code] : null,     // this is so that the second set of four sections are not timed
+      time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
       type: 'marketing'
     })
   }))

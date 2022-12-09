@@ -304,7 +304,7 @@ class Dialog {
       message,
       choices: ['Close'],
       values: [null],
-      width: '400px',
+      width: 'auto',
       ...options
     }).show();
   }
@@ -321,23 +321,24 @@ class Dialog {
 
   static prompt(message, options = {}) {
     const wrapper = document.createElement('div');
-    const input = document.createElement('input');
+    const input = document.createElement('textarea');
     input.style.display = 'block';
-    input.style.width = '100%';
+    input.style.width = '400px';
     input.style.marginTop = '1em';
+    input.style.fontSize = '16px';
     wrapper.append(message, input);
 
     const dialog = new Dialog({
       message: wrapper,
       choices: ['Cancel', 'OK'],
       values: [null, () => input.value],
-      width: '400px',
+      width: 'auto',
       ...options
     })
 
     const inputPromise = new Promise((resolve, reject) => {
       input.addEventListener('keyup', (e) => {
-        if (e.key == 'Enter') {
+        if (e.key == 'Enter' && (e.ctrlKey || e.metaKey)) {
           resolve(input.value);
           dialog.hide();
         }

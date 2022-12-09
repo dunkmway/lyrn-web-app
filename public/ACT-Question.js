@@ -116,6 +116,10 @@ class Question {
     document.getElementById('questionFlag').disabled = true;
     // remove the choices
     removeAllChildNodes(document.getElementById('questionChoices'));
+    // remove the show hide answer
+    removeAllChildNodes(document.getElementById('answerToggle'));
+    // remove the explanation
+    removeAllChildNodes(document.getElementById('questionExplanation'));
 
     document.querySelector('.main .panels .question').classList.add('hide');
   }
@@ -132,13 +136,24 @@ class Question {
     const explanationHTML = `
     <input type="checkbox" id="questionExplanationInput">
     <label for="questionExplanationInput" class="color-accent">Explanation</label>
-    <div id="explanationWrapper"><div>${this.explanation}</div></div>
+    <div id="explanationWrapper">
+      <div>
+        ${this.explanation}
+        <a href="/pricing" target="_blank">Need more help?</a>
+      </div>
+    </div>
     `
     document.getElementById('questionExplanation').innerHTML = this.explanation ? explanationHTML : '';
     //determine if the flag should be shown
     document.getElementById('questionFlag').checked = isFlagged;
     // disable the flag
     document.getElementById('questionFlag').disabled = true;
+    // show the show answer toggle
+    const toggleHTML = `
+    <label for="answerToggleInput" class="show-answer">Show answer</label>
+    <label for="answerToggleInput" class="hide-answer">Hide answer</label>
+    `
+    document.getElementById('answerToggle').innerHTML = toggleHTML;
 
     // remove the old choices and add in the new ones
     const questionChoices = document.getElementById('questionChoices');

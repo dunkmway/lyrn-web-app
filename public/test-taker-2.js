@@ -15,6 +15,33 @@ HTMLElement.prototype.textNodes = function() {
   });
 }
 
+async function openFeedback() {
+  const dialog = await Dialog.prompt('How can we improve?');
+  if (!dialog) return
+
+  // send the feedback
+  await firebase.firestore()
+  .collection('Feedback')
+  .doc()
+  .set({
+    message: dialog,
+    type: 'Test Taker',
+    time: new Date(),
+    user: current_user.uid
+  })
+
+  Dialog.toastMessage('Thank you for your feedback!');
+}
+
+function openTutorial() {
+  document.getElementById('tutorial').classList.add('open');
+}
+
+function closeTutorial(e) {
+  if (e.target !== e.currentTarget) return;
+  document.getElementById('tutorial').classList.remove('open');
+}
+
 /**
  * This will cause MathJax to look for unprocessed mathematics on the page and typeset it
  */
@@ -188,7 +215,7 @@ function previousQuestionCallback() {
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex - 1;
     currentAssignment.reviewQuestion(nextQuestionIndex);
-
+    document.getElementById('answerToggleInput').checked = false;
   }
 }
 
@@ -210,7 +237,7 @@ function nextQuestionCallback() {
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex + 1;
     currentAssignment.reviewQuestion(nextQuestionIndex);
-
+    document.getElementById('answerToggleInput').checked = false;
   }
 }
 

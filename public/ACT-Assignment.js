@@ -144,7 +144,7 @@ class Assignment {
         } else {
           this.statusIndicator.textContent = this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '';
         }
-        document.getElementById('newAssignments').appendChild(this.wrapper);
+        document.querySelector(`#newAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
         break;
       case 'started':
         this.statusIndicator.classList.remove('spinner');
@@ -153,22 +153,22 @@ class Assignment {
         } else {
           this.statusIndicator.textContent = '--:--'
         }
-        document.getElementById('startedAssignments').appendChild(this.wrapper);
+        document.querySelector(`#newAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
         break;
       case 'submitted':
         this.statusIndicator.textContent = '';
         this.statusIndicator.classList.add('spinner');
-        document.getElementById('previousAssignments').appendChild(this.wrapper);
+        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
         break;
       case 'graded':
         this.statusIndicator.classList.remove('spinner');
         this.statusIndicator.textContent = `${this.scaledScore ?? ''} (${this.score} out of ${this.questions.length})`;
-        document.getElementById('previousAssignments').appendChild(this.wrapper);
+        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
         break;
       case 'omitted':
         this.statusIndicator.classList.remove('spinner');
         this.statusIndicator.textContent = 'omitted';
-        document.getElementById('previousAssignments').appendChild(this.wrapper);
+        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
         break;
       default:
         throw 'invalid status';

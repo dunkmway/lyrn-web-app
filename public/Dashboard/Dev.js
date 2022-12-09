@@ -4,6 +4,25 @@ setUnsubscribeTable();
 setErrorTable();
 setFeedbackTable();
 
+function syntaxHighlight(json) {
+  json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+      var cls = 'number';
+      if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+              cls = 'key';
+          } else {
+              cls = 'string';
+          }
+      } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+      } else if (/null/.test(match)) {
+          cls = 'null';
+      }
+      return '<span class="' + cls + '">' + match + '</span>';
+  });
+}
+
 function setLeadsTable() {
   let tableData = [];
   const leadsCollectionRef = firebase.firestore().collection("Leads");
@@ -199,9 +218,10 @@ function setFeedbackTable() {
       const data = doc.data();
       let feedbackData = {
         docUID : doc.id,
-        feedback : data["feedback"],
-        time : convertFromDateInt(parseInt(data["timestamp"]))["fullCalendar"],
-        user : data["user"],
+        feedback : data.message,
+        time : new Time(data.time.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}'),
+        type: data.type,
+        user : data.user,
       }
       tableData.push(feedbackData);
     });
@@ -209,6 +229,7 @@ function setFeedbackTable() {
     let feedbackTable = $('#feedback-table').DataTable({
       data: tableData,
       columns: [
+        { data: 'type' },
         { data: 'feedback' },
         { data: 'time' },
         { data: 'user' },
@@ -235,6 +256,31 @@ function setFeedbackTable() {
           console.log(error);
         });
       }
+    });
+
+    $('#feedback-table tbody').on('click', 'tr', (event) => {
+      const row = feedbackTable.row(event.target).index();
+      let rowData = tableData[row];
+      let user = rowData.user;
+
+      firebase.firestore()
+      .collection('Users')
+      .doc(user)
+      .get()
+      .then(doc => {
+        const data = doc.data()
+        const dataStr = JSON.stringify(data, null, 2)
+
+        const pretty = syntaxHighlight(dataStr);
+        const message = document.createElement('pre');
+        message.innerHTML = pretty;
+
+        Dialog.alert(message, {
+          backgroundColor: '#1E1E1E',
+          choiceColor: '#F8F8F8',
+          choicesBorderTop: '1px solid #414141'
+        });
+      })
     });
   })
   .catch((error) => {

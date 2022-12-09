@@ -16,11 +16,6 @@ class Timer {
     this.interval = setInterval(() => {
       this.update()
     }, 500);
-
-    // the largest a timeout can run for (signed 32 bit max)
-    this.timeout = setTimeout(() => {
-      this.finish()
-    }, this.time > 2147483647 ? 2147483647 : this.time);
   }
 
   /**
@@ -28,18 +23,34 @@ class Timer {
    */
   update() {
     this.time = this.date.getTime() - new Date().getTime();
-    this.show();
+    if (this.time <= 0) {
+      this.finish();
+    } else {
+      this.show();
+    }
   }
 
   /**
    * loop through all attached elements and show the time in the format mm:ss in their text content
    */
   show() {
-    const minutes = Math.floor((this.time) % (1000 * 60 * 60) / (1000 * 60)).toString().padStart(2, '0');
-    const seconds = Math.floor((this.time) % (1000 * 60) / 1000).toString().padStart(2, '0');
+    const ms = this.time;
+    const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+    const daysms = ms % (24 * 60 * 60 * 1000);
+    const hours = Math.floor(daysms / (60 * 60 * 1000));
+    const hoursms = ms % (60 * 60 * 1000);
+    const minutes = Math.floor(hoursms / (60 * 1000));
+    const minutesms = ms % (60 * 1000);
+    const seconds = Math.floor(minutesms / 1000);
 
     for (const element of this.elements) {
-      element.textContent = `${minutes}:${seconds}`;
+      if (days) {
+        element.textContent = `${days}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      } else if (hours) {
+        element.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      } else {
+        element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
     }
   }
 
@@ -69,7 +80,6 @@ class Timer {
    */
   cleanUp() {
     clearInterval(this.interval);
-    clearTimeout(this.timeout);
     for (let i = this.elements.length - 1; i >= 0; i--) {
       this.detach(this.elements[i]);
     }
@@ -79,20 +89,10 @@ class Timer {
    * call the given callback and stop the interval
    */
   finish() {
-    // check to see if the timer should actually be finished
-    // (we might have set the timer lower becuase of int overflow)
-    if (this.time > 0) {
-      // reset the timer
-      this.timeout = setTimeout(() => {
-        this.finish()
-      }, this.time > 2147483647 ? 2147483647 : this.time);
-    }
-    else {
-      this.callback()
+    this.callback()
 
-      clearInterval(this.interval);
-      this.time = 0;
-      this.show()
-    }
+    clearInterval(this.interval);
+    this.time = 0;
+    this.show()
   }
 }
