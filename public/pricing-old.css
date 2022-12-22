@@ -217,7 +217,7 @@ header li::before {
 .phone {
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: center;
   align-items: center;
 }
 
@@ -251,8 +251,7 @@ header li::before {
 
 .nav-toggle-label {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
   right: 0;
   margin-right: 1em;
   height: 50%;
@@ -291,6 +290,7 @@ nav {
   top: 100%;
   right: 0;
   background: var(--color-blue);
+  box-shadow: #00000041 0em .5em 20px;
   width: 100%;
   transform: scale(1, 0);
   transform-origin: top;
@@ -362,6 +362,7 @@ nav a:hover {
   .phone {
     grid-column: 4 / 5;
     justify-content: flex-end;
+    margin-left: 1em;
   }
   
   nav {
@@ -385,7 +386,6 @@ nav a:hover {
   
   nav ul {
     display: flex;
-    align-items: center;
   }
   
   nav li {
@@ -930,13 +930,6 @@ input#subjectTutoring-section:checked ~ #subjectTutoring {
   animation: spin .5s linear infinite;
 }
 
-/* #program_selector {
-  position: sticky;
-  top: 3.5em;
-  background-color: white;
-  z-index: 100;
-} */
-
 .program-selector > h3 {
   text-align: center;
 }
@@ -1260,15 +1253,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   }
 
   #act .program.one-on-one .plans {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  #act .program.self .plans {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  #act .program.free .plans {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   /* #act .plans::before {

@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-N393M5F');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Book Program Preview -->
+    <script>
+      function gtag_report_conversion_preview(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/oy1uCMHa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
+    <!-- Free Resources -->
+    <script>
+      function gtag_report_conversion_resources(url) {
+        var callback = function () {
+          if (typeof(url) != 'undefined') {
+            window.location = url;
+          }
+        };
+        gtag('event', 'conversion', {
+            'send_to': 'AW-10828068158/IkcBCMTa_coDEL7qnKso',
+            'event_callback': callback
+        });
+        return false;
+      }
+    </script>
+  
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Lyrn pricing is simple and transparent. Select the tutoring that your student needs and contact us to get started.">
+    <title>Pricing</title>
+
+    <script>
+      //this is so reCaptcha will trust local host
+      if (window.location.hostname == 'localhost') {
+        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app-check.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
+
+    <!-- Calendly -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
+    <script src="Site Templates/generalFunctions.js"></script>
+    <link rel="stylesheet" href="Site Templates/site-wide.css">
+    <script src="pricing.js" defer></script>
+
+    <link href="pricing.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+  </head>
+
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N393M5F"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header class="nav-start">
+      <a href="index.html" onclick="createAnalyticsEvent({eventID: 'navHomeClicked'})" class="logo">
+        <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
+          <g>
+            <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
+            <polygon points="417.34,494.64 471.25,609.28 450.18,662.57 496.66,658.85 564.21,472.95 516.49,478.52 493.56,549.79 466.29,486.58 	"/>
+            <path d="M577.22,471.09v125.8l45.24-4.34l-1.24-69.41c0,0,13.63-16.73,38.35-16.73v-47.85c0,0-24.19,3.15-37.33,19.98v-12.62L577.22,471.09z"/>
+            <path d="M675.34,459.54v124.14c0,1.41,1.23,2.51,2.63,2.34l40.5-4.71c1.19-0.14,2.09-1.15,2.09-2.34v-76.8
+              c0-0.34,0.18-0.64,0.21-0.98c0.27-2.93,7.07-13.36,21.72-10.05c0.11,0.02,0.2,0.03,0.31,0.05c1.21,0.27,8.78,2.38,8.78,12.06
+              l0.51,72.12c0.01,1.37,1.18,2.45,2.55,2.34l40.52-3.3c1.23-0.1,2.17-1.12,2.17-2.35v-84.58c0-18.63-11.12-38.81-30.05-43.75
+              c-14.4-3.76-32.48-0.04-42.64,11.23c-1.43,1.59-4.07,0.53-4.07-1.61l0,0c0-1.45-1.29-2.55-2.72-2.33l-40.5,6.19
+              C676.19,457.38,675.34,458.37,675.34,459.54z"/>
+          </g>
+        </svg>
+      </a>
+      <label for="nav-toggle" class="nav-toggle-label">
+        <span></span>
+      </label>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <nav>
+        <ul>
+          <!-- <li><a href="index.html">Home</a></li> -->
+          <li><a href="why.html" onclick="createAnalyticsEvent({eventID: 'navWhyClicked'})">Why Lyrn</a></li>
+          <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li>
+          <li><a href="#">Pricing</a></li>
+          <!-- <li><a href="sign-in.html">Sign In</a></li> -->
+          <!-- <li><a class="enroll" href="enroll.html">Get Started</a></li> -->
+          <!-- <li><a href="enroll.html">Enroll</a></li> -->
+        </ul>
+      </nav>
+      <!-- <div class="phone" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})"><a href="tel:+13853000906"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000"><path d="M0 0h24v24H0z" fill="none"></path><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg> Call Now (385) 300-0906</a></div> -->
+      <div class="phone"><a href="sign-in.html">Sign in</a></div>
+    </header>
+
+    <!-- start banner -->
+    <div class="banner" id="practiceTest_banner">
+      <p>Get started with <strong>4 free</strong> ACT section tests. Click for details.</p>
+    </div>
+    <div class="modal" id="practiceTest_modal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h1>1 full test <span class="accent">free!</span></h1>
+        <h2>4 sections timed tests</h2>
+        <p>Use our custom test taker to practice before the test.</p>
+        <p>Enter your email so we can send you your custom link to take the tests.</p>
+        <input type="email" placeholder="email">
+        <p class="error"></p>
+        <button class="submit" onclick="submitPracticeTestRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
+      </div>
+    </div>
+
+    <div class="banner active" id="lessonSeries_banner">
+      <p>Get started with <strong>12 free</strong> ACT lessons. Click for details.</p>
+    </div>
+    <div class="modal" id="lessonSeries_modal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h1>12 lessons <span class="accent">free!</span></h1>
+        <h2>Lessons with example problems</h2>
+        <p>Our ACT lesson series covers the same topics as our programs.</p>
+        <p>Enter your email so we can send you your custom lesson series.</p>
+        <input type="email" placeholder="email">
+        <p class="error"></p>
+        <button class="submit" onclick="submitLessonSeriesRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
+      </div>
+    </div>
+
+    <div class="modal sign-up" id="availableClassesModal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        Classes
+      </div>
+    </div>
+
+    <div class="modal sign-up" id="availableStudyGroupsModal">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        Study Groups
+      </div>
+    </div>
+
+    <div class="modal sign-up" id="checkProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+        <h3>Check Program Availability</h3>
+        <p>Select 2 nonconsecutive days below to see our availability.</p>
+        <p class="start-end"></p>
+        <div class="date-time">
+          <div class="selection-wrapper">
+            <input type="checkbox" id="monday" onchange="daySelectedCallback(event)">
+            <label for="monday" class="day-item">M</label>
+            <input type="checkbox" id="tuesday" onchange="daySelectedCallback(event)">
+            <label for="tuesday" class="day-item">T</label>
+            <input type="checkbox" id="wednesday" onchange="daySelectedCallback(event)">
+            <label for="wednesday" class="day-item">W</label>
+            <input type="checkbox" id="thursday" onchange="daySelectedCallback(event)">
+            <label for="thursday" class="day-item">T</label>
+            <input type="checkbox" id="friday" onchange="daySelectedCallback(event)">
+            <label for="friday" class="day-item">F</label>
+            <input type="checkbox" id="saturday" onchange="daySelectedCallback(event)">
+            <label for="saturday" class="day-item">S</label>
+          </div>
+        </div>
+
+        <p id="lessonLength"></p>
+        <div id="openTimes"></div>
+
+        <div class="reserve-prompt hide">
+          <h3>Times are filling up quickly!</h3>
+          <h5>
+            We can reserve these days and time so that when you are ready to sign up, you get the times you want.
+          </h5>
+          <p>
+            Select a time above and then click "Reserve" below.
+          </p>
+          <button id="firstReserve" disabled onclick="moveToReserveProgram()">Reserve</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="reserveProgram">
+      <div class="modal-body">
+        <div class="close">
+          <svg viewbox="0 0 32 32">
+            <path d="M10,10 L22,22 M22,10 L10,22"></path>
+          </svg>
+        </div>
+
+        <div class="back" onclick="backToCheckProgram()">
+          <p>go back</p>
+        </div>
+        
+        <h3>Just a few more things to reserve your spot</h3>
+        <div class="contact-form">
+          <div class="parent">
+            <h5>Parent Info</h5>
+            <label for="parent-firstName" class="placeholder">Parent First Name</label>
+            <input id="parent-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-lastName" class="placeholder">Parent Last Name</label>
+            <input id="parent-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="parent-email" class="placeholder">Parent Email</label>
+            <input id="parent-email" type="email" onfocusout="contactInfoFocusOutCallback(event)" required>
+          </div>
+          <div class="student">
+            <h5>Student Info</h5>
+            <label for="student-firstName" class="placeholder">Student First Name</label>
+            <input id="student-firstName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-lastName" class="placeholder">Student Last Name</label>
+            <input id="student-lastName" type="text" onfocusout="contactInfoFocusOutCallback(event)" required>
+            <label for="student-email" class="placeholder">Student Email (optional)</label>
+            <input id="student-email" type="email" onfocusout="contactInfoFocusOutCallback(event)">
+          </div>
+        </div>
+        <p class="program-summary">
+        </p>
+        <button id="submitProgram" onclick="verify()">Reserve my spot</button>
+        <p class="message error"></p>
+      </div>
+    </div>
+
+    <main>
+      <input type="radio" name="course-selection" id="act-section" checked>
+      <input type="radio" name="course-selection" id="subjectTutoring-section">
+      <section class="nav">
+        <label for="act-section">ACT Prep</label>
+        <label for="subjectTutoring-section">Subject Tutoring</label>
+      </section>
+
+      <section class="course-section" id="act">
+        <div class="heading">
+          <h1>ACT Prep</h1>
+        </div>
+
+        <!-- <div class="practice-test-wrapper">
+          <h2>4 free full length ACT section practice tests</h2>
+          <p>Not sure how many points you need to go up? Take a <strong>free</strong> full length ACT tests and get your results back immediately.</p>
+          <div class="flex-row">
+            <input type="email" placeholder="email">
+            <button>Submit</button>
+          </div>
+          <p class="error"></p>
+          <div class="footnotes">
+            <p>By clicking 'Submit' you agree to our <a href="terms.html">terms of use</a></p>
+          </div>
+        </div> -->
+
+        <div class="program-selector" id="program_selector">
+          <br>
+          <h3>I'm looking for</h3>
+          <div class="selection-wrapper">
+            <!-- <input type="radio" name="program-selection" id="crash" onclick=openProgram(event)>
+            <label for="crash">Crash Course</label>
+            <p>4 hours of FREE ACT instruction in all sections over 2 weeks.</p> -->
+
+            <input type="radio" name="program-selection" id="free" onclick=openProgram(event)>
+            <label for="free">Free Resources</label>
+            <p>Start practicing real ACT questions now with our test taker!</p>
+
+            <!-- <input type="radio" name="program-selection" id="previews" onclick=openProgram(event) checked>
+            <label for="previews">Program Previews</label>
+            <p>FREE 30 minute session to go over a curriculum topic with one of our amazing tutors.</p> -->
+
+            <!-- <input type="radio" name="program-selection" id="classes" onclick=openProgram(event)>
+            <label for="classes">Classes</label>
+            <p>Affordable option for raising your score in the least amount of time.</p> -->
+
+            <input type="radio" name="program-selection" id="self" onclick=openProgram(event)>
+            <label for="self">Self Guided</label>
+            <p>Affordable option for raising your score in the least amount of time.</p>
+
+            <!-- <input type="radio" name="program-selection" id="study-groups" onclick=openProgram(event)>
+            <label for="study-groups">Study Groups</label>
+            <p>Smaller group size means our tutors can focus more on your student.</p> -->
+
+            <input type="radio" name="program-selection" id="one-on-one" onclick=openProgram(event) checked>
+            <label for="one-on-one">One-on-One</label>
+            <p>The best way to prepare for the ACT is one-on-one with our tutors.</p>
+          </div>
+        </div>
+
+        <!-- Crash Course -->
+        <div class="program crash" id="crash_course">
+          <h2>Go over the most important topics</h2>
+          <h4>Just two weeks to cover all 4 sections</h4>
+          
+          <div class="plans" style="grid-template-columns: 1fr;">
+            <!-- English -->
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>ALL 4 Sections</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>4 classes</h4>
+                <h5>1 hour each</h5>
+              </div>
+              <ul>
+                <li>Learn in depth topics from our expert made curriculum</li>
+                <li>4 full length section tests for practice</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Classes every week</li>
+                <li>Great right before the test</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'crashCourseCallClicked'}); gtag_report_conversion_preview()">
+                <a href="tel:+13853000906">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_crash" class="faq_toggle">
+              <label for="faq_0_crash" class="summary"><h3>What is our crash course?</h3></label>
+              <div class="content">
+                <p>
+                  Every two weeks we cover all four sections of the ACT and cover the most important topics from each.
+                  You can jump right in at any point and stay for all of the sections or just the ones you want to cover.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_crash" class="faq_toggle">
+              <label for="faq_1_crash" class="summary"><h3>What else is included?</h3></label>
+              <div class="content">
+                <p>
+                  You will not only get an hour of instruction in each section but will also get a full length practice test 
+                  that will be graded right after you finish.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_crash" class="faq_toggle">
+              <label for="faq_2_crash" class="summary"><h3>When can I start?</h3></label>
+              <div class="content">
+                <p>
+                  We can get you into a class as as sson as possible. You can jump in at any point and go to which ever classes you want.
+                  Classes happen almost every Tuesday and Thursday.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
+        <!-- previews -->
+        <!-- <div class="program previews open" id="program_preview">
+          <h2>Get a better idea what a Lyrn lesson looks like.</h2>
+          <h4>Choose a section you want to work the most on</h4>
+          
+          <div class="plans">
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>English</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'englishPreviewScheduleClicked'}); gtag_report_conversion_preview()">
+                <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
+              </button>
+            </div>
+
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Math</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'mathPreviewScheduleClicked'}); gtag_report_conversion_preview()">
+                <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
+              </button>
+            </div>
+
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Reading</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'readingPreviewScheduleClicked'}); gtag_report_conversion_preview()">
+                <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
+              </button>
+            </div>
+
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Science</h3>
+                <h4>FREE</h4>
+              </div>
+              <div class="length">
+                <h4>Program Preview</h4>
+                <h5>30 Minutes</h5>
+              </div>
+              <ul>
+                <li>Learn in depth a topic from our expert made curriculum</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Get a better idea about what our programs are before committing</li>
+                <li>Focus on one section or sign up for multiple</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select" onclick="createAnalyticsEvent({eventID: 'sciencePreviewScheduleClicked'}); gtag_report_conversion_preview()">
+                <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;"><p>Schedule Now</p></a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_previews" class="faq_toggle">
+              <label for="faq_0_previews" class="summary"><h3>What is a program preview?</h3></label>
+              <div class="content">
+                <p>
+                  Programs previews are a great way to get try out our programs before starting. You get 30 minutes with one of our amazing tutors who will
+                  teach a topic from our curriculum that appears most frequently on the ACT. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_previews" class="faq_toggle">
+              <label for="faq_1_previews" class="summary"><h3>How many previews can I sign up for?</h3></label>
+              <div class="content">
+                <p>
+                  You can sign up for one preview for each section.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div> -->
+
+        <!-- classes -->
+        <div class="program classes">
+          <h2>Need a quick boost to your score?</h2>
+          <h4>Choose a class that helps you reach your goals</h4>
+          <p><span class="accent">Bundle and save!</span> Sign up for multiple classes and get 5% off your total for each additional class.</p>
+
+          <input type="checkbox" id="paymentType_classes" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_classes"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- English -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>English</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 1 pm</p>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!--Math -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>Math</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 1 pm</p>
+                <p>Tuesday and Thursday at 6 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Reading -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>Reading</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 6 pm</p>
+                <p>Tuesday and Thursday at 1 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Science -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $16">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>Science</h3>
+                <h4 class="recurring">$160</h4>
+                <p class="recurring">2 payments of $40 and a $80 deposit**</p>
+                <h4 class="one-time">$144</h4>
+                <p class="one-time">1 payment of $144 which includes a $72 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Class</h4>
+                <h5>4 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>All instructors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Focus on one section at a time or work on multiple</li>
+                <li>4 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 6 pm</p>
+                <p>Tuesday and Thursday at 1 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableClassesCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_classes" class="faq_toggle">
+              <label for="faq_0_classes" class="summary"><h3>What is my expected score?</h3></label>
+              <div class="content">
+                <p>
+                  We usually see an increase of 1-3 point increases from the beginning of our class to the end. If you do all of the practice and
+                  take notes during the classes we are confident you will reap your reward.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_classes" class="faq_toggle">
+              <label for="faq_1_classes" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  Our classes are ongoing and happen about twice a month. Call us to get a better idea of when the next classes are starting
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_classes" class="faq_toggle">
+              <label for="faq_2_classes" class="summary"><h3>How long are the classes?</h3></label>
+              <div class="content">
+                <p>
+                  Every class is 1 hour long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_classes" class="faq_toggle">
+              <label for="faq_3_classes" class="summary"><h3>How often are the classes?</h3></label>
+              <div class="content">
+                <p>
+                  Classes happen twice a week. Check availability above to see which days and times.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_classes" class="faq_toggle">
+              <label for="faq_4_classes" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  Classes are held in groups up to 20 students. We make sure that in every lesson there is time reserved to take questions
+                  so that your student can get personalized help.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_classes" class="faq_toggle">
+              <label for="faq_5_classes" class="summary"><h3>Where are the classes held?</h3></label>
+              <div class="content">
+                <p>
+                  All of our classes are online over Zoom. This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_classes" class="faq_toggle">
+              <label for="faq_6_classes" class="summary"><h3>What does a class look like?</h3></label>
+              <div class="content">
+                <p>Every class is led by one of our best instructors that are specialized in the the specific section they are teaching. The instructor will
+                  go over topics our ACT experts created by explaing how to identify the question and the approach to answer the question. We use real ACT example questions
+                  to demontrate the principle. We leave time to answer questions about each topic. Your student at home then has practice tests to practice the topics taught during the lesson.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_classes" class="faq_toggle">
+              <label for="faq_7_classes" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
+        <!-- study-groups -->
+        <div class="program study-groups">
+          <h2>Want something a bit more personalized?</h2>
+          <h4>Choose a study group that helps you reach your goals</h4>
+
+          <input type="checkbox" id="paymentType_study-group" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_study-group"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- Study group 6 weeks -->
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $60">
+              <div class="title">
+                <h3>6 weeks</h3>
+                <h4 class="recurring">$600</h4>
+                <p class="recurring">10 payments of $50 and a $100 deposit**</p>
+                <h4 class="one-time">$540</h4>
+                <p class="one-time">1 payment of $540 which includes a $90 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Study Group</h4>
+                <h5>12 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>Focus on the topics that appear the most</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>1 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 7 pm</p>
+                <p>Tuesday and Thursday at 3 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableStudyGroupsCallback(0)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Study Group 8 week -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $80">
+              <div class="title">
+                <h3>8 weeks</h3>
+                <h4 class="recurring">$800</h4>
+                <p class="recurring">14 payments of $50 and a $100 deposit**</p>
+                <h4 class="one-time">$720</h4>
+                <p class="one-time">1 payment of $720 which includes a $90 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Study Group</h4>
+                <h5>16 hours</h5>
+              </div>
+              <ul>
+                <li>Curriculum written by our ACT experts</li>
+                <li>Focus on the topics that appear the most</li>
+                <li>All tutors have scored <strong>perfect scores</strong> (36)</li>
+                <li>1 full length ACT practice tests</li>
+                <li>16 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <div class="length">
+                <h4>Schedule</h4>
+                <p>Monday and Wednesday at 3 pm</p>
+                <p>Tuesday and Thursday at 7 pm</p>
+              </div>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="availableStudyGroupsCallback(1)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_study-groups" class="faq_toggle">
+              <label for="faq_0_study-groups" class="summary"><h3>What is my expected score?</h3></label>
+              <div class="content">
+                <p>
+                  We usually see an increase of 2-4 point increases from the beginning of our study group to the end. If you do all of the practice and
+                  take notes during the study group we are confident you will reap your reward.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_study-groups" class="faq_toggle">
+              <label for="faq_1_study-groups" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  In order for your student to get the best results, our programs all end the week before an official ACT test.
+                  That way all of the things they learn will be fresh in their minds. We then figure out the start date based on
+                  which program you choose and how many times a week you attend lessons. For our study groups, 
+                  this is typcially 6-8 weeks.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_study-groups" class="faq_toggle">
+              <label for="faq_2_study-groups" class="summary"><h3>How long are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  Every study group session is 1 hour long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_study-groups" class="faq_toggle">
+              <label for="faq_3_study-groups" class="summary"><h3>How often are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  All study groups happen twice a week so that your student has enough time to do their homework and not enough
+                  time to forget everything between sessions. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_study-groups" class="faq_toggle">
+              <label for="faq_4_study-groups" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  Study groups happen in groups of at most 6. This smaller class size allows more interaction with each student and time to review every student's questions.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_study-groups" class="faq_toggle">
+              <label for="faq_5_study-groups" class="summary"><h3>Where are the lessons held?</h3></label>
+              <div class="content">
+                <p>
+                  All of our lessons are online over Zoom. This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_study-groups" class="faq_toggle">
+              <label for="faq_6_study-groups" class="summary"><h3>What does a lesson look like?</h3></label>
+              <div class="content">
+                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. We then move into 
+                  reviewing a specific topic of the ACT from our world class curriculum. We practice questions specific to that topics and then student's at home
+                  will have full section tests to practice what we learned in class.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_study-groups" class="faq_toggle">
+              <label for="faq_7_study-groups" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+
+        <!-- one-on-one -->
+        <div class="program one-on-one open">
+          <h2>Get the score you deserve or your money back*</h2>
+          <h4>Choose a program that helps you reach your goals</h4>
+
+          <input type="checkbox" id="paymentType_one-on-one" class="payment-input" checked>
+          <div class="payment-type">
+            <p class="scheduled">Pay each lesson</p>
+            <label for="paymentType_one-on-one"></label>
+            <p class="one-time">Pay up front (10% off)</p>
+          </div>
+          
+          <div class="plans">
+            <!-- Basics 6 weeks -->
+            <!-- <div class="plan-wrapper">
+              <div class="title">
+                <h3>1 point</h3>
+                <h4 class="recurring">$900</h4>
+                <p class="recurring">10 payments of $75 and a $150 deposit**</p>
+                <h4 class="one-time">$810</h4>
+                <p class="one-time"><strong>Save $90</strong> includes $135 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>ACT Basics</h4>
+                <h5>12 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <div class="select">
+                <a href="tel:+13853000906">
+                  <p>CALL OR TEXT</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </div>
+            </div> -->
+
+            <!-- Basics 8 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $240">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>4 points guaranteed*</h3>
+                <h4 class="recurring">$2400</h4>
+                <p class="recurring">14 payments of $150 and a $300 deposit**</p>
+                <h4 class="one-time">$2160</h4>
+                <p class="one-time">1 payment of $2160 which includes a $270 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>Guided ACT</h4>
+                <h5>32 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Adaptive Learning Intelligence</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>16 section practice homeworks</li>
+                <li>16 hours of topic specific lessons</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="checkProgramCallback(3)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Guided 6 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $180">
+              <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>3 points guaranteed*</h3>
+                <h4 class="recurring">$1800</h4>
+                <p class="recurring">10 payments of $150 and a $300 deposit**</p>
+                <h4 class="one-time">$1620</h4>
+                <p class="one-time">1 payment of $1620 which includes a $270 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>Guided ACT</h4>
+                <h5>24 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Adaptive Learning Intelligence</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>12 section practice homeworks</li>
+                <li>12 hours of topic specific lessons</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="checkProgramCallback(2)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+
+            <!-- Guided 8 weeks -->
+
+            <div class="plan-wrapper coming-soon" data-comingSoon="Save $120">
+            <!-- <div class="plan-wrapper coming-soon" data-comingSoon="Save 10%"> -->
+              <div class="title">
+                <h3>2 points guaranteed*</h3>
+                <h4 class="recurring">$1200</h4>
+                <p class="recurring">14 payments of $75 and a $150 deposit**</p>
+                <h4 class="one-time">$1080</h4>
+                <p class="one-time">1 payment of $1080 which includes a $135 deposit**</p>
+              </div>
+              <div class="length">
+                <h4>Guided ACT</h4>
+                <h5>16 hours</h5>
+              </div>
+              <ul>
+                <li><strong>One-on-One</strong> Personalized Tutoring</li>
+                <li>All tutors have scored in the <strong>top 1%</strong> (34+)</li>
+                <li>Adaptive Learning Intelligence</li>
+                <li><strong>2000+</strong> ACT test questions</li>
+                <li>End right before an official test</li>
+                <li>2 full length ACT practice tests</li>
+                <li>8 section practice homeworks</li>
+                <li>8 hours of topic specific lessons</li>
+                <li>Time management skills</li>
+                <li>Test tips and strategies</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <!-- <button class="select" onclick="checkProgramCallback(1)">
+                <p>Check Availability</p>
+              </button> -->
+              <button class="select">
+                <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                  <p>Call to sign up</p>
+                  <p>(385) 300-0906</p>
+                </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="plan-wrapper custom">
+            <div class="title">
+              <h3>Customized programs</h3>
+              <!-- <h4>?</h4> -->
+            </div>
+            <div class="length">
+              <h5>Create a completely customized program to meet your student's needs.</h5>
+            </div>
+            <h4 class="start">GET STARTED TODAY!</h4>
+            <div class="select">
+              <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                <p>CALL OR TEXT</p>
+                <p>(385) 300-0906</p>
+              </a>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h2 class="title">FAQ</h2>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_0_one-on-one" class="faq_toggle">
+              <label for="faq_0_one-on-one" class="summary"><h3>What is my guarantee?</h3></label>
+              <div class="content">
+                <p>
+                  Each of our one-on-one programs comes with a guarantee that if you do all of your homework and come to all of your lessons,
+                  we will guarantee that your student will go up that many points on their official ACT test compared to when they
+                  first started their program or your money back. See our <a href="guarantee.html">guarantee policy</a> for more details.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_1_one-on-one" class="faq_toggle">
+              <label for="faq_1_one-on-one" class="summary"><h3>When do the programs start?</h3></label>
+              <div class="content">
+                <p>
+                  In order for your student to get the best results, our one-on-one programs all end the week before an official ACT test.
+                  That way all of the things they learn will be fresh in their minds. We then figure out the start date based on
+                  which program you choose and how many times a week you attend lessons. For our set programs, 
+                  this is typcially 6-8 weeks.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_2_one-on-one" class="faq_toggle">
+              <label for="faq_2_one-on-one" class="summary"><h3>How long are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  Our ACT Basics program lessons are 1 hour long, and our Guided ACT program lessons are 2 hours long.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_3_one-on-one" class="faq_toggle">
+              <label for="faq_3_one-on-one" class="summary"><h3>How often are the lessons?</h3></label>
+              <div class="content">
+                <p>
+                  We highly recommend 2 lessons a week so that your student has enough time to do their homework and not enough
+                  time to forget everything between sessions. 
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_4_one-on-one" class="faq_toggle">
+              <label for="faq_4_one-on-one" class="summary"><h3>Group class or 1-on-1 tutoring?</h3></label>
+              <div class="content">
+                <p>
+                  The best approach to learning is 1-on-1. That is why all of our one-on-one programs are just your student and their tutor. 
+                  That way our tutors can focus soley on your student and they can get the most out of every lesson.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_5_one-on-one" class="faq_toggle">
+              <label for="faq_5_one-on-one" class="summary"><h3>Where are the lessons held?</h3></label>
+              <div class="content">
+                <p>
+                  Our lessons are held mainly online over Zoom (we are starting to have in-person lesson either in your home or a public place 
+                  only in Salt Lake and Utah County UT. Call for more details.) This along with our proprietary software allows for the most convienient
+                  and state-of-the-art lessons. We know that online education might not sound the best after the pandemic, but our 1-on-1 tutoring
+                  is far superior to classes of 30 students in one meeting.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_6_one-on-one" class="faq_toggle">
+              <label for="faq_6_one-on-one" class="summary"><h3>What does a lesson look like?</h3></label>
+              <div class="content">
+                <p>Every lesson starts off with reviewing the student's homework which is a full section of the ACT. Then in our Guided program
+                  the we go over specific topics that appear the most on the test to make the most of the short time we have. Then both programs 
+                  wrap up with practice from actual ACT questions.
+                </p>
+              </div>
+            </div>
+            <div class="details">
+              <input type="checkbox" name="faq" id="faq_7_one-on-one" class="faq_toggle">
+              <label for="faq_7_one-on-one" class="summary"><h3>What are my payment options?</h3></label>
+              <div class="content">
+                <p>
+                  You can either pay for each lesson individually the morning of the lesson by saving your card with us or pay for the 
+                  entire program up front for a 10% discount.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footnotes">
+            <p>
+              * See our <a href="guarantee.html">guarantee policy</a>.
+            </p>
+            <p>** All payment types will include a nonrefundable deposit which will be used to pay the amount due for the last two lessons.
+              If a program is cancelled per our <a href="cancellation.html">cancellation policy</a>, the deposit amount will not be refunded.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="course-section" id="subjectTutoring">
+        <div class="heading">
+          <h1>Subject Tutoring</h1>
+        </div>
+
+        <h2>Stuck on a homework assignment or preparing for a test?</h2>
+        <h4>Whatever help you need in your class, we have a tutor that can help</h4>
+
+        <div class="plans">
+          <div class="plan-wrapper">
+            <div class="title">
+              <h3>HOMEWORK HELP</h3>
+              <h4>Every subject, any assignment</h4>
+              <h4>$30/hr</h4>
+            </div>
+            <div class="length">
+              <h4>Completely flexible</h4>
+              <h5>Schedule anytime, for as long as you need</h5>
+              <p>30 minute increments</p>
+            </div>
+            <ul>
+              <li>One-on-One Personalized Tutoring</li>
+              <li>No contracts or hidden fees</li>
+              <li>Math, Physics, Chemistry, Biology, Stats, English, History, Geography <strong>and more!</strong></li>
+              <li>Call anytime to set up a lesson</li>
+              <li>Cancel up to 24 hours in advance</li>
+              <li>Homework help and coaching</li>
+              <li>Class projects and assignments</li>
+              <li>Test Prep</li>
+              <li>Flexible scheduling</li>
+            </ul>
+            <h4 class="start">GET STARTED TODAY!</h4>
+            <div class="select">
+              <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                <p>CALL OR TEXT</p>
+                <p>(385) 300-0906</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="links">
+        <div>
+          <div>
+            <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
+              <g>
+                <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
+                <polygon points="417.34,494.64 471.25,609.28 450.18,662.57 496.66,658.85 564.21,472.95 516.49,478.52 493.56,549.79 466.29,486.58 	"/>
+                <path d="M577.22,471.09v125.8l45.24-4.34l-1.24-69.41c0,0,13.63-16.73,38.35-16.73v-47.85c0,0-24.19,3.15-37.33,19.98v-12.62L577.22,471.09z"/>
+                <path d="M675.34,459.54v124.14c0,1.41,1.23,2.51,2.63,2.34l40.5-4.71c1.19-0.14,2.09-1.15,2.09-2.34v-76.8
+                  c0-0.34,0.18-0.64,0.21-0.98c0.27-2.93,7.07-13.36,21.72-10.05c0.11,0.02,0.2,0.03,0.31,0.05c1.21,0.27,8.78,2.38,8.78,12.06
+                  l0.51,72.12c0.01,1.37,1.18,2.45,2.55,2.34l40.52-3.3c1.23-0.1,2.17-1.12,2.17-2.35v-84.58c0-18.63-11.12-38.81-30.05-43.75
+                  c-14.4-3.76-32.48-0.04-42.64,11.23c-1.43,1.59-4.07,0.53-4.07-1.61l0,0c0-1.45-1.29-2.55-2.72-2.33l-40.5,6.19
+                  C676.19,457.38,675.34,458.37,675.34,459.54z"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="site-map">
+          <h3>Site Map</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="why.html">Why Lyrn</a></li>
+            <li><a href="team.html">Our Team</a></li>
+            <li><a href="#">Pricing</a></li>
+            <!-- <li><a href="enroll.html">Contact Us</a></li> -->
+            <!-- <li><a href="sign-up.html">Sign up</a></li> -->
+            <li><a href="sign-in.html">Log In</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms and Conditions</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Social</h3>
+          <a href="https://www.instagram.com/lyrntutoring" target="_blank"><img src="Images/instagram.png" alt="instagram"></a></li>
+          <a href="https://www.facebook.com/LyrnTutoring" target="_blank"><img src="Images/facebook.png" alt="facebook"></a></li>
+        </div>
+        <div>
+          <h3>Contact Us</h3>
+          <ul>
+            <li><a href="mailto:contact@lyrnwithus.com">contact@lyrnwithus.com</a></li>
+            <li><a href="tel:+13853000906">(385) 300-0906</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="copyright">Copyright © 2022 Advanced Education Solutions LLC. All rights reserved.</p>
+    </footer>
+  </body>
