@@ -299,7 +299,7 @@ function renderNextLessonDetails(lessonData) {
   const nextLessonElement = document.getElementById('nextLessonDetails');
 
   if (!lessonData) {
-    nextLessonElement.innerHTML = 'Need to increase you ACT score? Check out our <a href="/pricing" target="_blank">ACT programs.</a>'
+    nextLessonElement.innerHTML = 'Need to increase you ACT score? Check out our <a href="/pricing?program=one-on-one" target="_blank">ACT programs.</a>'
     return;
   }
 

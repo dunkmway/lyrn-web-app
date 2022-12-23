@@ -30,9 +30,10 @@
     <input type="checkbox" id="nav-toggle" class="nav-toggle">
     <nav>
       <ul>
+        <li><a href="#">Free Practice</a></li>
         <li><a href="why.html" onclick="createAnalyticsEvent({eventID: 'navWhyClicked'})">Why Lyrn</a></li>
-        <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li>
-        <li><a href="#">Pricing</a></li>
+        <!-- <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li> -->
+        <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked'})">Pricing</a></li>
         <li><div class="phone"><a href="sign-in.html">Sign in</a></div></li>
       </ul>
     </nav>
@@ -60,64 +61,72 @@
         just that - where to improve.
       </p>
       <img src="Images/test-taker-girl.jpeg" alt="worried girl">
-      <button>Find Out What to Study</button>
+      <button><a href="sign-up.html">Find Out What to Study</a></button>
     </section>
     <section id="details">
       <h1>Our Test Taker</h1>
-      <video src=""></video>
-      <h2>All Real ACT Questions</h2>
-      <p>
-        All of our questions are taken from previous ACT exams, so you can rest assured that you'll be studying the right 
-        material. Over the course of all 3 tests, you'll get a feel of what the test is really going to be like!
-      </p>
-      <h2>Broken Into Section</h2>
-      <p>
-        Our tests are not only broken down into the four sections of the ACT, but are broken down beyond that, into the topics 
-        tested within each section. You can see exactly what to improve! Maybe you're really good at math but need to study 
-        polygons, or maybe you're weak on reading, especially when it comes to questions about natural science! Whatever it is, 
-        know right away what you're good at and what you need to work on.
-      </p>
-      <video src=""></video>
-      <h2>Review Answers Right Away</h2>
-      <p>
-        Get your scores immediately after taking your test. No paywall, no wait, not hassle, just see which answers you got 
-        right and which you got wrong right away, and focus on improving your scores.
-      </p>
-      <h2>Easy, User-Friendly Design</h2>
-      <p>
-        Our test taker is student-approved! It's super easy to take tests and review answers, so you can just focus on the 
-        heart of it - the questions! Access your tests whenever you need them, flag questions you're struggling with, and come 
-        back to the website to review your work anytime!
-      </p>
+      <div>
+        <video src="https://firebasestorage.googleapis.com/v0/b/lyrn-web-app.appspot.com/o/Videos%2FLyrn%20Test%20Taker%20Video%201.mp4?alt=media&token=c5fda774-9438-4ea1-9a4b-dbd70d96203d" type="video/mp4" controls>
+          Your browser does not support the video.
+        </video>
+        <h2>All Real ACT Questions</h2>
+        <p>
+          All of our questions are taken from previous ACT exams, so you can rest assured that you'll be studying the right 
+          material. Over the course of all 3 tests, you'll get a feel of what the test is really going to be like!
+        </p>
+        <h2>Broken Into Section</h2>
+        <p>
+          Our tests are not only broken down into the four sections of the ACT, but are broken down beyond that, into the topics 
+          tested within each section. You can see exactly what to improve! Maybe you're really good at math but need to study 
+          polygons, or maybe you're weak on reading, especially when it comes to questions about natural science! Whatever it is, 
+          know right away what you're good at and what you need to work on.
+        </p>
+        <video src="https://firebasestorage.googleapis.com/v0/b/lyrn-web-app.appspot.com/o/Videos%2FLyrn%20Test%20Taker%20Video%201.mp4?alt=media&token=c5fda774-9438-4ea1-9a4b-dbd70d96203d" type="video/mp4" controls>
+          Your browser does not support the video.
+        </video>
+        <h2>Review Answers Right Away</h2>
+        <p>
+          Get your scores immediately after taking your test. No paywall, no wait, not hassle, just see which answers you got 
+          right and which you got wrong right away, and focus on improving your scores.
+        </p>
+        <h2>Easy, User-Friendly Design</h2>
+        <p>
+          Our test taker is student-approved! It's super easy to take tests and review answers, so you can just focus on the 
+          heart of it - the questions! Access your tests whenever you need them, flag questions you're struggling with, and come 
+          back to the website to review your work anytime!
+        </p>
+      </div>
       <h3>
         What are you waiting for? No paywalls and no hassle, just sign up for our free test taker today to get your 3 free ACT 
         practice tests, and find out what it's really like.
       </h3>
-      <button>Get 3 Free Tests</button>
+      <button><a href="sign-up.html">Get 3 Free Tests</a></button>
     </section>
   </main>
   <section id="about">
     <h1>About Us</h1>
-    <div id="duncan">
-      <img src="Images/tutors/Duncan-Morais.jpg" alt="Duncan Morais">
-      <h1>Duncan Morais</h1>
-      <p>
-        Duncan Morais is one of the co-founders of Lyrn. With more than 3,000 hours of personalized ACT prep tutoring and more 
-        than 2 years of full stack development and software engineering experience, Duncan architected and implemented Lyrn's 
-        proprietary and state-of-the-art software. He studied mathematics at Brigham Young University and has a work smarter, 
-        not harder attitude. In his spare time, Duncan loves to spend time with his wife Charlotte and daughter Lucy.
-      </p>
-    </div>
-    <div id="matthew">
-      <img src="Images/tutors/Matthew-Wilkinson.jpg" alt="Matthew Wilkinson">
-      <h1>Matthew Wilkinson</h1>
-      <p>
-        As the other founder of Lyrn, Matthew Wilkinson has over 5,000 hours of one-on-one ACT prep tutoring and 3 years of 
-        data science experience. As the curriculum and content specialist, he has developed the company's curriculum and 
-        adaptive learning technology. He graduated from the University of Utah with a double major in physics and chemistry. 
-        He encourages hard work and dedication to achieve one's goals. On the side, Matthew loves to spend time playing 
-        pickleball and summiting mountains.
-      </p>
+    <div>
+      <div id="duncan">
+        <img src="Images/tutors/Duncan-Morais.jpg" alt="Duncan Morais">
+        <h1>Duncan Morais</h1>
+        <p>
+          Duncan Morais is one of the co-founders of Lyrn. With more than 3,000 hours of personalized ACT prep tutoring and more 
+          than 2 years of full stack development and software engineering experience, Duncan architected and implemented Lyrn's 
+          proprietary and state-of-the-art software. He studied mathematics at Brigham Young University and has a work smarter, 
+          not harder attitude. In his spare time, Duncan loves to spend time with his wife Charlotte and daughter Lucy.
+        </p>
+      </div>
+      <div id="matthew">
+        <img src="Images/tutors/Matthew-Wilkinson.jpg" alt="Matthew Wilkinson">
+        <h1>Matthew Wilkinson</h1>
+        <p>
+          As the other founder of Lyrn, Matthew Wilkinson has over 5,000 hours of one-on-one ACT prep tutoring and 3 years of 
+          data science experience. As the curriculum and content specialist, he has developed the company's curriculum and 
+          adaptive learning technology. He graduated from the University of Utah with a double major in physics and chemistry. 
+          He encourages hard work and dedication to achieve one's goals. On the side, Matthew loves to spend time playing 
+          pickleball and summiting mountains.
+        </p>
+      </div>
     </div>
   </section>
 

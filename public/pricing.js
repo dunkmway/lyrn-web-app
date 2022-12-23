@@ -167,38 +167,38 @@ async function submitLessonSeriesRequest(e) {
 
 
 // set up the practice test request
-document.querySelector('.practice-test-wrapper button').addEventListener('click', async (e) => {
-  // check if the email is valid
-  const email = document.querySelector('.practice-test-wrapper input');
-  const error = document.querySelector('.practice-test-wrapper .error')
-  const submit = e.target;
+// document.querySelector('.practice-test-wrapper button').addEventListener('click', async (e) => {
+//   // check if the email is valid
+//   const email = document.querySelector('.practice-test-wrapper input');
+//   const error = document.querySelector('.practice-test-wrapper .error')
+//   const submit = e.target;
 
-  submit.disabled = true;
-  submit.classList.add('loading');
-  submit.textContent = 'Sending practice tests'
-  error.textContent = '';
+//   submit.disabled = true;
+//   submit.classList.add('loading');
+//   submit.textContent = 'Sending practice tests'
+//   error.textContent = '';
 
-  if (!isEmailValid(email.value)) {
-    error.textContent = 'There seems to be something wrong with the email you entered.'; 
-    submit.disabled = false;
-    submit.classList.remove('loading');
-    submit.textContent = 'Submit'
-    return;
-  }
+//   if (!isEmailValid(email.value)) {
+//     error.textContent = 'There seems to be something wrong with the email you entered.'; 
+//     submit.disabled = false;
+//     submit.classList.remove('loading');
+//     submit.textContent = 'Submit'
+//     return;
+//   }
 
-  createAnalyticsEvent({
-    eventID: 'emailProvided',
-    additionalData: {
-      email: email.value,
-      from: 'ACT-practiceTest'
-    }
-  })
-  await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
+//   createAnalyticsEvent({
+//     eventID: 'emailProvided',
+//     additionalData: {
+//       email: email.value,
+//       from: 'ACT-practiceTest'
+//     }
+//   })
+//   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
-  submit.disabled = false;
-  submit.classList.remove('loading');
-  submit.textContent = 'Practice tests sent!'
-})
+//   submit.disabled = false;
+//   submit.classList.remove('loading');
+//   submit.textContent = 'Practice tests sent!'
+// })
 
 function isEmailValid(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

@@ -20,8 +20,14 @@
   --color-accent-4-light: #8787ff;
   --color-accent-5-light: #ea5a5a;
 
+  /* --color-green: #3cdd58;
+  --color-blue: #02c6ff; */
   --color-green: #27c03a;
   --color-blue: #101b42;
+  /* --color-blue: #1D3C5D; */
+
+  --greyed-out-color: #A3A5AD;
+
 }
 
 *, *::before, *::after {
@@ -38,7 +44,29 @@ body {
   overflow-x: hidden;
   width: 100vw;
   margin: 0;
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
+}
+
+input, label, select, button {
+  display: block;
+}
+
+button:disabled {
+  background-color: var(--greyed-out-color) !important;
+  cursor: not-allowed !important;
+  color: white !important;
+}
+
+button.loading::after {
+  content: '';
+  height: 1em;
+  width: 1em;
+  display: inline-block;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: white;
+  animation: spin .5s linear infinite;
+  margin-left: 1em;
 }
 
 section {
@@ -105,9 +133,28 @@ p {
   font-size: 1rem;
 }
 
+li {
+  position: relative;
+  margin: 1em 0em;
+  list-style: none;
+}
+
+li::before {
+  content: '✓';
+  text-align: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  position: absolute;
+  right: calc(100% + 1em);
+  top: 0em;
+  color: white;
+  background-color: black;
+}
+
 @media screen and (min-width: 800px) {
   h1 {
-    font-size: 4rem;
+    font-size: 5rem;
     font-weight: 1000;
   }
   
@@ -144,10 +191,9 @@ header {
   text-align: center;
   position: sticky;
   top: 0px;
-  z-index: 10;
+  z-index: 999;
   width: 100%;
   padding: 1em 0em;
-  /* box-shadow: #00000041 0em .5em 20px; */
   transition: background-color 200ms ease-in;
 }
 
@@ -170,7 +216,7 @@ header li::before {
 .phone {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
 }
 
@@ -182,6 +228,7 @@ header li::before {
   align-items: center;
   justify-content: center;
   border-radius: .5em;
+  text-decoration: none;
 }
 
 .phone a svg {
@@ -203,7 +250,8 @@ header li::before {
 
 .nav-toggle-label {
   position: absolute;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   right: 0;
   margin-right: 1em;
   height: 50%;
@@ -242,7 +290,6 @@ nav {
   top: 100%;
   right: 0;
   background: var(--color-blue);
-  box-shadow: #00000041 0em .5em 20px;
   width: 100%;
   transform: scale(1, 0);
   transform-origin: top;
@@ -303,7 +350,7 @@ nav a:hover {
 
   header {
     display: grid;
-    grid-template-columns: .2fr auto minmax(600px, 3fr) auto .2fr;
+    grid-template-columns: .2fr auto 3fr auto .2fr;
   }
   
   .logo {
@@ -314,7 +361,6 @@ nav a:hover {
   .phone {
     grid-column: 4 / 5;
     justify-content: flex-end;
-    margin-left: 1em;
   }
   
   nav {
@@ -338,6 +384,7 @@ nav a:hover {
   
   nav ul {
     display: flex;
+    align-items: center;
   }
   
   nav li {
