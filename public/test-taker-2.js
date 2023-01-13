@@ -367,7 +367,7 @@ function renderNextLessonDetails(lessonData) {
   const nextLessonElement = document.getElementById('nextLessonDetails');
 
   if (!lessonData) {
-    nextLessonElement.innerHTML = 'Need to increase you ACT score? Check out our <a href="/pricing?program=one-on-one" target="_blank">ACT programs.</a>'
+    nextLessonElement.innerHTML = 'Need help on some of these questions? Check out our <a href="/pricing?program=practice" target="_blank">Test Reviews.</a>';
     return;
   }
 

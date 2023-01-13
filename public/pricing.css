@@ -1247,28 +1247,12 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
     margin: 0px 3em;
   }
 
-  #act .program.previews .plans {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  #act .program.classes .plans {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  #act .program.study-groups .plans {
+  #act .program.practice .plans {
     grid-template-columns: repeat(2, 1fr);
   }
 
   #act .program.one-on-one .plans {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  #act .program.self .plans {
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  #act .program.free .plans {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   /* #act .plans::before {
