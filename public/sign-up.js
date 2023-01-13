@@ -18,7 +18,7 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
   }
 
   //create the user account
-  firebase.auth().createUserWithEmailAndPassword(registrationData.email.trim(), registrationData.password)
+  firebase.auth().createUserWithEmailAndPassword(registrationData.email.trim().toLowerCase(), registrationData.password)
   .then(async (userCredential) => {
     // Signed in 
     const user = userCredential.user;
@@ -36,9 +36,10 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
     await firebase.firestore().collection('Users').doc(user.uid).set({
       firstName : registrationData.firstName.trim(),
       lastName : registrationData.lastName.trim(),
-      email : registrationData.email.trim(),
+      email : registrationData.email.trim().toLowerCase(),
       role : 'student',
-      location : 'WIZWBumUoo7Ywkc3pl2G' //hard coded for the online location
+      location : 'WIZWBumUoo7Ywkc3pl2G', //hard coded for the online location
+      createdAt : firebase.firestore.FieldValue.serverTimestamp()
     })
 
     // refresh the user token

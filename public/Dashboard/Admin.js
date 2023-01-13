@@ -43,24 +43,41 @@ async function queryUsers() {
   removeAllChildNodes(userResultsWrapper);
 
   if (firstNameQuery && !lastNameQuery) {
-    const firstNameUserDocs = await firebase.firestore().collection('Users')
-    .where('firstName', '>=', firstNameQuery)
-    .where('firstName', '<=', firstNameQuery + '\uf8ff')
-    .orderBy('firstName')
-    .get();
+    try {
+      // emails
+      const emailUserDocs = await firebase.firestore().collection('Users')
+      .where('email', '>=', firstNameQuery.toLowerCase())
+      .where('email', '<=', firstNameQuery.toLowerCase() + '\uf8ff')
+      .orderBy('email')
+      .get();
 
-    const lastNameUserDocs = await firebase.firestore().collection('Users')
-    .where('lastName', '>=', firstNameQuery)
-    .where('lastName', '<=', firstNameQuery + '\uf8ff')
-    .orderBy('lastName')
-    .get();
+      // first name
+      const firstNameUserDocs = await firebase.firestore().collection('Users')
+      .where('firstName', '>=', firstNameQuery)
+      .where('firstName', '<=', firstNameQuery + '\uf8ff')
+      .orderBy('firstName')
+      .get();
 
-    firstNameUserDocs.docs.forEach(doc => {
-      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
-    })
-    lastNameUserDocs.docs.forEach(doc => {
-      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
-    })
+      //last name
+      const lastNameUserDocs = await firebase.firestore().collection('Users')
+      .where('lastName', '>=', firstNameQuery)
+      .where('lastName', '<=', firstNameQuery + '\uf8ff')
+      .orderBy('lastName')
+      .get();
+
+      emailUserDocs.docs.forEach(doc => {
+        renderUserSearchResult(doc.data().email, doc.id, doc.data().role);
+      })
+      firstNameUserDocs.docs.forEach(doc => {
+        renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
+      })
+      lastNameUserDocs.docs.forEach(doc => {
+        renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
+      })
+    }
+    catch (error) {
+      console.log(error)
+    }
   }
   else if (firstNameQuery && lastNameQuery) {
     try {
