@@ -137,11 +137,16 @@ function getAssignedQuestions() {
 
 function showAssignments() {
   // filter out the assignment array into started, new, and previous lists
+  let fullAssignments = [];
   let startedAssignments = [];
   let newAssignments = [];
   let previousAssignments = [];
 
   for (const assignment of assignments) {
+    if (assignment.scaledScoreSection) {
+      fullAssignments.push(assignment)
+      continue
+    }
     if (assignment.status === 'started') {
       startedAssignments.push(assignment);
       continue
@@ -163,31 +168,96 @@ function showAssignments() {
 
   // show the assignments
   for (const assignment of startedAssignments) {
-    assignment.show();
+    assignment.show(document.querySelector(`#newAssignments .${assignment.sectionCode}-container`));
   }
   for (const assignment of newAssignments) {
-    assignment.show();
+    assignment.show(document.querySelector(`#newAssignments .${assignment.sectionCode}-container`));
   }
   for (const assignment of previousAssignments) {
-    assignment.show();
+    assignment.show(document.querySelector(`#previousAssignments .${assignment.sectionCode}-container`));
   }
 
-  // remove the no assignments
-  const noCurrent = document.getElementById('noCurrentAssignments');
-  if (startedAssignments.length + newAssignments.length === 0) {
-    noCurrent.classList.remove('hide');
-  }
-  else {
-    noCurrent.classList.add('hide');
+  // // remove the no assignments
+  // const noCurrent = document.getElementById('noCurrentAssignments');
+  // if (startedAssignments.length + newAssignments.length === 0) {
+  //   noCurrent.classList.remove('hide');
+  // }
+  // else {
+  //   noCurrent.classList.add('hide');
+  // }
+
+  // const noPrevious = document.getElementById('noPreviousAssignments');
+  // if (previousAssignments.length === 0) {
+  //   noPrevious.classList.remove('hide');
+  // }
+  // else {
+  //   noPrevious.classList.add('hide');
+  // }
+
+  // full tests need to combine into tests which needs to happen asynchronously
+  // get the sections into this form
+  /*
+    {
+      testID: [assignment, assignment, ..., assignment],
+      ...
+    }
+  */
+  getFullTestObject(fullAssignments)
+  .then(tests => {
+    // create a wrapper for each test and show the composite score in this wrapper
+    removeAllChildNodes(document.getElementById('fullAssignments'));
+    for (const test in tests) {
+      const testWrapper = document.createElement('div');
+      testWrapper.className = 'full-test-wrapper';
+      const heading = document.createElement('h3');
+      testWrapper.appendChild(heading);
+
+      let scaledScores = [];
+      for (const assignment of tests[test]) {
+        assignment.show(testWrapper)
+        scaledScores.push(assignment.scaledScore ?? null)
+      }
+
+      let compositeScore = getCompositeScore(scaledScores) ?? 'N/A';
+      heading.textContent = `Composite Score: ${compositeScore}`
+      document.getElementById('fullAssignments').appendChild(testWrapper)
+    }
+  })
+}
+
+
+function getCompositeScore(scores) {
+  // return the average of the element in the array or null if any value is null
+  if (scores.some(score => score === null)) return null;
+
+  const sum = scores.reduce((prev, curr) => prev + curr)
+  const num = scores.length;
+
+  return Math.round(sum / num);
+}
+
+async function getFullTestObject(assignments) {
+  const tests = await Promise.all(assignments.map(async assignmment => {
+    // get the section document of this assignent
+    const sectionDoc = await db.collection('ACT-Section-Data').doc(assignmment.scaledScoreSection).get();
+    const testID = sectionDoc.data().test;
+    return testID
+  }))
+
+  let testsObject = {}
+  for (let index = 0; index < assignments.length; index++) {
+    // there isn't an array for this test yet create one
+    if (!testsObject[tests[index]]) testsObject[tests[index]] = [];
+    // append the assignment to this array
+    testsObject[tests[index]].push(assignments[index])
   }
 
-  const noPrevious = document.getElementById('noPreviousAssignments');
-  if (previousAssignments.length === 0) {
-    noPrevious.classList.remove('hide');
+  // sort the sections by section code before returning
+  for (const test in testsObject) {
+    testsObject[test].sort((a, b) => sortAlphabetically(a.sectionCode, b.sectionCode))
   }
-  else {
-    noPrevious.classList.add('hide');
-  }
+
+  return testsObject;
 }
 
 function questionFlagChangeCallback(event) {
@@ -215,7 +285,6 @@ function previousQuestionCallback() {
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex - 1;
     currentAssignment.reviewQuestion(nextQuestionIndex);
-    document.getElementById('answerToggleInput').checked = false;
   }
 }
 
@@ -237,7 +306,6 @@ function nextQuestionCallback() {
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex + 1;
     currentAssignment.reviewQuestion(nextQuestionIndex);
-    document.getElementById('answerToggleInput').checked = false;
   }
 }
 
@@ -358,4 +426,19 @@ function showPassageMobile() {
   // remove passage panel class of mobile-hide
   document.querySelector('.main .panels .passage').classList.remove('mobile-hide');
 
+}
+
+function sortAlphabetically(a,b) {
+	a = a.toString();
+	b = b.toString();
+
+	if (a < b) {
+		return -1;
+	}
+	if (a == b) {
+		return 0;
+	}
+	if (a > b) {
+		return 1
+	}
 }

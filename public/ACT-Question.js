@@ -118,6 +118,8 @@ class Question {
     removeAllChildNodes(document.getElementById('questionChoices'));
     // remove the show hide answer
     removeAllChildNodes(document.getElementById('answerToggle'));
+    // untoggle the show hide answer
+    document.getElementById('answerToggleInput').checked = false;
     // remove the explanation
     removeAllChildNodes(document.getElementById('questionExplanation'));
 

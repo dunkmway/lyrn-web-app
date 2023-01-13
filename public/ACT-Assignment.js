@@ -18,7 +18,7 @@ class Assignment {
     this.submittedAt = data.submittedAt;
     this.score = data.score;
     this.scaledScore = data.scaledScore;
-    this.scaledScoreSection = data.scaledScore;
+    this.scaledScoreSection = data.scaledScoreSection;
 
     // objects
     this.questionObjects = null;
@@ -108,7 +108,7 @@ class Assignment {
     }
   }
 
-  show() {
+  show(parent) {
     // remove the old child
     removeAllChildNodes(this.wrapper);
 
@@ -144,7 +144,7 @@ class Assignment {
         } else {
           this.statusIndicator.textContent = this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '';
         }
-        document.querySelector(`#newAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
+        parent.appendChild(this.wrapper);
         break;
       case 'started':
         this.statusIndicator.classList.remove('spinner');
@@ -153,22 +153,22 @@ class Assignment {
         } else {
           this.statusIndicator.textContent = '--:--'
         }
-        document.querySelector(`#newAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
+        parent.appendChild(this.wrapper);
         break;
       case 'submitted':
         this.statusIndicator.textContent = '';
         this.statusIndicator.classList.add('spinner');
-        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
+        parent.appendChild(this.wrapper);
         break;
       case 'graded':
         this.statusIndicator.classList.remove('spinner');
         this.statusIndicator.textContent = `${this.scaledScore ?? ''} (${this.score} out of ${this.questions.length})`;
-        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
+        parent.appendChild(this.wrapper);
         break;
       case 'omitted':
         this.statusIndicator.classList.remove('spinner');
         this.statusIndicator.textContent = 'omitted';
-        document.querySelector(`#previousAssignments .${this.sectionCode}-container`).appendChild(this.wrapper);
+        parent.appendChild(this.wrapper);
         break;
       default:
         throw 'invalid status';

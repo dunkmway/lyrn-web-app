@@ -408,6 +408,15 @@ section.hide {
   color: inherit;
 }
 
+.landing .content .full-assignment-wrapper {
+  grid-column: 1 / -1;
+}
+
+.full-test-wrapper {
+  /* padding: 2em;
+  border: 2px solid black; */
+}
+
 .landing .content .assignment {
   display: flex;
   flex-wrap: wrap;
@@ -444,18 +453,23 @@ section.hide {
   margin-right: .5em;
 }
 
-.landing .content .previous-assignment-wrapper .subsections {
-  flex-basis: 100%;
-  display: flex;
-  margin-top: .5em;
-  border-radius: .5em;
-  overflow: hidden;
+.landing .content .full-assignment-wrapper,
+.landing .content .current-assignment-wrapper,
+.landing .content .previous-assignment-wrapper {
+  display: none;
 }
 
-.landing .content .previous-assignment-wrapper .subsections > * {
-  flex: 1;
-  padding: .5em;
-  text-align: center;
+
+.landing .content .full-assignment-wrapper:has(.assignment) {
+  display: block;
+}
+
+.landing .content .current-assignment-wrapper:has(.assignment) {
+  display: block;
+}
+
+.landing .content .previous-assignment-wrapper:has(.assignment) {
+  display: block;
 }
 
 .assignment-wrapper > div > h4 {
@@ -798,7 +812,7 @@ section.hide {
   width: 100%;
   position: sticky;
   top: 0;
-  z-index: 999;
+  z-index: 9;
 }
 
 .main .panels .question .show-passage > button {
