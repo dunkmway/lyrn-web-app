@@ -1754,7 +1754,6 @@ nav a:hover {
 .questionnaire {
   background-color: white;
   overflow: hidden;
-  min-height: 550px;
   position: relative;
   padding: 0;
 }
@@ -1857,20 +1856,33 @@ label {
   text-align: left;
 }
 
-.questionnaire .question input[type='checkbox'] + label {
+.questionnaire .question input[type='checkbox'] + label,
+.questionnaire .question input[type='radio'] + label {
   font-size: 1.5em;
 }
 
 .questionnaire .question input[type='text'],
-.questionnaire .question input[type='email'] {
+.questionnaire .question input[type='email'],
+.questionnaire .question input[type='tel'] {
   padding: .5em 1em;
   font-size: 1em;
   width: 100%;
   border: 2px solid var(--color-green);
 }
 
+.questionnaire .question select {
+  padding: .5em 1em;
+  font-size: 1em;
+  width: 100%;
+  border: 2px solid var(--color-green);
+  display: block;
+  appearance: none;
+}
+
 .questionnaire .question input[type='text'].invalid,
-.questionnaire .question input[type='email'].invalid {
+.questionnaire .question input[type='email'].invalid,
+.questionnaire .question input[type='tel'].invalid,
+.questionnaire .question select.invalid {
   border-color: var(--color-accent-5-deep);
 }
 
@@ -1878,11 +1890,14 @@ label {
   color: var(--color-accent-5-deep);
 }
 
-.questionnaire .question input[type='checkbox'] {
+.questionnaire .question input[type='checkbox'],
+.questionnaire .question input[type='radio'] {
   visibility: hidden;
+  position: absolute;
 }
 
-.questionnaire .question input[type='checkbox'] + label::before {
+.questionnaire .question input[type='checkbox'] + label::before,
+.questionnaire .question input[type='radio'] + label::before {
   content: '';
   position: relative;
   right: 8px;
@@ -1894,8 +1909,13 @@ label {
   background-color: white;
 }
 
-.questionnaire .question input[type='checkbox']:checked + label::before {
+.questionnaire .question input[type='checkbox']:checked + label::before,
+.questionnaire .question input[type='radio']:checked + label::before {
   background-color: var(--color-green);
+}
+
+.questionnaire .question input[type='radio'][name='dayOfWeek'] + label {
+  margin-right: 1em;
 }
 
 .questionnaire .question .option {
@@ -1922,6 +1942,11 @@ label {
   grid-template-columns: 1fr 1fr;
   width: 100%;
   column-gap: 1em;
+}
+
+.questionnaire .question .week-container {
+  display: flex;
+  margin-left: .5em;
 }
 
 .questionnaire .question .submit.loading::after {

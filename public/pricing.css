@@ -1255,6 +1255,10 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
     grid-template-columns: repeat(4, 1fr);
   }
 
+  #act .program.homework .plans {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
   /* #act .plans::before {
     content: '';
     position: absolute;

@@ -154,7 +154,7 @@
 
       <section class="course-section" id="act">
         <div class="heading">
-          <h1>ACT Prep</h1>
+          <h1>Pricing</h1>
         </div>
 
         <div class="program-selector" id="program_selector">
@@ -163,12 +163,16 @@
           <div class="selection-wrapper">
 
             <input type="radio" name="program-selection" id="practice" onclick=openProgram(event) checked>
-            <label for="practice">Practice</label>
+            <label for="practice">ACT Practice</label>
             <p>Start practicing real ACT questions now with our test taker!</p>
 
             <input type="radio" name="program-selection" id="one-on-one" onclick=openProgram(event)>
-            <label for="one-on-one">Programs</label>
+            <label for="one-on-one">ACT Programs</label>
             <p>The best way to prepare for the ACT is one-on-one with our tutors.</p>
+
+            <input type="radio" name="program-selection" id="homework" onclick=openProgram(event)>
+            <label for="homework">Homework Help</label>
+            <p>Work with a tutor on your most difficult classes.</p>
 
           </div>
         </div>
@@ -377,6 +381,43 @@
             </div>
           </div>
         </div>
+
+        <!-- homework help -->
+        <div class="program homework">
+          <h2>Need help in your classes?</h2>
+          <h4>We offer homework help in almost every subject.</h4>
+          
+          <div class="plans">
+
+            <div class="plan-wrapper">
+              <div class="title">
+                <h3>Homework Help</h3>
+                <h4>$35 per hour</h4>
+              </div>
+              <div class="length">
+                <h4>Get individualized help</h4>
+                <h5>Completely adjustable to your needs</h5>
+              </div>
+              <ul>
+                <li>As little as 1 hour increments</li>
+                <li>Schedule as soon as tomorrow</li>
+                <li>Prepare for tests</li>
+                <li>Help through homework assignments</li>
+                <li>Each tutor is qualified in the specific topic</li>
+              </ul>
+              <h4 class="start">GET STARTED TODAY!</h4>
+              <button class="select">
+                <div class="select">
+                  <a href="tel:+13853000906" onclick="createAnalyticsEvent({eventID: 'phoneClicked'})">
+                    <p>Call to learn more</p>
+                    <p>(385) 300-0906</p>
+                  </a>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <section class="course-section" id="subjectTutoring">

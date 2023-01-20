@@ -26,6 +26,7 @@ function afterLoad() {
   createAnalyticsEvent({
     eventID: 'load',
   })
+  resizeQuestionnaire();
 }
 
 //navbar section
@@ -352,10 +353,12 @@ async function sendLessonSeriesRequest(email, type, page) {
   return response.data
 }
 
-async function sendQuestionnaireRequest(name, email, answers) {
+async function sendQuestionnaireRequest(name, phone, day, time, answers) {
   let response = await firebase.functions().httpsCallable('home-sendQuestionnaireRequest')({
     name,
-    email,
+    phone,
+    day,
+    time,
     answers,
     type: 'questionnaire',
     page: 'home',
@@ -367,7 +370,7 @@ async function sendQuestionnaireRequest(name, email, answers) {
 
 let questionnairePath = [0];
 let questionnaireAnswers = [];
-const questionnaireLength = 6;
+const questionnaireLength = 3;
 
 function goForwardToQuestion(nextQuestion, answer) {
   const current = document.getElementById(`question_${questionnairePath[questionnairePath.length - 1]}`).parentNode;
@@ -375,6 +378,8 @@ function goForwardToQuestion(nextQuestion, answer) {
 
   current.classList.add('closed');
   next.classList.add('open');
+
+  resizeQuestionnaire();
 
   questionnairePath.push(nextQuestion);
   questionnaireAnswers.push(answer);
@@ -396,6 +401,8 @@ function goBackAQuestion() {
   current.classList.remove('open');
   previous.classList.remove('closed');
 
+  resizeQuestionnaire();
+
   questionnairePath.pop();
   questionnaireAnswers.pop();
 
@@ -407,6 +414,35 @@ function goBackAQuestion() {
       questionnaireAnswers
     }
   })
+}
+
+function resizeQuestionnaire() {
+  // get the current panel
+  const currentPanel = document.querySelector('#questionnaireSection .panel.open:not(.closed)');
+
+  // determine its size
+  const height = getContentHeight(currentPanel);
+
+  // set min-height of questionnaire accordingly
+  document.querySelector('#questionnaireSection').style.minHeight = (height + 48) + 'px';
+}
+
+/**
+ * Get the total height of all childern in the parent 
+ * @param {HTMLElement} parent element to find the content height of
+ * @returns {Number} Height of content
+ */
+function getContentHeight(parent) {
+  const childernHeight = Array.from(parent.children).reduce((pre, cur) => {
+    const styles = window.getComputedStyle(cur);
+    const margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom']);
+    const height = cur.offsetHeight;
+    return pre + (height + margin);
+  }, 0);
+  const parentStyles = window.getComputedStyle(parent);
+  const parentPadding = parseFloat(parentStyles['paddingTop']) + parseFloat(parentStyles['paddingBottom']);
+
+  return childernHeight + parentPadding;
 }
 
 function updateQuestionnaireProgress() {
@@ -430,25 +466,27 @@ function getAllCheckboxesFromQuestion() {
 
 async function submitQuestionnaire() {
   const name = document.getElementById('questionnaire_name');
-  const email = document.getElementById('questionnaire_email');
+  const phone = document.getElementById('questionnaire_phone');
+  const day = getCheckedRadio('dayOfWeek');
+  const time = document.getElementById('questionnaire_time');
   const submit = document.getElementById('questionnaire_submit')
   const error = document.getElementById('questionnaire_error');
 
   submit.classList.add('loading');
   submit.disabled = true;
 
-  resetErrors([name, email], error);
+  resetErrors([name, phone, time], error);
 
-  if (!checkRequiredFields([name, email])) {
+  if (!checkRequiredFields([name, phone, time])) {
     error.textContent = 'Please fill in these required fields.';
     submit.classList.remove('loading');
     submit.disabled = false;
     return;
   }
 
-  if (!isEmailValid(email.value)) {
+  if (!isPhoneNumberValid(phone.value)) {
     email.classList.add('invalid');
-    error.textContent = 'There seems to be something wrong with this email.';
+    error.textContent = 'There seems to be something wrong with this phone number.';
     submit.classList.remove('loading');
     submit.disabled = false;
     return;
@@ -456,22 +494,30 @@ async function submitQuestionnaire() {
 
   try {
     createAnalyticsEvent({
-      eventID: 'emailProvided',
+      eventID: 'phoneProvided',
       additionalData: {
-        email: email.value,
+        phone: phone.value,
         from: 'questionnaire'
       }
     })
-    await sendQuestionnaireRequest(name.value, email.value, questionnaireAnswers.toString().replaceAll(',', ', '));
+    await sendQuestionnaireRequest(name.value, phone.value, day.value, time.value, questionnaireAnswers.toString().replaceAll(',', ', '));
     submit.classList.remove('loading');
     submit.disabled = false;
-    goForwardToQuestion(8, { name: name.value, email: email.value })
+    goForwardToQuestion(8, { name: name.value, phone: phone.value })
   }
   catch (error) {
     error.textContent = 'We are having issues submitting this request. Please try again.';
     submit.classList.remove('loading');
     submit.disabled = false;
   }
+}
+
+function getCheckedRadio(radioName) {
+  return document.querySelector(`input[name="${radioName}"]:checked`);
+}
+
+function isPhoneNumberValid(phoneNumber) {
+  return /^\([0-9]{3}\)\s[0-9]{3}\-[0-9]{4}$/.test(phoneNumber);
 }
 
 function resetQuestionnaire() {

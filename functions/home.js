@@ -516,14 +516,18 @@ exports.sendQuestionnaireRequest = functions.https.onCall(async (data, context) 
     subject: 'Questionnaire Submitted!',
     text: `
     name: ${data.name}\n
-    email: ${data.email}\n
+    phone: ${data.phone}\n
+    day: ${data.day}\n
+    time: ${data.time}\n
     answers: ${data.answers}\n
     Love,\n
     Lydia
     `,
     html: `
     <p>name: ${data.name}</p>
-    <p>email: ${data.email}</p>
+    <p>phone: ${data.phone}</p>
+    <p>day: ${data.day}</p>
+    <p>time: ${data.time}</p>
     <p>answers: ${data.answers}</p>
     <p>Love,</p>
     <p>Lydia</p>
@@ -532,9 +536,9 @@ exports.sendQuestionnaireRequest = functions.https.onCall(async (data, context) 
 
   await sgMail.send(msg);
 
-  if (data.answers.split(', ')[1] == 'act') {
-    await sendQuestionnaireEmail(data.email, data.name);
-  }
+  // if (data.answers.split(', ')[1] == 'act') {
+  //   await sendQuestionnaireEmail(data.email, data.name);
+  // }
 
   return;
 });
