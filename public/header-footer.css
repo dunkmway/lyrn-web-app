@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+
+:root {
+  --header-background: #284E93;
+  --header-color: #FFFFFF;
+  --header-accent: #F4AC33;
+
+  --footer-background: #284E93;
+  --footer-color: #FFFFFF;
+
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* navigation styles start here */
+
+header {
+  background: var(--header-background);
+  color: var(--header-color);
+  text-align: center;
+  position: sticky;
+  top: 0px;
+  z-index: 999;
+  width: 100%;
+  padding: 1em 0em;
+}
+
+header li {
+  margin: 0px;
+}
+
+header li::before {
+  content: none;
+}
+
+.logo {
+  margin-left: .5em;
+  width: 5em;
+  display: block;
+  margin-top: 2px;
+  fill: white;
+}
+
+.phone {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+}
+
+.phone a {
+  display: flex;
+  background-color: var(--header-accent);
+  color: white;
+  padding: .5em 1.5em;
+  align-items: center;
+  justify-content: center;
+  border-radius: .5em;
+  text-decoration: none;
+}
+
+.phone a svg {
+  margin-right: .5em;
+  fill: white;
+}
+
+.nav-toggle {
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+}
+
+.nav-toggle:focus ~ .nav-toggle-label {
+  outline: 3px solid rgba(lightblue, .75);
+}
+
+.nav-toggle-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  margin-right: 1em;
+  height: 50%;
+  display: flex;
+  align-items: center;
+}
+
+.nav-toggle-label span,
+.nav-toggle-label span::before,
+.nav-toggle-label span::after {
+  display: block;
+  background: var(--header-accent);
+  height: 2px;
+  width: 2em;
+  border-radius: 2px;
+  position: relative;
+}
+
+.nav-toggle-label span::before,
+.nav-toggle-label span::after {
+  content: '';
+  position: absolute;
+}
+
+.nav-toggle-label span::before {
+  bottom: 7px;
+}
+
+.nav-toggle-label span::after {
+  top: 7px;
+}
+
+nav {
+  position: absolute;
+  text-align: right;
+  top: 100%;
+  right: 0;
+  background: var(--header-background);
+  width: 100%;
+  transform: scale(1, 0);
+  transform-origin: top;
+  transition: transform 400ms ease-in-out;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav li {
+  margin-bottom: 1em;
+  margin-right: 1em;
+}
+
+nav a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 1.25rem;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+}
+
+nav a:hover {
+  text-decoration: none;
+}
+
+.nav-toggle:checked ~ nav {
+  transform: scale(1,1);
+}
+
+.nav-toggle:checked ~ nav a {
+  opacity: 1;
+  transition: opacity 250ms ease-in-out 250ms;
+}
+
+@media screen and (min-width: 800px) {
+  .nav-toggle-label {
+    display: none;
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: .2fr auto 3fr auto .2fr;
+  }
+  
+  .logo {
+    grid-column: 2 / 3;
+    margin-left: 0;
+  }
+
+  .phone {
+    grid-column: 4 / 5;
+    justify-content: flex-end;
+  }
+  
+  nav {
+    all: unset; 
+    grid-column: 3 / 4;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  nav ul {
+    display: flex;
+    align-items: center;
+  }
+  
+  nav li {
+    margin-left: 2em;
+    margin-bottom: 0;
+  }
+  
+  nav a {
+    opacity: 1;
+    position: relative;
+  }
+  
+  nav a::before {
+    content: '';
+    display: block;
+    height: 5px;
+    background: var(--header-accent);
+    position: absolute;
+    top: -.75em;
+    left: 0;
+    right: 0;
+    transform: scale(0, 1);
+    transition: transform ease-in-out 250ms;
+  }
+  
+  nav a:hover::before {
+    transform: scale(1,1);
+  }
+}
+
+/* footer */
+
+footer {
+  padding: 2em 2em 3em 2em;
+  color: var(--footer-color);
+  background-color: var(--footer-background);
+}
+
+footer .links {
+  display: flex;
+  flex-direction: column;
+}
+
+footer .links .site-map > ul {
+  column-count: 2;
+}
+
+footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+footer li {
+  margin: 0px;
+}
+
+footer li::before {
+  content: none;
+}
+
+footer img {
+  display: inline;
+  width: 2em;
+}
+
+footer a {
+  text-decoration: none;
+  color: inherit;
+}
+
+footer .copyright {
+  text-align: center;
+}
+
+@media screen and (min-width: 800px) {
+  footer .links {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}
