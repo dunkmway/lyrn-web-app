@@ -141,7 +141,7 @@ class Question {
     <div id="explanationWrapper">
       <div>
         ${this.explanation}
-        <a href="/pricing?program=practice" target="_blank">Need more help?</a>
+        <a href="/pricing?program=one-on-one" target="_blank">Need more help?</a>
       </div>
     </div>
     `

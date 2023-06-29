@@ -178,7 +178,8 @@ class Assignment {
       (this.time ? Math.ceil((this.time / 60000)) : null),
       (!this.topicProportions ? this.questions.length : null),
       this.statusIndicator,
-      STAFF_ROLES.includes(current_user_role) && this.type
+      STAFF_ROLES.includes(current_user_role) && this.type,
+      this.sectionCode
     )
   }
 
@@ -202,13 +203,19 @@ class Assignment {
   assignmentClicked() {
     switch (this.status) {
       case 'new':
-        customConfirm(
-          `Are you sure you are ready to start this ${this.sectionCode} assignment?`,
-          'NO',
-          'YES',
-          () => {},
-          () => { this.start() }
-        )
+        // if a staff member is starting someone else's assignment
+        // sneeky start it
+        if (STAFF_ROLES.includes(current_user_role) && this.student != current_user.uid) {
+          this.start(true);
+        } else {
+          customConfirm(
+            `Are you sure you are ready to start this ${this.sectionCode} assignment?`,
+            'NO',
+            'YES',
+            () => {},
+            () => { this.start() }
+          )
+        }
         break;
       case 'started':
         this.start()
@@ -233,7 +240,9 @@ class Assignment {
     }
   }
 
-  async start() {
+  // start the assignment
+  // if we are sneeky then the assignment will display without moving into a "started" state in teh database
+  async start(sneeky = false) {
     // show loading
     document.querySelector('.landing .loading').classList.add('active');
 
@@ -294,7 +303,7 @@ class Assignment {
     document.querySelector('.main .panels .selector-scroll').scrollTo(0,0);
 
     // set the event to a started state
-    if (this.status !== 'started') {
+    if (this.status === 'new' && !sneeky) {
       await this.ref.update({
         status: 'started',
         startedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -574,25 +583,31 @@ class Assignment {
  * @param {Number} numQuestions (optional) number of questions to show
  * @param {Element} statusIndicatorElement dom element to show for the status indicator
  */
-function show_helper(parent, minutes, numQuestions, statusIndicatorElement, type = null) {
+function show_helper(parent, minutes, numQuestions, statusIndicatorElement, type = null, sectionCode = null) {
   const leftDiv = document.createElement('div');
   const rightDiv = document.createElement('div');
 
-  leftDiv.classList.add('flex-row', 'align-center');
+  // leftDiv.classList.add('flex-row', 'align-center');
   leftDiv.innerHTML = 
   `
-  ${type ?
-    `<p style="margin-right: 0.5em;">
-      ${type.charAt(0).toUpperCase()}
-    </p>` :
+  ${sectionCode ? 
+    `<p>${sectionCode}</p>` :
     ''
   }
+  <div class="flex-row align-center">
+    ${type ?
+      `<p style="margin-right: 0.5em;">
+        ${type.charAt(0).toUpperCase()}
+      </p>` :
+      ''
+    }
 
-  ${STOPWATCH_SVG}
-  <p>${minutes ? minutes : '--:--'}</p>
+    ${STOPWATCH_SVG}
+    <p>${minutes ? minutes : '--:--'}</p>
 
-  ${MINUS_BOX_SVG}
-  <p>${numQuestions ? numQuestions : 'auto'}</p>
+    ${MINUS_BOX_SVG}
+    <p>${numQuestions ? numQuestions : 'auto'}</p>
+  </div>
   `
   rightDiv.classList.add('flex-row', 'align-center');
   rightDiv.appendChild(statusIndicatorElement);
