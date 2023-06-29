@@ -16,10 +16,11 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-if (location.hostname === "localhost") {
-    // firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
-    // firebase.functions && firebase.functions().useEmulator("localhost", 5001);
-    // firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
+if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    console.log('EMULATOR')
+    firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
+    firebase.functions && firebase.functions().useEmulator("localhost", 5001);
+    firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
 }
 
 const AUTH_EXPIRATION = 1000 * 60 * 60 * 24 * 5;
@@ -118,6 +119,10 @@ function checkAuthorization() {
                 }
                 const idTokenResult = await user.getIdTokenResult()
                 const role = idTokenResult.claims.role;
+                console.log({
+                    user,
+                    role
+                })
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied

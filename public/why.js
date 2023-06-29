@@ -19,7 +19,7 @@ appCheck.activate(
 )
 
 function initialSetup() {
-  bannerSetup();
+  // bannerSetup();
   createAnalyticsEvent({
     eventID: 'load'
   })

@@ -445,11 +445,11 @@ async function sendFailedInvoiceEmail(userUID, invoiceID) {
     subject: 'Lyrn Invoice Not Recieved',
     text: `It looks like we didn't recieve a payment method for an ACT program we scheduled for you. Due to this we have removed those lessons from the schedule.
     You can review the expired invoice at this link: https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
-    If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <p>It looks like we didn't recieve a payment method for an ACT program we scheduled for you. Due to this we have removed those lessons from the schedule.<p>
       <p>You can review the expired invoice <a href="https://lyrnwithus.com/act-invoice?invoice=${invoiceID}">here</a></p>
-      <p>If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com </p>
+      <p>If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com </p>
     `
   }
 
@@ -503,7 +503,7 @@ async function sendInvoiceEmail(email, firstTutors, invoiceID) {
     },
     subject: 'Lyrn Program Invoice',
     text: `We're almost ready to start Lyrning! Go to this link to pay for your upcoming ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
-    If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
     <head>
     <style>
@@ -563,7 +563,7 @@ async function sendInvoiceEmail(email, firstTutors, invoiceID) {
           <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
             <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
             <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-            <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+            <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
           </td>
         </tr>
       </table>
@@ -647,7 +647,7 @@ async function sendReserveEmail(programDetails, invoiceID) {
     },
     subject: 'Reserved Lyrn ACT Program',
     text: `We're almost ready to start Lyrning! Go to this link to pay for your reserved ACT program. https://lyrnwithus.com/act-invoice?invoice=${invoiceID}
-    If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
     <head>
     <style>
@@ -717,7 +717,7 @@ async function sendReserveEmail(programDetails, invoiceID) {
           <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
             <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
             <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-            <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+            <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
           </td>
         </tr>
       </table>
@@ -794,7 +794,7 @@ async function sendConfirmationEmail(email, confirmationData) {
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>

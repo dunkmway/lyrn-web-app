@@ -99,12 +99,12 @@ async function sendPaymentLinkEmail(userUID, invoiceID) {
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Payment Link',
     text: `We're almost ready to start Lyrning! Go to this link to pay for your upcoming lessons. https://lyrnwithus.com/payment-link?invoice=${invoiceID}
-    If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <h1>We're almost ready to start Lyrning!</h1>
       <p>Go to this link to pay for your upcoming lessons.<p>
       <a href="https://lyrnwithus.com/payment-link?invoice=${invoiceID}">Payment Link</a>
-      <p>If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+      <p>If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com</p>
     `
   }
 
@@ -121,12 +121,12 @@ async function sendLessonsLinkEmail(userUID, invoiceID) {
     from: 'support@lyrnwithus.com', // Change to your verified sender
     subject: 'Lyrn Future Lessons Link',
     text: `We're all ready to start Lyrning! Go to this link to view all of your upcoming lessons. https://lyrnwithus.com/payment-link?invoice=${invoiceID}
-    If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <h1>We're all ready to start Lyrning!</h1>
       <p>Go to this link to view all of your upcoming lessons.<p>
       <a href="https://lyrnwithus.com/payment-link?invoice=${invoiceID}">Future Lessons Link</a>
-      <p>If you have an question or difficulties please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+      <p>If you have an question or difficulties please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com</p>
     `
   }
 
@@ -190,11 +190,11 @@ async function sendFailedInvoiceEmail(userUID, invoiceID) {
     subject: 'Lyrn Invoice Not Recieved',
     text: `It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have removed those lessons from the schedule.
     You can review which lessons were removed at this link: https://lyrnwithus.com/payment-link?invoice=${invoiceID}
-    If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <p>It looks like we didn't recieve a payment method for a previous set of lessons we scheduled for you. Due to this we have removed those lessons from the schedule.<p>
       <p>You can review which lesson were removed <a href="https://lyrnwithus.com/payment-link?invoice=${invoiceID}">Here</a></p>
-      <p>If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com </p>
+      <p>If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com </p>
     `
   }
 

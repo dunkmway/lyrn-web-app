@@ -42,7 +42,7 @@ class Dialog {
     this.messageFontWeight = options.messageFontWeight ?? 'inherit';
     this.choiceColor = options.choiceColor ?? '#057AFB';
     this.choiceFontSize = options.choiceFontSize ?? 'inherit';
-    this.messageFontWeight = options.messageFontWeight ?? 'inherit';
+    this.choiceFontWeight = options.choiceFontWeight ?? 'inherit';
     this.borderRadius = options.borderRadius ?? '0.5em';
     this.shadow = options.shadow ?? '0 0 10px 1px rgba(0, 0, 0, 0.3)';
     this.padding = options.padding ?? '1em 2em';

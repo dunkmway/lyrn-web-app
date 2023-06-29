@@ -151,6 +151,7 @@ li::before {
   top: 0em;
   color: white;
   background-color: black;
+  background-color: var(--color-green);
 }
 
 @media screen and (min-width: 800px) {
@@ -351,16 +352,15 @@ nav a:hover {
 
   header {
     display: grid;
-    grid-template-columns: .2fr auto 3fr auto .2fr;
+    grid-template-columns: auto 1fr auto;
   }
   
   .logo {
-    grid-column: 2 / 3;
-    margin-left: 0;
+    grid-column: 1 / 2;
   }
 
   .phone {
-    grid-column: 4 / 5;
+    grid-column: 3 / 4;
     justify-content: flex-end;
   }
   
@@ -1083,7 +1083,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   background-color: var(--color-primary);
   border-radius: 2em;
   border: 7px solid var(--color-blue);
-  padding: 2em;
+  padding: 2em 1em;
   margin-top: 3em;
   position: relative;
   width: 100%;
@@ -1173,6 +1173,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   color: var(--color-blue);
   margin: 0;
   font-weight: 900;
+  font-size: 1.25em;
 }
 
 .plan-wrapper .select {
@@ -1193,6 +1194,14 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   text-decoration: none;
 }
 
+.plan-wrapper .select p:first-child {
+  font-size: 24px;
+}
+
+.plan-wrapper .select p:not(:first-child) {
+  font-size: 1em;
+}
+
 .footnotes {
   color: #A3A3A3;
 }
@@ -1200,6 +1209,20 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
 .footnotes > p {
   font-size: 1em;
   text-align: start;
+}
+
+.plan-benefits {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1em;
+}
+
+.plan-benefits > ul {
+  margin: 0;
+}
+
+.plan-benefits > ul:nth-child(2) > li:first-child {
+  margin-top: 0;
 }
 
 
@@ -1248,7 +1271,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   }
 
   #act .program.practice .plans {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
   }
 
   #act .program.one-on-one .plans {
@@ -1284,6 +1307,17 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
 
   .plan-wrapper ul {
     margin: 1.5em 0em;
+  }
+
+  .plan-benefits {
+    flex-direction: row;
+    gap: 4em;
+    justify-content: center;
+    margin-top: 0em;
+  }
+
+  .plan-benefits > ul:nth-child(2) > li:first-child {
+    margin-top: 1em;
   }
 
   .steps {
@@ -1468,7 +1502,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
   display: block;
   position: absolute;
   right: 1em;
-  top: 1.3em;
+  top: 25px;
   pointer-events: none;
   transform: rotate(45deg);
   transform-origin: center;
@@ -1493,6 +1527,7 @@ input.payment-input:checked ~ .plans .plan-wrapper.coming-soon::after {
 .faq .content * {
   opacity: 0;
   font-size: 1.25em;
+  text-align: left;
 }
 
 .faq .content a {

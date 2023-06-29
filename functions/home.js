@@ -97,7 +97,7 @@ exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
     subject: 'Start Lyrning with a free sessions!',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
     To help you get started use this promo code to get your first session free when signing up for an ACT program. FIRST ACT
-    Call or text to get started (385) 300-0906 or respond to this email.`,
+    Call or text to get started (385) 281-7215 or respond to this email.`,
     html: `
     <head>
   <style>
@@ -154,7 +154,7 @@ exports.sendLeadRequest = functions.https.onCall(async (data, context) => {
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>
@@ -265,7 +265,7 @@ function sendPracticeTestEmail(email, leadID) {
     subject: 'Full Length ACT Tests',
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
     To help you get started, go to this link to take a full length ACT test and get your results back immediately. https://lyrnwithus.com/test-taker/${leadID}
-    Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
+    Call or text (385) 281-7215 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
     html: `
     <head>
   <style>
@@ -332,7 +332,7 @@ function sendPracticeTestEmail(email, leadID) {
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>
@@ -438,7 +438,7 @@ function sendLessonSeriesEmail(email) {
             </p>
             <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">
               Want more? Get up to 2 hours of <strong>FREE</strong> personalized 1-on-1 ACT tutoring with one of our professional tutors. 
-              To sign up, call us at <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #27c03a;">(385)-300-0906</a>. 
+              To sign up, call us at <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #27c03a;">(385)-300-0906</a>. 
               Visit <a href="https://lyrnwithus.com/pricing" style="text-decoration: underline; font-weight: bold; color: #27c03a;">our website</a> for more details.
             </p>
           </td>
@@ -470,7 +470,7 @@ function sendLessonSeriesEmail(email) {
           <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
             <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
             <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-            <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+            <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
           </td>
         </tr>
       </table>
@@ -612,7 +612,7 @@ function sendQuestionnaireEmail(email, name) {
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>

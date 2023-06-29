@@ -46,14 +46,14 @@ async function firestoreDataParser() {
     return;
   }
 
-  // const isLoadedDoc = await admin.firestore().collection('~isLoaded').doc('true').get();
-  // if (isLoadedDoc.exists) {
-  //   log('Firestore already initialized')
-  //   return;
-  // };
+  const isLoadedDoc = await admin.firestore().collection('~isLoaded').doc('true').get();
+  if (isLoadedDoc.exists) {
+    log('Firestore already initialized')
+    return;
+  }
 
   await collectionParser(data);
-  // await admin.firestore().collection('~isLoaded').doc('true').set({});
+  await admin.firestore().collection('~isLoaded').doc('true').set({});
 }
 
 /**

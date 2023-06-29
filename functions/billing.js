@@ -361,11 +361,11 @@ async function sendExpiredProbationEmail(userUID) {
     subject: 'Lyrn Payment Not Recieved',
     text: `It looks like we didn't recieve a payment for a previous lesson we scheduled for you and your probation period has expired.
     Due to this we have removed all future lessons from the schedule.
-    If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <p>It looks like we didn't recieve a payment for a previous lesson we scheduled for you and your probation period has expired.<p>
       <p>Due to this we have removed all future lessons from the schedule.</p>
-      <p>If you have an question or concerns please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com </p>
+      <p>If you have an question or concerns please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com </p>
     `
   }
 

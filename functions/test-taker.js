@@ -268,7 +268,7 @@ return `
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>
@@ -301,7 +301,7 @@ async function sendAssignmentCloseReminderEmail(userUID) {
         },
         subject: 'Lyrn assignment due tomrrow',
         text: `You have an assignment that is about to close tomorrow. Below is the link to access your test taker to complete the assignment.\n
-        https://lyrnwithus.com/test-taker?student=${userUID}`,
+        https://lyrnwithus.com/test-taker/${userUID}`,
         html: assignmentCloseReminderEmail(userUID)
       });
     }
@@ -316,7 +316,7 @@ async function sendAssignmentCloseReminderEmail(userUID) {
       },
       subject: 'Lyrn assignment due tomrrow',
       text: `You have an assignment that is about to close tomorrow. Below is the link to access your test taker to complete the assignment.\n
-      https://lyrnwithus.com/test-taker?student=${userUID}`,
+      https://lyrnwithus.com/test-taker/${userUID}`,
       html: assignmentCloseReminderEmail(userUID)
     });
   }
@@ -356,7 +356,8 @@ exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) =
       sectionCode: sectionDoc.data().code,
       status: 'new',
       student: user.uid,
-      time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
+      // time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
+      time: null,
       type: 'marketing'
     })
   }))
@@ -448,7 +449,7 @@ function sendFreeTierEmail(email, leadID) {
     text: `Thank you for choosing Lyrn Tutoring! Please let us know if you have any questions and we would love to help you reach your academic goals.
     To help you get started, we've sent you 3 full length ACT tests with detailed explanation for each question.
     Use the link below to access your personal test taker. https://lyrnwithus.com/test-taker/${leadID}
-    Call or text (385) 300-0906 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
+    Call or text (385) 281-7215 or respond to this email if you would like to learn more about how you can increase your ACT score.`,
     html: `
     <head>
   <style>
@@ -516,7 +517,7 @@ function sendFreeTierEmail(email, leadID) {
         <td bgcolor="#EAF0F6" align="center" style="padding: 30px 30px;">
           <h2 style="font-size: 28px; margin:0 0 20px 0;">We're here to help</h2>
           <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;">Give us a call or text to learn more about our programs. We can't wait to start Lyrning with you!</p>
-          <a href="tel:+13853000906" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 300-0906</a>
+          <a href="tel:+13852817215" style="text-decoration: underline; font-weight: bold; color: #253342;">(385) 281-7215</a>
         </td>
       </tr>
     </table>

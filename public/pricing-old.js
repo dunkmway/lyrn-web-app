@@ -230,39 +230,39 @@ function contactFormSetup() {
   })
 }
 
-// set up the practice test request
-document.querySelector('.practice-test-wrapper button').addEventListener('click', async (e) => {
-  // check if the email is valid
-  const email = document.querySelector('.practice-test-wrapper input');
-  const error = document.querySelector('.practice-test-wrapper .error')
-  const submit = e.target;
+// // set up the practice test request
+// document.querySelector('.practice-test-wrapper button').addEventListener('click', async (e) => {
+//   // check if the email is valid
+//   const email = document.querySelector('.practice-test-wrapper input');
+//   const error = document.querySelector('.practice-test-wrapper .error')
+//   const submit = e.target;
 
-  submit.disabled = true;
-  submit.classList.add('loading');
-  submit.textContent = 'Sending practice tests'
-  error.textContent = '';
+//   submit.disabled = true;
+//   submit.classList.add('loading');
+//   submit.textContent = 'Sending practice tests'
+//   error.textContent = '';
 
-  if (!isEmailValid(email.value)) {
-    error.textContent = 'There seems to be something wrong with the email you entered.'; 
-    submit.disabled = false;
-    submit.classList.remove('loading');
-    submit.textContent = 'Submit'
-    return;
-  }
+//   if (!isEmailValid(email.value)) {
+//     error.textContent = 'There seems to be something wrong with the email you entered.'; 
+//     submit.disabled = false;
+//     submit.classList.remove('loading');
+//     submit.textContent = 'Submit'
+//     return;
+//   }
 
-  createAnalyticsEvent({
-    eventID: 'emailProvided',
-    additionalData: {
-      email: email.value,
-      from: 'ACT-practiceTest'
-    }
-  })
-  await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
+//   createAnalyticsEvent({
+//     eventID: 'emailProvided',
+//     additionalData: {
+//       email: email.value,
+//       from: 'ACT-practiceTest'
+//     }
+//   })
+//   await sendPracticeTestRequest(email.value, 'ACT-practiceTest', 'pricing');
 
-  submit.disabled = false;
-  submit.classList.remove('loading');
-  submit.textContent = 'Practice tests sent!'
-})
+//   submit.disabled = false;
+//   submit.classList.remove('loading');
+//   submit.textContent = 'Practice tests sent!'
+// })
 
 function isEmailValid(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -1599,12 +1599,12 @@ async function setCalendarEvents(studentUID, parentUID) {
   // // schedule the homework email to be sent
   // // get the test to print
   // const testURL = await getTestURL('C02', calendarEvents[0].subType);
-  // const homeworkText = `Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do. ${testURL} If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com`;
+  // const homeworkText = `Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do. ${testURL} If you have any questions or difficulties, please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com`;
   // const homeworkHtml = `
   //   <h1>Ready for some homework!</h1>
   //   <p>Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do.<p>
   //   <a href="${testURL}">Test Link</a>
-  //   <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+  //   <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com</p>
   // `
   // await setScheduledEmail(currentProgramDetails.contact.parent.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() - 7));
   // if (currentProgramDetails.contact.student.email) {

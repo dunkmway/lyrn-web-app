@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css?family=Work+Sans:300,600&display=swap');
+
+:root {
+  --dark-blue: #182A47;
+  --dark-yellow: #F4AC33;
+
+  --medium-blue: #284E93;
+  
+  --light-blue: #BCC1DF;
+  --light-yellow: #FEE889;
+
+  --white: #FFFFFF;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-size: 1rem;
+  overflow-x: hidden;
+  margin: 0;
+}
+
+img {
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  display: block;
+  border-width: 4px;
+  border-style: solid;
+  border-radius: 0.5em;
+  padding: 0.25em 3em;
+  text-align: center;
+  cursor: pointer;
+}
+
+button.dark-yellow {
+  background-color: var(--dark-yellow);
+  border-color: var(--white);
+  color: white;
+}
+
+button.dark-blue {
+  background-color: var(--medium-blue);
+  border-color: var(--dark-blue);
+  color: white;
+}
+
+button.light-blue {
+  background-color: var(--light-blue);
+  border-color: var(--medium-blue);
+  color: white;
+}
+
+div.row {
+  display: flex;
+  flex-direction: row;
+}
+
+
+#hero {
+  background-color: var(--dark-blue);
+  padding-block: 2em;
+}
+
+#hero .intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2em;
+  padding-inline: 2em;
+}
+
+#hero h1 {
+  color: var(--dark-yellow);
+  font-size: 2rem;
+  line-height: 1.5em;
+  margin: 0;
+}
+
+#hero h2 {
+  color: var(--white);
+  font-size: 1.25rem;
+  line-height: 1.5em;
+}
+
+#hero button {
+  font-size: 1.5rem;
+}
+
+#hero img {
+  transform: translateX(-15%);
+  width: 115%;
+}
+
+#what {
+  display: flex;
+  flex-direction: column;
+  padding-block: 2em;
+}
+
+#what h1 {
+  color: var(--medium-blue);
+  font-size: 2.5rem;
+  margin: 0;
+  margin-inline: 0.5em;
+}
+
+#what p {
+  color: var(--medium-blue);
+  font-size: 1.25em;
+  font-weight: 500;
+  margin: 0;
+}
+
+#what .heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-self: center;
+}
+
+#what .heading img {
+  height: 3rem;
+  width: auto;
+}
+
+#what .yellow {
+  padding: 1em;
+  background-image: url(Images/home-page/2\ -\ yellow\ box\ background.png);
+  background-size: contain;
+  border: 4px solid var(--dark-yellow);
+  border-radius: 0.5em;
+  margin: 2em 3em;
+}
+
+#what .blue {
+  padding: 1em;
+  background-image: url(Images/home-page/2\ -\ blue\ box\ background.png);
+  background-size: cover;
+  border: 4px solid var(--dark-blue);
+  border-radius: 0.5em;
+  margin-inline: 3em;
+  flex: 1;
+}
+
+#what .blue h2 {
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+#what .blue #questionnaire {
+  margin-top: 1em;
+  border: 4px solid var(--dark-blue);
+  border-radius: 0.5em;
+  padding: 1em;
+  background-color: var(--white);
+}
+
+
+@media screen and (min-width: 800px) {
+
+}

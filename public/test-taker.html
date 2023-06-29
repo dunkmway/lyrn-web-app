@@ -49,6 +49,7 @@
   <script src="../Site Templates/generalFunctions.js"></script>
   <script src="../Site Templates/site-wide.js"></script>
   <script src="../test-taker-svg.js"></script>
+  <script src="../Dialog.js"></script>
   <script src="../Timer.js"></script>
   <script src="../Time.js"></script>
   <script src="../ACT-Passage.js"></script>
@@ -60,43 +61,13 @@
 </head>
 <body onload="setup()">
   <!-- Tutorial -->
-  <section class="tutorial" id="tutorial" onclick="closeTutorial(event)">
-    <div class="content">
-      <div class="exit" onclick="closeTutorial(event)">X</div>
-      <div class="tabs">
-        <input type="radio" name="tutorial-tabs" id="tutorial-quick" checked></input>
-        <label for="tutorial-quick">Quick Reference</label>
-        <input type="radio" name="tutorial-tabs" id="tutorial-assignment"></input>
-        <label for="tutorial-assignment">Assignments</label>
-        <input type="radio" name="tutorial-tabs" id="tutorial-question"></input>
-        <label for="tutorial-question">Questions</label>
-      </div>
-      <div class="quick wrapper">
-        <h1>Welcome to the Lyrn Test Taker!</h1>
-        <h3>Let's get you up to speed on the test taker so you can start practicing as soon as possible.</h3>
-        <p>Come back to this tutorial at any time by clicking on the circled question mark in the top right corner.</p>
-        <p>You have a list of assignments that are ready to begin at any time and a list of assignments you have already completed. Assignments that have already begun will also be found in current assignments.</p>
-        <p>You can see how long the assignment will take and how many questions will be on the test. If no time is shown then you have unlimited time to complete it.</p>
-        <p>Some assignments will have a close date which will be shown on the right side of the assignment.</p>
-        <p>After you complete your first test you will see it under previous assignments. Here you will see how many questions you got right out of the total and, if applicable, the scaled score out of 36.</p>
-        <p>To start any current assignment just click on it and to review any previous assignment do the same.</p>
-        <p>Any assignment that was previously started and not yet submitted will show the remaining time or "--:--" if unlimited time on the right side.</p>
-        <br>
-        <p>While taking an assignment you can select your answer by clicking on the answer, flag a question by clicking the white circle in the question bar, and navigate to the next question by clicking on next.</p>
-        <p>You will see a tab on the left side of the screen which if clicked will show you all of your questions, if they are answered or flagged, as well as the time remaining at the top.</p>
-        <p>You may not submit an assignment early if it is timed so if you finish early check your answers and it will submit itself. If no time restriction is on the test you can manually submit it by clicking "submit" above the question list.</p>
-      </div>
-      <div class="assignment wrapper">
-        <h3>The assignment page</h3>
-        <p>You will see your assignments in two different lists split up by section. Your "Current Assignments" are any assignment you haven't started yet as well as assignments that have been started. "Previous Assignments" list the assignments that have been submitted or ommitted (meaning it was not started before the close date). Each assignment will show on the left side how many minutes the assignment will allow before auto submitting it self once started and next to it how many questions are a part of the assignment. If the assignment has an unlimited time to complete it will show "--:--" in place of the time and if the assignment has an infinite number of questions (the questions are pulled as you take the assignment) you will see "auto" in place of the number of questions.</p>
-        <p>Current assignments will sometimes show something on the right side. If it displays a date and time, this is the time that the assignment will expire and will automatically omit itself. If it shows a count down timer, this is an assignment you have started and the timer shows how much longer you have to complete the assignment before it submits itself. If it shows "--:--", this means you have started an assignment that has an unlimited amount of time to complete and must be submitted manually.</p>
-        <p>Previous assigments will show either "omitted" if the assignment expired or the grade of the assignment. After an assignment is submitted it will move directly to the previous list and will be graded within a few seconds. The grade will always show some number out of the total number of questions within parentheses. If the assignment was an entire ACT section it will also show the scaled score on a scale from 1 to 36 to the left of the parentheses.</p>
-        <p>Clicking on an assignment that hasn't been started yet will show a prompt that will confirm if you want to start it. If you click on an already started assignment, it will start without the prompt. Clicking on any graded assignment will allow you to review the assignment. Omitted assignments can not be reviewed.</p>
-      </div>
-      <div class="question wrapper">
-        <h3>Taking and reviewing assignments</h3>
-        <p>When you take an assignment, you will be able to see the question and if applicable the passage associated with that question will also be shown. Each questions will have an optional prompt followed by the question choices. Select your answer by clicking on the choice. You can flag a question by clicking on the white circle in the colored bar above the question. You can also find a tab on the left side of the screen. Clicking this tab will show the question selector. At the very top you will either see a timer which counts down to when the assignment will submit itself, or a submit button to manually submit the assignment. Below this is a list of the questions on the assignment. The question you are currently on will highlighted. To the left of the question number is a circle. If the circle is filled in, the question has been asnwered. If you have flagged the question you will see a flag in the circle. This is useful at the end of the assignment to verify that you have answered all of the questions and any question you have flagged can be reviewed. Any timed assignment cannot be submitted early so use all allotted time to review your answers. When the timer expires, it will automatically submit itself and you will be sent back to the assignment page. If the assignment does not have a time you must manually submit it in order to get the assignment graded. At any time you can exit the assignment by pressing "EXIT" at the top right corner of the screen. Remember that if the assignment is timed, the time will continue to count down if you exit. You can always start it again before the assignment expires.</p>
-        <p>When reveiwing an assignment, you will see everything you saw while taking the test with a few changes. The questions will now show the answer you previously selected as well as whether or not you flagged the question. Above the question you will now see a toggle to show the correct answer. Some questions will now show an explanation below the question which you can also toggle. In the question selector, you will see which questions you answered incorrectly marked by an x. You will also see that the questiosn are no longer lsited in number order. They are now grouped by topic. Each question has a topic based on how to identify and approach the question. The topics will be ordered by how frequently the topic appears on all ACT tests from most frequent to least. The question numbers will still correspond to the question number when you took the test.</p>
+  <section id="tutorial">
+    <div id="tutorialTooltip">
+      <span id="tutorialClose" onclick="endTutorial()"></span>
+      <div id="tooltipMessage"></div>
+      <div class="tooltip-bottom">
+        <button onclick="tutorialBack()" id="tutorialBack">Back</button>
+        <button onclick="tutorialNext()" id="tutorialNext">Next</button>
       </div>
     </div>
   </section>
@@ -125,7 +96,7 @@
     <div class="content">
       <div class="helpers">
         <p class="feedback" onclick="openFeedback()">Feedback</p>
-        <div class="tutorial-bubble" onclick="openTutorial()">?</div>
+        <div class="tutorial-bubble" onclick="startTutorial()">?</div>
       </div>
 
       <div class="next-lesson-wrapper box">
@@ -144,16 +115,16 @@
           <!-- <div id="startedAssignments"></div> -->
           <div id="newAssignments" class="assignment-wrapper">
             <div class="english-container">
-              <h4>English</h4>
+              <!-- <h4>English</h4> -->
             </div>
             <div class="math-container">
-              <h4>Math</h4>
+              <!-- <h4>Math</h4> -->
             </div>
             <div class="reading-container">
-              <h4>Reading</h4>
+              <!-- <h4>Reading</h4> -->
             </div>
             <div class="science-container">
-              <h4>Science</h4>
+              <!-- <h4>Science</h4> -->
             </div>
           </div>
         </div>
@@ -164,16 +135,16 @@
         <!-- <div class="assignment box default-background" id="noPreviousAssignments">No previous assignments.</div> -->
         <div id="previousAssignments" class="assignment-wrapper">
           <div class="english-container">
-            <h4>English</h4>
+            <!-- <h4>English</h4> -->
           </div>
           <div class="math-container">
-            <h4>Math</h4>
+            <!-- <h4>Math</h4> -->
           </div>
           <div class="reading-container">
-            <h4>Reading</h4>
+            <!-- <h4>Reading</h4> -->
           </div>
           <div class="science-container">
-            <h4>Science</h4>
+            <!-- <h4>Science</h4> -->
           </div>
         </div>
       </div>

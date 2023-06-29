@@ -141,13 +141,13 @@ function sendLessonLinkEmail(email, lessonData) {
     subject: 'Lyrn Lesson Link',
     text: `Your Lyrn lesson ${lessonData.title} will start an hour from now! Here is your link to join the zoom call. ${lessonData.zoomLink} 
     We can't wait to see you there. 
-    If you have an question or difficulties joining please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com `,
+    If you have an question or difficulties joining please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com `,
     html: `
       <h1>Your Lyrn Lesson is starting soon!</h1>
       <h2>${lessonData.title}</h2>
       <p>In an hour you can jump on your call and get started. Here is your link to join the meeting:<p>
       <a href="${lessonData.zoomLink}">Zoom Link</a>
-      <p>If you have an question or difficulties joining please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+      <p>If you have an question or difficulties joining please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com</p>
     `
   }
   return sgMail.send(msg)

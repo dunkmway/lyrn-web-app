@@ -1385,12 +1385,12 @@ async function setCalendarEvents(studentUID, parentUID) {
   // schedule the homework email to be sent
   // get the test to print
   const testURL = await getTestURL('C02', calendarEvents[0].subType);
-  const homeworkText = `Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do. ${testURL} If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com`;
+  const homeworkText = `Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do. ${testURL} If you have any questions or difficulties, please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com`;
   const homeworkHtml = `
     <h1>Ready for some homework!</h1>
     <p>Your tutor has sent you this homework to be completed. Remember to take this like it is the actual ACT by timing yourself. Good luck and we can't wait to see how you do.<p>
     <a href="${testURL}">Test Link</a>
-    <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 300-0906 or send us an email at contact@lyrnwithus.com</p>
+    <p>If you have any questions or difficulties, please let us know. You can call or text us at (385) 281-7215 or send us an email at contact@lyrnwithus.com</p>
   `
   await setScheduledEmail(currentProgramDetails.contact.parent.email, 'First ACT Homework!', homeworkText, homeworkHtml, new Date(calendarEvents[0].start).setDate(new Date(calendarEvents[0].start).getDate() - 7));
   if (currentProgramDetails.contact.student.email) {

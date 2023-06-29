@@ -308,16 +308,15 @@ nav a:hover {
 
   header {
     display: grid;
-    grid-template-columns: .2fr auto 3fr auto .2fr;
+    grid-template-columns: auto 1fr auto;
   }
   
   .logo {
-    grid-column: 2 / 3;
-    margin-left: 0;
+    grid-column: 1 / 2;
   }
 
   .phone {
-    grid-column: 4 / 5;
+    grid-column: 3 / 4;
     justify-content: flex-end;
   }
   
