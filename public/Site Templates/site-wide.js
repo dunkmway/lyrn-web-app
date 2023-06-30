@@ -78,7 +78,7 @@ let allowedPages = {
         "/payment"
     ],
     dev: [
-        '&public',
+        // '&public',
         "&student",
         "&parent",
         "&tutor",
@@ -119,10 +119,10 @@ function checkAuthorization() {
                 }
                 const idTokenResult = await user.getIdTokenResult()
                 const role = idTokenResult.claims.role;
-                console.log({
-                    user,
-                    role
-                })
+                // console.log({
+                //     user,
+                //     role
+                // })
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied
