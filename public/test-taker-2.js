@@ -9,180 +9,6 @@ let assignment_listener;
 let assignments = [];
 let assigned_questions = [];
 
-const TUTORIAL_STEPS = [
-  {
-    message: `
-      <h3 style="text-align:center;">Welcome to the Lyrn Test Taker!</h3>
-      <p style="text-align:center;">Let's take a look at all of the features.</p>
-    `,
-    step: 0,
-    tooltip: {
-      element: "#tutorial",
-      location: "center"
-    },
-    assignment: null
-  },
-  {
-    message: `
-      <p>This is an assignment.</p>
-      <ul>
-        <li>english is the section.</li>
-        <li>
-          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve" style="height:1em;position:relative;top:2px;display:inline;">
-          <g>
-            <g>
-              <path d="M392.09,122.767l15.446-24.272c6.858-10.778,3.681-25.076-7.097-31.935c-10.777-6.86-25.076-3.681-31.935,7.099l-15.409,24.215c-22.708-11.316-47.642-18.798-73.962-21.58V46.265h1.448c12.775,0,23.133-10.357,23.133-23.133S293.356,0,280.581,0h-49.163c-12.775,0-23.133,10.357-23.133,23.133s10.357,23.133,23.133,23.133h1.45v30.029C123.239,87.885,37.535,180.886,37.535,293.535C37.535,413.997,135.538,512,256,512s218.465-98.003,218.465-218.465C474.465,224.487,442.259,162.83,392.09,122.767zM256,465.735c-94.951,0-172.2-77.249-172.2-172.2s77.249-172.2,172.2-172.2s172.2,77.249,172.2,172.2S350.951,465.735,256,465.735z"></path>
-            </g>
-          </g>
-          <g>
-            <g>
-              <path d="M333.172,205.084c-9.623-8.397-24.238-7.407-32.638,2.222l-61.964,71.02c-8.399,9.626-7.404,24.24,2.222,32.638c9.626,8.399,24.24,7.404,32.638-2.222l61.964-71.02C343.794,228.096,342.798,213.484,333.172,205.084z"></path>
-            </g>
-          </g>
-          </svg>
-          <p style="margin:0;display:inline;">45 minutes to complete the test.</p>
-        </li>
-        <li>
-          <svg viewBox="4 4 16 16" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="height:1em;position:relative;top:3px;display:inline;">
-            <path d="M9 11h6v2H9z"></path>
-            <path d="M17 5H7c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2zM7 17V7h10l.002 10H7z"></path>
-          </svg>
-          <p style="margin:0;display:inline;">75 questions on the test.</p>
-        </li>
-      </ul>
-    `,
-    step: 1,
-    tooltip: {
-      element: "#fullAssignments .assignment.english-background",
-      location: "bottom"
-    },
-    assignment: null
-  },
-  {
-    message: `
-      <p>Another assignment.</p>
-      <ul>
-        <li>math is the section.</li>
-        <li>
-          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve" style="height:1em;position:relative;top:2px;display:inline;">
-          <g>
-            <g>
-              <path d="M392.09,122.767l15.446-24.272c6.858-10.778,3.681-25.076-7.097-31.935c-10.777-6.86-25.076-3.681-31.935,7.099l-15.409,24.215c-22.708-11.316-47.642-18.798-73.962-21.58V46.265h1.448c12.775,0,23.133-10.357,23.133-23.133S293.356,0,280.581,0h-49.163c-12.775,0-23.133,10.357-23.133,23.133s10.357,23.133,23.133,23.133h1.45v30.029C123.239,87.885,37.535,180.886,37.535,293.535C37.535,413.997,135.538,512,256,512s218.465-98.003,218.465-218.465C474.465,224.487,442.259,162.83,392.09,122.767zM256,465.735c-94.951,0-172.2-77.249-172.2-172.2s77.249-172.2,172.2-172.2s172.2,77.249,172.2,172.2S350.951,465.735,256,465.735z"></path>
-            </g>
-          </g>
-          <g>
-            <g>
-              <path d="M333.172,205.084c-9.623-8.397-24.238-7.407-32.638,2.222l-61.964,71.02c-8.399,9.626-7.404,24.24,2.222,32.638c9.626,8.399,24.24,7.404,32.638-2.222l61.964-71.02C343.794,228.096,342.798,213.484,333.172,205.084z"></path>
-            </g>
-          </g>
-          </svg>
-          <p style="margin:0;display:inline;">--:-- unlimited time to complete.</p>
-        </li>
-        <li>
-          <p style="margin:0;display:inline;">On Sun 12/25/2050 at 09:00 pm this test will auto submit.</p>
-        </li>
-      </ul>
-    `,
-    step: 2,
-    tooltip: {
-      element: "#fullAssignments .assignment.math-background",
-      location: "bottom"
-    },
-    assignment: null
-  },
-  {
-    message: `
-      <p>Here is a question.</p>
-      <p>Select the best answer choice for each question.</p>
-    `,
-    step: 3,
-    tooltip: {
-      element: "#questionChoices",
-      location: "left"
-    },
-    assignment: {
-      section: "reading",
-      question: 7,
-      selector: false,
-      choice: 1,
-      flag: false
-    }
-  },
-  {
-    message: `
-      <p>To flag a question, click the circle.</p>
-    `,
-    step: 4,
-    tooltip: {
-      element: "label[for='questionFlag']",
-      location: "bottom-left"
-    },
-    assignment: {
-      section: "reading",
-      question: 7,
-      selector: false,
-      choice: 1,
-      flag: true
-    }
-  },
-  {
-    message: `
-      <p>To open the question selector, click the tab.</p>
-    `,
-    step: 5,
-    tooltip: {
-      element: ".pull-tab",
-      location: "right"
-    },
-    assignment: {
-      section: "reading",
-      question: 7,
-      selector: true,
-      choice: 1,
-      flag: true
-    }
-  },
-  {
-    message: `
-      <p>Here you will find an overview of your test</p>
-      <ul>
-        <li>Current question is highlighted.</li>
-        <li>If answered, the circle will be filled in.</li>
-        <li>If flagged, the circle will have a flag.</li>
-      </ul>
-    `,
-    step: 6,
-    tooltip: {
-      element: ".main .panels .selector input[type=radio]:checked + .selector-wrapper",
-      location: "right"
-    },
-    assignment: {
-      section: "reading",
-      question: 7,
-      selector: true,
-      choice: 1,
-      flag: true
-    }
-  },
-  {
-    message: `
-      <p>You can submit your test if it is not timed. Otherwise, you will see how much time you have remaining and must wait for it to submit itself.</p>
-    `,
-    step: 7,
-    tooltip: {
-      element: "#assignmentSubmit",
-      location: "bottom-right"
-    },
-    assignment: {
-      section: "reading",
-      question: 7,
-      selector: true,
-      choice: 1,
-      flag: true
-    }
-  },
-]
-
 HTMLElement.prototype.textNodes = function() {
   return [...this.childNodes].filter((node) => {
     return (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "");
@@ -208,12 +34,17 @@ async function openFeedback() {
 }
 
 async function startTutorial() {
+  // remember that they took the tutorial
+  localStorage.setItem("TestTakerTutorial", "started");
+
   // show the landing page
   changeSection('landing');
 
   // stop listening to the assignment listener
-  assignment_listener();
-  assignment_listener = null;
+  if (assignment_listener) {
+    assignment_listener();
+    assignment_listener = null;
+  }
 
   // clear the assignment array
   assignments = [];
@@ -223,15 +54,7 @@ async function startTutorial() {
 
   // add in the tutorial assignments
   // we'll need legit looking assignments in the database to get this working right
-  try {  
-    assignments = (await db
-    .collection('ACT-Assignments')
-    .where('type', '==', 'tutorial')
-    .get())
-    .docs.map(doc => new Assignment(doc));
-  } catch (error) {
-    console.log(error);
-  }
+  assignments = TUTORIAL_ASSIGNMENTS.map(doc => new Assignment(doc));
 
   // show the tutorial assignments
   showAssignments();
@@ -288,17 +111,41 @@ async function tutorialStep(step) {
   const tooltip = document.getElementById('tutorialTooltip');
   const message = document.getElementById('tooltipMessage');
 
-  if (currentStep.assignment) {
+  // if we have a start
+  // else if we have a review
+  // else nothing
+  if (currentStep.assignment && currentStep.assignment.start) {
     const desiredAssignment = assignments.find(assignment => currentStep.assignment.section === assignment.sectionCode);
 
     // show the assignment and question
     if (!desiredAssignment.isStarted) {
+      if (getCurrentAssignment()) {
+        getCurrentAssignment().end();
+      }
       await desiredAssignment.start(true);
     }
-    if (!desiredAssignment.currentQuestionIndex != currentStep.assignment.question - 1) {
-      await desiredAssignment.startQuestion(currentStep.assignment.question - 1);
+    if (!desiredAssignment.currentQuestion.pos != currentStep.assignment.start - 1) {
+      await desiredAssignment.startQuestion(currentStep.assignment.start - 1);
     }
+  } else if (currentStep.assignment && currentStep.assignment.review) {
+    const desiredAssignment = assignments.find(assignment => currentStep.assignment.section === assignment.sectionCode);
 
+    // show the assignment and question
+    if (!desiredAssignment.isInReview) {
+      if (getCurrentAssignment()) {
+        getCurrentAssignment().end();
+      }
+      await desiredAssignment.review();
+    }
+    if (!desiredAssignment.currentQuestion.pos != currentStep.assignment.review - 1) {
+      await desiredAssignment.reviewQuestion(currentStep.assignment.review - 1);
+    }
+  } else {
+    goToLanding()
+  }
+
+  // if we have an assignment
+  if (currentStep.assignment) {
     // set the flag
     const flag = document.getElementById('questionFlag');
     flag.checked = currentStep.assignment.flag;
@@ -317,6 +164,26 @@ async function tutorialStep(step) {
     
     const selector = document.querySelector('.main .panels .selector');
     currentStep.assignment.selector ? selector.classList.add('open') : selector.classList.remove('open');
+
+    // set the correct choice
+    const answerInput = document.getElementById('answerToggleInput');
+    if (answerInput) {
+      if (currentStep.assignment.correct) {
+        answerInput.checked = true;
+      } else {
+        answerInput.checked = false;
+      }
+    }
+
+    // set the explanation
+    const explanationInput = document.getElementById('questionExplanationInput');
+    if (explanationInput) {
+      if (currentStep.assignment.explanation) {
+        explanationInput.checked = true;
+      } else {
+        explanationInput.checked = false;
+      }
+    }
   }
 
   // set the message
@@ -422,8 +289,13 @@ async function resetMathJax() {
 
 
 function setup() {
-  // start listening for all of the assignments
-  initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+  // check if they have never started the tutorial
+  if (localStorage.getItem("TestTakerTutorial") !== 'started') {
+    startTutorial();
+  } else {
+    // start listening for all of the assignments
+    initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+  }
 
   // start listening to the current user
   initializeCurrentUser();

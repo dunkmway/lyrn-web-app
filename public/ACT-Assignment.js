@@ -5,6 +5,8 @@ class Assignment {
     // from the doc
     this.id = doc.id;
     this.ref = doc.ref;
+    this.data = data;
+    
     this.open = data.open;
     this.close = data.close;
     this.status = data.status;

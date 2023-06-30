@@ -231,7 +231,7 @@ section.hide {
   background-color: white;
   box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  border: 2px solid var(--reading-color);
+  border: 2px solid var(--default-color);
   width: 400px;
   position: absolute;
   top: 0;
@@ -282,7 +282,7 @@ section.hide {
 
 #tutorialTooltip .tooltip-bottom button {
   border: none;
-  background-color: var(--reading-color);
+  background-color: var(--default-color);
   color: white;
   padding: 0.5em 2em;
   border-radius: .5em;
