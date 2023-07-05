@@ -37,6 +37,12 @@ async function startTutorial() {
   // remember that they took the tutorial
   localStorage.setItem("TestTakerTutorial", "started");
 
+  // show the tutorial section
+  document.getElementById('tutorial').classList.add('open');
+
+  // remove the transition for the tutorial
+  document.querySelector('.main .panels .selector').classList.add('no-transition');
+
   // show the landing page
   changeSection('landing');
 
@@ -58,12 +64,6 @@ async function startTutorial() {
 
   // show the tutorial assignments
   showAssignments();
-
-  // show the tutorial section
-  document.getElementById('tutorial').classList.add('open');
-
-  // remove the transition for the tutorial
-  document.querySelector('.main .panels .selector').classList.add('no-transition');
 
   // start the first step
   tutorialStep(0);
@@ -203,63 +203,65 @@ function placeTutorialTooltip(tooltip, placement) {
   
   switch (placement.location) {
     case "center":
-      tooltip.style.top = bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2);
-      tooltip.style.left = bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2);
+      tooltip.style.top = (bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2)).toString() + 'px';
+      tooltip.style.left = (bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2)).toString() + 'px';
       break;
     case "top-left":
-      tooltip.style.top = bounding.top - tooltipBounding.height - 10;
-      tooltip.style.left = bounding.left - tooltipBounding.width - 10;
+      tooltip.style.top = (bounding.top - tooltipBounding.height - 10).toString() + 'px';
+      tooltip.style.left = (bounding.left - tooltipBounding.width - 10).toString() + 'px';
       break;
     case "top":
-      tooltip.style.top = bounding.top - tooltipBounding.height - 10;
-      tooltip.style.left = bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2);
+      tooltip.style.top = (bounding.top - tooltipBounding.height - 10).toString() + 'px';
+      tooltip.style.left = (bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2)).toString() + 'px';
       break;
     case "top-right":
-      tooltip.style.top = bounding.top - tooltipBounding.height - 10;
-      tooltip.style.left = bounding.right + 10;
+      tooltip.style.top = (bounding.top - tooltipBounding.height - 10).toString() + 'px';
+      tooltip.style.left = (bounding.right + 10).toString() + 'px';
       break;
     case "right":
-      tooltip.style.top = bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2);
-      tooltip.style.left = bounding.right + 10;
+      tooltip.style.top = (bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2)).toString() + 'px';
+      tooltip.style.left = (bounding.right + 10).toString() + 'px';
       break;
     case "bottom-right":
-      tooltip.style.top = bounding.bottom + 10;
-      tooltip.style.left = bounding.right + 10;
+      tooltip.style.top = (bounding.bottom + 10).toString() + 'px';
+      tooltip.style.left = (bounding.right + 10).toString() + 'px';
       break;
     case "bottom":
-      tooltip.style.top = bounding.bottom + 10;
-      tooltip.style.left = bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2);
+      tooltip.style.top = (bounding.bottom + 10).toString() + 'px';
+      tooltip.style.left = (bounding.left + (bounding.width / 2) - (tooltipBounding.width / 2)).toString() + 'px';
       break;
     case "bottom-left":
-      tooltip.style.top = bounding.bottom + 10;
-      tooltip.style.left = bounding.left - tooltipBounding.width - 10;
+      tooltip.style.top = (bounding.bottom + 10).toString() + 'px';
+      tooltip.style.left = (bounding.left - tooltipBounding.width - 10).toString() + 'px';
       break;
     case "left":
-      tooltip.style.top = bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2);
-      tooltip.style.left = bounding.left - tooltipBounding.width - 10;
+      tooltip.style.top = (bounding.top + (bounding.height / 2) - (tooltipBounding.height / 2)).toString() + 'px';
+      tooltip.style.left = (bounding.left - tooltipBounding.width - 10).toString() + 'px';
       break;
+    default:
+      console.warn('tutorial not given location')
     
   }
 }
 
 function endTutorial() {
+  // show the landing page
+  goToLanding();
+  
+  // hide all of the assignment
+  hideAssignments();
+  
+  // clear the assignment array
+  assignments = [];
+  
+  // start listening to the assignment listener again
+  initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+  
   // hide the tutorial section
   document.getElementById('tutorial').classList.remove('open');
 
   // add the transition back in
   document.querySelector('.main .panels .selector').classList.remove('no-transition');
-
-  // show the landing page
-  goToLanding();
-
-  // hide all of the assignment
-  hideAssignments();
-
-  // clear the assignment array
-  assignments = [];
-
-  // start listening to the assignment listener again
-  initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
 }
 
 /**
