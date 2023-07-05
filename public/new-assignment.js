@@ -26,8 +26,8 @@ async function initialSetup() {
     document.getElementById('nameSearch').disabled = true;
     document.getElementById('nameSearch').setAttribute('data-value', queryStrings().student);
 
-    document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
-    document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
+    document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${queryStrings().student}`;
+    document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${queryStrings().student}`;
     getTestsForSections()
     firebase.firestore().collection('Users').doc(queryStrings().student).get()
     .then((studentDoc) => {
