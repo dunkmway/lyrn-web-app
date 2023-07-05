@@ -1,5 +1,13 @@
 const ANONYMOUS_UID = firebase.firestore().collection('Users').doc().id;
-const TOPIC_GRADED_ASSIGNMENT_TYPES = ['daily', 'homework', 'practice'];
+const TOPIC_GRADED_ASSIGNMENT_TYPES = ['assessment', 'daily', 'homework', 'practice'];
+const PERCENT_GRADE_INCREASE_PER_LESSON = 0.3   // the estimated percent of grade increase to 100 that we can expect by teaching one lesson (i.e, Grade = 60%, expected increase = 50%, then (1 - Grade) * 0.5 = expected score = 80%)
+
+let topic_section_totals = {
+  english: 0,
+  math: 0,
+  reading: 0,
+  science: 0
+}
 
 function setManualStudent() {
   const student = document.getElementById('manualUID').value;
@@ -17,6 +25,9 @@ async function initialSetup() {
   if (queryStrings().student) {
     document.getElementById('nameSearch').disabled = true;
     document.getElementById('nameSearch').setAttribute('data-value', queryStrings().student);
+
+    document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
+    document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
     getTestsForSections()
     firebase.firestore().collection('Users').doc(queryStrings().student).get()
     .then((studentDoc) => {
@@ -64,6 +75,10 @@ async function getAssignments(studentUID) {
   .filter(grades => grades != null) // filter out the assignments that don't have topic grades
   .reduce((prev, curr) => { // reduce the topic grades into a single object with combined topics
     for (const topic in curr) {
+      if (topic == 'null') {
+        continue;
+      }
+
       if ((!prev[topic])) {
         prev[topic] = {
           correct: 0,
@@ -85,14 +100,14 @@ async function getAssignments(studentUID) {
   // go through the topic grades and add them to the by topic weights
   for (const topic in topicGrades) {
     // we need to know the frequency
-    const frequency = Number.parseInt(document.getElementById(`${topic}-frequency`).textContent);
+    const frequency = Number.parseFloat(document.getElementById(`${topic}-frequency`).dataset.frequency);
 
     // write the grade
-    const grade = Math.round((topicGrades[topic].correct / topicGrades[topic].total) * 100)
-    document.getElementById(`${topic}-grade`).textContent = grade;
+    const grade = (topicGrades[topic].correct / topicGrades[topic].total)
+    document.getElementById(`${topic}-grade`).textContent = Math.round(grade * 100).toString() + '%';
 
     // write the score
-    document.getElementById(`${topic}-score`).textContent = (100 - grade) * frequency;
+    document.getElementById(`${topic}-score`).textContent = Math.round(((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 360) / 10;
   }
 
 }
@@ -185,6 +200,9 @@ function searchResultClicked(studentUID, studentName) {
   nameSearch.value = studentName;
   nameSearch.setAttribute('data-value', studentUID);
 
+  document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${studentUID}`;
+  document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${studentUID}`;
+
   getTestsForSections();
   document.getElementById('curriculumSection').value = '';
 
@@ -241,19 +259,22 @@ async function getTopics() {
 
   for (section in filteredTopics) {
     filteredTopics[section] = topicDocs.filter(doc => doc.data().sectionCode === section).sort((a,b) => (b.data().numQuestions ?? 0) - (a.data().numQuestions ?? 0));
-
+    
+    filteredTopics[section].forEach(topicDoc => topic_section_totals[topicDoc.data().sectionCode] += topicDoc.data().numQuestions ?? 0);
     filteredTopics[section].forEach(renderTopicDoc)
   }
 };
 
 function renderTopicDoc(topicDoc) {
+  const frequency = topicDoc.data().numQuestions / topic_section_totals[topicDoc.data().sectionCode];
+  const niceFrequency = Math.round(frequency * 100);
   // for assignments
   document.getElementById(`${topicDoc.data().sectionCode}Topics`).innerHTML +=
   `
     <input type='checkbox' id='${topicDoc.id}-checkbox' value='${topicDoc.id}'>
     <label for='${topicDoc.id}-checkbox'>${topicDoc.data().code}</label>
     <input type='number' id='${topicDoc.id}-weight' value="1">
-    <div id="${topicDoc.id}-frequency">${topicDoc.data().numQuestions ?? 0}</div>
+    <div id="${topicDoc.id}-frequency" data-frequency="${frequency}">${niceFrequency}%</div>
     <div id="${topicDoc.id}-grade"></div>
     <div id="${topicDoc.id}-score"></div>
   `

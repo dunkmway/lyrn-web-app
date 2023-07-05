@@ -207,8 +207,8 @@ class Assignment {
       case 'new':
         // if a staff member is starting someone else's assignment
         // sneeky start it
-        if (STAFF_ROLES.includes(current_user_role) && this.student != current_user.uid) {
-          this.start(true);
+        if (this.student != current_user.uid) {
+          Dialog.alert('You may not start this assignment as a tutor.')
         } else {
           customConfirm(
             `Are you sure you are ready to start this ${this.sectionCode} assignment?`,
@@ -257,7 +257,7 @@ class Assignment {
     await this.timeline.load();
     
     // construct the question objects
-    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.timeline));
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.student, this.timeline));
     // load all docs for the questions and passages
     await Promise.all(this.questionObjects.map(async (question) => {
       // load the quesiton from the db
@@ -401,16 +401,20 @@ class Assignment {
 
     resetMathJax();
 
-    this.timeline.add(this.currentQuestion.id, 'start', true);
-    await this.timeline.update();
+    // only update to started if started by the actual user
+    if (this.student == current_user.uid) {
+      this.timeline.add(this.currentQuestion.id, 'start', true);
+      await this.timeline.update();
+    }
 
     // see if the next question needs to be loaded/generated
-    if ((index == this.questionObjects.length - 1) && this.topicProportions) {
+    // tutors should not generate more questions
+    if ((index == this.questionObjects.length - 1) && this.topicProportions && this.student == current_user.uid) {
       const newQuestions = await getNewDynamicQuestions_helper(this.topicProportions, this.questionObjects);
       if (newQuestions && newQuestions.length != 0) {
         // add the new question to the question objects
         await Promise.all(newQuestions.map(async (id, sumIndex) => {
-          const newQuestion = new Question(id, index + sumIndex + 1, this.timeline);
+          const newQuestion = new Question(id, index + sumIndex + 1, this.student, this.timeline);
 
           // setup the selector
           newQuestion.setupSelector(() => this.startQuestion(newQuestion.pos));
@@ -447,7 +451,7 @@ class Assignment {
     await this.timeline.load();
     
     // construct the question objects
-    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.timeline));
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.student, this.timeline));
     // load all docs for the questions and passages
     await Promise.all(this.questionObjects.map(async (question) => {
       // load the quesiton from the db

@@ -1,7 +1,8 @@
 class Question {
-  constructor(id, pos, assignmentTimeline) {
+  constructor(id, pos, student, assignmentTimeline) {
     this.id = id;
     this.pos = pos;
+    this.student = student;
     this.assignmentTimeline = assignmentTimeline;
     this.isLoaded = false;
 
@@ -226,15 +227,19 @@ class Question {
   }
 
   async answerSelected(index) {
-    this.assignmentTimeline.add(this.id, 'answer', index);
-    this.renderSelector();
-    await this.assignmentTimeline.update();
+    if (this.student == current_user.uid) {
+      this.assignmentTimeline.add(this.id, 'answer', index);
+      this.renderSelector();
+      await this.assignmentTimeline.update();
+    }
   }
 
   async flagToggled(isFlagged) {
-    this.assignmentTimeline.add(this.id, 'flag', isFlagged);
-    this.renderSelector();
-    await this.assignmentTimeline.update();
+    if (this.student == current_user.uid) {
+      this.assignmentTimeline.add(this.id, 'flag', isFlagged);
+      this.renderSelector();
+      await this.assignmentTimeline.update();
+    }
   }
 
 }

@@ -7,7 +7,7 @@ sgMail.setApiKey(functions.config().sendgrid.secret);
 const FREE_TIER_TESTS = [
   'a3jWOjkavIOaCsiu9sot',   // B02 
   'eTqlQ5uRx8KUZPeBRuVT',   // C01
-  '1iuXV7lsj4f6AimfQtM4'    // D05
+  // '1iuXV7lsj4f6AimfQtM4'    // D05
 ]
 
 const SECTION_TIMES = {

@@ -378,7 +378,8 @@ function showAssignments() {
   let previousAssignments = [];
 
   for (const assignment of assignments) {
-    if (assignment.scaledScoreSection) {
+    // if (assignment.scaledScoreSection) {
+    if (assignment.type === "marketing") {
       fullAssignments.push(assignment)
       continue
     }
@@ -399,7 +400,7 @@ function showAssignments() {
   // sort each appropriately 
   startedAssignments.sort((a,b) => (a.startedAt.toDate().getTime() + (a.time ?? Infinity)) - (b.startedAt.toDate().getTime() + (b.time ?? Infinity)));
   newAssignments.sort((a,b) => (a.close?.toDate().getTime() ?? 0) - (b.close?.toDate().getTime() ?? 0) || (a.open?.toDate().getTime() ?? 0) - (b.open?.toDate().getTime() ?? 0));
-  previousAssignments.sort((a,b) => (b.submittedAt?.toDate().getTime() ?? b.close.toDate().getTime()) - (a.submittedAt?.toDate().getTime() ?? a.close.toDate().getTime()));
+  previousAssignments.sort((a,b) => (b.submittedAt?.toDate().getTime() ?? b.close?.toDate().getTime() ?? 0) - (a.submittedAt?.toDate().getTime() ?? a.close?.toDate().getTime() ?? 0));
 
   // show the assignments
   for (const assignment of startedAssignments) {
