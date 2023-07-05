@@ -379,7 +379,7 @@ function showAssignments() {
 
   for (const assignment of assignments) {
     // if (assignment.scaledScoreSection) {
-    if (assignment.type === "marketing") {
+    if (assignment.type === "marketing" || assignment.type === "tutorial") {
       fullAssignments.push(assignment)
       continue
     }
