@@ -110,6 +110,10 @@ button {
   margin: 0em 0.5em 0em 0em;
 }
 
+#topicWrapper > div > div {
+  text-align: right;
+}
+
 #topicWrapper > div > *:nth-child(-n+6) {
   border-bottom: 2px solid black;
   position: relative;

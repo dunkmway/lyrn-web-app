@@ -104,10 +104,10 @@ async function getAssignments(studentUID) {
 
     // write the grade
     const grade = (topicGrades[topic].correct / topicGrades[topic].total)
-    document.getElementById(`${topic}-grade`).textContent = Math.round(grade * 100).toString() + '%';
+    document.getElementById(`${topic}-grade`).textContent = (grade * 100).toFixed(2) + '%';
 
     // write the score
-    document.getElementById(`${topic}-score`).textContent = Math.round(((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 360) / 10;
+    document.getElementById(`${topic}-score`).textContent = (((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 36).toFixed(2);
   }
 
 }
@@ -266,8 +266,8 @@ async function getTopics() {
 };
 
 function renderTopicDoc(topicDoc) {
-  const frequency = topicDoc.data().numQuestions / topic_section_totals[topicDoc.data().sectionCode];
-  const niceFrequency = Math.round(frequency * 100);
+  const frequency = topicDoc.data().numQuestions ? topicDoc.data().numQuestions / topic_section_totals[topicDoc.data().sectionCode] : 0;
+  const niceFrequency = (frequency * 100).toFixed(2);
   // for assignments
   document.getElementById(`${topicDoc.data().sectionCode}Topics`).innerHTML +=
   `
