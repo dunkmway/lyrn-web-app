@@ -28,6 +28,25 @@ function debounce(func, timeout = 300){
   };
 }
 
+async function queryAllStudents() {
+  try {
+    // roles
+    const studentUserDocs = await firebase.firestore().collection('Users')
+    .where('role', '==', 'student')
+    .orderBy('createdAt', 'desc')
+    .get();
+
+    studentUserDocs.docs.forEach(doc => {
+      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().email);
+    })
+
+    document.getElementById('userSearch').focus();
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
 async function queryUsers() {
   let firstNameQuery = document.getElementById('userSearch').value.split(' ')[0];
   let lastNameQuery = document.getElementById('userSearch').value.split(' ')[1];
