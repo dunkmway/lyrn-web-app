@@ -255,6 +255,7 @@ function getValues() {
   values.parents = getDropdownValues('parents');
   values.blacklistTutors = getDropdownValues('blacklistTutors');
   values.location = document.getElementById('location').value;
+  values.createdAt = firebase.firestore.FieldValue.serverTimestamp()
   return values;
 }
 
