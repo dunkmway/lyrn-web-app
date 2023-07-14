@@ -37,7 +37,7 @@ async function queryAllStudents() {
     .get();
 
     studentUserDocs.docs.forEach(doc => {
-      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().email);
+      renderUserSearchResult(doc.data().firstName + ' ' + doc.data().lastName, doc.id, doc.data().role);
     })
 
     document.getElementById('userSearch').focus();
