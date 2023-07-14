@@ -87,7 +87,7 @@ async function getAssignments(studentUID) {
       }
 
       prev[topic].correct += curr[topic].correct ?? 0;
-      prev[topic].total += curr[topic].total ?? 0;
+      prev[topic].total += (curr[topic].correct ?? 0) + (curr[topic].wrong ?? 0);   // we don't want the total becuase this includes unanswered questions which mean nothing for the score
     }
 
     return prev
