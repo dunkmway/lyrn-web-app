@@ -96,6 +96,11 @@
       <div class="container"><h1 onclick="signOut()" style="cursor: pointer;">SIGN OUT</h1></div>
     </div>
     <div class="content">
+      <div class="welcome">
+        <h1 id="welcomeMessage">Hey, <span></span>!</h1>
+        <p id="tutorStudentMessage"></p>
+      </div>
+
       <div class="helpers">
         <p class="feedback" onclick="openFeedback()">Feedback</p>
         <div class="tutorial-bubble" onclick="startTutorial()">?</div>
@@ -177,7 +182,7 @@
     </div>
     <div class="panels">
       <div class="selector">
-        <div class="selector-scroll">
+        <div class="selector-scroll" id="selectorScrollContainer">
           <div class="top-container">
             <div id="assignmentTime" class="background-accent box">Time</div>
             <div id="assignmentSubmit" class="background-accent box" style="cursor: pointer;" onclick="submitCurrentAssignment()">Submit</div>

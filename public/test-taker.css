@@ -394,6 +394,16 @@ section.hide {
   right: 1em;
 }
 
+.landing .content .welcome > h1 {
+  font-size: 3em;
+  margin: 0;
+}
+
+.landing .content .welcome > p {
+  font-size: 1.5em;
+  margin: 0;
+}
+
 .landing .content .next-lesson-wrapper {
   grid-column: 1 / -1;
   background-color: var(--break-color);
@@ -607,15 +617,14 @@ section.hide {
 
 .main .panels .selector input[type=radio] {
   position: absolute;
-  top: -9999px;
-  left: -9999px;
+  visibility: hidden;
   z-index: -1;
 }
 
 .main .panels .selector .selector-wrapper {
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   padding: .5em 1em;
   cursor: pointer;
@@ -648,12 +657,16 @@ section.hide {
 
 .main .panels .selector .selector-wrapper span:first-child {
   margin-right: 1em;
-  padding: 2px;
+}
+
+.main .panels .selector .selector-wrapper span:first-child > svg {
+  width: 13px;
+  margin-left: 2px;
+  margin-bottom: 1px;
 }
 
 .main .panels .selector .selector-wrapper span:nth-child(2) {
   margin-left: 1em;
-  padding: 1px;
   fill: var(--accent-color-light);
   border: none;
   background-color: transparent;

@@ -352,7 +352,7 @@ class Assignment {
     document.querySelector('.main .panels .selector').classList.remove('open')
   }
 
-  async startQuestion(index) {
+  async startQuestion(index, scrollSelector = false) {
     if (index > this.questionObjects.length - 1) {
       index = this.questionObjects.length - 1
     }
@@ -396,8 +396,13 @@ class Assignment {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }
 
-    // select the new question in the selector
-    this.currentQuestion.selectorInput.checked = true;
+    if (scrollSelector) {
+      // scroll the selector
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
 
     resetMathJax();
 
@@ -531,7 +536,7 @@ class Assignment {
     document.querySelector('.landing .loading').classList.remove('active');
   }
 
-  async reviewQuestion(index) {
+  async reviewQuestion(index, scrollSelector = false) {
     const flatSortedQuestionList = this.sortedQuestionsByTopic.reduce((prev, curr) => {
       prev = prev.concat(curr.questions);
       return prev
@@ -575,8 +580,13 @@ class Assignment {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }
 
-    // select the new question in the selector
-    this.currentQuestion.selectorInput.checked = true;
+    if (scrollSelector) {
+      // scroll the selector
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
 
     resetMathJax();
   }

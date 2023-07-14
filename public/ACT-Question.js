@@ -103,6 +103,9 @@ class Question {
       questionChoices.appendChild(choiceElem);
     })
 
+    // select the question in the selector
+    this.selectorInput.checked = true;
+
     document.querySelector('.main .panels .question').classList.remove('hide');
   }
 
@@ -194,6 +197,9 @@ class Question {
 
       questionChoices.appendChild(choiceElem);
     })
+
+    // select the question in the selector
+    this.selectorInput.checked = true;
 
     document.querySelector('.main .panels .question').classList.remove('hide');
   }

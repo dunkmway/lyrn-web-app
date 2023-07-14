@@ -1,8 +1,11 @@
 const db = firebase.firestore();
 
-const CURRENT_STUDENT_UID = pathParameter(1);
+const STUDENT_UID = pathParameter(1);
+let student_user_doc = null;
+
 let current_user = null;
 let current_user_role = null;
+
 const STAFF_ROLES = ['dev', 'admin', 'tutor'];
 let assignment_listener;
 
@@ -255,7 +258,7 @@ function endTutorial() {
   assignments = [];
   
   // start listening to the assignment listener again
-  initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+  initializeAssignmentsSnapshot(STUDENT_UID);
   
   // hide the tutorial section
   document.getElementById('tutorial').classList.remove('open');
@@ -296,14 +299,15 @@ function setup() {
     startTutorial();
   } else {
     // start listening for all of the assignments
-    initializeAssignmentsSnapshot(CURRENT_STUDENT_UID);
+    initializeAssignmentsSnapshot(STUDENT_UID);
   }
 
   // start listening to the current user
   initializeCurrentUser();
 
-  // get the next lesson
-  getNextLesson(CURRENT_STUDENT_UID);
+  // // get the next lesson
+  // getNextLesson(STUDENT_UID);
+  renderNextLessonDetails();
 }
 
 function initializeCurrentUser() {
@@ -313,13 +317,17 @@ function initializeCurrentUser() {
       const idTokenResult = await user.getIdTokenResult();
       current_user_role = idTokenResult.claims.role;
 
+      // welcome
+      document.getElementById('welcomeMessage').querySelector('span').textContent = user.displayName.split(' ')[0];
+      initializeStudentDoc(STUDENT_UID);
+
       // if the current user is not a staff member,
       // we will only show them their test taker
       // and send them back to their test taker if unauthorized
 
-      if (!STAFF_ROLES.includes(current_user_role) && current_user.uid != CURRENT_STUDENT_UID) {
+      if (!STAFF_ROLES.includes(current_user_role) && current_user.uid != STUDENT_UID) {
         // access denied
-        window.location.replace(`${tooltip.origin}/test-taker/${current_user.uid}`);
+        window.location.replace(`${location.origin}/test-taker/${current_user.uid}`);
         return;
       }
     }
@@ -328,6 +336,23 @@ function initializeCurrentUser() {
       current_user_role = null;
     }
   })
+}
+
+async function initializeStudentDoc(studentUID) {
+  student_user_doc = await db.collection('Users').doc(studentUID).get();
+
+  // if we have a tutor viewing the page
+  if (STAFF_ROLES.includes(current_user_role)) {
+    // if this is not their test taker
+    if (studentUID != current_user.uid) {
+      document.getElementById('tutorStudentMessage').textContent = `You are viewing ${student_user_doc.data().firstName} ${student_user_doc.data().lastName}'s test taker.`;
+    } else {
+      document.getElementById('tutorStudentMessage').textContent = `You are viewing your own test taker.`;
+    }
+  } else {
+    document.getElementById('tutorStudentMessage').textContent = 'Welcome to your personal test taker.';
+  }
+
 }
 
 function initializeAssignmentsSnapshot(student) {
@@ -524,7 +549,7 @@ function previousQuestionCallback() {
 
   if (currentAssignment.isStarted) {
     const nextQuestionIndex = currentQuestion.pos - 1;
-    currentAssignment.startQuestion(nextQuestionIndex);
+    currentAssignment.startQuestion(nextQuestionIndex, true);
 
   } else if (currentAssignment.isInReview) {
     const flatSortedQuestionList = currentAssignment.sortedQuestionsByTopic.reduce((prev, curr) => {
@@ -533,7 +558,7 @@ function previousQuestionCallback() {
     }, []);
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex - 1;
-    currentAssignment.reviewQuestion(nextQuestionIndex);
+    currentAssignment.reviewQuestion(nextQuestionIndex, true);
   }
 }
 
@@ -545,7 +570,7 @@ function nextQuestionCallback() {
 
   if (currentAssignment.isStarted) {
     const nextQuestionIndex = currentQuestion.pos + 1;
-    currentAssignment.startQuestion(nextQuestionIndex);
+    currentAssignment.startQuestion(nextQuestionIndex, true);
 
   } else if (currentAssignment.isInReview) {
     const flatSortedQuestionList = currentAssignment.sortedQuestionsByTopic.reduce((prev, curr) => {
@@ -554,7 +579,7 @@ function nextQuestionCallback() {
     }, []);
     const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
     const nextQuestionIndex = currentQuestionIndex + 1;
-    currentAssignment.reviewQuestion(nextQuestionIndex);
+    currentAssignment.reviewQuestion(nextQuestionIndex, true);
   }
 }
 
@@ -616,7 +641,7 @@ function renderNextLessonDetails(lessonData) {
   const nextLessonElement = document.getElementById('nextLessonDetails');
 
   if (!lessonData) {
-    nextLessonElement.innerHTML = 'Need help on some of these questions? Check out our <a href="/pricing?program=one-on-one" target="_blank">ACT Programs.</a>';
+    nextLessonElement.innerHTML = 'Need help on some of these tests? Check out our <a href="/pricing?program=one-on-one" target="_blank">ACT Programs.</a>';
     return;
   }
 
