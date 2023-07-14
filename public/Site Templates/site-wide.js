@@ -119,10 +119,15 @@ function checkAuthorization() {
                 }
                 const idTokenResult = await user.getIdTokenResult()
                 const role = idTokenResult.claims.role;
-                // console.log({
-                //     user,
-                //     role
-                // })
+
+                // check for a redirect
+                const params = new URLSearchParams(document.location.search);
+                const redirect = params.get("redirect");
+                if (redirect) {
+                    window.location.replace(location.origin + decodeURI(redirect));
+                    return;
+                }
+                
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied
@@ -138,7 +143,10 @@ function checkAuthorization() {
                 const role = 'public';
                 if(!isPathAllowed(role, currentPath)) {
                     // access denied
-                    window.location.replace(location.origin + "/sign-in");
+                    // since they aren't signed in, we want to give them the chance to redirect to where they were going to go if they sign in
+                    // attach the currentPath to the sign-in page to allow for redirect
+                    const redirect = encodeURI(currentPath);
+                    window.location.replace(location.origin + "/sign-in?redirect=" + redirect);
                     return;
                 }
             }

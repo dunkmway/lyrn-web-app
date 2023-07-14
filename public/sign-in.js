@@ -25,7 +25,6 @@ formElement.addEventListener("submit", function(event) {
 });
 
 async function login() {
-  console.log('login')
   errorElem.style.display = "none";
 
   const username = usernameField.value;
@@ -34,7 +33,6 @@ async function login() {
   try {
     localStorage.setItem('authExpiration', (new Date().getTime() + AUTH_EXPIRATION).toString());
     await firebase.auth().signInWithEmailAndPassword(username, password);
-    goToDashboard();
   }
   catch(error) {
       // Handle Errors here.
