@@ -472,7 +472,7 @@ section {
   line-height: 2em;
 }
 
-#heading button {
+#heading a {
   background-color: var(--color-primary);
   color: var(--color-dark-blue);
   padding: 1em 2em;
@@ -501,7 +501,7 @@ section {
   border-radius: .25em;
 }
 
-#summary button {
+#summary a {
   border: none;
   border-radius: .25em;
   background-color: var(--color-orange);
@@ -538,7 +538,7 @@ section {
   line-height: 1.5em;
 }
 
-#details button {
+#details a {
   border: none;
   border-radius: .25em;
   background-color: var(--color-orange);
@@ -628,7 +628,8 @@ section {
     column-gap: 2em;
   }
 
-  #details > div > video {
+  #details > div > video,
+  #details > div > img {
     align-self: center;
   }
 
@@ -637,12 +638,12 @@ section {
     grid-row: 1 / 5;
   }
 
-  #details > div > video:last-of-type {
+  #details > div > img {
     grid-column: 2 / -1;
     grid-row: 5 / -1;
   }
 
-  #details button {
+  #details a {
     width: max-content;
     padding: 1em 6em;
     align-self: center;
