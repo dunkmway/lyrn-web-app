@@ -69,32 +69,27 @@ async function startTutorial() {
   showAssignments();
 
   // start the first step
-  tutorialStep(0);
+  tutorialStep(0, window.innerWidth <= 1000);
 }
 
 function tutorialNext() {
   const tooltip = document.getElementById('tutorialTooltip');
   const currentStep = parseInt(tooltip.dataset.step);
-  if (currentStep == TUTORIAL_STEPS.length - 1) {
-    endTutorial()
-  } else {
-    tutorialStep(currentStep + 1);
-  }
+  tutorialStep(currentStep + 1, window.innerWidth <= 1000);
 }
 
 function tutorialBack() {
   const tooltip = document.getElementById('tutorialTooltip');
   const currentStep = parseInt(tooltip.dataset.step);
-  tutorialStep(currentStep - 1);
+  tutorialStep(currentStep - 1, window.innerWidth <= 1000);
 }
 
-async function tutorialStep(step) {
-  // Welcome
-  // show assignment
-  // show question
-  // show answer
-  // show selector
-  // show review
+async function tutorialStep(step, phone = false) {
+  // should the tutorial end
+  if (phone ? step >= TUTORIAL_STEPS_PHONE.length : step >= TUTORIAL_STEPS.length) {
+    endTutorial();
+    return;
+  }
 
   // show/hide the navigation buttons
   if (step == 0) {
@@ -103,14 +98,14 @@ async function tutorialStep(step) {
     document.getElementById("tutorialBack").style.visibility = 'visible';
   }
 
-  if (step == TUTORIAL_STEPS.length - 1) {
+  if (phone ? step == TUTORIAL_STEPS_PHONE.length - 1 : step == TUTORIAL_STEPS.length - 1) {
     document.getElementById("tutorialNext").textContent = 'Finish';
   } else {
     document.getElementById("tutorialNext").textContent = 'Next';
   }
 
   // get the current step
-  const currentStep = TUTORIAL_STEPS[step];
+  const currentStep = phone ? TUTORIAL_STEPS_PHONE[step] : TUTORIAL_STEPS[step];
   const tooltip = document.getElementById('tutorialTooltip');
   const message = document.getElementById('tooltipMessage');
 

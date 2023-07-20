@@ -571,3 +571,17 @@ const TUTORIAL_ASSIGNMENTS = [
         assignment: null
       },
   ]
+
+const TUTORIAL_STEPS_PHONE = [
+  {
+    message: `
+      <h3 style="text-align:center;">Welcome to the Lyrn Test Taker!</h3>
+      <p style="text-align:center;">For the best experience, open your test taker on a larger screen.</p>
+    `,
+    tooltip: {
+      element: "#tutorial",
+      location: "center"
+    },
+    assignment: null
+  }
+]

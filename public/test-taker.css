@@ -43,7 +43,7 @@
   --passage-columns: var(--defualt-passage-columns)
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   :root {
     --english-passage-columns: 1;
     --math-passage-columns: 1;
@@ -233,6 +233,7 @@ section.hide {
   border-radius: 10px;
   border: 2px solid var(--default-color);
   width: 400px;
+  max-width: 100%;
   position: absolute;
   top: 0;
   left: 0;
@@ -362,15 +363,16 @@ section.hide {
   position: relative;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   .landing .content {
     padding: 2em;
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr 1fr;
+    grid-template-rows: auto;
   }
 }
 
 .landing .content .helpers {
+  height: 0;
   color: var(--default-color);
 }
 
@@ -433,7 +435,7 @@ section.hide {
   margin-bottom: 0;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   .full-test-wrapper > .full-test-content {
     grid-template-columns: 1fr;
   }
@@ -1052,7 +1054,7 @@ section.hide {
   border-color: transparent;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   .main .panels .passage,
   .main .panels .question {
     transition: all 225ms ease-in;
