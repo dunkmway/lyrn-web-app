@@ -77,6 +77,7 @@
     </script>
 
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="Site Templates/run-analytics.js" defer></script>
     <script src="index.js" defer></script>
 
     <script src="Site Templates/formatting.js" defer></script>
@@ -111,10 +112,10 @@
       <input type="checkbox" id="nav-toggle" class="nav-toggle">
       <nav>
         <ul>
-          <li><a href="free-test-taker.html" onclick="createAnalyticsEvent({eventID: 'navFreeClicked'})">Free Practice</a></li>
-          <li><a href="why.html" onclick="createAnalyticsEvent({eventID: 'navWhyClicked'})">Why Lyrn</a></li>
-          <!-- <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li> -->
-          <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked'})">Pricing</a></li>
+          <li><a href="free-test-taker.html">Free Practice</a></li>
+          <li><a href="why.html">Why Lyrn</a></li>
+          <!-- <li><a href="team.html">Our Team</a></li> -->
+          <li><a href="pricing.html">Pricing</a></li>
           <li><div class="phone"><a href="sign-in.html">Sign in</a></div></li>
         </ul>
       </nav>
@@ -225,10 +226,7 @@
         <div class="hero__intro">
           <h1>Maximize Your ACT Score</h1>
           <h4>Practice real ACT questions on our custom test taker for FREE.</h4>
-          <!-- <div onclick="createAnalyticsEvent({eventID: 'heroPreviewScheduleClicked'}); gtag_report_conversion_preview()">
-            <a class="hero__button" href="pricing.html#program_preview" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/duncanmorais/program-preview?hide_gdpr_banner=1&primary_color=27c03a'});return false;">Schedule a preview today</a>
-          </div> -->
-          <div onclick="createAnalyticsEvent({eventID: 'heroButtonClicked'});">
+          <div>
             <a class="hero__button" href="sign-up.html">Start Now</a>
           </div>
         </div>
@@ -343,7 +341,7 @@
         <div class="panel">
           <div class="question" id="question_8">
             <h3 class="text">We will give you a call at your requested time as soon as we can.</h3>
-            <h3>In the mean time, you can check out all of our programs by visting our <a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'questionnairePricingClicked'})">pricing page</a>.</h3>
+            <h3>In the mean time, you can check out all of our programs by visting our <a href="pricing.html">pricing page</a>.</h3>
           </div>
           <button class="back" onclick="resetQuestionnaire()">Start Over</button>
         </div>
@@ -493,13 +491,13 @@
           <p>or let us know a little more about you and we will get back to you</p>
           <form action="" id="contactForm">
             <label for="name">First and Last Name</label>
-            <input type="text" name="name" id="name" onchange="createAnalyticsEvent({eventID: 'contactFormNameChanged'})" required>
+            <input type="text" name="name" id="name" required>
             <label for="email">Email Address</label>
-            <input type="email" name="email" id="email" onchange="createAnalyticsEvent({eventID: 'contactFormEmailChanged'})" required>
+            <input type="email" name="email" id="email" required>
             <!-- <label for="number">Phone Number</label>
             <input type="tel" id="number" name="number"> -->
             <label for="course">Subject</label>
-            <div class="select-wrapper" onchange="createAnalyticsEvent({eventID: 'contactFormProgramChanged'})">
+            <div class="select-wrapper">
               <select name="course" id="course">
                 <option value="" disabled selected>Courses</option>
                 <option value="act">ACT Test Prep</option>
@@ -509,7 +507,7 @@
               </select>
             </div>
             <label for="message">Message</label>
-            <textarea name="message" id="message" onchange="createAnalyticsEvent({eventID: 'contactFormMessageChanged'})"></textarea>
+            <textarea name="message" id="message"></textarea>
             <input type="submit" value="Submit">
           </form>
         </div>

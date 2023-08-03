@@ -41,6 +41,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-functions.js" defer></script>
 
     <script src="Site Templates/generalFunctions.js" defer></script>
+    <script src="Site Templates/run-analytics.js" defer></script>
     <script src="why.js" defer></script>
 
     <link href="why.css" rel="stylesheet">
@@ -53,7 +54,7 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <header class="nav-start">
-      <a href="index.html" onclick="createAnalyticsEvent({eventID: 'navHomeClicked'})" class="logo">
+      <a href="index.html" class="logo">
         <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
           <g>
             <polygon points="306.24,508.83 306.24,625.38 428.17,612.83 428.17,569.79 351.96,578.76 354.65,457.72 345.26,457.72 "/>
@@ -73,55 +74,14 @@
       <input type="checkbox" id="nav-toggle" class="nav-toggle">
       <nav>
         <ul>
-          <li><a href="free-test-taker.html" onclick="createAnalyticsEvent({eventID: 'navFreeClicked'})">Free Practice</a></li>
+          <li><a href="free-test-taker.html">Free Practice</a></li>
           <li><a href="#">Why Lyrn</a></li>
-          <!-- <li><a href="team.html" onclick="createAnalyticsEvent({eventID: 'navTeamClicked'})">Our Team</a></li> -->
-          <li><a href="pricing.html" onclick="createAnalyticsEvent({eventID: 'navPricingClicked'})">Pricing</a></li>
+          <!-- <li><a href="team.html">Our Team</a></li> -->
+          <li><a href="pricing.html">Pricing</a></li>
           <li><div class="phone"><a href="sign-in.html">Sign in</a></div></li>
         </ul>
       </nav>
     </header>
-
-    <!-- start banner -->
-    <div class="banner" id="practiceTest_banner">
-      <p>Get started with <strong>4 free</strong> ACT section tests. Click for details.</p>
-    </div>
-    <div class="modal" id="practiceTest_modal">
-      <div class="modal-body">
-        <div class="close">
-          <svg viewbox="0 0 32 32">
-            <path d="M10,10 L22,22 M22,10 L10,22"></path>
-          </svg>
-        </div>
-        <h1>1 full test <span class="accent">free!</span></h1>
-        <h2>4 sections timed tests</h2>
-        <p>Use our custom test taker to practice before the test.</p>
-        <p>Enter your email so we can send you your custom link to take the tests.</p>
-        <input type="email" placeholder="email">
-        <p class="error"></p>
-        <button class="submit" onclick="submitPracticeTestRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
-      </div>
-    </div>
-
-    <div class="banner" id="lessonSeries_banner">
-      <p>Get started with <strong>12 free</strong> ACT lessons. Click for details.</p>
-    </div>
-    <div class="modal" id="lessonSeries_modal">
-      <div class="modal-body">
-        <div class="close">
-          <svg viewbox="0 0 32 32">
-            <path d="M10,10 L22,22 M22,10 L10,22"></path>
-          </svg>
-        </div>
-        <h1>12 lessons <span class="accent">free!</span></h1>
-        <h2>Lessons with example problems</h2>
-        <p>Our ACT lesson series covers the same topics as our programs.</p>
-        <p>Enter your email so we can send you your custom lesson series.</p>
-        <input type="email" placeholder="email">
-        <p class="error"></p>
-        <button class="submit" onclick="submitLessonSeriesRequest(event); gtag_report_conversion_resources()">Ready to Lyrn</button>
-      </div>
-    </div>
 
     <main>
       <section class="hero">

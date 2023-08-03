@@ -23,6 +23,13 @@ document.getElementById('signup').addEventListener('submit', async (event) => {
     // Signed in 
     const user = userCredential.user;
 
+    createAnalyticsEvent({
+      eventID: 'sign-up',
+      data: {
+        user: user.uid
+      }
+    })
+
     //update user profile
     user.updateProfile({
       displayName: registrationData.firstName.trim() + ' ' + registrationData.lastName.trim()

@@ -16,6 +16,7 @@ const KNOWN_USER_IDS = {
 function initialSetup() {
 
   setUserListListener();
+  getSourceStats();
 
   flatpickr('#start', {
     defaultDate: 'today',
@@ -42,7 +43,7 @@ function updateUserList(aggregateDoc) {
 
   // add in the fresh options
   addSelectOptions(
-    document.getElementById('user'), 
+    document.getElementById('user'),
     ['', ...currentUserList], 
     ['No User', ...currentUserList.map((id, index) => KNOWN_USER_IDS[id] ?? index)]
   );
@@ -153,4 +154,33 @@ function renderQueryResult(resultID, user, event, page, time, additionalData) {
 function clearResults() {
   removeAllChildNodes(document.getElementById('results'));
   document.getElementById('numResults').textContent = '0';
+}
+
+async function getSourceStats() {
+  const list = document.querySelector('#source-stats > ul');
+
+  const sourceQuery = await firebase.firestore().collection('Analytics')
+  .where('eventID', '==', 'source')
+  .get();
+
+  const sources = sourceQuery.docs.reduce((prev, curr) => {
+    const source = curr.data().data.source;
+
+    if (prev[source]) {
+      prev[source]++;
+    } else {
+      prev[source] = 1;
+    }
+
+    prev.total++;
+
+  }, { total: 0 })
+
+  for (const source in sources) {
+    if (source === 'total') continue;
+
+    const item = document.createElement('li');
+    item.textContent = `${source}: ${sources[source]} out of ${sources.total}`;
+    list.appendChild(item);
+  }
 }

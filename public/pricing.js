@@ -56,14 +56,7 @@ function openProgram(event) {
   window.scrollTo({
     top: offsetPosition,
     behavior: "smooth"
-  }); 
-
-  createAnalyticsEvent({
-    eventID: 'programSelected',
-    additionalData: {
-      program
-    }
-  })
+  });
 }
 
 function bannerSetup() {

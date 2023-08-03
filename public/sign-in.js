@@ -5,20 +5,6 @@ const passwordField = document.getElementById("password");
 const loginButton = document.querySelector('.button')
 const errorElem = document.querySelector(".error");
 
-// usernameField.addEventListener("keyup", function(event) {
-//   if(event.code === 'Enter') {
-//       event.preventDefault()
-//       login();
-//   }
-// });
-
-// passwordField.addEventListener("keyup", function(event) {
-//   if(event.code === 'Enter') {
-//       event.preventDefault()
-//       login();
-//   }
-// });
-
 formElement.addEventListener("submit", function(event) {
     event.preventDefault()
     login();

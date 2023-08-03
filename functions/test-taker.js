@@ -357,7 +357,8 @@ exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) =
       status: 'new',
       student: user.uid,
       // time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
-      time: null,
+      time: SECTION_TIMES[sectionDoc.data().code],
+      //time: null,
       type: 'marketing'
     })
   }))
