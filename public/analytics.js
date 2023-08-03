@@ -53,7 +53,7 @@ function updateUserList(aggregateDoc) {
 }
 
 async function setUserListListener() {
-  firebase.firestore().collection('Analytics').doc('Aggregate')
+  firebase.firestore().collection('Analytics').doc('_Aggregate')
   .onSnapshot(updateUserList, (error) => {
     console.log(error);
     alert('error while loading user list');
