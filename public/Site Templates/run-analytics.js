@@ -1,10 +1,10 @@
 function createAnalyticsEvent(data) {
     if (window.location.hostname == 'localhost' || window.location.hostname == '127.0.0.1') return;
 
-    let analyticsID = localStorage.getItem('analyticsID'); 
+    let analyticsID = localStorage.getItem('analyticsID_v1');
     if (!analyticsID) {
       analyticsID = firebase.firestore().collection('Analytics').doc().id
-      localStorage.setItem('analyticsID', analyticsID);
+      localStorage.setItem('analyticsID_v1', analyticsID);
       firebase.firestore().collection('Analytics').doc('_Aggregate').update({
         analyticsIDs: firebase.firestore.FieldValue.arrayUnion(analyticsID)
       })
