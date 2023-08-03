@@ -33,7 +33,7 @@ function initialSetup() {
 
 function updateUserList(aggregateDoc) {
   // set the currentUserList to the fresh values
-  currentUserList = aggregateDoc.data().userIDs;
+  currentUserList = aggregateDoc.data().analyticsIDs;
 
   //get the current option's value so we can attempt to set it again afterwards
   const currentValue = document.getElementById('user').value || '';
