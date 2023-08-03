@@ -2,15 +2,18 @@ let currentUserList = [];
 let currentListener = null;
 
 const KNOWN_USER_IDS = {
-  ['zWjgHSqrlS6jBvvp3hUY']: "Matthew's Desktop - personal",
-  ['DWlhJO3Tvzx7zLqoZxmW']: "Matthew's Desktop - lyrnwithus",
-  ['pSyrI5i05CRM18aYFLTb']: "Matthew's Desktop - admin",
-  ['2plGxurOVBeUEWL83Eno']: "Matthew's Phone",
+  // ['zWjgHSqrlS6jBvvp3hUY']: "Matthew's Desktop - personal",
+  // ['DWlhJO3Tvzx7zLqoZxmW']: "Matthew's Desktop - lyrnwithus",
+  // ['pSyrI5i05CRM18aYFLTb']: "Matthew's Desktop - admin",
+  // ['2plGxurOVBeUEWL83Eno']: "Matthew's Phone",
 
-  ['VFPhnB3DKhKbUwxkqdKA']: "Duncan's Phone",
-  ['Vho928gkqqzM9GASHoMC']: "Duncan's Safari - localhost",
-  ['yzlsMrVq9orTiT7Cud8B']: "Duncan's Safari",
-  ['lZ9h4vL72vYWcT7W4J24']: "Duncan's Ipad"
+  // ['VFPhnB3DKhKbUwxkqdKA']: "Duncan's Phone",
+  // ['Vho928gkqqzM9GASHoMC']: "Duncan's Safari - localhost",
+  // ['yzlsMrVq9orTiT7Cud8B']: "Duncan's Safari",
+  // ['lZ9h4vL72vYWcT7W4J24']: "Duncan's Ipad",
+
+  // v1
+  ['bw6dv06q3utBy518aLdw']: "Duncan's PC"
 }
 
 function initialSetup() {
@@ -174,6 +177,7 @@ async function getSourceStats() {
 
     prev.total++;
 
+    return prev;
   }, { total: 0 })
 
   for (const source in sources) {
