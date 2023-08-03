@@ -22,9 +22,9 @@ let aboutAnimations = [];
 
 function afterLoad() {
   aboutSetup();
-  createAnalyticsEvent({
-    eventID: 'load',
-  })
+  // createAnalyticsEvent({
+  //   eventID: 'load',
+  // })
   resizeQuestionnaire();
 }
 

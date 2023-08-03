@@ -19,9 +19,9 @@ appCheck.activate(
 )
 
 function initialSetup() {
-  createAnalyticsEvent({
-    eventID: 'load'
-  })
+  // createAnalyticsEvent({
+  //   eventID: 'load'
+  // })
 }
 
 

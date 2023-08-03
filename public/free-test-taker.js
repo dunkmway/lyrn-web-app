@@ -19,7 +19,7 @@ const firebaseConfig = {
   )
   
   function initialSetup() {
-    createAnalyticsEvent({
-      eventID: 'load'
-    })
+    // createAnalyticsEvent({
+    //   eventID: 'load'
+    // })
   }
