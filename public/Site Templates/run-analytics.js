@@ -19,18 +19,13 @@ function createAnalyticsEvent(data) {
 }
 
 function checkForLead() {
-    var queries = {};
-    var queryString = window.location.search.replace(/^\?/, '');
-    queryString.split(/\&/).forEach(function(keyValuePair) {
-        var paramName = keyValuePair.replace(/=.*$/, ""); // some decoding is probably necessary
-        var paramValue = keyValuePair.replace(/^[^=]*\=/, ""); // some decoding is probably necessary
-        queries[paramName] = paramValue;
-    });
+    const params = new URLSearchParams(document.location.search);
+    const source = params.get("source");
 
-    if (queries.source) {
+    if (source) {
         createAnalyticsEvent({
             eventID: 'source',
-            data: { source: queries.source }
+            data: { source }
         })
     }
 }

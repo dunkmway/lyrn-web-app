@@ -1,6 +1,8 @@
 let currentUserList = [];
 let currentListener = null;
 
+const TEST_SCORE_CUTOFF = 8;    // this is the lowest score a test can get to count it as having taken the marketing test
+
 const KNOWN_USER_IDS = {
   // ['zWjgHSqrlS6jBvvp3hUY']: "Matthew's Desktop - personal",
   // ['DWlhJO3Tvzx7zLqoZxmW']: "Matthew's Desktop - lyrnwithus",
@@ -20,6 +22,7 @@ function initialSetup() {
 
   setUserListListener();
   getSourceStats();
+  getTestTakerStats();
 
   flatpickr('#start', {
     defaultDate: 'today',
@@ -166,25 +169,91 @@ async function getSourceStats() {
   .where('eventID', '==', 'source')
   .get();
 
-  const sources = sourceQuery.docs.reduce((prev, curr) => {
-    const source = curr.data().data.source;
+  const conversionQuery = await firebase.firestore().collection('Analytics')
+  .where('eventID', '==', 'sign-up')
+  .get();
 
-    if (prev[source]) {
-      prev[source]++;
-    } else {
-      prev[source] = 1;
+  let convertedAnalytics = new Set();
+
+  conversionQuery.docs.forEach(doc => {
+    convertedAnalytics.add(doc.data().analyticsID);
+  })
+
+  const sources = sourceQuery.docs.reduce((prev, curr) => {
+    const data = curr.data();
+    const analyticsID = data.analyticsID;
+    const source = data.data.source;
+    const isConverted = convertedAnalytics.has(analyticsID);
+
+    if (!prev[source]) {
+      prev[source] = {
+        source: 0,
+        signUp: 0
+      }
     }
 
-    prev.total++;
+    prev[source].source++;
+    prev.totalSource++;
+
+    if (isConverted) {
+      prev[source].signUp++;
+      prev.totalSignUp++
+    }
 
     return prev;
-  }, { total: 0 })
+  }, {
+    totalSource: 0,
+    totalSignUp: 0
+  })
 
   for (const source in sources) {
-    if (source === 'total') continue;
+    if (source === 'totalSource') continue;
+    if (source === 'totalSignUp') continue;
 
     const item = document.createElement('li');
-    item.textContent = `${source}: ${sources[source]} out of ${sources.total}`;
+    item.textContent = `${source}: ${sources[source].source} out of ${sources.totalSource} (${sources[source].signUp} sign up)`;
     list.appendChild(item);
   }
+}
+
+async function getTestTakerStats() {
+  const list = document.querySelector('#marketing-testTaker-stats > ul');
+
+  const testQuery = await firebase.firestore().collection('ACT-Assignments')
+  .where('type', '==', 'marketing')
+  .get();
+
+  const testsPerStudent = testQuery.docs.reduce((prev, curr) => {
+    const student = curr.data().student;
+    const isGraded = curr.data().status === 'graded';
+    const score = curr.data().scaledScore;
+
+    if (!prev[student]) {
+      prev[student] = 0;
+    }
+
+    if (isGraded && score >= TEST_SCORE_CUTOFF) {
+      prev[student]++
+    }
+
+    return prev;
+
+  }, {})
+
+  let counts = {};
+  for (const student in testsPerStudent) {
+    const count = testsPerStudent[student];
+    if (counts[count]) {
+      counts[count]++
+    } else {
+      counts[count] = 1;
+    }
+  }
+
+  for (const count in counts) {
+    const item = document.createElement('li');
+    item.textContent = `${count} test taken: ${counts[count]} students`;
+    list.appendChild(item);
+  }
+
 }
