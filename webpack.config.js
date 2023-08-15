@@ -10,8 +10,8 @@ const entry = glob
 }, {})
 
 module.exports = {
-    mode: 'development',
-    devtool: 'inline-source-map',
+    // mode: 'development',
+    // devtool: 'inline-source-map',
     entry,
     output: {
         filename: '[name].js',
