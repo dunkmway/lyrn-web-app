@@ -141,7 +141,10 @@ export default class Question {
     document.querySelector('.main .panels .question').classList.add('hide');
   }
 
-  review(showCorrectAnswer = false) {
+  review(showCorrectAnswer = false, showDetails = false) {
+    const ODD_ANSWERS = ['A', 'B', 'C', 'D', 'E'];
+    const EVEN_ANSWERS = ['F', 'G', 'H', 'J', 'K'];
+
     const checkedChoiceIndex = this.assignmentTimeline.getAnswer(this.id);
     const isFlagged = this.assignmentTimeline.getFlag(this.id);
 
@@ -161,6 +164,23 @@ export default class Question {
     </div>
     `
     document.getElementById('questionExplanation').innerHTML = this.explanation ? explanationHTML : '';
+    // show the question details
+    const time = this.assignmentTimeline.getTotalTime(this.id);
+    const minutes = Math.floor((time / (1000 * 60)) % 60);
+    const seconds = Math.floor((time / 1000) % 60);
+
+    const answerList = this.assignmentTimeline.getAnswerList(this.id)
+    .map(index => (this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index])
+    .join(', ');
+
+    const wasFlagged = this.assignmentTimeline.getWasFlagged(this.id) ? 'Yes' : 'No';
+
+    const detailsHTML = `
+    <p>Total time: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
+    <p>Answer history: ${answerList}</p>
+    <p>Was Flagged: ${wasFlagged}</p>
+    `
+    document.getElementById('questionDetails').innerHTML = showDetails ? detailsHTML : ''
     //determine if the flag should be shown
     document.getElementById('questionFlag').checked = isFlagged;
     // disable the flag
@@ -175,9 +195,6 @@ export default class Question {
     // remove the old choices and add in the new ones
     const questionChoices = document.getElementById('questionChoices');
     removeAllChildNodes(questionChoices);
-
-    const ODD_ANSWERS = ['A', 'B', 'C', 'D', 'E'];
-    const EVEN_ANSWERS = ['F', 'G', 'H', 'J', 'K'];
 
     this.choices.forEach((choice, index) => {
       const choiceElem = document.createElement('div');

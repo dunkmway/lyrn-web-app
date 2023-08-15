@@ -125,7 +125,7 @@ function checkAuthorization() {
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied
-                    window.location.replace(`${location.origin}/Dashboard/${role ? (role.charAt(0).toUpperCase() + role.slice(1)) : 'Student'}`);
+                    goToRoleHomePage(role, user.uid);
                     return;
                 }
 
@@ -154,6 +154,30 @@ function checkAuthorization() {
     }
 }
 
+function goToRoleHomePage(role, uid) {
+    switch (role) {
+        case 'public':
+            window.location.replace(`${location.origin}/sign-in`);
+            break
+        case 'student':
+            window.location.replace(`${location.origin}/test-taker/${uid}`);
+            break
+        case 'parent':
+            window.location.replace(`${location.origin}/Dashboard/Parent`);
+            break
+        case 'tutor':
+            window.location.replace(`${location.origin}/Dashboard/Tutor`);
+            break
+        case 'admin':
+            window.location.replace(`${location.origin}/Dashboard/Admin`);
+            break
+        case 'dev':
+            window.location.replace(`${location.origin}/Dashboard/Dev`);
+            break
+        default:
+            window.location.replace(`${location.origin}/sign-in`);
+    }
+}
 
 async function setAuthExpirationTimers() {
     // clean up any existing timers

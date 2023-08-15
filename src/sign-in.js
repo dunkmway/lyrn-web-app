@@ -46,7 +46,17 @@ async function login() {
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
-      errorElem.textContent = errorMessage;
+      switch (error.code) {
+        case "auth/invalid-email":
+          errorElem.textContent = 'Invalid email';
+          break;
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+          errorElem.textContent = 'Cannot find account or wrong password.';
+          break;
+        default:
+          errorElem.textContent = 'An error has occured. Pleas try again.'
+      }
       errorElem.style.display = 'block';
       if (errorCode != "auth/invalid-email" && errorCode != "auth/wrong-password" && errorCode != "auth/user-not-found") {
         console.error(error);

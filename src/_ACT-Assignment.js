@@ -14,7 +14,6 @@ import { showAssignments } from "./test-taker";
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const STAFF_ROLES = ['dev', 'admin', 'tutor'];
 
 
 export default class Assignment {
@@ -587,7 +586,7 @@ export default class Assignment {
     // show the new question
     this.currentQuestion = flatSortedQuestionList[index];
     // this.currentQuestion.review(this.isStaff);
-    this.currentQuestion.review(true);
+    this.currentQuestion.review(true, this.isStaff);
     if (this.currentQuestion.passage) {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }

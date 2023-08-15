@@ -58,4 +58,34 @@ export default class Timeline {
     }
     return false;
   }
+
+  getTotalTime(questionID) {
+    let totalTime = 0;
+
+    let previousTime = null;
+    for (let i = 0; i < this.timeline.length; i++) {
+      // find the edges of the question
+      if (this.timeline[i].question === questionID && previousTime === null) {
+        previousTime = this.timeline[i].time.toDate().getTime();
+      }
+      if (this.timeline[i].question !== questionID && previousTime !== null) {
+        totalTime += this.timeline[i].time.toDate().getTime() - previousTime;
+        previousTime = null;
+      }
+    }
+
+    return totalTime;
+  }
+
+  getAnswerList(questionID) {
+    return this.timeline
+    .filter(event => {
+      return event.question === questionID && event.type === 'answer';
+    })
+    .map(event => event.data);
+  }
+
+  getWasFlagged(questionID) {
+    return this.timeline.some(event => event.question === questionID && event.type === 'flag')
+  }
 }

@@ -1,1 +1,0 @@
-firebase.auth().onAuthStateChanged((async a=>{a&&window.location.replace(location.origin+`/test-taker/${a.uid}`)}));

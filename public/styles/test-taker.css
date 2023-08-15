@@ -1025,6 +1025,17 @@ section.hide {
   color: var(--accent-color);
 }
 
+#questionDetails:not(:empty) {
+  border: 2px solid var(--accent-color);
+  padding: 0.5em;
+  border-radius: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+#questionDetails > * {
+  margin: 0;
+}
+
 #answerToggleInput {
   visibility: hidden;
   position: absolute;
