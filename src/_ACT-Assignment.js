@@ -10,7 +10,7 @@ import Dialog from "./_Dialog";
 import Timer from "./_Timer";
 import Time from "./_Time";
 
-import { showAssignments } from "./test-taker";
+import { showAssignments, assigned_questions } from "./test-taker";
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -160,8 +160,8 @@ export default class Assignment {
         this.statusIndicator.classList.remove('spinner');
         if (this.isStaff) {
           this.statusIndicator.textContent =
-          (this.open ? new Time(this.open.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '')
-          + ' — ' +
+          (this.open ? new Time(this.open.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '') +
+          (this.open || this.close ? ' — ' : '') +
           (this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '');
         } else {
           this.statusIndicator.textContent = this.close ? new Time(this.close.toDate().getTime()).toFormat('{EEE} {M}/{d}/{yy}, {hh}:{mm} {a}') : '';

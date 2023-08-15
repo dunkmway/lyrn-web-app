@@ -9,7 +9,7 @@ import { TUTORIAL_ASSIGNMENTS, TUTORIAL_STEPS, TUTORIAL_STEPS_PHONE } from "./_t
 import Dialog from "./_Dialog";
 import { requestSignOut } from "./_authorization";
 
-export { showAssignments };
+export { showAssignments, assigned_questions };
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -432,7 +432,7 @@ function showAssignments() {
   }
 
   // sort each appropriately 
-  startedAssignments.sort((a,b) => (a.startedAt.toDate().getTime() + (a.time ?? Infinity)) - (b.startedAt.toDate().getTime() + (b.time ?? Infinity)));
+  startedAssignments.sort((a,b) => (a.startedAt?.toDate().getTime() + (a.time ?? Infinity)) - (b.startedAt?.toDate().getTime() + (b.time ?? Infinity)));
   newAssignments.sort((a,b) => (a.close?.toDate().getTime() ?? 0) - (b.close?.toDate().getTime() ?? 0) || (a.open?.toDate().getTime() ?? 0) - (b.open?.toDate().getTime() ?? 0));
   previousAssignments.sort((a,b) => (b.submittedAt?.toDate().getTime() ?? b.close?.toDate().getTime() ?? 0) - (a.submittedAt?.toDate().getTime() ?? a.close?.toDate().getTime() ?? 0));
 

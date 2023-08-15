@@ -166,7 +166,7 @@ export default class Question {
     document.getElementById('questionExplanation').innerHTML = this.explanation ? explanationHTML : '';
     // show the question details
     const time = this.assignmentTimeline.getTotalTime(this.id);
-    const minutes = Math.floor((time / (1000 * 60)) % 60);
+    const minutes = Math.floor(time / (1000 * 60));
     const seconds = Math.floor((time / 1000) % 60);
 
     const answerList = this.assignmentTimeline.getAnswerList(this.id)
