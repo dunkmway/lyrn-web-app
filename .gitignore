@@ -66,9 +66,7 @@ node_modules/
 .env
 
 # build
-public/scripts/
+public/scripts
 
-notes.txt
 .DS_Store
-my_notes
 .vscode
