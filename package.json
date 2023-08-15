@@ -1,8 +1,21 @@
 {
-  "dependencies": {
-    "firebase": "^9.0.1"
+  "name": "lyrn_web_app_clean",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "emulator": "firebase emulators:start --only hosting"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "firebase-tools": "^10.0.1"
+    "firebase-tools": "^12.4.7",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "firebase": "^10.1.0"
   }
 }

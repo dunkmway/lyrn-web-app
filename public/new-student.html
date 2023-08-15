@@ -16,51 +16,23 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 
-    <link href="new-student.css" rel="stylesheet">
-    <link href="Site Templates/site-wide.css" rel="stylesheet">
+    <link href="/styles/new-student.css" rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-
-    <script src="Site Templates/site-wide.js"></script>
-    <script src="Site Templates/formatting.js" defer></script>
-    <script src="Site Templates/generalFunctions.js" defer></script>
-    <script src="new-student.js" defer></script>
+    <script src="/scripts/new-student.js"></script>
   </head>
 
 
-  <body onload="initialSetup()">
+  <body>
     <h1 id="title">Student</h1>
     <div id="pageLoading"></div>
-    <label for="location">Location</label>
-    <div class="loading-wrapper">
-      <select name="location" id="location" onchange="locationCallback(this)" required>
-        <option value="" disabled selected>select a location</option>
-      </select>
-    </div>
     <label for="firstName">First Name</label>
     <input type="text" name="firstName" id="firstName" required>
     <label for="lastName">Last Name</label>
     <input type="text" name="lastName" id="lastName" required>
     <label for="email">Email</label>
-    <input type="email" name="email" id="email">
+    <input type="email" name="email" id="email" required>
     <label for="phoneNumber">Phone Number</label>
     <input type="tel" name="phoneNumber" id="phoneNumber">
-    <label for="parents">Parent</label>
-    <div class="loading-wrapper">
-      <select name="parents" id="parents" class="ui dropdown search" multiple>
-        <option value="" disabled selected>select a parent</option>
-      </select>
-    </div>
-    <label for="blacklistTutors">Blacklisted Tutors</label>
-    <div class="loading-wrapper">
-      <select name="blacklistTutors" id="blacklistTutors" class="ui dropdown search" multiple>
-        <option value="" disabled selected>select a tutor</option>
-      </select>
-    </div>
     <p class="error">error message</p>
     <button id="action"><div class="loading-wrapper loading">Loading</div></button>
   </body>

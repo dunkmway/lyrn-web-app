@@ -13,8 +13,8 @@
         "destination": "/test-taker.html"
       },
       {
-        "source": "/customer-dashboard/**",
-        "destination": "/customer-dashboard.html"
+        "source": "/student-overview/**",
+        "destination": "/student-overview.html"
       }
     ],
 
@@ -23,13 +23,6 @@
   },
   "functions": {
     "source": "functions"
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
   },
   "emulators": {
     "functions": {

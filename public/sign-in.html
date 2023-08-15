@@ -4,17 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign In</title>
-
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-    <script src="Site Templates/site-wide.js"></script>
-    <script src="sign-in.js" defer></script>
-
-    <script src="Dialog.js"></script>
-
-    <link href="sign-in.css" rel="stylesheet">
+    <link href="styles/sign-in.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+
+    <script src="scripts/sign-in.js"></script>
   </head>
 
   <body>
@@ -42,7 +35,7 @@
             <input type="email" name="email" id="email" required>
             <div class="password-label">
               <label for="password">Password</label>
-              <label class="forgot" onclick="forgotPassword()">Forgot your password?</label>
+              <label class="forgot">Forgot your password?</label>
             </div>
             <input type="password" name="password" id="password" required>
             <input type="submit" value="Continue">

@@ -4,67 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dev Dash</title>
-    <link href="Dev.css" rel="stylesheet">
-    <link href="../Site Templates/site-wide.css" rel="stylesheet">
+    <link href="../styles/Dev.css" rel="stylesheet">
 
     <!-- datatable requirments -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
 
-    <!-- firebase requirements -->
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-
-    <script src="../Site Templates/generalFunctions.js"></script>
-    <script src="../Site Templates/site-wide.js"></script>
-    <script src="Dev.js"></script>
-    <script src="../Dialog.js"></script>
-    <script src="../Time.js"></script>
-
+    <script src="../scripts/Dev.js"></script>
   </head>
 
   <body>
-
-    <section id="add-location-section" class="add-user-section">
-      <div id="add-location-div" class="registration-block">
-        <div class="heading-block">
-          <h2>Add Location</h2>
-        </div>
-        <div id="form-scroll-block">
-          <div id="spinnyBoiLocation" class="loader"></div>
-          <form onsubmit="() => {return false}">
-            <div class="input-row">
-              <div class="input-block">
-                  <label for="locationName" class="label">Location</label>
-                  <input id="locationName" class="input" required>
-              </div>
-            </div>
-
-            <div class="input-row">
-              <button type = button class="button" onclick="closeModal('location')">back</button> 
-              <button type = button class="button" onclick="createLocation()">submit</button>
-            </div>
-
-            <div class="input-row">
-              <p id="locationErrMsg"></p>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
     <div class="flex-row justify-space-between" style="margin: 20px;">
       <button class="button" onclick="window.location.href='Admin.html'">Go to Admin</button>
       <button class="button" onclick="window.location.href='Tutor.html'">Go to Tutor</button>
-      <button class="button" onclick="window.location.href='../calendar.html'">Calendar Testing</button>
-      <button class="button" onclick="openModal('location')">Add Location</button>
       <button class = "button" onclick = "window.location.href ='../testEditor.html'">Test Editor</button>
       <button class = "button" onclick = "window.location.href ='../analytics.html'">Analytics</button>
-      <button class="button" onclick="signOut()">Sign Out</button>
+      <button id="signOut" class="button">Sign Out</button>
     </div>
 
     <div>

@@ -1,0 +1,142 @@
+:root {
+  --primary-background: #F6F7F9;
+  --secondary-background: white;
+  --accent-background: #111a43;
+  --action-background: #27c03a;
+
+  --light-accent-background: #99a6e5 ;
+  --light-action-background: #95e99f ;
+
+  --light-color: white;
+  --medium-color: #F6F7F9;
+  /* --dark-color: #111a43; */
+  --dark-color: black;
+
+  --red: #EA5A59;
+  --yellow: #F5B233;
+  --green: #64C13D;
+  --blue: #54C6FB;
+  --purple: #8786FC;
+
+  --english-color: var(--red);
+  --math-color: var(--blue);
+  --reading-color: var(--purple);
+  --science-color: var(--green);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: currentColor;
+  display: block;
+  text-decoration: none;
+  padding: .5em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-size: 1rem;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  width: 100vw;
+  margin: 0;
+  background-color: var(--primary-background);
+  color: var(--dark-color);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  width: 100vw;
+  height: 100vh;
+}
+
+nav {
+  grid-column: 1 / 2;
+  background-color: var(--accent-background);
+  padding: 1em;
+  color: var(--light-color);
+}
+
+.logo {
+  fill: var(--light-color);
+  height: 2em;
+  box-sizing: content-box;
+}
+
+nav .logo {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--primary-background);
+}
+
+nav a {
+  margin-bottom: .5em;
+}
+
+main {
+  padding: 1em;
+  height: 100%;
+  overflow-y: auto;
+}
+
+main header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--accent-background);
+}
+
+main header h1,
+main header h2 {
+  margin: 0;
+  padding: 0;
+}
+
+main header h1 {
+  font-size: 1.75em;
+}
+
+main header h2 {
+  font-size: 1em;
+}
+
+.positive {
+  color: var(--green);
+}
+
+.zero {
+  color: currentColor;
+}
+
+.negative {
+  color: var(--red);
+}
+
+main .content {
+  padding: 2em;
+  width: 100%;
+  gap: 1em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+main .content > .block {
+  border-radius: 1em;
+  box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.1);
+  padding: 1em;
+}
+
+main .content > .block > .header {
+  width: 100%;
+  border-bottom: 1px solid var(--accent-background);
+}
+
+main .content > .block > .header .title {
+  margin: 0;
+}
