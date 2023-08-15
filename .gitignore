@@ -65,6 +65,9 @@ node_modules/
 # dotenv environment variables file
 .env
 
+# build
+public/scripts/
+
 notes.txt
 .DS_Store
 my_notes
