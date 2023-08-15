@@ -16,31 +16,14 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 
-    <link href="new-parent.css" rel="stylesheet">
-    <link href="Site Templates/site-wide.css" rel="stylesheet">
-
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-
-    <script src="Site Templates/site-wide.js"></script>
-    <script src="Site Templates/formatting.js" defer></script>
-    <script src="Site Templates/generalFunctions.js" defer></script>
-    <script src="new-parent.js" defer></script>
+    <link href="/styles/new-parent.css" rel="stylesheet">
+    <script src="/scripts/new-parent.js"></script>
   </head>
 
 
-  <body onload="initialSetup()">
+  <body>
     <h1 id="title">Parent</h1>
     <div id="pageLoading"></div>
-    <label for="location">Location</label>
-    <div class="loading-wrapper">
-      <select name="location" id="location" required>
-        <option value="" disabled selected>select a location</option>
-      </select>
-    </div>
     <label for="firstName">First Name</label>
     <input type="text" name="firstName" id="firstName" required>
     <label for="lastName">Last Name</label>

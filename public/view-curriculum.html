@@ -5,30 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Curriculum</title>
 
-    <link href="view-curriculum.css" rel="stylesheet">
-    <link href="Site Templates/site-wide.css" rel="stylesheet">
+    <link href="/styles/view-curriculum.css" rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-
-    <script src="Site Templates/site-wide.js"></script>
-    <script src="Site Templates/generalFunctions.js"></script>
-    <script src="view-curriculum.js" defer></script>
+    <script src="/scripts/view-curriculum.js"></script>
   </head>
 
   <body>
     <h1>Curriculum</h1>
-    <select name="sections" id="sections" onchange="sectionSelectedCallback(event)">
+    <select name="sections" id="sections">
       <option value="" disabled selected>select a section</option>
       <option value="english">English</option>
       <option value="math">Math</option>
       <option value="reading">Reading</option>
       <option value="science">Science</option>
     </select>
-    <select name="topics" id="topics" onchange="topicSelectedCallback(event)"></select>
+    <select name="topics" id="topics"></select>
 
     <div id="curriculum-content"></div>
 

@@ -1,0 +1,101 @@
+:root {
+  --nav-background: white;
+  --nav-color: black;
+
+  --color-primary: #ffffff;
+  --color-secondary: #E6E7E8;
+  --color-tertiary: #101b42;
+
+  --yellow-deep: #ffb102;
+  --green-deep: #27c13a;
+  --blue-deep: #19a7c8;
+  --purple-deep: #6b6be5;
+  --red-deep: #ef6b6b;
+
+  --yellow-light: #ffca02;
+  --green-light: #3cdd58;
+  --blue-light: #02c6ff;
+  --purple-light: #8787ff;
+  --red-light: #ea5a5a;
+
+  --yellow-very-light: #FFF4CC;
+  --green-very-light: #CCFFD5;
+  --blue-very-light: #CCF4FF;
+  --purple-very-light: #CCCCFF;
+  --red-very-light: #FFCCCC;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  font-family: "proxima-nova", sans-serif;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-weight: 200;
+  margin: 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+button {
+  padding: 0.5em 1em;
+  border: none;
+  background-color: var(--green-deep);
+  color: white;
+  border-radius: 0.5em;
+  font-size: 1rem;
+  font-weight: 500;
+  height: fit-content;
+  cursor: pointer;
+}
+
+section {
+  padding: 2em;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4em;
+}
+
+.header > * {
+  margin: 0;
+}
+
+#latestControls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+#latestControls > button.hidden {
+  visibility: hidden;
+}
+
+#latestUsers {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+#latestUsers > * {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid #ced0d3;
+}
+
+#latestUsers > *.grid-header {
+  font-weight: 700;
+}
+
+/* get the second column */
+#latestUsers > *:nth-child(2n) {
+  text-align: right;
+}
