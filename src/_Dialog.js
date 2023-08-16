@@ -304,7 +304,7 @@ export default class Dialog {
       message,
       choices: ['Close'],
       values: [null],
-      width: 'auto',
+      width: '400px',
       ...options
     }).show();
   }

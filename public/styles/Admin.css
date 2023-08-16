@@ -64,11 +64,19 @@ section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 4em;
+  flex-wrap: wrap-reverse;
 }
 
 .header > * {
   margin: 0;
+}
+
+.header > button {
+  margin-left: auto;
+}
+
+.buttons > button {
+  margin-bottom: 0.5em;
 }
 
 #latestControls {
