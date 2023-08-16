@@ -1,5 +1,5 @@
 import app from "./_firebase";
-import { getAuth, onAuthStateChanged, getIdTokenResult, signOut } from "firebase/auth";
+import { getAuth, onAuthStateChanged, getIdTokenResult, signOut, confirmPasswordReset } from "firebase/auth";
 
 import Dialog from "./_Dialog";
 import Timer from "./_Timer";
@@ -21,10 +21,6 @@ let auth_warning_timer;
 // auth dialog
 let auth_warning_dialog;
 
-window.addEventListener('storage', (e) => {
-    if (e.key !== 'authExpiration') return;
-    setAuthExpirationTimers();
-});
 window.addEventListener('DOMContentLoaded', checkAuthorization)
 
 let allowedPages = {
@@ -106,11 +102,20 @@ function checkAuthorization() {
             let currentPath = location.pathname;
             if (user) {
                 // make sure the authExpiration hasn't passed
-                if (!localStorage.getItem('authExpiration') || parseInt(localStorage.getItem('authExpiration')) < new Date().getTime()) {
+                if (localStorage.getItem('authExpiration') && parseInt(localStorage.getItem('authExpiration')) < new Date().getTime()) {
+                    // remove the expiration
+                    localStorage.removeItem('authExpiration');
+                    setAuthExpirationTimers();
                     // sign out the user
                     requestSignOut(true);
                     return;
                 }
+
+                // reset the authExpiration
+                localStorage.setItem('authExpiration', (new Date().getTime() + AUTH_EXPIRATION).toString());
+                setAuthExpirationTimers();
+
+                // get the role
                 const idTokenResult = await getIdTokenResult(user);
                 const role = idTokenResult.claims.role;
 
@@ -128,10 +133,6 @@ function checkAuthorization() {
                     goToRoleHomePage(role, user.uid);
                     return;
                 }
-
-                // reset the authExpiration
-                localStorage.setItem('authExpiration', (new Date().getTime() + AUTH_EXPIRATION).toString());
-                setAuthExpirationTimers();
             }
             else {
                 const role = 'public';
@@ -193,6 +194,8 @@ async function setAuthExpirationTimers() {
 
     // set up the new timers
     const currentExpiration = localStorage.getItem('authExpiration') && parseInt(localStorage.getItem('authExpiration'));
+    if (!currentExpiration) return;
+
     auth_expiration_timer = new Timer(
         new Date(currentExpiration),
         () => {
@@ -226,7 +229,7 @@ async function setAuthExpirationTimers() {
             }
             else if (answer === false) {
                 auth_warning_dialog.hide();
-                localStorage.setItem('authExpiration', (new Date().getTime() + AUTH_EXPIRATION).toString());
+                localStorage.removeItem('authExpiration');
                 setAuthExpirationTimers();
                 requestSignOut();
             }
