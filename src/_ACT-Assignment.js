@@ -1,5 +1,5 @@
 import app from "./_firebase";
-import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, updateDoc, where } from "firebase/firestore"
+import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, updateDoc, where, onSnapshot } from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 
 import Question from "./_ACT-Question";
@@ -63,6 +63,8 @@ export default class Assignment {
     // state
     this.isStarted = false;
     this.isInReview = false;
+    this.isWatching = false;
+    this.watchListener = null;
     this.currentQuestion = null;
   }
 
@@ -223,6 +225,51 @@ export default class Assignment {
   }
 
   async assignmentClicked() {
+    const assignmentStartMessage = {
+      english: `
+      <p>You are about to take an english assignment. 
+      ${this.time ? 
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `You have an unlimted amount of time to take this assignment. `  
+      }
+      Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
+      </p>
+      <p><b>Are you sure you are ready to begin this assignment?</b></p>
+      `,
+      math: `
+      <p>You are about to take a math assignment. 
+      You are encouraged to use a calculator and have scratch paper available.
+      ${this.time ? 
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `You have an unlimted amount of time to take this assignment. `  
+      }
+      Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
+      </p>
+      <p><b>Are you sure you are ready to begin this assignment?</b></p>
+      `,
+      reading: `
+      <p>You are about to take a reading assignment. 
+      ${this.time ? 
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `You have an unlimted amount of time to take this assignment. `  
+      }
+      Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
+      </p>
+      <p><b>Are you sure you are ready to begin this assignment?</b></p>
+      `,
+      science: `
+      <p>You are about to take a science assignment. 
+      You may <b>NOT</b> use a calculator.
+      ${this.time ? 
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `You have an unlimited amount of time to take this assignment. `  
+      }
+      Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
+      </p>
+      <p><b>Are you sure you are ready to begin this assignment?</b></p>
+      `
+    };
+
     switch (this.status) {
       case 'new':
         // if a staff member is starting someone else's assignment
@@ -230,7 +277,9 @@ export default class Assignment {
         if (this.student != auth.currentUser.uid) {
           Dialog.alert('You may not start this assignment as a tutor.')
         } else {
-          const confirmation = await Dialog.confirm(`Are you sure you are ready to start this ${this.sectionCode} assignment?`)
+          const message = document.createElement('div');
+          message.innerHTML = assignmentStartMessage[this.sectionCode];
+          const confirmation = await Dialog.confirm(message, { width: '600px', choices: ['Cancel', 'Start'] });
           if (confirmation) {
             this.start();
           }
@@ -302,16 +351,7 @@ export default class Assignment {
 
     // close the selector
     document.querySelector('.main .panels .selector').classList.remove('open')
-
-    // now move into the main section
-    changeSection('main');
-    changeAccentColor(this.sectionCode);
-    changePassageColumns(this.sectionCode);
-    document.getElementById('previousBtn').classList.add('hide');
-
-    // show the first question
-    await this.startQuestion(0);
-
+    
     // scroll selector to top
     document.querySelector('.main .panels .selector-scroll').scrollTo(0,0);
 
@@ -323,13 +363,55 @@ export default class Assignment {
       })
     }
 
+    // if someone else is viewing the test taker then it must be a tutor
+    // if the assignment has already been started (tutors cannot start assignments)
+    // then we want to watch the student, not take the test
+    if (this.student != auth.currentUser.uid && this.status === 'started') {
+      // begin watch
+      this.watch();
+    } else {
+      // show the first question
+      await this.startQuestion(0);
+    }
+
+
+    // now move into the main section
+    changeSection('main');
+    changeAccentColor(this.sectionCode);
+    changePassageColumns(this.sectionCode);
+    document.getElementById('previousBtn').classList.add('hide');
+
     // remove loading
     document.querySelector('.landing .loading').classList.remove('active');
+  }
+
+  watch() {
+    // setup the time / submit button
+    if (this.submitTimeout) {
+      // if there is a submit timeout show the time
+      document.getElementById('assignmentTime').classList.remove('hide');
+      this.submitTimeout.attach(document.getElementById('assignmentTime'));
+    }
+    // and hide the submit button
+    document.getElementById('assignmentSubmit').classList.add('hide');
+
+    // start the listener
+    this.watchListener = onSnapshot(doc(db, 'ACT-Assignment-Timelines', this.timeline.id), doc => {
+      // load the timeline directly
+      this.timeline.timeline = doc.data().timeline;
+
+      // watch the new question
+      const currentQuestionID = this.timeline.timeline[this.timeline.timeline.length - 1].question;
+      const currentQuestion = this.questionObjects.find(question => question.id == currentQuestionID)
+
+      this.watchQuestion(currentQuestion.pos);
+    })
   }
 
   end() {
     this.isStarted = false;
     this.isInReview = false;
+    this.isWatching = false;
 
     changeSection('landing');
     changeAccentColor('default');
@@ -345,6 +427,7 @@ export default class Assignment {
     this.questionObjects = null;
     this.sortedQuestionsByTopic = null;
     this.timeline = null;
+    this.watchListener();
 
     // clean up the selector
     removeAllChildNodes(document.getElementById('selectorContainer'));
@@ -454,6 +537,47 @@ export default class Assignment {
     }
   }
 
+  async watchQuestion(index, scrollSelector = false) {
+    if (index > this.questionObjects.length - 1) {
+      index = this.questionObjects.length - 1
+    }
+    if (index < 0) {
+      index = 0;
+    }
+
+    // handle the next and previous buttons
+    const nextBtn = document.getElementById('nextBtn');
+    const previousBtn = document.getElementById('previousBtn');
+    
+    nextBtn.classList.add('hide');
+    previousBtn.classList.add('hide');
+
+    // hide the old question
+    if (this.currentQuestion) {
+      this.currentQuestion.hide();
+      if (this.currentQuestion.passage) {
+        this.currentQuestion.passage.hide();
+      }
+    }
+
+    // show the new question
+    this.currentQuestion = this.questionObjects[index];
+    this.currentQuestion.show();
+    if (this.currentQuestion.passage) {
+      this.currentQuestion.passage.show(this.currentQuestion.code);
+    }
+
+    if (scrollSelector) {
+      // scroll the selector
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
+
+    resetMathJax();
+  }
+
   async review() {
     // show loading
     document.querySelector('.landing .loading').classList.add('active');
@@ -534,14 +658,14 @@ export default class Assignment {
     // close the selector
     document.querySelector('.main .panels .selector').classList.remove('open')
 
+    // show the first question
+    await this.reviewQuestion(0);
+
     // now move into the main section
     changeSection('main');
     changeAccentColor(this.sectionCode);
     changePassageColumns(this.sectionCode);
     document.getElementById('previousBtn').classList.add('hide');
-
-    // show the first question
-    await this.reviewQuestion(0);
 
     // remove loading
     document.querySelector('.landing .loading').classList.remove('active');
