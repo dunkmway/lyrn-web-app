@@ -44,6 +44,8 @@ window.questionFlagChangeCallback = questionFlagChangeCallback;
 window.previousQuestionCallback = previousQuestionCallback;
 window.nextQuestionCallback = nextQuestionCallback;
 
+window.getCurrentAssignment = getCurrentAssignment;
+
 
 HTMLElement.prototype.textNodes = function() {
   return [...this.childNodes].filter((node) => {
@@ -378,7 +380,7 @@ function initializeAssignmentsSnapshot(student) {
         updatedAssignment.update(change.doc.data());
       }
       if (change.type === "removed") {
-        // if the assignment is started end it
+        // if the assignment is started, end it
         const index = assignments.findIndex(assignment => assignment.id === change.doc.id);
         if (assignments[index].isStarted) {
           assignments[index].end();
@@ -603,7 +605,7 @@ async function submitCurrentAssignment() {
 }
 
 function getCurrentAssignment() {
-  return assignments.find(assignment => assignment.isStarted || assignment.isInReview);
+  return assignments.find(assignment => assignment.isStarted || assignment.isInReview || assignment.isWatching);
 }
 
 function renderBanner(message) {

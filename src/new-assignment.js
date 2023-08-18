@@ -83,7 +83,7 @@ async function initialSetup() {
         document.getElementById('nameSearch').value = student;
       }
     })
-    await getAssignments(student);
+    getAssignments(student);
   }
   else {
     const nameSearchInput = debounce(() => queryUsers(), 500);
@@ -641,20 +641,16 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
   // make sure we have enough questions in all topics to actually generate this assignment
   const totalQuestions = Object.keys(questionsByTopics).reduce((prev, curr) => prev + questionsByTopics[curr].flat().length, 0);
   if (totalQuestions < count) {
-    customConfirm(
-      `
-        <p>There are not enough questions to generate this assignment.</p>
-        <p>Below are the number of question available for each topic.</p>
-        ${(await Promise.all(Object.keys(questionsByTopics).map(async (topic) => {
-          return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic))).data().code}: ${questionsByTopics[topic].flat().length}</p>`
-        }))).join('')}
-        <p>Total: ${totalQuestions}</p>
-      `,
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    const message = document.createElement('div');
+    message.innerHTML = `
+    <p>There are not enough questions to generate this assignment.</p>
+    <p>Below are the number of question available for each topic.</p>
+    ${(await Promise.all(Object.keys(questionsByTopics).map(async (topic) => {
+      return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic))).data().code}: ${questionsByTopics[topic].flat().length}</p>`
+    }))).join('')}
+    <p>Total: ${totalQuestions}</p>
+    `
+    Dialog.alert(message);
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;
@@ -784,20 +780,16 @@ async function submitDynamicAssignment(student, sectionCode, topics, topicPropor
   // make sure we have enough questions in all topics to actually generate this assignment
   const totalQuestions = Object.keys(questionsByTopics).reduce((prev, curr) => prev + questionsByTopics[curr].flat().length, 0);
   if (totalQuestions < 1) {
-    customConfirm(
-      `
-        <p>There are not enough questions to generate this assignment.</p>
-        <p>Below are the number of question available for each topic.</p>
-        ${(await Promise.all(Object.keys(questionsByTopics).map(async (topic) => {
-          return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic))).data().code}: ${questionsByTopics[topic].flat().length}</p>`
-        }))).join('')}
-        <p>Total: ${totalQuestions}</p>
-      `,
-      '',
-      'OK',
-      () => {},
-      () => {}
-    );
+    const message = document.createElement('div');
+    message.innerHTML = `
+    <p>There are not enough questions to generate this assignment.</p>
+    <p>Below are the number of question available for each topic.</p>
+    ${(await Promise.all(Object.keys(questionsByTopics).map(async (topic) => {
+      return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic))).data().code}: ${questionsByTopics[topic].flat().length}</p>`
+    }))).join('')}
+    <p>Total: ${totalQuestions}</p>
+    `
+    Dialog.alert(message);
 
     document.querySelectorAll('button').forEach(button => button.disabled = false);
     return;

@@ -137,6 +137,8 @@ export default class Question {
     document.getElementById('answerToggleInput').checked = false;
     // remove the explanation
     removeAllChildNodes(document.getElementById('questionExplanation'));
+    // remove the details
+    removeAllChildNodes(document.getElementById('questionDetails'));
 
     document.querySelector('.main .panels .question').classList.add('hide');
   }

@@ -76,6 +76,66 @@ export default class Assignment {
 
     // reset the timers
     this.resetTimers();
+
+    // we need to re-render some of the view if we are currently in the main section
+    if (this.isStarted || this.isInReview || this.isWatching) {
+      // first check if we need to force a submit
+      if (this.status === 'submitted') {
+        this.end();
+        return;
+      }
+
+      // re-load the questions
+      // construct the question objects
+      this.questionObjects = this.questions.map((id, index) => {
+        // try to see if we already have this question
+        const foundQuestion = this.questionObjects.find(question => question.id === id);
+        if (foundQuestion) {
+          // if so return it
+          return foundQuestion;
+        } else {
+          // create a new question
+          return new Question(id, index, this.student, this.timeline);
+        }
+      });
+
+      // load any question that needs to
+      Promise.allSettled(this.questionObjects.map(question => {
+        if (!question.isLoaded) {
+          return question.load()
+        }
+        return;
+      }))
+  
+      // re-render the selector
+      // clean up the selector
+      removeAllChildNodes(document.getElementById('selectorContainer'));
+      // setup the selectors
+      this.questionObjects.forEach(question => {
+        // setup the selector
+        if (this.isStarted) {
+          question.setupSelector(() => this.startQuestion(question.pos));
+        } else if (this.isInReview) {
+          question.setupSelector(() => this.reviewQuestion(question.pos));
+        } else if (this.isWatching) {
+          question.setupSelector(() => this.watchQuestion(question.pos));
+        }
+        // render the selector
+        question.renderSelector();
+      })
+      // select the current question in the selector
+      this.currentQuestion.selectorInput.checked = true;
+
+      // restart the current question
+      if (this.isStarted) {
+        this.startQuestion(this.currentQuestion.pos, true);
+      } else if (this.isInReview) {
+        this.reviewQuestion(this.currentQuestion.pos, true);
+      } else if (this.isWatching) {
+        this.watchQuestion(this.currentQuestion.pos, true);
+      }
+    }
+
   }
 
   resetTimers() {
@@ -386,14 +446,8 @@ export default class Assignment {
   }
 
   watch() {
-    // setup the time / submit button
-    if (this.submitTimeout) {
-      // if there is a submit timeout show the time
-      document.getElementById('assignmentTime').classList.remove('hide');
-      this.submitTimeout.attach(document.getElementById('assignmentTime'));
-    }
-    // and hide the submit button
-    document.getElementById('assignmentSubmit').classList.add('hide');
+    // change the state
+    this.isWatching = true;
 
     // start the listener
     this.watchListener = onSnapshot(doc(db, 'ACT-Assignment-Timelines', this.timeline.id), doc => {
@@ -404,7 +458,7 @@ export default class Assignment {
       const currentQuestionID = this.timeline.timeline[this.timeline.timeline.length - 1].question;
       const currentQuestion = this.questionObjects.find(question => question.id == currentQuestionID)
 
-      this.watchQuestion(currentQuestion.pos);
+      this.watchQuestion(currentQuestion.pos, true);
     })
   }
 
@@ -427,7 +481,9 @@ export default class Assignment {
     this.questionObjects = null;
     this.sortedQuestionsByTopic = null;
     this.timeline = null;
-    this.watchListener();
+    if (this.watchListener) {
+      this.watchListener();
+    }
 
     // clean up the selector
     removeAllChildNodes(document.getElementById('selectorContainer'));
@@ -470,6 +526,14 @@ export default class Assignment {
       previousBtn.classList.remove('hide');
     }
 
+    // scroll the selector to the new question
+    if (scrollSelector) {
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.questionObjects[index].selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
+
     // if the question that is being started was the same as the current question
     // stop here because the rest should only be run the first time the question is loaded in a row
     // this handles the re starting after we load dynamic questions
@@ -490,14 +554,6 @@ export default class Assignment {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }
 
-    if (scrollSelector) {
-      // scroll the selector
-      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
-      const containerHeight = selectorScorollContainer.clientHeight;
-      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
-      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
-    }
-
     resetMathJax();
 
     // only update to started if started by the actual user
@@ -510,26 +566,9 @@ export default class Assignment {
     // tutors should not generate more questions
     if ((index == this.questionObjects.length - 1) && this.topicProportions && this.student == auth.currentUser.uid) {
       const newQuestions = await getNewDynamicQuestions_helper(this.topicProportions, this.questionObjects);
-      if (newQuestions && newQuestions.length != 0) {
-        // add the new question to the question objects
-        await Promise.all(newQuestions.map(async (id, sumIndex) => {
-          const newQuestion = new Question(id, index + sumIndex + 1, this.student, this.timeline);
-
-          // setup the selector
-          newQuestion.setupSelector(() => this.startQuestion(newQuestion.pos));
-          // render the selector
-          newQuestion.renderSelector();
-          // add it to the question objects
-          this.questionObjects.push(newQuestion);
-
-          // load the new question
-          await newQuestion.load();
-        }));
-
-        // start this question again to update the view
-        this.startQuestion(index)
-        
+      if (newQuestions && newQuestions.length != 0) {        
         // save this new question to the assignment
+        // this will trigger an update which will update the questions objects and the selector
         updateDoc(this.ref, {
           questions: this.questions.concat(newQuestions)
         })
@@ -547,10 +586,27 @@ export default class Assignment {
 
     // handle the next and previous buttons
     const nextBtn = document.getElementById('nextBtn');
-    const previousBtn = document.getElementById('previousBtn');
-    
-    nextBtn.classList.add('hide');
-    previousBtn.classList.add('hide');
+    const previousBtn = document.getElementById('previousBtn')
+
+    if (index === this.questionObjects.length - 1) {
+      nextBtn.classList.add('hide');
+    } else {
+      nextBtn.classList.remove('hide');
+    }
+
+    if (index === 0) {
+      previousBtn.classList.add('hide');
+    } else {
+      previousBtn.classList.remove('hide');
+    }
+
+    // scroll the selector to the new question
+    if (scrollSelector) {
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.questionObjects[index].selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
 
     // hide the old question
     if (this.currentQuestion) {
@@ -567,13 +623,18 @@ export default class Assignment {
       this.currentQuestion.passage.show(this.currentQuestion.code);
     }
 
-    if (scrollSelector) {
-      // scroll the selector
-      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
-      const containerHeight = selectorScorollContainer.clientHeight;
-      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
-      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
-    }
+    // re-render the selector
+      // clean up the selector
+      removeAllChildNodes(document.getElementById('selectorContainer'));
+      // setup the selectors
+      this.questionObjects.forEach(question => {
+        // setup the selector
+        question.setupSelector(() => this.watchQuestion(question.pos));
+        // render the selector
+        question.renderSelector();
+      })
+      // select the current question in the selector
+      this.currentQuestion.selectorInput.checked = true;
 
     resetMathJax();
   }
