@@ -1,3 +1,5 @@
+import "./_runAnalytics";
+
 document.addEventListener('DOMContentLoaded', initialSetup);
 
 // to be used in the html
