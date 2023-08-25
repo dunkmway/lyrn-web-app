@@ -191,6 +191,16 @@ button {
   margin-left: auto;
 } */
 
+.notes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+
+textarea[name="notes"] {
+  width: 100%;
+}
+
 .instructions {
   border-top: 2px solid black;
 }
