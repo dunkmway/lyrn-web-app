@@ -82,7 +82,7 @@ async function new_gradeAssignment(assignmentDoc) {
       for (let j = timeline.length - 1; j > -1; j--) {
         const event = timeline[j]
         // if the question has been started then the entire group has been started
-        if (!question.isQuestionBank || (event.question === question.id && event.type === 'start')) {
+        if (!question.data().isQuestionBank || (event.question === question.id && event.type === 'start')) {
           return true;
         }
       }
@@ -166,29 +166,29 @@ async function new_gradeAssignment(assignmentDoc) {
   assignmentDoc.ref.update(gradedData);
 }
 
-exports.sendAssignmentCloseReminder = functions.pubsub.schedule('0 8 * * *').timeZone('America/Denver').onRun(async (context) => {
-  // query for all assignments that close within the next 24 hours
-  const startOfTomorrow = new Date(new Date().setHours(24,0,0,0));
-  const endOfTomorrow = new Date(new Date().setHours(48,0,0,0));
+// exports.sendAssignmentCloseReminder = functions.pubsub.schedule('0 8 * * *').timeZone('America/Denver').onRun(async (context) => {
+//   // query for all assignments that close within the next 24 hours
+//   const startOfTomorrow = new Date(new Date().setHours(24,0,0,0));
+//   const endOfTomorrow = new Date(new Date().setHours(48,0,0,0));
 
-  const assignmentQuery = await admin.firestore().collection('ACT-Assignments')
-  .where('close', '>=', startOfTomorrow)
-  .where('close', '<', endOfTomorrow)
-  .get();
+//   const assignmentQuery = await admin.firestore().collection('ACT-Assignments')
+//   .where('close', '>=', startOfTomorrow)
+//   .where('close', '<', endOfTomorrow)
+//   .get();
 
-  // filter out the assignments that have already been started
-  const assignmentDocs = assignmentQuery.docs.filter(doc => doc.data().startedAt == undefined);
+//   // filter out the assignments that have already been started
+//   const assignmentDocs = assignmentQuery.docs.filter(doc => doc.data().startedAt == undefined);
 
-  // only send one email per student
-  const students = Object.keys(assignmentDocs.reduce((prev, curr) => {
-    prev[curr.data().student] = true;
-    return prev;
-  }, {}));
+//   // only send one email per student
+//   const students = Object.keys(assignmentDocs.reduce((prev, curr) => {
+//     prev[curr.data().student] = true;
+//     return prev;
+//   }, {}));
 
-  await Promise.allSettled(students.map(student => sendAssignmentCloseReminderEmail(student)));
+//   await Promise.allSettled(students.map(student => sendAssignmentCloseReminderEmail(student)));
 
-  return;
-});
+//   return;
+// });
 
 exports.sendAssignmentCloseReminderNow = functions.https.onRequest(async (request, response) => {
   const startOfTomorrow = new Date(new Date().setHours(0,0,0,0));
