@@ -1,5 +1,5 @@
 import app from "./_firebase";
-import { getFirestore, doc, collection, addDoc, updateDoc, serverTimestamp } from "firebase/firestore"
+import { getFirestore, doc, collection, addDoc, updateDoc, serverTimestamp, arrayUnion } from "firebase/firestore"
 
 const db = getFirestore(app);
 
@@ -11,7 +11,7 @@ export async function createAnalyticsEvent(data) {
       analyticsID = doc(collection(db, "Analytics")).id
       localStorage.setItem('analyticsID_v1', analyticsID);
       await updateDoc(doc(db, 'Analytics', '_Aggregate'), {
-        analyticsIDs: firebase.firestore.FieldValue.arrayUnion(analyticsID)
+        analyticsIDs: arrayUnion(analyticsID)
       });
     }
 
