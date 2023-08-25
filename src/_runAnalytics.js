@@ -15,12 +15,12 @@ export async function createAnalyticsEvent(data) {
       });
     }
 
-    await addDoc(collection(db, 'Analytics')), {
+    await addDoc(collection(db, 'Analytics'), {
       ...data,
       createdAt: serverTimestamp(),
       analyticsID,
       page: window.location.pathname
-    }
+    });
 
     return;
 }
