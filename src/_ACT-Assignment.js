@@ -95,7 +95,7 @@ export default class Assignment {
           return foundQuestion;
         } else {
           // create a new question
-          return new Question(id, index, this.student, this.timeline);
+          return new Question(id, index, index, this.student, this.timeline);
         }
       });
 
@@ -284,6 +284,41 @@ export default class Assignment {
     })
   }
 
+  async setSortedQuestionsByTopic() {
+    const topics = this.questionObjects.reduce((prev, curr) => {
+      if (!prev.includes(curr.topic)) {
+        prev.push(curr.topic);
+      }
+      return prev;
+    }, [])
+  
+    const topicDocs = await Promise.all(topics.map(topic => {
+      if (topic !== -1) {
+        return getDoc(doc(db, 'ACT-Curriculum-Data', topic));
+      }
+      else {
+        return {
+          id: -1,
+          data: () => {
+            return {
+              code: 'No Topic',
+              numQuestions: -1
+            }
+          }
+        }
+      }
+      
+    }));
+    topicDocs.sort((a,b) => b.data().numQuestions - a.data().numQuestions);
+  
+    this.sortedQuestionsByTopic = topicDocs.map(topicDoc => {
+      return {
+        topic: topicDoc.data().code,
+        questions: this.questionObjects.filter(question => question.topic === topicDoc.id)
+      }
+    })
+  }
+
   async assignmentClicked() {
     const assignmentStartMessage = {
       english: `
@@ -377,7 +412,7 @@ export default class Assignment {
     await this.timeline.load();
     
     // construct the question objects
-    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.student, this.timeline));
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, index, this.student, this.timeline));
     // load all docs for the questions and passages
     await Promise.all(this.questionObjects.map(async (question) => {
       // load the quesiton from the db
@@ -385,14 +420,9 @@ export default class Assignment {
     }));
 
     // setup the selectors
-    this.questionObjects.forEach(question => {
-      // setup the selector
-      question.setupSelector(() => this.startQuestion(question.pos));
-      // render the selector
-      question.renderSelector();
-    })
+    this.setupNumberedSelector((question) => this.startQuestion(question));
 
-    // setup the time / submit button
+    // setup the time / submit / toggle button
     if (this.submitTimeout) {
       // if there is a submit timeout show the time
       document.getElementById('assignmentTime').classList.remove('hide');
@@ -408,6 +438,7 @@ export default class Assignment {
       // and show the submit button
       document.getElementById('assignmentSubmit').classList.remove('hide');
     }
+    document.getElementById('assignmentNumberingToggle').classList.add('hide');
 
     // close the selector
     document.querySelector('.main .panels .selector').classList.remove('open')
@@ -431,7 +462,7 @@ export default class Assignment {
       this.watch();
     } else {
       // show the first question
-      await this.startQuestion(0);
+      await this.startQuestion(this.questionObjects[0]);
     }
 
 
@@ -458,7 +489,7 @@ export default class Assignment {
       const currentQuestionID = this.timeline.timeline[this.timeline.timeline.length - 1].question;
       const currentQuestion = this.questionObjects.find(question => question.id == currentQuestionID)
 
-      this.watchQuestion(currentQuestion.pos, true);
+      this.watchQuestion(currentQuestion, true);
     })
   }
 
@@ -496,13 +527,18 @@ export default class Assignment {
     // hide the time and submit
     document.getElementById('assignmentSubmit').classList.add('hide');
     document.getElementById('assignmentTime').classList.add('hide');
+    document.getElementById('assignmentNumberingToggle').classList.add('hide');
     document.querySelector('.main .panels .selector .top-container').classList.remove('hide');
+
+    // unchecheck the selector numbering toggle
+    document.getElementById('assignmentNumberingToggleInput').checked = false;
 
     // close the selector
     document.querySelector('.main .panels .selector').classList.remove('open')
   }
 
-  async startQuestion(index, scrollSelector = false) {
+  async startQuestion(question, scrollSelector = false) {
+    const index = question.pos;
     if (index > this.questionObjects.length - 1) {
       index = this.questionObjects.length - 1
     }
@@ -576,7 +612,8 @@ export default class Assignment {
     }
   }
 
-  async watchQuestion(index, scrollSelector = false) {
+  async watchQuestion(question, scrollSelector = false) {
+    const index = question.pos;
     if (index > this.questionObjects.length - 1) {
       index = this.questionObjects.length - 1
     }
@@ -624,17 +661,17 @@ export default class Assignment {
     }
 
     // re-render the selector
-      // clean up the selector
-      removeAllChildNodes(document.getElementById('selectorContainer'));
-      // setup the selectors
-      this.questionObjects.forEach(question => {
-        // setup the selector
-        question.setupSelector(() => this.watchQuestion(question.pos));
-        // render the selector
-        question.renderSelector();
-      })
-      // select the current question in the selector
-      this.currentQuestion.selectorInput.checked = true;
+    // clean up the selector
+    removeAllChildNodes(document.getElementById('selectorContainer'));
+    // setup the selectors
+    this.questionObjects.forEach(question => {
+      // setup the selector
+      question.setupSelector(() => this.watchQuestion(question.pos));
+      // render the selector
+      question.renderSelector();
+    })
+    // select the current question in the selector
+    this.currentQuestion.selectorInput.checked = true;
 
     resetMathJax();
   }
@@ -652,75 +689,27 @@ export default class Assignment {
     await this.timeline.load();
     
     // construct the question objects
-    this.questionObjects = this.questions.map((id, index) => new Question(id, index, this.student, this.timeline));
+    this.questionObjects = this.questions.map((id, index) => new Question(id, index, index, this.student, this.timeline));
     // load all docs for the questions and passages
     await Promise.all(this.questionObjects.map(async (question) => {
       // load the quesiton from the db
       await question.load();
     }));
 
-    // for review we want to sort the questions in the assignment in order of topic occurence
-    // get all of the topics in this assignment
-    const topics = this.questionObjects.reduce((prev, curr) => {
-      if (!prev.includes(curr.topic)) {
-        prev.push(curr.topic);
-      }
-      return prev;
-    }, [])
-
-    const topicDocs = await Promise.all(topics.map(topic => {
-      if (topic !== -1) {
-        return getDoc(doc(db, 'ACT-Curriculum-Data', topic));
-      }
-      else {
-        return {
-          id: -1,
-          data: () => {
-            return {
-              code: 'No Topic',
-              numQuestions: -1
-            }
-          }
-        }
-      }
-      
-    }));
-    topicDocs.sort((a,b) => b.data().numQuestions - a.data().numQuestions);
-
-    this.sortedQuestionsByTopic = topicDocs.map(topicDoc => {
-      return {
-        topic: topicDoc.data().code,
-        questions: this.questionObjects.filter(question => question.topic === topicDoc.id)
-      }
-    })
-
     // setup the selectors
-    let pos = 0;
-    this.sortedQuestionsByTopic.forEach(topicGroup => {
-      const topicName = document.createElement('p');
-      topicName.classList.add('topic')
-      topicName.textContent = topicGroup.topic;
-      document.getElementById('selectorContainer').appendChild(topicName);
-
-      topicGroup.questions.forEach(question => {
-        // setup the selector
-        question.setupSelector((index) => this.reviewQuestion(index), pos);
-        // render the selector
-        question.renderSelector(true);
-        pos++;
-      })
-    })
+    await this.setupTopicSelector((question) => this.reviewQuestion(question));
 
     // hide the time and submit
     document.getElementById('assignmentSubmit').classList.add('hide');
     document.getElementById('assignmentTime').classList.add('hide');
-    document.querySelector('.main .panels .selector .top-container').classList.add('hide');
+    document.getElementById('assignmentNumberingToggle').classList.remove('hide');
+    document.querySelector('.main .panels .selector .top-container').classList.remove('hide');
 
     // close the selector
     document.querySelector('.main .panels .selector').classList.remove('open')
 
     // show the first question
-    await this.reviewQuestion(0);
+    await this.reviewQuestion(this.sortedQuestionsByTopic[0].questions[0]);
 
     // now move into the main section
     changeSection('main');
@@ -732,13 +721,10 @@ export default class Assignment {
     document.querySelector('.landing .loading').classList.remove('active');
   }
 
-  async reviewQuestion(index, scrollSelector = false) {
-    const flatSortedQuestionList = this.sortedQuestionsByTopic.reduce((prev, curr) => {
-      prev = prev.concat(curr.questions);
-      return prev
-    }, []);
-    if (index > flatSortedQuestionList.length - 1) {
-      index = flatSortedQuestionList.length - 1
+  async reviewQuestion(question, scrollSelector = false) {
+    const index = question.pos;
+    if (index > this.questionObjects.length - 1) {
+      index = this.questionObjects.length - 1
     }
     if (index < 0) {
       index = 0;
@@ -748,7 +734,7 @@ export default class Assignment {
     const nextBtn = document.getElementById('nextBtn');
     const previousBtn = document.getElementById('previousBtn')
 
-    if (index === flatSortedQuestionList.length - 1) {
+    if (index === this.questionObjects.length - 1) {
       nextBtn.classList.add('hide');
     } else {
       nextBtn.classList.remove('hide');
@@ -769,7 +755,7 @@ export default class Assignment {
     }
 
     // show the new question
-    this.currentQuestion = flatSortedQuestionList[index];
+    this.currentQuestion = question;
     // this.currentQuestion.review(this.isStaff);
     this.currentQuestion.review(true, this.isStaff);
     if (this.currentQuestion.passage) {
@@ -785,6 +771,72 @@ export default class Assignment {
     }
 
     resetMathJax();
+  }
+
+  async setupTopicSelector(onclick) {
+    // update the sorted questions by topic
+    await this.setSortedQuestionsByTopic();
+
+    // reset the question positions
+    let pos = 0;
+    this.sortedQuestionsByTopic.forEach(topicGroup => {
+      topicGroup.questions.forEach(question => {
+        question.pos = pos;
+        pos++;
+      })
+    })
+
+    // clean up the selector
+    removeAllChildNodes(document.getElementById('selectorContainer'));
+    // setup the selectors
+    this.sortedQuestionsByTopic.forEach(topicGroup => {
+      const topicName = document.createElement('p');
+      topicName.classList.add('topic')
+      topicName.textContent = topicGroup.topic;
+      document.getElementById('selectorContainer').appendChild(topicName);
+  
+      topicGroup.questions.forEach(question => {
+        // setup the selector
+        question.setupSelector(() => onclick(question));
+        // render the selector
+        question.renderSelector(this.isInReview);
+      })
+    })
+    if (this.currentQuestion) {
+      this.currentQuestion.selectorInput.checked = true;
+      // scroll the selector to the new question
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
+  }
+  
+  setupNumberedSelector(onclick) {
+    // reset the question positions
+    let pos = 0;
+    this.questionObjects.forEach(question => {
+      question.pos = pos;
+      pos++;
+    })
+
+    // clean up the selector
+    removeAllChildNodes(document.getElementById('selectorContainer'));
+    // setup the selectors
+    this.questionObjects.forEach(question => {
+      // setup the selector
+      question.setupSelector(() => onclick(question));
+      // render the selector
+      question.renderSelector(this.isInReview);
+    })
+    if (this.currentQuestion) {
+      this.currentQuestion.selectorInput.checked = true;
+      // scroll the selector to the new question
+      const selectorScorollContainer = document.getElementById('selectorScrollContainer');
+      const containerHeight = selectorScorollContainer.clientHeight;
+      const labelVerticalOffset = this.currentQuestion.selectorLabel.offsetTop;
+      selectorScorollContainer.scrollTop = labelVerticalOffset - containerHeight / 4;
+    }
   }
 }
 
@@ -1010,3 +1062,4 @@ function getActualQuestionProportions_helper(questions, topics) {
   if (min > max) throw 'min must be less than the max'
   return Math.floor((Math.random() * (max - min)) + min)
 }
+
