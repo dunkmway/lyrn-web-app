@@ -158,7 +158,7 @@ async function getAssignments(studentUID) {
     if (topicGrades[topic].total !== 0) {
       // write the grade
       const grade = (topicGrades[topic].correct / topicGrades[topic].total)
-      document.getElementById(`${topic}-grade`).textContent = (grade * 100).toFixed(2) + '%';
+      document.getElementById(`${topic}-grade`).textContent = (grade * 100).toFixed(2) + `% (${topicGrades[topic].correct} / ${topicGrades[topic].total})`;
   
       // write the score
       document.getElementById(`${topic}-score`).textContent = (((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 36).toFixed(2);
