@@ -149,12 +149,19 @@ async function getAssignments(studentUID) {
     // we need to know the frequency
     const frequency = Number.parseFloat(document.getElementById(`${topic}-frequency`).dataset.frequency);
 
-    // write the grade
-    const grade = (topicGrades[topic].correct / topicGrades[topic].total)
-    document.getElementById(`${topic}-grade`).textContent = (grade * 100).toFixed(2) + '%';
+    if (topic === '287hZn7uMF05XHVX0KhR') {
+      console.log(topicGrades[topic].correct, topicGrades[topic].total)
+    }
 
-    // write the score
-    document.getElementById(`${topic}-score`).textContent = (((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 36).toFixed(2);
+    if (topicGrades[topic].total !== 0) {
+      // write the grade
+      const grade = (topicGrades[topic].correct / topicGrades[topic].total)
+      document.getElementById(`${topic}-grade`).textContent = (grade * 100).toFixed(2) + '%';
+  
+      // write the score
+      document.getElementById(`${topic}-score`).textContent = (((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 36).toFixed(2);
+    }
+
   }
 
 }
