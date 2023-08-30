@@ -142,7 +142,6 @@
   <!-- Main Test Taker -->
   <section class="main hide" id="main">
     <div class="header">
-      <!-- <div class="container"><h1><span class="color-accent">PRACTICE</span> TEST</h1></div> -->
       <div class="container">
         <a href="../index.html" target="_blank">
           <svg class="logo" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="303 440 496 225" style="enable-background:new 0 0 1080 1080;" xml:space="preserve">
@@ -167,9 +166,14 @@
           <div class="top-container">
             <div id="assignmentTime" class="background-accent box">Time</div>
             <div id="assignmentSubmit" class="background-accent box" style="cursor: pointer;" onclick="submitCurrentAssignment()">Submit</div>
+            <div id="assignmentNumberingToggle">
+              <p>Topics</p>
+              <input type="checkbox" id="assignmentNumberingToggleInput" onchange="selectorNumberToggle(event)">
+              <label for="assignmentNumberingToggleInput"></label>
+              <p>Numbers</p>
+            </div>
           </div>
           <div class="selector-container" id="selectorContainer"></div>
-          <!-- <div class="background-accent box submit">Submit Test</div> -->
         </div>
         <div class="pull-tab" onclick="toggleSelectorCallback()">
           <div></div>
@@ -179,7 +183,6 @@
       </div>
       <div class="spacer"></div>
       <div class="passage hide mobile-hide">
-        <!-- <div class="background-accent box"><span id="sectionTitle"></span> - Passage <span id="passageNumber"></span></div> -->
         <div class="show-question">
           <button onclick="showQuestionMobile()">Question</button>
         </div>

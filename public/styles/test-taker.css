@@ -420,11 +420,6 @@ section.hide {
   grid-column: 1 / -1;
 }
 
-.full-test-wrapper {
-  /* padding: 2em;
-  border: 2px solid black; */
-}
-
 .full-test-wrapper > .full-test-content {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1217,4 +1212,54 @@ table tr:nth-child(even) td {
 
 .border-left {
 	border-left: 1px solid black;
+}
+
+#assignmentNumberingToggle {
+  --diameter: 24px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#assignmentNumberingToggle.hide {
+  display: none;
+}
+
+#assignmentNumberingToggle > p {
+  margin: 0;
+}
+
+#assignmentNumberingToggle > input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+}
+
+#assignmentNumberingToggle > label {
+  display: block;
+  position: relative;
+  box-sizing: content-box;
+  width: calc(2 * var(--diameter));
+  height: var(--diameter);
+  border: 1px solid var(--accent-color);
+  border-radius: calc(var(--diameter) / 2);
+}
+
+#assignmentNumberingToggle > label::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: calc(var(--diameter) - 2px);
+  height: calc(var(--diameter) - 2px);
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  top: 1px;
+  left: 1px;
+  transition: all 200ms ease-in-out;
+}
+
+#assignmentNumberingToggle > input:checked + label::before {
+  left: calc(1px + var(--diameter));
 }

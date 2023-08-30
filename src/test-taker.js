@@ -43,9 +43,7 @@ window.showPassageMobile = showPassageMobile;
 window.questionFlagChangeCallback = questionFlagChangeCallback;
 window.previousQuestionCallback = previousQuestionCallback;
 window.nextQuestionCallback = nextQuestionCallback;
-
-window.getCurrentAssignment = getCurrentAssignment;
-
+window.selectorNumberToggle = selectorNumberToggle;
 
 HTMLElement.prototype.textNodes = function() {
   return [...this.childNodes].filter((node) => {
@@ -538,19 +536,14 @@ function previousQuestionCallback() {
   if (!currentAssignment) return;
 
   const currentQuestion = currentAssignment.currentQuestion;
+  const nextQuestionIndex = currentQuestion.pos - 1;
+  const nextQuestion = currentAssignment.questionObjects.find(question => question.pos === nextQuestionIndex);
 
   if (currentAssignment.isStarted) {
-    const nextQuestionIndex = currentQuestion.pos - 1;
-    currentAssignment.startQuestion(nextQuestionIndex, true);
+    currentAssignment.startQuestion(nextQuestion, true);
 
   } else if (currentAssignment.isInReview) {
-    const flatSortedQuestionList = currentAssignment.sortedQuestionsByTopic.reduce((prev, curr) => {
-      prev = prev.concat(curr.questions);
-      return prev
-    }, []);
-    const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
-    const nextQuestionIndex = currentQuestionIndex - 1;
-    currentAssignment.reviewQuestion(nextQuestionIndex, true);
+    currentAssignment.reviewQuestion(nextQuestion, true);
   }
 }
 
@@ -559,19 +552,14 @@ function nextQuestionCallback() {
   if (!currentAssignment) return;
 
   const currentQuestion = currentAssignment.currentQuestion;
+  const nextQuestionIndex = currentQuestion.pos + 1;
+  const nextQuestion = currentAssignment.questionObjects.find(question => question.pos === nextQuestionIndex);
 
   if (currentAssignment.isStarted) {
-    const nextQuestionIndex = currentQuestion.pos + 1;
-    currentAssignment.startQuestion(nextQuestionIndex, true);
+    currentAssignment.startQuestion(nextQuestion, true);
 
   } else if (currentAssignment.isInReview) {
-    const flatSortedQuestionList = currentAssignment.sortedQuestionsByTopic.reduce((prev, curr) => {
-      prev = prev.concat(curr.questions);
-      return prev
-    }, []);
-    const currentQuestionIndex = flatSortedQuestionList.findIndex(question => question.id === currentQuestion.id);
-    const nextQuestionIndex = currentQuestionIndex + 1;
-    currentAssignment.reviewQuestion(nextQuestionIndex, true);
+    currentAssignment.reviewQuestion(nextQuestion, true);
   }
 }
 
@@ -652,4 +640,15 @@ function sortAlphabetically(a,b) {
 	if (a > b) {
 		return 1
 	}
+}
+
+function selectorNumberToggle(e) {
+  const checked = e.target.checked;
+  const currentAssignment = getCurrentAssignment();
+
+  if (checked) {
+    currentAssignment.setupNumberedSelector((question) => currentAssignment.reviewQuestion(question));
+  } else {
+    currentAssignment.setupTopicSelector((question) => currentAssignment.reviewQuestion(question));
+  }
 }

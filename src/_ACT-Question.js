@@ -10,8 +10,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export default class Question {
-  constructor(id, pos, student, assignmentTimeline) {
+  constructor(id, index, pos, student, assignmentTimeline) {
     this.id = id;
+    this.index = index;
     this.pos = pos;
     this.student = student;
     this.assignmentTimeline = assignmentTimeline;
@@ -28,8 +29,8 @@ export default class Question {
     this.test = null;
     this.topic = null;
 
-    this.selectorInput = document.createElement('input');
-    this.selectorLabel = document.createElement('label');
+    this.selectorInput = null;
+    this.selectorLabel = null;
   }
 
   async load() {
@@ -70,7 +71,7 @@ export default class Question {
     const isFlagged = this.assignmentTimeline.getFlag(this.id);
 
     // show the question number
-    document.getElementById('questionNumber').textContent = (this.pos + 1).toString();
+    document.getElementById('questionNumber').textContent = (this.index + 1).toString();
     // show the question content
     document.getElementById('questionContent').innerHTML = this.content;
     //determine if the flag should be shown
@@ -105,7 +106,7 @@ export default class Question {
       const label = document.createElement('label');
       label.setAttribute('for', `choice_${index}`);
       label.classList.add('flex-row');
-      const choiceLetter = ((this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
+      const choiceLetter = ((this.index + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
       label.innerHTML = `<p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}`
 
       choiceElem.appendChild(input);
@@ -151,7 +152,7 @@ export default class Question {
     const isFlagged = this.assignmentTimeline.getFlag(this.id);
 
     // show the question number
-    document.getElementById('questionNumber').textContent = (this.pos + 1).toString();
+    document.getElementById('questionNumber').textContent = (this.index + 1).toString();
     // show the question content
     document.getElementById('questionContent').innerHTML = this.content ?? '';
     // show the question explanation
@@ -172,7 +173,7 @@ export default class Question {
     const seconds = Math.floor((time / 1000) % 60);
 
     const answerList = this.assignmentTimeline.getAnswerList(this.id)
-    .map(index => (this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index])
+    .map(index => (this.index + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index])
     .join(', ');
 
     const wasFlagged = this.assignmentTimeline.getWasFlagged(this.id) ? 'Yes' : 'No';
@@ -219,7 +220,7 @@ export default class Question {
       const label = document.createElement('label');
       label.setAttribute('for', `choice_${index}`);
       label.classList.add('flex-row');
-      const choiceLetter = ((this.pos + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
+      const choiceLetter = ((this.index + 1) % 2 == 0 ? EVEN_ANSWERS[index] : ODD_ANSWERS[index]) ?? 'X';
       label.innerHTML = `<p class="choice-letter"><b>${choiceLetter}.</b></p>${choice}`
 
       choiceElem.appendChild(input);
@@ -244,12 +245,15 @@ export default class Question {
     const isFlagged = this.assignmentTimeline.getFlag(this.id);
     this.selectorLabel.innerHTML = `
       <span class="${isAnswered ? 'answered' : ''} ${isFlagged ? 'flagged' : ''}">${FLAG_SVG}</span>
-      Question ${this.pos + 1}
+      Question ${this.index + 1}
       <span>${(showWrong && (answer != this.answer)) ? CROSS_SVG : ''}</span>
     `
   }
 
   setupSelector(clickCallback, ...args) {
+    this.selectorInput = document.createElement('input');
+    this.selectorLabel = document.createElement('label');
+    
     this.selectorInput.setAttribute('id', 'selectorRadio-' + this.id);
     this.selectorInput.setAttribute('type', 'radio');
     this.selectorInput.setAttribute('name', 'questionSelector');

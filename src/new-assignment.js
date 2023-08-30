@@ -62,6 +62,7 @@ function setManualStudent() {
 }
 
 async function initialSetup() {
+  setupNotes();
   await getTopics()
 
   const params = new URLSearchParams(document.location.search);
@@ -70,6 +71,7 @@ async function initialSetup() {
   if (student) {
     document.getElementById('nameSearch').disabled = true;
     document.getElementById('nameSearch').setAttribute('data-value', student);
+    getNotesValues(student);
 
     document.getElementById('testTakerLink').textContent = `${window.location.origin}/test-taker/${student}`;
     document.getElementById('testTakerLink').href = `${window.location.origin}/test-taker/${student}`;
@@ -267,6 +269,7 @@ function searchResultClicked(studentUID, studentName) {
   document.getElementById('curriculumSection').value = '';
 
   getAssignments(studentUID)
+  getNotesValues(studentUID)
 
   // re-run the query
   queryUsers(false);
@@ -918,4 +921,38 @@ function randomInt(min, max) {
   if (typeof min !== 'number' || typeof max !== 'number') throw 'min and max must be numbers'
   if (min > max) throw 'min must be less than the max'
   return Math.floor((Math.random() * (max - min)) + min)
+}
+
+async function setupNotes() {
+  const noteInputs = Array.from(document.querySelectorAll('textarea[name="notes"]'));
+  noteInputs.forEach(input => input.addEventListener('change', notesOnChange));
+}
+
+async function notesOnChange(e) {
+  const target = e.target;
+  const section = target.id.split('_')[0];
+  const value = target.value;
+  const student = document.getElementById('nameSearch').dataset.value;
+
+  if (!student) {
+    Dialog.alert('Please select a student.');
+    return;
+  }
+
+  await setDoc(doc(db, 'Users', student, 'Notes', `ACT-${section}-Notes`), {
+    note: value
+  })
+
+  Dialog.toastMessage(`${section} notes saved!`);
+}
+
+function getNotesValues(student) {
+  const noteInputs = Array.from(document.querySelectorAll('textarea[name="notes"]'));
+  noteInputs.forEach(async input => {
+    const section = input.id.split('_')[0];
+    const noteDoc = await getDoc(doc(db, 'Users', student, 'Notes', `ACT-${section}-Notes`));
+    if (noteDoc.exists()) {
+      input.value = noteDoc.data().note;
+    }
+  });
 }
