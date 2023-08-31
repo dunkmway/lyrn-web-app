@@ -93,6 +93,8 @@ export default class Dialog {
 
       // set up the wrapper
       this.wrapper.style.width = this.width;
+      this.wrapper.style.maxHeight = '100%';
+      this.wrapper.style.overflowY = 'auto';
       this.wrapper.style.backgroundColor = this.backgroundColor;
       this.wrapper.style.color = this.messageColor;
       this.wrapper.style.borderRadius = this.borderRadius;
