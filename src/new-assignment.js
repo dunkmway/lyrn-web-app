@@ -151,10 +151,6 @@ async function getAssignments(studentUID) {
     // we need to know the frequency
     const frequency = Number.parseFloat(document.getElementById(`${topic}-frequency`).dataset.frequency);
 
-    if (topic === '287hZn7uMF05XHVX0KhR') {
-      console.log(topicGrades[topic].correct, topicGrades[topic].total)
-    }
-
     if (topicGrades[topic].total !== 0) {
       // write the grade
       const grade = (topicGrades[topic].correct / topicGrades[topic].total)
@@ -494,8 +490,8 @@ async function setAssignment() {
   const section = document.getElementById('sections').value;
   const sectionCodeBySection = document.getElementById('sections')?.querySelector('option:checked')?.textContent;
   const sectionCodeByTopic = document.getElementById('sectionCodes').value;
-  const topics = Array.from(document.querySelectorAll('#topicWrapper > div > input[type="checkbox"]:checked'), checkbox => checkbox.value);
-  const topicProportions = topics.map(id => Number.parseInt(document.getElementById(`${id}-weight`).value))
+  const topics = Array.from(document.querySelectorAll('#topicWrapper > div > input[type="checkbox"][id]:checked'), checkbox => checkbox.value);
+  const topicProportions = topics.map(id => Number.parseInt(document.getElementById(`${id}-weight`)?.value ?? 0))
   const count = parseInt(document.getElementById('count').value ?? 0) || null;
   const hasOpen = document.getElementById('hasOpen').checked;
   let open = document.getElementById('open')._flatpickr.selectedDates[0];
@@ -656,7 +652,7 @@ async function submitTopicAssignment(student, sectionCode, topics, topicProporti
     <p>There are not enough questions to generate this assignment.</p>
     <p>Below are the number of question available for each topic.</p>
     ${(await Promise.all(Object.keys(questionsByTopics).map(async (topic) => {
-      return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic))).data().code}: ${questionsByTopics[topic].flat().length}</p>`
+      return `<p>${(await getDoc(doc(db, 'ACT-Curriculum-Data', topic)))?.data()?.code ?? 'Topic not found'}: ${questionsByTopics[topic].flat().length}</p>`
     }))).join('')}
     <p>Total: ${totalQuestions}</p>
     `
