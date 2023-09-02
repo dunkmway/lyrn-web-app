@@ -392,7 +392,7 @@ function addImage(spacing = '') {
 
 	for (let i = 1; i < imageTextarea.length; i++) {
 		let idSplit = imageTextarea[i].split('id')[1].split('image')[1]
-		number = ''
+		let number = '';
 		for (let j = 0; j<idSplit.length; j++) {
 			if (idSplit[j] != '"') {
 				number += idSplit[j]
@@ -417,22 +417,21 @@ function addImage(spacing = '') {
 	}
 
 	// Construct the filename for firebase and grab the image
-	let filename = undefined
-	let image = undefined
+	let image, ext, filename;
 	if (data['type'] == 'passage') {
-		let image = document.getElementById('passageImage').files[0]
-		const ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
-		let filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + ext;
+		image = document.getElementById('passageImage').files[0];
+		ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-I' + (imageNumber).toString() + ext;
 	}
 	else if (data['type'] == 'question') {
-		let image = document.getElementById('questionsImage').files[0]
-		const ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
-		let filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + ext;
+		image = document.getElementById('questionsImage').files[0];
+		ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'] + '-I' + (imageNumber).toString() + ext;
 	}
 	else if (data['type'] == 'answer') {
-		let image = document.getElementById('questionsImage').files[0]
-		const ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
-		let filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + ext;
+		image = document.getElementById('questionsImage').files[0];
+		ext = '.' + image.name.substring(image.name.lastIndexOf('.') + 1);
+		filename = data['test'] + '-' + data['section'] + '-P' + data['passage'].toString() + '-Q' + data['question'].toString() + '-A' + data['answer'].toString() + '-I' + (imageNumber).toString() + ext;
 	}
 
 	// Finalize the firebase reference
