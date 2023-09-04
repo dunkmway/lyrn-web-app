@@ -1,34 +1,23 @@
+import Dialog from "./_Dialog";
+import "./_authorization";
+import app from "./_firebase";
+import { doc, getDoc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const db = getFirestore(app);
+const functions = getFunctions(app);
+
 const errorMsg = document.querySelector('.error')
 let tutorData = null;
-let locationDocs;
 
-async function getAllLocations() {
-  return await firebase.firestore().collection('Locations').orderBy('locationName').get()
-}
+const params = new URLSearchParams(document.location.search);
+const tutorUID = params.get("tutor");
 
-function toggleLoading(elementID) {
-  document.getElementById(elementID).closest('.loading-wrapper').classList.toggle('loading');
-}
+document.addEventListener('DOMContentLoaded', initialSetup);
 
 async function initialSetup() {
-  $('.ui.dropdown').dropdown();
-
-  toggleLoading('location')
-  locationDocs = await getAllLocations();
-
-  let locationUIDs = [];
-  let locationNames = [];
-
-  locationDocs.forEach(doc => {
-    locationUIDs.push(doc.id);
-    locationNames.push(doc.data().locationName)
-  })
-
-  addSelectOptions(document.getElementById("location"), locationUIDs, locationNames);
-  toggleLoading('location')
-
   //determine if this is a new tutor or updating
-  if (queryStrings().tutor) {
+  if (tutorUID) {
     //updating
     fillInData();
 
@@ -44,45 +33,8 @@ async function initialSetup() {
   }
 }
 
-async function locationCallback(elem) {
-  const locationUID = elem.value;
-  toggleLoading('qualifications')
-
-  // find the relavant location doc
-  const lessonTypes = locationDocs.docs.find(doc => doc.id == locationUID).data().lessonTypes;
-
-  let qualificationNames = [];
-  let qualificationValues = [];
-
-  //go through the types and append their subtypes
-  lessonTypes.forEach(type => {
-    if (type.subtypes) {
-      type.subtypes.forEach(subtype => {
-        qualificationNames.push(type.name + ' ' + subtype.name);
-        qualificationValues.push(type.value + '-' + subtype.value);
-      })
-    }
-    else {
-      qualificationNames.push(type.name);
-      qualificationValues.push(type.value);
-    }
-  })
-
-  $('#qualifications').dropdown('clear')
-  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'fullTextSearch', 'exact');
-  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'match', 'text');
-  $('#qualifications').closest(".ui.dropdown").dropdown('setting', 'forceSelection', false);
-  document.getElementById('qualifications').innerHTML = '<option value="" disabled selected>select qualifications</option>';
-  addSelectOptions(document.getElementById('qualifications'), qualificationValues, qualificationNames);
-
-  toggleLoading('qualifications')
-
-  return;
-}
-
 async function fillInData() {
-  const tutorUID = queryStrings().tutor;
-  const tutorDoc = await firebase.firestore().collection('Users').doc(tutorUID).get();
+  const tutorDoc = await getDoc(doc(db, 'Users', tutorUID));
 
   tutorData = tutorDoc.data()
 
@@ -91,10 +43,6 @@ async function fillInData() {
     input.value = tutorDoc.data()[input.id];
   })
 
-  //deal with the select (especially changing location then semantic ui select)
-  document.getElementById('location').value = tutorData.location;
-  await locationCallback(document.getElementById('location'));
-  $('#qualifications').closest(".ui.dropdown").dropdown('set selected', tutorData.qualifications);
   return;
 }
 
@@ -125,9 +73,7 @@ async function submit() {
   clearFields();
   toggleWorking();
   //finish with a toast message
-  Toastify({
-    text: 'Tutor successfully submitted'
-  }).showToast();
+  Dialog.toastMessage('Tutor successfully submitted')
   return;
 }
 
@@ -138,8 +84,6 @@ async function update() {
     toggleWorking();
     return;
   }
-
-  const tutorUID = queryStrings().tutor;
 
   //had email now check if the email is the same
   if (tutorData.email === values.email) {
@@ -159,9 +103,7 @@ async function update() {
 
   toggleWorking()
   //finish with a toast message
-  Toastify({
-    text: 'Tutor successfully updated!'
-  }).showToast();
+  Dialog.toastMessage('Tutor successfully submitted')
   return;
 }
 
@@ -174,15 +116,12 @@ function toggleWorking() {
 
 function clearFields() {
   document.querySelectorAll('input').forEach(input => input.value = '');
-  document.querySelector('#location').value = '';
 }
 
 function getValues() {
   //we'll have to handle selects differently becuase of sematic ui
   const values = getInputValues();
   values.role = 'tutor';
-  values.qualifications = getDropdownValues('qualifications');
-  values.location = document.getElementById('location').value;
   return values;
 }
 
@@ -249,7 +188,7 @@ async function addUserWithEmail(userInfo) {
   console.log('email');
   try {
     //create the user
-    const addUser = firebase.functions().httpsCallable('addUser');
+    const addUser = httpsCallable(functions, 'addUser');
     const userResult = await addUser({
       email: userInfo.email,
       role: userInfo.role,
@@ -272,15 +211,15 @@ async function addUserWithEmail(userInfo) {
 }
 
 async function addUserDoc(userUID, userData) {
-  return await firebase.firestore().collection('Users').doc(userUID).set(userData);
+  return await setDoc(doc(db, 'Users', userUID), userData);
 }
 
 async function updateUserDoc(userUID, userData) {
-  return await firebase.firestore().collection('Users').doc(userUID).update(userData);
+  return await updateDoc(doc(db, 'Users', userUID), userData);
 }
 
 async function updateUserEmail(userUID, userData) {
-  const updateUserEmail = firebase.functions().httpsCallable('updateUserEmail');
+  const updateUserEmail = httpsCallable(functions, 'updateUserEmail');
   return await updateUserEmail({
     uid: userUID,
     email: userData.email,
@@ -288,25 +227,9 @@ async function updateUserEmail(userUID, userData) {
 }
 
 async function updateUserDisplayName(userUID, userData) {
-  const updateUserDisplayName = firebase.functions().httpsCallable('updateUserDisplayName');
+  const updateUserDisplayName = httpsCallable(functions, 'updateUserDisplayName');
   return await updateUserDisplayName({
     uid: userUID,
     displayName: userData.firstName + ' ' + userData.lastName
   })
-}
-
-/**
- * Used for semantic ui multiple select dropdowns
- * @param {String} dropdownId id name for semantic ui dropdown
- * @returns array of select values
- */
-function getDropdownValues(dropdownId) {
-  const inputs = document.getElementById(dropdownId).parentNode.querySelectorAll(".ui.label");
-  
-  let values = []
-  inputs.forEach((input) => {
-    values.push(input.dataset.value)
-  })
-
-  return values;
 }

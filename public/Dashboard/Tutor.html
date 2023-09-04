@@ -4,84 +4,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tutor Dash</title>
-    <link href="Tutor.css" rel="stylesheet">
-    <link href="../Site Templates/site-wide.css" rel="stylesheet">
+    <link href="/styles/Tutor.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
 
-    <!-- datatable requirments -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-functions.js"></script>
-
-    <!-- full calendar -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.8.0/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.2/main.min.js"></script>
-
-    <!-- semantic UI -->
-    <link async rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css"/>
-    <script async src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-
-    <script src="../Site Templates/site-wide.js"></script>
-    <script src="../Site Templates/generalFunctions.js"></script>
-    <script src="Tutor.js"></script>
+    <script src="/components/dropdown-search.js"></script>
+    <script src="/scripts/Tutor.js"></script>
 
   </head>
 
-  <body onload="initialSetupData()">
-
-    <!-- <section id="navigationSection" class="add-user-section">
-      <div id="navigationModal">
-        <div class="close" onclick="document.getElementById('navigationSection').style.display = 'none'">X</div>
-        <h4 style="margin: 0;">Which lesson are you teaching today?</h4>
-        <button id="actNav" class="button">ACT</button>
-        <button id="subjectTutoringNav" class="button">Subject Tutoring</button>
-        <button id="mathProgramNav" class="button">Math Program</button>
-        <button id="phonicsProgramNav" class="button">Phonics Program</button>
-    </section> -->
-
+  <body>
     <section>
       <div class="header">
-        <div>
-          <h2 id="locationName"></h2>
-          <h2 id="tutor-name"></h2>
-        </div>
-        <!-- <button class="button" id="exampleDailyLog">Example Daily Log</button> -->
-        <button class="button"><a href="/view-curriculum" style="color: inherit;">ACT Curriculum</a></button>
+        <h1 id="salutation"></h1>
         <button class="button" onclick="signOut()">Sign Out</button>
       </div>
-      <!-- <div class="input-row">
-        <div class="input-block">
-          <button class="button" onclick="resetPassword()">reset password</button>
-        </div>
-      </div> -->
 
-      <!-- <div>
-        <table id="student-table" class="display" width="100%">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Type(s)</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-        </table>
-      </div> -->
-
-      <div id="mainCalendarContent">
-        <div id='calendar'></div>
-      </div>
-
-      <!-- feedback area -->
-      <!-- <div style="margin: 25px;">
-        <h3>Feedback</h3>
-        <textarea id="feedback_input" class="feedback_input" placeholder="any feedback?"></textarea>
-        <p id="feedback_error_msg"></p>
-        <button id="feedback_submit_btn" class="button" onclick="submitFeedback()">Submit</button>
-      </div> -->
+      <h2>Users</h2>
+      <dropdown-search id="userSearch"></dropdown-search>
     </section>
   </body>

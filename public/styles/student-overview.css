@@ -118,6 +118,10 @@ main header h2 {
   color: var(--red);
 }
 
+.links > * {
+  display: none;
+}
+
 main .content {
   padding: 2em;
   width: 100%;

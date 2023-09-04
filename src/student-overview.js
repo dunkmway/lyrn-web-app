@@ -1,4 +1,4 @@
-import "./_authorization"
+import {getCurrentUserRole, goHome} from "./_authorization"
 import app from "./_firebase";
 import { getDoc, doc, getFirestore } from "firebase/firestore"
 
@@ -7,6 +7,8 @@ const CURRENT_STUDENT_UID = location.pathname.split('/')[2];
 
 let student_doc = null;
 let parent_doc = null;
+
+window.goHome = goHome;
 
 document.addEventListener('DOMContentLoaded', initialize);
 
@@ -29,9 +31,9 @@ function getUserDoc(userUID) {
   return getDoc(doc(db, 'Users', userUID));
 }
 
-function setUpLinks() {
+async function setUpLinks() {
   const links = document.querySelectorAll('nav .links > a');
-  links.forEach(link => {
+  links.forEach(async link => {
     if (link.dataset.path) {
       const path = (link.dataset.path === 'student') ? '/' + student_doc.id : (link.dataset.path === 'parent') ? '/' + parent_doc?.id ?? '' : '';
       const htmlIndex = link.href.indexOf('.html');
@@ -51,6 +53,10 @@ function setUpLinks() {
           }
         })
       }
+    }
+
+    if (link.dataset.role.split(',').includes(await (getCurrentUserRole()))) {
+      link.style.display = 'block';
     }
   })
 }
