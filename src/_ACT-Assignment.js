@@ -114,25 +114,25 @@ export default class Assignment {
       this.questionObjects.forEach(question => {
         // setup the selector
         if (this.isStarted) {
-          question.setupSelector(() => this.startQuestion(question.pos));
+          question.setupSelector(() => this.startQuestion(question));
         } else if (this.isInReview) {
-          question.setupSelector(() => this.reviewQuestion(question.pos));
+          question.setupSelector(() => this.reviewQuestion(question));
         } else if (this.isWatching) {
-          question.setupSelector(() => this.watchQuestion(question.pos));
+          question.setupSelector(() => this.watchQuestion(question));
         }
         // render the selector
-        question.renderSelector();
+        question.renderSelector(this.isInReview || this.isWatching);
       })
       // select the current question in the selector
       this.currentQuestion.selectorInput.checked = true;
 
       // restart the current question
       if (this.isStarted) {
-        this.startQuestion(this.currentQuestion.pos, true);
+        this.startQuestion(this.currentQuestion, true);
       } else if (this.isInReview) {
-        this.reviewQuestion(this.currentQuestion.pos, true);
+        this.reviewQuestion(this.currentQuestion, true);
       } else if (this.isWatching) {
-        this.watchQuestion(this.currentQuestion.pos, true);
+        this.watchQuestion(this.currentQuestion, true);
       }
     }
 
@@ -677,9 +677,9 @@ export default class Assignment {
     // setup the selectors
     this.questionObjects.forEach(question => {
       // setup the selector
-      question.setupSelector(() => this.watchQuestion(question.pos));
+      question.setupSelector(() => this.watchQuestion(question));
       // render the selector
-      question.renderSelector();
+      question.renderSelector(true);
     })
     // select the current question in the selector
     this.currentQuestion.selectorInput.checked = true;
@@ -810,7 +810,7 @@ export default class Assignment {
         // setup the selector
         question.setupSelector(() => onclick(question));
         // render the selector
-        question.renderSelector(this.isInReview);
+        question.renderSelector(this.isInReview || this.isWatching);
       })
     })
     if (this.currentQuestion) {
@@ -838,7 +838,7 @@ export default class Assignment {
       // setup the selector
       question.setupSelector(() => onclick(question));
       // render the selector
-      question.renderSelector(this.isInReview);
+      question.renderSelector(this.isInReview || this.isWatching);
     })
     if (this.currentQuestion) {
       this.currentQuestion.selectorInput.checked = true;
