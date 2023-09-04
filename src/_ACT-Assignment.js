@@ -1,5 +1,5 @@
 import app from "./_firebase";
-import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, updateDoc, where, onSnapshot } from "firebase/firestore"
+import { collection, doc, getDoc, getDocs, getFirestore, query, serverTimestamp, updateDoc, where, onSnapshot, deleteDoc } from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 
 import Question from "./_ACT-Question";
@@ -370,7 +370,18 @@ export default class Assignment {
         // if a staff member is starting someone else's assignment
         // sneeky start it
         if (this.student != auth.currentUser.uid) {
-          Dialog.alert('You may not start this assignment as a tutor.')
+          const dangerDelete = document.createElement('p');
+          dangerDelete.style.color = 'red';
+          dangerDelete.style.margin = '0';
+          dangerDelete.textContent = 'DELETE';
+          
+          const tutorConfirmation = await Dialog.confirm(
+            'As a tutor, you may not start this assignment. However, you may delete this assignment in the case that you made a mistake in its generation. Would you like to delete this assignment?',
+            { choices: ['Cancel', dangerDelete] }
+          );
+          if (tutorConfirmation) {
+            await deleteDoc(this.ref);
+          }
         } else {
           const message = document.createElement('div');
           message.innerHTML = assignmentStartMessage[this.sectionCode];
