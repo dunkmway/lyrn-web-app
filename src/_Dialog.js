@@ -162,6 +162,7 @@ export default class Dialog {
             choiceElem.textContent = choice;
             choiceElem.style.fontSize = this.choiceFontSize;
             choiceElem.style.fontWeight = this.choiceFontWeight;
+            choiceElem.style.color = this.choiceColor;
           }
           else {
             choiceElem = choice;
@@ -175,7 +176,6 @@ export default class Dialog {
           }
 
           choiceElem.style.cursor = 'pointer';
-          choiceElem.style.color = this.choiceColor;
           choiceElem.addEventListener('click', () => {
             resolve(this.values[index]);
             this.hide();
