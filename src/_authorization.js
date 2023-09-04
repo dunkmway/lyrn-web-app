@@ -6,7 +6,9 @@ import Timer from "./_Timer";
 
 export {
     requestSignOut,
-    getCurrentUser
+    getCurrentUser,
+    getCurrentUserRole,
+    goHome
 }
 
 const auth = getAuth(app);
@@ -93,6 +95,27 @@ function getCurrentUser() {
             res(user);
         });
     })
+}
+
+function getCurrentUserRole() {
+    return new Promise(res => {
+        onAuthStateChanged(auth, user => {
+            getIdTokenResult(user)
+            .then(idTokenResult => {
+                const role = idTokenResult.claims.role;
+                res(role);
+            })
+        });
+    })
+}
+
+async function goHome() {
+    onAuthStateChanged(auth, user => {
+        getIdTokenResult(user)
+        .then(idTokenResult => {
+            goToRoleHomePage(idTokenResult.claims.role, user.uid)
+        })
+    });
 }
 
 function checkAuthorization() {
