@@ -485,8 +485,8 @@ function showAssignments() {
 
 function hideAssignments() {
   removeAllChildNodes(document.getElementById('fullAssignments'));
-  document.querySelectorAll('#newAssignments > div').forEach(container => removeAllChildNodes(container));
-  document.querySelectorAll('#previousAssignments > div').forEach(container => removeAllChildNodes(container));
+  document.querySelectorAll('#newAssignments div[class$="-container"]').forEach(container => removeAllChildNodes(container));
+  document.querySelectorAll('#previousAssignments div[class$="-container"]').forEach(container => removeAllChildNodes(container));
 }
 
 

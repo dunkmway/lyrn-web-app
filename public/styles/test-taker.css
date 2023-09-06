@@ -114,6 +114,10 @@ img {
   max-width: 100%;
 }
 
+details > summary {
+  cursor: pointer;
+}
+
 .spinner {
   display: block;
   border: 3px solid white;
@@ -490,6 +494,16 @@ section.hide {
 .landing .content .previous-assignment-wrapper:has(.assignment) {
   display: block;
 }
+
+#previousAssignments details summary::-webkit-details-marker,
+#previousAssignments details summary::marker {
+  display: none;
+}
+
+#previousAssignments details summary {
+  font-size: 1.25em;
+}
+
 
 .assignment-wrapper > div > h4 {
   margin-bottom: 0;
