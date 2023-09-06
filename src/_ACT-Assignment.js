@@ -273,15 +273,20 @@ export default class Assignment {
     return updateDoc(this.ref, { status: 'omitted' })
   }
 
-  submit() {
-    if (this.isStarted) {
-      this.end();
-    }
-
-    return updateDoc(this.ref, {
+  async submit() {
+    await updateDoc(this.ref, {
       status: 'submitted',
       submittedAt: serverTimestamp()
     })
+
+    if (this.student == auth.currentUser.uid) {
+      this.timeline.add(null, 'submit', true);
+      await this.timeline.update();
+    }
+
+    if (this.isStarted) {
+      this.end();
+    }
   }
 
   async setSortedQuestionsByTopic() {
@@ -504,7 +509,13 @@ export default class Assignment {
     })
   }
 
-  end() {
+  async end() {
+    // submit timeline event
+    if (this.student == auth.currentUser.uid) {
+      this.timeline.add(null, 'end', true);
+      await this.timeline.update();
+    }
+
     this.isStarted = false;
     this.isInReview = false;
     this.isWatching = false;
