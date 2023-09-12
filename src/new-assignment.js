@@ -706,7 +706,7 @@ function getRandomQuestions(count, topics, topicProportions, questionsByTopics, 
   const idealProportions = topicProportions.map(proportion => proportion / proportionTotal);
 
   // loop until we the flat length of pendingAssignedQuestions < count
-  while (Object.values(pendingAssignedQuestions).flat().length < count) {
+  while (Object.values(pendingAssignedQuestions).flat().flat().length < count) {
     // get the current proportions
     const actualCount = Object.values(pendingAssignedQuestions).flat().length;
     const actualProportions = topics.map(topic => pendingAssignedQuestions[topic].length / (actualCount ) );
