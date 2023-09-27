@@ -547,7 +547,7 @@ export const TUTORIAL_STEPS = [
           <p>You can now see which questions are of the same topic and see how they relate.</p>
         `,
         tooltip: {
-            element: ".main .panels .selector input[type=radio]:checked + .selector-wrapper",
+            element: ".main .panels .selector input[type=radio] + .selector-wrapper",
             location: "right"
         },
         assignment: {
