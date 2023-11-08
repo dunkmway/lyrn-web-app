@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self Guided Program</title>
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
+    <link href="/styles/self-guided.css" rel="stylesheet">
+
+    <script src="/scripts/self-guided.js"></script>
+    <script src="/components/lyrn-logo.js"></script>
+</head>
+<body>
+    <main>
+        <lyrn-logo class="logo" onclick="goHome()"></lyrn-logo>
+        <h1>What would you like to study?</h1>
+        <div class="sections">
+            <div class="english bubble" onclick="changeSection('english')"><h2>English</h2></div>
+            <div class="math bubble" onclick="changeSection('math')"><h2>Math</h2></div>
+            <div class="reading bubble" onclick="changeSection('reading')"><h2>Reading</h2></div>
+            <div class="science bubble" onclick="changeSection('science')"><h2>Science</h2></div>
+        </div>
+    </main>
+
+    <section id="sectionWrapper">
+        <p class="back" onclick="goBack()">Back</p>
+        <h1 id="sectionTitle" class="accent"></h1>
+        <p>Focus on what will increase your score the most. The top topics appear the most on the test.</p>
+
+        <div id="topics"></div>
+    </section>
+
+    <section id="contentWrapper"></section>
+</body>
+</html>

@@ -3,16 +3,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Student Dash</title>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="https://use.typekit.net/ibd0auf.css">
     <link href="/styles/Student.css" rel="stylesheet">
 
     <script src="/scripts/Student.js"></script>
-
+    <script src="/components/lyrn-logo.js"></script>
   </head>
 
-  <body style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="color: #110D65;">Redirecting to the Test Taker</h2>
-    <button class="button" onclick="signOut()">Sign Out</button>
-
+  <body>
+    <div class="header">
+      <lyrn-logo class="logo"></lyrn-logo>
+      <button class="button" onclick="signOut()">Sign Out</button>
+    </div>
+    <section>
+      <h2 id="salutation"></h2>
+      <h1 id="message">Where would you like to get started?</h1>
+      <main>
+        <a class="free bubble">
+          <h2>Take 2 full length practice tests absolutely free!</h2>
+        </a>
+        <a class="self bubble">
+          <h2>Self Guided</h2>
+          <p>Prepare at your own pace with our full curriculum and over 900 practice questions.</p>
+        </a>
+        <a class="tutor bubble">
+          <h2>On-on-One Tutoring</h2>
+          <p>Learn from our amazing tutors one-on-one to maximize your score.</p>
+        </a>
+      </main>
+    </section>
   </body>
 </html>

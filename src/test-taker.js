@@ -1,4 +1,4 @@
-import "./_authorization";
+import { goHome } from "./_authorization";
 import app from "./_firebase";
 import { collection, doc, getDoc, getFirestore, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -26,9 +26,12 @@ let assignment_listener;
 let assignments = [];
 let assigned_questions = [];
 
+let LANDING_MODE;
+
 document.addEventListener('DOMContentLoaded', setup);
 
 // on events in the html
+window.goHome = goHome;
 window.endTutorial = endTutorial;
 window.tutorialBack = tutorialBack;
 window.tutorialNext = tutorialNext;
@@ -299,6 +302,21 @@ function endTutorial() {
 }
 
 async function setup() {
+  // we render a different landing page based on the mode param
+  const params = new URLSearchParams(document.location.search);
+  LANDING_MODE = params.get("mode");
+
+  switch (LANDING_MODE) {
+    case "marketing":
+      setupMarketingLanding();
+      break;
+    case "tutoring":
+      setupTutoringLanding();
+      break;
+    default:
+      setupTutoringLanding();
+  }
+
   // start listening to the current user
   initializeCurrentUser(() => {
     // check if they have never started the tutorial
@@ -309,12 +327,23 @@ async function setup() {
       initializeAssignmentsSnapshot(STUDENT_UID);
     }
   });
+}
 
-
-
+function setupMarketingLanding() {
   renderBanner(
     'Need help on some of these tests? Check out our <a href="/pricing?program=one-on-one" target="_blank">ACT Programs.</a>'
   );
+
+  // show the full test section
+  document.querySelector('.full-assignment-wrapper').classList.remove('display-none');
+}
+
+function setupTutoringLanding() {
+  renderBanner();
+
+  // show the current and previous test section
+  document.querySelector('.current-assignment-wrapper').classList.remove('display-none');
+  document.querySelector('.previous-assignment-wrapper').classList.remove('display-none');
 }
 
 function initializeCurrentUser(callback) {
@@ -597,13 +626,13 @@ function getCurrentAssignment() {
 }
 
 function renderBanner(message) {
-  const nextLessonWrapper = document.querySelector('.next-lesson-wrapper');
-  const nextLessonElement = document.getElementById('nextLessonDetails');
+  const bannerWrapper = document.querySelector('.next-lesson-wrapper');
+  const bannerElement = document.getElementById('nextLessonDetails');
 
   if (!message) {
-    nextLessonWrapper.style.display = 'none';
+    bannerWrapper.style.display = 'none';
   } else {
-    nextLessonElement.innerHTML = message;
+    bannerElement.innerHTML = message;
   }
 }
 

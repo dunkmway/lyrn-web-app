@@ -36,8 +36,7 @@ async function setUpLinks() {
   links.forEach(async link => {
     if (link.dataset.path) {
       const path = (link.dataset.path === 'student') ? '/' + student_doc.id : (link.dataset.path === 'parent') ? '/' + parent_doc?.id ?? '' : '';
-      const htmlIndex = link.href.indexOf('.html');
-      link.href = link.href.slice(0, htmlIndex) + path;
+      link.href = link.href.replace('.html', path);
     }
 
     if (link.dataset.query) {

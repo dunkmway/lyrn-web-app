@@ -5,6 +5,25 @@
     --color-primary: #ffffff;
     --color-secondary: #E6E7E8;
     --color-tertiary: #101b42;
+
+    --default-color: rgb(122, 122, 122);
+    --default-color-light: #BDBDBD;
+
+    --accent-color: var(--default-color);
+    --accent-color-light: var(--default-color-light);
+
+    --english-color: #EA5A59;
+    --math-color: #54C6FB;
+    --break-color: #F5B233;
+    --reading-color: #8786FC;
+    --science-color: #64C13D;
+    --writing-color: #F5B233;
+
+    --writing-color-light: #F7C463;
+    --science-color-light: #3cdd58;
+    --math-color-light: #87D7FC;
+    --reading-color-light: #BAB9FD;
+    --english-color-light: #F08685;
   
     --yellow-deep: #ffb102;
     --green-deep: #27c13a;
@@ -37,65 +56,56 @@
     padding: 2em;
   }
 
+  .accent {
+    color: var(--accent-color);
+  }
+
+  .accent-back {
+    background-color: var(--accent-color);
+    color: white;
+  }
+
   .logo {
+    display: block;
     width: 5em;
     fill: var(--green-deep);
-  }
-  
-  h1 {
-    font-size: 1.5rem;
-  }
-  
-  h2 {
-    font-size: 2rem;
-  }
-  
-  button {
-    padding: 0.5em 1em;
-    border: none;
-    background-color: var(--green-deep);
-    color: white;
-    border-radius: 0.5em;
-    font-size: 1rem;
-    font-weight: 500;
-    height: fit-content;
+    margin-bottom: 2em;
     cursor: pointer;
   }
-  
-  section {
-    max-width: 1200px;
-    margin: 1em auto 0em;
-  }
-  
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap-reverse;
-  }
-  
-  .header > * {
+
+  .back {
+    cursor: pointer;
     margin: 0;
   }
-  
-  .header > button {
-    margin-left: auto;
-  }
 
-  #salutation,
-  #message {
-    margin: 0;
-  }
-  
-  .buttons > button {
-    margin-bottom: 0.5em;
-  }
-
-  main {
-    margin-top: 1em;
+  main .sections {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2em;
+  }
+
+  #sectionWrapper {
+    display: none;
+  }
+
+  #topics > .bubble {
+    margin-bottom: 1em;
+  }
+
+  .english {
+    background-color: var(--english-color);
+  }
+
+  .math {
+    background-color: var(--math-color);
+  }
+
+  .reading {
+    background-color: var(--reading-color);
+  }
+
+  .science {
+    background-color: var(--science-color);
   }
 
   .bubble {
@@ -110,39 +120,22 @@
     position: relative;
   }
 
+  .bubble.small {
+    padding: 0.5em;
+  }
+
   .bubble:hover {
     box-shadow: #00000025 15px 15px 10px 0px;
     scale: 1.01;
-    /* width: calc(100% + 5px);
-    height: calc(100% + 5px);
-    top: -2.5px;
-    left: -2.5px; */
   }
 
-  .bubble > h2 {
+  .bubble > h2,
+  .bubble > p {
     margin: 0;
   }
-  
-  .free {
-    grid-column: 1 / 3;
-    background-color: var(--green-deep);
-  }
-
-  .self {
-    background-color: var(--blue-light);
-  }
-
-  .tutor {
-    background-color: var(--blue-light);
-  }
-
 
   @media screen and (max-width: 800px) {
-    main {
+    main .sections {
         grid-template-columns: 1fr;
-    }
-
-    .free {
-        grid-column: unset;
     }
   }
