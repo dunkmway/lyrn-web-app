@@ -159,7 +159,7 @@ async function tutorialStep(step, phone = false) {
       await desiredAssignment.start(true);
     }
     if (!desiredAssignment.currentQuestion.pos != currentStep.assignment.start - 1) {
-      await desiredAssignment.startQuestion(currentStep.assignment.start - 1);
+      await desiredAssignment.startQuestion(desiredAssignment.questionObjects[currentStep.assignment.start - 1]);
     }
   } else if (currentStep.assignment && currentStep.assignment.review) {
     const desiredAssignment = assignments.find(assignment => currentStep.assignment.section === assignment.sectionCode);
@@ -172,7 +172,7 @@ async function tutorialStep(step, phone = false) {
       await desiredAssignment.review();
     }
     if (!desiredAssignment.currentQuestion.pos != currentStep.assignment.review - 1) {
-      await desiredAssignment.reviewQuestion(currentStep.assignment.review - 1);
+      await desiredAssignment.reviewQuestion(desiredAssignment.questionObjects[currentStep.assignment.review - 1]);
     }
   } else {
     goToLanding()
