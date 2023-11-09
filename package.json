@@ -7,8 +7,8 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "emulator": "firebase emulators:start --only hosting",
-    "hosting": "webpack && firebase deploy --only hosting",
-    "preview": "firebase hosting:channel:deploy"
+    "force-hosting": "webpack && firebase deploy --only hosting",
+    "deploy": "branch=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD); if [[ $branch == \"master\" ]]; then webpack && firebase deploy --only hosting; else echo \"You must be on master to deploy!\"; fi;"
   },
   "keywords": [],
   "author": "",
