@@ -7,6 +7,16 @@ const db = getFirestore(app);
 document.addEventListener('DOMContentLoaded', initialSetup);
 window.signOut = requestSignOut;
 
+window.goToTestTaker = async () => {
+  window.location.href = `/test-taker/${(await getCurrentUser()).uid}`
+}
+window.goToFullTest = async () => {
+  window.location.href = `/test-taker/${(await getCurrentUser()).uid}?mode=marketing`
+}
+window.goToNewAssignment = async () => {
+  window.location.href = `/new-assignment?student=${(await getCurrentUser()).uid}`
+}
+
 async function initialSetup() {
   const userSearch = document.getElementById('userSearch');
   userSearch.minChars = 3;
