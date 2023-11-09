@@ -2,6 +2,7 @@ import { getCurrentUser, requestSignOut } from "./_authorization";
 import app from "./_firebase";
 import { collection, getDocs, getFirestore, limit, orderBy, query, startAfter, where } from "firebase/firestore";
 import Time from "./_Time";
+import Dialog from "./_Dialog";
 
 const PAGE_SIZE = 10;
 const db = getFirestore(app);
@@ -147,12 +148,32 @@ function formatToName(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-function searchResultClicked(value) {
+async function searchResultClicked(value) {
   const [ userUID, userRole ] = value.split(':');
 
   switch (userRole) {
     case 'tutor':
-      window.location.href = `/test-taker/${userUID}`;
+      const dialog = new Dialog({
+        message: "Where would you like to go?",
+        choices: ['Test Taker', 'New Assignment', 'Edit Tutor'],
+        values: ['testTaker', 'newAssignment', 'editTutor']
+      })
+
+      const place = await dialog.show();
+
+      switch (place) {
+        case 'testTaker':
+          window.location.href = `/test-taker/${userUID}`
+          break;
+        case 'newAssignment':
+          window.location.href = `/new-assignment?student=${userUID}`
+          break;
+        case 'editTutor':
+          window.location.href = `/new-tutor?tutor=${userUID}`
+          break;
+        default:
+      }
+
       break;
     case 'student':
       window.location.href = `/student-overview/${userUID}`;
