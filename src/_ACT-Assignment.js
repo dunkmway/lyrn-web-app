@@ -503,7 +503,7 @@ export default class Assignment {
 
       // watch the new question
       const currentQuestionID = this.timeline.timeline[this.timeline.timeline.length - 1].question;
-      const currentQuestion = this.questionObjects.find(question => question.id == currentQuestionID)
+      const currentQuestion = this.questionObjects.find(question => question.id == currentQuestionID) ?? this.questionObjects[0];
 
       this.watchQuestion(currentQuestion, true);
     })
