@@ -8,6 +8,7 @@ const funcs = getFunctions(app);
 
 const params = new URLSearchParams(document.location.search);
 const parentUID = params.get("parent");
+const studentUID = params.get("student");
 
 let errorMsg;
 let parentData = null;
@@ -56,28 +57,24 @@ async function submit() {
   }
 
   try {
-    const userUID = await addUserWithEmail(values);
-    //adding user with email can fail if the email is already in use. Not an error so catch it here
-    if (!userUID) {
-      toggleWorking();
-      Toastify({
-        text: 'Parent already exists'
-      }).showToast();
-      return;
-    } 
+    // this will either add the new user or return the existing one
+    const { user, newUser } = await addUserWithEmail(values);
 
-    await updateUserDisplayName(userUID, values)
-    await addUserDoc(userUID, values);
+    // if there is a student we should add this parent to their userDoc
+    if (studentUID) {
+      await updateUserDoc(studentUID, { parent: user.uid });
+    }
 
+    // only update the user data if the parent is new
+    if (newUser) {
+      await updateUserDisplayName(user.uid, values)
+      await addUserDoc(user.uid, values);
+    }
     clearFields();
     toggleWorking();
-    //finish with a toast message
-    Toastify({
-      text: 'Parent successfully submitted'
-    }).showToast();
-
-    // redirect to the new student page with the newly created parent uid
-    window.location.href = 'new-student.html?parent=' + userUID;
+    
+    // reload to the page with the newly created parent uid
+    window.location.replace(location.origin + `/new-parent?parent=${user.uid}&student=${studentUID}`);
   }
   catch (error) {
     console.log(error)
@@ -97,6 +94,11 @@ async function update() {
   if (!validate(values) || !confirm('Are you sure you are ready to update this parent?')) {
     toggleWorking();
     return;
+  }
+
+  // if there is a student we should add this parent to their userDoc
+  if (studentUID) {
+    await updateUserDoc(studentUID, { parent: parentUID });
   }
 
   //had email now check if the email is the same
@@ -132,7 +134,6 @@ function toggleWorking() {
 
 function clearFields() {
   document.querySelectorAll('input').forEach(input => input.value = '');
-  document.querySelector('#location').value = '';
 }
 
 function getValues() {
@@ -206,22 +207,13 @@ async function addUserWithEmail(userInfo) {
   try {
     //create the user
     const addUser = httpsCallable(funcs, 'addUser');
-    // const addUser = firebase.functions().httpsCallable('addUser');
     const userResult = await addUser({
       email: userInfo.email,
       role: userInfo.role,
       password: 'iujowdij9834uijr2948un095b3098v0'
     })
 
-    //make sure the user is new (function will check if email is already in use) 
-    if (!userResult.data.newUser) {
-      errorMsg.textContent = 'This email is already in use';
-      errorMsg.style.visibility = 'visible';
-      return null;
-    }
-    else {
-      return userResult.data.user.uid;
-    }
+    return userResult.data;
   }
   catch (error) {
     throw error;

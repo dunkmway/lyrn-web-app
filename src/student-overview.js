@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', initialize);
 
 async function initialize() {
   student_doc = await getUserDoc(CURRENT_STUDENT_UID);
-  if (student_doc.data()?.parents?.[0]) {
-    parent_doc = await getUserDoc(student_doc.data().parents[0]);
+  if (student_doc.data()?.parent) {
+    parent_doc = await getUserDoc(student_doc.data().parent);
     renderHeader(
       student_doc.data().firstName + ' ' + student_doc.data().lastName,
       parent_doc.data().firstName + ' ' + parent_doc.data().lastName
@@ -42,13 +42,16 @@ async function setUpLinks() {
     if (link.dataset.query) {
       const queries = link.dataset.query.split(',');
       if (queries.length > 0) {
-        queries.forEach((query, index) => {
+        let first = true;
+        queries.forEach((query) => {
           const queryUID = query === 'student' ? student_doc.id : (query === 'parent') ? parent_doc?.id ?? '' : '';
-          if (index === 0) {
-            link.href += `?${query}=${queryUID}`
-          }
-          else {
-            link.href += `&${query}=${queryUID}`
+          if (queryUID !== '') {
+            if (first) {
+              first = false;
+              link.href += `?${query}=${queryUID}`
+            } else {
+              link.href += `&${query}=${queryUID}`
+            }
           }
         })
       }
