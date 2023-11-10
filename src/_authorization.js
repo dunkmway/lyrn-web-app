@@ -40,7 +40,7 @@ let allowedPages = {
     student: [
         "/Dashboard/Student",
         '/test-taker/*',
-        '/self-guided'
+        // '/self-guided'
     ],
     parent: [
         "/Dashboard/Parent",
@@ -70,7 +70,8 @@ let allowedPages = {
         '&admin',
         "/Dashboard/Dev",
         "/testEditor",
-        "/analytics"
+        "/analytics",
+        "/self-guided"
     ]
 }
 

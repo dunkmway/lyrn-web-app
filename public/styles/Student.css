@@ -49,6 +49,10 @@
   h2 {
     font-size: 2rem;
   }
+
+  p {
+    font-size: 1.15rem;
+  }
   
   button {
     padding: 0.5em 1em;
@@ -110,13 +114,26 @@
     position: relative;
   }
 
-  .bubble:hover {
+  .bubble:hover,
+  .bubble:focus {
     box-shadow: #00000025 15px 15px 10px 0px;
     scale: 1.01;
-    /* width: calc(100% + 5px);
-    height: calc(100% + 5px);
-    top: -2.5px;
-    left: -2.5px; */
+  }
+
+  .bubble.coming-soon {
+    position: relative;
+  }
+
+  .bubble.coming-soon::after {
+    content: "COMING SOON";
+    display: block;
+    background-color: var(--purple-deep);
+    color: white;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    position: absolute;
+    top: .5em;
+    right: .5em;
   }
 
   .bubble > h2 {
