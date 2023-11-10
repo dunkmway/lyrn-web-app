@@ -20,6 +20,7 @@ async function initialize() {
 
     const isEnrolled = await isStudentInOneOnOne(user.uid);
     tutor.href = isEnrolled ? `${location.origin}/test-taker/${user.uid}` : `${location.origin}/pricing?program=one-on-one`;
+    !isEnrolled && tutor.setAttribute('target', '_blank');
 }
 
 async function renderSalutation() {
