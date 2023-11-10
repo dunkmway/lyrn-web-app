@@ -1,6 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -18,11 +21,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    // console.log('EMULATOR')
-    // firebase.firestore && firebase.firestore().useEmulator("localhost", 8080);
-    // firebase.functions && firebase.functions().useEmulator("localhost", 5001);
-    // firebase.auth && firebase.auth().useEmulator("http://localhost:9099");
+if (location.hostname === "127.0.0.1") {
+  console.log('EMULATOR')
+
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const functions = getFunctions(app);
+
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFunctionsEmulator(functions, '127.0.0.1', 5001);
 }
 
 export default app;

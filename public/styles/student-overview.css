@@ -1,31 +1,39 @@
 :root {
-  --primary-background: #F6F7F9;
-  --secondary-background: white;
-  --accent-background: #111a43;
-  --action-background: #27c03a;
+  --nav-background: white;
+  --nav-color: black;
 
-  --light-accent-background: #99a6e5 ;
-  --light-action-background: #95e99f ;
+  --color-primary: #ffffff;
+  --color-secondary: #E6E7E8;
+  --color-tertiary: #101b42;
 
-  --light-color: white;
-  --medium-color: #F6F7F9;
-  /* --dark-color: #111a43; */
-  --dark-color: black;
+  --yellow-deep: #ffb102;
+  --green-deep: #27c13a;
+  --blue-deep: #19a7c8;
+  --purple-deep: #6b6be5;
+  --red-deep: #ef6b6b;
 
-  --red: #EA5A59;
-  --yellow: #F5B233;
-  --green: #64C13D;
-  --blue: #54C6FB;
-  --purple: #8786FC;
+  --yellow-light: #ffca02;
+  --green-light: #3cdd58;
+  --blue-light: #02c6ff;
+  --purple-light: #8787ff;
+  --red-light: #ea5a5a;
 
-  --english-color: var(--red);
-  --math-color: var(--blue);
-  --reading-color: var(--purple);
-  --science-color: var(--green);
+  --yellow-very-light: #FFF4CC;
+  --green-very-light: #CCFFD5;
+  --blue-very-light: #CCF4FF;
+  --purple-very-light: #CCCCFF;
+  --red-very-light: #FFCCCC;
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
+  font-family: "proxima-nova", sans-serif;
+}
+
+body {
+  font-family: "proxima-nova", sans-serif;
+  font-weight: 200;
+  margin: 0;
 }
 
 a {
@@ -33,21 +41,6 @@ a {
   display: block;
   text-decoration: none;
   padding: .5em;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: "proxima-nova", sans-serif;
-  font-size: 1rem;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  width: 100vw;
-  margin: 0;
-  background-color: var(--primary-background);
-  color: var(--dark-color);
 }
 
 .dashboard {
@@ -59,24 +52,28 @@ body {
 
 nav {
   grid-column: 1 / 2;
-  background-color: var(--accent-background);
   padding: 1em;
-  color: var(--light-color);
-}
-
-.logo {
-  fill: var(--light-color);
-  height: 2em;
-  box-sizing: content-box;
+  background-color: var(--green-very-light);
 }
 
 nav .logo {
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--primary-background);
+  fill: var(--green-deep);
+  display: block;
+  width: 5em;
+  box-sizing: content-box;
+  cursor: pointer;
+  padding-bottom: 22px;
+  margin-inline: .5em;
 }
 
 nav a {
   margin-bottom: .5em;
+  color: var(--green-deep);
+  border-left: 1px solid transparent;
+}
+
+nav a:hover {
+  border-color: var(--green-deep);
 }
 
 main {
@@ -89,7 +86,7 @@ main header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom: 1px solid var(--accent-background);
+  border-bottom: 1px solid var(--green-deep);
 }
 
 main header h1,

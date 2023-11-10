@@ -40,6 +40,7 @@ let allowedPages = {
     student: [
         "/Dashboard/Student",
         '/test-taker/*',
+        // '/self-guided'
     ],
     parent: [
         "/Dashboard/Parent",
@@ -69,7 +70,8 @@ let allowedPages = {
         '&admin',
         "/Dashboard/Dev",
         "/testEditor",
-        "/analytics"
+        "/analytics",
+        "/self-guided"
     ]
 }
 
@@ -109,17 +111,17 @@ function getCurrentUserRole() {
     })
 }
 
-async function goHome() {
+async function goHome(force = false) {
     onAuthStateChanged(auth, user => {
         getIdTokenResult(user)
         .then(idTokenResult => {
-            goToRoleHomePage(idTokenResult.claims.role, user.uid)
+            goToRoleHomePage(idTokenResult.claims.role, force)
         })
     });
 }
 
 function checkAuthorization() {
-    showLoadingScreen();
+    // showLoadingScreen();
     try {
         onAuthStateChanged(auth, async (user) => {
             let currentPath = location.pathname;
@@ -153,7 +155,7 @@ function checkAuthorization() {
     
                 if (!isPathAllowed(role, currentPath)) {
                     //access denied
-                    goToRoleHomePage(role, user.uid);
+                    goToRoleHomePage(role, true);
                     return;
                 }
             }
@@ -168,7 +170,7 @@ function checkAuthorization() {
                     return;
                 }
             }
-            hideLoadingScreen();
+            // hideLoadingScreen();
         })
 
     }
@@ -178,28 +180,28 @@ function checkAuthorization() {
     }
 }
 
-function goToRoleHomePage(role, uid) {
+function goToRoleHomePage(role, force = false) {
     switch (role) {
         case 'public':
-            window.location.replace(`${location.origin}/sign-in`);
+            force ? window.location.replace(`${location.origin}/sign-in`) : window.location.href(`${location.origin}/sign-in`);
             break
         case 'student':
-            window.location.replace(`${location.origin}/test-taker/${uid}`);
+            force ? window.location.replace(`${location.origin}/Dashboard/Student`) : window.location.href = `${location.origin}/Dashboard/Student`;
             break
         case 'parent':
-            window.location.replace(`${location.origin}/Dashboard/Parent`);
+            force ? window.location.replace(`${location.origin}/Dashboard/Parent`) : window.location.href = `${location.origin}/Dashboard/Parent`;
             break
         case 'tutor':
-            window.location.replace(`${location.origin}/Dashboard/Tutor`);
+            force ? window.location.replace(`${location.origin}/Dashboard/Tutor`) : window.location.href = `${location.origin}/Dashboard/Tutor`;
             break
         case 'admin':
-            window.location.replace(`${location.origin}/Dashboard/Admin`);
+            force ? window.location.replace(`${location.origin}/Dashboard/Admin`) : window.location.href = `${location.origin}/Dashboard/Admin`;
             break
         case 'dev':
-            window.location.replace(`${location.origin}/Dashboard/Dev`);
+            force ? window.location.replace(`${location.origin}/Dashboard/Admin`) : window.location.href = `${location.origin}/Dashboard/Admin`;
             break
         default:
-            window.location.replace(`${location.origin}/sign-in`);
+            force ? window.location.replace(`${location.origin}/sign-in`) : window.location.href = `${location.origin}/sign-in`;
     }
 }
 
@@ -324,12 +326,12 @@ function showLoadingScreen() {
     #siteWideLoadingScreen:before {
         content: '';
         display: block;
-        border: 20px solid white;
-        border-top: 20px solid #110D65;
+        border: 10px solid white;
+        border-top: 10px solid #27c13a;
         border-radius: 50%;
         width: 100px;
         height: 100px;
-        animation: spin 2s linear infinite;
+        animation: spin 1s linear infinite;
         left: 0;
         top: 0;
         right: 0;
@@ -343,7 +345,7 @@ function showLoadingScreen() {
         100% { transform: rotate(360deg); }
     }
     `
-      document.body.appendChild(style);
+    document.body.appendChild(style);
     document.body.appendChild(screen);
     
     document.body.classList.remove('authorized');

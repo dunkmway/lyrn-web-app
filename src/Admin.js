@@ -1,4 +1,4 @@
-import { getCurrentUser, requestSignOut } from "./_authorization";
+import { getCurrentUser, getCurrentUserRole, requestSignOut } from "./_authorization";
 import app from "./_firebase";
 import { collection, getDocs, getFirestore, limit, orderBy, query, startAfter, where } from "firebase/firestore";
 import Time from "./_Time";
@@ -24,6 +24,14 @@ async function initialSetup() {
   initializeLatestUsersGrid();
 
   renderSalutation();
+
+  if (await getCurrentUserRole() === 'dev') {
+    const devHome = document.createElement('button');
+    devHome.className = 'button';
+    devHome.textContent = 'Dev Home';
+    devHome.addEventListener('click', () => window.location.href = '/Dashboard/Dev');
+    document.querySelector('.buttons').appendChild(devHome);
+  }
 }
 
 async function renderSalutation() {

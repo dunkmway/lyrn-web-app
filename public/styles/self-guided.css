@@ -1,0 +1,141 @@
+:root {
+    --nav-background: white;
+    --nav-color: black;
+  
+    --color-primary: #ffffff;
+    --color-secondary: #E6E7E8;
+    --color-tertiary: #101b42;
+
+    --default-color: rgb(122, 122, 122);
+    --default-color-light: #BDBDBD;
+
+    --accent-color: var(--default-color);
+    --accent-color-light: var(--default-color-light);
+
+    --english-color: #EA5A59;
+    --math-color: #54C6FB;
+    --break-color: #F5B233;
+    --reading-color: #8786FC;
+    --science-color: #64C13D;
+    --writing-color: #F5B233;
+
+    --writing-color-light: #F7C463;
+    --science-color-light: #3cdd58;
+    --math-color-light: #87D7FC;
+    --reading-color-light: #BAB9FD;
+    --english-color-light: #F08685;
+  
+    --yellow-deep: #ffb102;
+    --green-deep: #27c13a;
+    --blue-deep: #19a7c8;
+    --purple-deep: #6b6be5;
+    --red-deep: #ef6b6b;
+  
+    --yellow-light: #ffca02;
+    --green-light: #3cdd58;
+    --blue-light: #02c6ff;
+    --purple-light: #8787ff;
+    --red-light: #ea5a5a;
+  
+    --yellow-very-light: #FFF4CC;
+    --green-very-light: #CCFFD5;
+    --blue-very-light: #CCF4FF;
+    --purple-very-light: #CCCCFF;
+    --red-very-light: #FFCCCC;
+  }
+  
+  *, *::before, *::after {
+    box-sizing: border-box;
+    font-family: "proxima-nova", sans-serif;
+  }
+  
+  body {
+    font-family: "proxima-nova", sans-serif;
+    font-weight: 200;
+    margin: 0;
+    padding: 2em;
+  }
+
+  .accent {
+    color: var(--accent-color);
+  }
+
+  .accent-back {
+    background-color: var(--accent-color);
+    color: white;
+  }
+
+  .logo {
+    display: block;
+    width: 5em;
+    fill: var(--green-deep);
+    margin-bottom: 2em;
+    cursor: pointer;
+  }
+
+  .back {
+    cursor: pointer;
+    margin: 0;
+  }
+
+  main .sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2em;
+  }
+
+  #sectionWrapper {
+    display: none;
+  }
+
+  #topics > .bubble {
+    margin-bottom: 1em;
+  }
+
+  .english {
+    background-color: var(--english-color);
+  }
+
+  .math {
+    background-color: var(--math-color);
+  }
+
+  .reading {
+    background-color: var(--reading-color);
+  }
+
+  .science {
+    background-color: var(--science-color);
+  }
+
+  .bubble {
+    display: block;
+    border-radius: 1em;
+    padding: 1em;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: #00000025 10px 10px 10px 0px;
+    transition: all 100ms ease-in-out;
+    position: relative;
+  }
+
+  .bubble.small {
+    padding: 0.5em;
+  }
+
+  .bubble:hover {
+    box-shadow: #00000025 15px 15px 10px 0px;
+    scale: 1.01;
+  }
+
+  .bubble > h2,
+  .bubble > p {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 800px) {
+    main .sections {
+        grid-template-columns: 1fr;
+    }
+  }
