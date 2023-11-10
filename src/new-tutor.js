@@ -7,7 +7,6 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 const db = getFirestore(app);
 const functions = getFunctions(app);
 
-const errorMsg = document.querySelector('.error')
 let tutorData = null;
 
 const params = new URLSearchParams(document.location.search);
@@ -126,6 +125,7 @@ function getValues() {
 }
 
 function validate(values) {
+  const errorMsg = document.querySelector('.error')
   errorMsg.style.visibility = 'hidden';
 
   //check for required inputs
@@ -186,6 +186,7 @@ function getInputValues() {
 
 async function addUserWithEmail(userInfo) {
   console.log('email');
+  const errorMsg = document.querySelector('.error')
   try {
     //create the user
     const addUser = httpsCallable(functions, 'addUser');
