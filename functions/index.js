@@ -3,23 +3,23 @@ const admin = require("firebase-admin");
 
 exports.home = require('./home');
 exports.sign_in = require('./sign-in');
-exports.stripe = require('./stripe');
-exports.billing = require('./billing');
-exports.text_reminders = require('./text-reminders');
-exports.lesson_link = require('./lesson-link');
-exports.payment_link = require('./payment-link');
-exports.calendar_openings = require('./calendar-openings');
-exports.frontline = require('./frontline');
-exports.zoom = require('./zoom');
-exports.act_sign_up = require('./act-sign-up');
-exports.scheduled_emails = require('./scheduled-emails');
+// exports.stripe = require('./stripe');
+// exports.billing = require('./billing');
+// exports.text_reminders = require('./text-reminders');
+// exports.lesson_link = require('./lesson-link');
+// exports.payment_link = require('./payment-link');
+// exports.calendar_openings = require('./calendar-openings');
+// exports.frontline = require('./frontline');
+// exports.zoom = require('./zoom');
+// exports.act_sign_up = require('./act-sign-up');
+// exports.scheduled_emails = require('./scheduled-emails');
 exports.test_taker = require('./test-taker');
 
 // database collection triggers
-exports.events = require('./events');
+// exports.events = require('./events');
 exports.act_question_data = require('./act-question-data');
 
-exports.database_helpers = require('./database-helpers');
+// exports.database_helpers = require('./database-helpers');
 admin.initializeApp();
 
 // run the emulator main if we are running the emulator
