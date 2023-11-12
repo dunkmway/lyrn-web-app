@@ -1,4 +1,4 @@
-import "./_authorization";
+import {goHome} from "./_authorization";
 import app from "./_firebase";
 import { getAuth, createUserWithEmailAndPassword, updateProfile, getIdToken } from "firebase/auth"
 import { getFunctions, httpsCallable } from "firebase/functions"
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       target.reset();
   
       isLoading(false);
-      window.location.href = location.origin + `/test-taker/${user.uid}`;
+      goHome(true);
     })
     .catch((error) => {
       var errorCode = error.code;
