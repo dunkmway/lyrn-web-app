@@ -114,6 +114,10 @@
     position: relative;
   }
 
+  a.bubble:visited {
+    color: white;
+  }
+
   .bubble:hover,
   .bubble:focus {
     box-shadow: #00000025 15px 15px 10px 0px;
