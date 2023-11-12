@@ -50,8 +50,10 @@ class DropdownSearch extends HTMLElement {
     }
 
     set value(value) {
-        this.input.value = value;
-        this.#query();
+        if (this.input.value != value) {
+            this.input.value = value;
+            this.#query();
+        }
     }
 
     get disabled() {
