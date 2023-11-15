@@ -406,7 +406,20 @@ export default class Assignment {
         this.review();
         break;
       case 'omitted':
-        console.log('implement omitted')
+        if (this.student != auth.currentUser.uid) {
+          const dangerDelete = document.createElement('p');
+          dangerDelete.style.color = 'red';
+          dangerDelete.style.margin = '0';
+          dangerDelete.textContent = 'DELETE';
+          
+          const tutorConfirmation = await Dialog.confirm(
+            "This assignment was ommitted. Please make note of this missed assignment in the student's notes before recycling these questions. Would you like to delete this assignment now?",
+            { choices: ['Cancel', dangerDelete] }
+          );
+          if (tutorConfirmation) {
+            await deleteDoc(this.ref);
+          }
+        }
         break;
       default:
         throw 'invalid status';
