@@ -413,7 +413,7 @@ export default class Assignment {
           dangerDelete.textContent = 'DELETE';
           
           const tutorConfirmation = await Dialog.confirm(
-            "This assignment was ommitted. Please make note of this missed assignment in the student's notes before recycling these questions. Would you like to delete this assignment now?",
+            "This assignment was omitted. Please make note of this missed assignment in the student's notes before recycling these questions. Would you like to delete this assignment now?",
             { choices: ['Cancel', dangerDelete] }
           );
           if (tutorConfirmation) {
