@@ -1665,9 +1665,9 @@ async function displayScaledScores(test, section, spacing = '') {
 
 	// Add the scaled scores in columns of 12 each
 	for (let i = 0; i < 3; i++) {
-		dom_labels = createElement('div', ['rows'], ['style'], ['margin-left: 50px; align-items: center;'], '')
+		let dom_labels = createElement('div', ['rows'], ['style'], ['margin-left: 50px; align-items: center;'], '')
 		dom_labels.appendChild(createElement('label', [], [], [], 'Scaled Score'))
-		dom_scores = createElement('div', ['rows'], ['style'], ['margin-left: 10px; align-items: center;'], '')
+		let dom_scores = createElement('div', ['rows'], ['style'], ['margin-left: 10px; align-items: center;'], '')
 		dom_scores.appendChild(createElement('label', [], [], [], 'Min Score'))
 
 		// Create the labels and inputs (12)
