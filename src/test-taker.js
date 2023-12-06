@@ -8,6 +8,7 @@ import { TUTORIAL_ASSIGNMENTS, TUTORIAL_STEPS, TUTORIAL_STEPS_PHONE } from "./_t
 
 import Dialog from "./_Dialog";
 import { requestSignOut } from "./_authorization";
+import { showDebugData } from "./_debug"
 
 export { showAssignments, assigned_questions };
 
@@ -47,6 +48,7 @@ window.questionFlagChangeCallback = questionFlagChangeCallback;
 window.previousQuestionCallback = previousQuestionCallback;
 window.nextQuestionCallback = nextQuestionCallback;
 window.selectorNumberToggle = selectorNumberToggle;
+window.showDebugInfo = showDebugInfo;
 
 HTMLElement.prototype.textNodes = function() {
   return [...this.childNodes].filter((node) => {
@@ -59,6 +61,45 @@ function removeAllChildNodes(parent) {
       parent.removeChild(parent.firstChild);
   }
 }
+
+async function showDebugInfo() {
+  const student = STUDENT_UID;
+  const user = current_user;
+  const assignment = getCurrentAssignment();
+  const question = assignment.currentQuestion;
+  const passage = question.passage;
+  const section = question.section;
+  const test = question.test;
+
+  const [testDoc, sectionDoc] = await Promise.all([
+    getDoc(doc(db, 'ACT-Test-Data', test)),
+    getDoc(doc(db, 'ACT-Section-Data', section)),
+  ])
+
+  const testCode = testDoc.data().code;
+  const sectionCode = sectionDoc.data().code;
+
+
+  const data = {
+    student: student,
+    user: user.uid,
+    assignment: assignment.id,
+    question: question.id,
+    passage: passage.id,
+    section: section,
+    test: test,
+
+    testCode,
+    sectionCode,
+    passageCode: passage.code,
+    questionCode: question.code,
+
+  }
+
+  showDebugData(data);
+}
+
+
 
 async function openFeedback() {
   const dialog = await Dialog.prompt('How can we improve?');
@@ -325,6 +366,11 @@ async function setup() {
     } else {
       // start listening for all of the assignments
       initializeAssignmentsSnapshot(STUDENT_UID);
+    }
+
+    // show the debug option if they are a tutor
+    if (STAFF_ROLES.includes(current_user_role)) {
+      document.getElementById('debugInfo').style.display = 'block';
     }
   });
 }

@@ -1,0 +1,11 @@
+pre {
+    background-color: #1E1E1E;
+    color: #F9D702;
+    font-size: 16px;
+}
+
+.string { color: #CE9178; }
+.number { color: #B5CEA8; }
+.boolean { color: #4C86B6; }
+.null { color: #4C86B6; }
+.key { color: #9CDCFE; }
