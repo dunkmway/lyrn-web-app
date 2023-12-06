@@ -147,10 +147,35 @@ async function getAssignments(studentUID) {
   document.querySelectorAll('div[id$="-score"]').forEach(div => div.textContent = '');
 
   // go through the topic grades and add them to the by topic weights
+  const sectionTotals = {
+    english: {
+      totalWeightedScore: 0,
+      totalFrequency: 0,
+      totalQuestions: 75
+    },
+    math: {
+      totalWeightedScore: 0,
+      totalFrequency: 0,
+      totalQuestions: 60
+    },
+    reading: {
+      totalWeightedScore: 0,
+      totalFrequency: 0,
+      totalQuestions: 40
+    },
+    science: {
+      totalWeightedScore: 0,
+      totalFrequency: 0,
+      totalQuestions: 40
+    }
+  }
+
   for (const topic in topicGrades) {
     // we need to know the frequency
     const frequency = Number.parseFloat(document.getElementById(`${topic}-frequency`).dataset.frequency);
+    const section = document.getElementById(`${topic}-frequency`).dataset.section;
 
+    // if there is a grade then we can show it and add it to the total
     if (topicGrades[topic].total !== 0) {
       // write the grade
       const grade = (topicGrades[topic].correct / topicGrades[topic].total)
@@ -158,10 +183,19 @@ async function getAssignments(studentUID) {
   
       // write the score
       document.getElementById(`${topic}-score`).textContent = (((1 - grade) * PERCENT_GRADE_INCREASE_PER_LESSON) * frequency * 36).toFixed(2);
+
+      sectionTotals[section].totalWeightedScore += frequency * grade * sectionTotals[section].totalQuestions;
+      sectionTotals[section].totalFrequency += frequency;
     }
 
   }
 
+  // we will guess that a student will continue to have the same performance for unknown topics
+  console.log(sectionTotals)
+  for (const section in sectionTotals) {
+    const estimate = Math.round(sectionTotals[section].totalWeightedScore / sectionTotals[section].totalFrequency);
+    document.getElementById(`${section}-estimate`).textContent = `${estimate} out of ${sectionTotals[section].totalQuestions}`;
+  }
 }
 
 function debounce(func, timeout = 300) {
@@ -337,7 +371,7 @@ function renderTopicDoc(topicDoc) {
     <input type='checkbox' id='${topicDoc.id}-checkbox' value='${topicDoc.id}'>
     <label for='${topicDoc.id}-checkbox'>${topicDoc.data().code}</label>
     <input type='number' id='${topicDoc.id}-weight' value="1">
-    <div id="${topicDoc.id}-frequency" data-frequency="${frequency}">${niceFrequency}%</div>
+    <div id="${topicDoc.id}-frequency" data-frequency="${frequency}" data-section="${topicDoc.data().sectionCode}">${niceFrequency}%</div>
     <div id="${topicDoc.id}-grade"></div>
     <div id="${topicDoc.id}-score"></div>
   `
