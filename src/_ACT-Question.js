@@ -66,7 +66,7 @@ export default class Question {
     this.isLoaded = false;
   }
 
-  show() {
+  show(showCorrectAnswer = false) {
     const checkedChoiceIndex = this.assignmentTimeline.getAnswer(this.id);
     const isFlagged = this.assignmentTimeline.getFlag(this.id);
 
@@ -78,6 +78,14 @@ export default class Question {
     document.getElementById('questionFlag').checked = isFlagged;
     // enable the flag
     document.getElementById('questionFlag').disabled = false;
+    // show the show answer toggle
+    if (showCorrectAnswer) {
+      const toggleHTML = `
+      <label for="answerToggleInput" class="show-answer">Show answer</label>
+      <label for="answerToggleInput" class="hide-answer">Hide answer</label>
+      `
+      document.getElementById('answerToggle').innerHTML = toggleHTML;
+    }
 
     // remove the old choices and add in the new ones
     const questionChoices = document.getElementById('questionChoices');
@@ -89,6 +97,9 @@ export default class Question {
     this.choices.forEach((choice, index) => {
       const choiceElem = document.createElement('div');
       choiceElem.classList.add('choice');
+      if (showCorrectAnswer && index === this.answer) {
+        choiceElem.classList.add('correct');
+      }
 
       const input = document.createElement('input');
       input.setAttribute('type', 'radio');
