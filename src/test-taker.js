@@ -27,7 +27,8 @@ let assignment_listener;
 let assignments = [];
 let assigned_questions = [];
 
-let LANDING_MODE;
+const params = new URLSearchParams(document.location.search);
+const LANDING_MODE = params.get("mode");
 
 document.addEventListener('DOMContentLoaded', setup);
 
@@ -344,9 +345,6 @@ function endTutorial() {
 
 async function setup() {
   // we render a different landing page based on the mode param
-  const params = new URLSearchParams(document.location.search);
-  LANDING_MODE = params.get("mode");
-
   switch (LANDING_MODE) {
     case "marketing":
       setupMarketingLanding();
@@ -388,6 +386,7 @@ function setupTutoringLanding() {
   renderBanner();
 
   // show the current and previous test section
+  document.querySelector('.full-assignment-wrapper').classList.remove('display-none');
   document.querySelector('.current-assignment-wrapper').classList.remove('display-none');
   document.querySelector('.previous-assignment-wrapper').classList.remove('display-none');
 }
@@ -487,8 +486,8 @@ function showAssignments() {
   let previousAssignments = [];
 
   for (const assignment of assignments) {
-    // if (assignment.scaledScoreSection) {
-    if (assignment.type === "marketing" || assignment.type === "tutorial") {
+    if (assignment.scaledScoreSection) {
+    // if (assignment.type === "marketing" || assignment.type === "tutorial") {
       fullAssignments.push(assignment)
       continue
     }
@@ -546,13 +545,18 @@ function showAssignments() {
       testWrapper.appendChild(content);
 
       let scaledScores = [];
+      let isMarketing = false;
       for (const assignment of tests[test]) {
+        isMarketing = isMarketing || assignment.type == 'marketing';
         assignment.show(content)
         scaledScores.push(assignment.scaledScore ?? null)
       }
 
       let compositeScore = getCompositeScore(scaledScores) ?? 'N/A';
       heading.textContent = `Composite Score: ${compositeScore}`
+
+      // don't show marketing test for tutoring mode
+      testWrapper.style.display = isMarketing && LANDING_MODE != 'marketing' ? 'none' : 'block' 
       document.getElementById('fullAssignments').appendChild(testWrapper)
     }
   })

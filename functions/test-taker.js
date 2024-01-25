@@ -6,7 +6,7 @@ sgMail.setApiKey(functions.config().sendgrid.secret);
 
 const FREE_TIER_TESTS = [
   'a3jWOjkavIOaCsiu9sot',   // B02 
-  'eTqlQ5uRx8KUZPeBRuVT',   // C01
+  //'eTqlQ5uRx8KUZPeBRuVT',   // C01
   // '1iuXV7lsj4f6AimfQtM4'    // D05
 ]
 
@@ -357,8 +357,8 @@ exports.generateFreeTierOnSignUp = functions.auth.user().onCreate(async (user) =
       status: 'new',
       student: user.uid,
       // time: index % 3 == 1 ? null : SECTION_TIMES[sectionDoc.data().code],     // this is so that the second set of four sections are not timed
-      time: SECTION_TIMES[sectionDoc.data().code],
-      //time: null,
+      // time: SECTION_TIMES[sectionDoc.data().code],
+      time: null,
       type: 'marketing'
     })
   }))

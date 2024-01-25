@@ -79,31 +79,31 @@ section {
   margin-bottom: 0.5em;
 }
 
-#latestControls {
+.datagrid-controls {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1em;
 }
 
-#latestControls > button.hidden {
+.datagrid-controls > button.hidden {
   visibility: hidden;
 }
 
-#latestUsers {
+.datagrid {
   display: grid;
   grid-template-columns: 1fr auto;
 }
 
-#latestUsers > * {
+.datagrid > * {
   padding: 0.5em 1em;
   border-bottom: 1px solid #ced0d3;
 }
 
-#latestUsers > *.grid-header {
+.datagrid > *.grid-header {
   font-weight: 700;
 }
 
 /* get the second column */
-#latestUsers > *:nth-child(2n) {
+.datagrid > *:nth-child(2n) {
   text-align: right;
 }

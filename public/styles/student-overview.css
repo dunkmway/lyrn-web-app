@@ -6,6 +6,10 @@
   --color-secondary: #E6E7E8;
   --color-tertiary: #101b42;
 
+  --gray-deep: #333333;;
+  --gray-light: #ced0d3;;
+  --gray-very-light: #eeeeee;;
+
   --yellow-deep: #ffb102;
   --green-deep: #27c13a;
   --blue-deep: #19a7c8;
@@ -41,6 +45,22 @@ a {
   display: block;
   text-decoration: none;
   padding: .5em;
+}
+
+.composite {
+  color: black;
+}
+.english {
+  color: var(--red-deep);
+}
+.math {
+  color: var(--blue-light);
+}
+.reading {
+  color: var(--purple-deep);
+}
+.science {
+  color: var(--green-deep);
 }
 
 .dashboard {
@@ -121,23 +141,23 @@ main header h2 {
 
 main .content {
   padding: 2em;
-  width: 100%;
-  gap: 1em;
+}
+
+.hw-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(6, 1fr);
 }
 
-main .content > .block {
-  border-radius: 1em;
-  box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.1);
-  padding: 1em;
-}
-
-main .content > .block > .header {
-  width: 100%;
-  border-bottom: 1px solid var(--accent-background);
-}
-
-main .content > .block > .header .title {
+.hw-grid > .header {
+  text-align: center;
   margin: 0;
+  padding-block: 1em;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.hw-grid > .cell {
+  text-align: center;
+  margin: 0;
+  padding-block: 1.5em;
+  border-bottom: 1px solid var(--gray-light);
 }

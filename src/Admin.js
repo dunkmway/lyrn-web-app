@@ -23,6 +23,11 @@ async function initialSetup() {
 
   initializeLatestUsersGrid();
 
+  document.getElementById('programPrevious').addEventListener('click', programPrevious);
+  document.getElementById('programNext').addEventListener('click', programNext);
+
+  initializeProgramUsersGrid();
+
   renderSalutation();
 
   if (await getCurrentUserRole() === 'dev') {
@@ -254,6 +259,110 @@ function renderLatestUserPage(userDocs, hasPrev = true, hasNext = true) {
   const prev = document.getElementById('latestPrevious');
   const next = document.getElementById('latestNext');
   const grid = document.getElementById('latestUsers');
+  
+  // handle the controls
+  hasPrev ? prev.classList.remove('hidden') : prev.classList.add('hidden');
+  hasNext ? next.classList.remove('hidden') : next.classList.add('hidden');
+
+  // remove the old page
+  while (grid.firstChild) {
+    grid.removeChild(grid.firstChild);
+  }
+
+  // add in the header
+  const name = document.createElement('div');
+  name.textContent = 'Name';
+  name.className = 'grid-header';
+  grid.appendChild(name);
+
+  const created = document.createElement('div');
+  created.textContent = 'Created At';
+  created.className = 'grid-header';
+  grid.appendChild(created);
+
+  // add in the rows
+  userDocs.forEach(userDoc => {
+    const data = userDoc.data();
+    const name = document.createElement('div');
+    name.textContent = data.firstName + ' ' + data.lastName;
+    grid.appendChild(name);
+
+    const created = document.createElement('div');
+    created.textContent = new Time(data.createdAt.toDate()).toFormat('{MMMM} {ddd}, {yyyy} at {hh}:{mm} {A}');
+    grid.appendChild(created);
+  })
+
+}
+
+async function initializeProgramUsersGrid() {
+  // get the first page of user data
+  const snapshot = await getProgramUserDocs();
+
+  // remember the first and last of the page
+  let allDocs = snapshot.docs;
+  const hasNext = allDocs.length == PAGE_SIZE + 1;
+  allDocs = allDocs.slice(0, PAGE_SIZE);
+  firstUserDoc = allDocs[0];
+  lastUserDoc = allDocs[allDocs.length - 1];
+  
+  //render it
+  renderProgramUserPage(allDocs, false, hasNext);
+}
+
+function getProgramUserDocs() {
+  const q = query(
+    collection(db, 'Users'),
+    where('isProgramStudent', '==', true),
+    orderBy('createdAt', 'desc'),
+    limit(PAGE_SIZE + 1)
+  )
+  return getDocs(q);
+}
+
+async function programPrevious() {
+  const q = query(
+    collection(db, 'Users'),
+    where('isProgramStudent', '==', true),
+    orderBy('createdAt'),
+    startAfter(firstUserDoc),
+    limit(PAGE_SIZE + 1)
+  )
+  const snapshot = await getDocs(q);
+
+  // remember the first and last of the page
+  let allDocs = snapshot.docs.toReversed();
+  const hasPrev = allDocs.length == PAGE_SIZE + 1;
+  allDocs = allDocs.slice(0, PAGE_SIZE);
+  firstUserDoc = allDocs[0];
+  lastUserDoc = allDocs[allDocs.length - 1];
+
+  renderProgramUserPage(allDocs, hasPrev, true)
+}
+
+async function programNext() {
+  const q = query(
+    collection(db, 'Users'),
+    where('isProgramStudent', '==', true),
+    orderBy('createdAt', 'desc'),
+    startAfter(lastUserDoc),
+    limit(PAGE_SIZE + 1)
+  )
+  const snapshot = await getDocs(q);
+
+  // remember the first and last of the page
+  let allDocs = snapshot.docs;
+  const hasNext = allDocs.length == PAGE_SIZE + 1;
+  allDocs = allDocs.slice(0, PAGE_SIZE);
+  firstUserDoc = allDocs[0];
+  lastUserDoc = allDocs[allDocs.length - 1];
+
+  renderProgramUserPage(allDocs, true, hasNext);
+}
+
+function renderProgramUserPage(userDocs, hasPrev = true, hasNext = true) {
+  const prev = document.getElementById('programPrevious');
+  const next = document.getElementById('programNext');
+  const grid = document.getElementById('programUsers');
   
   // handle the controls
   hasPrev ? prev.classList.remove('hidden') : prev.classList.add('hidden');

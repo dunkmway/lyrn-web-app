@@ -329,7 +329,7 @@ export default class Assignment {
       english: `
       <p>You are about to take an english assignment. 
       ${this.time ? 
-        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough time to take the entire test as it will auto submit at the end of the timer. ` :
         `You have an unlimted amount of time to take this assignment. `  
       }
       Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
@@ -340,7 +340,7 @@ export default class Assignment {
       <p>You are about to take a math assignment. 
       You are encouraged to use a calculator and have scratch paper available.
       ${this.time ? 
-        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough time to take the entire test as it will auto submit at the end of the timer. ` :
         `You have an unlimted amount of time to take this assignment. `  
       }
       Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
@@ -350,7 +350,7 @@ export default class Assignment {
       reading: `
       <p>You are about to take a reading assignment. 
       ${this.time ? 
-        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough time to take the entire test as it will auto submit at the end of the timer. ` :
         `You have an unlimted amount of time to take this assignment. `  
       }
       Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.
@@ -361,7 +361,7 @@ export default class Assignment {
       <p>You are about to take a science assignment. 
       You may <b>NOT</b> use a calculator.
       ${this.time ? 
-        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough to take the entire test as it will auto submit at the end of the timer. ` :
+        `It will take you ${this.time / 60000} minutes to complete. Make sure that you have enough time to take the entire test as it will auto submit at the end of the timer. ` :
         `You have an unlimited amount of time to take this assignment. `  
       }
       Make sure that you are in a quiet place where you can concentrate and complete the assignment in one sitting. Tests are best taken on a larger device like a tablet or desktop.

@@ -40,7 +40,11 @@ async function fillInData() {
 
   //use this for the regular fields (special case for semantic ui weirdness)
   document.querySelectorAll('input:not(.search)').forEach(input => {
-    input.value = studentData[input.id];
+    if (input.type == 'checkbox') {
+      input.checked = studentData[input.id] ?? false;
+    } else {
+      input.value = studentData[input.id] ?? '';
+    }
   })
   return;
 }
@@ -217,7 +221,11 @@ function getInputValues() {
 
   inputs.forEach(input => {
     if (input.id) {
-      inputValues[input.id] = input.value
+      if (input.type == 'checkbox') {
+        inputValues[input.id] = input.value == 'on';
+      } else {
+        inputValues[input.id] = input.value;
+      }
     }
   })
 
