@@ -79,13 +79,42 @@ section {
   margin-bottom: 0.5em;
 }
 
-.datagrid-controls {
+.datagrid-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1em;
 }
 
-.datagrid-controls > button.hidden {
+.datagrid-header > * {
+  margin-block: 0;
+}
+
+.datagrid-controls {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.datagrid-controls > .button {
+  cursor: pointer;
+  padding: 1em;
+}
+
+.datagrid-controls > .button > div {
+  border-bottom: 2px solid var(--green-deep);
+  border-right: 2px solid var(--green-deep);
+  height: 10px;
+  width: 10px;
+}
+
+.datagrid-controls > .button.previous > div {
+  transform: rotate(135deg);
+}
+
+.datagrid-controls > .button.next > div {
+  transform: rotate(-45deg);
+}
+
+.datagrid-controls > .button.hidden {
   visibility: hidden;
 }
 
@@ -101,6 +130,10 @@ section {
 
 .datagrid > *.grid-header {
   font-weight: 700;
+}
+
+.datagrid > *.clickable {
+  cursor: pointer;
 }
 
 /* get the second column */

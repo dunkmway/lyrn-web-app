@@ -1,13 +1,14 @@
 import { getCurrentUser, getCurrentUserRole, requestSignOut } from "./_authorization";
 import app from "./_firebase";
-import { collection, getDocs, getFirestore, limit, orderBy, query, startAfter, where } from "firebase/firestore";
+import { collection, getDocs, getFirestore, limit, orderBy, query, startAfter, startAt, where } from "firebase/firestore";
 import Time from "./_Time";
 import Dialog from "./_Dialog";
 
 const PAGE_SIZE = 10;
 const db = getFirestore(app);
 
-let firstUserDoc, lastUserDoc;
+let firstUserDoc_latest, lastUserDoc_latest;
+let firstUserDoc_program, lastUserDoc_program;
 
 document.addEventListener('DOMContentLoaded', initialSetup);
 window.signOut = requestSignOut;
@@ -205,8 +206,8 @@ async function initializeLatestUsersGrid() {
   let allDocs = snapshot.docs;
   const hasNext = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  firstUserDoc_latest = allDocs[0];
+  lastUserDoc_latest = allDocs[allDocs.length - 1];
   
   //render it
   renderLatestUserPage(allDocs, false, hasNext);
@@ -221,17 +222,18 @@ async function latestPrevious() {
   const q = query(
     collection(db, 'Users'),
     orderBy('createdAt'),
-    startAfter(firstUserDoc),
+    startAfter(firstUserDoc_latest),
     limit(PAGE_SIZE + 1)
   )
   const snapshot = await getDocs(q);
 
   // remember the first and last of the page
-  let allDocs = snapshot.docs.toReversed();
+  let allDocs = snapshot.docs;
   const hasPrev = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  allDocs.reverse();
+  firstUserDoc_latest = allDocs[0];
+  lastUserDoc_latest = allDocs[allDocs.length - 1];
 
   renderLatestUserPage(allDocs, hasPrev, true)
 }
@@ -240,7 +242,7 @@ async function latestNext() {
   const q = query(
     collection(db, 'Users'),
     orderBy('createdAt', 'desc'),
-    startAfter(lastUserDoc),
+    startAfter(lastUserDoc_latest),
     limit(PAGE_SIZE + 1)
   )
   const snapshot = await getDocs(q);
@@ -249,8 +251,8 @@ async function latestNext() {
   let allDocs = snapshot.docs;
   const hasNext = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  firstUserDoc_latest = allDocs[0];
+  lastUserDoc_latest = allDocs[allDocs.length - 1];
 
   renderLatestUserPage(allDocs, true, hasNext);
 }
@@ -282,13 +284,18 @@ function renderLatestUserPage(userDocs, hasPrev = true, hasNext = true) {
 
   // add in the rows
   userDocs.forEach(userDoc => {
+    const onClickEvent = () => window.location.href = `/test-taker/${userDoc.id}?mode=marketing`;
     const data = userDoc.data();
     const name = document.createElement('div');
     name.textContent = data.firstName + ' ' + data.lastName;
+    name.addEventListener('click', onClickEvent);
+    name.className = 'clickable';
     grid.appendChild(name);
 
     const created = document.createElement('div');
     created.textContent = new Time(data.createdAt.toDate()).toFormat('{MMMM} {ddd}, {yyyy} at {hh}:{mm} {A}');
+    created.addEventListener('click', onClickEvent);
+    created.className = 'clickable';
     grid.appendChild(created);
   })
 
@@ -302,8 +309,8 @@ async function initializeProgramUsersGrid() {
   let allDocs = snapshot.docs;
   const hasNext = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  firstUserDoc_program = allDocs[0];
+  lastUserDoc_program = allDocs[allDocs.length - 1];
   
   //render it
   renderProgramUserPage(allDocs, false, hasNext);
@@ -324,17 +331,18 @@ async function programPrevious() {
     collection(db, 'Users'),
     where('isProgramStudent', '==', true),
     orderBy('createdAt'),
-    startAfter(firstUserDoc),
+    startAfter(firstUserDoc_program),
     limit(PAGE_SIZE + 1)
   )
   const snapshot = await getDocs(q);
 
   // remember the first and last of the page
-  let allDocs = snapshot.docs.toReversed();
+  let allDocs = snapshot.docs;
   const hasPrev = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  allDocs.reverse();
+  firstUserDoc_program = allDocs[0];
+  lastUserDoc_program = allDocs[allDocs.length - 1];
 
   renderProgramUserPage(allDocs, hasPrev, true)
 }
@@ -344,7 +352,7 @@ async function programNext() {
     collection(db, 'Users'),
     where('isProgramStudent', '==', true),
     orderBy('createdAt', 'desc'),
-    startAfter(lastUserDoc),
+    startAfter(lastUserDoc_program),
     limit(PAGE_SIZE + 1)
   )
   const snapshot = await getDocs(q);
@@ -353,8 +361,8 @@ async function programNext() {
   let allDocs = snapshot.docs;
   const hasNext = allDocs.length == PAGE_SIZE + 1;
   allDocs = allDocs.slice(0, PAGE_SIZE);
-  firstUserDoc = allDocs[0];
-  lastUserDoc = allDocs[allDocs.length - 1];
+  firstUserDoc_program = allDocs[0];
+  lastUserDoc_program = allDocs[allDocs.length - 1];
 
   renderProgramUserPage(allDocs, true, hasNext);
 }
@@ -386,13 +394,18 @@ function renderProgramUserPage(userDocs, hasPrev = true, hasNext = true) {
 
   // add in the rows
   userDocs.forEach(userDoc => {
+    const onClickEvent = () => window.location.href = `/student-overview/${userDoc.id}`;
     const data = userDoc.data();
     const name = document.createElement('div');
     name.textContent = data.firstName + ' ' + data.lastName;
+    name.addEventListener('click', onClickEvent);
+    name.className = 'clickable';
     grid.appendChild(name);
 
     const created = document.createElement('div');
     created.textContent = new Time(data.createdAt.toDate()).toFormat('{MMMM} {ddd}, {yyyy} at {hh}:{mm} {A}');
+    created.addEventListener('click', onClickEvent);
+    created.className = 'clickable';
     grid.appendChild(created);
   })
 

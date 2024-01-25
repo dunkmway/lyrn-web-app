@@ -52,6 +52,7 @@ async function fillInData() {
 async function submit() {
   toggleWorking();
   const values = getValues();
+  values.createdAt = serverTimestamp();
   if (!validate(values) || !confirm('Are you sure you are ready to submit this student?')) {
     toggleWorking();
     return;
@@ -102,6 +103,7 @@ async function submit() {
 async function update() {
   toggleWorking();
   const values = getValues();
+  values.updatedAt = serverTimestamp();
   if (!validate(values) || !confirm('Are you sure you are ready to update this student?')) {
     toggleWorking();
     return;
@@ -165,7 +167,6 @@ function getValues() {
   //we'll have to handle selects differently becuase of sematic ui
   const values = getInputValues();
   values.role = 'student';
-  values.createdAt = serverTimestamp();
   return values;
 }
 
