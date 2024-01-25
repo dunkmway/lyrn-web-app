@@ -82,10 +82,10 @@ async function initializeOverview() {
 
 function getCompositeScore(scores) {
   // return the average of the element in the array or null if any value is null
-  if (scores.some(score => score === null)) return null;
+  if (scores.some(score => score == null)) return null;
   
   const num = scores.length;
-  if (num = 0) return null;
+  if (num == 0) return null;
 
   const sum = scores.reduce((prev, curr) => prev + curr, 0)
 
