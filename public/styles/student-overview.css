@@ -63,6 +63,10 @@ a {
   color: var(--green-deep);
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .dashboard {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -160,4 +164,69 @@ main .content {
   margin: 0;
   padding-block: 1.5em;
   border-bottom: 1px solid var(--gray-light);
+}
+
+.topic-score {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gray-light);
+  padding-block: 0.5em;
+}
+
+.topic-score.highlight {
+  border-bottom-width: 3px;
+}
+
+.topic-score p {
+  margin: 0;
+}
+
+.topic-score > div {
+  font-variant-numeric: tabular-nums;
+  display: flex;
+}
+
+.topic-score > div > p {
+  border-right: 1px solid var(--gray-light);
+  padding-inline: 0.5em;
+  min-width: 60px;
+  text-align: center;
+}
+
+.topic-score > div > p:last-child {
+  border-right-width: 0px
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 240px;
+  background-color: white;
+  border: 1px solid var(--gray-light);
+  border-radius: 0.5em;
+  text-align: center;
+  padding: 0.5em;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip .tooltiptext.up {
+  bottom: 0px;
+  right: 105%;
+}
+.tooltip .tooltiptext.down {
+  top: 0px;
+  right: 105%;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
