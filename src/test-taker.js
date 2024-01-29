@@ -556,7 +556,17 @@ function showAssignments() {
       heading.textContent = `Composite Score: ${compositeScore}`
 
       // don't show marketing test for tutoring mode
-      testWrapper.style.display = isMarketing && LANDING_MODE != 'marketing' ? 'none' : 'block' 
+      switch (LANDING_MODE) {
+        case 'marketing':
+          testWrapper.style.display = isMarketing ? 'block' : 'none'; 
+          break;
+        case 'tutoring':
+          testWrapper.style.display = isMarketing ? 'none' : 'block';
+          break;
+        default:
+          testWrapper.style.display = isMarketing ? 'none' : 'block';
+
+      }
       document.getElementById('fullAssignments').appendChild(testWrapper)
     }
   })
