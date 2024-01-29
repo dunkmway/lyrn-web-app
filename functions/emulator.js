@@ -171,7 +171,8 @@ async function authDataParser() {
         phoneNumber: userData.phoneNumber ?? '',
         wage: userData.wage ?? 0,
         qualifications: userData.qualifications ?? [],
-        bio: userData.bio ?? ''
+        bio: userData.bio ?? '',
+        createdAt: firebase.firestore.ServerTimestamp()
       })
     }
     catch (error) {
