@@ -172,7 +172,7 @@ async function authDataParser() {
         wage: userData.wage ?? 0,
         qualifications: userData.qualifications ?? [],
         bio: userData.bio ?? '',
-        createdAt: firebase.firestore.ServerTimestamp()
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
       })
     }
     catch (error) {
