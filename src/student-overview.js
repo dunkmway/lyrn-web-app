@@ -117,7 +117,7 @@ async function getFullHwRows(assignmentDocs) {
   const assignments = assignmentDocs
   .map(doc => doc.data())
   .filter(assignment => assignment.scaledScoreSection != null)
-  .sort((a,b) => a.open ? a.open.toMillis() : 0 - b.open ? b.open.toMillis() : 0)
+  .sort((a,b) => b.open ? b.open.toMillis() : 0 - a.open ? a.open.toMillis() : 0)
 
   const testIDs = await Promise.all(assignments.map(async assignment => {
     // get the section document of this assignent
