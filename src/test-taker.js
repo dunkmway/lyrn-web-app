@@ -67,33 +67,33 @@ async function showDebugInfo() {
   const student = STUDENT_UID;
   const user = current_user;
   const assignment = getCurrentAssignment();
-  const question = assignment.currentQuestion;
-  const passage = question.passage;
-  const section = question.section;
-  const test = question.test;
+  const question = assignment?.currentQuestion;
+  const passage = question?.passage;
+  const section = question?.section;
+  const test = question?.test;
 
   const [testDoc, sectionDoc] = await Promise.all([
     getDoc(doc(db, 'ACT-Test-Data', test)),
     getDoc(doc(db, 'ACT-Section-Data', section)),
   ])
 
-  const testCode = testDoc.data().code;
-  const sectionCode = sectionDoc.data().code;
+  const testCode = testDoc?.data()?.code;
+  const sectionCode = sectionDoc?.data()?.code;
 
 
   const data = {
     student: student,
-    user: user.uid,
-    assignment: assignment.id,
-    question: question.id,
-    passage: passage.id,
+    user: user?.uid,
+    assignment: assignment?.id,
+    question: question?.id,
+    passage: passage?.id,
     section: section,
     test: test,
 
     testCode,
     sectionCode,
-    passageCode: passage.code,
-    questionCode: question.code,
+    passageCode: passage?.code,
+    questionCode: question?.code,
 
   }
 
