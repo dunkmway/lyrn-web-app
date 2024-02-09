@@ -411,13 +411,27 @@ export default class Assignment {
           dangerDelete.style.color = 'red';
           dangerDelete.style.margin = '0';
           dangerDelete.textContent = 'DELETE';
+
+          const warningRestart = document.createElement('p');
+          warningRestart.style.color = 'orange';
+          warningRestart.style.margin = '0';
+          warningRestart.textContent = 'Restart';
           
           const tutorConfirmation = await Dialog.confirm(
-            "This assignment was omitted. Please make note of this missed assignment in the student's notes before recycling these questions. Would you like to delete this assignment now?",
-            { choices: ['Cancel', dangerDelete] }
+            "This assignment was omitted. Please make note of this missed assignment in the student's notes before continuing. What would you like to do with this assignment?",
+            {
+              choices: ['Cancel', dangerDelete, warningRestart],
+              values: ['cancel', 'delete', 'restart']
+            }
           );
-          if (tutorConfirmation) {
+          if (tutorConfirmation === 'delete') {
             await deleteDoc(this.ref);
+          } else if (tutorConfirmation === 'restart') {
+            const now = new Date();
+            await updateDoc(this.ref, {
+              close: new Date(now.setMinutes(now.getMinutes() + 5)),
+              status: 'new'
+            })
           }
         }
         break;
