@@ -117,7 +117,6 @@ async function getFullHwRows(assignmentDocs) {
   const assignments = assignmentDocs
   .map(doc => doc.data())
   .filter(assignment => assignment.scaledScoreSection != null)
-  .sort((a,b) => b.open ? b.open.toMillis() : 0 - a.open ? a.open.toMillis() : 0)
 
   const testIDs = await Promise.all(assignments.map(async assignment => {
     // get the section document of this assignent
@@ -135,17 +134,26 @@ async function getFullHwRows(assignmentDocs) {
   }
 
   // convert the object to an array of just its values
-  const tests = Object.values(testsObject)
+  return Object.values(testsObject)
   .map(test => {
     // fill in the composite score
-    test[0] = { scaledScore: getCompositeScore(test.slice(1)) };
+    test[0] = { scaledScore: getCompositeScore(test.slice(1).map(hw => hw.scaledScore)) };
     return test;
   })
+  .sort((a,b) => getTestOpenDate(a) - getTestOpenDate(b));
+}
 
-  return tests;
+function getTestOpenDate(test) {
+  return test.reduce((prev, curr) => {
+    if (curr.open && curr.open.toMillis() < prev) {
+      return curr.open.toMillis();
+    }
+    return prev;
+  }, Infinity)
 }
 
 function renderHwRows(rows) {
+  console.log(rows)
   const wrapper = document.getElementById('hw-wrapper');
 
   rows.forEach((row, rowIndex) => {
@@ -197,165 +205,167 @@ function showAssignmentDetails(assignment) {
     science: 40
   }
   const topicInfo = assignment.topicGrades;
-    for (const topic in topicInfo) {
-      if (topic == 'null') {
-        delete topicInfo[topic];
-        continue;
-      };
-      const current = topicInfo[topic];
-      const section = assignment.sectionCode;
-      const sectionTotal = curriculumData_Cache[section].total;
-      const topicData = curriculumData_Cache[section][topic];
+  if (!topicInfo) return;
 
-      // will use the average frequency across all tests or will just use frequency from this test.
-      const frequency = USE_AVERAGE_FREQUENCEY ? topicData.numQuestions / sectionTotal : current.total / sectionQuestionCounts[section];
-      const totalAnswered = current.correct + current.wrong;
-      const grade = totalAnswered == 0 ? null : current.correct / totalAnswered;
-      const unansweredGrade = current.correct / current.total;
+  for (const topic in topicInfo) {
+    if (topic == 'null') {
+      delete topicInfo[topic];
+      continue;
+    };
+    const current = topicInfo[topic];
+    const section = assignment.sectionCode;
+    const sectionTotal = curriculumData_Cache[section].total;
+    const topicData = curriculumData_Cache[section][topic];
 
-      current.possible = frequency * 36;
-      current.actual = frequency * unansweredGrade * 36;
-      current.score = grade != null ? frequency * (1 - grade) * 36 : null;
-      current.unansweredScore = frequency * (1 - unansweredGrade) * 36;
-      current.name = topicData.code;
-      current.numQuestions = topicData.numQuestions;
-    }
+    // will use the average frequency across all tests or will just use frequency from this test.
+    const frequency = USE_AVERAGE_FREQUENCEY ? topicData.numQuestions / sectionTotal : current.total / sectionQuestionCounts[section];
+    const totalAnswered = current.correct + current.wrong;
+    const grade = totalAnswered == 0 ? null : current.correct / totalAnswered;
+    const unansweredGrade = current.correct / current.total;
 
-    // convert the object to an array and then put into html
-    const message = document.createElement('div');
-    message.innerHTML = 
-    `
-    <div class="topic-score highlight">
-      <p>Topic</p>
-      <div>
-        <p class="tooltip">
-          Poss
-          <span class="tooltiptext down">The possible points if all questions of this topic are answered correctly.</span>
-        </p>
-        <p class="tooltip">
-          Actual
-          <span class="tooltiptext down">The actual number of points all questions of this topic contribute.</span>
-        </p>
-        <p class="tooltip">
-          Ans
-          <span class="tooltiptext down">How many points the scaled score will increase if all questions of this topic that were answered were answered correctly.</span>
-        </p>
-        <p class="tooltip">
-          Miss
-          <span class="tooltiptext down">How many points the scaled score will increase if all questions of this topic were answered correctly.</span>
-        </p>
-      </div>
+    current.possible = frequency * 36;
+    current.actual = frequency * unansweredGrade * 36;
+    current.score = grade != null ? frequency * (1 - grade) * 36 : null;
+    current.unansweredScore = frequency * (1 - unansweredGrade) * 36;
+    current.name = topicData.code;
+    current.numQuestions = topicData.numQuestions;
+  }
+
+  // convert the object to an array and then put into html
+  const message = document.createElement('div');
+  message.innerHTML = 
+  `
+  <div class="topic-score highlight">
+    <p>Topic</p>
+    <div>
+      <p class="tooltip">
+        Poss
+        <span class="tooltiptext down">The possible points if all questions of this topic are answered correctly.</span>
+      </p>
+      <p class="tooltip">
+        Actual
+        <span class="tooltiptext down">The actual number of points all questions of this topic contribute.</span>
+      </p>
+      <p class="tooltip">
+        Ans
+        <span class="tooltiptext down">How many points the scaled score will increase if all questions of this topic that were answered were answered correctly.</span>
+      </p>
+      <p class="tooltip">
+        Miss
+        <span class="tooltiptext down">How many points the scaled score will increase if all questions of this topic were answered correctly.</span>
+      </p>
     </div>
+  </div>
+  `
+  const totals = {
+    possible: 0,
+    actual: 0,
+    score: 0,
+    unansweredScore: 0
+  }
+  Object.values(topicInfo)
+  .sort((a,b) => {
+    const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
+    if (scoreDiff != 0) return scoreDiff;
+
+    const frequencyDiff = b.numQuestions - a.numQuestions;
+    return frequencyDiff;
+  })
+  .forEach(topic => {
+    totals.possible += topic.possible;
+    totals.actual += topic.actual;
+    totals.score += topic.score ?? 0;
+    totals.unansweredScore += topic.unansweredScore;
+    totals.diff += topic.unansweredScore - topic.score;
+
+    const line = document.createElement('div');
+    const name = document.createElement('p');
+    const score = document.createElement('div');
+
+    line.className = 'topic-score';
+
+    name.textContent = topic.name;
+    score.innerHTML = 
     `
-    const totals = {
-      possible: 0,
-      actual: 0,
-      score: 0,
-      unansweredScore: 0
-    }
-    Object.values(topicInfo)
-    .sort((a,b) => {
-      const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
-      if (scoreDiff != 0) return scoreDiff;
-
-      const frequencyDiff = b.numQuestions - a.numQuestions;
-      return frequencyDiff;
-    })
-    .forEach(topic => {
-      totals.possible += topic.possible;
-      totals.actual += topic.actual;
-      totals.score += topic.score ?? 0;
-      totals.unansweredScore += topic.unansweredScore;
-      totals.diff += topic.unansweredScore - topic.score;
-
-      const line = document.createElement('div');
-      const name = document.createElement('p');
-      const score = document.createElement('div');
-
-      line.className = 'topic-score';
-
-      name.textContent = topic.name;
-      score.innerHTML = 
-      `
-      <p>${topic.possible.toFixed(2)}</p>
-      <p>${topic.actual.toFixed(2)}</p>
-      <p>${topic.score != null ? topic.score.toFixed(2) : ''}</p>
-      <p>${topic.unansweredScore.toFixed(2)}</p>
-      `
-
-      line.appendChild(name);
-      line.appendChild(score);
-      message.appendChild(line);
-    })
-    message.innerHTML +=
+    <p>${topic.possible.toFixed(2)}</p>
+    <p>${topic.actual.toFixed(2)}</p>
+    <p>${topic.score != null ? topic.score.toFixed(2) : ''}</p>
+    <p>${topic.unansweredScore.toFixed(2)}</p>
     `
-    <div class="topic-score highlight">
+
+    line.appendChild(name);
+    line.appendChild(score);
+    message.appendChild(line);
+  })
+  message.innerHTML +=
+  `
+  <div class="topic-score highlight">
+    <p></p>
+    <div>
       <p></p>
-      <div>
-        <p></p>
-        <p></p>
-        <p></p>
-        <p></p>
-      </div>
+      <p></p>
+      <p></p>
+      <p></p>
     </div>
-    <div class="topic-score highlight">
-      <p>Total</p>
-      <div>
-        <p class="tooltip">
-          ${totals.possible.toFixed(2)}
-          <span class="tooltiptext up">The total scaled score possible (should be 36 unless there is a question with no topic).</span>
-        </p>
-        <p class="tooltip">
-          ${totals.actual.toFixed(2)}
-          <span class="tooltiptext up">The calculated scaled score (just a linear approximation so should be close to actual).</span>
-        </p>
-        <p class="tooltip">
-          ${totals.score.toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score increase if all answered questions were corrected.</span>
-        </p>
-        <p class="tooltip">
-          ${totals.unansweredScore.toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score increase if all questions were corrected.</span>
-        </p>
-      </div>
+  </div>
+  <div class="topic-score highlight">
+    <p>Total</p>
+    <div>
+      <p class="tooltip">
+        ${totals.possible.toFixed(2)}
+        <span class="tooltiptext up">The total scaled score possible (should be 36 unless there is a question with no topic).</span>
+      </p>
+      <p class="tooltip">
+        ${totals.actual.toFixed(2)}
+        <span class="tooltiptext up">The calculated scaled score (just a linear approximation so should be close to actual).</span>
+      </p>
+      <p class="tooltip">
+        ${totals.score.toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score increase if all answered questions were corrected.</span>
+      </p>
+      <p class="tooltip">
+        ${totals.unansweredScore.toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score increase if all questions were corrected.</span>
+      </p>
     </div>
-    <div class="topic-score highlight">
-      <p>Adjusted</p>
-      <div>
-        <p></p>
-        <p></p>
-        <p class="tooltip">
-          ${(totals.score + totals.actual).toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score if all answered questions were corrected.</span>
-        </p>
-        <p class="tooltip">
-          ${(totals.unansweredScore + totals.actual).toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score if all questions were corrected.</span>
-        </p>
-      </div>
+  </div>
+  <div class="topic-score highlight">
+    <p>Adjusted</p>
+    <div>
+      <p></p>
+      <p></p>
+      <p class="tooltip">
+        ${(totals.score + totals.actual).toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score if all answered questions were corrected.</span>
+      </p>
+      <p class="tooltip">
+        ${(totals.unansweredScore + totals.actual).toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score if all questions were corrected.</span>
+      </p>
     </div>
-    <div class="topic-score highlight">
-      <p>Actual</p>
-      <div>
-        <p class="tooltip">
-          36.00
-          <span class="tooltiptext up">The actual possible scaled score (is 36).</span>
-        </p>
-        <p class="tooltip">
-          ${assignment.scaledScore.toFixed(2)}
-          <span class="tooltiptext up">The actual scaled score.</span>
-        </p>
-        <p class="tooltip">
-          ${(totals.score + assignment.scaledScore).toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score using the actual scaled score if all answered questions were corrected</span>
-        </p>
-        <p class="tooltip">
-          ${(totals.unansweredScore + assignment.scaledScore).toFixed(2)}
-          <span class="tooltiptext up">The predicted scaled score using the actual scaled score if all questions were corrected (should be 36).</span>
-        </p>
-      </div>
+  </div>
+  <div class="topic-score highlight">
+    <p>Actual</p>
+    <div>
+      <p class="tooltip">
+        36.00
+        <span class="tooltiptext up">The actual possible scaled score (is 36).</span>
+      </p>
+      <p class="tooltip">
+        ${assignment.scaledScore.toFixed(2)}
+        <span class="tooltiptext up">The actual scaled score.</span>
+      </p>
+      <p class="tooltip">
+        ${(totals.score + assignment.scaledScore).toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score using the actual scaled score if all answered questions were corrected</span>
+      </p>
+      <p class="tooltip">
+        ${(totals.unansweredScore + assignment.scaledScore).toFixed(2)}
+        <span class="tooltiptext up">The predicted scaled score using the actual scaled score if all questions were corrected (should be 36).</span>
+      </p>
     </div>
-    `
+  </div>
+  `
 
   Dialog.alert(message, { width: '600px' });
 }
