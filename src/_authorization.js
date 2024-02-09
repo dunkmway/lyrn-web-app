@@ -125,6 +125,7 @@ function checkAuthorization() {
     try {
         onAuthStateChanged(auth, async (user) => {
             let currentPath = location.pathname;
+            let currentQuery = location.search;
             if (user) {
                 // make sure the authExpiration hasn't passed
                 if (localStorage.getItem('authExpiration') && parseInt(localStorage.getItem('authExpiration')) < new Date().getTime()) {
@@ -165,7 +166,7 @@ function checkAuthorization() {
                     // access denied
                     // since they aren't signed in, we want to give them the chance to redirect to where they were going to go if they sign in
                     // attach the currentPath to the sign-in page to allow for redirect
-                    const redirect = encodeURI(currentPath);
+                    const redirect = encodeURI(currentPath + currentQuery);
                     window.location.replace(location.origin + "/sign-in?redirect=" + redirect);
                     return;
                 }
