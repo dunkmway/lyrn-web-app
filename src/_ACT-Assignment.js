@@ -425,13 +425,23 @@ export default class Assignment {
             }
           );
           if (tutorConfirmation === 'delete') {
-            await deleteDoc(this.ref);
+            const deleteConfirmation = await Dialog.confirm(
+              "Are you sure you want to delete this assignment? If so, the questions from this assignment can be reassigned."
+            )
+            if (deleteConfirmation) {
+              await deleteDoc(this.ref);
+            }
           } else if (tutorConfirmation === 'restart') {
-            const now = new Date();
-            await updateDoc(this.ref, {
-              close: new Date(now.setMinutes(now.getMinutes() + 5)),
-              status: 'new'
-            })
+            const restartConfirmation = await Dialog.confirm(
+              "Are you sure you want to restart this assignment? If so, the assignment will be reopened and close in 5 minutes from now."
+            )
+            if (restartConfirmation) {
+              const now = new Date();
+              await updateDoc(this.ref, {
+                close: new Date(now.setMinutes(now.getMinutes() + 5)),
+                status: 'new'
+              })
+            }
           }
         }
         break;
