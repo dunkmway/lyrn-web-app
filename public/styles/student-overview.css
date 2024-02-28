@@ -62,6 +62,9 @@ a {
 .science {
   color: var(--green-deep);
 }
+.omitted {
+  color: var(--gray-light);
+}
 
 .clickable {
   cursor: pointer;

@@ -87,8 +87,8 @@ async function initializeOverview() {
   const assignmentDocs = await getAllHwAssignments(CURRENT_STUDENT_UID);
  
   const tests = await getFullHwRows(assignmentDocs)
-  await getAllCurriculumData();
   renderHwRows(tests)
+  await getAllCurriculumData();
 }
 
 function getCompositeScore(scores) {
@@ -134,13 +134,29 @@ async function getFullHwRows(assignmentDocs) {
   }
 
   // convert the object to an array of just its values
+  const lastScores = {
+    english: null,
+    math: null,
+    reading: null,
+    science: null,
+  }
   return Object.values(testsObject)
+  // sort by date first
+  .sort((a,b) => getTestOpenDate(a) - getTestOpenDate(b))
+  // calculate the composite score, if one score is ommitted pass the previous one to calculate composite assuming it didn't change
   .map(test => {
     // fill in the composite score
-    test[0] = { scaledScore: getCompositeScore(test.slice(1).map(hw => hw.scaledScore)) };
+    const allSections = test.slice(1);
+    const allScores = allSections.map(section => {
+      const scaledScore = section.scaledScore ?? lastScores[section.sectionCode];
+      lastScores[section.sectionCode] = scaledScore;
+
+      return scaledScore
+    })
+    
+    test[0] = { scaledScore: getCompositeScore(allScores) };
     return test;
   })
-  .sort((a,b) => getTestOpenDate(a) - getTestOpenDate(b));
 }
 
 function getTestOpenDate(test) {
@@ -153,7 +169,6 @@ function getTestOpenDate(test) {
 }
 
 function renderHwRows(rows) {
-  console.log(rows)
   const wrapper = document.getElementById('hw-wrapper');
 
   rows.forEach((row, rowIndex) => {
@@ -164,11 +179,15 @@ function renderHwRows(rows) {
 
     row.forEach((column, colIndex) => {
       const cell = document.createElement('h4');
-      cell.className = `cell ${HW_GRID_COLUMNS[colIndex]}`;
+      cell.classList.add('cell');
       if (column.scaledScore) {
+        cell.classList.add(HW_GRID_COLUMNS[colIndex]);
         cell.textContent = column.scaledScore;
         cell.addEventListener('click', () => showAssignmentDetails(column));
         cell.classList.add('clickable');
+      } else if (column.status == 'omitted') {
+        cell.classList.add('omitted');
+        cell.textContent = 'omitted';
       }
       wrapper.appendChild(cell);
     })
