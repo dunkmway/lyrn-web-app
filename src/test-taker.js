@@ -479,7 +479,6 @@ function getAssignedQuestions() {
 }
 
 function showAssignments() {
-  console.trace()
   // filter out the assignment array into started, new, and previous lists
   let fullAssignments = [];
   let startedAssignments = [];
@@ -534,7 +533,7 @@ function showAssignments() {
   .then(tests => {
     // sort the tests by open
     const testArray = Object.values(tests)
-    .sort((a,b) => getTestOpenDate(a) - getTestOpenDate(b))
+    .sort((a,b) => getTestOpenDate(b) - getTestOpenDate(a))
 
     // create a wrapper for each test and show the composite score in this wrapper
     removeAllChildNodes(document.getElementById('fullAssignments'));
