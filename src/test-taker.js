@@ -479,6 +479,7 @@ function getAssignedQuestions() {
 }
 
 function showAssignments() {
+  console.trace()
   // filter out the assignment array into started, new, and previous lists
   let fullAssignments = [];
   let startedAssignments = [];
@@ -531,9 +532,13 @@ function showAssignments() {
   */
   getFullTestObject(fullAssignments)
   .then(tests => {
+    // sort the tests by open
+    const testArray = Object.values(tests)
+    .sort((a,b) => getTestOpenDate(a) - getTestOpenDate(b))
+
     // create a wrapper for each test and show the composite score in this wrapper
     removeAllChildNodes(document.getElementById('fullAssignments'));
-    for (const test in tests) {
+    for (const test of testArray) {
       const testWrapper = document.createElement('div');
       testWrapper.className = 'full-test-wrapper';
 
@@ -546,7 +551,7 @@ function showAssignments() {
 
       let scaledScores = [];
       let isMarketing = false;
-      for (const assignment of tests[test]) {
+      for (const assignment of test) {
         isMarketing = isMarketing || assignment.type == 'marketing';
         assignment.show(content)
         scaledScores.push(assignment.scaledScore ?? null)
@@ -570,6 +575,15 @@ function showAssignments() {
       document.getElementById('fullAssignments').appendChild(testWrapper)
     }
   })
+}
+
+function getTestOpenDate(test) {
+  return test.reduce((prev, curr) => {
+    if (curr.open && curr.open.toMillis() < prev) {
+      return curr.open.toMillis();
+    }
+    return prev;
+  }, Infinity)
 }
 
 function hideAssignments() {
