@@ -45,7 +45,7 @@ public_footer_template.innerHTML = `
         </div>
         </div>
 
-        <p class="copyright">Copyright © 2023 Advanced Education Solutions LLC. All rights reserved.</p>
+        <p class="copyright">Copyright © ${new Date().getFullYear()} Advanced Education Solutions LLC. All rights reserved.</p>
     </footer>
 `
 
